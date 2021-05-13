@@ -16,7 +16,6 @@
 
 import ballerina/lang.'error as errorLib;
 import ballerina/lang.'value as valueLib;
-import ballerina/jballerina.java;
 import ballerina/lang.test as test;
 
 type Detail record {|
@@ -102,38 +101,18 @@ public function testErrorStackTrace() returns [int, string] {
         return [e.stackTrace().callStack.length(), ar.toString()];
 }
 
-class A {
-    any|error a;
-    public isolated function init(any|error a) {
-        self.a = a;
-    }
-    public isolated function toString() returns string {
-        any|error a = self.a;
-        if a is error {
-            return "error!";
-        } else {
-            return a.toString();
-        }
-    }
-}
-
 public function testErrorCallStack() {
     error e = error("error!");
-
     error:CallStack stackTrace = e.stackTrace();
-    handle h = getErrorCallStack(stackTrace);
-    test:assertValueEqual("[object lang.error:CallStack]", h.toString());
-}
 
-function getErrorCallStack(any|error... values) returns handle {
-    A[] a = [];
-    foreach int i in 0 ..< (values.length()) {
-        a[i] = new A(values[i]);
+    any|error res = stackTrace;
+    test:assertFalse(res is error);
+
+    string s = "";
+    if (res is error) {
+        s = "error!";
+    } else {
+        s = res.toString();
     }
-    return objectToJString(a);
+    test:assertValueEqual("object lang.error:CallStack", s);
 }
-
-isolated function objectToJString(any|error a) returns handle = @java:Method {
-    name: "objectToJString",
-    'class: "org.ballerinalang.langlib.test.nativeimpl.tests.ObjectToString"
-} external;

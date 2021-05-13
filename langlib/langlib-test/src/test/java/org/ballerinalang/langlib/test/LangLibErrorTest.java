@@ -79,15 +79,15 @@ public class LangLibErrorTest {
         assertEquals(returns[0].getType().getTag(), TypeTags.OBJECT_TYPE_TAG);
         BRefType<?>[] callStacks = ((BValueArray) ((BMap) returns[0]).get("callStack")).getValues();
         assertEquals(callStacks[0].stringValue(), "{callableName:\"getError\", moduleName:\"errorlib_test\", " +
-                "fileName:\"errorlib_test.bal\", lineNumber:46}");
+                "fileName:\"errorlib_test.bal\", lineNumber:45}");
         assertEquals(callStacks[1].stringValue(), "{callableName:\"stack2\", moduleName:\"errorlib_test\", " +
-                "fileName:\"errorlib_test.bal\", lineNumber:89}");
+                "fileName:\"errorlib_test.bal\", lineNumber:88}");
         assertEquals(callStacks[2].stringValue(), "{callableName:\"stack1\", moduleName:\"errorlib_test\", " +
-                "fileName:\"errorlib_test.bal\", lineNumber:85}");
+                "fileName:\"errorlib_test.bal\", lineNumber:84}");
         assertEquals(callStacks[3].stringValue(), "{callableName:\"stack0\", moduleName:\"errorlib_test\", " +
-                "fileName:\"errorlib_test.bal\", lineNumber:81}");
+                "fileName:\"errorlib_test.bal\", lineNumber:80}");
         assertEquals(callStacks[4].stringValue(), "{callableName:\"getErrorStackTrace\", " +
-                "moduleName:\"errorlib_test\", fileName:\"errorlib_test.bal\", lineNumber:93}");
+                "moduleName:\"errorlib_test\", fileName:\"errorlib_test.bal\", lineNumber:92}");
     }
 
     @Test
