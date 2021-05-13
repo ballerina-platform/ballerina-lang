@@ -197,6 +197,7 @@ public class TypeDefBuilderHelper {
         typeDefinition.type = type;
         typeDefinition.symbol = symbol;
         typeDefinition.name = createIdentifier(symbol.pos, symbol.name.value);
+        typeDefinition.pos = typeNode.getPosition();
         env.enclPkg.addTypeDefinition(typeDefinition);
         return typeDefinition;
     }

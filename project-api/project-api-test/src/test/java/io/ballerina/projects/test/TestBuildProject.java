@@ -1264,6 +1264,38 @@ public class TestBuildProject {
                 .contains("unknown type 'PersonalDetails'"));
     }
 
+    /**
+     * Test DocumentId of a document which it's module name contains package name.
+     * Package name: winery
+     * Module name: winery1
+     */
+    @Test
+    public void testDocumentIdWhichModuleContainsPackageName() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projectForDocumentIdTest");
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Load current package
+        Package currentPackage = project.currentPackage();
+
+        // 3) Compile the package
+        PackageCompilation compilation = currentPackage.getCompilation();
+        Assert.assertFalse(compilation.diagnosticResult().hasErrors());
+
+        // Inputs from langserver
+        Path filePath = RESOURCE_DIRECTORY.resolve("projectForDocumentIdTest").resolve("modules").resolve("winery1")
+                .resolve("winery1.bal").toAbsolutePath();
+
+        // Load the project from document filepath
+        Project buildProject = ProjectLoader.loadProject(filePath);
+        buildProject.documentId(filePath); // get the document ID
+    }
+
     @AfterClass (alwaysRun = true)
     public void reset() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");

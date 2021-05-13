@@ -52,7 +52,7 @@ public class ModifierTest {
         Path resourceDirectory = basePath.resolve("Dependencies.toml");
         Toml toml = Toml.read(resourceDirectory);
 
-        DocumentNode documentNode = toml.rootNode().externalRootNode();
+        DocumentNode documentNode = (DocumentNode) toml.rootNode().externalTreeNode();
         NodeList<DocumentMemberDeclarationNode> members = documentNode.members();
         members = members.add(createDependencyEntry());
         documentNode = documentNode.modify().withMembers(members).apply();
@@ -83,8 +83,9 @@ public class ModifierTest {
         SeparatedNodeList<ValueNode> identifier = NodeFactory.createSeparatedNodeList(
                 NodeFactory.createIdentifierLiteralNode(NodeFactory.createIdentifierToken(tableName)));
 
-        return NodeFactory.createTableArrayNode(firstOpenBracketToken, openBracketToken, identifier, closeBracketToken,
-                closeBracketToken, NodeFactory.createNodeList(keyValueNodes));
+        return NodeFactory.createTableArrayNode(firstOpenBracketToken, openBracketToken,
+                NodeFactory.createKeyNode(identifier), closeBracketToken, closeBracketToken,
+                NodeFactory.createNodeList(keyValueNodes));
     }
 
     private KeyValueNode createKeyValuePairNode(String key, String value) {
@@ -94,8 +95,8 @@ public class ModifierTest {
                         NodeFactory.createEmptyMinutiaeList())));
 
         return NodeFactory
-                .createKeyValueNode(keyNode, NodeFactory.createToken(SyntaxKind.EQUAL_TOKEN), createStringNode(
-                        value));
+                .createKeyValueNode(NodeFactory.createKeyNode(keyNode), NodeFactory.createToken(SyntaxKind.EQUAL_TOKEN),
+                        createStringNode(value));
     }
 
     private StringLiteralNode createStringNode(String text) {
