@@ -15,6 +15,7 @@
 // under the License.
 
 import object_mocking.TestHttpClient;
+import ballerina/jballerina.java;
 
 TestHttpClient:HttpClient clientEndpoint = new ("http://realurl.com");
 
@@ -35,4 +36,20 @@ function doGetRepeat() returns string {
 
 function getClientUrl() returns string {
     return clientEndpoint.url;
+}
+
+public class PersonObj {
+    string fname;
+    string lname;
+
+    public function init(string fname, string lname) {
+        self.fname = fname;
+        self.lname = lname;
+    }
+
+    function name() returns string => self.fname + " " + self.lname;
+
+    public function getObjectValue(typedesc<int|float|decimal|string|boolean> td) returns td = @java:Method {
+        'class: "org.ballerinalang.testerina.utils.VariableReturnType"
+    } external;
 }
