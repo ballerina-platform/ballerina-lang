@@ -448,17 +448,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getIntValue()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "sortText": "A",
-      "insertText": "getIntValue()",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -470,11 +464,18 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
+      "label": "getIntValue()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "sortText": "A",
+      "filterText": "getIntValue",
+      "insertText": "getIntValue()",
       "insertTextFormat": "Snippet"
     },
     {

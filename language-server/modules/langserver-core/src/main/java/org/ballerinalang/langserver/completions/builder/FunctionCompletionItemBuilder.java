@@ -66,26 +66,6 @@ public final class FunctionCompletionItemBuilder {
     /**
      * Creates and returns a completion item.
      *
-     * @param funcSymbol BSymbol or null
-     * @param label      label
-     * @param insertText insert text
-     * @param context    {@link BallerinaCompletionContext}
-     * @return {@link CompletionItem}
-     */
-    public static CompletionItem build(FunctionSymbol funcSymbol,
-                                       String label,
-                                       String insertText,
-                                       BallerinaCompletionContext context) {
-        CompletionItem item = new CompletionItem();
-        item.setLabel(label);
-        item.setInsertText(insertText);
-        setMeta(item, funcSymbol, context);
-        return item;
-    }
-
-    /**
-     * Creates and returns a completion item.
-     *
      * @param functionSymbol BSymbol
      * @param context        LS context
      * @return {@link CompletionItem}
@@ -99,6 +79,7 @@ public final class FunctionCompletionItemBuilder {
             Pair<String, String> functionSignature = getFunctionInvocationSignature(functionSymbol, funcName, context);
             item.setInsertText(functionSignature.getLeft());
             item.setLabel(functionSignature.getRight());
+            item.setFilterText(funcName);
         }
         return item;
     }

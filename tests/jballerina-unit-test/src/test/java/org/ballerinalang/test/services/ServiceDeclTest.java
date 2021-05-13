@@ -72,6 +72,8 @@ public class ServiceDeclTest {
         validateError(result, i++, "incompatible types: expected 'listener', found 'UnionWithInt'", 167, 14);
         validateError(result, i++, "service type is not supported by the listener", 190, 14);
         validateError(result, i++, "service absolute path or literal is required by listener", 209, 12);
+        validateError(result, i++, "no implementation found for the method 'exec' of service declaration " +
+                "'object { function exec () returns ((any|error)); }'", 213, 1);
         Assert.assertEquals(i, result.getErrorCount());
     }
 }

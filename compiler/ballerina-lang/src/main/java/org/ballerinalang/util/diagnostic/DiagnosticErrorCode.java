@@ -69,7 +69,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL("BCE2038", "attempt.expose.non.public.symbol"),
     UNDEFINED_PARAMETER("BCE2039", "undefined.parameter"),
     ATTACHED_FUNCTIONS_MUST_HAVE_BODY("BCE2040", "attached.functions.must.have.body"),
-    ABSTRACT_OBJECT_CONSTRUCTOR("BCE2041", "abstract.object.constructor"),
+    INIT_METHOD_IN_OBJECT_TYPE_DESCRIPTOR("BCE2041", "illegal.init.method.in.object.type.descriptor"),
     CANNOT_INITIALIZE_ABSTRACT_OBJECT("BCE2042", "cannot.initialize.abstract.object"),
     INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT("BCE2043", "invalid.interface.of.non.abstract.object"),
     UNIMPLEMENTED_REFERENCED_METHOD_IN_CLASS("BCE2044", "unimplemented.referenced.method.in.class"),
@@ -714,7 +714,11 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     VARIABLE_AND_ARRAY_TYPE_AS_MAIN_PARAM("BCE4002", "variable.and.array.type.as.main.param"),
     INVALID_MAIN_OPTION_PARAMS_TYPE("BCE4003", "invalid.main.option.params.type"),
     WORKER_INTERACTION_AFTER_WAIT_ACTION("BCE4005", "invalid.worker.message.passing.after.wait.action"),
-    OPTIONAL_OPERAND_PRECEDES_OPERAND("BCE4006", "optional.operand.precedes.operand")
+    OPTIONAL_OPERAND_PRECEDES_OPERAND("BCE4006", "optional.operand.precedes.operand"),
+
+    UNIMPLEMENTED_REFERENCED_METHOD_IN_SERVICE_DECL("BCE4007",
+            "unimplemented.referenced.method.in.service.declaration"),
+    UNIMPLEMENTED_REFERENCED_METHOD_IN_OBJECT_CTOR("BCE4008", "unimplemented.referenced.method.in.object.constructor")
             ;
 
     private String diagnosticId;

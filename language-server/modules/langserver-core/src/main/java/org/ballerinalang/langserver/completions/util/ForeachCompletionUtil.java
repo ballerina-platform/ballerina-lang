@@ -120,7 +120,7 @@ public class ForeachCompletionUtil {
         completionItems.add(new StaticCompletionItem(ctx,
                 getIteratingCompletionItem(ctx, symbolName, symbol, textEdits), StaticCompletionItem.Kind.OTHER));
         completionItems.add(new StaticCompletionItem(ctx,
-                getRangeExprCompletionItem(ctx, symbolName, symbol, textEdits), StaticCompletionItem.Kind.OTHER));
+                getRangeExprCompletionItem(ctx, symbolName, textEdits), StaticCompletionItem.Kind.OTHER));
         return completionItems;
     }
 
@@ -136,16 +136,17 @@ public class ForeachCompletionUtil {
     private static CompletionItem getIteratingCompletionItem(BallerinaCompletionContext ctx,
                                                              String symbolName, TypeSymbol symbol,
                                                              List<TextEdit> textEdits) {
-        String detail = "foreach snippet for iterable variable - " + symbolName;
+        String detail = "foreach var item in expr";
         //change label and tests accordingly
         String label = "foreach";
-        String type = getTypeOfIteratorVariable(symbol);
+        String type = getTypeOfIteratorVariable(ctx, symbol);
         StringBuilder snippet = new StringBuilder("foreach");
         snippet.append(" ").append(type).append(" ")
                 .append(CommonUtil.getValidatedSymbolName(ctx, VAR_NAME)).append(" in ").append(symbolName)
                 .append(" ").append("{").append(CommonUtil.LINE_SEPARATOR).append("\t${1}")
                 .append(CommonUtil.LINE_SEPARATOR).append("}");
-        return ForeachCompletionItemBuilder.build(snippet.toString(), label, detail, textEdits);
+        String documentation = "foreach statement for iterable variable - " + symbolName;
+        return ForeachCompletionItemBuilder.build(snippet.toString(), label, detail, documentation, textEdits);
     }
 
     /**
@@ -153,21 +154,21 @@ public class ForeachCompletionUtil {
      *
      * @param ctx        completion context
      * @param symbolName symbol name corresponding to the symbol
-     * @param symbol     type symbol
      * @param textEdits  edits that replace the field access symbol
      * @return
      */
     private static CompletionItem getRangeExprCompletionItem(BallerinaCompletionContext ctx,
-                                                             String symbolName, TypeSymbol symbol,
+                                                             String symbolName,
                                                              List<TextEdit> textEdits) {
-        String detail = "foreach range expression snippet for iterable variable - " + symbolName;
+        String detail = "foreach int i in 0...expr";
         String label = "foreach i";
         StringBuilder snippet = new StringBuilder("foreach");
         snippet.append(" int ").append(CommonUtil.getValidatedSymbolName(ctx, VAR_NAME_RANGE_EXP))
                 .append(" in ").append("${1:0}").append("...").append(symbolName)
                 .append(".length() ").append("{").append(CommonUtil.LINE_SEPARATOR).append("\t${2}")
                 .append(CommonUtil.LINE_SEPARATOR).append("}");
-        return ForeachCompletionItemBuilder.build(snippet.toString(), label, detail, textEdits);
+        String documentation = "foreach i statement for iterable variable - " + symbolName;
+        return ForeachCompletionItemBuilder.build(snippet.toString(), label, detail, documentation, textEdits);
     }
 
     /**
@@ -176,22 +177,22 @@ public class ForeachCompletionUtil {
      * @param symbol iterable type symbol.
      * @return signature of the member type.
      */
-    public static String getTypeOfIteratorVariable(TypeSymbol symbol) {
+    public static String getTypeOfIteratorVariable(BallerinaCompletionContext ctx, TypeSymbol symbol) {
 
         String type;
         TypeSymbol rawType = CommonUtil.getRawType(symbol);
         switch (rawType.typeKind()) {
             case STRING:
             case XML:
-                type = rawType.signature();
+                type = CommonUtil.getModifiedTypeName(ctx, rawType);
                 break;
             case ARRAY:
-                type = ((ArrayTypeSymbol) rawType).memberTypeDescriptor().signature();
+                type = CommonUtil.getModifiedTypeName(ctx, ((ArrayTypeSymbol) rawType).memberTypeDescriptor());
                 break;
             case TUPLE:
                 List<String> typesSet = new ArrayList<>(((TupleTypeSymbol) rawType).
                         memberTypeDescriptors().stream().map(
-                        tSymbol -> tSymbol.typeKind().getName()).collect(Collectors.toSet()));
+                        tSymbol -> CommonUtil.getModifiedTypeName(ctx, tSymbol)).collect(Collectors.toSet()));
                 if (typesSet.size() == 1) {
                     type = typesSet.get(0);
                 } else {
@@ -199,13 +200,13 @@ public class ForeachCompletionUtil {
                 }
                 break;
             case MAP:
-                type = ((MapTypeSymbol) rawType).typeParam().signature();
+                type = CommonUtil.getModifiedTypeName(ctx, ((MapTypeSymbol) rawType).typeParam());
                 break;
             case TABLE:
-                type = ((TableTypeSymbol) rawType).rowTypeParameter().signature();
+                type = CommonUtil.getModifiedTypeName(ctx, ((TableTypeSymbol) rawType).rowTypeParameter());
                 break;
             case STREAM:
-                type = ((StreamTypeSymbol) rawType).typeParameter().signature();
+                type = CommonUtil.getModifiedTypeName(ctx, ((StreamTypeSymbol) rawType).typeParameter());
                 break;
             case RECORD:
                 //todo: Fix when #30245 is fixed.

@@ -605,6 +605,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "sendMail",
       "insertText": "sendMail()",
       "insertTextFormat": "Snippet"
     },

@@ -8,7 +8,10 @@
     {
       "label": "foreach",
       "kind": "Snippet",
-      "detail": "foreach snippet for iterable variable - myStr",
+      "detail": "foreach var item in expr",
+      "documentation": {
+        "left": "foreach statement for iterable variable - myStr"
+      },
       "sortText": "Q",
       "insertText": "foreach string item in myStr {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
@@ -31,7 +34,10 @@
     {
       "label": "foreach i",
       "kind": "Snippet",
-      "detail": "foreach range expression snippet for iterable variable - myStr",
+      "detail": "foreach int i in 0...expr",
+      "documentation": {
+        "left": "foreach i statement for iterable variable - myStr"
+      },
       "sortText": "Q",
       "insertText": "foreach int i in ${1:0}...myStr.length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
@@ -62,6 +68,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "getCodePoint",
       "insertText": "getCodePoint(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -80,6 +87,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toBytes",
       "insertText": "toBytes()",
       "insertTextFormat": "Snippet"
     },
@@ -94,6 +102,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "length",
       "insertText": "length()",
       "insertTextFormat": "Snippet"
     },
@@ -108,6 +117,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toCodePointInts",
       "insertText": "toCodePointInts()",
       "insertTextFormat": "Snippet"
     },
@@ -122,6 +132,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "includes",
       "insertText": "includes(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -140,6 +151,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "equalsIgnoreCaseAscii",
       "insertText": "equalsIgnoreCaseAscii(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -158,6 +170,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toUpperAscii",
       "insertText": "toUpperAscii()",
       "insertTextFormat": "Snippet"
     },
@@ -172,6 +185,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "substring",
       "insertText": "substring(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -190,6 +204,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "lastIndexOf",
       "insertText": "lastIndexOf(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -208,6 +223,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "iterator",
       "insertText": "iterator()",
       "insertTextFormat": "Snippet"
     },
@@ -222,6 +238,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "trim",
       "insertText": "trim()",
       "insertTextFormat": "Snippet"
     },
@@ -236,6 +253,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "endsWith",
       "insertText": "endsWith(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -254,6 +272,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "join",
       "insertText": "join(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -272,6 +291,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "indexOf",
       "insertText": "indexOf(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -290,6 +310,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "codePointCompare",
       "insertText": "codePointCompare(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -308,6 +329,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toLowerAscii",
       "insertText": "toLowerAscii()",
       "insertTextFormat": "Snippet"
     },
@@ -322,6 +344,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "startsWith",
       "insertText": "startsWith(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -340,6 +363,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "cloneWithType",
       "insertText": "cloneWithType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -358,6 +382,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "fromJsonString",
       "insertText": "fromJsonString()",
       "insertTextFormat": "Snippet"
     },
@@ -372,48 +397,52 @@
         }
       },
       "sortText": "D",
+      "filterText": "fromBalString",
       "insertText": "fromBalString()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fromJsonFloatString()(()|boolean|string|float|(JsonFloat)[]|map<JsonFloat>|error)",
+      "label": "fromJsonFloatString()(JsonFloat|error)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format, using float to represent numbers.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `()|boolean|string|float|(JsonFloat)[]|map<JsonFloat>|error`   \n- `str` parsed to JsonFloat or error  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format, using float to represent numbers.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `JsonFloat|error`   \n- `str` parsed to JsonFloat or error  \n  \n"
         }
       },
       "sortText": "D",
+      "filterText": "fromJsonFloatString",
       "insertText": "fromJsonFloatString()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fromJsonDecimalString()(()|boolean|string|decimal|(JsonDecimal)[]|map<JsonDecimal>|error)",
+      "label": "fromJsonDecimalString()(JsonDecimal|error)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format, using decimal to represent numbers.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `()|boolean|string|decimal|(JsonDecimal)[]|map<JsonDecimal>|error`   \n- `str` parsed to JsonDecimal or error  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format, using decimal to represent numbers.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `JsonDecimal|error`   \n- `str` parsed to JsonDecimal or error  \n  \n"
         }
       },
       "sortText": "D",
+      "filterText": "fromJsonDecimalString",
       "insertText": "fromJsonDecimalString()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "cloneReadOnly()(Cloneable & readonly)",
+      "label": "cloneReadOnly()(CloneableType & readonly)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `Cloneable & readonly`   \n- immutable clone of `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `CloneableType & readonly`   \n- immutable clone of `v`  \n  \n"
         }
       },
       "sortText": "D",
+      "filterText": "cloneReadOnly",
       "insertText": "cloneReadOnly()",
       "insertTextFormat": "Snippet"
     },
@@ -428,6 +457,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toBalString",
       "insertText": "toBalString()",
       "insertTextFormat": "Snippet"
     },
@@ -442,6 +472,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "fromJsonStringWithType",
       "insertText": "fromJsonStringWithType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -460,6 +491,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toJson",
       "insertText": "toJson()",
       "insertTextFormat": "Snippet"
     },
@@ -474,6 +506,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "isReadOnly",
       "insertText": "isReadOnly()",
       "insertTextFormat": "Snippet"
     },
@@ -488,6 +521,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "fromJsonWithType",
       "insertText": "fromJsonWithType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -506,6 +540,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "mergeJson",
       "insertText": "mergeJson(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -514,16 +549,17 @@
       }
     },
     {
-      "label": "clone()(Cloneable)",
+      "label": "clone()(CloneableType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `Cloneable`   \n- clone of `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `CloneableType`   \n- clone of `v`  \n  \n"
         }
       },
       "sortText": "D",
+      "filterText": "clone",
       "insertText": "clone()",
       "insertTextFormat": "Snippet"
     },
@@ -538,6 +574,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "ensureType",
       "insertText": "ensureType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -556,6 +593,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toString",
       "insertText": "toString()",
       "insertTextFormat": "Snippet"
     },
@@ -570,6 +608,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
     }

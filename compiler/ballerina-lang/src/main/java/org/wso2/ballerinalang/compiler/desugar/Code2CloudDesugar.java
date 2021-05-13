@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -40,12 +41,18 @@ public class Code2CloudDesugar {
     private static final CompilerContext.Key<Code2CloudDesugar> CODE2CLOUD_DESUGAR_KEY = new CompilerContext.Key<>();
     private final boolean c2cEnabled;
     private final PackageCache packageCache;
+    private PackageID c2cPkgID;
 
     private Code2CloudDesugar(CompilerContext context) {
         context.put(CODE2CLOUD_DESUGAR_KEY, this);
         String cloudOption = CompilerOptions.getInstance(context).get(CompilerOptionName.CLOUD);
         c2cEnabled = "k8s".equals(cloudOption) || "docker".equals(cloudOption);
         packageCache = PackageCache.getInstance(context);
+        final BPackageSymbol symbol = PackageCache.getInstance(context).getSymbol(Names.BALLERINA_ORG.value
+                + Names.ORG_NAME_SEPARATOR.value + Names.CLOUD.value);
+        if (symbol != null) {
+            c2cPkgID = symbol.pkgID;
+        }
     }
 
     public static Code2CloudDesugar getInstance(CompilerContext context) {
@@ -57,8 +64,8 @@ public class Code2CloudDesugar {
     }
 
     void addCode2CloudModuleImport(BLangPackage pkgNode) {
-        if (c2cEnabled &&
-                (pkgNode.projectKind != null && !pkgNode.projectKind.equals(ProjectKind.BALA_PROJECT))) {
+        if (c2cEnabled && (pkgNode.projectKind != null && !pkgNode.projectKind.equals(ProjectKind.BALA_PROJECT))
+                && c2cPkgID != null) {
             BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
             List<BLangIdentifier> pkgNameComps = new ArrayList<>();
             pkgNameComps.add(ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.CLOUD.value));
@@ -67,7 +74,7 @@ public class Code2CloudDesugar {
             importDcl.orgName = ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.BALLERINA_ORG.value);
             importDcl.alias = ASTBuilderUtil.createIdentifier(pkgNode.pos, "_");
             importDcl.version = ASTBuilderUtil.createIdentifier(pkgNode.pos, "");
-            importDcl.symbol = packageCache.getSymbol(PackageID.CODE2CLOUD);
+            importDcl.symbol = packageCache.getSymbol(c2cPkgID);
             pkgNode.imports.add(importDcl);
             pkgNode.symbol.imports.add(importDcl.symbol);
         }

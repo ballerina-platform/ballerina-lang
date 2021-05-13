@@ -118,3 +118,13 @@ function testInvalidObjectConstructorExprWithReadOnlyCET() {
         }
     };
 }
+
+type SerT service object {
+    function onMessage();
+};
+
+function foo() {
+    SerT s = service object SerT {
+
+    };
+}
