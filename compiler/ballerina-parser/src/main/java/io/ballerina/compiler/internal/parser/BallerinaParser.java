@@ -72,7 +72,6 @@ import io.ballerina.tools.text.CharReader;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -882,7 +881,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private List<STNode> extractVarDeclQualifiers(List<STNode> qualifiers, boolean isModuleVar) {
-        // Check if the first three qualifiers are belong to the variable declaration.
+        // Check if the first two qualifiers are belong to the variable declaration.
         // If they do, extract them to a separate list and return.
         List<STNode> varDeclQualList = new ArrayList<>();
         final int initialListSize = qualifiers.size();
@@ -913,7 +912,7 @@ public class BallerinaParser extends AbstractParser {
                             DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) invalidQual).text());
                 }
             }
-            varDeclQualList = new ArrayList<>(Arrays.asList(configurableQual));
+            varDeclQualList = new ArrayList<>(Collections.singletonList(configurableQual));
         }
 
         return varDeclQualList;
