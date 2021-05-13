@@ -29,3 +29,27 @@ function testInferredType(XY xy) returns XY {
     var {x: _, y: _, ...extra} = xy;
     return extra;
 }
+
+type ClosedXY record {|
+    int x;
+    int y;
+    string...;
+|};
+
+function testDefinedRestType() returns map<int> {
+    int xx;
+    int yy;
+    map<int|string> extra;
+    {x: xx, y: yy, ...extra} = <ClosedXY>{x:10, y:20, "foo":"bar"};
+    return extra;
+}
+
+type OptionalXY record {
+    int x?;
+    int y?;
+};
+
+function testWithOptionalFields() returns map<int> {
+    var {...extra} = <XY>{x:10, y:20, "foo":"bar"};
+    return extra;
+}

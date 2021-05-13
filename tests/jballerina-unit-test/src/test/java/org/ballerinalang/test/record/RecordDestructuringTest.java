@@ -46,10 +46,14 @@ public class RecordDestructuringTest {
 
     @Test(description = "Test rest field resolving negative cases")
     public void testResolvingRestFieldNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 1);
+        Assert.assertEquals(negativeResult.getErrorCount(), 3);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'XY', " +
                 "found 'record {| never x?; never y?; anydata...; |}'", 30, 12);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<int>', " +
+                "found 'map<(int|string)>'", 44, 12);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<int>', " +
+                "found 'record {| (int|anydata)...; |}'", 54, 12);
     }
 
     @AfterClass
