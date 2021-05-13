@@ -28,7 +28,7 @@
                                         "character": 0
                                     }
                                 },
-                                "newText": "\n\nfunction createAddress(string a) returns Address {\n    \n    return object {};\n}\n"
+                                "newText": "\n\nfunction createAddress(string a) returns Address {\n    return object {};\n}\n"
                             }
                         ]
                     }

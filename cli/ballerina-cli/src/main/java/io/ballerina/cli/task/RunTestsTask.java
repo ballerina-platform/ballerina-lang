@@ -99,19 +99,22 @@ public class RunTestsTask implements Task {
     private List<String> disableGroupList;
     private boolean report;
     private boolean coverage;
+    private boolean enableJacocoXML;
     private boolean isSingleTestExecution;
     private boolean isRerunTestExecution;
     private List<String> singleExecTests;
     TestReport testReport;
 
-    public RunTestsTask(PrintStream out, PrintStream err, String includes) {
+    public RunTestsTask(PrintStream out, PrintStream err, String includes, boolean enableJacocoXML) {
         this.out = out;
         this.err = err;
         this.includesInCoverage = includes;
+        this.enableJacocoXML = enableJacocoXML;
     }
 
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, List<String> groupList,
-                        List<String> disableGroupList, List<String> testList, String includes) {
+                        List<String> disableGroupList, List<String> testList, String includes,
+                        boolean enableJacocoXML) {
         this.out = out;
         this.err = err;
         this.isSingleTestExecution = false;
@@ -133,6 +136,7 @@ public class RunTestsTask implements Task {
             singleExecTests = testList;
         }
         this.includesInCoverage = includes;
+        this.enableJacocoXML = enableJacocoXML;
     }
 
     @Override
@@ -274,7 +278,7 @@ public class RunTestsTask implements Task {
             CoverageReport coverageReport = new CoverageReport(module, moduleCoverageMap,
                     packageNativeClassCoverageList, packageBalClassCoverageList, packageSourceCoverageList,
                     packageExecData, packageSessionInfo);
-            coverageReport.generateReport(jBallerinaBackend, this.includesInCoverage);
+            coverageReport.generateReport(jBallerinaBackend, this.includesInCoverage, enableJacocoXML);
         }
         // Traverse coverage map and add module wise coverage to test report
         for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
@@ -282,9 +286,11 @@ public class RunTestsTask implements Task {
             ModuleCoverage moduleCoverage = (ModuleCoverage) mapElement.getValue();
             testReport.addCoverage(moduleName, moduleCoverage);
         }
-        // Generate coverage XML report
-        CodeCoverageUtils.createXMLReport(project, packageExecData, packageNativeClassCoverageList,
-                packageBalClassCoverageList, packageSourceCoverageList, packageSessionInfo);
+        if (enableJacocoXML) {
+            // Generate coverage XML report
+            CodeCoverageUtils.createXMLReport(project, packageExecData, packageNativeClassCoverageList,
+                    packageBalClassCoverageList, packageSourceCoverageList, packageSessionInfo);
+        }
     }
 
     private void filterTestGroups() {

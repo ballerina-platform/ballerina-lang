@@ -433,14 +433,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testVar",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "testVar",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
@@ -459,6 +451,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "testFunction",
       "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
     },
@@ -473,15 +466,16 @@
         }
       },
       "sortText": "C",
+      "filterText": "functionWithReturn",
       "insertText": "functionWithReturn()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Record1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "Record1",
+      "label": "testVar",
+      "kind": "Variable",
+      "detail": "$CompilationError$",
+      "sortText": "B",
+      "insertText": "testVar",
       "insertTextFormat": "Snippet"
     },
     {
@@ -501,6 +495,14 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Record1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "Record1",
       "insertTextFormat": "Snippet"
     },
     {

@@ -448,17 +448,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testNewFunction()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "D",
-      "insertText": "testNewFunction()",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "A",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -472,29 +466,31 @@
         }
       },
       "sortText": "D",
+      "filterText": "getInt",
       "insertText": "getInt()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "A",
-      "insertText": "Thread",
+      "label": "obj2",
+      "kind": "Variable",
+      "detail": "TestObject2",
+      "sortText": "C",
+      "insertText": "obj2",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getString()(string)",
+      "label": "getObj2()(TestObject2)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `string`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `TestObject2`   \n  \n"
         }
       },
-      "sortText": "A",
-      "insertText": "getString()",
+      "sortText": "D",
+      "filterText": "getObj2",
+      "insertText": "getObj2()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -514,33 +510,18 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getObj2()(TestObject2)",
+      "label": "getString()(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `TestObject2`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `string`   \n  \n"
         }
       },
-      "sortText": "D",
-      "insertText": "getObj2()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "obj2",
-      "kind": "Variable",
-      "detail": "TestObject2",
-      "sortText": "C",
-      "insertText": "obj2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "str",
-      "kind": "Variable",
-      "detail": "string",
       "sortText": "A",
-      "insertText": "str",
+      "filterText": "getString",
+      "insertText": "getString()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -552,6 +533,29 @@
       },
       "sortText": "M",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testNewFunction()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "D",
+      "filterText": "testNewFunction",
+      "insertText": "testNewFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "str",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "A",
+      "insertText": "str",
       "insertTextFormat": "Snippet"
     },
     {

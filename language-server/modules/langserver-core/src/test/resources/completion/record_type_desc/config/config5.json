@@ -433,20 +433,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "STRING_VAL",
-      "kind": "Variable",
-      "detail": "string value",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
-      "sortText": "B",
-      "insertText": "STRING_VAL",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "helloFunction()(string)",
       "kind": "Function",
       "detail": "Function",
@@ -457,6 +443,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "helloFunction",
       "insertText": "helloFunction()",
       "insertTextFormat": "Snippet"
     },
@@ -491,14 +478,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TR1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "TR1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -507,6 +486,28 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TR1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "TR1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "STRING_VAL",
+      "kind": "Variable",
+      "detail": "string value",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "B",
+      "insertText": "STRING_VAL",
       "insertTextFormat": "Snippet"
     },
     {

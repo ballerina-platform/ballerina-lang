@@ -142,6 +142,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "foreach i",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "O",
+      "insertText": "foreach ${1:int} ${2:i} in ${3:0}...${4:9} {\n\t${5}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "fork",
       "kind": "Snippet",
       "detail": "Statement",
@@ -596,14 +604,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "animals",
-      "kind": "Variable",
-      "detail": "string[]",
-      "sortText": "B",
-      "insertText": "animals",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "animal",
       "kind": "Variable",
       "detail": "string",
@@ -622,7 +622,16 @@
         }
       },
       "sortText": "C",
+      "filterText": "testFunction",
       "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "animals",
+      "kind": "Variable",
+      "detail": "string[]",
+      "sortText": "B",
+      "insertText": "animals",
       "insertTextFormat": "Snippet"
     }
   ]

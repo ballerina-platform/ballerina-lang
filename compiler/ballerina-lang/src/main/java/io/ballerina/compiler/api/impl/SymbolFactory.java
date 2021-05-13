@@ -165,6 +165,11 @@ public class SymbolFactory {
                 return createPathParamSymbol((BVarSymbol) symbol, PathSegment.Kind.PATH_REST_PARAMETER);
             }
 
+            // If the symbol is a wildcard('_'), a variable symbol will not be created.
+            if (((BVarSymbol) symbol).isWildcard) {
+                return null;
+            }
+
             // return the variable symbol
             return createVariableSymbol((BVarSymbol) symbol, name);
         }
@@ -398,7 +403,8 @@ public class SymbolFactory {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
 
-        return symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(typeSymbol.type, true)).build();
+        return symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(typeSymbol.type, typeSymbol, true))
+                .build();
     }
 
     public BallerinaEnumSymbol createEnumSymbol(BEnumSymbol enumSymbol, String name) {
@@ -420,12 +426,12 @@ public class SymbolFactory {
 
         return symbolBuilder
                 .withMembers(members)
-                .withTypeDescriptor(typesFactory.getTypeDescriptor(enumSymbol.type, true))
+                .withTypeDescriptor(typesFactory.getTypeDescriptor(enumSymbol.type, enumSymbol, true))
                 .build();
     }
 
     public BallerinaClassSymbol createClassSymbol(BClassSymbol classSymbol, String name) {
-        TypeSymbol type = typesFactory.getTypeDescriptor(classSymbol.type, true);
+        TypeSymbol type = typesFactory.getTypeDescriptor(classSymbol.type, classSymbol, true);
         return createClassSymbol(classSymbol, name, type);
     }
 

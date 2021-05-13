@@ -66,6 +66,17 @@ public class TestReportTest extends BaseTestCase {
     }
 
     @Test ()
+    public void testWarningForJacocoXMLFlag() throws BallerinaTestException {
+        String msg = "warning: ignoring --jacoco-xml flag since code coverage is not enabled";
+        String[] args = new String[]{"--jacoco-xml"};
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg)) {
+            Assert.fail("Test failed due to jacoco-xml flag validation failure.");
+        }
+    }
+
+    @Test ()
     public void testWithCoverage() throws BallerinaTestException, IOException {
         runCommand(true);
         validateStatuses();
