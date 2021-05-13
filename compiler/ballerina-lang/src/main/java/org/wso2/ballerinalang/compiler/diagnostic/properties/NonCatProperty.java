@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.diagnostic.properties;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.DiagnosticPropertyKind;
 
+import java.util.Objects;
+
 /**
  * Represents non-categorical properties passed when diagnostic logging.
  *
@@ -46,19 +48,14 @@ public class NonCatProperty implements DiagnosticProperty<Object> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
+        if (o instanceof NonCatProperty) {
+            NonCatProperty that = (NonCatProperty) o;
+            if (kind != that.kind) {
+                return false;
+            }
+            return Objects.equals(value, that.value);
         }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        NonCatProperty that = (NonCatProperty) o;
-
-        if (kind != that.kind) {
-            return false;
-        }
-        return value != null ? value.equals(that.value) : that.value == null;
+        return false;
     }
 
     @Override
