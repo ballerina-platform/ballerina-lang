@@ -19,7 +19,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.plugins.codeaction.CodeAction;
 import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
-import io.ballerina.projects.plugins.codeaction.CodeActionProvider;
+import io.ballerina.projects.plugins.codeaction.CodeActionCommand;
 import io.ballerina.projects.plugins.codeaction.DocumentEdit;
 import io.ballerina.projects.plugins.codeaction.ToolingCodeActionContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -37,14 +37,19 @@ import java.util.Optional;
 /**
  * A dummy code action provider.
  */
-public class CreateVarCodeAction implements CodeActionProvider {
+public class CreateVarCodeAction implements CodeAction {
 
     public static final String ARG_NODE_RANGE = "node.range";
     public static final String ARG_VAR_TYPE = "var.type";
     public static final String VAR_ASSIGNMENT_REQUIRED = "variable assignment is required";
 
     @Override
-    public Optional<CodeAction> getCodeActions(ToolingCodeActionContext context, Diagnostic diagnostic) {
+    public List<String> getSupportedDiagnosticCodes() {
+        return List.of("BCE2526");
+    }
+
+    @Override
+    public Optional<CodeActionCommand> getCodeAction(ToolingCodeActionContext context, Diagnostic diagnostic) {
         if (!(diagnostic.message().startsWith(VAR_ASSIGNMENT_REQUIRED))) {
             return Optional.empty();
         }
@@ -62,7 +67,7 @@ public class CreateVarCodeAction implements CodeActionProvider {
                 CodeActionArgument.from(ARG_NODE_RANGE, diagnostic.location().lineRange()),
                 CodeActionArgument.from(ARG_VAR_TYPE, typeSymbol.signature())
         );
-        return Optional.of(CodeAction.from("Create generic variable", args));
+        return Optional.of(CodeActionCommand.from("Create generic variable", args));
     }
 
     @Override

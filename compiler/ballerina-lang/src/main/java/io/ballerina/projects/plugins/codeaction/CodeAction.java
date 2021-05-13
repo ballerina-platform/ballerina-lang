@@ -15,47 +15,23 @@
  */
 package io.ballerina.projects.plugins.codeaction;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
+
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Represents a code action.
+ * Code action interface.
+ * 
+ * @since 2.0.0
  */
-public class CodeAction {
+public interface CodeAction {
 
-    private String title;
-    private String providerName;
-    private List<CodeActionArgument> arguments;
+    List<String> getSupportedDiagnosticCodes();
 
-    private CodeAction(String title, List<CodeActionArgument> arguments) {
-        this.title = title;
-        this.arguments = arguments;
-    }
+    Optional<CodeActionCommand> getCodeAction(ToolingCodeActionContext context, Diagnostic diagnostic);
 
-    public String getTitle() {
-        return title;
-    }
+    List<DocumentEdit> execute(ToolingCodeActionContext context, List<CodeActionArgument> arguments);
 
-    public List<CodeActionArgument> getArguments() {
-        return arguments;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setArguments(List<CodeActionArgument> arguments) {
-        this.arguments = arguments;
-    }
-
-    public String getProviderName() {
-        return providerName;
-    }
-
-    public void setProviderName(String providerName) {
-        this.providerName = providerName;
-    }
-
-    public static CodeAction from(String title, List<CodeActionArgument> arguments) {
-        return new CodeAction(title, arguments);
-    }
+    String name();
 }

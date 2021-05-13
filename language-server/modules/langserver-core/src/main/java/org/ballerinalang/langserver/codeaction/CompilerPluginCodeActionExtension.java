@@ -94,13 +94,13 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
                         CommonUtil.toRange(diag.location().lineRange())))
                 .forEach(diagnostic -> {
                     codeActionManager.codeActions(toolingCodeActionContext, diagnostic).stream()
-                            .map(compilerPluginCodeAction -> {
-                                CodeAction action = new CodeAction(compilerPluginCodeAction.getTitle());
+                            .map(codeActionCommand -> {
+                                CodeAction action = new CodeAction(codeActionCommand.getTitle());
 
                                 List<Object> arguments = new LinkedList<>();
                                 arguments.add(CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, context.fileUri()));
-                                arguments.addAll(compilerPluginCodeAction.getArguments());
-                                action.setCommand(new Command(compilerPluginCodeAction.getTitle(), compilerPluginCodeAction.getProviderName(), arguments));
+                                arguments.addAll(codeActionCommand.getArguments());
+                                action.setCommand(new Command(codeActionCommand.getTitle(), codeActionCommand.getProviderName(), arguments));
                                 return action;
                             })
                             .forEach(codeActions::add);

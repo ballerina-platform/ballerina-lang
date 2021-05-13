@@ -27,6 +27,6 @@ public class CompilerPluginWithCodeActions extends CompilerPlugin {
 
     @Override
     public void init(CompilerPluginContext pluginContext) {
-        pluginContext.addCodeActionProvider(new CreateVarCodeAction());
+        pluginContext.addCodeAction(new CreateVarCodeAction());
     }
 }
