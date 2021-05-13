@@ -13,22 +13,15 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/jballerina.java;
 
-public function main(string? s = (), map<int>? m = ()) {
+public function main(string? s) {
     string stringToPrint = "string value: ";
     if (s is string) {
         stringToPrint += s;
     } else {
         stringToPrint += "s is nil";
-    }
-
-    stringToPrint += " ";
-
-    if (m is map<int>) {
-        stringToPrint += m.toString();
-    } else {
-        stringToPrint += "m is nil";
     }
     print(stringToPrint);
 }
