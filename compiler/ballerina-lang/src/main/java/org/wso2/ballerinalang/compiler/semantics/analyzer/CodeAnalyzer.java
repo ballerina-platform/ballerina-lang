@@ -4002,10 +4002,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             BLangWaitForAllExpr waitForAllExpr = (BLangWaitForAllExpr) currentAction;
             for (BLangWaitForAllExpr.BLangWaitKeyValue keyValuePair : waitForAllExpr.keyValuePairs) {
                 BSymbol workerSymbol = getWorkerSymbol(keyValuePair);
-                if (isWorkerSymbol(workerSymbol)
-                        && isWorkerFromFunction(workerActionSystem.getActionEnvironment(currentAction), workerSymbol.name)) {
-                    var otherSM = workerActionSystem.find(workerSymbol.name.value);
-                    allWorkersAreDone = allWorkersAreDone && otherSM.done();
+                if (isWorkerSymbol(workerSymbol)) {
+                    Name workerName = workerSymbol.name;
+                    if (isWorkerFromFunction(workerActionSystem.getActionEnvironment(currentAction), workerName)) {
+                        WorkerActionStateMachine otherSM = workerActionSystem.find(workerName.value);
+                        allWorkersAreDone = allWorkersAreDone && otherSM.done();
+                    }
                 }
             }
             if (allWorkersAreDone) {
