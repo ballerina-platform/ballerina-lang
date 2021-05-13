@@ -21,4 +21,7 @@ function testAssignmentToTypeDef() {
     Foo = Foo;
     int a;
     [Foo, a] = [Foo, 1];
+    [[Foo], a] = [[Foo], 2];
+    [error(Foo), a] = [error("x"), 1];
+    error(Foo) = error("x");
 }

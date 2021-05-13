@@ -284,11 +284,20 @@ public class AssignStmtTest {
     @Test
     public void testAssignmentStmtSemanticsNegative() {
         resultNegative = BCompileUtil.compile("test-src/statements/assign/assign-stmt-semantics-negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 3);
+        Assert.assertEquals(resultNegative.getErrorCount(), 9);
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to a type definition", 20, 5);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'typedesc<Foo>', found 'int'",
+                20, 11);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to a type definition", 21, 5);
-        BAssertUtil.validateError(resultNegative, i, "cannot assign a value to a type definition", 23, 6);
+        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to a type definition", 23, 6);
+        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to a type definition", 24, 7);
+        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to a type definition", 25, 12);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'string', found 'typedesc<Foo>'",
+                25, 12);
+        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to a type definition", 26, 11);
+        BAssertUtil.validateError(resultNegative, i, "incompatible types: expected 'string', found 'typedesc<Foo>'",
+                26, 11);
     }
 
     @AfterClass

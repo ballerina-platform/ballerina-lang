@@ -88,4 +88,6 @@ function testAnonTypeNegativeScenarios() {
     typedesc<record {| int i = "ABC"; |}[]> a4;
     future<record {| int i = "ABC"; |}[]> a5;
     future<record {| int i = 1; record {| int i = "ABC"; |} j = {}; |}[]> a6;
+    function (record {| int i = "ABC"; |}...) a7;
+    function (map<record {| int i = "foo"; |}>...) a8;
 }

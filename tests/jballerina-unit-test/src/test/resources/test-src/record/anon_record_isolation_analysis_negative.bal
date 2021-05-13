@@ -97,4 +97,6 @@ function testAnonTypeNegativeScenarios() {
     typedesc<record {| int i = x; |}[]> a4;
     future<record {| int i = x; |}[]> a5;
     future<record {| int i = 1; record {| int i = x; |} j = {}; |}[]> a6;
+    function (record {| int i = x; |}...) a7;
+    function (map<record {| int i = x; |}>...) a8;
 }
