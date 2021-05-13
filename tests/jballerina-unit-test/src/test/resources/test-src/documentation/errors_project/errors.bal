@@ -1,3 +1,20 @@
+# Account error data.
+public type AccountErrorData record {
+    int accountID;
+};
+
+# All account errors.
+public type AccountError distinct error<AccountErrorData>;
+
+# Invlaid account id error.
+public type InvalidAccountIdError distinct AccountError;
+
+# Acc not found error
+public type AccountNotFoundError distinct AccountError;
+
+# Represents the total Cache error type.
+public type TotalCacheError distinct CacheError;
+
 # Represents the Cache error type with details. This will be returned if an error occurred while doing any of the cache
 # operations.
 public type CacheError distinct error;

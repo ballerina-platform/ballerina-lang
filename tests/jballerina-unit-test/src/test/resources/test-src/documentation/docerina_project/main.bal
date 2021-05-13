@@ -1,5 +1,22 @@
 import docerina_project.world as prj;
 
+public type Coordinates record {|
+    decimal latitude;
+    decimal longitude;
+|};
+
+public type City record {
+    *Coordinates;
+    string name;
+}
+
+# Link to a distinct object DistObj.
+public type LinkToDistinctObj distinct DistObj;
+
+# Distinct object
+public type DistObj distinct object {
+    public function getS();
+};
 
 public type KeyValues record {|
     never msg?;
@@ -85,6 +102,28 @@ public type Human record {|
     map<string> userID = {"user": "Ballerina", "ID": "1234"};
     ClientHttp2Settings settings;
 |}
+
+# Represents StudentA object type
+public type StudentA object {
+    *PersonA;
+    public int class;
+};
+
+# Represents PersonA object type
+#
+# + firstName - First name of the person
+public type PersonA object {
+    public string firstName;
+    public string lastName;
+
+    # Get full name method
+    #
+    # + middleName - Middle name of person
+    # + return - The full name
+    public isolated function getFullName(string middleName) returns string {
+        return firstName + lastName;
+    }
+};
 
 # Represents server listener where one or more services can be registered. so that ballerina program can offer
 # service through this listener.
