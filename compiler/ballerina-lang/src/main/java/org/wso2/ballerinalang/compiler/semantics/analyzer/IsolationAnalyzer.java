@@ -1570,6 +1570,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         for (BLangVariable param : functionTypeNode.params) {
             analyzeNode(param.typeNode, env);
         }
+        if (functionTypeNode.restParam != null) {
+            analyzeNode(functionTypeNode.restParam.typeNode, env);
+        }
         analyzeNode(functionTypeNode.returnTypeNode, env);
     }
 
