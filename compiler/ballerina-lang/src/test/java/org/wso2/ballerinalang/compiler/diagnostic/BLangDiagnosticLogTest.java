@@ -90,6 +90,11 @@ public class BLangDiagnosticLogTest {
         assertDiagnosticEqual(diagnosticList.get(0), "Diagnostic Message", DiagnosticSeverity.WARNING, location);
     }
 
+    @Test
+    public void testDiagnosticHashCollusion() {
+        BLangDiagnosticLog dlog = (BLangDiagnosticLog) this.dlog;
+    }
+
     // helpers
     private PackageID createPackageID(String orgName, String name, String version) {
         return new PackageID(new Name(orgName), new Name(name), new Name(version));
