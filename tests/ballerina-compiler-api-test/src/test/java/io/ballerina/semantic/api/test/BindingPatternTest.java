@@ -42,6 +42,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
@@ -130,7 +131,7 @@ public class BindingPatternTest {
                 {35, 26, "rbp3", MAP, null},
                 {36, 42, "mbp3", STRING, null},
                 {36, 48, "age", INT, null},
-                {36, 56, "rbp4", MAP, ANYDATA},
+                {36, 56, "rbp4", RECORD, ANYDATA},
                 {44, 16, "msg", STRING, null},
                 {44, 21, "cause", ERROR, null},
                 {44, 33, "code", INT, null},

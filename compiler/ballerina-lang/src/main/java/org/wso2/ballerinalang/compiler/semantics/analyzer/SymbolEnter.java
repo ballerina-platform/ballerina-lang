@@ -2475,7 +2475,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (recordVar.restParam != null) {
             BType restType = getRestParamType(recordVarType);
             BType restConstraint = createRecordTypeForRestField(env, recordVarType, recordVar,
-                    ((BMapType)restType).constraint);
+                    ((BMapType) restType).constraint);
             defineMemberNode(((BLangSimpleVariable) recordVar.restParam), env, restConstraint);
         }
 
@@ -2517,7 +2517,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     BType getRestParamType(BRecordType recordType)  {
         BType memberType;
-        if (recordType.restFieldType != null && recordType.restFieldType.tag != TypeTags.ANYDATA) {
+        if (recordType.restFieldType != null) {
             memberType = recordType.restFieldType;
         } else if (hasErrorTypedField(recordType)) {
             memberType = hasOnlyPureTypedFields(recordType) ? symTable.pureType :

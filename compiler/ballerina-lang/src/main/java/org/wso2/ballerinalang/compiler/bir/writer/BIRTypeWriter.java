@@ -364,13 +364,12 @@ public class BIRTypeWriter implements TypeVisitor {
         BAttachedFunction initializerFunc = tsymbol.initializerFunc;
         if (initializerFunc == null) {
             buff.writeByte(0);
-            return;
+        } else {
+            buff.writeByte(1);
+            buff.writeInt(addStringCPEntry(initializerFunc.funcName.value));
+            buff.writeLong(initializerFunc.symbol.flags);
+            writeTypeCpIndex(initializerFunc.type);
         }
-
-        buff.writeByte(1);
-        buff.writeInt(addStringCPEntry(initializerFunc.funcName.value));
-        buff.writeLong(initializerFunc.symbol.flags);
-        writeTypeCpIndex(initializerFunc.type);
 
         writeTypeInclusions(bRecordType.typeInclusions);
     }

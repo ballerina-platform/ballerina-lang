@@ -3866,27 +3866,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void setRestMatchPatternConstraintType(BRecordType recordType,
                                                    LinkedHashMap<String, BField> remainingFields,
                                                    BMapType restPatternMapType, BMapType restVarSymbolMapType) {
-        LinkedHashSet<BType> constraintTypes = new LinkedHashSet<>();
-        for (BField field : remainingFields.values()) {
-            constraintTypes.add(field.type);
-        }
-
-        if (!recordType.sealed) {
-            BType restFieldType = recordType.restFieldType;
-            if (!this.types.isNeverTypeOrStructureTypeWithARequiredNeverMember(restFieldType)) {
-                constraintTypes.add(restFieldType);
-            }
-        }
-
-        BType restConstraintType;
-        if (constraintTypes.isEmpty()) {
-            restConstraintType = symTable.neverType;
-        } else if (constraintTypes.size() == 1) {
-            restConstraintType = constraintTypes.iterator().next();
-        } else {
-            restConstraintType = BUnionType.create(null, constraintTypes);
-        }
-        restPatternMapType.constraint = restVarSymbolMapType.constraint =
-                this.types.mergeTypes(restVarSymbolMapType.constraint, restConstraintType);
+        BType restConstraintType = symbolEnter.getRestMatchPatternConstraintType(recordType, remainingFields,
+                restVarSymbolMapType.constraint);
+        restPatternMapType.constraint = restVarSymbolMapType.constraint = restConstraintType;
     }
 }
