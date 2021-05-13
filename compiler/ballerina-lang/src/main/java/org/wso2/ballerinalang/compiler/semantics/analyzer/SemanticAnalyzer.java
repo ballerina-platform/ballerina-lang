@@ -35,7 +35,6 @@ import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
-import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -549,9 +548,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
 
+        DiagnosticErrorCode code;
+        if (classDefinition.isServiceDecl) {
+            code = DiagnosticErrorCode.UNIMPLEMENTED_REFERENCED_METHOD_IN_SERVICE_DECL;
+        } else if ((classDefinition.symbol.flags & Flags.OBJECT_CTOR) == Flags.OBJECT_CTOR) {
+            code = DiagnosticErrorCode.UNIMPLEMENTED_REFERENCED_METHOD_IN_OBJECT_CTOR;
+        } else {
+            code = DiagnosticErrorCode.UNIMPLEMENTED_REFERENCED_METHOD_IN_CLASS;
+        }
+
         // Validate the referenced functions that don't have implementations within the function.
         for (BAttachedFunction func : ((BObjectTypeSymbol) classDefinition.symbol).referencedFunctions) {
-            validateReferencedFunction(classDefinition.pos, func, env);
+            validateReferencedFunction(classDefinition.pos, func, env, code);
         }
 
         analyzerClassInitMethod(classDefinition);
@@ -625,23 +633,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         });
 
-        // Validate the referenced functions that don't have implementations within the function.
-        ((BObjectTypeSymbol) objectTypeNode.symbol).referencedFunctions
-                .forEach(func -> validateReferencedFunction(objectTypeNode.pos, func, env));
-
         validateInclusions(objectTypeNode.flagSet, objectTypeNode.typeRefs, true, false);
 
         if (objectTypeNode.initFunction == null) {
             return;
         }
 
-        if (objectTypeNode.initFunction.flagSet.contains(Flag.PRIVATE)) {
-            this.dlog.error(objectTypeNode.initFunction.pos, DiagnosticErrorCode.PRIVATE_OBJECT_CONSTRUCTOR,
-                    objectTypeNode.symbol.name);
-            return;
-        }
-
-        this.dlog.error(objectTypeNode.initFunction.pos, DiagnosticErrorCode.ABSTRACT_OBJECT_CONSTRUCTOR,
+        this.dlog.error(objectTypeNode.initFunction.pos, DiagnosticErrorCode.INIT_METHOD_IN_OBJECT_TYPE_DESCRIPTOR,
                 objectTypeNode.symbol.name);
     }
 
@@ -1471,7 +1469,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         BLangSimpleVarRef simpleVarRef =
                                 (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
                         simpleVarRef.pos = varRef.pos;
-                        simpleVarRef.variableName = ((BLangSimpleVarRef) varRef). variableName;
+                        simpleVarRef.variableName = ((BLangSimpleVarRef) varRef).variableName;
                         simpleVarRef.symbol = varRef.symbol;
                         simpleVarRef.lhsVar = true;
                         simpleVarRef.type = originSymbol.type;
@@ -3731,7 +3729,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void validateReferencedFunction(Location pos, BAttachedFunction func, SymbolEnv env) {
+    private void validateReferencedFunction(Location pos, BAttachedFunction func, SymbolEnv env,
+                                            DiagnosticErrorCode code) {
         if (!Symbols.isFlagOn(func.symbol.receiverSymbol.type.tsymbol.flags, Flags.CLASS)) {
             return;
         }
@@ -3747,8 +3746,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // There must be an implementation at the outer level, if the function is an interface.
         if (!env.enclPkg.objAttachedFunctions.contains(func.symbol)) {
-            dlog.error(pos, DiagnosticErrorCode.UNIMPLEMENTED_REFERENCED_METHOD_IN_CLASS, func.funcName,
-                    func.symbol.receiverSymbol.type);
+            dlog.error(pos, code, func.funcName, func.symbol.receiverSymbol.type);
         }
     }
 

@@ -139,16 +139,26 @@ public class ConfigNegativeTest {
                                 "warning: configurable variable 'xmlVar' with type 'xml<(lang.xml:Element|lang" +
                                         ".xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>' is not " +
                                         "supported as a toml value"}},
-                // supported toml type but not cli type
+                // supported toml type but not cli type and cli value given
                 {new String[]{"-Corg.mod1.intArr=3"}, "MatchedTypeValues.toml",
                         new VariableKey[]{new VariableKey(module, "intArr",
                                                           new BIntersectionType(module, new BType[]{}, TypeCreator
                                                                   .createArrayType(PredefinedTypes.TYPE_INT), 0, false),
-                                                          null, true)}, 0, 4,
+                                                          null, true)}, 0, 3,
                         new String[]{
                                 "warning: value for configurable variable 'intArr' with type '" +
                                         "int[]' is not supported as a command line argument",
-                                "warning: [org.mod1.intArr=3] unused command line argument"}},
+                                "warning: [MatchedTypeValues.toml:(3:1,3:14)] unused configuration value 'org.mod1" +
+                                        ".intVar'"}},
+                // supported toml type but not cli type and cli value not given
+                {new String[]{""}, "MatchedTypeValues.toml",
+                        new VariableKey[]{new VariableKey(module, "intArr",
+                                                          new BIntersectionType(module, new BType[]{}, TypeCreator
+                                                                  .createArrayType(PredefinedTypes.TYPE_INT), 0, false),
+                                                          null, true)}, 0, 2,
+                        new String[]{
+                                "warning: [MatchedTypeValues.toml:(3:1,3:14)] unused configuration value 'org.mod1" +
+                                        ".intVar'"}},
                 // not supported both toml type and cli type
                 {new String[]{"-Corg.mod1.myMap=4"}, "MatchedTypeValues.toml",
                         new VariableKey[]{new VariableKey(module, "myMap", PredefinedTypes.TYPE_MAP, null, true)}, 1

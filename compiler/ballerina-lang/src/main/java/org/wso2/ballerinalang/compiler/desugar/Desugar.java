@@ -3201,7 +3201,7 @@ public class Desugar extends BLangNodeVisitor {
         List<BLangSimpleVarRef> varRefs = new ArrayList<>();
         List<BType> types = new ArrayList<>();
 
-        // Extract the index Expressions f/rom compound assignment and create variable definitions. ex:
+        // Extract the index Expressions from compound assignment and create variable definitions. ex:
         // var $temp3$ = a[f(1, foo)];
         // var $temp2$ = 3;
         // var $temp1$ = 2;

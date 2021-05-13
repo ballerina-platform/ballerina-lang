@@ -198,25 +198,25 @@ function testCreatingRecordWithOverriddenFields() {
     assertEquality("UNKNOWN", dummyPerson.name);
 }
 
-public type Foo record {
-    anydata body;
-};
+// public type Foo record {
+//     anydata body;
+// };
 
-// Out of order inclusion test : added to test a NPE
-type Bar record {
-    *Foo;
-    Baz body;   // defined after the type definition
-};
+// // Out of order inclusion test : added to test a NPE
+// type Bar record {
+//     *Foo;
+//     Baz body;   // defined after the type definition
+// };
 
-type Baz record {
-    int id;
-};
+// type Baz record {
+//     int id;
+// };
 
-function testOutOfOrderFieldOverridingFieldFromTypeInclusion() {
-    Baz bazRecord = {id: 4};
-    Bar barRecord = {body: bazRecord};
-    assertEquality(4, barRecord.body.id);
-}
+// function testOutOfOrderFieldOverridingFieldFromTypeInclusion() {
+//     Baz bazRecord = {id: 4};
+//     Bar barRecord = {body: bazRecord};
+//     assertEquality(4, barRecord.body.id);
+// }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 

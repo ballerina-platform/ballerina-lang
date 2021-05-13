@@ -605,6 +605,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "doSomeTask",
       "insertText": "doSomeTask()",
       "insertTextFormat": "Snippet"
     },
@@ -627,6 +628,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "testFunction",
       "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
     }

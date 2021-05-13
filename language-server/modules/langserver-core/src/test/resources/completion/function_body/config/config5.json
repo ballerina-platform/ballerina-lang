@@ -588,14 +588,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "validator2",
-      "kind": "Variable",
-      "detail": "boolean",
-      "sortText": "B",
-      "insertText": "validator2",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "testFunction(boolean validator1, boolean validator2)",
       "kind": "Function",
       "detail": "Function",
@@ -606,12 +598,21 @@
         }
       },
       "sortText": "C",
+      "filterText": "testFunction",
       "insertText": "testFunction(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "validator2",
+      "kind": "Variable",
+      "detail": "boolean",
+      "sortText": "B",
+      "insertText": "validator2",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "worker",
