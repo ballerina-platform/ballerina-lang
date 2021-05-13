@@ -36,7 +36,7 @@ public class ArrayNode extends ValueNode {
         return childInBucket(0);
     }
 
-    public SeparatedNodeList<ValueNode> values() {
+    public SeparatedNodeList<ValueNode> value() {
         return new SeparatedNodeList<>(childInBucket(1));
     }
 
@@ -58,24 +58,24 @@ public class ArrayNode extends ValueNode {
     protected String[] childNames() {
         return new String[]{
                 "openBracket",
-                "values",
+                "value",
                 "closeBracket"};
     }
 
     public ArrayNode modify(
             Token openBracket,
-            SeparatedNodeList<ValueNode> values,
+            SeparatedNodeList<ValueNode> value,
             Token closeBracket) {
         if (checkForReferenceEquality(
                 openBracket,
-                values.underlyingListNode(),
+                value.underlyingListNode(),
                 closeBracket)) {
             return this;
         }
 
         return NodeFactory.createArrayNode(
                 openBracket,
-                values,
+                value,
                 closeBracket);
     }
 
@@ -91,13 +91,13 @@ public class ArrayNode extends ValueNode {
     public static class ArrayNodeModifier {
         private final ArrayNode oldNode;
         private Token openBracket;
-        private SeparatedNodeList<ValueNode> values;
+        private SeparatedNodeList<ValueNode> value;
         private Token closeBracket;
 
         public ArrayNodeModifier(ArrayNode oldNode) {
             this.oldNode = oldNode;
             this.openBracket = oldNode.openBracket();
-            this.values = oldNode.values();
+            this.value = oldNode.value();
             this.closeBracket = oldNode.closeBracket();
         }
 
@@ -108,10 +108,10 @@ public class ArrayNode extends ValueNode {
             return this;
         }
 
-        public ArrayNodeModifier withValues(
-                SeparatedNodeList<ValueNode> values) {
-            Objects.requireNonNull(values, "values must not be null");
-            this.values = values;
+        public ArrayNodeModifier withValue(
+                SeparatedNodeList<ValueNode> value) {
+            Objects.requireNonNull(value, "value must not be null");
+            this.value = value;
             return this;
         }
 
@@ -125,7 +125,7 @@ public class ArrayNode extends ValueNode {
         public ArrayNode apply() {
             return oldNode.modify(
                     openBracket,
-                    values,
+                    value,
                     closeBracket);
         }
     }
