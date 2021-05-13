@@ -96,7 +96,7 @@ public class BIntersectionType extends BType implements IntersectionType {
     @Override
     public String toString() {
         Name name = this.tsymbol.name;
-        if (((this.tsymbol.flags & Flags.ANONYMOUS) != Flags.ANONYMOUS) && !name.value.isEmpty()) {
+        if (!Symbols.isFlagOn(this.tsymbol.flags, Flags.ANONYMOUS) && !name.value.isEmpty()) {
             return name.value;
         }
 

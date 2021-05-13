@@ -201,7 +201,7 @@ readonly class AtomImpl {
 
     function compare(Atom other) {
         if (self === other) {
-            panic error("Same");
+            panic error("Same", message = "Both are the same");
         }
     }
 }
@@ -209,22 +209,27 @@ readonly class AtomImpl {
 function testRecursiveReadonlyIntersection() {
     Atom a = new AtomImpl();
     error? e = trap a.compare(a);
-    if (e is error && e.message() == "Same") {
-        return;
-    }
-    panic error("Assertion error");
+    assertError(e, "Same", "Both are the same");
 }
 
 function testRuntimeTypeNameOfIntersectionType() {
     any a = new AtomImpl();
-
     error|int r = trap (<int> a);
-    if r is error {
-        var message = r.detail()["message"];
-        if message is string && message == "incompatible types: 'AtomImpl' cannot be cast to 'int'" {
-            return;
-        }
-    }
-    panic error("Assertion error");
+    assertError(r, "{ballerina}TypeCastError", "incompatible types: 'AtomImpl' cannot be cast to 'int'");
 }
 
+type Error error<record { string message; }>;
+
+function assertError(any|error value, string errorMessage, string expDetailMessage) {
+    if value is Error {
+        if (value.message() != errorMessage) {
+            panic error("Expected error message: " + errorMessage + " found: " + value.message());
+        }
+
+        if value.detail().message == expDetailMessage {
+            return;
+        }
+        panic error("Expected error detail message: " + expDetailMessage + " found: " + value.detail().message);
+    }
+    panic error("Expected: Error, found: " + (typeof value).toString());
+}
