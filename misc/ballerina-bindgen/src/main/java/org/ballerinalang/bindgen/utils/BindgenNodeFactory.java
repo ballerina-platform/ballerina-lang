@@ -322,7 +322,7 @@ class BindgenNodeFactory {
         }
         for (JParameter jParameter : bFunction.getParameters()) {
             if (jParameter.isArray() && isMultiDimensionalArray(jParameter.getParameterClass().getName())) {
-                throw new BindgenException("multi dimensional arrays are currently not support");
+                throw new BindgenException("error: multidimensional arrays are currently unsupported");
             }
             if (isExternal) {
                 parameterNodes.add(createRequiredParameterNode(jParameter.getExternalType()

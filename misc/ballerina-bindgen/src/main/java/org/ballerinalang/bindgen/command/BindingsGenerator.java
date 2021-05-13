@@ -168,15 +168,11 @@ public class BindingsGenerator {
 
     private ClassLoader setClassLoader() throws BindgenException {
         ClassLoader classLoader;
-        try {
-            if (!env.getClassPaths().isEmpty()) {
-                classLoader = getClassLoader(env.getClassPaths(), this.getClass().getClassLoader());
-            } else {
-                outStream.println("\nNo classpaths were detected.");
-                classLoader = this.getClass().getClassLoader();
-            }
-        } catch (BindgenException e) {
-            throw new BindgenException("Error while loading the classpaths.", e);
+        if (!env.getClassPaths().isEmpty()) {
+            classLoader = getClassLoader(env.getClassPaths(), this.getClass().getClassLoader());
+        } else {
+            outStream.println("\nNo classpaths were detected.");
+            classLoader = this.getClass().getClassLoader();
         }
         return classLoader;
     }
@@ -188,7 +184,7 @@ public class BindingsGenerator {
             userPath = Paths.get(userPath, MODULES_DIR).toString();
         } else if (outputPath != null) {
             if (!Paths.get(outputPath).toFile().exists()) {
-                throw new BindgenException("Output path provided [" + outputPath + "] could not be found.");
+                throw new BindgenException("error: output path provided could not be found: " + outputPath);
             }
             userPath = outputPath;
         }

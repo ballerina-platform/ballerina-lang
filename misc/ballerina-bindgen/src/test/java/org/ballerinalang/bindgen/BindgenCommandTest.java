@@ -129,7 +129,7 @@ public class BindgenCommandTest extends CommandTest {
         bindgenCommand.execute();
         String output = readOutput(true);
         Assert.assertTrue(output.contains("Error while generating Ballerina bindings:"));
-        Assert.assertTrue(output.contains("Output path provided"));
+        Assert.assertTrue(output.contains("error: output path provided could not be found: "));
     }
 
     @Test(description = "Test if the correct error is given when the output path is provided with the modules flag")
