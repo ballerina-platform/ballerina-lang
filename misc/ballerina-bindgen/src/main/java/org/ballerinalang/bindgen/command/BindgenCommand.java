@@ -18,6 +18,8 @@
 package org.ballerinalang.bindgen.command;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.ProjectLoader;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.bindgen.utils.BindgenUtils;
@@ -115,13 +117,13 @@ public class BindgenCommand implements BLauncherCmd {
         }
 
         if (classNames == null) {
-            setOutError("One or more class names should be specified to generate the Ballerina bindings.");
+            setOutError("error: one or more class names are required");
             exitWithCode(1, this.exitWhenFinish);
             return;
         }
 
         if (this.outputPath != null && modulesFlag) {
-            setOutError("Output path cannot be provided with the modules flag.");
+            setOutError("error: output path is not supported together with the modules flag");
             exitWithCode(1, this.exitWhenFinish);
             return;
         }
@@ -136,7 +138,7 @@ public class BindgenCommand implements BLauncherCmd {
             bindingsGenerator.setOutputPath(targetOutputPath.toString());
         } else if (modulesFlag) {
             if (ProjectDirs.findProjectRoot(targetOutputPath) == null) {
-                setOutError("Ballerina project not detected to generate Java package to Ballerina module mappings.");
+                setOutError("error: module level mappings can only be generated inside a ballerina project");
                 exitWithCode(1, this.exitWhenFinish);
                 return;
             }
@@ -150,16 +152,29 @@ public class BindgenCommand implements BLauncherCmd {
 
         if (!ProjectDirs.isProject(targetOutputPath)) {
             Path projectDir = ProjectDirs.findProjectRoot(targetOutputPath);
-            if (projectDir != null && projectDir.getParent() != null) {
-                Path parentRoot = projectDir.getParent();
-                if (parentRoot != null) {
-                    outStream.println("\nBallerina project detected at: " + parentRoot.toString());
-                    bindingsGenerator.setProject(ProjectLoader.loadProject(parentRoot));
+            if (projectDir != null) {
+                Project project;
+                try {
+                    project = ProjectLoader.loadProject(projectDir);
+                } catch (ProjectException e) {
+                    setOutError("error: unable to load the project [" + projectDir + "]: " + e.getMessage());
+                    exitWithCode(1, this.exitWhenFinish);
+                    return;
                 }
+                outStream.println("\nBallerina project detected at: " + projectDir.toString());
+                bindingsGenerator.setProject(project);
             }
         } else {
+            Project project;
+            try {
+                project = ProjectLoader.loadProject(targetOutputPath);
+            } catch (ProjectException e) {
+                setOutError("error: unable to load the project [" + targetOutputPath + "]: " + e.getMessage());
+                exitWithCode(1, this.exitWhenFinish);
+                return;
+            }
             outStream.println("\nBallerina project detected at: " + targetOutputPath.toString());
-            bindingsGenerator.setProject(ProjectLoader.loadProject(targetOutputPath));
+            bindingsGenerator.setProject(project);
         }
 
         String splitCommaRegex = "\\s*,\\s*";
@@ -172,7 +187,7 @@ public class BindgenCommand implements BLauncherCmd {
         if (this.mavenDependency != null) {
             String[] mvnDependency = this.mavenDependency.split(splitColonRegex);
             if (mvnDependency.length != 3) {
-                setOutError("Error in the maven dependency provided.");
+                setOutError("error: invalid maven dependency provided");
                 exitWithCode(1, this.exitWhenFinish);
                 return;
             }

@@ -115,7 +115,7 @@ public class BindgenCommandTest extends CommandTest {
 
         bindgenCommand.execute();
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("Error in the maven dependency provided."));
+        Assert.assertTrue(output.contains("error: invalid maven dependency provided"));
     }
 
     @Test(description = "Test if the correct error is given for an incorrect output path")
@@ -130,6 +130,46 @@ public class BindgenCommandTest extends CommandTest {
         String output = readOutput(true);
         Assert.assertTrue(output.contains("Error while generating Ballerina bindings:"));
         Assert.assertTrue(output.contains("Output path provided"));
+    }
+
+    @Test(description = "Test if the correct error is given when the output path is provided with the modules flag")
+    public void testOutputPathWithModulesFlag() throws IOException {
+        String projectDir = Paths.get(testResources.toString(), "balProject").toString();
+        String[] args = {"-o=" + projectDir, "-m", "java.lang.Object"};
+
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        bindgenCommand.execute();
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("error: output path is not supported together with the modules flag"));
+    }
+
+    @Test(description = "Test if the correct error is given when no class names are provided")
+    public void testNoClassNames() throws IOException {
+        String projectDir = Paths.get(testResources.toString(), "balProject").toString();
+        String[] args = {"-o=" + projectDir};
+
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        bindgenCommand.execute();
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("error: one or more class names are required"));
+    }
+
+    @Test(description = "Test if the correct error is given when a user tries to generate " +
+            "module level mappings outside a ballerina project")
+    public void testModuleFlagWithoutProject() throws IOException {
+        String[] args = {"-m", "java.lang.Object"};
+
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        bindgenCommand.execute();
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("error: module level mappings can only be generated " +
+                "inside a ballerina project"));
     }
 
     @AfterClass
