@@ -85,7 +85,8 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
         return this.memberTypes;
     }
 
-    public List<TypeSymbol> originalMemberTypeDescriptors() {
+    @Override
+    public List<TypeSymbol> userSpecifiedMemberTypes() {
         if (this.originalMemberTypes == null) {
             List<TypeSymbol> members = new ArrayList<>();
 
@@ -141,7 +142,7 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
             return "...";
         }
 
-        List<TypeSymbol> memberTypes = this.originalMemberTypeDescriptors();
+        List<TypeSymbol> memberTypes = this.userSpecifiedMemberTypes();
         if (containsTwoElements(memberTypes) && containsNil(memberTypes)) {
             TypeSymbol member1 = memberTypes.get(0);
             return member1.typeKind() == NIL ? getSignatureForIntersectionType(memberTypes.get(1)) + "?" :
@@ -158,7 +159,7 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
     }
 
     private String getSignatureForFiniteType() {
-        List<TypeSymbol> memberTypes = this.memberTypeDescriptors();
+        List<TypeSymbol> memberTypes = this.userSpecifiedMemberTypes();
         StringJoiner joiner = new StringJoiner("|");
         for (TypeSymbol typeDescriptor : memberTypes) {
             joiner.add(typeDescriptor.signature());
