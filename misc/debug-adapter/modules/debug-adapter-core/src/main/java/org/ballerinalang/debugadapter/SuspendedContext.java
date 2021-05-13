@@ -42,12 +42,13 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
  */
 public class SuspendedContext {
 
+    private final ExecutionContext executionContext;
     private final VirtualMachineProxyImpl attachedVm;
     private final ThreadReferenceProxyImpl owningThread;
     private final StackFrameProxyImpl frame;
     private final Project project;
-    private DebugSourceType sourceType;
 
+    private DebugSourceType sourceType;
     private Path breakPointSourcePath;
     private String fileName;
     private int lineNumber;
@@ -57,11 +58,16 @@ public class SuspendedContext {
 
     SuspendedContext(ExecutionContext executionContext, ThreadReferenceProxyImpl threadRef,
                      StackFrameProxyImpl frame) {
+        this.executionContext = executionContext;
         this.project = executionContext.getSourceProject();
         this.attachedVm = executionContext.getDebuggeeVM();
         this.owningThread = threadRef;
         this.frame = frame;
         this.lineNumber = -1;
+    }
+
+    public ExecutionContext getExecutionContext() {
+        return executionContext;
     }
 
     public Project getProject() {

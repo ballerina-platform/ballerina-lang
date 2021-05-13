@@ -2122,8 +2122,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 varRefExpr.type = this.symTable.semanticError;
                 dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED);
             }
-            varRefExpr.symbol = new BVarSymbol(0, varName, env.enclPkg.symbol.pkgID, varRefExpr.type, env.scope.owner,
-                                               varRefExpr.pos, VIRTUAL);
+
+            // If the variable name is a wildcard('_'), the symbol should be ignorable.
+            varRefExpr.symbol = new BVarSymbol(0, true, varName, env.enclPkg.symbol.pkgID, varRefExpr.type,
+                    env.scope.owner, varRefExpr.pos, VIRTUAL);
+
             resultType = varRefExpr.type;
             return;
         }
@@ -3295,11 +3298,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (!cIExpr.initInvocation.argExprs.isEmpty()) {
                     BLangExpression iteratorExpr = cIExpr.initInvocation.argExprs.get(0);
                     BType constructType = checkExpr(iteratorExpr, env, symTable.noType);
+                    BUnionType expectedNextReturnType = createNextReturnType(cIExpr.pos, (BStreamType) actualType);
                     if (constructType.tag != TypeTags.OBJECT) {
+                        dlog.error(iteratorExpr.pos, DiagnosticErrorCode.INVALID_STREAM_CONSTRUCTOR_ITERATOR,
+                                expectedNextReturnType, constructType);
                         resultType = symTable.semanticError;
                         return;
                     }
-                    BUnionType expectedNextReturnType = createNextReturnType(cIExpr.pos, (BStreamType) actualType);
                     BAttachedFunction closeFunc = types.getAttachedFuncFromObject((BObjectType) constructType,
                             BLangCompilerConstants.CLOSE_FUNC);
                     if (closeFunc != null) {
@@ -3881,8 +3886,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
 
                     if (opSymbol == symTable.notFoundSymbol) {
-                        opSymbol = symResolver.getArithmeticOpsForTypeSets(binaryExpr.opKind, lhsType, rhsType,
-                                this.resultType);
+                        opSymbol = symResolver.getArithmeticOpsForTypeSets(binaryExpr.opKind, lhsType, rhsType);
                     }
 
                     if (opSymbol == symTable.notFoundSymbol) {
@@ -4376,23 +4380,13 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         List<BType> xmlTypesInSequence = new ArrayList<>();
-        boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
-        int errorCount = this.dlog.errorCount();
-        muteErrorLog();
 
         for (BLangExpression expressionItem : bLangXMLSequenceLiteral.xmlItems) {
             resultType = checkExpr(expressionItem, env, expType);
-            if (resultType == symTable.semanticError) {
-                unMuteErrorLog(prevNonErrorLoggingCheck, errorCount);
-                dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType,
-                        getXMLTypeFromLiteralKind(expressionItem));
-                return;
-            }
             if (!xmlTypesInSequence.contains(resultType)) {
                 xmlTypesInSequence.add(resultType);
             }
         }
-        unMuteErrorLog(prevNonErrorLoggingCheck, errorCount);
 
         // Set type according to items in xml sequence and expected type
         if (expType.tag == TypeTags.XML || expType == symTable.noType) {

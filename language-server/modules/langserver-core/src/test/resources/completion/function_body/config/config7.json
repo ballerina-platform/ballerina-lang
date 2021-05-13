@@ -69,29 +69,6 @@
       ]
     },
     {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
@@ -157,6 +134,29 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -433,30 +433,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "M",
-      "insertText": "StrandData",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Currency",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "A",
-      "insertText": "Currency",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "to",
+      "label": "fromCurrency",
       "kind": "Variable",
-      "detail": "string",
+      "detail": "Currency",
       "sortText": "C",
-      "insertText": "to",
+      "insertText": "fromCurrency",
       "insertTextFormat": "Snippet"
     },
     {
@@ -470,15 +459,46 @@
         }
       },
       "sortText": "D",
+      "filterText": "'function",
       "insertText": "'function()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fromCurrency",
+      "label": "example(Currency 'from, string to)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `Currency` 'from  \n- `string` to"
+        }
+      },
+      "sortText": "D",
+      "filterText": "example",
+      "insertText": "example(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "to",
       "kind": "Variable",
-      "detail": "Currency",
+      "detail": "string",
       "sortText": "C",
-      "insertText": "fromCurrency",
+      "insertText": "to",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "M",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -498,29 +518,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "example(Currency 'from, string to)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `Currency` 'from  \n- `string` to"
-        }
-      },
-      "sortText": "D",
-      "insertText": "example(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
+      "label": "Currency",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "A",
+      "insertText": "Currency",
       "insertTextFormat": "Snippet"
     },
     {

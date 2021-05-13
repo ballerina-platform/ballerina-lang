@@ -129,15 +129,19 @@ public class OptionTest {
     }
 
     @Test
+    public void testUnionWithNilOnly() {
+        Type unionType = TypeCreator.createUnionType(PredefinedTypes.TYPE_STRING, PredefinedTypes.TYPE_NULL);
+        Option option = getOption(unionType, "union");
+        CliSpec cliSpec = new CliSpec(option, new Operand[0], "--union=hello");
+        Object[] mainArgs = cliSpec.getMainArgs();
+        BMap map = (BMap) mainArgs[1];
+        Assert.assertEquals(map.get(StringUtils.fromString("union")), StringUtils.fromString("hello"));
+    }
+
+    @Test
     public void testInvalidUnionType() {
-        Field unionWithNilField = TypeCreator.createField(
-                TypeCreator.createUnionType(PredefinedTypes.TYPE_STRING, PredefinedTypes.TYPE_INT), "union", 1);
-        Map<String, Field> fields = new HashMap<>();
-        fields.put(unionWithNilField.getFieldName(), unionWithNilField);
-        RecordType type = TypeCreator.createRecordType(RECORD_NAME, module, 1, fields, null, true, 6);
-        Option option = new Option(type, ValueCreator.createMapValue(type));
-        String[] args = {"--union=e-fac"};
-        CliSpec cliSpec = new CliSpec(option, new Operand[0], args);
+        Type unionType = TypeCreator.createUnionType(PredefinedTypes.TYPE_STRING, PredefinedTypes.TYPE_INT);
+        CliSpec cliSpec = new CliSpec(getOption(unionType, "union"), new Operand[0], "--union=e-fac");
         try {
             cliSpec.getMainArgs();
             Assert.fail();
@@ -149,16 +153,39 @@ public class OptionTest {
     @Test
     public void testRepeatedOption() {
         String optionName = "stringVal";
-        Field stringField = TypeCreator.createField(PredefinedTypes.TYPE_STRING, optionName, 1);
-        Map<String, Field> fields = Map.ofEntries(Map.entry(stringField.getFieldName(), stringField));
-        RecordType recordType = TypeCreator.createRecordType(RECORD_NAME, module, 1, fields, null, true, 6);
-        Option option = new Option(recordType, ValueCreator.createMapValue(recordType));
-        CliSpec cliSpec = new CliSpec(option, new Operand[0], "--stringVal", "--stringVal");
+        CliSpec cliSpec = new CliSpec(getOption(PredefinedTypes.TYPE_STRING, optionName), new Operand[0], "--stringVal",
+                                      "val1", "--stringVal", "val2");
         try {
             cliSpec.getMainArgs();
             Assert.fail();
         } catch (BError error) {
-            Assert.assertEquals(error.getMessage(), "Missing option argument for '--stringVal'");
+            Assert.assertEquals(error.getMessage(), "The option 'stringVal' cannot be repeated");
+        }
+    }
+
+    @Test
+    public void testRepeatedNamedOption() {
+        String optionName = "stringVal";
+        CliSpec cliSpec = new CliSpec(getOption(PredefinedTypes.TYPE_STRING, optionName), new Operand[0],
+                                      "--stringVal=val1", "--stringVal=val2");
+        try {
+            cliSpec.getMainArgs();
+            Assert.fail();
+        } catch (BError error) {
+            Assert.assertEquals(error.getMessage(), "The option 'stringVal' cannot be repeated");
+        }
+    }
+
+    @Test
+    public void testRepeatedBooleanOption() {
+        String optionName = "booleanVal";
+        Option option = getOption(PredefinedTypes.TYPE_BOOLEAN, optionName);
+        CliSpec cliSpec = new CliSpec(option, new Operand[0], "--booleanVal", "--booleanVal");
+        try {
+            cliSpec.getMainArgs();
+            Assert.fail();
+        } catch (BError error) {
+            Assert.assertEquals(error.getMessage(), "The option 'booleanVal' cannot be repeated");
         }
     }
 
@@ -233,16 +260,26 @@ public class OptionTest {
 
     @Test
     public void testBooleanType() {
-        Field booleanField = TypeCreator.createField(PredefinedTypes.TYPE_BOOLEAN, "bool", 1);
-        Map<String, Field> fields = Map.ofEntries(Map.entry(booleanField.getFieldName(), booleanField));
-        RecordType type = TypeCreator.createRecordType(RECORD_NAME, module, 1, fields, null, true, 6);
-        Option option = new Option(type, ValueCreator.createMapValue(type));
+        Option option = getOption(PredefinedTypes.TYPE_BOOLEAN, "bool");
         CliSpec cliSpec = new CliSpec(option, new Operand[0], "--bool");
         Object[] mainArgs = cliSpec.getMainArgs();
         BMap map = (BMap) mainArgs[1];
-        Assert.assertEquals(map.get(StringUtils.fromString(booleanField.getFieldName())), true);
+        Assert.assertEquals(map.get(StringUtils.fromString("bool")), true);
+    }
+
+    private Option getOption(Type optionType, String paramName) {
+        Field field = TypeCreator.createField(optionType, paramName, 1);
+        Map<String, Field> fields = Map.ofEntries(Map.entry(field.getFieldName(), field));
+        RecordType type = TypeCreator.createRecordType(RECORD_NAME, module, 1, fields, null, true, 6);
+        return new Option(type, ValueCreator.createMapValue(type));
+    }
+
+
+    @Test
+    public void testBooleanNamedArgument() {
+        Option option = getOption(PredefinedTypes.TYPE_BOOLEAN, "bool");
         try {
-            cliSpec = new CliSpec(option, new Operand[0], "--bool=false");
+            CliSpec cliSpec = new CliSpec(option, new Operand[0], "--bool=false");
             cliSpec.getMainArgs();
             Assert.fail();
         } catch (BError error) {
@@ -250,7 +287,6 @@ public class OptionTest {
                                 "the option 'bool' of type 'boolean' is expected without a value");
         }
     }
-
 
     @DataProvider(name = "invalidTypes")
     public Object[][] invalidTypes() {
@@ -274,10 +310,7 @@ public class OptionTest {
 
     @Test(dataProvider = "invalid")
     public void testInvalid(Type type, String[] args, String errMessage) {
-        Field booleanField = TypeCreator.createField(type, "val", 1);
-        Map<String, Field> fields = Map.ofEntries(Map.entry(booleanField.getFieldName(), booleanField));
-        RecordType recordType = TypeCreator.createRecordType(RECORD_NAME, module, 1, fields, null, true, 6);
-        Option option = new Option(recordType, ValueCreator.createMapValue(recordType));
+        Option option = getOption(type, "val");
         CliSpec cliSpec = new CliSpec(option, new Operand[0], args);
         try {
             cliSpec.getMainArgs();
