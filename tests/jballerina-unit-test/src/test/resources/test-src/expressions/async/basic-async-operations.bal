@@ -24,6 +24,7 @@ function testAsyncNonNativeBasic3() returns int {
     future<int> f2 = start add(10, 2);
     int result2 = checkpanic  wait f2;
     result = result + result2;
+    f2 = start add(10, 2);
     int result3 = checkpanic wait f2;
     result = result + result3;
     return result;

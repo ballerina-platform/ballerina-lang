@@ -237,3 +237,4 @@ function assertEquality(any|error expected, any|error actual) {
     panic error(ASSERTION_ERROR_REASON,
                  message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
+

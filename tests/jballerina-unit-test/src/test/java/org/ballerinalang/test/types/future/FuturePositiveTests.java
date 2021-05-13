@@ -14,6 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.ballerinalang.test.types.future;
 
 import org.ballerinalang.test.BCompileUtil;
@@ -29,7 +30,7 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 /**
  * This class contains future type related test cases.
  */
-public class FutureTests {
+public class FuturePositiveTests {
 
     private CompileResult result;
 
@@ -105,7 +106,7 @@ public class FutureTests {
 
     @Test
     public void testNegatives() {
-        CompileResult errors = BCompileUtil.compile("test-src/types/future/test_future_negative.bal");
+        CompileResult errors = BCompileUtil.compile("test-src/types/future/future_negative_compilation.bal");
         int index = 0;
         validateError(errors, index++, "incompatible types: expected 'future<Bar>', found 'future<Foo>'", 18, 22);
         validateError(errors, index++,
