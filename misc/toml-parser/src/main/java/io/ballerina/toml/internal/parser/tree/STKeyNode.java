@@ -17,7 +17,7 @@
  */
 package io.ballerina.toml.internal.parser.tree;
 
-import io.ballerina.toml.syntax.tree.ArrayNode;
+import io.ballerina.toml.syntax.tree.KeyNode;
 import io.ballerina.toml.syntax.tree.Node;
 import io.ballerina.toml.syntax.tree.NonTerminalNode;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
@@ -30,66 +30,46 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STArrayNode extends STValueNode {
-    public final STNode openBracket;
+public class STKeyNode extends STNode {
     public final STNode value;
-    public final STNode closeBracket;
 
-    STArrayNode(
-            STNode openBracket,
-            STNode value,
-            STNode closeBracket) {
+    STKeyNode(
+            STNode value) {
         this(
-                openBracket,
                 value,
-                closeBracket,
                 Collections.emptyList());
     }
 
-    STArrayNode(
-            STNode openBracket,
+    STKeyNode(
             STNode value,
-            STNode closeBracket,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.ARRAY, diagnostics);
-        this.openBracket = openBracket;
+        super(SyntaxKind.KEY, diagnostics);
         this.value = value;
-        this.closeBracket = closeBracket;
 
         addChildren(
-                openBracket,
-                value,
-                closeBracket);
+                value);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STArrayNode(
-                this.openBracket,
+        return new STKeyNode(
                 this.value,
-                this.closeBracket,
                 diagnostics);
     }
 
-    public STArrayNode modify(
-            STNode openBracket,
-            STNode value,
-            STNode closeBracket) {
+    public STKeyNode modify(
+            STNode value) {
         if (checkForReferenceEquality(
-                openBracket,
-                value,
-                closeBracket)) {
+                value)) {
             return this;
         }
 
-        return new STArrayNode(
-                openBracket,
+        return new STKeyNode(
                 value,
-                closeBracket,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ArrayNode(this, position, parent);
+        return new KeyNode(this, position, parent);
     }
 
     @Override

@@ -33,7 +33,6 @@ import static io.ballerina.toml.syntax.tree.SyntaxKind.EOF_TOKEN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.EQUAL_TOKEN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.FLOAT;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.HEX_INT;
-import static io.ballerina.toml.syntax.tree.SyntaxKind.NEWLINE;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.OCT_INT;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.OPEN_BRACKET_TOKEN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.SINGLE_QUOTE_TOKEN;
@@ -136,7 +135,7 @@ public class TomlParser extends AbstractParser {
         startContext(ParserRuleContext.TOML_TABLE_ARRAY);
         STNode firstOpenBracket = parseOpenBracket(ParserRuleContext.ARRAY_TABLE_FIRST_START);
         STNode secondOpenBracket = parseOpenBracket(ParserRuleContext.ARRAY_TABLE_SECOND_START);
-        STNode identifierToken = parseKeys();
+        STNode identifierToken = STNodeFactory.createKeyNode(parseKeys());
         STNode firstCloseBracket = parseCloseBracket(ParserRuleContext.ARRAY_TABLE_FIRST_END);
         STNode secondCloesBracket = parseCloseBracket(ParserRuleContext.ARRAY_TABLE_SECOND_END);
         STNode newline = parseNewlines();
@@ -158,7 +157,7 @@ public class TomlParser extends AbstractParser {
     private STNode parseTable() {
         startContext(ParserRuleContext.TOML_TABLE);
         STNode openBracket = parseOpenBracket(ParserRuleContext.TABLE_START);
-        STNode identifierToken = parseKeys();
+        STNode identifierToken = STNodeFactory.createKeyNode(parseKeys());
         STNode closedBracket = parseCloseBracket(ParserRuleContext.TABLE_END);
         STNode newLine = parseNewlines();
         if (newLine.hasDiagnostics()) {
@@ -214,7 +213,7 @@ public class TomlParser extends AbstractParser {
      */
     private STNode parseKeyValue() {
         startContext(ParserRuleContext.KEY_VALUE_PAIR);
-        STNode identifier = parseKeys();
+        STNode identifier = STNodeFactory.createKeyNode(parseKeys());
         STNode equals = parseEquals();
         STNode value = parseValue();
         STNode newLine = parseNewlines();

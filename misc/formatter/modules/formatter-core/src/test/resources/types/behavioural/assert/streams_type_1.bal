@@ -5,7 +5,7 @@ import ballerina/io;
 class OddNumberGenerator {
     int i = 1;
 
-    public isolated function next() returns record {| int value; |}|error? {
+    public isolated function next() returns record {|int value;|}|error? {
         self.i += 2;
         return {value: self.i};
     }
@@ -17,7 +17,7 @@ public function main() {
     //Creating a stream passing an OddNumberGenerator class to the stream constructor
     var oddNumberStream = new stream<int, error>(oddGen);
 
-    record {| int value; |}|error? oddNumber = oddNumberStream.next();
+    record {|int value;|}|error? oddNumber = oddNumberStream.next();
 
     if (oddNumber is ResultValue) {
         io:println("Retrieved odd number: ", oddNumber.value);
@@ -56,7 +56,7 @@ public function main() {
 
     io:println("Calls next method manually and get the next iteration value: ");
     //Calls the `next()` operation to retrieve the data from the stream.
-    record {| Student value; |}|error? student = studentStream2.next();
+    record {|Student value;|}|error? student = studentStream2.next();
     if (student is StudentValue) {
         io:println(student.value);
     }
@@ -78,7 +78,7 @@ public function main() {
     var iterator = studentStream3.iterator();
 
     //Calls the `next()` operation on the iterator to retrieve the next data from the stream.
-    record {| Student value; |}|error? nextStudent = iterator.next();
+    record {|Student value;|}|error? nextStudent = iterator.next();
     if (nextStudent is StudentValue) {
         io:println(nextStudent.value);
     }
