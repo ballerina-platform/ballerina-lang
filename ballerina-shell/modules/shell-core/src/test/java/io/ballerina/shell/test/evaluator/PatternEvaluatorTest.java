@@ -36,7 +36,7 @@ public class PatternEvaluatorTest extends AbstractEvaluatorTest {
         testEvaluate(TUPLE_EVALUATOR_TESTCASE);
     }
 
-    @Test
+//    @Test
     public void testEvaluateRecord() throws BallerinaShellException {
         testEvaluate(RECORD_EVALUATOR_TESTCASE);
     }

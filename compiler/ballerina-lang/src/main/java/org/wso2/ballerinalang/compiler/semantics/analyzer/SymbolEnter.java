@@ -2512,6 +2512,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
                 env.enclPkg.packageID, null, env.scope.owner, pos, VIRTUAL);
         recordSymbol.name = names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
+        recordSymbol.scope = new Scope(recordSymbol);
         return recordSymbol;
     }
 
@@ -2559,7 +2560,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                                        BType restConstraint) {
         Location pos = recordVariable.pos;
         BRecordTypeSymbol recordSymbol = createAnonRecordSymbol(env, pos);
-        recordSymbol.scope = new Scope(recordSymbol);
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
 
         LinkedHashMap<String, BField> unMappedFields = new LinkedHashMap<>() {{
