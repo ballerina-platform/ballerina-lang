@@ -132,6 +132,19 @@ public class BindgenCommandTest extends CommandTest {
         Assert.assertTrue(output.contains("error: output path provided could not be found: "));
     }
 
+    @Test(description = "Test a scenario where the output path resides inside a project")
+    public void testOutputPathInsideProject() throws IOException {
+        String projectDir = Paths.get(testResources.toString(), "balProject", "tests").toString();
+        String[] args = {"-o=" + projectDir, "java.lang.String"};
+
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        bindgenCommand.execute();
+        String output = readOutput(false);
+        Assert.assertTrue(output.contains("Ballerina project detected at: "));
+    }
+
     @Test(description = "Test if the correct error is given when the output path is provided with the modules flag")
     public void testOutputPathWithModulesFlag() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
