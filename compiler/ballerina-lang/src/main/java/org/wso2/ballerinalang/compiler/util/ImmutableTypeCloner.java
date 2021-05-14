@@ -542,14 +542,13 @@ public class ImmutableTypeCloner {
 
     private static String getPackageAlias(SymbolEnv env, String compUnitName, PackageID typePkgId) {
         for (BLangImportPackage importStmt : env.enclPkg.imports) {
-            if (!typePkgId.equals(importStmt.symbol.pkgID)) {
+            if (!importStmt.compUnit.value.equals(compUnitName)) {
                 continue;
             }
 
-            if (importStmt.compUnit.value.equals(compUnitName)) {
+            if (importStmt.symbol != null && typePkgId.equals(importStmt.symbol.pkgID)) {
                 return importStmt.alias.value;
             }
-
         }
 
         return ""; // current module

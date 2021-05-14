@@ -30,4 +30,5 @@ function foo() {
 // TODO: remove this after runtime supports all configurable types
 configurable json & readonly j2 = {name: "apple", color: "red"};
 
-// TODO: validate configurable var decl for tuple, record and error var once they are supported.
+// configurable var not allowed with complex variables
+configurable [int, string] [intVar, stringVar] = ?;
