@@ -84,7 +84,7 @@ public class BindgenCommandTest extends CommandTest {
         Assert.assertTrue(output.contains("commons-logging-1.1.1.jar"));
         Assert.assertTrue(output.contains("log4j-1.2.17.jar"));
         Assert.assertFalse(output.contains("Failed to add the following to classpath:"));
-        Assert.assertFalse(output.contains("class could not be generated."));
+        Assert.assertFalse(output.contains("error: unable to generate the '"));
     }
 
     @Test(description = "Test if the correct error is given for incorrect classpaths")
