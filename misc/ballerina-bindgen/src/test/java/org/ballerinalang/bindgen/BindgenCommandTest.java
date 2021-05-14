@@ -193,11 +193,11 @@ public class BindgenCommandTest extends CommandTest {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
         String[] args = {"-o=" + projectDir, "org.ballerinalang.bindgen.MethodsTestResource", "java.invalid.Class"};
 
-        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, true);
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
-        String output = readOutput(false);
+        String output = readOutput(true);
         Assert.assertTrue(output.contains("error: unable to generate the 'java.invalid.Class' binding class: " +
                 "java.lang.ClassNotFoundException: java.invalid.Class"));
         Assert.assertTrue(output.contains("error: unable to generate the binding function 'unsupportedParam' of " +
