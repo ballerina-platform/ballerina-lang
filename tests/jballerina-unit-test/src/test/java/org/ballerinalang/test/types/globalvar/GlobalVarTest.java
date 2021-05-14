@@ -45,6 +45,6 @@ public class GlobalVarTest {
     @Test
     public void testConfigurableVar() {
         CompileResult result = BCompileUtil.compile("test-src/statements/variabledef/configurable_var_decl.bal");
-        BRunUtil.invoke(result, "foo");
+        BRunUtil.invoke(result, "testConfigValue");
     }
 }
