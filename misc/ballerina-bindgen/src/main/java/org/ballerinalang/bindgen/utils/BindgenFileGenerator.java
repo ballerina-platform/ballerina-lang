@@ -133,7 +133,7 @@ public class BindgenFileGenerator {
             InputStream stream = this.getClass().getClassLoader().getResourceAsStream(filePath.toString());
             return IOUtils.toString(stream, UTF_8);
         } catch (Exception e) {
-            throw new BindgenException("error: unable to read the internal template file", e);
+            throw new BindgenException("error: unable to read the internal template file: " + e.getMessage(), e);
         }
     }
 }

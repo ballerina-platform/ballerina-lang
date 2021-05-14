@@ -129,7 +129,7 @@ public class BindgenCommandTest extends CommandTest {
 
         bindgenCommand.execute();
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("Error while generating Ballerina bindings:"));
+        Assert.assertTrue(output.contains("Failed to generate the Ballerina bindings."));
         Assert.assertTrue(output.contains("error: output path provided could not be found: "));
     }
 
@@ -236,6 +236,26 @@ public class BindgenCommandTest extends CommandTest {
                 file.setReadable(true);
                 Assert.assertTrue(output.contains("error: unable to load the project ["));
                 Assert.assertTrue(output.contains("Ballerina.toml' does not have read permissions"));
+            }
+        }
+    }
+
+    @Test(description = "Test if the correct error is given for a failure in the writing bal files")
+    public void testFileWriteFailure() throws IOException {
+        String projectDir = Paths.get(testResources.toString(), "balProject", "tests").toString();
+        String[] args = {"-o=" + projectDir, "java.lang.Object"};
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        File file = new File(projectDir);
+        if (file.exists()) {
+            boolean success = file.setWritable(false);
+            if (success) {
+                bindgenCommand.execute();
+                String output = readOutput(true);
+                file.setWritable(true);
+                Assert.assertTrue(output.contains("error: unable to create the file:"));
+                Assert.assertTrue(output.contains("Object.bal (Permission denied)"));
             }
         }
     }

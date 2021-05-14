@@ -151,8 +151,8 @@ public class BindgenMvnResolver {
                 fileWriter.write("artifactId = \"" + artifactId + "\"\n");
                 fileWriter.write("version = \"" + version + "\"");
             }
-        } catch (IOException io) {
-            throw new BindgenException("error: unable to update the Ballerina.toml file", io);
+        } catch (IOException e) {
+            throw new BindgenException("error: unable to update the Ballerina.toml file: " + e.getMessage(), e);
         }
     }
 

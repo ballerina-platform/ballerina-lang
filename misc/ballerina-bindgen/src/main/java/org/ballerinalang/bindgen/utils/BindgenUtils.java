@@ -107,7 +107,7 @@ public class BindgenUtils {
             writer.println(Formatter.format(content));
             fileWriter.close();
         } catch (IOException | FormatterException e) {
-            throw new BindgenException("error: unable to create the file: " + outPath, e);
+            throw new BindgenException("error: unable to create the file: " + outPath + " " + e.getMessage(), e);
         } finally {
             if (writer != null) {
                 writer.close();
@@ -130,7 +130,7 @@ public class BindgenUtils {
                     throw new BindgenException("error: unable to create the directory: " + path);
                 }
             } catch (SecurityException e) {
-                throw new BindgenException("error: unable to create the directory: " + path, e);
+                throw new BindgenException("error: unable to create the directory: " + path + " " + e.getMessage(), e);
             }
         }
     }
@@ -319,9 +319,9 @@ public class BindgenUtils {
             classLoader = (URLClassLoader) AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () ->
                     new ChildFirstClassLoader(urls.toArray(new URL[0]), parent));
         } catch (RuntimeException e) {
-            throw new BindgenException("error: unable to load the provided classpaths", e);
+            throw new BindgenException("error: unable to load the provided classpaths: " + e.getMessage(), e);
         } catch (Exception e) {
-            throw new BindgenException("error: unable to process the provided classpaths", e);
+            throw new BindgenException("error: unable to process the provided classpaths: " + e.getMessage(), e);
         }
         return classLoader;
     }
