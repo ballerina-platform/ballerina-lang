@@ -311,8 +311,8 @@ public class BindgenTreeModifier {
         try {
             return createFunctionDefinitionNode(bFunction, isExternal);
         } catch (BindgenException e) {
-            env.addError("error: unable to generate the binding function `" + bFunction.getFunctionName() + "` of `"
-                    + bFunction.getDeclaringClass() + "`: "  + e.getMessage());
+            env.setFailedMethodGens("error: unable to generate the binding function '" + bFunction.getFunctionName()
+                    + "' of '" + bFunction.getDeclaringClass().getName() + "': "  + e.getMessage());
             return null;
         }
     }

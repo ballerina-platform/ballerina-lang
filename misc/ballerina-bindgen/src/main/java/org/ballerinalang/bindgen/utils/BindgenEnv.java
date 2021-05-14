@@ -53,7 +53,7 @@ public class BindgenEnv {
     private Set<String> allJavaClasses = new HashSet<>();
     private Set<JError> exceptionList = new HashSet<>();
     private Map<String, String> failedClassGens = new HashMap<>();
-    private List<String> errorList = new ArrayList<>();
+    private List<String> failedMethodGens = new ArrayList<>();
 
     public void setModulesFlag(boolean modulesFlag) {
         this.modulesFlag = modulesFlag;
@@ -200,11 +200,11 @@ public class BindgenEnv {
         this.failedClassGens.put(className, errorDescription);
     }
 
-    public List<String> getErrorList() {
-        return errorList;
+    public List<String> getFailedMethodGens() {
+        return failedMethodGens;
     }
 
-    public void addError(String error) {
-        this.errorList.add(error);
+    public void setFailedMethodGens(String error) {
+        this.failedMethodGens.add(error);
     }
 }

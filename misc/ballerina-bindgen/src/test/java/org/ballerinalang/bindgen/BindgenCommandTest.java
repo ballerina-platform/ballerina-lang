@@ -188,6 +188,24 @@ public class BindgenCommandTest extends CommandTest {
                 "java.lang.ClassNotFoundException: java.lang.Apple"));
     }
 
+    @Test(description = "Test if the correct error is given for failed method generations")
+    public void testFailedMethodGenerations() throws IOException {
+        String projectDir = Paths.get(testResources.toString(), "balProject").toString();
+        String[] args = {"-o=" + projectDir, "org.ballerinalang.bindgen.MethodsTestResource", "java.invalid.Class"};
+
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, true);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        bindgenCommand.execute();
+        String output = readOutput(false);
+        Assert.assertTrue(output.contains("error: unable to generate the 'java.invalid.Class' binding class: " +
+                "java.lang.ClassNotFoundException: java.invalid.Class"));
+        Assert.assertTrue(output.contains("error: unable to generate the binding function 'unsupportedParam' of " +
+                "'org.ballerinalang.bindgen.MethodsTestResource': multidimensional arrays are currently unsupported"));
+        Assert.assertTrue(output.contains("error: unable to generate the binding function 'unsupportedReturnType' of " +
+                "'org.ballerinalang.bindgen.MethodsTestResource': multidimensional arrays are currently unsupported"));
+    }
+
     @AfterClass
     public void cleanup() throws IOException {
         super.cleanup();

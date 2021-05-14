@@ -318,7 +318,7 @@ class BindgenNodeFactory {
         }
         for (JParameter jParameter : bFunction.getParameters()) {
             if (jParameter.isArray() && isMultiDimensionalArray(jParameter.getParameterClass().getName())) {
-                throw new BindgenException("error: multidimensional arrays are currently unsupported");
+                throw new BindgenException("multidimensional arrays are currently unsupported");
             }
             if (isExternal) {
                 parameterNodes.add(createRequiredParameterNode(jParameter.getExternalType()
@@ -360,7 +360,7 @@ class BindgenNodeFactory {
         if (returnType == null || returnType.equals("")) {
             return null;
         } else if (isMultiDimensionalArray(returnType)) {
-            throw new BindgenException("error: multidimensional arrays are currently unsupported");
+            throw new BindgenException("multidimensional arrays are currently unsupported");
         }
         return createReturnTypeDescriptorNode(createSimpleNameReferenceNode(returnType));
     }

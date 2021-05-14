@@ -74,8 +74,8 @@ public class BindgenFileGenerator {
         if (syntaxTree.containsModulePart()) {
             return new BindgenTreeModifier(jClass, env).transform(syntaxTree.rootNode()).syntaxTree();
         } else {
-            throw new BindgenException("error: unable to generate the binding class `"
-                    + jClass.getCurrentClass().getName() + "`");
+            throw new BindgenException("error: unable to generate the binding class '"
+                    + jClass.getCurrentClass().getName() + "'");
         }
     }
 

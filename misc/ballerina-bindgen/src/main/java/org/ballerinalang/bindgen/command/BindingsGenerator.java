@@ -111,6 +111,14 @@ public class BindingsGenerator {
             if (env.getFailedClassGens() != null) {
                 handleFailedClassGens();
             }
+
+            // Handle failed method generations.
+            if (env.getFailedMethodGens() != null) {
+                for (String entry : env.getFailedMethodGens()) {
+                    errStream.println(entry);
+                }
+            }
+
             try {
                 ((URLClassLoader) classLoader).close();
             } catch (IOException e) {
