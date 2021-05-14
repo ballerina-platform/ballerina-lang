@@ -471,7 +471,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<Void> disconnect(DisconnectArguments args) {
         context.setTerminateRequestReceived(true);
-        boolean terminateDebuggee = Objects.requireNonNullElse(args.getTerminateDebuggee(), false);
+        boolean terminateDebuggee = Objects.requireNonNullElse(args.getTerminateDebuggee(), true);
         terminateServer(terminateDebuggee);
         return CompletableFuture.completedFuture(null);
     }

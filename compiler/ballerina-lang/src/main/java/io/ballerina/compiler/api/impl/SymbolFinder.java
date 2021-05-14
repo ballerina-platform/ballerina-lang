@@ -339,6 +339,7 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
+        lookupNodes(constant.annAttachments);
         lookupNode(constant.typeNode);
         lookupNode(constant.expr);
     }
@@ -1209,6 +1210,11 @@ class SymbolFinder extends BaseVisitor {
         }
 
         lookupNodes(classDefinition.annAttachments);
+
+        for (BLangSimpleVariable field : classDefinition.fields) {
+            lookupNodes(field.annAttachments);
+        }
+
         lookupNodes(classDefinition.fields);
         lookupNodes(classDefinition.referencedFields);
         lookupNode(classDefinition.initFunction);
@@ -1218,6 +1224,10 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
+        for (BLangSimpleVariable field : objectTypeNode.fields) {
+            lookupNodes(field.annAttachments);
+        }
+
         lookupNodes(objectTypeNode.fields);
         lookupNodes(objectTypeNode.functions);
         lookupNodes(objectTypeNode.typeRefs);
@@ -1225,6 +1235,10 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
+        for (BLangSimpleVariable field : recordTypeNode.fields) {
+            lookupNodes(field.annAttachments);
+        }
+
         lookupNodes(recordTypeNode.fields);
         lookupNodes(recordTypeNode.typeRefs);
     }

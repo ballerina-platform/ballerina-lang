@@ -27,7 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  *
  * @since 0.96.0
  */
-public class BLangIntRangeExpression extends BLangAccessibleExpression implements IntRangeExpression {
+public class BLangIntRangeExpression extends BLangExpression implements IntRangeExpression {
 
     public boolean includeStart = true, includeEnd = true;
     public BLangExpression startExpr, endExpr;

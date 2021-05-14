@@ -21,27 +21,24 @@ package org.ballerinalang.test.cli;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
- * Test operand CLI arguments.
+ * Test option and operand CLI arguments.
  */
-public class OperandTest {
-    @DataProvider(name = "fileAndParameters")
-    public Object[] getFileAndParameters() {
-        return new Object[][]{
-                {"operand_default_only", new String[0]}, {"operand_int_and_default", new String[]{"1"}},
-                {"operand_int_and_default", new String[]{"2", "John"}},
-                {"operand_rest_param_only", new String[]{"Riyafa", "John"}},
-                {"operand_rest_param_without_value", new String[0]},
-                {"operand_rest_param_without_value", new String[0]}, {"option_defaultable_optional_with_arg",
-                new String[]{"--name=Riyafa", "--score=100", "--height=5.6"}}};
+public class CommonTest {
+    @Test
+    public void testOperandOptionRestParam() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/cli/operand_option_rest_param.bal");
+        String[] args =
+                {"--name", "Riyafa", "--good", "100", "5", "3"};
+        BRunUtil.runMain(compileResult, args);
     }
-
-    @Test(dataProvider = "fileAndParameters")
-    public void testOperands(String fileName, String[] args) {
-        CompileResult compileResult = BCompileUtil.compile("test-src/cli/" + fileName + ".bal");
+    @Test
+    public void testOptionRestParam() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/cli/option_rest_param.bal");
+        String[] args =
+                {"--name", "Riyafa", "5", "3"};
         BRunUtil.runMain(compileResult, args);
     }
 }

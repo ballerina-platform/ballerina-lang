@@ -80,6 +80,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(identifierLiteralNode);
     }
 
+    public T transform(KeyNode keyNode) {
+        return transformSyntaxNode(keyNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

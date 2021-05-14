@@ -13,10 +13,11 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/jballerina.java;
 
-public function main(int[]|float[]|boolean[]|json[] arr) {
-    print(arr.toJsonString());
+public function main(float[] floatArr) {
+    print("float: " + floatArr.toString());
 }
 
 public function print(any|error... values) = @java:Method {

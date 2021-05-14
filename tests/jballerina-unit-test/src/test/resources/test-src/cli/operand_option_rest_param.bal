@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -13,21 +13,18 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/jballerina.java;
 
-public type Employee record {
+import ballerina/test;
+
+public type Student record {|
     string name;
-};
+    boolean good;
+|};
 
-public function main([int, Employee, string] t) {
-    int id;
-    Employee e;
-    string dept;
-    [id, e, dept] = t;
-
-    print("Id: " + id.toString() + ", Name: " + e.name + ", Dept: " + dept);
+public function main(int score, *Student student, int... ratings) {
+    test:assertEquals(student.name, "Riyafa");
+    test:assertEquals(student.good, true);
+    test:assertEquals(score, 100);
+    test:assertEquals(ratings, [5, 3]);
 }
 
-public function print(any|error... values) = @java:Method {
-    'class: "org.ballerinalang.test.utils.interop.Utils"
-} external;

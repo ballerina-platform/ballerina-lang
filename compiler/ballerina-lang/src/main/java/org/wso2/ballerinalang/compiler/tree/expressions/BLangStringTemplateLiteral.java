@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public class BLangStringTemplateLiteral extends BLangAccessibleExpression implements StringTemplateLiteralNode {
+public class BLangStringTemplateLiteral extends BLangExpression implements StringTemplateLiteralNode {
 
     public List<BLangExpression> exprs;
 
