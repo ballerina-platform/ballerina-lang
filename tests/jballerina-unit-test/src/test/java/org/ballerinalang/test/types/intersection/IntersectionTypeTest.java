@@ -54,6 +54,16 @@ public class IntersectionTypeTest {
     }
 
     @Test
+    public void testRecursiveReadonlyIntersection() {
+        BRunUtil.invoke(readOnlyIntersectionResults, "testRecursiveReadonlyIntersection");
+    }
+
+    @Test
+    public void testRuntimeTypeNameOfIntersectionType() {
+        BRunUtil.invoke(readOnlyIntersectionResults, "testRuntimeTypeNameOfIntersectionType");
+    }
+
+    @Test
     public void testImmutableTypesNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/intersection/test_intersection_type_negative.bal");
         int index = 0;

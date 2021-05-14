@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Settings Toml Spec",
+  "description": "Schema for Settings Toml",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "proxy": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "host": {
+          "type": "string"
+        },
+        "port": {
+          "type": "number"
+        },
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "central": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "accesstoken": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

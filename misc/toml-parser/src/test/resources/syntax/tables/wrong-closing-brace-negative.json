@@ -143,14 +143,19 @@
               "kind": "OPEN_BRACKET_TOKEN"
             },
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "hello"
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "hello"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -180,18 +185,23 @@
                   "kind": "KEY_VALUE",
                   "children": [
                     {
-                      "kind": "LIST",
+                      "kind": "KEY",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_LITERAL",
+                          "kind": "LIST",
                           "children": [
                             {
                               "kind": "IDENTIFIER_LITERAL",
-                              "value": "hello",
-                              "trailingMinutiae": [
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "hello",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }

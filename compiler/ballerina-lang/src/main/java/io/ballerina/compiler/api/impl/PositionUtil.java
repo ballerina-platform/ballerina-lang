@@ -60,7 +60,7 @@ class PositionUtil {
     }
 
     static boolean withinRange(LineRange specifiedRange, Location nodePosition) {
-        if (nodePosition == null || !nodePosition.lineRange().filePath().equals(specifiedRange.filePath())) {
+        if (!nodePosition.lineRange().filePath().equals(specifiedRange.filePath())) {
             return false;
         }
 

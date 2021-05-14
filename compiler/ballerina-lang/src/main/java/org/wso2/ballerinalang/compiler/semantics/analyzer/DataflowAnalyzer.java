@@ -972,7 +972,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        if (!fieldAccessExpr.lhsVar && isObjectMemberAccessWithSelf(fieldAccessExpr)) {
+        if (!fieldAccessExpr.isLValue && isObjectMemberAccessWithSelf(fieldAccessExpr)) {
             checkVarRef(fieldAccessExpr.symbol, fieldAccessExpr.pos);
         }
         analyzeNode(fieldAccessExpr.expr, env);

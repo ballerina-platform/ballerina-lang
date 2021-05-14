@@ -20,7 +20,7 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
-import io.ballerina.toml.syntax.tree.DocumentNode;
+import io.ballerina.toml.syntax.tree.NumericLiteralNode;
 
 /**
  * Represents A Long Value in Toml AST.
@@ -28,12 +28,21 @@ import io.ballerina.toml.syntax.tree.DocumentNode;
  * @since 2.0.0
  */
 public class TomlLongValueNode extends TomlBasicValueNode<Long> {
-    public TomlLongValueNode(DocumentNode documentNode, Long value, TomlNodeLocation location) {
-        super(documentNode, value, TomlType.INTEGER, location);
+    public TomlLongValueNode(NumericLiteralNode numericLiteralNode, Long value, TomlNodeLocation location) {
+        super(numericLiteralNode, value, TomlType.INTEGER, location);
     }
 
     @Override
     public void accept(TomlNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public boolean isMissingNode() {
+        NumericLiteralNode numericLiteralNode = (NumericLiteralNode) this.externalTreeNode();
+        if (numericLiteralNode.isMissing()) {
+            return true;
+        }
+        return numericLiteralNode.value().isMissing();
     }
 }

@@ -160,7 +160,7 @@ public class JDIEventProcessor {
             context.getDebuggeeVM().resume();
         } else if (event instanceof StepEvent) {
             StepEvent stepEvent = (StepEvent) event;
-            long threadId = stepEvent.thread().uniqueID();
+            int threadId = (int) stepEvent.thread().uniqueID();
             if (isBallerinaSource(stepEvent.location())) {
                 notifyStopEvent(event);
             } else {
@@ -185,7 +185,7 @@ public class JDIEventProcessor {
         }
     }
 
-    void sendStepRequest(long threadId, int stepType) {
+    void sendStepRequest(int threadId, int stepType) {
         if (stepType == StepRequest.STEP_OVER) {
             configureDynamicBreakPoints(threadId);
         } else if (stepType == StepRequest.STEP_INTO || stepType == StepRequest.STEP_OUT) {
@@ -224,7 +224,7 @@ public class JDIEventProcessor {
             }
             Map<Integer, BalBreakpoint> breakpoints = this.breakpoints.get(qualifiedClassName);
             for (BalBreakpoint bp : breakpoints.values()) {
-                List<Location> locations = referenceType.locationsOfLine(bp.getLine().intValue());
+                List<Location> locations = referenceType.locationsOfLine(bp.getLine());
                 if (!locations.isEmpty()) {
                     Location loc = locations.get(0);
                     BreakpointRequest bpReq = context.getEventManager().createBreakpointRequest(loc);
@@ -236,7 +236,7 @@ public class JDIEventProcessor {
         }
     }
 
-    private void configureDynamicBreakPoints(long threadId) {
+    private void configureDynamicBreakPoints(int threadId) {
         ThreadReferenceProxyImpl threadReference = context.getAdapter().getAllThreads().get(threadId);
         try {
             List<StackFrameProxyImpl> jStackFrames = threadReference.frames();
@@ -287,7 +287,7 @@ public class JDIEventProcessor {
         }
     }
 
-    private void createStepRequest(long threadId, int stepType) {
+    private void createStepRequest(int threadId, int stepType) {
         context.getEventManager().deleteEventRequests(stepEventRequests);
         ThreadReferenceProxyImpl proxy = context.getAdapter().getAllThreads().get(threadId);
         if (proxy == null || proxy.getThreadReference() == null) {
@@ -319,7 +319,8 @@ public class JDIEventProcessor {
     private CompletableFuture<Boolean> evaluateBreakpointCondition(String expression, ThreadReference threadReference) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                ThreadReferenceProxyImpl thread = context.getAdapter().getAllThreads().get(threadReference.uniqueID());
+                ThreadReferenceProxyImpl thread = context.getAdapter().getAllThreads()
+                        .get((int) threadReference.uniqueID());
                 List<BallerinaStackFrame> validFrames = filterValidBallerinaFrames(thread.frames());
                 if (validFrames.isEmpty()) {
                     return false;
@@ -349,7 +350,7 @@ public class JDIEventProcessor {
                 if (!isBalStackFrame(stackFrameProxy.getStackFrame())) {
                     continue;
                 }
-                BallerinaStackFrame balStackFrame = new BallerinaStackFrame(context, 0L, stackFrameProxy);
+                BallerinaStackFrame balStackFrame = new BallerinaStackFrame(context, 0, stackFrameProxy);
                 if (balStackFrame.getAsDAPStackFrame().isEmpty()) {
                     continue;
                 }
@@ -388,10 +389,10 @@ public class JDIEventProcessor {
 
         if (event instanceof BreakpointEvent) {
             stoppedEventArguments.setReason(StoppedEventArgumentsReason.BREAKPOINT);
-            stoppedEventArguments.setThreadId(((BreakpointEvent) event).thread().uniqueID());
+            stoppedEventArguments.setThreadId((int) ((BreakpointEvent) event).thread().uniqueID());
         } else if (event instanceof StepEvent) {
             stoppedEventArguments.setReason(StoppedEventArgumentsReason.STEP);
-            stoppedEventArguments.setThreadId(((StepEvent) event).thread().uniqueID());
+            stoppedEventArguments.setThreadId((int) ((StepEvent) event).thread().uniqueID());
         }
 
         stoppedEventArguments.setAllThreadsStopped(true);
