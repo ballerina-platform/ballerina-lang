@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test;
 
+import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
@@ -58,18 +59,39 @@ public class BCompileUtil {
     private static final Logger logger = LoggerFactory.getLogger(BCompileUtil.class);
 
     public static Project loadProject(String sourceFilePath) {
+        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+        BuildOptions buildOptions = buildOptionsBuilder.taintCheck(Boolean.TRUE).build();
+        return loadProject(sourceFilePath, buildOptions);
+    }
+
+    public static Project loadProject(String sourceFilePath, BuildOptions buildOptions) {
         Path sourcePath = Paths.get(sourceFilePath);
         String sourceFileName = sourcePath.getFileName().toString();
         Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
 
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
 
-        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
-        return ProjectLoader.loadProject(projectPath, buildOptionsBuilder.build());
+        return ProjectLoader.loadProject(projectPath, buildOptions);
     }
 
     public static CompileResult compile(String sourceFilePath) {
         Project project = loadProject(sourceFilePath);
+
+        Package currentPackage = project.currentPackage();
+        JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);
+        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
+            return new CompileResult(currentPackage, jBallerinaBackend);
+        }
+
+        CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
+        invokeModuleInit(compileResult);
+        return compileResult;
+    }
+
+    public static CompileResult compileOffline(String sourceFilePath) {
+        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+        BuildOptions buildOptions = buildOptionsBuilder.taintCheck(Boolean.TRUE).offline(Boolean.TRUE).build();
+        Project project = loadProject(sourceFilePath, buildOptions);
 
         Package currentPackage = project.currentPackage();
         JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);
