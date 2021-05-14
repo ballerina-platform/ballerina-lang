@@ -15,13 +15,11 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.projects.CodeActionManager;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.plugins.codeaction.ToolingCodeActionContext;
-import io.ballerina.projects.plugins.codeaction.ToolingCodeActionContextImpl;
+import io.ballerina.projects.plugins.codeaction.CodeActionPluginContext;
+import io.ballerina.projects.plugins.codeaction.CodeActionPluginContextImpl;
 import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.BallerinaWorkspaceService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -35,7 +33,6 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.Registration;
 import org.eclipse.lsp4j.RegistrationParams;
 import org.eclipse.lsp4j.ServerCapabilities;
@@ -78,12 +75,12 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
         Position position = context.cursorPosition();
         LinePosition linePosition = LinePosition.from(position.getLine(), position.getCharacter());
 
-        Range range = CommonUtil.toRange(LineRange.from(context.fileUri(), linePosition, linePosition));
-        NonTerminalNode node = CommonUtil.findNode(range, context.currentSyntaxTree().get());
+//        Range range = CommonUtil.toRange(LineRange.from(context.fileUri(), linePosition, linePosition));
+//        NonTerminalNode node = CommonUtil.findNode(range, context.currentSyntaxTree().get());
 
-        ToolingCodeActionContext toolingCodeActionContext =
-                ToolingCodeActionContextImpl.from(context.fileUri(), context.filePath(), linePosition,
-                        context.currentDocument().get(), context.currentSemanticModel().get());
+        CodeActionPluginContext codeActionPluginContext = CodeActionPluginContextImpl.from(context.fileUri(),
+                context.filePath(), linePosition, context.currentDocument().get(),
+                context.currentSemanticModel().get());
 
         CodeActionManager codeActionManager = packageCompilation.get().getCodeActionManager();
 
@@ -93,7 +90,7 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
                 .filter(diag -> CommonUtil.isWithinRange(context.cursorPosition(),
                         CommonUtil.toRange(diag.location().lineRange())))
                 .forEach(diagnostic -> {
-                    codeActionManager.codeActions(toolingCodeActionContext, diagnostic).stream()
+                    codeActionManager.codeActions(codeActionPluginContext, diagnostic).stream()
                             .map(codeActionCommand -> {
                                 CodeAction action = new CodeAction(codeActionCommand.getTitle());
 

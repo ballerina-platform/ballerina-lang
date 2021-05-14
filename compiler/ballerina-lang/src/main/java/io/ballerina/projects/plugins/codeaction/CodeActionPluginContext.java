@@ -24,7 +24,7 @@ import java.nio.file.Path;
 /**
  * Code action context.
  */
-public interface ToolingCodeActionContext {
+public interface CodeActionPluginContext {
 
     /**
      * Get the file uri.

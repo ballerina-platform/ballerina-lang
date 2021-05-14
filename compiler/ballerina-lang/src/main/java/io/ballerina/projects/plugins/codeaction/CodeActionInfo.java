@@ -20,13 +20,13 @@ import java.util.List;
 /**
  * Represents a code action.
  */
-public class CodeActionCommand {
+public class CodeActionInfo {
 
     private String title;
     private String providerName;
     private List<CodeActionArgument> arguments;
 
-    private CodeActionCommand(String title, List<CodeActionArgument> arguments) {
+    private CodeActionInfo(String title, List<CodeActionArgument> arguments) {
         this.title = title;
         this.arguments = arguments;
     }
@@ -55,7 +55,7 @@ public class CodeActionCommand {
         this.providerName = providerName;
     }
 
-    public static CodeActionCommand from(String title, List<CodeActionArgument> arguments) {
-        return new CodeActionCommand(title, arguments);
+    public static CodeActionInfo from(String title, List<CodeActionArgument> arguments) {
+        return new CodeActionInfo(title, arguments);
     }
 }

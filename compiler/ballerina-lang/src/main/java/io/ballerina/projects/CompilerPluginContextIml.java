@@ -35,7 +35,7 @@ class CompilerPluginContextIml implements CompilerPluginContext {
     private final CompilerPluginInfo compilerPluginInfo;
     private final List<CodeAnalyzerManager.CodeAnalyzerInfo> codeAnalyzers = new ArrayList<>();
     private final List<CompilerLifecycleManager.LifecycleListenerInfo> lifecycleListeners = new ArrayList<>();
-    private final List<CodeAction> codeActionProviders = new ArrayList<>();
+    private final List<CodeAction> codeActions = new ArrayList<>();
 
     CompilerPluginContextIml(CompilerPluginInfo compilerPluginInfo) {
         this.compilerPluginInfo = compilerPluginInfo;
@@ -53,7 +53,7 @@ class CompilerPluginContextIml implements CompilerPluginContext {
 
     @Override
     public void addCodeAction(CodeAction codeAction) {
-        codeActionProviders.add(codeAction);
+        codeActions.add(codeAction);
     }
 
     List<CodeAnalyzerManager.CodeAnalyzerInfo> codeAnalyzers() {
@@ -65,7 +65,7 @@ class CompilerPluginContextIml implements CompilerPluginContext {
     }
 
     public List<CodeAction> codeActions() {
-        return codeActionProviders;
+        return codeActions;
     }
 
     public CompilerPluginInfo compilerPluginInfo() {

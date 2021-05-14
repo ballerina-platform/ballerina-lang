@@ -27,11 +27,12 @@ import java.util.Optional;
  */
 public interface CodeAction {
 
-    List<String> getSupportedDiagnosticCodes();
+    List<String> supportedDiagnosticCodes();
 
-    Optional<CodeActionCommand> getCodeAction(ToolingCodeActionContext context, Diagnostic diagnostic);
+    Optional<CodeActionInfo> codeActionInfo(CodeActionPluginContext context, Diagnostic diagnostic);
 
-    List<DocumentEdit> execute(ToolingCodeActionContext context, List<CodeActionArgument> arguments);
+    // TODO Return a list SyntaxTree. Check if syntaxTree
+    List<DocumentEdit> execute(CodeActionPluginContext context, List<CodeActionArgument> arguments);
 
     String name();
 }

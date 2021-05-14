@@ -24,8 +24,8 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.CodeActionManager;
 import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
 import io.ballerina.projects.plugins.codeaction.DocumentEdit;
-import io.ballerina.projects.plugins.codeaction.ToolingCodeActionContext;
-import io.ballerina.projects.plugins.codeaction.ToolingCodeActionContextImpl;
+import io.ballerina.projects.plugins.codeaction.CodeActionPluginContext;
+import io.ballerina.projects.plugins.codeaction.CodeActionPluginContextImpl;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
@@ -224,12 +224,12 @@ public class BallerinaWorkspaceService implements WorkspaceService {
             return Collections.emptyList();
         }
 
-        ToolingCodeActionContext toolingCodeActionContext = ToolingCodeActionContextImpl.from(uri, filePath.get(), 
+        CodeActionPluginContext codeActionPluginContext = CodeActionPluginContextImpl.from(uri, filePath.get(), 
                 null, document.get(), semanticModel.get());
 
         String providerName = params.getCommand();
         CodeActionManager codeActionManager = packageCompilation.get().getCodeActionManager();
-        List<DocumentEdit> docEdits = codeActionManager.executeCodeAction(providerName, toolingCodeActionContext, args);
+        List<DocumentEdit> docEdits = codeActionManager.executeCodeAction(providerName, codeActionPluginContext, args);
 
         List<Either<TextDocumentEdit, ResourceOperation>> edits = new LinkedList<>();
         docEdits.forEach(docEdit -> {

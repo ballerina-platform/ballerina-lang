@@ -24,7 +24,7 @@ import java.nio.file.Path;
 /**
  * Implementation of code action context.
  */
-public class ToolingCodeActionContextImpl implements ToolingCodeActionContext {
+public class CodeActionPluginContextImpl implements CodeActionPluginContext {
 
     private String fileUri;
     private Path filePath;
@@ -32,8 +32,8 @@ public class ToolingCodeActionContextImpl implements ToolingCodeActionContext {
     private Document document;
     private SemanticModel semanticModel;
 
-    private ToolingCodeActionContextImpl(String fileUri, Path filePath, LinePosition cursorPosition,
-                                         Document document, SemanticModel semanticModel) {
+    private CodeActionPluginContextImpl(String fileUri, Path filePath, LinePosition cursorPosition,
+                                        Document document, SemanticModel semanticModel) {
         this.fileUri = fileUri;
         this.filePath = filePath;
         this.cursorPosition = cursorPosition;
@@ -66,8 +66,8 @@ public class ToolingCodeActionContextImpl implements ToolingCodeActionContext {
         return semanticModel;
     }
 
-    public static ToolingCodeActionContextImpl from(String fileUri, Path filePath, LinePosition cursorPosition,
-                                                    Document document, SemanticModel semanticModel) {
-        return new ToolingCodeActionContextImpl(fileUri, filePath, cursorPosition, document, semanticModel);
+    public static CodeActionPluginContextImpl from(String fileUri, Path filePath, LinePosition cursorPosition,
+                                                   Document document, SemanticModel semanticModel) {
+        return new CodeActionPluginContextImpl(fileUri, filePath, cursorPosition, document, semanticModel);
     }
 }

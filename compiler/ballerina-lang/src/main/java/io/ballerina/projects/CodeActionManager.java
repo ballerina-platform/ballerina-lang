@@ -17,9 +17,9 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.plugins.codeaction.CodeAction;
 import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
-import io.ballerina.projects.plugins.codeaction.CodeActionCommand;
+import io.ballerina.projects.plugins.codeaction.CodeActionInfo;
+import io.ballerina.projects.plugins.codeaction.CodeActionPluginContext;
 import io.ballerina.projects.plugins.codeaction.DocumentEdit;
-import io.ballerina.projects.plugins.codeaction.ToolingCodeActionContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.ArrayList;
@@ -37,45 +37,45 @@ import java.util.Optional;
  */
 public class CodeActionManager {
 
-    private final Map<CompilerPluginContextIml, Map<String, List<CodeAction>>> codeActionsMap;
+    private final List<CompilerPluginContextIml> compilerPluginContexts;
+    private final Map<String, List<CodeActionDescriptor>> codeActionsMap;
 
     private CodeActionManager(List<CompilerPluginContextIml> compilerPluginContexts) {
+        this.compilerPluginContexts = compilerPluginContexts;
         this.codeActionsMap = new HashMap<>();
         compilerPluginContexts.forEach(compilerPluginContext -> {
-            codeActionsMap.put(compilerPluginContext, new HashMap<>());
             // Find code actions of this context
             compilerPluginContext.codeActions().forEach(codeAction -> {
                 // Get supported diagnostic codes of that code action and create a mapping
-                codeAction.getSupportedDiagnosticCodes().forEach(diagnosticCode -> {
-                    List<CodeAction> codeActions = codeActionsMap.get(compilerPluginContext)
-                            .computeIfAbsent(diagnosticCode, k -> new ArrayList<>());
-                    codeActions.add(codeAction);
+                codeAction.supportedDiagnosticCodes().forEach(diagnosticCode -> {
+                    List<CodeActionDescriptor> codeActions =
+                            codeActionsMap.computeIfAbsent(diagnosticCode, k -> new ArrayList<>());
+                    codeActions.add(new CodeActionDescriptor(codeAction, compilerPluginContext.compilerPluginInfo()));
                 });
             });
         });
     }
 
-    public List<CodeActionCommand> codeActions(ToolingCodeActionContext context, Diagnostic diagnostic) {
-        List<CodeActionCommand> commands = new LinkedList<>();
-        for (Map.Entry<CompilerPluginContextIml, Map<String, List<CodeAction>>> entry : codeActionsMap.entrySet()) {
-            entry.getValue().getOrDefault(diagnostic.diagnosticInfo().code(), Collections.emptyList())
-                    .forEach(codeAction ->
-                            codeAction.getCodeAction(context, diagnostic).stream()
-                                    .peek(codeActionDetails -> {
-                                        // We change the provider name with package prefix
-                                        codeActionDetails.setProviderName(getPackagePrefixedProviderName(
-                                                entry.getKey().compilerPluginInfo(), codeAction.name()));
-                                        codeActionDetails.setArguments(codeActionDetails.getArguments());
-                                    })
-                                    .forEach(commands::add));
-        }
+    public List<CodeActionInfo> codeActions(CodeActionPluginContext context, Diagnostic diagnostic) {
+        List<CodeActionInfo> commands = new LinkedList<>();
+        codeActionsMap.getOrDefault(diagnostic.diagnosticInfo().code(), Collections.emptyList())
+                .forEach(codeActionDescriptor ->
+                        codeActionDescriptor.codeAction().codeActionInfo(context, diagnostic).stream()
+                                .peek(codeActionInfo -> {
+                                    // We change the provider name with package prefix
+                                    codeActionInfo.setProviderName(getPackagePrefixedProviderName(
+                                            codeActionDescriptor.compilerPluginInfo(),
+                                            codeActionDescriptor.codeAction().name()));
+                                    codeActionInfo.setArguments(codeActionInfo.getArguments());
+                                })
+                                .forEach(commands::add));
 
         return commands;
     }
 
-    public List<DocumentEdit> executeCodeAction(String codeActionName, ToolingCodeActionContext context,
+    public List<DocumentEdit> executeCodeAction(String codeActionName, CodeActionPluginContext context,
                                                 List<CodeActionArgument> arguments) {
-        for (CompilerPluginContextIml compilerPluginContext : codeActionsMap.keySet()) {
+        for (CompilerPluginContextIml compilerPluginContext : compilerPluginContexts) {
             String prefix = getPackagePrefix(compilerPluginContext.compilerPluginInfo());
             if (!codeActionName.startsWith(prefix)) {
                 continue;
@@ -116,5 +116,27 @@ public class CodeActionManager {
 
     private static String getPackagePrefixedProviderName(CompilerPluginInfo compilerPluginInfo, String providerName) {
         return getPackagePrefix(compilerPluginInfo) + "_" + providerName;
+    }
+
+    /**
+     * A wrapper class to keep track of information of a code action.
+     */
+    static class CodeActionDescriptor {
+
+        private final CodeAction codeAction;
+        private final CompilerPluginInfo compilerPluginInfo;
+
+        public CodeActionDescriptor(CodeAction codeAction, CompilerPluginInfo compilerPluginInfo) {
+            this.codeAction = codeAction;
+            this.compilerPluginInfo = compilerPluginInfo;
+        }
+
+        public CodeAction codeAction() {
+            return codeAction;
+        }
+
+        public CompilerPluginInfo compilerPluginInfo() {
+            return compilerPluginInfo;
+        }
     }
 }

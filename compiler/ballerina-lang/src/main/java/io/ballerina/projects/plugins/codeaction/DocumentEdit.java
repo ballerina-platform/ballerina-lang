@@ -19,6 +19,8 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 
 /**
  * Represents edits made to a given text document.
+ * 
+ * TODO: Check if we can use TextDo
  */
 public class DocumentEdit {
 
