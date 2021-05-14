@@ -53,6 +53,8 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
@@ -92,11 +94,15 @@ public class SymbolFactory {
 
     private final CompilerContext context;
     private final TypesFactory typesFactory;
+    private final Types types;
+    private final SymbolTable symTable;
 
     private SymbolFactory(CompilerContext context) {
         context.put(SYMBOL_FACTORY_KEY, this);
         this.context = context;
         this.typesFactory = TypesFactory.getInstance(context);
+        this.types = Types.getInstance(context);
+        this.symTable = SymbolTable.getInstance(context);
     }
 
     public static SymbolFactory getInstance(CompilerContext context) {
@@ -520,7 +526,10 @@ public class SymbolFactory {
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
-        if (symbol.attachedType != null && symbol.attachedType.getType() != null) {
+
+        // Skipping the compiler-generated singleton type `true`.
+        if (symbol.attachedType != null && symbol.attachedType.getType() != null
+                && !types.isAssignable(symbol.attachedType.getType(), this.symTable.trueType)) {
             symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(symbol.attachedType.getType()));
         }
 
