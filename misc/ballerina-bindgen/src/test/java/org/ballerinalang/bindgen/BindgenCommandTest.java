@@ -172,6 +172,22 @@ public class BindgenCommandTest extends CommandTest {
                 "inside a ballerina project"));
     }
 
+    @Test(description = "Test if the correct error is given for invalid class names")
+    public void testInvalidClassNames() throws IOException {
+        String projectDir = Paths.get(testResources.toString(), "balProject").toString();
+        String[] args = {"-o=" + projectDir, "java.lang.Objec", "java.lang.Apple", "java.lang.String"};
+
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        bindgenCommand.execute();
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("error: unable to generate the 'java.lang.Objec' binding class: " +
+                "java.lang.ClassNotFoundException: java.lang.Objec"));
+        Assert.assertTrue(output.contains("error: unable to generate the 'java.lang.Apple' binding class: " +
+                "java.lang.ClassNotFoundException: java.lang.Apple"));
+    }
+
     @AfterClass
     public void cleanup() throws IOException {
         super.cleanup();
