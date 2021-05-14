@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -1248,6 +1249,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 // Set the type to the symbol. If the variable is a global variable, a symbol is already created in the
                 // symbol enter. If the variable is a local variable, the symbol will be created above.
                 simpleVariable.symbol.type = rhsType;
+
+                if (simpleVariable.symbol.type == symTable.semanticError) {
+                    simpleVariable.symbol.state = DiagnosticState.FAILED_TO_DETERMINE_TYPE;
+                }
                 break;
             case TUPLE_VARIABLE:
                 if (varRefExpr == null) {

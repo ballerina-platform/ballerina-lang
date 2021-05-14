@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -3811,10 +3812,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 flagSet.contains(Flag.DEFAULTABLE_PARAM) || flagSet.contains(Flag.REST_PARAM) ||
                 flagSet.contains(Flag.INCLUDED);
 
-        if (considerAsMemberSymbol && !symResolver.checkForUniqueMemberSymbol(pos, env, varSymbol)) {
+        if (considerAsMemberSymbol && !symResolver.checkForUniqueMemberSymbol(pos, env, varSymbol) ||
+                !considerAsMemberSymbol && !symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
             varSymbol.type = symTable.semanticError;
-        } else if (!considerAsMemberSymbol && !symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
-            varSymbol.type = symTable.semanticError;
+            varSymbol.state = DiagnosticState.REDECLARED;
         }
 
         enclScope.define(varSymbol.name, varSymbol);
@@ -3824,6 +3825,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void defineExistingVarSymbolInEnv(BVarSymbol varSymbol, SymbolEnv env) {
         if (!symResolver.checkForUniqueSymbol(env, varSymbol)) {
             varSymbol.type = symTable.semanticError;
+            varSymbol.state = DiagnosticState.REDECLARED;
         }
         env.scope.define(varSymbol.name, varSymbol);
     }
