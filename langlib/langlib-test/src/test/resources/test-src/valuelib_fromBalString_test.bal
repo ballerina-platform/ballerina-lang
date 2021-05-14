@@ -177,9 +177,6 @@ function testTableFromBalString() {
     if (tbl is table<any|error>) {
         tbl.add({ id: 3, name: "Jane", grade: 13 });
     }
-
-    table<UndergradStudent> underGradTable = table key(id,name) [];
-    assert(s3.fromBalString(), underGradTable);
 }
 
 function testArrayFromBalString() {
