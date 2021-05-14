@@ -74,19 +74,28 @@ public class BindgenUtils {
 
     private static PrintStream errStream;
     private static PrintStream outStream;
+    private static final String HAS_DIAGNOSTICS_ERROR = "syntax tree generated contains diagnostic errors";
 
     public static void outputSyntaxTreeFile(JError jError, BindgenEnv bindgenEnv,
                                             String outPath, Boolean append) throws BindgenException {
 
         SyntaxTree syntaxTree = new BindgenFileGenerator(bindgenEnv).generate(jError);
-        printOutputFile(syntaxTree.toSourceCode(), outPath, append);
+        if (syntaxTree.hasDiagnostics()) {
+            bindgenEnv.setFailedClassGens(jError.getShortExceptionName(), HAS_DIAGNOSTICS_ERROR);
+        } else {
+            printOutputFile(syntaxTree.toSourceCode(), outPath, append);
+        }
     }
 
     public static void outputSyntaxTreeFile(JClass jClass, BindgenEnv bindgenEnv,
                                             String outPath, Boolean append) throws BindgenException {
 
         SyntaxTree syntaxTree = new BindgenFileGenerator(bindgenEnv).generate(jClass);
-        printOutputFile(syntaxTree.toSourceCode(), outPath, append);
+        if (syntaxTree.hasDiagnostics()) {
+            bindgenEnv.setFailedClassGens(jClass.getCurrentClass().getName(), HAS_DIAGNOSTICS_ERROR);
+        } else {
+            printOutputFile(syntaxTree.toSourceCode(), outPath, append);
+        }
     }
 
     private static void printOutputFile(String content, String outPath, boolean append) throws BindgenException {
