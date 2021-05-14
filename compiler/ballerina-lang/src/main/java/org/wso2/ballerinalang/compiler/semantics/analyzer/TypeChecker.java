@@ -107,7 +107,6 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessibleExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -156,6 +155,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangValueExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
@@ -425,9 +425,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
-        if (xmlNavigation.lhsVar) {
-            dlog.error(xmlNavigation.pos, DiagnosticErrorCode.CANNOT_UPDATE_XML_SEQUENCE);
-        }
         checkXMLNamespacePrefixes(xmlNavigation.filters);
         if (xmlNavigation.childIndex != null) {
             checkExpr(xmlNavigation.childIndex, env, symTable.intType);
@@ -2116,14 +2113,17 @@ public class TypeChecker extends BLangNodeVisitor {
 
         Name varName = names.fromIdNode(varRefExpr.variableName);
         if (varName == Names.IGNORE) {
-            if (varRefExpr.lhsVar) {
+            if (varRefExpr.isLValue) {
                 varRefExpr.type = this.symTable.anyType;
             } else {
                 varRefExpr.type = this.symTable.semanticError;
                 dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED);
             }
-            varRefExpr.symbol = new BVarSymbol(0, varName, env.enclPkg.symbol.pkgID, varRefExpr.type, env.scope.owner,
-                                               varRefExpr.pos, VIRTUAL);
+
+            // If the variable name is a wildcard('_'), the symbol should be ignorable.
+            varRefExpr.symbol = new BVarSymbol(0, true, varName, env.enclPkg.symbol.pkgID, varRefExpr.type,
+                    env.scope.owner, varRefExpr.pos, VIRTUAL);
+
             resultType = varRefExpr.type;
             return;
         }
@@ -2175,7 +2175,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
                 // If the constant is on the LHS, modifications are not allowed.
                 // E.g. m.k = "10"; // where `m` is a constant.
-                if (varRefExpr.lhsVar || varRefExpr.compoundAssignmentLhsVar) {
+                if (varRefExpr.isLValue || varRefExpr.isCompoundAssignmentLValue) {
                     actualType = symTable.semanticError;
                     dlog.error(varRefExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_CONSTANT_VALUE);
                 }
@@ -2207,7 +2207,7 @@ public class TypeChecker extends BLangNodeVisitor {
         boolean unresolvedReference = false;
         for (BLangRecordVarRef.BLangRecordVarRefKeyValue recordRefField : varRefExpr.recordRefFields) {
             BLangVariableReference bLangVarReference = (BLangVariableReference) recordRefField.variableReference;
-            bLangVarReference.lhsVar = true;
+            bLangVarReference.isLValue = true;
             checkExpr(recordRefField.variableReference, env);
             if (bLangVarReference.symbol == null || bLangVarReference.symbol == symTable.notFoundSymbol ||
                     !isValidVariableReference(recordRefField.variableReference)) {
@@ -2267,7 +2267,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (varRefExpr.message != null) {
-            varRefExpr.message.lhsVar = true;
+            varRefExpr.message.isLValue = true;
             checkExpr(varRefExpr.message, env);
             if (!types.isAssignable(symTable.stringType, varRefExpr.message.type)) {
                 dlog.error(varRefExpr.message.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, symTable.stringType,
@@ -2276,7 +2276,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (varRefExpr.cause != null) {
-            varRefExpr.cause.lhsVar = true;
+            varRefExpr.cause.isLValue = true;
             checkExpr(varRefExpr.cause, env);
             if (!types.isAssignable(symTable.errorOrNilType, varRefExpr.cause.type)) {
                 dlog.error(varRefExpr.cause.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, symTable.errorOrNilType,
@@ -2288,7 +2288,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         for (BLangNamedArgsExpression detailItem : varRefExpr.detail) {
             BLangVariableReference refItem = (BLangVariableReference) detailItem.expr;
-            refItem.lhsVar = true;
+            refItem.isLValue = true;
             checkExpr(refItem, env);
 
             if (!isValidVariableReference(refItem)) {
@@ -2310,16 +2310,12 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (varRefExpr.restVar != null) {
-            varRefExpr.restVar.lhsVar = true;
+            varRefExpr.restVar.isLValue = true;
             if (varRefExpr.restVar.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 checkExpr(varRefExpr.restVar, env);
                 unresolvedReference = unresolvedReference
                         || varRefExpr.restVar.symbol == null
                         || !isValidVariableReference(varRefExpr.restVar);
-
-            } else if (varRefExpr.restVar.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
-                    || varRefExpr.restVar.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-                unresolvedReference = checkErrorRestParamVarRef(varRefExpr, unresolvedReference);
             }
         }
 
@@ -2363,48 +2359,27 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (varRefExpr.message != null) {
-            varRefExpr.message.lhsVar = true;
+            varRefExpr.message.isLValue = true;
             checkExpr(varRefExpr.message, env);
         }
 
         if (varRefExpr.cause != null) {
-            varRefExpr.cause.lhsVar = true;
+            varRefExpr.cause.isLValue = true;
             checkExpr(varRefExpr.cause, env);
         }
-    }
-
-    private boolean checkErrorRestParamVarRef(BLangErrorVarRef varRefExpr, boolean unresolvedReference) {
-        BLangAccessExpression accessExpression = (BLangAccessExpression) varRefExpr.restVar;
-        Name exprName = names.fromIdNode(((BLangSimpleVarRef) accessExpression.expr).variableName);
-        BSymbol fSym = symResolver.lookupSymbolInMainSpace(env, exprName);
-        if (fSym != null) {
-            if (fSym.type.getKind() == TypeKind.MAP) {
-                BType constraint = ((BMapType) fSym.type).constraint;
-                if (types.isAssignable(constraint, symTable.anydataOrReadonly)) {
-                    varRefExpr.restVar.type = constraint;
-                } else {
-                    varRefExpr.restVar.type = symTable.anydataOrReadonly;
-                }
-            } else {
-                throw new UnsupportedOperationException("rec field base access");
-            }
-        } else {
-            unresolvedReference = true;
-        }
-        return unresolvedReference;
     }
 
     @Override
     public void visit(BLangTupleVarRef varRefExpr) {
         List<BType> results = new ArrayList<>();
         for (int i = 0; i < varRefExpr.expressions.size(); i++) {
-            ((BLangVariableReference) varRefExpr.expressions.get(i)).lhsVar = true;
+            ((BLangVariableReference) varRefExpr.expressions.get(i)).isLValue = true;
             results.add(checkExpr(varRefExpr.expressions.get(i), env, symTable.noType));
         }
         BTupleType actualType = new BTupleType(results);
         if (varRefExpr.restParam != null) {
             BLangExpression restExpr = (BLangExpression) varRefExpr.restParam;
-            ((BLangVariableReference) restExpr).lhsVar = true;
+            ((BLangVariableReference) restExpr).isLValue = true;
             BType checkedType = checkExpr(restExpr, env, symTable.noType);
             if (checkedType.tag != TypeTags.ARRAY) {
                 dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_TYPE_FOR_REST_DESCRIPTOR, checkedType);
@@ -2482,17 +2457,12 @@ public class TypeChecker extends BLangNodeVisitor {
         // First analyze the accessible expression.
         BLangExpression containerExpression = fieldAccessExpr.expr;
 
-        // Container expression must be a accessible expression.
-        if (!(containerExpression instanceof BLangAccessibleExpression)) {
-            dlog.error(containerExpression.pos, DiagnosticErrorCode.EXPRESSION_DOES_NOT_SUPPORT_FIELD_ACCESS,
-                    containerExpression);
-            resultType = symTable.semanticError;
-            return;
+        if (containerExpression instanceof BLangValueExpression) {
+            ((BLangValueExpression) containerExpression).isLValue = fieldAccessExpr.isLValue;
+            ((BLangValueExpression) containerExpression).isCompoundAssignmentLValue =
+                    fieldAccessExpr.isCompoundAssignmentLValue;
         }
 
-        ((BLangAccessibleExpression) containerExpression).lhsVar = fieldAccessExpr.lhsVar;
-        ((BLangAccessibleExpression) containerExpression).compoundAssignmentLhsVar =
-                fieldAccessExpr.compoundAssignmentLhsVar;
         BType varRefType = getTypeOfExprInFieldAccess(containerExpression);
 
         // Disallow `expr.ns:attrname` syntax on non xml expressions.
@@ -2505,7 +2475,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType actualType;
         if (fieldAccessExpr.optionalFieldAccess) {
-            if (fieldAccessExpr.lhsVar || fieldAccessExpr.compoundAssignmentLhsVar) {
+            if (fieldAccessExpr.isLValue || fieldAccessExpr.isCompoundAssignmentLValue) {
                 dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.OPTIONAL_FIELD_ACCESS_NOT_REQUIRED_ON_LHS);
                 resultType = symTable.semanticError;
                 return;
@@ -2516,7 +2486,7 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, names.fromIdNode(fieldAccessExpr.field));
 
             if (actualType != symTable.semanticError &&
-                    (fieldAccessExpr.lhsVar || fieldAccessExpr.compoundAssignmentLhsVar)) {
+                    (fieldAccessExpr.isLValue || fieldAccessExpr.isCompoundAssignmentLValue)) {
                 if (isAllReadonlyTypes(varRefType)) {
                     if (varRefType.tag != TypeTags.OBJECT || !isInitializationInInit(varRefType)) {
                         dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_READONLY_VALUE_OF_TYPE,
@@ -2618,20 +2588,14 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        boolean isStringValue = containerExpression.type != null && containerExpression.type.tag == TypeTags.STRING;
-
-        // Container expression must be a accessible expression.
-        if (!(containerExpression instanceof BLangAccessibleExpression) && !isStringValue) {
-            dlog.error(containerExpression.pos, DiagnosticErrorCode.EXPRESSION_DOES_NOT_SUPPORT_MEMBER_ACCESS,
-                    containerExpression);
-            resultType = symTable.semanticError;
-            return;
+        if (containerExpression instanceof BLangValueExpression) {
+            ((BLangValueExpression) containerExpression).isLValue = indexBasedAccessExpr.isLValue;
+            ((BLangValueExpression) containerExpression).isCompoundAssignmentLValue =
+                    indexBasedAccessExpr.isCompoundAssignmentLValue;
         }
 
+        boolean isStringValue = containerExpression.type != null && containerExpression.type.tag == TypeTags.STRING;
         if (!isStringValue) {
-            ((BLangAccessibleExpression) containerExpression).lhsVar = indexBasedAccessExpr.lhsVar;
-            ((BLangAccessibleExpression) containerExpression).compoundAssignmentLhsVar =
-                    indexBasedAccessExpr.compoundAssignmentLhsVar;
             checkExpr(containerExpression, this.env, symTable.noType);
         }
 
@@ -2649,7 +2613,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangExpression indexExpr = indexBasedAccessExpr.indexExpr;
 
         if (actualType != symTable.semanticError &&
-                (indexBasedAccessExpr.lhsVar || indexBasedAccessExpr.compoundAssignmentLhsVar)) {
+                (indexBasedAccessExpr.isLValue || indexBasedAccessExpr.isCompoundAssignmentLValue)) {
             if (isAllReadonlyTypes(exprType)) {
                 dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_READONLY_VALUE_OF_TYPE,
                         exprType);
@@ -2667,7 +2631,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // If this is on lhs, no need to do type checking further. And null/error
         // will not propagate from parent expressions
-        if (indexBasedAccessExpr.lhsVar) {
+        if (indexBasedAccessExpr.isLValue) {
             indexBasedAccessExpr.originalType = actualType;
             indexBasedAccessExpr.type = actualType;
             resultType = actualType;
@@ -5504,7 +5468,7 @@ public class TypeChecker extends BLangNodeVisitor {
     // - foo->bar();
     // - start foo.bar(); or start foo->bar()
     private void checkActionInvocation(BLangInvocation.BLangActionInvocation aInv, BObjectType expType) {
-        BLangAccessExpression varRef = (BLangAccessExpression) aInv.expr;
+        BLangValueExpression varRef = (BLangValueExpression) aInv.expr;
 
         if (((varRef.symbol.tag & SymTag.ENDPOINT) != SymTag.ENDPOINT) && !aInv.async) {
             dlog.error(aInv.pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION, varRef.type);
@@ -6692,7 +6656,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 return actualType;
             }
 
-            if (!fieldAccessExpr.lhsVar) {
+            if (!fieldAccessExpr.isLValue) {
                 dlog.error(fieldAccessExpr.pos,
                         DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS_FOR_NON_REQUIRED_FIELD,
                         varRefType, fieldName);
@@ -6708,7 +6672,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         fieldName, varRefType.tsymbol.type.getKind().typeName(), varRefType);
             }
         } else if (types.isLax(varRefType)) {
-            if (fieldAccessExpr.lhsVar) {
+            if (fieldAccessExpr.isLValue) {
                 dlog.error(fieldAccessExpr.pos,
                         DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS_FOR_ASSIGNMENT,
                         varRefType);
@@ -6731,7 +6695,7 @@ public class TypeChecker extends BLangNodeVisitor {
             fieldAccessExpr.errorSafeNavigation = true;
             fieldAccessExpr.originalType = laxFieldAccessType;
         } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
-            if (fieldAccessExpr.lhsVar) {
+            if (fieldAccessExpr.isLValue) {
                 dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_XML_SEQUENCE);
             }
             // todo: field access on a xml value is not attribute access, return type should be string?
@@ -6908,7 +6872,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         return symTable.semanticError;
                     }
 
-                    if (indexBasedAccessExpr.lhsVar) {
+                    if (indexBasedAccessExpr.isLValue) {
                         dlog.error(indexBasedAccessExpr.pos,
                                 DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_MEMBER_ACCESS_FOR_ASSIGNMENT,
                                 indexBasedAccessExpr.expr.type);
@@ -6966,7 +6930,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 return actualType;
             }
         } else if (types.isAssignable(varRefType, symTable.stringType)) {
-            if (indexBasedAccessExpr.lhsVar) {
+            if (indexBasedAccessExpr.isLValue) {
                 dlog.error(indexBasedAccessExpr.pos,
                         DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_MEMBER_ACCESS_FOR_ASSIGNMENT,
                         indexBasedAccessExpr.expr.type);
@@ -6982,7 +6946,7 @@ public class TypeChecker extends BLangNodeVisitor {
             indexBasedAccessExpr.originalType = symTable.stringType;
             actualType = symTable.stringType;
         } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
-            if (indexBasedAccessExpr.lhsVar) {
+            if (indexBasedAccessExpr.isLValue) {
                 indexExpr.type = symTable.semanticError;
                 dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_XML_SEQUENCE);
                 return actualType;
@@ -6997,7 +6961,7 @@ public class TypeChecker extends BLangNodeVisitor {
             indexBasedAccessExpr.originalType = varRefType;
             actualType = varRefType;
         } else if (varRefType.tag == TypeTags.TABLE) {
-            if (indexBasedAccessExpr.lhsVar) {
+            if (indexBasedAccessExpr.isLValue) {
                 dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_TABLE_USING_MEMBER_ACCESS,
                         varRefType);
                 return symTable.semanticError;
@@ -7253,7 +7217,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType checkMappingIndexBasedAccess(BLangIndexBasedAccess accessExpr, BType type) {
         if (type.tag == TypeTags.MAP) {
             BType constraint = ((BMapType) type).constraint;
-            return accessExpr.lhsVar ? constraint : addNilForNillableAccessType(constraint);
+            return accessExpr.isLValue ? constraint : addNilForNillableAccessType(constraint);
         }
 
         if (type.tag == TypeTags.RECORD) {
@@ -7314,7 +7278,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         return addNilForNillableAccessType(actualType);
                     }
 
-                    if (accessExpr.lhsVar) {
+                    if (accessExpr.isLValue) {
                         return actualType;
                     }
                     return addNilForNillableAccessType(actualType);

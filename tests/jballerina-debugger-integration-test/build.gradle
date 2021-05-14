@@ -27,7 +27,7 @@ configurations {
 
 dependencies {
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
-    implementation group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j.debug', version: '0.7.1'
+    implementation group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j.debug', version: '0.12.0'
     implementation 'org.testng:testng'
     implementation 'org.slf4j:slf4j-jdk14'
     implementation 'org.apache.commons:commons-lang3'

@@ -20,7 +20,7 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
-import io.ballerina.toml.syntax.tree.DocumentNode;
+import io.ballerina.toml.syntax.tree.ValueNode;
 
 /***
  * Represents a Basic Value in Toml AST.
@@ -32,8 +32,8 @@ public abstract class TomlBasicValueNode<T> extends TomlValueNode {
 
     private final T value;
 
-    public TomlBasicValueNode(DocumentNode documentNode, T value, TomlType kind, TomlNodeLocation location) {
-        super(documentNode, kind, location);
+    public TomlBasicValueNode(ValueNode valueNode, T value, TomlType kind, TomlNodeLocation location) {
+        super(valueNode, kind, location);
         this.value = value;
     }
 

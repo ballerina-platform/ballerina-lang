@@ -28,12 +28,12 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
+import io.ballerina.projects.Settings;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.toml.model.Settings;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.packaging.converters.URIDryConverter;
 import org.wso2.ballerinalang.util.Lists;
@@ -481,10 +481,10 @@ public class ProjectUtils {
      * @param proxy toml model proxy
      * @return proxy
      */
-    public static Proxy initializeProxy(org.ballerinalang.toml.model.Proxy proxy) {
-        if (proxy != null && !"".equals(proxy.getHost())) {
-            InetSocketAddress proxyInet = new InetSocketAddress(proxy.getHost(), proxy.getPort());
-            if (!"".equals(proxy.getUserName()) && "".equals(proxy.getPassword())) {
+    public static Proxy initializeProxy(io.ballerina.projects.internal.model.Proxy proxy) {
+        if (proxy != null && !"".equals(proxy.host()) && proxy.port() > 0) {
+            InetSocketAddress proxyInet = new InetSocketAddress(proxy.host(), proxy.port());
+            if (!"".equals(proxy.username()) && "".equals(proxy.password())) {
                 Authenticator authenticator = new URIDryConverter.RemoteAuthenticator();
                 Authenticator.setDefault(authenticator);
             }
@@ -514,19 +514,19 @@ public class ProjectUtils {
 
     public static void checkWritePermission(Path path) {
         if (!path.toFile().canWrite()) {
-            throw new ProjectException("'" + path + "' does not have write permissions");
+            throw new ProjectException("'" + path.normalize() + "' does not have write permissions");
         }
     }
 
     public static void checkReadPermission(Path path) {
         if (!path.toFile().canRead()) {
-            throw new ProjectException("'" + path + "' does not have read permissions");
+            throw new ProjectException("'" + path.normalize() + "' does not have read permissions");
         }
     }
 
     public static void checkExecutePermission(Path path) {
         if (!path.toFile().canRead()) {
-            throw new ProjectException("'" + path + "' does not have execute permissions");
+            throw new ProjectException("'" + path.normalize() + "' does not have execute permissions");
         }
     }
 
