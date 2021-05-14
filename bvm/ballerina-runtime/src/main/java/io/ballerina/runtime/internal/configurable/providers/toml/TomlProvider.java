@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
@@ -40,8 +41,10 @@ import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
+import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BTableType;
+import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
@@ -190,11 +193,8 @@ public class TomlProvider implements ConfigProvider {
 
     @Override
     public Optional<Integer> getAsByteAndMark(Module module, VariableKey key) {
-        String variableName = key.variable;
-        TomlTableNode moduleNode = getModuleTomlNode(module, key);
-        if (moduleNode != null && moduleNode.entries().containsKey(variableName)) {
-            TomlNode tomlValue = moduleNode.entries().get(variableName);
-            TomlNode valueNode = getTomlNode(tomlValue, key.variable, key.type);
+        TomlNode valueNode = getBasicTomlValue(module, key);
+        if (valueNode != null) {
             int byteValue = ((Long) (((TomlBasicValueNode<?>) valueNode).getValue())).intValue();
             if (!isByteLiteral(byteValue)) {
                 invalidTomlLines.add(valueNode.location().lineRange());
@@ -276,6 +276,28 @@ public class TomlProvider implements ConfigProvider {
     }
 
     @Override
+    public Optional<Object> getAsUnionAndMark(Module module, VariableKey key) {
+        BUnionType unionType = (BUnionType) ((BIntersectionType) key.type).getEffectiveType();
+        TomlNode tomlValue = getBasicTomlValue(module, key);
+        if (tomlValue == null) {
+            return Optional.empty();
+        }
+        Object value = ((TomlBasicValueNode<?>) tomlValue).getValue();
+        if (value == null) {
+            return Optional.empty();
+        }
+        BString stringVal = StringUtils.fromString((String) value);
+        List<Type> memberTypes = unionType.getMemberTypes();
+        for (Type type : memberTypes) {
+            if (((BFiniteType) type).valueSpace.contains(stringVal)) {
+                return Optional.of(stringVal);
+            }
+        }
+        throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), key.variable,
+                                  IdentifierUtils.decodeIdentifier(unionType.toString()), getTomlTypeString(tomlValue));
+    }
+
+    @Override
     public Optional<BXml> getAsXmlAndMark(Module module, VariableKey key) {
         // This will throw error if user has configured xml variable in the toml
         getPrimitiveTomlValue(module, key);
@@ -283,12 +305,19 @@ public class TomlProvider implements ConfigProvider {
     }
 
     private Object getPrimitiveTomlValue(Module module, VariableKey key) {
+        TomlNode tomlValue = getBasicTomlValue(module, key);
+        if (tomlValue == null) {
+            return null;
+        }
+        return ((TomlBasicValueNode<?>) tomlValue).getValue();
+    }
+
+    private TomlNode getBasicTomlValue(Module module, VariableKey key) {
         String variableName = key.variable;
         TomlTableNode moduleNode = getModuleTomlNode(module, key);
         if (moduleNode != null && moduleNode.entries().containsKey(variableName)) {
             TomlNode tomlValue = moduleNode.entries().get(variableName);
-            tomlValue = getTomlNode(tomlValue, key.variable, key.type);
-            return ((TomlBasicValueNode<?>) tomlValue).getValue();
+            return getTomlNode(tomlValue, key.variable, key.type);
         }
         return null;
     }
