@@ -14,22 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type Manager record {|
-    string name;
-    int id;
-|} ;
+import configUnionTypes.mod1;
+import testOrg/configLib.mod1 as configLib;
+import ballerina/test;
 
-public type Teacher readonly & record {
-    string name = "";
-    int id = 0;
-};
+configurable configLib:HttpVersion & readonly httpVersion = ?;
+configurable mod1:CountryCodes & readonly countryCode = ?;
 
-public type Farmer record {|
-    readonly string name = "";
-    readonly int id = 0;
-|};
-
-public enum HttpVersion {
-    HTTP_1_1,
-    HTTP_2
+public function testEnumValues() {
+    test:assertEquals(httpVersion, configLib:HTTP_2);
+    test:assertEquals(countryCode, mod1:USA);
 }

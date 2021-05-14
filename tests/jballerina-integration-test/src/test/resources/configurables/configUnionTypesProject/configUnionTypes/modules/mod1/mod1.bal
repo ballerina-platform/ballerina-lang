@@ -14,22 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type Manager record {|
-    string name;
-    int id;
-|} ;
 
-public type Teacher readonly & record {
-    string name = "";
-    int id = 0;
-};
-
-public type Farmer record {|
-    readonly string name = "";
-    readonly int id = 0;
-|};
-
-public enum HttpVersion {
-    HTTP_1_1,
-    HTTP_2
+public enum CountryCodes {
+    SL = "Sri Lanka",
+    USA = "United States of America"
 }
