@@ -294,7 +294,7 @@ public class TomlProvider implements ConfigProvider {
         for (Map.Entry<String, TopLevelNode> field : tomlTableValue.entries().entrySet()) {
             String fieldName = field.getKey();
             Object value =
-                    retrieveTypedValue(field.getValue(), variableName + "." + fieldName, mapType.getConstrainedType());
+                    retrieveValue(field.getValue(), variableName + "." + fieldName, mapType.getConstrainedType());
             keyValueEntries[count] =
                     new MappingInitialValueEntry.KeyValueEntry(StringUtils.fromString(fieldName), value);
             count++;
@@ -303,7 +303,7 @@ public class TomlProvider implements ConfigProvider {
         return ValueCreator.createMapValue(mapType, keyValueEntries);
     }
 
-    private Object retrieveTypedValue(TomlNode tomlValue, String variableName, Type type) {
+    private Object retrieveValue(TomlNode tomlValue, String variableName, Type type) {
         if (isPrimitiveType(type.getTag())) {
             return retrievePrimitiveValue(tomlValue, variableName, type);
         }
@@ -321,7 +321,7 @@ public class TomlProvider implements ConfigProvider {
                 if (effectiveType.getTag() == TypeTags.RECORD_TYPE_TAG) {
                     return retrieveRecordValue(tomlValue, variableName, type);
                 }
-                return retrieveTypedValue(tomlValue, variableName, effectiveType);
+                return retrieveValue(tomlValue, variableName, effectiveType);
             default:
                 invalidTomlLines.add(tomlValue.location().lineRange());
                 throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, type.toString());
@@ -627,7 +627,7 @@ public class TomlProvider implements ConfigProvider {
         int arraySize = tableNodeList.size();
         ListInitialValueEntry.ExpressionEntry[] entries = new ListInitialValueEntry.ExpressionEntry[arraySize];
         for (int i = 0; i < arraySize; i++) {
-            Object value = retrieveTypedValue(tableNodeList.get(i), variableName, elementType);
+            Object value = retrieveValue(tableNodeList.get(i), variableName, elementType);
             entries[i] = new ListInitialValueEntry.ExpressionEntry(value);
         }
         return new ArrayValueImpl(arrayType, entries.length, entries);
@@ -704,7 +704,7 @@ public class TomlProvider implements ConfigProvider {
                 throw new ConfigException(CONFIG_TOML_FIELD_TYPE_NOT_SUPPORTED, getLineRange(value), fieldType,
                                           variableName);
             }
-            Object objectValue = retrieveTypedValue(value, variableName + "." + fieldName, fieldType);
+            Object objectValue = retrieveValue(value, variableName + "." + fieldName, fieldType);
             initialValueEntries.put(fieldName, objectValue);
         }
         validateRequiredField(initialValueEntries, recordType, variableName, tomlValue);
@@ -810,7 +810,7 @@ public class TomlProvider implements ConfigProvider {
             if (keys != null) {
                 validateKeyField(tableNodeList.get(i), keys, tableType, variableName);
             }
-            Object value = retrieveTypedValue(tableNodeList.get(i), variableName, constraintType);
+            Object value = retrieveValue(tableNodeList.get(i), variableName, constraintType);
             tableEntries[i] = new ListInitialValueEntry.ExpressionEntry(value);
         }
         ArrayValue tableData =

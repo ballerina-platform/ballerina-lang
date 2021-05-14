@@ -500,6 +500,80 @@ public class TomlProviderNegativeTest {
         }
     }
 
+    @Test(dataProvider = "map-negative-tests")
+    public void testMapNegativeConfig(String tomlFileName, String errorMsg, int warnCount) {
+        MapType type = TypeCreator.createMapType("MapType", PredefinedTypes.TYPE_STRING, ROOT_MODULE, false);
+        IntersectionType mapType = new BIntersectionType(ROOT_MODULE, new Type[]{type, PredefinedTypes.TYPE_READONLY}
+                , type, 1, true);
+        VariableKey mapVar = new VariableKey(ROOT_MODULE, "mapVar", mapType, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{mapVar}));
+        validateTomlProviderErrors(tomlFileName, errorMsg, configVarMap, 1, warnCount);
+    }
+
+    @DataProvider(name = "map-negative-tests")
+    public Object[][] getMapNegativeTests() {
+        return new Object[][]{
+                {"MapTypeError", "[MapTypeError.toml:(2:1,2:37)] configurable variable 'mapVar' is expected to be of " +
+                        "type 'map<string>', but found 'string'", 0},
+                {"MapFieldTypeError", "[MapFieldTypeError.toml:(2:8,2:12)] configurable variable 'mapVar.name' is " +
+                        "expected to be of type 'string', but found 'int'", 1},
+                {"MapFieldStructureError", "[MapFieldStructureError.toml:(2:1,2:24)] configurable variable 'mapVar" +
+                        ".name' is expected to be of type 'string', but found 'record'", 0},
+        };
+    }
+
+    @Test
+    public void testUnsupportedMap() {
+        MapType type = TypeCreator.createMapType("MapType", PredefinedTypes.TYPE_ANYDATA, ROOT_MODULE, false);
+        IntersectionType mapType = new BIntersectionType(ROOT_MODULE, new Type[]{type, PredefinedTypes.TYPE_READONLY}
+                , type, 1, true);
+        VariableKey mapVar = new VariableKey(ROOT_MODULE, "mapVar", mapType, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{mapVar}));
+        String error = "configurable variable 'mapVar' with type 'map<anydata>' is not supported";
+        validateTomlProviderErrors("UnsupportedMapType", error, configVarMap, 1, 2);
+    }
+
+    @Test
+    public void testUnsupportedArray() {
+        ArrayType arrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_ANYDATA, true);
+        VariableKey anyArr = new VariableKey(ROOT_MODULE, "anyArr",
+                new BIntersectionType(ROOT_MODULE, new Type[]{arrayType, PredefinedTypes.TYPE_READONLY}, arrayType, 0,
+                        true), true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{anyArr}));
+        String error = "configurable variable 'anyArr' with type 'anydata & readonly[] & readonly' is not supported";
+        validateTomlProviderErrors("UnsupportedArrayType", error, configVarMap, 1, 0);
+    }
+
+    @Test
+    public void testUnsupportedMapConstraint() {
+        Field name = TypeCreator.createField(PredefinedTypes.TYPE_ANYDATA, "name", SymbolFlags.REQUIRED);
+        Map<String, Field> fields = Map.ofEntries(Map.entry("name", name));
+        RecordType type =
+                TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY, fields, null, true, 6);
+        MapType mapType = TypeCreator.createMapType(type);
+        VariableKey mapVar = new VariableKey(ROOT_MODULE, "mapVar", new BIntersectionType(ROOT_MODULE,
+                new Type[]{mapType, PredefinedTypes.TYPE_READONLY}, mapType, 0, true), true);
+
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{mapVar}));
+        String error = "configurable variable 'mapVar' with type 'map<test_module:Person>' is not supported";
+        validateTomlProviderErrors("UnsupportedConstraintRecordType", error, configVarMap, 1, 1);
+    }
+
+    @Test
+    public void testInvalidIntersectionArray() {
+        ArrayType arrayType =
+                TypeCreator.createArrayType(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT, true), true);
+
+        BIntersectionType intersectionType =
+                new BIntersectionType(ROOT_MODULE, new Type[]{arrayType, PredefinedTypes.TYPE_READONLY}, arrayType, 0,
+                        true);
+        VariableKey intArr = new VariableKey(ROOT_MODULE, "intArr", intersectionType, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{intArr}));
+        String error = "[InvalidIntersectionArray.toml:(1:1,1:28)] configurable variable 'intArr' is expected to be " +
+                "of type 'int[][] & readonly', but found 'record'";
+        validateTomlProviderErrors("InvalidIntersectionArray", error, configVarMap, 1, 0);
+    }
+
     private VariableKey[] getSimpleVariableKeys(Module module) {
         VariableKey intVar = new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true);
         VariableKey stringVar = new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true);

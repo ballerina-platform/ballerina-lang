@@ -104,13 +104,44 @@ configurable map<boolean> & readonly bits = ?;
 
 configurable map<int[]> & readonly numberSet = ?;
 configurable map<string[][]> & readonly stringSet = ?;
+
 // Map of records
 configurable map<Engineer> & readonly engineerMap = ?;
 configurable map<Lecturer> & readonly lecturerMap = ?;
+configurable map<Engineer & readonly> & readonly readonlyEngineerMap = ?;
+configurable map<Lecturer & readonly> & readonly readonlyLecturerMap = ?;
+
 // Map of map
 configurable map<Subject> & readonly subjects = ?;
+
 // Map of table
 configurable map<table<Department> key(name)> & readonly departments = ?;
+
+// Array of Maps
+configurable map<int>[] & readonly intMapArr = ?;
+configurable map<string[]>[] & readonly stringMapArr = ?;
+configurable map<Engineer>[] & readonly engineerMapArr = ?; 
+
+// Table of Maps
+configurable table<map<string>> & readonly stringMapTable = ?;
+configurable table<map<string>& readonly> & readonly readonlyTable = ?;
+configurable table<map<string[]>> & readonly stringMapArrTable = ?;
+configurable table<map<Engineer>> & readonly engineerMapTable = ?; 
+configurable table<map<Engineer & readonly> & readonly> & readonly readonlyEngineerMapTable = ?; 
+
+// Maps from non-default module
+configurable mod1:IntMap & readonly intMap = ?;
+configurable mod1:StudentMap & readonly studentMap = ?;
+configurable map<mod1:Student & readonly> & readonly readonlyStudentMap = ?;
+configurable table<mod1:StudentMap> & readonly studentMapTable = ?; 
+configurable table<map<mod1:Student & readonly>> & readonly readonlyStudentMapTable = ?;
+
+// Maps from imported module
+configurable configLib:IntMap & readonly libIntMap = ?;
+configurable configLib:ManagerMap & readonly managerMap = ?;
+configurable map<configLib:Manager & readonly> & readonly readonlyManagerMap = ?;
+configurable table<configLib:ManagerMap> & readonly managerMapTable = ?; 
+configurable table<map<configLib:Manager & readonly>> & readonly readonlyManagerMapTable = ?;
 
 public function main() {
     testRecords();
@@ -121,6 +152,7 @@ public function main() {
     mod2:testArrays();
     testComplexRecords();
     testMaps();
+    mod2:testMaps();
     print("Tests passed");
 }
 
@@ -218,12 +250,120 @@ public function testMaps() {
     "{\"name\":\"Physics\"},\"department3\":{\"name\":\"Science\"}}," +
     "\"lecturer2\":{\"name\":\"Michael Sandel\",\"department1\":{\"name\":\"Justice\"}," +
     "\"department2\":{\"name\":\"Ethics\"},\"department3\":{\"name\":\"Law\"}}}");
+    test:assertEquals(readonlyEngineerMap.toString(), "{\"engineer1\":{\"name\":\"Anne\",\"id\":11},"
+    + "\"engineer2\":{\"name\":\"Bob\",\"id\":22},\"engineer3\":{\"name\":\"Charles\",\"id\":33}}");
+    test:assertEquals(readonlyLecturerMap.toString(), "{\"lecturer1\":{\"name\":\"Richard Feynman\",\"department1\":" +
+    "{\"name\":\"Physics\"},\"department3\":{\"name\":\"Science\"}}," +
+    "\"lecturer2\":{\"name\":\"Michael Sandel\",\"department1\":{\"name\":\"Justice\"}," +
+    "\"department2\":{\"name\":\"Ethics\"},\"department3\":{\"name\":\"Law\"}}}");
     test:assertEquals(subjects.toString(), "{\"Maths\":{\"name\":\"Mathematics\",\"grade\":\"grade 8\","
     + "\"instructor\":\"Jane Doe\"},\"Science\":{\"name\":\"Science & Technology\",\"grade\":\"grade 9\","
     + "\"instructor\":\"John Doe\"},\"English\":{\"name\":\"English Language\",\"grade\":\"grade 11\","
     + "\"instructor\":\"Jane Doe\"}}");
     test:assertEquals(departments.toString(), "{\"department1\":[{\"name\":\"Civil Engineering\"}],"
     + "\"department2\":[{\"name\":\"Computer Science\"}],\"department3\":[{\"name\":\"Electronical Engineering\"}]}");
+    
+    test:assertEquals(intMap.toString(), "{\"ten\":10,\"eleven\":11,\"twelve\":12}");
+    test:assertEquals(studentMap.toString(), "{\"student1\":{\"name\":\"Anne\",\"id\":11}," +
+    "\"student2\":{\"name\":\"Bob\",\"id\":22},\"student3\":{\"name\":\"Charles\",\"id\":33}}");
+    test:assertEquals(readonlyStudentMap.toString(), "{\"student1\":{\"name\":\"Anne\",\"id\":11}," + 
+    "\"student2\":{\"name\":\"Bob\",\"id\":22},\"student3\":{\"name\":\"Charles\",\"id\":33}}");
+
+    test:assertEquals(libIntMap.toString(), "{\"fourteen\":14,\"fifteen\":15,\"sixteen\":16}");
+    test:assertEquals(managerMap.toString(), "{\"m1\":{\"name\":\"hinduja\",\"id\":111},\"m2\":{\"name\":" +
+    "\"waruna\",\"id\":222}}");
+    test:assertEquals(readonlyManagerMap.toString(), "{\"m1\":{\"name\":\"manu\",\"id\":333},\"m2\":{\"name\":" +
+    "\"riyafa\",\"id\":444}}");
+
+    testMapIterator(user, 3);
+    testMapIterator(numbers, 4);
+    testMapIterator(fractions, 3);
+    testMapIterator(bits, 2);
+    testMapIterator(numberSet, 3);
+    testMapIterator(stringSet, 3);
+    testMapIterator(engineerMap, 3);
+    testMapIterator(lecturerMap, 2);
+    testMapIterator(readonlyEngineerMap, 3);
+    testMapIterator(readonlyLecturerMap, 2);
+    testMapIterator(subjects, 3);
+    testMapIterator(departments, 3);
+    testMapIterator(intMap, 3);
+    testMapIterator(libIntMap, 3);
+    testMapIterator(managerMap, 2);
+    testMapIterator(readonlyManagerMap, 2);
+    // These lines should be enabled after fixing #30566
+    // testMapIterator(studentMap, 3);
+    // testMapIterator(readonlyStudentMap, 3);
+
+    testArrayOfMaps();
+    testTableOfMaps();
+
+    
+}
+
+public function testArrayOfMaps() {
+    test:assertEquals(intMapArr.toString(), "[{\"int1\":34,\"int2\":78},{\"int3\":17,\"int4\":92}]");
+    test:assertEquals(stringMapArr.toString(), "[{\"arr1\":[\"hhh\",\"ggg\"],\"arr2\":[\"aaa\",\"bbb\"]}," +
+    "{\"arr1\":[\"lll\",\"mmm\"],\"arr2\":[\"nnn\",\"ooo\"]}]");
+    test:assertEquals(engineerMapArr.toString(),"[{\"p1\":{\"name\":\"Jack\",\"id\":55}," + 
+    "\"p2\":{\"name\":\"Jill\",\"id\":88}},{\"p1\":{\"name\":\"John\",\"id\":66}," +
+    "\"p2\":{\"name\":\"Jim\",\"id\":77}}]");
+}
+
+public function testTableOfMaps() {
+    test:assertEquals(stringMapTable.toString(), "[{\"name\":\"Tom\",\"occupation\":\"Software Engineer\"," +
+    "\"city\":\"Colombo\"},{\"name\":\"Harry\",\"occupation\":\"Student\",\"city\":\"Kandy\"}]");
+    test:assertEquals(readonlyTable.toString(), "[{\"name\":\"James\",\"occupation\":\"Software Engineer\"," +
+    "\"city\":\"Colombo\"},{\"name\":\"Trevor\",\"occupation\":\"Student\",\"city\":\"Kandy\"}]");
+
+    test:assertEquals(stringMapArrTable.toString(),"[{\"names\":[\"Tom\",\"Jerry\"],\"subjects\":[\"Maths\"," +
+    "\"Science\",\"Arts\"]},{\"cities\":[\"Colombo\",\"Galle\"],\"fruits\":[\"Apple\",\"Grapes\"]}]");
+    test:assertEquals(engineerMapTable.toString(),"[{\"p1\":{\"name\":\"Anna\",\"id\":10}," +
+    "\"p2\":{\"name\":\"Elsa\",\"id\":20}},{\"p1\":{\"name\":\"Diana\",\"id\":30}," +
+    "\"p2\":{\"name\":\"Belle\",\"id\":40}}]");
+    test:assertEquals(readonlyEngineerMapTable.toString(),"[{\"p1\":{\"name\":\"Anna\",\"id\":10}," +
+    "\"p2\":{\"name\":\"Elsa\",\"id\":20}},{\"p1\":{\"name\":\"Diana\",\"id\":30}," +
+    "\"p2\":{\"name\":\"Belle\",\"id\":40}}]");
+
+    test:assertEquals(studentMapTable.toString(),"[{\"p1\":{\"name\":\"Anna\",\"id\":10}," +
+    "\"p2\":{\"name\":\"Elsa\",\"id\":20}},{\"p1\":{\"name\":\"Diana\",\"id\":30}," +
+    "\"p2\":{\"name\":\"Belle\",\"id\":40}}]");
+    test:assertEquals(readonlyStudentMapTable.toString(),"[{\"p1\":{\"name\":\"Anna\",\"id\":10}," +
+    "\"p2\":{\"name\":\"Elsa\",\"id\":20}},{\"p1\":{\"name\":\"Diana\",\"id\":30}," +
+    "\"p2\":{\"name\":\"Belle\",\"id\":40}}]");
+
+    test:assertEquals(managerMapTable.toString(), "[{\"m1\":{\"name\":\"Jack\",\"id\":55}," +
+    "\"m2\":{\"name\":\"Jill\",\"id\":88}},{\"m1\":{\"name\":\"John\",\"id\":66}," +
+    "\"m2\":{\"name\":\"Jim\",\"id\":77}}]");
+    test:assertEquals(readonlyManagerMapTable.toString(), "[{\"m1\":{\"name\":\"Jack\",\"id\":55}," +
+    "\"m2\":{\"name\":\"Jill\",\"id\":88}},{\"m1\":{\"name\":\"John\",\"id\":66}," +
+    "\"m2\":{\"name\":\"Jim\",\"id\":77}}]");
+
+    testTableIterator(stringMapTable);
+    testTableIterator(readonlyTable);
+    testTableIterator(stringMapArrTable);
+    testTableIterator(engineerMapTable);
+    testTableIterator(readonlyEngineerMapTable);
+    testTableIterator(studentMapTable);
+    testTableIterator(readonlyStudentMapTable);
+    testTableIterator(managerMapTable);
+    testTableIterator(readonlyManagerMapTable);
+}
+
+function testTableIterator(table<map<anydata>> tab) {
+    int count = 0;
+    foreach var entry in tab {
+        count += 1;
+    }
+    test:assertEquals(count, 2);
+}
+
+function testMapIterator(map<anydata> testMap, int length) {
+    int count = 0;
+    foreach var entry in testMap {
+        count += 1;
+    }
+    test:assertEquals(count, length);
 }
 
 function print(string value) {
