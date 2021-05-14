@@ -266,15 +266,21 @@ public enum Snippet {
 
     KW_TRANSACTIONAL(SnippetGenerator.getTransactionalKeywordSnippet()),
 
+    KW_WORKER(SnippetGenerator.getKeywordSnippet("worker")),
+
+    KW_FIELD(SnippetGenerator.getKeywordSnippet("field")),
+
     KW_SOURCE(SnippetGenerator.getKeywordSnippet("source")),
 
     KW_OBJ_FUNCTION(SnippetGenerator.getKeywordSnippet("object function")),
 
     KW_SERVICE_REMOTE_FUNCTION(SnippetGenerator.getKeywordSnippet("service remote function")),
 
+    KW_REMOTE_FUNCTION(SnippetGenerator.getKeywordSnippet("remote function")),
+
     KW_PARAMETER(SnippetGenerator.getKeywordSnippet("parameter")),
 
-    KW_RETURN(SnippetGenerator.getKeywordSnippet("parameter")),
+    KW_RETURN(SnippetGenerator.getKeywordSnippet("return")),
 
     KW_OBJECT_FIELD(SnippetGenerator.getKeywordSnippet("object field")),
 

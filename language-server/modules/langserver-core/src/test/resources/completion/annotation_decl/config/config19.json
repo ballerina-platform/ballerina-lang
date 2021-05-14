@@ -1,18 +1,10 @@
 {
   "position": {
     "line": 3,
-    "character": 55
+    "character": 63
   },
-  "source": "annotation_decl/source/source9.bal",
+  "source": "annotation_decl/source/source19.bal",
   "items": [
-    {
-      "label": "source",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "source",
-      "insertTextFormat": "Snippet"
-    },
     {
       "label": "type",
       "kind": "Keyword",
@@ -27,14 +19,6 @@
       "detail": "Keyword",
       "sortText": "P",
       "insertText": "class ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "function",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -78,22 +62,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "object",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "object ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "record",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "record ",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "object field",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -118,51 +86,59 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "source annotation",
+      "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
-      "insertText": "source annotation",
+      "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "source external",
+      "label": "Annotation",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
-      "insertText": "source external",
+      "insertText": "annotation ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "source var",
+      "label": "external",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
-      "insertText": "source var",
+      "insertText": "external;",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "source const",
+      "label": "var",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
-      "insertText": "source const",
+      "insertText": "var ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "source listener",
+      "label": "const",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
-      "insertText": "source listener",
+      "insertText": "const ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "source worker",
+      "label": "listener",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
-      "insertText": "source worker",
+      "insertText": "listener ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "worker",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "worker",
       "insertTextFormat": "Snippet"
     }
   ]
