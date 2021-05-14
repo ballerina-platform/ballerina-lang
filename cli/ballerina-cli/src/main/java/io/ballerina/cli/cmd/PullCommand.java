@@ -21,13 +21,13 @@ package io.ballerina.cli.cmd;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.Settings;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
-import org.ballerinalang.toml.model.Settings;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -180,9 +180,10 @@ public class PullCommand implements BLauncherCmd {
                 Settings settings;
                 try {
                     settings = readSettings();
+                    // Ignore Settings.toml diagnostics in the pull command
                 } catch (SettingsTomlException e) {
-                    // Ignore 'Settings.toml' parsing errors
-                    settings = new Settings();
+                    // Ignore 'Settings.toml' parsing errors and return empty Settings object
+                    settings = Settings.from();
                 }
                 CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                                                                initializeProxy(settings.getProxy()),

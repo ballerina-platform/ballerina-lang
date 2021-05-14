@@ -40,8 +40,8 @@ public class TableArrayNode extends DocumentMemberDeclarationNode {
         return childInBucket(1);
     }
 
-    public SeparatedNodeList<ValueNode> identifier() {
-        return new SeparatedNodeList<>(childInBucket(2));
+    public KeyNode identifier() {
+        return childInBucket(2);
     }
 
     public Token firstCloseBracket() {
@@ -80,14 +80,14 @@ public class TableArrayNode extends DocumentMemberDeclarationNode {
     public TableArrayNode modify(
             Token firstOpenBracket,
             Token secondOpenBracket,
-            SeparatedNodeList<ValueNode> identifier,
+            KeyNode identifier,
             Token firstCloseBracket,
             Token secondCloseBracket,
             NodeList<KeyValueNode> fields) {
         if (checkForReferenceEquality(
                 firstOpenBracket,
                 secondOpenBracket,
-                identifier.underlyingListNode(),
+                identifier,
                 firstCloseBracket,
                 secondCloseBracket,
                 fields.underlyingListNode())) {
@@ -116,7 +116,7 @@ public class TableArrayNode extends DocumentMemberDeclarationNode {
         private final TableArrayNode oldNode;
         private Token firstOpenBracket;
         private Token secondOpenBracket;
-        private SeparatedNodeList<ValueNode> identifier;
+        private KeyNode identifier;
         private Token firstCloseBracket;
         private Token secondCloseBracket;
         private NodeList<KeyValueNode> fields;
@@ -146,7 +146,7 @@ public class TableArrayNode extends DocumentMemberDeclarationNode {
         }
 
         public TableArrayNodeModifier withIdentifier(
-                SeparatedNodeList<ValueNode> identifier) {
+                KeyNode identifier) {
             Objects.requireNonNull(identifier, "identifier must not be null");
             this.identifier = identifier;
             return this;

@@ -20,9 +20,9 @@ import ballerina/jballerina.java;
 configurable boolean enabled = false;
 configurable string provider = "";
 configurable boolean metricsEnabled = false;
-configurable string metricsReporter = "prometheus";
+configurable string metricsReporter = "choreo";
 configurable boolean tracingEnabled = false;
-configurable string tracingProvider = "jaeger";
+configurable string tracingProvider = "choreo";
 
 function init() {
     externInitializeModule();

@@ -108,7 +108,8 @@ public class CoverageReport {
      * @param includesInCoverage boolean
      * @throws IOException
      */
-    public void generateReport(JBallerinaBackend jBallerinaBackend, String includesInCoverage) throws IOException {
+    public void generateReport(JBallerinaBackend jBallerinaBackend, String includesInCoverage, boolean enableJacocoXML)
+            throws IOException {
         String orgName = this.module.packageInstance().packageOrg().toString();
         String packageName = this.module.packageInstance().packageName().toString();
 
@@ -124,15 +125,17 @@ public class CoverageReport {
         }
         if (!filteredPathList.isEmpty()) {
             CoverageBuilder coverageBuilder = generateTesterinaCoverageReport(orgName, packageName, filteredPathList);
-            // Add additional dependency jars for Jacoco Coverage XML if included
-            if (includesInCoverage != null) {
-                List<Path> dependencyPathList = getDependenciesForJacocoXML(jBallerinaBackend);
-                addCompiledSources(dependencyPathList, orgName, packageName, includesInCoverage);
-                execFileLoader.load(executionDataFile.toFile());
-                final CoverageBuilder xmlCoverageBuilder = analyzeStructure();
-                updatePackageLevelCoverage(xmlCoverageBuilder);
-            } else {
-                updatePackageLevelCoverage(coverageBuilder);
+            if (enableJacocoXML) {
+                // Add additional dependency jars for Jacoco Coverage XML if included
+                if (includesInCoverage != null) {
+                    List<Path> dependencyPathList = getDependenciesForJacocoXML(jBallerinaBackend);
+                    addCompiledSources(dependencyPathList, orgName, packageName, includesInCoverage);
+                    execFileLoader.load(executionDataFile.toFile());
+                    final CoverageBuilder xmlCoverageBuilder = analyzeStructure();
+                    updatePackageLevelCoverage(xmlCoverageBuilder);
+                } else {
+                    updatePackageLevelCoverage(coverageBuilder);
+                }
             }
             CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
         } else {

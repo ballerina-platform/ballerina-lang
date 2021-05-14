@@ -17,11 +17,9 @@
  */
 package io.ballerina.compiler.api.impl;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -276,9 +274,8 @@ public class BallerinaSemanticModel implements SemanticModel {
                 !(compilationUnit.getPackageID().equals(symbolAtCursor.pkgID)
                         && compilationUnit.getName().equals(symbolAtCursor.pos.lineRange().filePath())
                         && PositionUtil.withinBlock(position, symbolAtCursor.pos))) {
-            ModuleID moduleID = new BallerinaModuleID(symbolAtCursor.pkgID);
-            return Optional.of(new BallerinaTypeReferenceTypeSymbol(this.compilerContext, moduleID, symbolAtCursor.type,
-                                                                    symbolAtCursor.getName().getValue()));
+            return Optional.ofNullable(
+                    typesFactory.getTypeDescriptor(symbolAtCursor.type, (BTypeSymbol) symbolAtCursor));
         }
 
         return Optional.ofNullable(symbolFactory.getBCompiledSymbol(symbolAtCursor, symbolAtCursor.name.value));

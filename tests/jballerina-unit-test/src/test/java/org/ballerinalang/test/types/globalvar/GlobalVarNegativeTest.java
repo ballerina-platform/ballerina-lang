@@ -81,7 +81,8 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, "configurable variable must be initialized or be marked as required",
                 18, 19);
         BAssertUtil.validateError(result, i++, "configurable variable cannot be declared with var", 20, 1);
-        BAssertUtil.validateError(result, i++, "invalid type for configurable variable: expected a subtype of 'anydata'", 22, 22);
+        BAssertUtil.validateError(result, i++, "invalid type for configurable variable: expected a subtype" +
+                " of 'anydata'", 22, 22);
         BAssertUtil.validateError(result, i++, "missing close brace token", 27, 1);
         BAssertUtil.validateError(result, i++, "invalid token '}'", 31, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for " +
