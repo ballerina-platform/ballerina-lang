@@ -195,6 +195,11 @@ public class CliProvider implements ConfigProvider {
         throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
     }
 
+    public Optional<BMap<BString, Object>> getAsMapAndMark(Module module, VariableKey key) {
+        Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
+        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
+    }
+
     @Override
     public Optional<BTable<BString, Object>> getAsTableAndMark(Module module, VariableKey key) {
         CliArg cliArg = getCliArg(module, key);
