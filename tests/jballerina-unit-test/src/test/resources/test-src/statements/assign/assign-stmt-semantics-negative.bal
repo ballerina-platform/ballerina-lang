@@ -24,4 +24,7 @@ function testAssignmentToTypeDef() {
     [[Foo], a] = [[Foo], 2];
     [error(Foo), a] = [error("x"), 1];
     error(Foo) = error("x");
+    [...Foo] = [Foo];
+    string b;
+    error(b, Foo) = error("x", data=Foo);
 }
