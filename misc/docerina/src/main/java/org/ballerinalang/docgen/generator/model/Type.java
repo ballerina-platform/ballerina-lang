@@ -276,18 +276,16 @@ public class Type {
 
         // flatten the types inside the union and add it to the list.
         UnionTypeDescriptorNode unionType = (UnionTypeDescriptorNode) typeNode;
-        Node lhsType = unionType.leftTypeDesc();
-        if (lhsType.kind() != SyntaxKind.UNION_TYPE_DESC) {
-            memberTypes.add(fromNode(lhsType, semanticModel));
-        } else {
-            addUnionMemberTypes(memberTypes, lhsType, semanticModel);
-        }
+        updateListWithNonUnionMembers(memberTypes, unionType.leftTypeDesc(), semanticModel);
+        updateListWithNonUnionMembers(memberTypes, unionType.rightTypeDesc(), semanticModel);
+    }
 
-        Node rhsType = unionType.rightTypeDesc();
-        if (rhsType.kind() != SyntaxKind.UNION_TYPE_DESC) {
-            memberTypes.add(fromNode(rhsType, semanticModel));
+    private static void updateListWithNonUnionMembers(List<Type> memberTypes, Node type,
+                                                      SemanticModel semanticModel) {
+        if (type.kind() != SyntaxKind.UNION_TYPE_DESC) {
+            memberTypes.add(fromNode(type, semanticModel));
         } else {
-            addUnionMemberTypes(memberTypes, rhsType, semanticModel);
+            addUnionMemberTypes(memberTypes, type, semanticModel);
         }
     }
 
@@ -299,18 +297,16 @@ public class Type {
 
         // flatten the types inside the intersection and add it to the list.
         IntersectionTypeDescriptorNode intersectionType = (IntersectionTypeDescriptorNode) typeNode;
-        Node lhsType = intersectionType.leftTypeDesc();
-        if (lhsType.kind() != SyntaxKind.INTERSECTION_TYPE_DESC) {
-            memberTypes.add(fromNode(lhsType, semanticModel));
-        } else {
-            addIntersectionMemberTypes(memberTypes, lhsType, semanticModel);
-        }
+        updateListWithNonIntersectionMembers(memberTypes, intersectionType.leftTypeDesc(), semanticModel);
+        updateListWithNonIntersectionMembers(memberTypes, intersectionType.rightTypeDesc(), semanticModel);
+    }
 
-        Node rhsType = intersectionType.rightTypeDesc();
-        if (rhsType.kind() != SyntaxKind.INTERSECTION_TYPE_DESC) {
-            memberTypes.add(fromNode(rhsType, semanticModel));
+    private static void updateListWithNonIntersectionMembers(List<Type> memberTypes, Node type,
+                                                             SemanticModel semanticModel) {
+        if (type.kind() != SyntaxKind.INTERSECTION_TYPE_DESC) {
+            memberTypes.add(fromNode(type, semanticModel));
         } else {
-            addIntersectionMemberTypes(memberTypes, rhsType, semanticModel);
+            addIntersectionMemberTypes(memberTypes, type, semanticModel);
         }
     }
 

@@ -895,18 +895,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         UnionTypeDescriptorNode unionTypeDescriptorNode = (UnionTypeDescriptorNode) typeDescriptorNode;
-        TypeDescriptorNode lhsTypeDescNode = unionTypeDescriptorNode.leftTypeDesc();
-        if (lhsTypeDescNode.kind() != SyntaxKind.UNION_TYPE_DESC) {
-            list.add(lhsTypeDescNode);
-        } else {
-            flattenUnionType(list, lhsTypeDescNode);
-        }
+        updateListWithNonUnionTypes(list, unionTypeDescriptorNode.leftTypeDesc());
+        updateListWithNonUnionTypes(list, unionTypeDescriptorNode.rightTypeDesc());
+    }
 
-        TypeDescriptorNode rhsTypeDescNode = unionTypeDescriptorNode.rightTypeDesc();
-        if (rhsTypeDescNode.kind() != SyntaxKind.UNION_TYPE_DESC) {
-            list.add(rhsTypeDescNode);
+    private void updateListWithNonUnionTypes(List<TypeDescriptorNode> list, TypeDescriptorNode typeDescNode) {
+        if (typeDescNode.kind() != SyntaxKind.UNION_TYPE_DESC) {
+            list.add(typeDescNode);
         } else {
-            flattenUnionType(list, rhsTypeDescNode);
+            flattenUnionType(list, typeDescNode);
         }
     }
 
