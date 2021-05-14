@@ -66,6 +66,7 @@
         }
       },
       "sortText": "E",
+      "filterText": "function1",
       "insertText": "function1()",
       "insertTextFormat": "Snippet"
     },
@@ -80,6 +81,7 @@
         }
       },
       "sortText": "E",
+      "filterText": "function2",
       "insertText": "function2()",
       "insertTextFormat": "Snippet"
     },
@@ -94,6 +96,7 @@
         }
       },
       "sortText": "E",
+      "filterText": "function3",
       "insertText": "function3(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -112,6 +115,7 @@
         }
       },
       "sortText": "E",
+      "filterText": "function4",
       "insertText": "function4(${1})",
       "insertTextFormat": "Snippet",
       "command": {

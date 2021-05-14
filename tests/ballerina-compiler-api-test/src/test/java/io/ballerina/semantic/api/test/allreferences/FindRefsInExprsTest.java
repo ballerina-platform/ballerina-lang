@@ -115,6 +115,31 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                         List.of(location(92, 15, 19),
                                 location(95, 18, 22))
                 },
+                // Query exprs
+                {114, 22, location(114, 21, 23),
+                        List.of(location(114, 21, 23),
+                                location(115, 14, 16),
+                                location(116, 22, 24))
+                },
+                {114, 33, location(112, 14, 22),
+                        List.of(location(112, 14, 22),
+                                location(114, 27, 35))
+                },
+                {115, 20, location(102, 11, 15),
+                        List.of(location(102, 11, 15),
+                                location(115, 17, 21),
+                                location(116, 25, 29))
+                },
+                {116, 28, location(102, 11, 15),
+                        List.of(location(102, 11, 15),
+                                location(115, 17, 21),
+                                location(116, 25, 29))
+                },
+                // XML Navigation
+                {121, 15, location(120, 8, 11),
+                        List.of(location(120, 8, 11),
+                                location(121, 14, 17))
+                }
         };
     }
 

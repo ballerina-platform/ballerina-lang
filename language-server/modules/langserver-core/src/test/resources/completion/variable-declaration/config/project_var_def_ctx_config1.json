@@ -456,53 +456,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "main()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n"
-        }
-      },
-      "sortText": "D",
-      "insertText": "main()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getOddNumber()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "sortText": "A",
-      "insertText": "getOddNumber()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "stringFunction()(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `string`   \n  \n"
-        }
-      },
-      "sortText": "D",
-      "insertText": "stringFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
       "sortText": "N",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "num",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "C",
+      "insertText": "num",
       "insertTextFormat": "Snippet"
     },
     {
@@ -516,7 +482,23 @@
         }
       },
       "sortText": "D",
+      "filterText": "getPerson",
       "insertText": "getPerson()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getAge()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "sortText": "A",
+      "filterText": "getAge",
+      "insertText": "getAge()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -530,6 +512,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "getDriver",
       "insertText": "getDriver(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -538,7 +521,22 @@
       }
     },
     {
-      "label": "getAge()(int)",
+      "label": "stringFunction()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `string`   \n  \n"
+        }
+      },
+      "sortText": "D",
+      "filterText": "stringFunction",
+      "insertText": "stringFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getOddNumber()(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -548,15 +546,8 @@
         }
       },
       "sortText": "A",
-      "insertText": "getAge()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "num",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "C",
-      "insertText": "num",
+      "filterText": "getOddNumber",
+      "insertText": "getOddNumber()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -568,6 +559,21 @@
       },
       "sortText": "M",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "main()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n"
+        }
+      },
+      "sortText": "D",
+      "filterText": "main",
+      "insertText": "main()",
       "insertTextFormat": "Snippet"
     },
     {

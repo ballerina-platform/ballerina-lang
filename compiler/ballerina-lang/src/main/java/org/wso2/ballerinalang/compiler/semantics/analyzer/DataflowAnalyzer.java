@@ -556,6 +556,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangCompoundAssignment compoundAssignNode) {
         analyzeNode(compoundAssignNode.expr, env);
         analyzeNode(compoundAssignNode.varRef, env);
+        checkAssignment(compoundAssignNode.varRef);
         this.uninitializedVars.remove(compoundAssignNode.varRef.symbol);
     }
 
@@ -972,7 +973,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        if (!fieldAccessExpr.lhsVar && isObjectMemberAccessWithSelf(fieldAccessExpr)) {
+        if (!fieldAccessExpr.isLValue && isObjectMemberAccessWithSelf(fieldAccessExpr)) {
             checkVarRef(fieldAccessExpr.symbol, fieldAccessExpr.pos);
         }
         analyzeNode(fieldAccessExpr.expr, env);

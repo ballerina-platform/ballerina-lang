@@ -138,7 +138,7 @@ public class BuildProject extends Project {
                 String moduleDirName;
                 if (moduleId.moduleName().contains(DOT)) {
                     moduleDirName = moduleId.moduleName()
-                            .split(this.currentPackage().packageName().toString() + DOT)[1];
+                            .split(this.currentPackage().packageName().toString() + "\\.")[1];
                 } else {
                     moduleDirName = Optional.of(this.sourceRoot.getFileName()).get().toString();
                 }

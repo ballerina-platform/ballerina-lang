@@ -180,7 +180,7 @@ public class OpenRecordTypeInclusionTest {
         BRunUtil.invoke(compileResult, "testCreatingRecordWithOverriddenFields");
     }
 
-    @Test()
+    @Test(enabled = false)
     public void testOutOfOrderFieldOverridingFieldFromTypeInclusion() {
         BRunUtil.invoke(compileResult, "testOutOfOrderFieldOverridingFieldFromTypeInclusion");
     }

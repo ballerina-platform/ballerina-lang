@@ -106,6 +106,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
     private Boolean coverage;
 
+    @CommandLine.Option(names = "--jacoco-xml", description = "enable Jacoco XML generation")
+    private boolean enableJacocoXML;
+
     @CommandLine.Option(names = "--observability-included", description = "package observability in the executable.")
     private Boolean observabilityIncluded;
 
@@ -118,9 +121,6 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--includes", hidden = true,
             description = "hidden option for code coverage to include all classes")
     private String includes;
-
-//    @CommandLine.Option(names = "--show-all-warnings", description = "show warnings of dependencies")
-    private Boolean showAllWarnings;
 
     private static final String testCmd = "bal test [--offline] [--skip-tests]\n" +
             "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
@@ -179,6 +179,11 @@ public class TestCommand implements BLauncherCmd {
             this.outStream.println("warning: ignoring --includes flag since code coverage is not enabled");
         }
 
+        // Skip --jacoco-xml flag if it is set without code coverage
+        if (!project.buildOptions().codeCoverage() && enableJacocoXML) {
+            this.outStream.println("warning: ignoring --jacoco-xml flag since code coverage is not enabled");
+        }
+
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFile)   // clean the target directory(projects only)
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
@@ -186,7 +191,7 @@ public class TestCommand implements BLauncherCmd {
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new ListTestGroupsTask(outStream, displayWarning), !listGroups) // list available test groups
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
-                        testList, includes), listGroups)
+                        testList, includes, enableJacocoXML), listGroups)
                 .build();
 
         taskExecutor.executeTasks(project);
@@ -203,7 +208,6 @@ public class TestCommand implements BLauncherCmd {
                 .skipTests(false)
                 .testReport(testReport)
                 .observabilityIncluded(observabilityIncluded)
-                .showAllWarnings(showAllWarnings)
                 .build();
     }
 

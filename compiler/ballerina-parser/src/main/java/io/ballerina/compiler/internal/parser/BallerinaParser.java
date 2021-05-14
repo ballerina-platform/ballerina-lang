@@ -866,7 +866,7 @@ public class BallerinaParser extends AbstractParser {
      * <br/><br/>
      * module-no-init-var-decl := metadata [public] [final] type-descriptor variable-name ;
      * <br/><br/>
-     * module-init-var-quals := (final | isolated-qual | configurable)*
+     * module-init-var-quals := (final | isolated-qual )* | configurable
      * <br/><br/>
      * module-var-init := expression | ?
      * </code>
@@ -876,23 +876,43 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseModuleVarDecl(STNode metadata, STNode publicQualifier, List<STNode> topLevelQualifiers) {
-        List<STNode> varDeclQuals = extractVarDeclQualifiers(topLevelQualifiers);
+        List<STNode> varDeclQuals = extractVarDeclQualifiers(topLevelQualifiers, true);
         return parseVariableDecl(metadata, publicQualifier, varDeclQuals, topLevelQualifiers, true);
     }
 
-    private List<STNode> extractVarDeclQualifiers(List<STNode> qualifiers) {
-        // Check if the first three qualifiers are belong to the variable declaration.
+    private List<STNode> extractVarDeclQualifiers(List<STNode> qualifiers, boolean isModuleVar) {
+        // Check if the first two qualifiers are belong to the variable declaration.
         // If they do, extract them to a separate list and return.
         List<STNode> varDeclQualList = new ArrayList<>();
         final int initialListSize = qualifiers.size();
-
-        for (int i = 0; i < 3 && i < initialListSize; i++) {
+        int configurableQualIndex = -1;
+        for (int i = 0; i < 2 && i < initialListSize; i++) {
             SyntaxKind qualifierKind = qualifiers.get(0).kind;
             if (!isSyntaxKindInList(varDeclQualList, qualifierKind) && isModuleVarDeclQualifier(qualifierKind)) {
                 varDeclQualList.add(qualifiers.remove(0));
+                if (qualifierKind == SyntaxKind.CONFIGURABLE_KEYWORD) {
+                    configurableQualIndex = i;
+                }
                 continue;
             }
             break;
+        }
+
+        // Invalidate other qualifiers with configurable
+        if (isModuleVar && configurableQualIndex > -1) {
+            STNode configurableQual = varDeclQualList.get(configurableQualIndex);
+            for (int i = 0; i < varDeclQualList.size(); i++) {
+                if (i < configurableQualIndex) {
+                    STNode invalidQual = varDeclQualList.get(i);
+                    configurableQual = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(configurableQual, invalidQual,
+                            DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) invalidQual).text());
+                } else if (i > configurableQualIndex) {
+                    STNode invalidQual = varDeclQualList.get(i);
+                    configurableQual = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(configurableQual, invalidQual,
+                            DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) invalidQual).text());
+                }
+            }
+            varDeclQualList = new ArrayList<>(Collections.singletonList(configurableQual));
         }
 
         return varDeclQualList;
@@ -1609,7 +1629,7 @@ public class BallerinaParser extends AbstractParser {
         if (isObjectMember) {
             return extractObjectFieldQualifiers(qualifierList, isObjectTypeDesc);
         }
-        return extractVarDeclQualifiers(qualifierList);
+        return extractVarDeclQualifiers(qualifierList, false);
     }
 
     private STNode createFunctionTypeDescriptor(List<STNode> qualifierList, STNode functionKeyword,
@@ -4434,7 +4454,7 @@ public class BallerinaParser extends AbstractParser {
         STNode typedBindingPattern = STNodeFactory.createTypedBindingPatternNode(simpleNameRef, captureBP);
         
         if (isModuleVar) {
-            List<STNode> varDeclQuals = extractVarDeclQualifiers(qualifiers);
+            List<STNode> varDeclQuals = extractVarDeclQualifiers(qualifiers, isModuleVar);
             typedBindingPattern = modifyNodeWithInvalidTokenList(qualifiers, typedBindingPattern);
 
             if (isSyntaxKindInList(varDeclQuals, SyntaxKind.CONFIGURABLE_KEYWORD)) {

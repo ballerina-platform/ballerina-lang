@@ -1,3 +1,5 @@
+import ballerina/lang.value;
+
 function testIntAssignStmt(int a) returns int {
     int x;
     x = a;
@@ -57,7 +59,7 @@ function testIntCastFloatStmt (int a) returns float {
 function testBinaryExpressionIntAndFloatStmt (int a) returns float {
     float x;
     x = <float>a;
-    return x + a;
+    return x + <float>a;
 }
 
 public client class Client {
@@ -78,13 +80,13 @@ public client class Client {
     }
 }
 
-public function restActionResultAssignment() returns [int, int, string, string, string, int] {
+public function restActionResultAssignment() returns [int, int, string, string, string, value:Cloneable] {
     Client c = new();
     var [a, b] = c->foo();
     var { a: d } = c->foo1();
     var error(r) = c->foo2();
     var error(r2, failedAttempts = failedAttempts) = c->foo3();
-    return [a, b, d, r, r2, <int>failedAttempts];
+    return [a, b, d, r, r2, failedAttempts];
 }
 
 function testAssignErrorArrayToAny() {

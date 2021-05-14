@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
@@ -117,7 +116,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                                 ((BLangRecordLiteral) attachmentNode.getExpression()).getFields();
                         setAnnotationValues(fields, annotationValues, attachmentNode, parent);
                         PackageID functionToMockID = getPackageID(annotationValues[0]);
-                        validateFunctionName(annotationValues[1], functionToMockID, attachmentNode, parent);
+                        validateFunctionName(annotationValues[1], functionToMockID, attachmentNode);
                         BLangTestablePackage bLangTestablePackage =
                                 (BLangTestablePackage) ((BLangSimpleVariable) simpleVariableNode).parent;
                         // Value added to the map '<packageId> # <functionToMock> --> <MockFnObjectName>`
@@ -297,24 +296,11 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
      * @param attachmentNode MockFunction object attachment node
      */
     private void validateFunctionName(String functionName, PackageID functionToMockID,
-                                      AnnotationAttachmentNode attachmentNode, BLangPackage parent) {
+                                      AnnotationAttachmentNode attachmentNode) {
         if (functionToMockID == null) {
             diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
                     "could not find module specified ");
         } else {
-            if (!functionToMockID.equals(parent.packageID)) {
-                boolean importExists = false;
-                for (BLangImportPackage blangImport : parent.getImports()) {
-                    if (blangImport.symbol.name.value.equals(functionToMockID.getName().value)) {
-                        importExists = true;
-                    }
-                }
-                if (!importExists) {
-                    diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                            "module specified has not been imported in the current module where mocking takes place");
-                }
-            }
-
             if (functionName == null) {
                 diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
                         "Function name cannot be empty");

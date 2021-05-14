@@ -433,11 +433,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "l1",
+      "label": "testValue",
       "kind": "Variable",
-      "detail": "module1:Listener",
-      "sortText": "C",
-      "insertText": "l1",
+      "detail": "int",
+      "sortText": "A",
+      "insertText": "testValue",
       "insertTextFormat": "Snippet"
     },
     {
@@ -446,14 +446,6 @@
       "detail": "Union",
       "sortText": "N",
       "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testValue",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "A",
-      "insertText": "testValue",
       "insertTextFormat": "Snippet"
     },
     {
@@ -467,7 +459,16 @@
         }
       },
       "sortText": "D",
+      "filterText": "testFunction",
       "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "l1",
+      "kind": "Variable",
+      "detail": "module1:Listener",
+      "sortText": "C",
+      "insertText": "l1",
       "insertTextFormat": "Snippet"
     },
     {
