@@ -1557,13 +1557,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         setTypeOfVarRefInAssignment(varRef);
         expType = varRef.type;
 
-        if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            BLangSimpleVarRef variableRef = (BLangSimpleVarRef) varRef;
-            if (variableRef.isLValue && variableRef.symbol != null &&
-                    (variableRef.symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF) {
-                dlog.error(varRef.pos, DiagnosticErrorCode.CANNOT_ASSIGN_VALUE_TO_TYPE_DEF);
-            }
-        }
+        checkInvalidTypeDef(varRef);
 
         typeChecker.checkExpr(assignNode.expr, this.env, expType);
 
@@ -1581,6 +1575,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (tupleDeStmt.varRef.restParam != null) {
             setTypeOfVarRefForBindingPattern((BLangExpression) tupleDeStmt.varRef.restParam);
+            checkInvalidTypeDef((BLangExpression) tupleDeStmt.varRef.restParam);
         }
 
         setTypeOfVarRef(tupleDeStmt.varRef);
@@ -1918,6 +1913,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         if (lhsRef.restVar != null && !isIgnoreVar(lhsRef)) {
             setTypeOfVarRefInErrorBindingAssignment(lhsRef.restVar);
+            checkInvalidTypeDef(lhsRef.restVar);
             BMapType expRestType = new BMapType(TypeTags.MAP, wideType, null);
             if (lhsRef.restVar.type.tag != TypeTags.MAP
                     || !types.isAssignable(wideType, ((BMapType) lhsRef.restVar.type).constraint)) {
@@ -1969,6 +1965,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         setTypeOfVarRefInErrorBindingAssignment(detailItem.expr);
+        checkInvalidTypeDef(detailItem.expr);
     }
 
     private void checkConstantAssignment(BLangExpression varRef) {
