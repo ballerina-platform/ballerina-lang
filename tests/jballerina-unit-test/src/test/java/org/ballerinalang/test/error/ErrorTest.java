@@ -251,9 +251,15 @@ public class ErrorTest {
                 "incompatible types: expected 'error<record {| " +
                         "string message?; error cause?; int i; anydata...; |}>', found 'int'", 122, 65);
         BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'string', expected a subtype" +
-                " of 'map<ballerina/lang.value:1.0.0:Cloneable>'", 131, 11);
-        BAssertUtil.validateError(negativeCompileResult, i++, "invalid token ','", 131, 25);
-        BAssertUtil.validateError(negativeCompileResult, i++, "invalid token 'Detail'", 131, 25);
+                " of 'map<ballerina/lang.value:1.0.0:Cloneable>'", 139, 11);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid token ','", 139, 25);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid token 'Detail'", 139, 25);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'string', expected a subtype" +
+                " of 'map<ballerina/lang.value:1.0.0:Cloneable>'", 140, 11);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'int', expected a subtype of" +
+                " 'map<ballerina/lang.value:1.0.0:Cloneable>'", 141, 11);
+        BAssertUtil.validateError(negativeCompileResult, i++, "unknown error detail arg 'id' passed to closed error " +
+                "detail type 'CloseDetail'", 143, 47);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 
