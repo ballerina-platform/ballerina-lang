@@ -111,6 +111,14 @@ public class BindingsGenerator {
             if (env.getFailedClassGens() != null) {
                 handleFailedClassGens();
             }
+
+            // Handle failed method generations.
+            if (env.getFailedMethodGens() != null) {
+                for (String entry : env.getFailedMethodGens()) {
+                    errStream.println(entry);
+                }
+            }
+
             try {
                 ((URLClassLoader) classLoader).close();
             } catch (IOException e) {
@@ -168,15 +176,11 @@ public class BindingsGenerator {
 
     private ClassLoader setClassLoader() throws BindgenException {
         ClassLoader classLoader;
-        try {
-            if (!env.getClassPaths().isEmpty()) {
-                classLoader = getClassLoader(env.getClassPaths(), this.getClass().getClassLoader());
-            } else {
-                outStream.println("\nNo classpaths were detected.");
-                classLoader = this.getClass().getClassLoader();
-            }
-        } catch (BindgenException e) {
-            throw new BindgenException("Error while loading the classpaths.", e);
+        if (!env.getClassPaths().isEmpty()) {
+            classLoader = getClassLoader(env.getClassPaths(), this.getClass().getClassLoader());
+        } else {
+            outStream.println("\nNo classpaths were detected.");
+            classLoader = this.getClass().getClassLoader();
         }
         return classLoader;
     }
@@ -188,7 +192,7 @@ public class BindingsGenerator {
             userPath = Paths.get(userPath, MODULES_DIR).toString();
         } else if (outputPath != null) {
             if (!Paths.get(outputPath).toFile().exists()) {
-                throw new BindgenException("Output path provided [" + outputPath + "] could not be found.");
+                throw new BindgenException("error: output path provided could not be found: " + outputPath);
             }
             userPath = outputPath;
         }
@@ -199,8 +203,8 @@ public class BindingsGenerator {
         errStream.print("\n");
         for (Map.Entry<String, String> entry : env.getFailedClassGens().entrySet()) {
             if (classNames.contains(entry.getKey())) {
-                errStream.println("Bindings for '" + entry.getKey() + "' class could not be generated.\n\t" +
-                        entry.getValue() + "\n");
+                errStream.println("error: unable to generate the '" + entry.getKey() + "' binding class: "
+                        + entry.getValue());
             }
         }
     }
