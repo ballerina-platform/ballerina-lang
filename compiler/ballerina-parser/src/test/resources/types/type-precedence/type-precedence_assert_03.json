@@ -1009,17 +1009,11 @@
                               ]
                             },
                             {
-                              "kind": "LIST_BINDING_PATTERN",
+                              "kind": "CAPTURE_BINDING_PATTERN",
                               "children": [
                                 {
-                                  "kind": "OPEN_BRACKET_TOKEN"
-                                },
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "CLOSE_BRACKET_TOKEN",
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "person",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
@@ -1180,17 +1174,11 @@
                                   ]
                                 },
                                 {
-                                  "kind": "LIST_BINDING_PATTERN",
+                                  "kind": "CAPTURE_BINDING_PATTERN",
                                   "children": [
                                     {
-                                      "kind": "OPEN_BRACKET_TOKEN"
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    },
-                                    {
-                                      "kind": "CLOSE_BRACKET_TOKEN",
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "department",
                                       "trailingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",

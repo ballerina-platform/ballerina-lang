@@ -6,6 +6,6 @@ type custom3 distinct Foo & readonly & int|Baz[] & Qux[a:b] & boolean|distinct f
 
 Foo & readonly|distinct int[*]|string & readonly[] custom4;
 
-var output = from Foo[] & distinct readonly|int[] & readonly [] in personList
-    join Foo[]|() & distinct json[] [] in deptList on person.id equals dept.id
+var output = from Foo[] & distinct readonly|int[] & readonly person in personList
+    join Foo[]|() & distinct json[] department in deptList on person.id equals dept.id
     select rec;

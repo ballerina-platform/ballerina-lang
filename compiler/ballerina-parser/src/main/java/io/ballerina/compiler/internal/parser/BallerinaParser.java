@@ -2212,7 +2212,7 @@ public class BallerinaParser extends AbstractParser {
 
         STNode returnsKeyword = parseReturnsKeyword();
         STNode annot = parseOptionalAnnotations();
-        STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RETURN_TYPE_DESC, TypePrecedence.DEFAULT);
+        STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RETURN_TYPE_DESC);
         return STNodeFactory.createReturnTypeDescriptorNode(returnsKeyword, annot, type);
     }
 
@@ -2339,12 +2339,11 @@ public class BallerinaParser extends AbstractParser {
                         isTypedBindingPattern, precedence);
             case OPEN_BRACKET_TOKEN:
                 // If next token after a type descriptor is '[' then it is an array type descriptor
+                if (isTypedBindingPattern) {
+                    return typeDesc;
+                }
 
                 if (precedence.isHigherThanOrEqual(TypePrecedence.ARRAY)) {
-                    return  typeDesc;
-                }
-                
-                if (isTypedBindingPattern && !isArrayTypeDescInTypedBP()) {
                     return typeDesc;
                 }
                 
@@ -2366,44 +2365,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseComplexTypeDescriptorInternal(newTypeDesc, context, isTypedBindingPattern, precedence);
             default:
                 return typeDesc;
-        }
-    }
-
-    private boolean isArrayTypeDescInTypedBP() {
-        // Assume we reach here when the peek() is the open bracket of array-type-desc.
-        STToken nextNextToken = getNextNextToken();
-        switch (nextNextToken.kind) {
-            case DECIMAL_INTEGER_LITERAL_TOKEN:
-            case HEX_INTEGER_LITERAL_TOKEN:
-            case ASTERISK_TOKEN:
-                return true;
-            case CLOSE_BRACKET_TOKEN:
-                // [] - can be array-type-desc or list-BP
-                return !isTypedBPFollowingToken(3);
-            case IDENTIFIER_TOKEN:
-                // [a - can be array-type-desc or list-BP
-                switch (peek(3).kind) {
-                    case CLOSE_BRACKET_TOKEN:
-                        // [a] is ambiguous therefore check the next token
-                        return !isTypedBPFollowingToken(4);
-                    case COLON_TOKEN: // [a: - cannot be a BP
-                        return true;
-                    default:
-                        return false;
-                }
-            default:
-                return isValidTypeContinuationToken(nextNextToken);
-        }
-    }
-
-    private boolean isTypedBPFollowingToken(int peekIndex) {
-        switch (peek(peekIndex).kind) {
-            case EQUAL_TOKEN:
-            case IN_KEYWORD: // foreach-stmt, from-clause, join-clause
-            case SEMICOLON_TOKEN:
-                return true;
-            default:
-                return false;
         }
     }
 
@@ -14443,7 +14404,8 @@ public class BallerinaParser extends AbstractParser {
                 if (rhsTypedBPOrExpr.kind == SyntaxKind.TYPED_BINDING_PATTERN) {
                     STTypedBindingPatternNode typedBP = (STTypedBindingPatternNode) rhsTypedBPOrExpr;
                     typeOrExpr = getTypeDescFromExpr(typeOrExpr);
-                    STNode newTypeDesc = createUnionTypeDesc(typeOrExpr, pipe, typedBP.typeDescriptor);
+
+                    STNode newTypeDesc = mergeLhsTypeAndRhsType(typeOrExpr, pipe, typedBP.typeDescriptor);
                     return STNodeFactory.createTypedBindingPatternNode(newTypeDesc, typedBP.bindingPattern);
                 }
 
@@ -14465,7 +14427,8 @@ public class BallerinaParser extends AbstractParser {
                 if (rhsTypedBPOrExpr.kind == SyntaxKind.TYPED_BINDING_PATTERN) {
                     STTypedBindingPatternNode typedBP = (STTypedBindingPatternNode) rhsTypedBPOrExpr;
                     typeOrExpr = getTypeDescFromExpr(typeOrExpr);
-                    STNode newTypeDesc = createIntersectionTypeDesc(typeOrExpr, ampersand, typedBP.typeDescriptor);
+                    
+                    STNode newTypeDesc = mergeLhsTypeAndRhsType(typeOrExpr, ampersand, typedBP.typeDescriptor);
                     return STNodeFactory.createTypedBindingPatternNode(newTypeDesc, typedBP.bindingPattern);
                 }
 
@@ -15902,7 +15865,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN: // T[a][b]..
                 if (isTypedBindingPattern) {
                     typeDesc = getTypeDescFromExpr(typeDescOrExpr);
-                    arrayTypeDesc = createArrayTypeDesc(typeDesc, openBracket, member, closeBracket);
+                    arrayTypeDesc = getArrayTypeDesc(openBracket, member, closeBracket, typeDesc);
                     return parseTypedBindingPatternTypeRhs(arrayTypeDesc, context);
                 }
 
@@ -16052,15 +16015,11 @@ public class BallerinaParser extends AbstractParser {
             // R could be R[b] or R[b, c]
             STNode lhsTypeDesc = getTypeDescFromExpr(typeDescOrExpr);
             lhsTypeDesc = getArrayTypeDesc(openBracket, member, closeBracket, lhsTypeDesc);
-            STTypedBindingPatternNode rhsTypedBindingPattern = (STTypedBindingPatternNode) typedBindingPatternOrExpr;
-            STNode newTypeDesc;
-            if (pipeOrAndToken.kind == SyntaxKind.PIPE_TOKEN) {
-                newTypeDesc = createUnionTypeDesc(lhsTypeDesc, pipeOrAndToken, rhsTypedBindingPattern.typeDescriptor);
-            } else {
-                newTypeDesc =
-                        createIntersectionTypeDesc(lhsTypeDesc, pipeOrAndToken, rhsTypedBindingPattern.typeDescriptor);
-            }
 
+            STTypedBindingPatternNode rhsTypedBindingPattern = (STTypedBindingPatternNode) typedBindingPatternOrExpr;
+            STNode rhsTypeDesc = rhsTypedBindingPattern.typeDescriptor;
+
+            STNode newTypeDesc = mergeLhsTypeAndRhsType(lhsTypeDesc, pipeOrAndToken, rhsTypeDesc);
             return STNodeFactory.createTypedBindingPatternNode(newTypeDesc, rhsTypedBindingPattern.bindingPattern);
         }
 
@@ -16080,6 +16039,121 @@ public class BallerinaParser extends AbstractParser {
 
     }
 
+    private STNode mergeLhsTypeAndRhsType(STNode lhsTypeDesc, STNode pipeOrAndToken, STNode rhsTypeDesc) {
+        if (pipeOrAndToken.kind == SyntaxKind.PIPE_TOKEN) {
+            return mergeLhsTypeAndRhsTypeWithUnion(lhsTypeDesc, pipeOrAndToken, rhsTypeDesc);
+        } else {
+            return mergeLhsTypeAndRhsTypeWithIntersection(lhsTypeDesc, pipeOrAndToken, rhsTypeDesc);
+        }
+    }
+
+    private STNode mergeLhsTypeAndRhsTypeWithUnion(STNode lhsTypeDesc, STNode pipeToken, STNode rhsTypeDesc) {
+        if (rhsTypeDesc.kind == SyntaxKind.UNION_TYPE_DESC) {
+            // We reach here for A[]|B|C. B and C itself can be union.
+            // If we directly create a union, that will be A[] | (B|C).
+            // For left-associativity, re-arrange it to (A[]|B) | C.
+
+            STUnionTypeDescriptorNode rhsUnionTypeDesc = (STUnionTypeDescriptorNode) rhsTypeDesc;
+            return replaceLeftMostUnionWithAUnion(lhsTypeDesc, pipeToken, rhsUnionTypeDesc);
+        } else {
+            return createUnionTypeDesc(lhsTypeDesc, pipeToken, rhsTypeDesc);
+        }
+    }
+    
+    private STNode mergeLhsTypeAndRhsTypeWithIntersection(STNode lhsTypeDesc, STNode bitwiseAndToken,
+                                                          STNode rhsTypeDesc) {
+        if (lhsTypeDesc.kind == SyntaxKind.UNION_TYPE_DESC) {
+            // We reach here for A[] & B|C and A[] & B&C, When A is a Union.
+            STUnionTypeDescriptorNode lhsUnionTypeDesc = (STUnionTypeDescriptorNode) lhsTypeDesc;
+            if (rhsTypeDesc.kind == SyntaxKind.INTERSECTION_TYPE_DESC) {
+                rhsTypeDesc = replaceLeftMostIntersectionWithAIntersection(lhsUnionTypeDesc.rightTypeDesc,
+                        bitwiseAndToken, (STIntersectionTypeDescriptorNode) rhsTypeDesc);
+                return createUnionTypeDesc(lhsUnionTypeDesc.leftTypeDesc, lhsUnionTypeDesc.pipeToken, rhsTypeDesc);
+            } else if (rhsTypeDesc.kind == SyntaxKind.UNION_TYPE_DESC) {
+                rhsTypeDesc = replaceLeftMostUnionWithAIntersection(lhsUnionTypeDesc.rightTypeDesc,
+                        bitwiseAndToken, (STUnionTypeDescriptorNode) rhsTypeDesc);
+                return replaceLeftMostUnionWithAUnion(lhsUnionTypeDesc.leftTypeDesc,
+                        lhsUnionTypeDesc.pipeToken, (STUnionTypeDescriptorNode) rhsTypeDesc);
+            } else {
+                rhsTypeDesc = createIntersectionTypeDesc(lhsUnionTypeDesc.rightTypeDesc, bitwiseAndToken, rhsTypeDesc);
+                return createUnionTypeDesc(lhsUnionTypeDesc.leftTypeDesc, lhsUnionTypeDesc.pipeToken, rhsTypeDesc);
+            }
+        }
+        
+        if (rhsTypeDesc.kind == SyntaxKind.UNION_TYPE_DESC) {
+            // We reach here for A[] & B|C. B and C itself can be union/intersection.
+            // If we directly create a intersection, that will be A[] & (B|C).
+            // Therefore, re-arrange it to (A[] & B) | C.
+
+            STUnionTypeDescriptorNode rhsUnionTypeDesc = (STUnionTypeDescriptorNode) rhsTypeDesc;
+            return replaceLeftMostUnionWithAIntersection(lhsTypeDesc, bitwiseAndToken, rhsUnionTypeDesc);
+        } else if (rhsTypeDesc.kind == SyntaxKind.INTERSECTION_TYPE_DESC) {
+            // We reach here for A[] & B&C. B and C itself can be intersection.
+            // If we directly create a intersection, that will be A[] & (B&C).
+            // For left-associativity, re-arrange it to (A[] & B) & C.
+
+            STIntersectionTypeDescriptorNode rhsIntSecTypeDesc = (STIntersectionTypeDescriptorNode) rhsTypeDesc;
+            return replaceLeftMostIntersectionWithAIntersection(lhsTypeDesc, bitwiseAndToken, rhsIntSecTypeDesc);
+        } else {
+            return createIntersectionTypeDesc(lhsTypeDesc, bitwiseAndToken, rhsTypeDesc);
+        }
+    }
+
+    private STNode replaceLeftMostUnionWithAUnion(STNode typeDesc, STNode pipeToken,
+                                                  STUnionTypeDescriptorNode unionTypeDesc) {
+        STNode leftTypeDesc = unionTypeDesc.leftTypeDesc;
+
+        // e.g. D[] | ((A|C)|D)
+        if (leftTypeDesc.kind == SyntaxKind.UNION_TYPE_DESC) {
+            return unionTypeDesc.replace(unionTypeDesc.leftTypeDesc,
+                    replaceLeftMostUnionWithAUnion(typeDesc, pipeToken, (STUnionTypeDescriptorNode) leftTypeDesc));
+        }
+
+        // e.g. D[] | (A|C)
+        leftTypeDesc = createUnionTypeDesc(typeDesc, pipeToken, leftTypeDesc);
+        return unionTypeDesc.replace(unionTypeDesc.leftTypeDesc, leftTypeDesc);
+    }
+    
+    private STNode replaceLeftMostUnionWithAIntersection(STNode typeDesc, STNode bitwiseAndToken,
+                                                         STUnionTypeDescriptorNode unionTypeDesc) {
+        STNode leftTypeDesc = unionTypeDesc.leftTypeDesc;
+        
+        // e.g. D[] & ((A|C)|D)
+        if (leftTypeDesc.kind == SyntaxKind.UNION_TYPE_DESC) {
+            return unionTypeDesc.replace(unionTypeDesc.leftTypeDesc,
+                    replaceLeftMostUnionWithAIntersection(typeDesc, bitwiseAndToken,
+                            (STUnionTypeDescriptorNode) leftTypeDesc));
+        }
+
+        // e.g. D[] & ((A&C)|D)
+        if (leftTypeDesc.kind == SyntaxKind.INTERSECTION_TYPE_DESC) {
+            return unionTypeDesc.replace(unionTypeDesc.leftTypeDesc, 
+                    replaceLeftMostIntersectionWithAIntersection(typeDesc, bitwiseAndToken,
+                            (STIntersectionTypeDescriptorNode) leftTypeDesc));
+        }
+
+        // e.g. D[] & (A|C)
+        leftTypeDesc = createIntersectionTypeDesc(typeDesc, bitwiseAndToken, leftTypeDesc);
+        return unionTypeDesc.replace(unionTypeDesc.leftTypeDesc, leftTypeDesc);
+    }
+
+    private STNode replaceLeftMostIntersectionWithAIntersection(STNode typeDesc,
+                                                                STNode bitwiseAndToken,
+                                                                STIntersectionTypeDescriptorNode intersectionTypeDesc) {
+        STNode leftTypeDesc = intersectionTypeDesc.leftTypeDesc;
+
+        // e.g. D[] & ((A&C)&D)
+        if (leftTypeDesc.kind == SyntaxKind.INTERSECTION_TYPE_DESC) {
+            return intersectionTypeDesc.replace(intersectionTypeDesc.leftTypeDesc,
+                    replaceLeftMostIntersectionWithAIntersection(typeDesc, bitwiseAndToken,
+                            (STIntersectionTypeDescriptorNode) leftTypeDesc));
+        }
+
+        // e.g. D[] & (A&B)
+        leftTypeDesc = createIntersectionTypeDesc(typeDesc, bitwiseAndToken, leftTypeDesc);
+        return intersectionTypeDesc.replace(intersectionTypeDesc.leftTypeDesc, leftTypeDesc);
+    }
+    
     private STNode getArrayTypeDesc(STNode openBracket, STNode member, STNode closeBracket, STNode lhsTypeDesc) {
         if (lhsTypeDesc.kind == SyntaxKind.UNION_TYPE_DESC) {
             STUnionTypeDescriptorNode unionTypeDesc = (STUnionTypeDescriptorNode) lhsTypeDesc;
