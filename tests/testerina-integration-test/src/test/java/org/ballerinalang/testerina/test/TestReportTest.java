@@ -55,8 +55,8 @@ public class TestReportTest extends BaseTestCase {
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
         projectPath = projectBasedTestsPath.resolve("test-report-tests").toString();
-        resultsJsonPath = projectBasedTestsPath.resolve("test-report-tests").resolve("target").resolve(
-                "report").resolve("test_results.json");
+        resultsJsonPath = projectBasedTestsPath.resolve("test-report-tests").resolve("target").resolve("report")
+                .resolve("test_results.json");
     }
 
     @Test()
@@ -138,10 +138,8 @@ public class TestReportTest extends BaseTestCase {
 
         Gson gson = new Gson();
 
-        try {
-            BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8);
+        try (BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8)) {
             resultObj = gson.fromJson(bufferedReader, JsonObject.class);
-            bufferedReader.close();
         } catch (IOException e) {
             throw new BallerinaTestException("Failed to read test_results.json");
         }
@@ -413,6 +411,5 @@ public class TestReportTest extends BaseTestCase {
         Assert.assertEquals(totalCovered, resultObj.get("coveredLines").getAsInt());
         Assert.assertEquals(totalMissed, resultObj.get("missedLines").getAsInt());
         Assert.assertEquals(coveragePercentage, resultObj.get("coveragePercentage").getAsFloat());
-
     }
 }
