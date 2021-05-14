@@ -310,9 +310,14 @@ public class BindgenTreeModifier {
         return entry;
     }
 
-    private FunctionDefinitionNode generateBalFunction(BFunction bFunction, boolean isExternal)
-            throws BindgenException {
-        return createFunctionDefinitionNode(bFunction, isExternal);
+    private FunctionDefinitionNode generateBalFunction(BFunction bFunction, boolean isExternal) {
+        try {
+            return createFunctionDefinitionNode(bFunction, isExternal);
+        } catch (BindgenException e) {
+            env.addError("error: unable to generate the binding function `" + bFunction.getFunctionName() + "` of `"
+                    + bFunction.getDeclaringClass() + "`: "  + e.getMessage());
+            return null;
+        }
     }
 
     private TypeReferenceNode generateTypeReference(String type) {

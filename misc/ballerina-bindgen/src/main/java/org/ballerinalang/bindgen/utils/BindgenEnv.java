@@ -23,8 +23,10 @@ import io.ballerina.projects.TomlDocument;
 import org.ballerinalang.bindgen.model.JError;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,6 +53,7 @@ public class BindgenEnv {
     private Set<String> allJavaClasses = new HashSet<>();
     private Set<JError> exceptionList = new HashSet<>();
     private Map<String, String> failedClassGens = new HashMap<>();
+    private List<String> errorList = new ArrayList<>();
 
     public void setModulesFlag(boolean modulesFlag) {
         this.modulesFlag = modulesFlag;
@@ -195,5 +198,13 @@ public class BindgenEnv {
 
     public void setFailedClassGens(String className, String errorDescription) {
         this.failedClassGens.put(className, errorDescription);
+    }
+
+    public List<String> getErrorList() {
+        return errorList;
+    }
+
+    public void addError(String error) {
+        this.errorList.add(error);
     }
 }

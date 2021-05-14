@@ -195,8 +195,8 @@ public class BindingsGenerator {
         errStream.print("\n");
         for (Map.Entry<String, String> entry : env.getFailedClassGens().entrySet()) {
             if (classNames.contains(entry.getKey())) {
-                errStream.println("Bindings for '" + entry.getKey() + "' class could not be generated.\n\t" +
-                        entry.getValue() + "\n");
+                errStream.println("error: unable to generate the '" + entry.getKey() + "' binding class: "
+                        + entry.getValue());
             }
         }
     }
