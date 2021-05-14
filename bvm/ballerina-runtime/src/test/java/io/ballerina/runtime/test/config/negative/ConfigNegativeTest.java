@@ -29,10 +29,12 @@ import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvide
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BType;
+import io.ballerina.runtime.internal.types.BUnionType;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +49,9 @@ public class ConfigNegativeTest {
 
     private static final Module ROOT_MODULE = new Module("rootOrg", "rootMod", "1.0.0");
     private final Module module = new Module("org", "mod1", "1.0.0");
+    private Type UNION_TYPE = new BIntersectionType(module, new Type[]{}, new BUnionType(Arrays.asList(
+                                                            PredefinedTypes.TYPE_INT,
+                                                            PredefinedTypes.TYPE_STRING)), 0, true);
 
     @Test(dataProvider = "different-config-use-cases-data-provider")
     public void testConfigErrors(String[] args, String tomlFilePath, VariableKey[] varKeys, int errorCount,
@@ -170,7 +175,12 @@ public class ConfigNegativeTest {
                                 new VariableKey(module, "myMap",
                                                 new BIntersectionType(module, new BType[]{}, PredefinedTypes.TYPE_MAP
                                                         , 0, true), null, true)}, 1
-                        , 1, new String[]{"error: configurable variable 'myMap' with type 'map' is not supported"}}
+                        , 1, new String[]{"error: configurable variable 'myMap' with type 'map' is not supported"}},
+                // not supported union type
+                {new String[]{""}, null, new VariableKey[]{
+                        new VariableKey(module, "myUnion", UNION_TYPE, null, true)}, 1, 0,
+                        new String[]{
+                                "error: configurable variable 'myUnion' with type '(int|string)' is not supported"}},
         };
     }
 }
