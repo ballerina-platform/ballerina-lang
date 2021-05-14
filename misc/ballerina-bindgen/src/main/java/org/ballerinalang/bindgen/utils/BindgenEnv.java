@@ -200,11 +200,21 @@ public class BindgenEnv {
         this.failedClassGens.put(className, errorDescription);
     }
 
+    /**
+     * Returns the list of output messages notifying failed method generations.
+     *
+     * @return list of output messages
+     */
     public List<String> getFailedMethodGens() {
         return failedMethodGens;
     }
 
-    public void setFailedMethodGens(String error) {
-        this.failedMethodGens.add(error);
+    /**
+     * Add an entry to the list of output messages notifying failed method generations.
+     *
+     * @param errorMsg error message of a failed method generation
+     */
+    void setFailedMethodGens(String errorMsg) {
+        this.failedMethodGens.add(errorMsg);
     }
 }
