@@ -26,6 +26,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import picocli.CommandLine;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -141,7 +142,7 @@ public class BindgenCommandTest extends CommandTest {
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
-        String output = readOutput(false);
+        String output = readOutput(true);
         Assert.assertTrue(output.contains("Ballerina project detected at: "));
     }
 
@@ -217,6 +218,26 @@ public class BindgenCommandTest extends CommandTest {
                 "'org.ballerinalang.bindgen.MethodsTestResource': multidimensional arrays are currently unsupported"));
         Assert.assertTrue(output.contains("error: unable to generate the binding function 'unsupportedReturnType' of " +
                 "'org.ballerinalang.bindgen.MethodsTestResource': multidimensional arrays are currently unsupported"));
+    }
+
+    @Test(description = "Test if the correct error is given for a failure in the project loading")
+    public void testFailedProjectLoad() throws IOException {
+        String projectDir = Paths.get(testResources.toString(), "balProject").toString();
+        String[] args = {"-o=" + projectDir, "java.lang.Object"};
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        File file = new File(Paths.get(projectDir, "Ballerina.toml").toString());
+        if (file.exists()) {
+            boolean success = file.setReadable(false);
+            if (success) {
+                bindgenCommand.execute();
+                String output = readOutput(true);
+                file.setReadable(true);
+                Assert.assertTrue(output.contains("error: unable to load the project ["));
+                Assert.assertTrue(output.contains("Ballerina.toml' does not have read permissions"));
+            }
+        }
     }
 
     @AfterClass
