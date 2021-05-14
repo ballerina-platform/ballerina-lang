@@ -718,7 +718,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNIMPLEMENTED_REFERENCED_METHOD_IN_SERVICE_DECL("BCE4007",
             "unimplemented.referenced.method.in.service.declaration"),
     UNIMPLEMENTED_REFERENCED_METHOD_IN_OBJECT_CTOR("BCE4008", "unimplemented.referenced.method.in.object.constructor"),
-    INVALID_CONFIGURABLE_TYPE("BCE4009", "invalid.configurable.type")
     ;
 
     private String diagnosticId;

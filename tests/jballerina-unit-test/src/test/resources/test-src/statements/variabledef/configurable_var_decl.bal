@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 // configurable var is implicitly final and readonly
 type UserInfo record {|
     readonly string username;
@@ -25,7 +24,3 @@ configurable UserInfo admin = {
     username: "default",
     password: "password"
 };
-
-function foo() {
-    io:print(admin.username);
-}

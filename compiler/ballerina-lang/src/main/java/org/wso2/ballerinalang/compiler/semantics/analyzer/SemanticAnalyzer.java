@@ -810,16 +810,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // Configurable variable type must be a subtype of anydata.
         if (configurable && varNode.typeNode != null) {
-            lhsType = getReadOnlyFieldType(varNode.typeNode.pos, lhsType);
-            if (lhsType == symTable.semanticError) {
-                dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_CONFIGURABLE_TYPE, lhsType);
+            if (!types.isAssignable(lhsType, symTable.anydataType)) {
+                dlog.error(varNode.typeNode.pos,
+                        DiagnosticErrorCode.CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA);
             } else {
-                varNode.type = lhsType;
-                varNode.symbol.type = lhsType;
-                if (!types.isAssignable(lhsType, symTable.anydataType)) {
-                    dlog.error(varNode.typeNode.pos,
-                            DiagnosticErrorCode.CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA);
-                } else if (!(types.isAssignable(lhsType, symTable.intType) ||
+                if (!types.isInherentlyImmutableType(lhsType)) {
+                    // Configurable variables are implicitly readonly
+                    lhsType = ImmutableTypeCloner.getImmutableIntersectionType(varNode.pos, types,
+                            (SelectivelyImmutableReferenceType) lhsType, env,
+                            symTable, anonModelHelper, names, new HashSet<>());
+                    varNode.type = lhsType;
+                    varNode.symbol.type = lhsType;
+                }
+
+                if (!(types.isAssignable(lhsType, symTable.intType) ||
                         types.isAssignable(lhsType, symTable.floatType) ||
                         types.isAssignable(lhsType, symTable.stringType) ||
                         types.isAssignable(lhsType, symTable.booleanType) ||

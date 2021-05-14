@@ -18,3 +18,11 @@
 int[] nonReadOnlyArray = [];
 
 configurable int[][] x = [nonReadOnlyArray];
+
+type Foo record {|
+    int i;
+|};
+
+Foo foo = {i: 1};
+
+configurable Foo y = foo;
