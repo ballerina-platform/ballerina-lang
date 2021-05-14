@@ -884,13 +884,30 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private List<TypeDescriptorNode> flattenUnionType(UnionTypeDescriptorNode unionTypeDescriptorNode) {
         List<TypeDescriptorNode> list = new ArrayList<>();
-        list.add(unionTypeDescriptorNode.leftTypeDesc());
-        while (unionTypeDescriptorNode.rightTypeDesc().kind() == SyntaxKind.UNION_TYPE_DESC) {
-            unionTypeDescriptorNode = (UnionTypeDescriptorNode) unionTypeDescriptorNode.rightTypeDesc();
-            list.add(unionTypeDescriptorNode.leftTypeDesc());
-        }
-        list.add(unionTypeDescriptorNode.rightTypeDesc());
+        flattenUnionType(list, unionTypeDescriptorNode);
         return list;
+    }
+
+    private void flattenUnionType(List<TypeDescriptorNode> list, TypeDescriptorNode typeDescriptorNode) {
+        if (typeDescriptorNode.kind() != SyntaxKind.UNION_TYPE_DESC) {
+            list.add(typeDescriptorNode);
+            return;
+        }
+
+        UnionTypeDescriptorNode unionTypeDescriptorNode = (UnionTypeDescriptorNode) typeDescriptorNode;
+        TypeDescriptorNode lhsTypeDescNode = unionTypeDescriptorNode.leftTypeDesc();
+        if (lhsTypeDescNode.kind() != SyntaxKind.UNION_TYPE_DESC) {
+            list.add(lhsTypeDescNode);
+        } else {
+            flattenUnionType(list, lhsTypeDescNode);
+        }
+
+        TypeDescriptorNode rhsTypeDescNode = unionTypeDescriptorNode.rightTypeDesc();
+        if (rhsTypeDescNode.kind() != SyntaxKind.UNION_TYPE_DESC) {
+            list.add(rhsTypeDescNode);
+        } else {
+            flattenUnionType(list, rhsTypeDescNode);
+        }
     }
 
     private <T> void reverseFlatMap(List<List<T>> listOfLists, List<T> result) {
