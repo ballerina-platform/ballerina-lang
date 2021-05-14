@@ -68,3 +68,6 @@ public type Lawyer readonly & record {|
 public type Place record {|
     string city;
 |};
+
+public type IntMap map<int>;
+public type StudentMap map<Student>;

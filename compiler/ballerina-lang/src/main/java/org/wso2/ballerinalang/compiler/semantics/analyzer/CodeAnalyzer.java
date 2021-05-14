@@ -3907,7 +3907,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 if (!isWorkerSend(currentAction) && !isWorkerSyncSend(currentAction)) {
                     continue;
                 }
+
                 WorkerActionStateMachine otherSM = workerActionSystem.find(this.extractWorkerId(currentAction));
+                if (otherSM.done()) {
+                    continue;
+                }
                 if (isWaitAction(otherSM.currentAction())) {
                     systemRunning = false;
                     continue;

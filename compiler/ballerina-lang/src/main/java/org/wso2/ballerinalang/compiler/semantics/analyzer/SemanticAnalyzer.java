@@ -176,12 +176,19 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
@@ -809,26 +816,41 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BType lhsType = varNode.symbol.type;
         varNode.type = lhsType;
 
-        // Configurable variable type must be a subtype of anydata&readonly.
+        // Configurable variable type must be a subtype of anydata.
         if (configurable && varNode.typeNode != null) {
-            if (!(types.isAssignable(lhsType, symTable.anydataType) &&
-                    types.isAssignable(lhsType, symTable.readonlyType))) {
+            if (!types.isAssignable(lhsType, symTable.anydataType)) {
                 dlog.error(varNode.typeNode.pos,
-                        DiagnosticErrorCode.CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA_AND_READONLY);
-            } else if (!(types.isAssignable(lhsType, symTable.intType) ||
-                    types.isAssignable(lhsType, symTable.floatType) ||
-                    types.isAssignable(lhsType, symTable.stringType) ||
-                    types.isAssignable(lhsType, symTable.booleanType) ||
-                    types.isAssignable(lhsType, symTable.decimalType) ||
-                    types.isAssignable(lhsType, symTable.xmlType) ||
-                    types.isAssignable(lhsType, symTable.arrayType) ||
-                    types.isAssignable(lhsType, symTable.mapAnydataType) ||
-                    types.isAssignable(lhsType, symTable.tableType))) {
-                // TODO: remove this check once runtime support all configurable types
-                dlog.error(varNode.typeNode.pos,
-                        DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED, lhsType);
+                        DiagnosticErrorCode.CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA);
+            } else {
+                if (!types.isInherentlyImmutableType(lhsType)) {
+                    // Configurable variables are implicitly readonly
+                    lhsType = ImmutableTypeCloner.getImmutableIntersectionType(varNode.pos, types,
+                            (SelectivelyImmutableReferenceType) lhsType, env,
+                            symTable, anonModelHelper, names, new HashSet<>());
+                    varNode.type = lhsType;
+                    varNode.symbol.type = lhsType;
+                }
+
+                if (!(types.isAssignable(lhsType, symTable.intType) ||
+                        types.isAssignable(lhsType, symTable.floatType) ||
+                        types.isAssignable(lhsType, symTable.stringType) ||
+                        types.isAssignable(lhsType, symTable.booleanType) ||
+                        types.isAssignable(lhsType, symTable.decimalType) ||
+                        types.isAssignable(lhsType, symTable.xmlType) ||
+                        types.isAssignable(lhsType, symTable.arrayType) ||
+                        types.isAssignable(lhsType, symTable.mapAnydataType) ||
+                        types.isAssignable(lhsType, symTable.tableType))) {
+                    // TODO: remove this check once runtime support all configurable types
+                    dlog.error(varNode.typeNode.pos,
+                            DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED, lhsType);
+                }
             }
         }
+
+        if (varNode.typeNode != null) {
+            analyzeTypeNode(varNode.typeNode, env);
+        }
+
         // Analyze the init expression
         BLangExpression rhsExpr = varNode.expr;
         if (rhsExpr == null) {
@@ -856,6 +878,74 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         transferForkFlag(varNode);
+    }
+
+    private void analyzeTypeNode(BLangType typeNode, SymbolEnv env) {
+        switch (typeNode.getKind()) {
+            case USER_DEFINED_TYPE:
+                return;
+            case RECORD_TYPE:
+                if (((BLangRecordTypeNode) typeNode).analyzed) {
+                    return;
+                }
+                analyzeDef(typeNode, env);
+                break;
+            case ARRAY_TYPE:
+                analyzeTypeNode(((BLangArrayType) typeNode).elemtype, env);
+                break;
+            case TUPLE_TYPE_NODE:
+                BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) typeNode;
+                List<BLangType> memberTypeNodes = tupleTypeNode.memberTypeNodes;
+                for (BLangType memType : memberTypeNodes) {
+                    analyzeTypeNode(memType, env);
+                }
+                if (tupleTypeNode.restParamType != null) {
+                    analyzeTypeNode(tupleTypeNode.restParamType, env);
+                }
+                break;
+            case TABLE_TYPE:
+                analyzeTypeNode(((BLangTableTypeNode) typeNode).constraint, env);
+                break;
+            case INTERSECTION_TYPE_NODE:
+                List<BLangType> constituentTypeNodes = ((BLangIntersectionTypeNode) typeNode).constituentTypeNodes;
+                for (BLangType constType : constituentTypeNodes) {
+                    analyzeTypeNode(constType, env);
+                }
+                break;
+            case STREAM_TYPE:
+                analyzeTypeNode(((BLangStreamType) typeNode).constraint, env);
+                break;
+            case UNION_TYPE_NODE:
+                List<BLangType> unionMemberTypes = ((BLangUnionTypeNode) typeNode).memberTypeNodes;
+                for (BLangType memType : unionMemberTypes) {
+                    analyzeTypeNode(memType, env);
+                }
+                break;
+            case ERROR_TYPE:
+                BLangErrorType errorType = (BLangErrorType) typeNode;
+                if (errorType.detailType != null) {
+                    analyzeTypeNode(errorType.detailType, env);
+                }
+                break;
+            case FUNCTION_TYPE:
+                if (typeNode.getKind() == NodeKind.FUNCTION_TYPE) {
+                    BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) typeNode;
+                    List<BLangVariable> params = functionTypeNode.params;
+                    for (BLangVariable param : params) {
+                        analyzeTypeNode(param.typeNode, env);
+                    }
+                    if (functionTypeNode.restParam != null) {
+                        analyzeTypeNode(functionTypeNode.restParam.typeNode, env);
+                    }
+                    if (functionTypeNode.returnTypeNode != null) {
+                        analyzeTypeNode(functionTypeNode.returnTypeNode, env);
+                    }
+                }
+                break;
+            case CONSTRAINED_TYPE:
+                analyzeTypeNode(((BLangConstrainedType) typeNode).constraint, env);
+                break;
+        }
     }
 
     private void validateListenerCompatibility(BLangSimpleVariable varNode, BType rhsType) {
@@ -1413,7 +1503,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private Boolean validateLhsVar(BLangExpression vRef) {
         if (vRef.getKind() == NodeKind.INVOCATION) {
-            dlog.error(((BLangInvocation) vRef).pos, DiagnosticErrorCode.INVALID_INVOCATION_LVALUE_ASSIGNMENT, vRef);
+            dlog.error(vRef.pos, DiagnosticErrorCode.INVALID_INVOCATION_LVALUE_ASSIGNMENT, vRef);
             return false;
         }
         if (vRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
@@ -1424,45 +1514,67 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangCompoundAssignment compoundAssignment) {
-        List<BType> expTypes = new ArrayList<>();
-        BLangExpression varRef = compoundAssignment.varRef;
+        BType expType;
+        BLangValueExpression varRef = compoundAssignment.varRef;
+
         // Check whether the variable reference is an function invocation or not.
         boolean isValidVarRef = validateLhsVar(varRef);
         if (isValidVarRef) {
-            compoundAssignment.varRef.isCompoundAssignmentLValue = true;
+            varRef.isCompoundAssignmentLValue = true;
             this.typeChecker.checkExpr(varRef, env);
-            expTypes.add(varRef.type);
+            expType = varRef.type;
         } else {
-            expTypes.add(symTable.semanticError);
+            expType = symTable.semanticError;
         }
+
         this.typeChecker.checkExpr(compoundAssignment.expr, env);
 
         checkConstantAssignment(varRef);
 
-        if (expTypes.get(0) != symTable.semanticError && compoundAssignment.expr.type != symTable.semanticError) {
-            BSymbol opSymbol = this.symResolver.resolveBinaryOperator(compoundAssignment.opKind, expTypes.get(0),
+        if (expType != symTable.semanticError && compoundAssignment.expr.type != symTable.semanticError) {
+            BSymbol opSymbol = this.symResolver.resolveBinaryOperator(compoundAssignment.opKind, expType,
                     compoundAssignment.expr.type);
             if (opSymbol == symTable.notFoundSymbol) {
-                opSymbol = symResolver.getArithmeticOpsForTypeSets(compoundAssignment.opKind, expTypes.get(0),
+                opSymbol = symResolver.getArithmeticOpsForTypeSets(compoundAssignment.opKind, expType,
                         compoundAssignment.expr.type);
             }
             if (opSymbol == symTable.notFoundSymbol) {
-                opSymbol = symResolver.getBitwiseShiftOpsForTypeSets(compoundAssignment.opKind, expTypes.get(0),
+                opSymbol = symResolver.getBitwiseShiftOpsForTypeSets(compoundAssignment.opKind, expType,
                         compoundAssignment.expr.type);
             }
             if (opSymbol == symTable.notFoundSymbol) {
                 dlog.error(compoundAssignment.pos, DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES,
-                        compoundAssignment.opKind, expTypes.get(0), compoundAssignment.expr.type);
+                        compoundAssignment.opKind, expType, compoundAssignment.expr.type);
             } else {
                 compoundAssignment.modifiedExpr = getBinaryExpr(varRef,
                         compoundAssignment.expr,
                         compoundAssignment.opKind,
                         opSymbol);
+
+                // If this is an update of a type narrowed variable, the assignment should allow assigning
+                // values of its original type. Therefore treat all lhs simpleVarRefs in their original type.
+                // For that create a new varRef with original type
+                if (isSimpleVarRef(varRef)) {
+                    BVarSymbol originSymbol = ((BVarSymbol) varRef.symbol).originalSymbol;
+                    if (originSymbol != null) {
+                        BLangSimpleVarRef simpleVarRef =
+                                (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+                        simpleVarRef.pos = varRef.pos;
+                        simpleVarRef.variableName = ((BLangSimpleVarRef) varRef).variableName;
+                        simpleVarRef.symbol = varRef.symbol;
+                        simpleVarRef.isLValue = true;
+                        simpleVarRef.type = originSymbol.type;
+                        compoundAssignment.varRef = simpleVarRef;
+                    }
+                }
+
                 compoundAssignment.modifiedExpr.parent = compoundAssignment;
-                this.types.checkTypes(compoundAssignment.modifiedExpr,
-                        Lists.of(compoundAssignment.modifiedExpr.type), expTypes);
+                this.types.checkType(compoundAssignment.modifiedExpr,
+                        compoundAssignment.modifiedExpr.type, compoundAssignment.varRef.type);
             }
         }
+
+        resetTypeNarrowing(varRef, compoundAssignment.expr.type);
     }
 
     public void visit(BLangAssignment assignNode) {
@@ -1476,6 +1588,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         setTypeOfVarRefInAssignment(varRef);
         expType = varRef.type;
 
+        checkInvalidTypeDef(varRef);
+
         typeChecker.checkExpr(assignNode.expr, this.env, expType);
 
         validateWorkerAnnAttachments(assignNode.expr);
@@ -1487,10 +1601,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTupleDestructure tupleDeStmt) {
         for (BLangExpression tupleVar : tupleDeStmt.varRef.expressions) {
             setTypeOfVarRefForBindingPattern(tupleVar);
+            checkInvalidTypeDef(tupleVar);
         }
 
         if (tupleDeStmt.varRef.restParam != null) {
             setTypeOfVarRefForBindingPattern((BLangExpression) tupleDeStmt.varRef.restParam);
+            checkInvalidTypeDef((BLangExpression) tupleDeStmt.varRef.restParam);
         }
 
         setTypeOfVarRef(tupleDeStmt.varRef);
@@ -1508,9 +1624,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // recursively visit the var refs and create the record type
         for (BLangRecordVarRefKeyValue keyValue : recordDeStmt.varRef.recordRefFields) {
             setTypeOfVarRefForBindingPattern(keyValue.variableReference);
+            checkInvalidTypeDef(keyValue.variableReference);
         }
         if (recordDeStmt.varRef.restParam != null) {
             setTypeOfVarRefForBindingPattern((BLangExpression) recordDeStmt.varRef.restParam);
+            checkInvalidTypeDef((BLangExpression) recordDeStmt.varRef.restParam);
         }
         setTypeOfVarRef(recordDeStmt.varRef);
 
@@ -1532,6 +1650,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (varRef.message != null) {
             if (names.fromIdNode(((BLangSimpleVarRef) varRef.message).variableName) != Names.IGNORE) {
                 setTypeOfVarRefInErrorBindingAssignment(varRef.message);
+                checkInvalidTypeDef(varRef.message);
             } else {
                 // set message var refs type to no type if the variable name is '_'
                 varRef.message.type = symTable.noType;
@@ -1542,6 +1661,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (varRef.cause.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
                     names.fromIdNode(((BLangSimpleVarRef) varRef.cause).variableName) != Names.IGNORE) {
                 setTypeOfVarRefInErrorBindingAssignment(varRef.cause);
+                checkInvalidTypeDef(varRef.cause);
             } else {
                 // set cause var refs type to no type if the variable name is '_'
                 varRef.cause.type = symTable.noType;
@@ -1831,6 +1951,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         if (lhsRef.restVar != null && !isIgnoreVar(lhsRef)) {
             setTypeOfVarRefInErrorBindingAssignment(lhsRef.restVar);
+            checkInvalidTypeDef(lhsRef.restVar);
             BMapType expRestType = new BMapType(TypeTags.MAP, wideType, null);
             if (lhsRef.restVar.type.tag != TypeTags.MAP
                     || !types.isAssignable(wideType, ((BMapType) lhsRef.restVar.type).constraint)) {
@@ -1882,6 +2003,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         setTypeOfVarRefInErrorBindingAssignment(detailItem.expr);
+        checkInvalidTypeDef(detailItem.expr);
     }
 
     private void checkConstantAssignment(BLangExpression varRef) {
@@ -3512,6 +3634,50 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 errorVarRef.detail.forEach(namedArgExpr -> setTypeOfVarRefForBindingPattern(namedArgExpr.expr));
                 if (errorVarRef.restVar != null) {
                     setTypeOfVarRefForBindingPattern(errorVarRef.restVar);
+                }
+        }
+    }
+
+    private void checkInvalidTypeDef(BLangExpression expr) {
+        switch (expr.getKind()) {
+            case SIMPLE_VARIABLE_REF:
+                BLangSimpleVarRef variableRef = (BLangSimpleVarRef) expr;
+                if (variableRef.isLValue && variableRef.symbol != null &&
+                        (variableRef.symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF) {
+                    dlog.error(expr.pos, DiagnosticErrorCode.CANNOT_ASSIGN_VALUE_TO_TYPE_DEF);
+                }
+                return;
+            case TUPLE_VARIABLE_REF:
+                BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) expr;
+                for (BLangExpression tupleExpr : tupleVarRef.expressions) {
+                    checkInvalidTypeDef(tupleExpr);
+                }
+                if (tupleVarRef.restParam != null) {
+                    checkInvalidTypeDef((BLangExpression) tupleVarRef.restParam);
+                }
+                return;
+            case RECORD_VARIABLE_REF:
+                BLangRecordVarRef recordVarRef = (BLangRecordVarRef) expr;
+                for (BLangRecordVarRefKeyValue refKeyValue : recordVarRef.recordRefFields) {
+                    checkInvalidTypeDef(refKeyValue.variableReference);
+                }
+                if (recordVarRef.restParam != null) {
+                    checkInvalidTypeDef((BLangExpression) recordVarRef.restParam);
+                }
+                return;
+            case ERROR_VARIABLE_REF:
+                BLangErrorVarRef errorVarRef = (BLangErrorVarRef) expr;
+                if (errorVarRef.message != null) {
+                    checkInvalidTypeDef(errorVarRef.message);
+                }
+                if (errorVarRef.cause != null) {
+                    checkInvalidTypeDef(errorVarRef.cause);
+                }
+                for (BLangNamedArgsExpression namedArgExpr : errorVarRef.detail) {
+                    checkInvalidTypeDef(namedArgExpr.expr);
+                }
+                if (errorVarRef.restVar != null) {
+                    checkInvalidTypeDef(errorVarRef.restVar);
                 }
         }
     }

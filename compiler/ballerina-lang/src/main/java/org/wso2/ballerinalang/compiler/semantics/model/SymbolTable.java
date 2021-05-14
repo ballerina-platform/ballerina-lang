@@ -165,6 +165,7 @@ public class SymbolTable {
     public final BXMLSubType xmlCommentType = new BXMLSubType(TypeTags.XML_COMMENT, Names.XML_COMMENT);
     public final BXMLSubType xmlTextType = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT, Flags.READONLY);
     public final BType xmlNeverType = new BXMLType(neverType,  null);
+    public final BType xmlElementSeqType = new BXMLType(xmlElementType, null);
 
     public final BType xmlType = new BXMLType(BUnionType.create(null, xmlElementType, xmlCommentType,
             xmlPIType, xmlTextType),  null);
