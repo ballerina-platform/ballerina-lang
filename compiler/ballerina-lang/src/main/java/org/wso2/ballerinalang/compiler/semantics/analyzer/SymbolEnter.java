@@ -2507,7 +2507,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return !recordVarType.sealed;
     }
 
-    BRecordTypeSymbol createAnonRecordSymbol (SymbolEnv env, Location pos) {
+    BRecordTypeSymbol createAnonRecordSymbol(SymbolEnv env, Location pos) {
         EnumSet<Flag> flags = EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS);
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
                 env.enclPkg.packageID, null, env.scope.owner, pos, VIRTUAL);

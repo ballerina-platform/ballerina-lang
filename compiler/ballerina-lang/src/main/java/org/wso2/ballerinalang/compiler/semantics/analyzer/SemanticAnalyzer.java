@@ -1724,13 +1724,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         BRecordType rhsRecordType = (BRecordType) rhsType;
+        LinkedHashMap<String, BField> unMappedFields = new LinkedHashMap<>() {{
+            putAll(rhsRecordType.fields);
+        }};
 
         // check if all fields in record var ref are found in rhs record type
         for (BLangRecordVarRefKeyValue lhsField : lhsVarRef.recordRefFields) {
             if (!rhsRecordType.fields.containsKey(lhsField.variableName.value)) {
                 dlog.error(pos, DiagnosticErrorCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
-                           lhsField.variableName.value, rhsType);
+                        lhsField.variableName.value, rhsType);
             }
+            unMappedFields.remove(lhsField.variableName.value);
         }
 
         for (BField rhsField : rhsRecordType.fields.values()) {
@@ -1773,13 +1777,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BLangSimpleVarRef varRefRest = (BLangSimpleVarRef) lhsVarRef.restParam;
             BType lhsRefType;
             if (varRefRest.type.tag == TypeTags.RECORD) {
-                lhsRefType = ((BRecordType) varRefRest.type).restFieldType;
+                lhsRefType = symbolEnter.getRestParamType(((BRecordType) varRefRest.type));
             } else {
                 lhsRefType = ((BLangSimpleVarRef) lhsVarRef.restParam).type;
             }
+            BType rhsConstraintType = symbolEnter.getRestMatchPatternConstraintType(rhsRecordType, unMappedFields,
+                    ((BRecordType) rhsType).restFieldType);
+            BType rhsResType = new BMapType(TypeTags.MAP, rhsConstraintType, null);
             types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos,
-                    this.symbolEnter.getRestParamType(rhsRecordType),
-                    lhsRefType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+                    rhsResType, lhsRefType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         }
     }
 

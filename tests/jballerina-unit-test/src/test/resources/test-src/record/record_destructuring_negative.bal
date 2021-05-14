@@ -53,3 +53,36 @@ function testWithOptionalFields() returns map<int> {
     var {...extra} = <XY>{x:10, y:20, "foo":"bar"};
     return extra;
 }
+
+type Person record {|
+    string name;
+    int age;
+    string...;
+|};
+
+function testRestFieldTypeCheck() {
+    string s;
+    int age;
+    map<string> rest;
+
+    Person p = {name: "Jane Doe", age: 20, "employed": "false"};
+    {name: s, ...rest} = p;
+}
+
+type Employee record {|
+    string name;
+    int|error id;
+    string...;
+|};
+
+function testRestFieldTypeCheckWithError() {
+    string s;
+    int id;
+    map<string> rest;
+
+    Employee emp1 = {name: "Jane Doe", id: error("custom error"), "employed": "false"};
+    {name: s, ...rest} = emp1;
+
+    Employee emp2 = {name: "Jean Doe", id: 10, "employed": "true"};
+    {name: s, id, ...rest} = emp2;
+}
