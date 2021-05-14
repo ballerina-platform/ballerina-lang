@@ -107,7 +107,7 @@ enum Colors {
 
 enum CountryCodes {
     SL = "Sri Lanka",
-    USA = "United States of America"
+    US = "United States"
 }
 
 configurable Colors & readonly color = ?;
@@ -266,7 +266,7 @@ function testTableValues() {
 
 function testEnumValues() {
     test:assertEquals(color, GREEN);
-    test:assertEquals(countryCode, USA);
+    test:assertEquals(countryCode, US);
 }
 
 function testTableIterator(table<map<anydata>> tab) {

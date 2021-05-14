@@ -17,5 +17,5 @@
 
 public enum CountryCodes {
     SL = "Sri Lanka",
-    USA = "United States of America"
+    US = "United States"
 }

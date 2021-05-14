@@ -21,6 +21,7 @@ package io.ballerina.runtime.internal.configurable.providers.cli;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
@@ -218,7 +219,8 @@ public class CliProvider implements ConfigProvider {
                 return Optional.of(stringVal);
             }
         }
-        throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable, unionType, cliArg.value);
+        throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable,
+                                  IdentifierUtils.decodeIdentifier(unionType.toString()), cliArg.value);
     }
 
     @Override

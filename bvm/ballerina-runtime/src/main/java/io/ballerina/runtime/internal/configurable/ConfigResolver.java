@@ -135,20 +135,24 @@ public class ConfigResolver {
                         return getConfigValue(key, configProvider -> configProvider
                                 .getAsXmlAndMark(module, key));
                     case TypeTags.UNION_TAG:
-                        BUnionType unionType = (BUnionType)effectiveType;
+                        BUnionType unionType = (BUnionType) effectiveType;
                         //Todo : Move the enum check to provider impl, once runtime support configuring union types.
                         // Issue : https://github.com/ballerina-platform/ballerina-lang/issues/30390
                         if (SymbolFlags.isFlagOn(unionType.getFlags(), SymbolFlags.ENUM)) {
                             return getConfigValue(key, configProvider -> configProvider
                                     .getAsUnionAndMark(module, key));
                         }
+                        diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
+                                            IdentifierUtils.decodeIdentifier(effectiveType.toString()));
+                        break;
                     default:
                         diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
-                                            effectiveType.toString());
+                                            IdentifierUtils.decodeIdentifier(effectiveType.toString()));
                 }
                 break;
             default:
-                diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable, type.toString());
+                diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
+                                    IdentifierUtils.decodeIdentifier(type.toString()));;
         }
         return Optional.empty();
     }

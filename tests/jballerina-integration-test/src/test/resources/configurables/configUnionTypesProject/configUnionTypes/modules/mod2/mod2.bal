@@ -23,5 +23,5 @@ configurable mod1:CountryCodes & readonly countryCode = ?;
 
 public function testEnumValues() {
     test:assertEquals(httpVersion, configLib:HTTP_2);
-    test:assertEquals(countryCode, mod1:USA);
+    test:assertEquals(countryCode, mod1:US);
 }

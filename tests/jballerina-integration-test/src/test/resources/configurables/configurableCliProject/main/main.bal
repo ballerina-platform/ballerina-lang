@@ -32,7 +32,7 @@ enum Colors {
 
 enum CountryCodes {
     SL = "Sri Lanka",
-    USA = "United States of America"
+    US = "United States"
 }
 
 configurable Colors & readonly color = ?;
