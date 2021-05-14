@@ -82,7 +82,7 @@ public class TestReportTest extends BaseTestCase {
     }
 
     @Test()
-    public void testWithCoverage() throws BallerinaTestException, IOException {
+    public void testWithCoverage() throws BallerinaTestException {
         //runCommand(true);
         String[] args = new String[]{"--code-coverage"};
         runCommand(args);
@@ -100,7 +100,7 @@ public class TestReportTest extends BaseTestCase {
     }
 
     @Test(enabled = false)
-    public void testWithoutCoverage() throws BallerinaTestException, IOException {
+    public void testWithoutCoverage() throws BallerinaTestException {
         String[] args = new String[]{"--test-report"};
         runCommand(args);
 
@@ -116,19 +116,8 @@ public class TestReportTest extends BaseTestCase {
         Assert.assertEquals(resultObj.get("moduleCoverage").getAsJsonArray().size(), 0);
     }
 
-    private void runCommand(boolean coverage) throws BallerinaTestException, IOException {
-        String[] args;
-        if (coverage) {
-            args = new String[]{"--code-coverage", "--includes=*"};
-        } else {
-            args = new String[]{"--test-report"};
-        }
-        balClient.runMain("test", args, null, new String[]{},
-                new LogLeecher[]{}, projectPath);
-    }
-
     @Test()
-    public void testModuleTestingWithCoverage() throws BallerinaTestException, IOException {
+    public void testModuleWiseCoverage() throws BallerinaTestException {
         String[] args = new String[]{"--code-coverage", "--tests", "foo.math:*"};
         runCommand(args);
 
@@ -144,13 +133,19 @@ public class TestReportTest extends BaseTestCase {
         validateModuleWiseCoverage();
     }
 
-    private void runCommand(String[] args) throws BallerinaTestException, IOException {
+    private void runCommand(String[] args) throws BallerinaTestException {
         balClient.runMain("test", args, null, new String[]{}, new LogLeecher[]{}, projectPath);
 
         Gson gson = new Gson();
-        BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8);
-        resultObj = gson.fromJson(bufferedReader, JsonObject.class);
-        bufferedReader.close();
+
+        try {
+            BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8);
+            resultObj = gson.fromJson(bufferedReader, JsonObject.class);
+            bufferedReader.close();
+        } catch (IOException e) {
+            throw new BallerinaTestException("Failed to read test_results.json");
+        }
+
     }
 
     private void validateStatuses(int[] mathStatus, int[] fooStatus, int[] bartestStatus) {
