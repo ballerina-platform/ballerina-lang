@@ -810,24 +810,34 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BType lhsType = varNode.symbol.type;
         varNode.type = lhsType;
 
-        // Configurable variable type must be a subtype of anydata&readonly.
+        // Configurable variable type must be a subtype of anydata.
         if (configurable && varNode.typeNode != null) {
-            if (!(types.isAssignable(lhsType, symTable.anydataType) &&
-                    types.isAssignable(lhsType, symTable.readonlyType))) {
+            if (!types.isAssignable(lhsType, symTable.anydataType)) {
                 dlog.error(varNode.typeNode.pos,
-                        DiagnosticErrorCode.CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA_AND_READONLY);
-            } else if (!(types.isAssignable(lhsType, symTable.intType) ||
-                    types.isAssignable(lhsType, symTable.floatType) ||
-                    types.isAssignable(lhsType, symTable.stringType) ||
-                    types.isAssignable(lhsType, symTable.booleanType) ||
-                    types.isAssignable(lhsType, symTable.decimalType) ||
-                    types.isAssignable(lhsType, symTable.xmlType) ||
-                    types.isAssignable(lhsType, symTable.arrayType) ||
-                    types.isAssignable(lhsType, symTable.mapAnydataType) ||
-                    types.isAssignable(lhsType, symTable.tableType))) {
-                // TODO: remove this check once runtime support all configurable types
-                dlog.error(varNode.typeNode.pos,
-                        DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED, lhsType);
+                        DiagnosticErrorCode.CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA);
+            } else {
+                if (!types.isInherentlyImmutableType(lhsType)) {
+                    // Configurable variables are implicitly readonly
+                    lhsType = ImmutableTypeCloner.getImmutableIntersectionType(varNode.pos, types,
+                            (SelectivelyImmutableReferenceType) lhsType, env,
+                            symTable, anonModelHelper, names, new HashSet<>());
+                    varNode.type = lhsType;
+                    varNode.symbol.type = lhsType;
+                }
+
+                if (!(types.isAssignable(lhsType, symTable.intType) ||
+                        types.isAssignable(lhsType, symTable.floatType) ||
+                        types.isAssignable(lhsType, symTable.stringType) ||
+                        types.isAssignable(lhsType, symTable.booleanType) ||
+                        types.isAssignable(lhsType, symTable.decimalType) ||
+                        types.isAssignable(lhsType, symTable.xmlType) ||
+                        types.isAssignable(lhsType, symTable.arrayType) ||
+                        types.isAssignable(lhsType, symTable.mapAnydataType) ||
+                        types.isAssignable(lhsType, symTable.tableType))) {
+                    // TODO: remove this check once runtime support all configurable types
+                    dlog.error(varNode.typeNode.pos,
+                            DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED, lhsType);
+                }
             }
         }
         // Analyze the init expression
@@ -1414,7 +1424,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private Boolean validateLhsVar(BLangExpression vRef) {
         if (vRef.getKind() == NodeKind.INVOCATION) {
-            dlog.error(((BLangInvocation) vRef).pos, DiagnosticErrorCode.INVALID_INVOCATION_LVALUE_ASSIGNMENT, vRef);
+            dlog.error(vRef.pos, DiagnosticErrorCode.INVALID_INVOCATION_LVALUE_ASSIGNMENT, vRef);
             return false;
         }
         if (vRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
@@ -1425,45 +1435,67 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangCompoundAssignment compoundAssignment) {
-        List<BType> expTypes = new ArrayList<>();
-        BLangExpression varRef = compoundAssignment.varRef;
+        BType expType;
+        BLangValueExpression varRef = compoundAssignment.varRef;
+
         // Check whether the variable reference is an function invocation or not.
         boolean isValidVarRef = validateLhsVar(varRef);
         if (isValidVarRef) {
-            compoundAssignment.varRef.isCompoundAssignmentLValue = true;
+            varRef.isCompoundAssignmentLValue = true;
             this.typeChecker.checkExpr(varRef, env);
-            expTypes.add(varRef.type);
+            expType = varRef.type;
         } else {
-            expTypes.add(symTable.semanticError);
+            expType = symTable.semanticError;
         }
+
         this.typeChecker.checkExpr(compoundAssignment.expr, env);
 
         checkConstantAssignment(varRef);
 
-        if (expTypes.get(0) != symTable.semanticError && compoundAssignment.expr.type != symTable.semanticError) {
-            BSymbol opSymbol = this.symResolver.resolveBinaryOperator(compoundAssignment.opKind, expTypes.get(0),
+        if (expType != symTable.semanticError && compoundAssignment.expr.type != symTable.semanticError) {
+            BSymbol opSymbol = this.symResolver.resolveBinaryOperator(compoundAssignment.opKind, expType,
                     compoundAssignment.expr.type);
             if (opSymbol == symTable.notFoundSymbol) {
-                opSymbol = symResolver.getArithmeticOpsForTypeSets(compoundAssignment.opKind, expTypes.get(0),
+                opSymbol = symResolver.getArithmeticOpsForTypeSets(compoundAssignment.opKind, expType,
                         compoundAssignment.expr.type);
             }
             if (opSymbol == symTable.notFoundSymbol) {
-                opSymbol = symResolver.getBitwiseShiftOpsForTypeSets(compoundAssignment.opKind, expTypes.get(0),
+                opSymbol = symResolver.getBitwiseShiftOpsForTypeSets(compoundAssignment.opKind, expType,
                         compoundAssignment.expr.type);
             }
             if (opSymbol == symTable.notFoundSymbol) {
                 dlog.error(compoundAssignment.pos, DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES,
-                        compoundAssignment.opKind, expTypes.get(0), compoundAssignment.expr.type);
+                        compoundAssignment.opKind, expType, compoundAssignment.expr.type);
             } else {
                 compoundAssignment.modifiedExpr = getBinaryExpr(varRef,
                         compoundAssignment.expr,
                         compoundAssignment.opKind,
                         opSymbol);
+
+                // If this is an update of a type narrowed variable, the assignment should allow assigning
+                // values of its original type. Therefore treat all lhs simpleVarRefs in their original type.
+                // For that create a new varRef with original type
+                if (isSimpleVarRef(varRef)) {
+                    BVarSymbol originSymbol = ((BVarSymbol) varRef.symbol).originalSymbol;
+                    if (originSymbol != null) {
+                        BLangSimpleVarRef simpleVarRef =
+                                (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+                        simpleVarRef.pos = varRef.pos;
+                        simpleVarRef.variableName = ((BLangSimpleVarRef) varRef).variableName;
+                        simpleVarRef.symbol = varRef.symbol;
+                        simpleVarRef.isLValue = true;
+                        simpleVarRef.type = originSymbol.type;
+                        compoundAssignment.varRef = simpleVarRef;
+                    }
+                }
+
                 compoundAssignment.modifiedExpr.parent = compoundAssignment;
-                this.types.checkTypes(compoundAssignment.modifiedExpr,
-                        Lists.of(compoundAssignment.modifiedExpr.type), expTypes);
+                this.types.checkType(compoundAssignment.modifiedExpr,
+                        compoundAssignment.modifiedExpr.type, compoundAssignment.varRef.type);
             }
         }
+
+        resetTypeNarrowing(varRef, compoundAssignment.expr.type);
     }
 
     public void visit(BLangAssignment assignNode) {

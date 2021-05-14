@@ -46,6 +46,7 @@ import java.util.Set;
 
 import static io.ballerina.runtime.test.TestUtils.getConfigPath;
 import static io.ballerina.runtime.test.TestUtils.getConfigPathForNegativeCases;
+import static io.ballerina.runtime.test.config.ConfigTest.COLOR_ENUM;
 
 /**
  * Test cases specific for configuration provided via TOML files/content.
@@ -230,6 +231,15 @@ public class TomlProviderNegativeTest {
         String errorMsg = "configurable variable 'mapVar' with type 'map<int> & readonly' is not " +
                 "supported";
         validateTomlProviderErrors("InvalidMapType", errorMsg, configVarMap, 1, 3);
+    }
+
+    @Test()
+    public void testInvalidEnumTypeValue() {
+        VariableKey mapInt = new VariableKey(ROOT_MODULE, "color", COLOR_ENUM, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{mapInt}));
+        String errorMsg = "[InvalidEnumType.toml:(2:7,2:14)] configurable variable 'color' is expected to be of type " +
+                "'Colors', but found 'string'";
+        validateTomlProviderErrors("InvalidEnumType", errorMsg, configVarMap, 1, 0);
     }
 
     @Test(dataProvider = "table-negative-tests")

@@ -658,8 +658,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     CONFIGURABLE_VARIABLE_CANNOT_BE_DECLARED_WITH_VAR(
             "BCE3968", "configurable.variable.cannot.be.declared.with.var"),
-    CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA_AND_READONLY(
-            "BCE3969", "configurable.variable.must.be.anydata.and.readonly"),
+    CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA(
+            "BCE3969", "configurable.variable.must.be.anydata"),
     ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_CONFIGURABLE(
             "BCE3970", "only.simple.variables.are.allowed.to.be.configurable"),
     CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED(
@@ -713,13 +713,11 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_MAIN_OPTION_PARAMS_TYPE("BCE4003", "invalid.main.option.params.type"),
     WORKER_INTERACTION_AFTER_WAIT_ACTION("BCE4005", "invalid.worker.message.passing.after.wait.action"),
     OPTIONAL_OPERAND_PRECEDES_OPERAND("BCE4006", "optional.operand.precedes.operand"),
-
     UNIMPLEMENTED_REFERENCED_METHOD_IN_SERVICE_DECL("BCE4007",
             "unimplemented.referenced.method.in.service.declaration"),
     UNIMPLEMENTED_REFERENCED_METHOD_IN_OBJECT_CTOR("BCE4008", "unimplemented.referenced.method.in.object.constructor"),
-
     UNSUPPORTED_REMOTE_METHOD_NAME_IN_SCOPE("BCE4009", "unsupported.remote.method.name.in.scope")
-            ;
+    ;
 
     private String diagnosticId;
     private String messageKey;

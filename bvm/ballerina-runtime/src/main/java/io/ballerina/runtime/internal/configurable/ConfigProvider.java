@@ -59,6 +59,8 @@ public interface ConfigProvider {
 
     Optional<BTable<BString, Object>> getAsTableAndMark(Module module, VariableKey key);
 
+    Optional<Object> getAsUnionAndMark(Module module, VariableKey key);
+
     Optional<BXml> getAsXmlAndMark(Module module, VariableKey key);
 
 }
