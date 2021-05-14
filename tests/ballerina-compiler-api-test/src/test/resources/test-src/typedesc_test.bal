@@ -220,3 +220,13 @@ function testFunctionTypedesc() {
 function testParameterizedType1(typedesc<anydata> td) returns td = external;
 
 function testParameterizedType2(typedesc td = <>) returns error|td = external;
+
+type IntString int|string;
+type FloatBoolean float|boolean;
+
+type FooUnion IntString|FloatBoolean;
+
+function testUnions() {
+    Colour? clr = RED;
+    FooUnion fUnion = 10;
+}

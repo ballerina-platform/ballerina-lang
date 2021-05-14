@@ -738,6 +738,66 @@ public class TypedescriptorTest {
         };
     }
 
+    @Test
+    public void testUserSpecifiedUnionMembers() {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(229, 12));
+        TypeSymbol type = ((VariableSymbol) symbol.get()).typeDescriptor();
+
+        assertEquals(type.typeKind(), UNION);
+        assertEquals(type.signature(), "Colour?");
+
+        List<TypeSymbol> userSpecifiedMembers = ((UnionTypeSymbol) type).userSpecifiedMemberTypes();
+        assertEquals(userSpecifiedMembers.size(), 2);
+        assertEquals(userSpecifiedMembers.get(0).typeKind(), TYPE_REFERENCE);
+        assertEquals(userSpecifiedMembers.get(0).getName().get(), "Colour");
+        assertEquals(userSpecifiedMembers.get(1).typeKind(), NIL);
+
+        symbol = model.symbol(srcFile, from(230, 13));
+        type = ((VariableSymbol) symbol.get()).typeDescriptor();
+
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(type.signature(), "FooUnion");
+
+        type = ((TypeReferenceTypeSymbol) type).typeDescriptor();
+        assertEquals(type.typeKind(), UNION);
+
+        userSpecifiedMembers = ((UnionTypeSymbol) type).userSpecifiedMemberTypes();
+        assertEquals(userSpecifiedMembers.get(0).typeKind(), TYPE_REFERENCE);
+        assertEquals(userSpecifiedMembers.get(0).getName().get(), "IntString");
+        assertEquals(userSpecifiedMembers.get(1).typeKind(), TYPE_REFERENCE);
+        assertEquals(userSpecifiedMembers.get(1).getName().get(), "FloatBoolean");
+    }
+
+    @Test
+    public void testFlattenedUnionMembers() {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(229, 12));
+        TypeSymbol type = ((VariableSymbol) symbol.get()).typeDescriptor();
+
+        assertEquals(type.typeKind(), UNION);
+        assertEquals(type.signature(), "Colour?");
+
+        List<TypeSymbol> userSpecifiedMembers = ((UnionTypeSymbol) type).memberTypeDescriptors();
+        assertEquals(userSpecifiedMembers.size(), 4);
+        assertEquals(userSpecifiedMembers.get(0).typeKind(), SINGLETON);
+        assertEquals(userSpecifiedMembers.get(1).typeKind(), SINGLETON);
+        assertEquals(userSpecifiedMembers.get(2).typeKind(), SINGLETON);
+        assertEquals(userSpecifiedMembers.get(3).typeKind(), NIL);
+
+        symbol = model.symbol(srcFile, from(230, 13));
+        type = ((VariableSymbol) symbol.get()).typeDescriptor();
+
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+
+        type = ((TypeReferenceTypeSymbol) type).typeDescriptor();
+        assertEquals(type.typeKind(), UNION);
+
+        userSpecifiedMembers = ((UnionTypeSymbol) type).memberTypeDescriptors();
+        assertEquals(userSpecifiedMembers.get(0).typeKind(), INT);
+        assertEquals(userSpecifiedMembers.get(1).typeKind(), STRING);
+        assertEquals(userSpecifiedMembers.get(2).typeKind(), FLOAT);
+        assertEquals(userSpecifiedMembers.get(3).typeKind(), BOOLEAN);
+    }
+
     private Symbol getSymbol(int line, int column) {
         return model.symbol(srcFile, from(line, column)).get();
     }
