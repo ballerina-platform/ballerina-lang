@@ -117,13 +117,13 @@ public class BindgenCommand implements BLauncherCmd {
         }
 
         if (classNames == null) {
-            setOutError("error: one or more class names are required");
+            setOutError("one or more class names are required");
             exitWithCode(1, this.exitWhenFinish);
             return;
         }
 
         if (this.outputPath != null && modulesFlag) {
-            setOutError("error: output path is not supported together with the modules flag");
+            setOutError("output path is not supported together with the modules flag");
             exitWithCode(1, this.exitWhenFinish);
             return;
         }
@@ -138,7 +138,7 @@ public class BindgenCommand implements BLauncherCmd {
             bindingsGenerator.setOutputPath(targetOutputPath.toString());
         } else if (modulesFlag) {
             if (ProjectDirs.findProjectRoot(targetOutputPath) == null) {
-                setOutError("error: module level mappings can only be generated inside a ballerina project");
+                setOutError("module level mappings can only be generated inside a ballerina project");
                 exitWithCode(1, this.exitWhenFinish);
                 return;
             }
@@ -157,7 +157,7 @@ public class BindgenCommand implements BLauncherCmd {
                 try {
                     project = ProjectLoader.loadProject(projectDir);
                 } catch (ProjectException e) {
-                    setOutError("error: unable to load the project [" + projectDir + "]: " + e.getMessage());
+                    setOutError("unable to load the project [" + projectDir + "]: " + e.getMessage());
                     exitWithCode(1, this.exitWhenFinish);
                     return;
                 }
@@ -169,7 +169,7 @@ public class BindgenCommand implements BLauncherCmd {
             try {
                 project = ProjectLoader.loadProject(targetOutputPath);
             } catch (ProjectException e) {
-                setOutError("error: unable to load the project [" + targetOutputPath + "]: " + e.getMessage());
+                setOutError("unable to load the project [" + targetOutputPath + "]: " + e.getMessage());
                 exitWithCode(1, this.exitWhenFinish);
                 return;
             }
@@ -187,7 +187,7 @@ public class BindgenCommand implements BLauncherCmd {
         if (this.mavenDependency != null) {
             String[] mvnDependency = this.mavenDependency.split(splitColonRegex);
             if (mvnDependency.length != 3) {
-                setOutError("error: invalid maven dependency provided");
+                setOutError("invalid maven dependency provided");
                 exitWithCode(1, this.exitWhenFinish);
                 return;
             }
@@ -207,7 +207,7 @@ public class BindgenCommand implements BLauncherCmd {
     }
 
     private void setOutError(String errorValue) {
-        outError.println("\n" + errorValue + "\n");
+        outError.println("\nerror: " + errorValue + "\n");
         outStream.println(BINDGEN_CMD);
         outStream.println("\nUse 'bal bindgen --help' for more information on the command.");
     }
