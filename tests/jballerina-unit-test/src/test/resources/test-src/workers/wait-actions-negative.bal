@@ -78,8 +78,8 @@ function waitForAllTest() {
     future<boolean> f3 = @strand{thread:"any"} start getStatus();
     future<int> f4 = start getId();
 
-    map<int> result7 = wait {f1, f2};
-    map<boolean|string> result8 = wait {f1, f4};
+    map<int|error> result7 = wait {f1, f2};
+    map<boolean|string|error> result8 = wait {f1, f4};
     record { int f1; int f2;} result9 = wait {f1, f2};
     record { int f1; string f2;} result10 = wait {f1, f2, f4};
     record { int f1; string f3;} result11 = wait {f1, f2};

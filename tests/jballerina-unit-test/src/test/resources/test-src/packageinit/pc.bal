@@ -17,5 +17,5 @@ public function getInt() returns int {
 }
 
 public function testGetIntValue() returns int {
-    return wait intFuture;
+    return checkpanic wait intFuture;
 }
