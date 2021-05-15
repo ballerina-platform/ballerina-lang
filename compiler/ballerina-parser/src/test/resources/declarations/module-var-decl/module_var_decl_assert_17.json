@@ -79,7 +79,7 @@
                   "kind": "CONFIGURABLE_KEYWORD",
                   "hasDiagnostics": true,
                   "diagnostics": [
-                    "ERROR_QUALIFIER_NOT_ALLOWED"
+                    "ERROR_CONFIGURABLE_VAR_IMPLICITLY_FINAL"
                   ],
                   "leadingMinutiae": [
                     {

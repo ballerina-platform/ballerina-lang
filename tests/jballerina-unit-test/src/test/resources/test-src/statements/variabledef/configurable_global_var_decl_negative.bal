@@ -32,3 +32,6 @@ configurable json & readonly j2 = {name: "apple", color: "red"};
 
 // configurable var not allowed with complex variables
 configurable [int, string] [intVar, stringVar] = ?;
+
+// 'final' qualifier not allowed: configurable variables are implicitly final
+final configurable string systemAlias = "Ballerina";

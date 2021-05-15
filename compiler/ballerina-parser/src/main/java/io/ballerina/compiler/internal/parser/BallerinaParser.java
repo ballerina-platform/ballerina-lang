@@ -905,17 +905,22 @@ public class BallerinaParser extends AbstractParser {
                 if (i < configurableQualIndex) {
                     STNode invalidQual = varDeclQualList.get(i);
                     configurableQual = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(configurableQual, invalidQual,
-                            DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) invalidQual).text());
+                            getInvalidQualifierError(invalidQual.kind), ((STToken) invalidQual).text());
                 } else if (i > configurableQualIndex) {
                     STNode invalidQual = varDeclQualList.get(i);
                     configurableQual = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(configurableQual, invalidQual,
-                            DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) invalidQual).text());
+                            getInvalidQualifierError(invalidQual.kind), ((STToken) invalidQual).text());
                 }
             }
             varDeclQualList = new ArrayList<>(Collections.singletonList(configurableQual));
         }
 
         return varDeclQualList;
+    }
+
+    private DiagnosticErrorCode getInvalidQualifierError(SyntaxKind qualifierKind) {
+        return qualifierKind == SyntaxKind.FINAL_KEYWORD ? DiagnosticErrorCode.ERROR_CONFIGURABLE_VAR_IMPLICITLY_FINAL :
+                DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED;
     }
 
     boolean isModuleVarDeclQualifier(SyntaxKind tokenKind) {
