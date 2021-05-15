@@ -1,5 +1,5 @@
 import ballerina/lang.'int;
-import bar as _;
+import proj.bar as _;
 import ballerina/lang.'float as _;
 
 public function runFoo() {

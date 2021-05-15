@@ -32,7 +32,6 @@ import org.testng.annotations.Test;
 /**
  * Test Cases for variable scopes.
  */
-@Test(groups = { "brokenOnNewParser" })
 public class VariableScopeTest {
 
     private CompileResult result, resultNegative;
