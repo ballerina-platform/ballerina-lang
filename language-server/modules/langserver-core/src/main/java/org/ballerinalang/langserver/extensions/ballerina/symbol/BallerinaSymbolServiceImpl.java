@@ -16,12 +16,12 @@
 package org.ballerinalang.langserver.extensions.ballerina.symbol;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.symbols.BallerinaUnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.LSClientLogger;
@@ -72,7 +72,7 @@ public class BallerinaSymbolServiceImpl implements BallerinaSymbolService {
             ExpressionTypeResponse expressionTypeResponse = new ExpressionTypeResponse();
             String fileUri = request.getDocumentIdentifier().getUri();
             Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
-            if (!filePath.isPresent()) {
+            if (filePath.isEmpty()) {
                 return expressionTypeResponse;
             }
 
@@ -82,22 +82,22 @@ public class BallerinaSymbolServiceImpl implements BallerinaSymbolService {
                 // Get the semantic model.
                 Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(filePath.get());
 
-                if (semanticModel.isPresent()) {
-                    Optional<Symbol> symbol = Optional.empty();
-                    for (int i = 0; i < request.getPosition().offset(); i++) {
-                        symbol = semanticModel.get().symbol(workspaceManager.document(filePath.get()).get(),
-                                LinePosition.from(request.getPosition().line(),
-                                        request.getPosition().offset() - i));
-                        if (symbol.isPresent()) {
-                            break;
-                        }
-                    }
+                if (semanticModel.isEmpty()) {
+                    return expressionTypeResponse;
+                }
+
+                Optional<Symbol> symbol = Optional.empty();
+                for (int i = 0; i < request.getPosition().offset(); i++) {
+                    symbol = semanticModel.get().symbol(workspaceManager.document(filePath.get()).get(),
+                            LinePosition.from(request.getPosition().line(),
+                                    request.getPosition().offset() - i));
                     if (symbol.isPresent()) {
-                        expressionTypeResponse.setTypes(getAllUnionTypes(symbol.get()));
-                        return expressionTypeResponse;
+                        break;
                     }
                 }
+                symbol.ifPresent(value -> expressionTypeResponse.setTypes(getAllUnionTypes(value)));
                 return expressionTypeResponse;
+
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaSymbol/type' failed!";
                 this.clientLogger.logError(SymbolContext.SC_TYPE_API, msg, e,
@@ -112,9 +112,9 @@ public class BallerinaSymbolServiceImpl implements BallerinaSymbolService {
         if (symbol.kind() == SymbolKind.VARIABLE) {
             VariableSymbol variableSymbol = (VariableSymbol) symbol;
             if (variableSymbol.typeDescriptor().typeKind() == TypeDescKind.UNION) {
-                BallerinaUnionTypeSymbol ballerinaUnionTypeSymbol =
-                        (BallerinaUnionTypeSymbol) variableSymbol.typeDescriptor();
-                for (TypeSymbol typeSymbol: ballerinaUnionTypeSymbol.memberTypeDescriptors()) {
+                UnionTypeSymbol ballerinaUnionTypeSymbol =
+                        (UnionTypeSymbol) variableSymbol.typeDescriptor();
+                for (TypeSymbol typeSymbol : ballerinaUnionTypeSymbol.memberTypeDescriptors()) {
                     if (!allTypes.contains(typeSymbol.typeKind().getName())) {
                         allTypes.add(typeSymbol.typeKind().getName());
                     }
@@ -128,8 +128,8 @@ public class BallerinaSymbolServiceImpl implements BallerinaSymbolService {
             MethodSymbol methodSymbol = (MethodSymbol) symbol;
             TypeSymbol returnTypeSymbol = methodSymbol.typeDescriptor().returnTypeDescriptor().get();
             if (returnTypeSymbol.typeKind() == TypeDescKind.UNION) {
-                BallerinaUnionTypeSymbol ballerinaUnionTypeSymbol = (BallerinaUnionTypeSymbol) returnTypeSymbol;
-                for (TypeSymbol typeSymbol: ballerinaUnionTypeSymbol.memberTypeDescriptors()) {
+                UnionTypeSymbol ballerinaUnionTypeSymbol = (UnionTypeSymbol) returnTypeSymbol;
+                for (TypeSymbol typeSymbol : ballerinaUnionTypeSymbol.memberTypeDescriptors()) {
                     if (!allTypes.contains(typeSymbol.typeKind().getName())) {
                         allTypes.add(typeSymbol.typeKind().getName());
                     }
@@ -138,7 +138,7 @@ public class BallerinaSymbolServiceImpl implements BallerinaSymbolService {
                 allTypes.add(returnTypeSymbol.typeKind().getName());
             }
         }
-        
+
         return allTypes;
     }
 }
