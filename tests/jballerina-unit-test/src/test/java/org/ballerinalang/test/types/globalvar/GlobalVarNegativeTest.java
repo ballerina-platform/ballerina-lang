@@ -88,6 +88,8 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for " +
                 "'(json & readonly)'", 31, 14);
         BAssertUtil.validateError(result, i++, "only simple variables are allowed to be configurable", 34, 1);
+        BAssertUtil.validateError(result, i++, "'final' qualifier not allowed: configurable variables are " +
+                "implicitly final", 37, 7);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
