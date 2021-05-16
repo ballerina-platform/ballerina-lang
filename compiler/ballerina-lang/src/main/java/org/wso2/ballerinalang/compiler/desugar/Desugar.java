@@ -1864,6 +1864,7 @@ public class Desugar extends BLangNodeVisitor {
         } else {
             constraintType = ((BMapType) targetType).constraint;
         }
+        targetType = new BMapType(TypeTags.MAP, constraintType, null);
         BType entriesType = new BMapType(TypeTags.MAP,
                 new BTupleType(Arrays.asList(symTable.stringType, constraintType)), null);
         BLangSimpleVariable entriesInvocationVar = defVariable(pos, entriesType, parentBlockStmt,
@@ -3769,7 +3770,7 @@ public class Desugar extends BLangNodeVisitor {
             Location restPatternPos = restBindingPattern.pos;
             List<String> keysToRemove = getKeysToRemove(mappingBindingPattern);
             BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(symTable.stringType,
-                    ((BMapType) restBindingPattern.type).constraint)), null);
+                    ((BRecordType) restBindingPattern.type).restFieldType)), null);
             BLangInvocation entriesInvocation = generateMapEntriesInvocation(tempCastVarRef, entriesType);
             BLangSimpleVariableDef entriesVarDef = createVarDef("$entries$", entriesType, entriesInvocation,
                     restPatternPos);
@@ -3780,7 +3781,7 @@ public class Desugar extends BLangNodeVisitor {
                     restPatternPos);
             tempBlockStmt.addStatement(filtersVarDef);
             BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos,
-                    ((BMapType) mappingBindingPattern.restBindingPattern.type).constraint);
+                    ((BRecordType) mappingBindingPattern.restBindingPattern.type).restFieldType);
             BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
                     backToMapLambda);
             BLangSimpleVarRef restMatchPatternVarRef =
@@ -4046,7 +4047,7 @@ public class Desugar extends BLangNodeVisitor {
             Location restPatternPos = restMatchPattern.pos;
             List<String> keysToRemove = getKeysToRemove(mappingMatchPattern);
             BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(symTable.stringType,
-                    ((BMapType) restMatchPattern.type).constraint)), null);
+                    ((BRecordType) restMatchPattern.type).restFieldType)), null);
             BLangInvocation entriesInvocation = generateMapEntriesInvocation(tempCastVarRef, entriesType);
             BLangSimpleVariableDef entriesVarDef = createVarDef("$entries$", entriesType, entriesInvocation,
                     restPatternPos);
@@ -4057,7 +4058,7 @@ public class Desugar extends BLangNodeVisitor {
                     restPatternPos);
             tempBlockStmt.addStatement(filtersVarDef);
             BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos,
-                    ((BMapType) restMatchPattern.type).constraint);
+                    ((BRecordType) restMatchPattern.type).restFieldType);
             BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
                     backToMapLambda);
             BLangSimpleVarRef restMatchPatternVarRef = declaredVarDef.get(restMatchPattern.getIdentifier().getValue());
@@ -4228,7 +4229,7 @@ public class Desugar extends BLangNodeVisitor {
         Location restPatternPos = restBindingPattern.pos;
         List<String> keysToRemove = getKeysToRemove(mappingBindingPattern);
         BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(symTable.stringType,
-                ((BMapType) restBindingPattern.type).constraint)), null);
+                ((BRecordType) restBindingPattern.type).restFieldType)), null);
         BLangInvocation entriesInvocation = generateMapEntriesInvocation(varRef, entriesType);
         BLangSimpleVariableDef entriesVarDef = createVarDef("$entries$", entriesType, entriesInvocation,
                 restPatternPos);
@@ -4240,7 +4241,7 @@ public class Desugar extends BLangNodeVisitor {
                 restPatternPos);
         blockStmt.addStatement(filtersVarDef);
         BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos,
-                ((BMapType) restBindingPattern.type).constraint);
+                ((BRecordType) restBindingPattern.type).restFieldType);
         BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
                 backToMapLambda);
         BLangSimpleVarRef restMatchPatternVarRef =
@@ -4336,7 +4337,7 @@ public class Desugar extends BLangNodeVisitor {
             Location restPatternPos = restMatchPattern.pos;
             List<String> keysToRemove = getKeysToRemove(mappingMatchPattern);
             BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(symTable.stringType,
-                    ((BMapType) restMatchPattern.type).constraint)), null);
+                    ((BRecordType) restMatchPattern.type).restFieldType)), null);
             BLangInvocation entriesInvocation = generateMapEntriesInvocation(tempCastVarRef, entriesType);
             BLangSimpleVariableDef entriesVarDef = createVarDef("$entries$", entriesType, entriesInvocation,
                     restPatternPos);
@@ -4347,7 +4348,7 @@ public class Desugar extends BLangNodeVisitor {
                     restPatternPos);
             tempBlockStmt.addStatement(filtersVarDef);
             BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos,
-                    ((BMapType) restMatchPattern.type).constraint);
+                    ((BRecordType) restMatchPattern.type).restFieldType);
             BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
                     backToMapLambda);
             BLangSimpleVarRef restMatchPatternVarRef =
@@ -8712,7 +8713,7 @@ public class Desugar extends BLangNodeVisitor {
 
             // if rest param is null we treat it as an open record with anydata rest param
             recordVarType.restFieldType = recordVariable.restParam != null ?
-                        ((BMapType) ((BLangSimpleVariable) recordVariable.restParam).type).constraint :
+                        ((BRecordType) ((BLangSimpleVariable) recordVariable.restParam).type).restFieldType :
                     symTable.anydataType;
             recordSymbol.type = recordVarType;
             recordVarType.tsymbol = recordSymbol;

@@ -46,7 +46,7 @@ public class RecordDestructuringTest {
 
     @Test(description = "Test rest field resolving negative cases")
     public void testResolvingRestFieldNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 6);
+        Assert.assertEquals(negativeResult.getErrorCount(), 7);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'XY', " +
                 "found 'record {| never x?; never y?; anydata...; |}'", 30, 12);
@@ -55,11 +55,14 @@ public class RecordDestructuringTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<int>', " +
                 "found 'record {| (int|anydata)...; |}'", 54, 12);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<string>', " +
-                "found 'map<(string|int)>'", 69, 18);
+                "found 'record {| int age; string...; |}'", 69, 18);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<string>', " +
-                "found 'map<(string|int|error)>'", 84, 18);
+                "found 'record {| (int|error) id; string...; |}'", 84, 18);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', " +
                 "found '(int|error)'", 87, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'record {| never name?; never age?; (int|string)...; |}', found 'record {| int age; string...; |}'",
+                96, 17);
     }
 
     @AfterClass

@@ -86,3 +86,38 @@ function testRestFieldTypeCheckWithError() {
     Employee emp2 = {name: "Jean Doe", id: 10, "employed": "true"};
     {name: s, id, ...rest} = emp2;
 }
+
+function testDefinedRestField() {
+    string s;
+    int age;
+    record {| never name?; never age?; (int|string)...; |} rest;
+
+    Person p = {name: "Jane Doe", age: 20, "employed": "false"};
+    {name: s,...rest} = p;
+
+    if rest.hasKey("age") {
+        panic error("Found 'age' field: " + rest.get("age").toString());
+    }
+}
+
+//type Person record {
+//    string name;
+//    int age;
+//    string...;
+//};
+//
+//public function abc() {
+//    Person p = {name: "Jane Doe", age: 20, "employed": "false"};
+//
+//    match p {
+//        {name: var s, age: var r, ...var rest} => {
+//            int x = rest; // ERROR: incompatible types: expected 'int', found 'map<(int|string)>'
+//        }
+//    }
+//
+//    //match p {
+//    //    var {name: s, ...rest} => {
+//    //        int x = rest; // ERROR: incompatible types: expected 'int', found 'map<(int|string)>'
+//    //    }
+//    //}
+//}

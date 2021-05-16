@@ -2475,7 +2475,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (recordVar.restParam != null) {
             BType restType = getRestParamType(recordVarType);
             BType restConstraint = createRecordTypeForRestField(env, recordVarType, recordVar,
-                    ((BMapType) restType).constraint);
+                    restType);
             defineMemberNode(((BLangSimpleVariable) recordVar.restParam), env, restConstraint);
         }
 
@@ -2507,7 +2507,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return !recordVarType.sealed;
     }
 
-    BRecordTypeSymbol createAnonRecordSymbol(SymbolEnv env, Location pos) {
+    public BRecordTypeSymbol createAnonRecordSymbol(SymbolEnv env, Location pos) {
         EnumSet<Flag> flags = EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS);
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
                 env.enclPkg.packageID, null, env.scope.owner, pos, VIRTUAL);
@@ -2527,7 +2527,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             memberType = hasOnlyAnyDataTypedFields(recordType) ? symTable.anydataType : symTable.anyType;
         }
 
-        return new BMapType(TypeTags.MAP, memberType, null);
+        return memberType;
     }
 
     BType getRestMatchPatternConstraintType(BRecordType recordType,

@@ -200,23 +200,24 @@ public class MappingBindingPatternTest {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<error>', found 'map<int>'",
                 20, 28);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<map<int>>', found 'map<map<" +
-                "(int|error)>>'", 21, 31);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<map<int>>', " +
+                "found 'record {| map<(int|error)>...; |}'", 21, 31);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'json'", 29, 21);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<boolean>', found " +
-                "'map<json>'", 29, 24);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<boolean>', " +
+                "found 'record {| json...; |}'", 29, 24);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'json'", 32, 21);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'json'", 32, 28);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'map<never>'", 43,
-                21);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', " +
+                "found 'record {| never...; |}'", 43, 21);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'", 57, 25);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<boolean>', found 'map<" +
-                "(string|boolean)>'", 58, 30);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 73, 24);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'map<never>'",
-                74, 25);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<boolean>', " +
+                "found 'record {| (string|boolean)...; |}'", 58, 30);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', " +
-                "found 'map<(int|never)>'", 77, 24);
+                "found 'int'", 73, 24);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', " +
+                "found 'record {| never...; |}'", 74, 25);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', " +
+                "found 'record {| (int|never)...; |}'", 77, 24);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

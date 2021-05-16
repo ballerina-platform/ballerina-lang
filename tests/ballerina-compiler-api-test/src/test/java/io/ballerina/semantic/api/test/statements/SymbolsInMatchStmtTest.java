@@ -93,7 +93,7 @@ public class SymbolsInMatchStmtTest {
                 {29, 30, "rest", TypeDescKind.ARRAY},
                 {30, 24, "x", TypeDescKind.UNION},
                 {34, 26, "b", TypeDescKind.UNION},
-                {34, 36, "rest", TypeDescKind.MAP},
+                {34, 36, "rest", TypeDescKind.RECORD},
                 {36, 24, "val", TypeDescKind.ANY},
                 {38, 14, "Error", TypeDescKind.ERROR},
         };
