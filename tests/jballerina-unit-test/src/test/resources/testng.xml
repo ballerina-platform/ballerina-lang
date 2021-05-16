@@ -25,7 +25,6 @@
         <parameter name="enableJBallerinaTests" value="true"/>
         <groups>
             <run>
-                <exclude name="brokenOnSpecDeviation"/>
                 <exclude name="brokenOnNewParser"/>
                 <exclude name="brokenOnErrorChange"/>
                 <exclude name="brokenOnClassChange"/>
