@@ -49,7 +49,7 @@ public class MatchStructuredPatternsTest {
                 "test-src/statements/matchstmt/structured_match_patterns_unreachable_negative.bal");
     }
 
-    @Test(description = "Test basics of structured pattern match statement 1", groups = "brokenOnErrorChange")
+    @Test(description = "Test basics of structured pattern match statement 1")
     public void testMatchStatementBasics1() {
         BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic1", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
@@ -60,7 +60,7 @@ public class MatchStructuredPatternsTest {
         Assert.assertEquals(bString.stringValue(), "Matched Values : S, 24, 6.6, 4, true");
     }
 
-    @Test(description = "Test basics of structured pattern match statement 2", groups = "brokenOnErrorChange")
+    @Test(description = "Test basics of structured pattern match statement 2")
     public void testMatchStatementBasics2() {
         BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic2", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
@@ -71,14 +71,13 @@ public class MatchStructuredPatternsTest {
         Assert.assertEquals(bString.stringValue(), "Matched Values : S, 23, 5.6, 100, 12, S, 24, 5.6, 200");
     }
 
-    @Test(description = "Test error not being match to wildcard match pattern using 'var _' pattern",
-            groups = "brokenOnErrorChange")
+    @Test(description = "Test error not being match to wildcard match pattern using 'var _' pattern")
     public void testErrorShouldNotMatchWildCardPatternVarIgnore() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorShouldNotMatchWildCardPatternVarIgnore");
         Assert.assertEquals(returns[0].stringValue(), "no-match");
     }
 
-    @Test(description = "Test error match fall through '_' to error pattern", groups = "brokenOnErrorChange")
+    @Test(description = "Test error match fall through '_' to error pattern")
     public void testErrorNotMatchingVarIgnoreAndFallThroughToErrorPattern() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorNotMatchingVarIgnoreAndFallThroughToErrorPattern");
         Assert.assertEquals(returns[0].stringValue(), "{UserGenError}Error");
