@@ -36,7 +36,7 @@ import java.util.List;
  *
  * @since 0.970.0
  */
-public class BLangCheckedExpr extends BLangAccessibleExpression implements CheckedExpressionNode {
+public class BLangCheckedExpr extends BLangExpression implements CheckedExpressionNode {
 
     public BLangExpression expr;
 

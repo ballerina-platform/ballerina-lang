@@ -433,6 +433,22 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "i",
+      "kind": "Variable",
+      "detail": "string|int|boolean",
+      "sortText": "B",
+      "insertText": "i",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "var5",
       "kind": "Variable",
       "detail": "string",
@@ -449,30 +465,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
+      "label": "var1",
+      "kind": "Variable",
+      "detail": "string|int|boolean",
+      "sortText": "B",
+      "insertText": "var1",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "bar(string|int|boolean i)(string|int|boolean)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string|int|boolean` i  \n  \n**Returns** `string|int|boolean`   \n  \n"
-        }
-      },
-      "sortText": "C",
-      "insertText": "bar(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
     },
     {
       "label": "var2",
@@ -491,14 +489,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "var1",
-      "kind": "Variable",
-      "detail": "string|int|boolean",
-      "sortText": "B",
-      "insertText": "var1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -510,12 +500,23 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "i",
-      "kind": "Variable",
-      "detail": "string|int|boolean",
-      "sortText": "B",
-      "insertText": "i",
-      "insertTextFormat": "Snippet"
+      "label": "bar(string|int|boolean i)(string|int|boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string|int|boolean` i  \n  \n**Returns** `string|int|boolean`   \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "bar",
+      "insertText": "bar(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "readonly",

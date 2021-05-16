@@ -21,11 +21,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
  * {@code BLangAccessExpression} represents an chained access expression.
- * eg: field access, index-based access, invocation.
+ * eg: field access, index-based access.
  * 
  * @since 0.970.0
  */
-public abstract class BLangAccessExpression extends BLangAccessibleExpression {
+public abstract class BLangAccessExpression extends BLangValueExpression {
     public BLangExpression expr;
     public boolean optionalFieldAccess = false;
     public boolean errorSafeNavigation = false;

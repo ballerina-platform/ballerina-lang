@@ -43,7 +43,7 @@ import static org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper.L
 public class BallerinaStackFrame {
 
     private final ExecutionContext context;
-    private final Long frameId;
+    private final Integer frameId;
     private final StackFrameProxyImpl jStackFrame;
     private StackFrame dapStackFrame;
 
@@ -54,7 +54,7 @@ public class BallerinaStackFrame {
     private static final String FRAME_SEPARATOR = ":";
     private static final String WORKER_LAMBDA_REGEX = "(\\$lambda\\$)\\b(.*)\\b(\\$lambda)(.*)";
 
-    public BallerinaStackFrame(ExecutionContext context, Long frameId, StackFrameProxyImpl stackFrameProxy) {
+    public BallerinaStackFrame(ExecutionContext context, Integer frameId, StackFrameProxyImpl stackFrameProxy) {
         this.context = context;
         this.frameId = frameId;
         this.jStackFrame = stackFrameProxy;
@@ -83,8 +83,8 @@ public class BallerinaStackFrame {
             StackFrame dapStackFrame = new StackFrame();
             dapStackFrame.setId(frameId);
             dapStackFrame.setName(getStackFrameName(jStackFrame));
-            dapStackFrame.setLine((long) jStackFrame.location().lineNumber());
-            dapStackFrame.setColumn(0L);
+            dapStackFrame.setLine(jStackFrame.location().lineNumber());
+            dapStackFrame.setColumn(0);
 
             // Adds ballerina source information.
             Optional<Path> sourcePath = getSrcPathFromBreakpointLocation(jStackFrame.location(),

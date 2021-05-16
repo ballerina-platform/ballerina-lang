@@ -44,6 +44,7 @@ public class CompletionTestUtil {
                 completionItem.getDetail() + "," +
                 completionItem.getLabel() + "," +
                 completionItem.getSortText() + "," +
+                completionItem.getFilterText() + "," +
                 additionalTextEdits  +
                 "}").replace("\r\n", "\n").replace("\\r\\n", "\\n");
     }

@@ -1,11 +1,9 @@
 package org.ballerinalang.langserver.completions.providers.context.util;
 
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.Token;
-
-import java.util.stream.Collectors;
 
 /**
  * Utilities for the class definition context.
@@ -22,10 +20,21 @@ public class ClassDefinitionNodeContextUtil {
         }
         if (node.kind() == SyntaxKind.CLASS_DEFINITION) {
             return ((ClassDefinitionNode) node).classTypeQualifiers().stream()
-                    .map(Token::text).collect(Collectors.toList())
-                    .contains("service");
+                    .anyMatch(token -> token.kind() == SyntaxKind.SERVICE_KEYWORD);
         }
         
         return false;
+    }
+
+    public static boolean onSuggestInitFunction(Node node) {
+        if (node.kind() != SyntaxKind.CLASS_DEFINITION) {
+            return false;
+        }
+
+        ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) node;
+        return classDefinitionNode.members().stream()
+                .filter(member -> member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION)
+                .map(member -> (FunctionDefinitionNode) member)
+                .noneMatch(funcDef -> "init".equals(funcDef.functionName().text()));
     }
 }

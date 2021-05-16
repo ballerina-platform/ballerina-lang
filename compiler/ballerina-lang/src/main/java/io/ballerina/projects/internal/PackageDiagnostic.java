@@ -17,7 +17,10 @@
  */
 package io.ballerina.projects.internal;
 
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleName;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -41,19 +44,30 @@ import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
  * @since 2.0.0
  */
 public class PackageDiagnostic extends Diagnostic {
-    private final Diagnostic diagnostic;
-    private final Location location;
+    private Diagnostic diagnostic;
+    private Location location;
+    private Project project;
+    private ModuleDescriptor moduleDescriptor;
 
-    public PackageDiagnostic(Diagnostic diagnostic, ModuleName moduleName) {
-        this.diagnostic = diagnostic;
+
+    public PackageDiagnostic(Diagnostic diagnostic, ModuleDescriptor moduleDescriptor, Project project) {
         String filePath;
-        if (!moduleName.isDefaultModuleName()) {
-            Path modulePath = Paths.get(ProjectConstants.MODULES_ROOT).resolve(moduleName.moduleNamePart());
-            LineRange lineRange = this.diagnostic.location().lineRange();
-            filePath = modulePath.resolve(lineRange.filePath()).toString();
+        ModuleName moduleName = moduleDescriptor.name();
+        if (project.kind().equals(ProjectKind.BALA_PROJECT)) {
+            Path modulePath = Paths.get(ProjectConstants.MODULES_ROOT).resolve(moduleName.toString());
+            filePath = project.sourceRoot().resolve(modulePath).resolve(
+                    diagnostic.location().lineRange().filePath()).toString();
         } else {
-            filePath = diagnostic.location().lineRange().filePath();
+            if (!moduleName.isDefaultModuleName()) {
+                Path modulePath = Paths.get(ProjectConstants.MODULES_ROOT).resolve(moduleName.moduleNamePart());
+                filePath = modulePath.resolve(diagnostic.location().lineRange().filePath()).toString();
+            } else {
+                filePath = diagnostic.location().lineRange().filePath();
+            }
         }
+        this.diagnostic = diagnostic;
+        this.project = project;
+        this.moduleDescriptor = moduleDescriptor;
         this.location = new DiagnosticLocation(filePath, this.diagnostic.location());
     }
 
@@ -79,8 +93,22 @@ public class PackageDiagnostic extends Diagnostic {
 
     @Override
     public String toString() {
+        String filePath = this.diagnostic.location().lineRange().filePath();
+        // add package info if it is a dependency
+        if (this.project.kind().equals(ProjectKind.BALA_PROJECT)) {
+            filePath = moduleDescriptor.org() + "/" +
+                    moduleDescriptor.name().toString() + "/" +
+                    moduleDescriptor.version() + "::" + filePath;
+        }
+
+        LineRange lineRange = diagnostic.location().lineRange();
+        LineRange oneBasedLineRange = LineRange.from(
+                filePath,
+                LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
+                LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
+
         return diagnosticInfo().severity().toString() + " ["
-                + this.location.lineRange().filePath() + ":" + this.location.lineRange() + "] " + message();
+                + filePath + ":" + oneBasedLineRange + "] " + message();
     }
 
     /*

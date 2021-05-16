@@ -361,7 +361,7 @@ public class MatchStatementStaticPatternsTest {
 
     @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatched() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 64);
+        Assert.assertEquals(resultNegative.getErrorCount(), 61);
         int i = -1;
         String patternNotMatched = "pattern will not be matched";
 
@@ -417,12 +417,7 @@ public class MatchStatementStaticPatternsTest {
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 173, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 188, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 194, 9);
-        // https://github.com/ballerina-platform/ballerina-lang/issues/30463
-        ++i;
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 201, 9);
-        // https://github.com/ballerina-platform/ballerina-lang/issues/30463
-        ++i;
-        ++i;
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 204, 9);
 
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 221, 9);

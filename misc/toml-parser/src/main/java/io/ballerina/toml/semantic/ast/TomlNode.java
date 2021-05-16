@@ -19,8 +19,9 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.DiagnosticComparator;
+import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
-import io.ballerina.toml.syntax.tree.DocumentNode;
+import io.ballerina.toml.syntax.tree.Node;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.List;
@@ -32,18 +33,19 @@ import java.util.TreeSet;
  *
  * @since 2.0.0
  */
-public abstract class TomlNode implements Node {
+public abstract class TomlNode {
 
     private final TomlType kind;
     private final TomlNodeLocation location;
-    private final DocumentNode externalRootNode;
+    private final Node syntaxTreeNode;
     protected Set<Diagnostic> diagnostics;
 
-    public TomlNode(DocumentNode externalRootNode, TomlType kind, TomlNodeLocation location) {
+    public TomlNode(Node syntaxTreeNode, TomlType kind, TomlNodeLocation location) {
         this.kind = kind;
         this.location = location;
-        this.externalRootNode = externalRootNode;
+        this.syntaxTreeNode = syntaxTreeNode;
         this.diagnostics = new TreeSet<>(new DiagnosticComparator());
+        this.diagnostics.addAll(reportSyntaxDiagnostics(syntaxTreeNode.diagnostics()));
     }
 
     public abstract void accept(TomlNodeVisitor visitor);
@@ -68,12 +70,28 @@ public abstract class TomlNode implements Node {
         return location;
     }
 
-    public DocumentNode externalRootNode() {
-        return externalRootNode;
+    public Node externalTreeNode() {
+        return syntaxTreeNode;
     }
-
-    @Override
+    
     public TomlType kind() {
         return kind;
+    }
+    
+    
+    public boolean isMissingNode() {
+        return syntaxTreeNode.isMissing();
+    }
+
+    private static Set<Diagnostic> reportSyntaxDiagnostics(Iterable<Diagnostic> syntaxDiagnostics) {
+        Set<Diagnostic> diagnostics = new TreeSet<>(new DiagnosticComparator());
+        for (Diagnostic syntaxDiagnostic : syntaxDiagnostics) {
+            TomlNodeLocation tomlNodeLocation = new TomlNodeLocation(syntaxDiagnostic.location().lineRange(),
+                    syntaxDiagnostic.location().textRange());
+            TomlDiagnostic tomlDiagnostic =
+                    new TomlDiagnostic(tomlNodeLocation, syntaxDiagnostic.diagnosticInfo(), syntaxDiagnostic.message());
+            diagnostics.add(tomlDiagnostic);
+        }
+        return diagnostics;
     }
 }

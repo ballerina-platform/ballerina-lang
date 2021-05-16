@@ -433,20 +433,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "doTask()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "sortText": "A",
-      "insertText": "doTask()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
@@ -473,7 +459,23 @@
         }
       },
       "sortText": "D",
+      "filterText": "testFunction",
       "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "doTask()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "sortText": "A",
+      "filterText": "doTask",
+      "insertText": "doTask()",
       "insertTextFormat": "Snippet"
     },
     {

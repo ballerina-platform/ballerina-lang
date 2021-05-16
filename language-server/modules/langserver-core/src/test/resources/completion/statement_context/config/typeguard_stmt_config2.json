@@ -6,30 +6,32 @@
   "source": "statement_context/source/typeguard_stmt_source2.bal",
   "items": [
     {
-      "label": "cloneReadOnly()(Cloneable & readonly)",
+      "label": "cloneReadOnly()(CloneableType & readonly)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `Cloneable & readonly`   \n- immutable clone of `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `CloneableType & readonly`   \n- immutable clone of `v`  \n  \n"
         }
       },
       "sortText": "D",
+      "filterText": "cloneReadOnly",
       "insertText": "cloneReadOnly()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "clone()(Cloneable)",
+      "label": "clone()(CloneableType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `Cloneable`   \n- clone of `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `CloneableType`   \n- clone of `v`  \n  \n"
         }
       },
       "sortText": "D",
+      "filterText": "clone",
       "insertText": "clone()",
       "insertTextFormat": "Snippet"
     },
@@ -44,6 +46,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "ensureType",
       "insertText": "ensureType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -53,4 +56,3 @@
     }
   ]
 }
-

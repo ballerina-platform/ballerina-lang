@@ -28,7 +28,7 @@
                                         "character": 0
                                     }
                                 },
-                                "newText": "\n\nfunction createListener(int a) returns module1:Listener {\n    \n    return new (0);\n}\n"
+                                "newText": "\n\nfunction createListener(int a) returns module1:Listener {\n    return new (0);\n}\n"
                             }
                         ]
                     }

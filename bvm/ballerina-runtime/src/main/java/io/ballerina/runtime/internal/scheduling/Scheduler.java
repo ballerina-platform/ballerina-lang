@@ -31,10 +31,12 @@ import io.ballerina.runtime.internal.values.ChannelDetails;
 import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.io.PrintStream;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.WeakHashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
@@ -79,6 +81,7 @@ public class Scheduler {
 
     private Semaphore mainBlockSem;
     private ListenerRegistry listenerRegistry;
+    private Map<BObject, ItemGroup> objectGroups = Collections.synchronizedMap(new WeakHashMap<>());
 
     public Scheduler(boolean immortal) {
         try {
@@ -156,6 +159,28 @@ public class Scheduler {
         parent.strandGroup.add(item);
         if (parent.strandGroup.scheduled.compareAndSet(false, true)) {
             runnableList.add(future.strand.strandGroup);
+        }
+        return future;
+    }
+
+    public FutureValue scheduleToObjectGroup(BObject object, Object[] params, Function function, Strand parent,
+                                             Callback callback, String strandName, StrandMetadata metadata) {
+        FutureValue future = createFuture(parent, callback, null, PredefinedTypes.TYPE_NULL, strandName, metadata);
+        params[0] = future.strand;
+        SchedulerItem item = new SchedulerItem(function, params, future);
+        future.strand.schedulerItem = item;
+        totalStrands.incrementAndGet();
+        ItemGroup group = objectGroups.compute(object, (o, groupInMap) -> {
+            if (groupInMap == null) {
+                return new ItemGroup(item);
+            } else {
+                groupInMap.add(item);
+                return groupInMap;
+            }
+        });
+        future.strand.strandGroup = group;
+        if (group.scheduled.compareAndSet(false, true)) {
+            runnableList.add(group);
         }
         return future;
     }

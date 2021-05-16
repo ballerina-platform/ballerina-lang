@@ -88,17 +88,16 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // XML element
         debugTestRunner.assertExpression(context, "xml `<book>The Lost World</book>`", "<book>The Lost World</book>",
                 "xml");
-        // Todo - enable after https://github.com/ballerina-platform/ballerina-lang/issues/26589 is fixed from the
-        //  runtime.
         // XML text
-        // debugTestRunner.assertExpression(context, "xml `Hello, world!`", "Hello, world!", "xml");
+        debugTestRunner.assertExpression(context, "xml `Hello, world!`", "Hello, world!", "xml");
         // XML comment
-        // debugTestRunner.assertExpression(context, "xml `<!--I am a comment-->`", "<!--I am a comment", "xml");
+        debugTestRunner.assertExpression(context, "xml `<!--I am a comment-->`", "<!--I am a comment-->", "xml");
         // XML processing instruction
-        // debugTestRunner.assertExpression(context, "xml `<?target data?>`", "<?target data?>", "xml");
+        debugTestRunner.assertExpression(context, "xml `<?target data?>`", "<?target data?>", "xml");
         // concatenated XML
-        // assertExpression(context, "xml `<book>The Lost World</book>Hello, world!<!--I am a comment--><?target
-        // data?>`", "<?target data?>", "xml");
+        debugTestRunner.assertExpression(context, "xml `<book>The Lost World</book>Hello, world!" +
+                "<!--I am a comment--><?target data?>`", "<book>The Lost World</book>Hello, world!" +
+                "<!--I am a comment--><?target data?>", "xml");
     }
 
     @Override
@@ -309,7 +308,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test(enabled = false)
+    @Test
     public void methodCallEvaluationTest() throws BallerinaTestException {
 
         // 1. object methods

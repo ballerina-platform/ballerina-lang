@@ -56,10 +56,7 @@
             <package name="org.ballerinalang.test.klass.*"/>
             <!--            <package name="org.ballerinalang.test.loc.*"/>-->
             <package name="org.ballerinalang.test.lock.*"/>
-
-            <!--https://github.com/ballerina-platform/ballerina-lang/issues/30283-->
-            <!-- package name="org.ballerinalang.test.main.function.*"/>-->
-
+            <package name="org.ballerinalang.test.main.function.*"/>
             <package name="org.ballerinalang.test.nativeimpl.functions.*"/>
             <package name="org.ballerinalang.test.natives.*"/>
             <package name="org.ballerinalang.test.object.*" />
@@ -139,48 +136,11 @@
         </packages>
 
         <classes>
-            <class name="org.ballerinalang.test.main.function.MainFunctionsTest"/>
-            <class name="org.ballerinalang.test.main.function.OperandCompilationTest"/>
-            <class name="org.ballerinalang.test.main.function.OptionCompilationTest"/>
-
             <class name="org.ballerinalang.test.parser.ResilientParserTest"/>
 
             <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
 
             <class name="org.ballerinalang.test.ParserTestRunner"/>
         </classes>
-
-        <!--            <class name="org.ballerinalang.test.lock.LocksWithOnFailTest"></class>-->
-        <!--<class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />-->
-        <!--<class name="org.ballerinalang.test.lock.LocksInMainTest">-->
-        <!--<methods>-->
-        <!--<include name="simpleLock"/>-->
-        <!--</methods>-->
-        <!--</class>-->
-        <!--            <class name="org.ballerinalang.test.lock.LocksInServicesTest">-->
-        <!--                <methods>-->
-        <!--                    &lt;!&ndash; Not supported at the moment &ndash;&gt;-->
-        <!--                    <exclude name="testFieldLock"></exclude>-->
-        <!--                </methods>-->
-        <!--            </class>-->
-        <!--            <class name="org.ballerinalang.test.lock.LocksInMainTest" />-->
-        <!--            <class name="org.ballerinalang.test.lock.FieldLockTest">-->
-        <!--                <methods>-->
-        <!--                    &lt;!&ndash; Not supported at the moment &ndash;&gt;-->
-        <!--                    <exclude name="testObjectLock" />-->
-        <!--                    <exclude name="testLockInRecords" />-->
-        <!--                </methods>-->
-        <!--            </class>-->
-        <!--<class name="org.ballerinalang.test.error.ErrorTest" />-->
-        <!--            <class name="org.ballerinalang.test.expressions.async.BasicAsyncOperationsTest">-->
-        <!--                <methods>-->
-        <!--                    <exclude name="testAsyncNonNativeBasic6" />-->
-        <!--                    <exclude name="testAsyncNonNativeBasic7" />-->
-        <!--                    <exclude name="testAsyncNonNativeBasic8" />-->
-        <!--                    <exclude name="testAsyncNonNativeBasic9" />-->
-        <!--                    <exclude name="testAsyncNonNativeBasic10" />-->
-        <!--                    <exclude name="testAsyncNonNativeBasic11" />-->
-        <!--                </methods>-->
-        <!--            </class>-->
     </test>
 </suite>
