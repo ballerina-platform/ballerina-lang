@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/io;
-import balTest/A;
+import balTest/proj.A;
 
 public function main() {
 	json j = {"a":25};
