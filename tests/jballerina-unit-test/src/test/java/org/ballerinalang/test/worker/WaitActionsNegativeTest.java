@@ -109,6 +109,8 @@ public class WaitActionsNegativeTest {
         BAssertUtil.validateError(result, index++, String.format(msg, "[wait v, wait w, wait x, FINISHED]"), 61, 18);
         BAssertUtil.validateError(result, index++,
                 String.format(msg, "[wait vi, wait wi, wait xi, FINISHED, FINISHED]"), 78, 23);
+        BAssertUtil.validateError(result, index++,
+                String.format(msg, "[11 -> w3, FINISHED, FINISHED, wait {w1,w2,w3}]"), 94, 15);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 }

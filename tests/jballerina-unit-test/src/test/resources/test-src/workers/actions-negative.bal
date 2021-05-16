@@ -233,8 +233,99 @@ class ObjFuncUsingWorkersAsFutureValues {
 
 }
 
-
-
 function bar() returns int {
     return  1;
 }
+
+
+function testUnsupportedWorkerPosition() {
+    worker w {
+        if 1 / 2 == 0 {
+            0 -> function;
+            if true {
+                1 -> function;
+            }
+        }
+
+        int i = 6;
+        foreach var index in 0 ..< i {
+            index -> function;
+            index -> w1;
+        }
+
+        while (true) {
+            i -> function;
+            i -> w1;
+        }
+
+        match i {
+            1 => {
+                i -> function;
+            }
+            2 => {
+                i -> w1;
+            }
+        }
+
+        function k = function() {
+                         i -> w1;
+                     };
+    }
+
+    worker w1 {
+        int i = 6;
+        foreach var index in 0 ..< i {
+            int k = <- w;
+        }
+    }
+
+    if (2 / 2 == 1) {
+        int res = <- w;
+    }
+}
+
+function f = function() {
+                 worker w {
+                     if 1 / 2 == 0 {
+                         0 -> function;
+                         if true {
+                             1 -> function;
+                         }
+                     }
+
+                     int i = 6;
+                     foreach var index in 0 ..< i {
+                         index -> function;
+                         index -> w1;
+                     }
+
+                     while (true) {
+                         i -> function;
+                         i -> w1;
+                     }
+
+                     match i {
+                         1 => {
+                             i -> function;
+                         }
+                         2 => {
+                             i -> w1;
+                         }
+                     }
+
+                     function k = function() {
+                                      i -> w1;
+                                  };
+                 }
+
+                 worker w1 {
+                     int i = 6;
+                     foreach var index in 0 ..< i {
+                         int k = <- w;
+                     }
+                 }
+
+                 if (2 / 2 == 1) {
+                     int res = <- w;
+                 }
+             };

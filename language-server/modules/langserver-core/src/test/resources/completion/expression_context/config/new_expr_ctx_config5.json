@@ -441,27 +441,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestObject2",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "L",
-      "insertText": "TestObject2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "obj1",
-      "kind": "Variable",
-      "detail": "module1:TestClass1",
-      "sortText": "C",
-      "insertText": "obj1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
       "sortText": "N",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject2",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "L",
+      "insertText": "TestObject2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -475,7 +467,16 @@
         }
       },
       "sortText": "D",
+      "filterText": "testNewFunction",
       "insertText": "testNewFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "obj1",
+      "kind": "Variable",
+      "detail": "module1:TestClass1",
+      "sortText": "C",
+      "insertText": "obj1",
       "insertTextFormat": "Snippet"
     },
     {

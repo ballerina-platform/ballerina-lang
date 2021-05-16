@@ -29,7 +29,7 @@ import java.util.List;
  *
  * @since 1.3.0
  */
-public class BLangTableMultiKeyExpr extends BLangAccessExpression implements TableMultiKeyExpressionNode {
+public class BLangTableMultiKeyExpr extends BLangExpression implements TableMultiKeyExpressionNode {
 
     public List<BLangExpression> multiKeyIndexExprs = new ArrayList<>();
 

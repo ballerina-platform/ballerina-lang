@@ -98,3 +98,26 @@ function testAccessExprs() {
 
     name = <string>person["name"];
 }
+
+type Student record {
+    string name;
+    int age;
+    float gpa;
+};
+
+function testQueryExpression() {
+    Student s1 = {name: "Foo", age: 1, gpa: 2.1};
+    Student s2 = {name: "Bar", age: 2, gpa: 3.2};
+    Student s3 = {name: "Baz", age: 3, gpa: 1.3};
+
+    Student[] students = [s1, s2, s3];
+
+    var x = from var st in students
+        where st.name == "Foo"
+        select {name: st.name};
+}
+
+function testXMLNavigation() {
+    xml val = xml `<foo><bar>0</bar></foo>`;
+    xml bar = val/<bar>;
+}

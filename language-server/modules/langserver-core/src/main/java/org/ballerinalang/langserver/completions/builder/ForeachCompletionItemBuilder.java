@@ -29,25 +29,28 @@ import java.util.List;
  * @since 2.0.0
  */
 public class ForeachCompletionItemBuilder {
+
     private ForeachCompletionItemBuilder() {
     }
 
     /**
      * Creates and returns a snippet type completion item.
      *
-     * @param snippet             text to be inserted
-     * @param label               label of the completion item
-     * @param detail              detail of the completion ite,
-     * @param additionalTextEdits textedits consisting the range to be replaced by the completion item.
+     * @param snippet             Text to be inserted
+     * @param label               Label of the completion item
+     * @param detail              Detail of the completion item
+     * @param documentation       Documentation of the completion item
+     * @param additionalTextEdits Textedits consisting the range to be replaced by the completion item.
      * @return {@link CompletionItem}
      */
     public static CompletionItem build(String snippet, String label, String detail,
-                                       List<TextEdit> additionalTextEdits) {
+                                       String documentation, List<TextEdit> additionalTextEdits) {
         CompletionItem completionItem = new CompletionItem();
         String insertText = snippet;
         completionItem.setInsertText(insertText);
         completionItem.setLabel(label);
         completionItem.setDetail(detail);
+        completionItem.setDocumentation(documentation);
         completionItem.setAdditionalTextEdits(additionalTextEdits);
         completionItem.setKind(CompletionItemKind.Snippet);
         return completionItem;

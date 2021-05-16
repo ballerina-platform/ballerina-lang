@@ -23,7 +23,6 @@ distinct class Subset {
     function toString() returns string {
         return java:toString(self.jObj) ?: "null";
     }
-
     # The function that maps to the `equals` method of `java.lang.Character$Subset`.
     #
     # + arg0 - The `Object` value required to map with the Java method parameter.
@@ -64,8 +63,7 @@ distinct class Subset {
     function 'wait() returns InterruptedException? {
         error|() externalObj = java_lang_Character_Subset_wait(self.jObj);
         if (externalObj is error) {
-            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
-            message());
+            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.message());
             return e;
         }
     }
@@ -77,8 +75,7 @@ distinct class Subset {
     function wait2(int arg0) returns InterruptedException? {
         error|() externalObj = java_lang_Character_Subset_wait2(self.jObj, arg0);
         if (externalObj is error) {
-            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
-            message());
+            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.message());
             return e;
         }
     }
@@ -91,11 +88,11 @@ distinct class Subset {
     function wait3(int arg0, int arg1) returns InterruptedException? {
         error|() externalObj = java_lang_Character_Subset_wait3(self.jObj, arg0, arg1);
         if (externalObj is error) {
-            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
-            message());
+            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.message());
             return e;
         }
     }
+
 }
 
 function java_lang_Character_Subset_equals(handle receiver, handle arg0) returns boolean = @java:Method {

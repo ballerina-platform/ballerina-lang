@@ -31,11 +31,13 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -121,6 +123,9 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
                     predicate);
             completionItems.addAll(this.getCompletionItemList(mappingTypes, context));
         } else {
+            completionItems.addAll(
+                    Arrays.asList(new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()),
+                    new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD_TYPE_DESC.get())));
             List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
             mappingTypes = visibleSymbols.stream().filter(predicate).collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(mappingTypes, context));
