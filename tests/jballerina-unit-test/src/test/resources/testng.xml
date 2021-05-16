@@ -23,15 +23,6 @@
 <suite name="ballerina-new-parser-test-suite" time-out="120000">
     <test name="jballerina-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
-        <groups>
-            <run>
-                <exclude name="brokenOnJBallerina"/>
-                <exclude name="brokenOnSpecDeviation"/>
-                <exclude name="brokenOnNewParser"/>
-                <exclude name="brokenOnErrorChange"/>
-                <exclude name="brokenOnClassChange"/>
-            </run>
-        </groups>
         <packages>
             <package name="org.ballerinalang.test.access.*"/>
             <package name="org.ballerinalang.test.action.*"/>
