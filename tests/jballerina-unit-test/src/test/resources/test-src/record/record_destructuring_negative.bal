@@ -99,25 +99,3 @@ function testDefinedRestField() {
         panic error("Found 'age' field: " + rest.get("age").toString());
     }
 }
-
-//type Person record {
-//    string name;
-//    int age;
-//    string...;
-//};
-//
-//public function abc() {
-//    Person p = {name: "Jane Doe", age: 20, "employed": "false"};
-//
-//    match p {
-//        {name: var s, age: var r, ...var rest} => {
-//            int x = rest; // ERROR: incompatible types: expected 'int', found 'map<(int|string)>'
-//        }
-//    }
-//
-//    //match p {
-//    //    var {name: s, ...rest} => {
-//    //        int x = rest; // ERROR: incompatible types: expected 'int', found 'map<(int|string)>'
-//    //    }
-//    //}
-//}

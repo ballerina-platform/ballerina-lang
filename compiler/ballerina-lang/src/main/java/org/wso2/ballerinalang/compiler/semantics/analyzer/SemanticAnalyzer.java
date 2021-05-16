@@ -1781,8 +1781,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             } else {
                 lhsRefType = ((BLangSimpleVarRef) lhsVarRef.restParam).type;
             }
-//            BType rhsConstraintType = symbolEnter.getRestMatchPatternConstraintType(rhsRecordType, unMappedFields,
-//                    ((BRecordType) rhsType).restFieldType);
             BTypeSymbol recordSymbol = symbolEnter.createAnonRecordSymbol(env, rhsPos);
             BRecordType recordRecordType = new BRecordType(recordSymbol);
             recordRecordType.fields = unMappedFields;
@@ -2293,7 +2291,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (mappingMatchPattern.restMatchPattern != null) {
             BRecordTypeSymbol matchPattenRecordSym = symbolEnter.createAnonRecordSymbol(env, mappingMatchPattern.pos);
             BLangRestMatchPattern restMatchPattern = mappingMatchPattern.restMatchPattern;
-//            restMatchPattern.type = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
             BRecordType matchPatternRecType = new BRecordType(matchPattenRecordSym);
             matchPatternRecType.restFieldType = symTable.anyOrErrorType;
             restMatchPattern.type = matchPatternRecType;
@@ -2700,7 +2697,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (mappingBindingPattern.restBindingPattern != null) {
             BLangRestBindingPattern restBindingPattern = mappingBindingPattern.restBindingPattern;
             BRecordTypeSymbol matchPattenRecordSym = symbolEnter.createAnonRecordSymbol(env, restBindingPattern.pos);
-//            restMatchPattern.type = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
             BRecordType matchPatternRecType = new BRecordType(matchPattenRecordSym);
             matchPatternRecType.restFieldType = symTable.anyOrErrorType;
             restBindingPattern.type = matchPatternRecType;
