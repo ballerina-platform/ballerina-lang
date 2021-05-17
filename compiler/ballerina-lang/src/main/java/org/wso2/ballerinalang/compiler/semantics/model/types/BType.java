@@ -53,6 +53,8 @@ public class BType implements ValueType {
     public Name name;
     public long flags;
 
+    public boolean isCyclic = false;
+
     public BType(int tag, BTypeSymbol tsymbol) {
         this.tag = tag;
         this.tsymbol = tsymbol;
