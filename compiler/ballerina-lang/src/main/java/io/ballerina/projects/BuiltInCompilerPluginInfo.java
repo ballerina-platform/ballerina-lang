@@ -20,25 +20,13 @@ package io.ballerina.projects;
 import io.ballerina.projects.plugins.CompilerPlugin;
 
 /**
- * This is an abstract class that represents a Compiler Plugin.
+ * This class represents a Built-In compiler plugin.
  *
  * @since 2.0.0
  */
-class CompilerPluginInfo {
+class BuiltInCompilerPluginInfo extends CompilerPluginInfo {
 
-    protected final CompilerPlugin compilerPlugin;
-    private CompilerPluginKind kind;
-
-    protected CompilerPluginInfo(CompilerPlugin compilerPlugin, CompilerPluginKind kind) {
-        this.compilerPlugin = compilerPlugin;
-        this.kind = kind;
-    }
-
-    CompilerPlugin compilerPlugin() {
-        return compilerPlugin;
-    }
-
-    CompilerPluginKind kind() {
-        return kind;
+    BuiltInCompilerPluginInfo(CompilerPlugin compilerPlugin) {
+        super(compilerPlugin, CompilerPluginKind.BUILT_IN);
     }
 }
