@@ -62,7 +62,7 @@ public class TestReportTest extends BaseTestCase {
     @Test()
     public void testWarningForReportTools() throws BallerinaTestException, IOException {
         String msg = "warning: Could not find the required HTML report tools for code coverage";
-        String[] args = mergeCoverageArgs(new String[]{});
+        String[] args = mergeCoverageArgs(new String[]{"--test-report"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg)) {
