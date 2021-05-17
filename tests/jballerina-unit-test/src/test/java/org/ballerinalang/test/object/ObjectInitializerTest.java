@@ -114,7 +114,7 @@ public class ObjectInitializerTest {
         Assert.assertEquals(person.get("misc").stringValue(), "[{\"city\":\"Colombo\", \"country\":\"Sri Lanka\"}]");
     }
 
-    @Test(description = "Test returning a custom error from initializer", groups = { "brokenOnNewParser" })
+    @Test(description = "Test returning a custom error from initializer")
     public void testCustomErrorReturn() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCustomErrorReturn");
 

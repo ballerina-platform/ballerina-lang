@@ -240,7 +240,7 @@ public class WorkerTest {
         BRunUtil.invoke(result, "receiveDefaultWithCheckAndTrap");
     }
 
-    @Test(groups = "brokenOnJBallerina")
+    @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/30595
     public void sameStrandMultipleInvocation() {
         for (int i = 0; i < 20; i++) {
             sameStrandMultipleInvocationTest();

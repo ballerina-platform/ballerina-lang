@@ -112,32 +112,33 @@ function testLetExprInUnion() {
     assertTrue(x == 10, "x == 10");
 }
 
-//TODO Transaction
-//function testLetExprInTransaction() {
-//    int a = 10;
-//    if (a == 10) {
-//        int c = 8;
-//        transaction with retries = 0 {
-//                int b = let int y = 5 + c, int z = 5 + a in z + y + a + c + globalVar;
-//                a = b;
+// function testLetExprInTransaction() {
+//     int a = 10;
+//     if (a == 10) {
+//         int c = 8;
+//         transaction {
+//             int b = let int y = 5 + c, int z = 5 + a in z + y + a + c + globalVar;
+//             a = b;
+//             checkpanic commit;
 //         }
-//    }
-//    assertTrue(a == 48, "a == 48");
-//}
-//
-//function testLetExprInArrowFunction() {
-//   int a = 10;
-//   if (a == 10) {
-//       int b = 11;
-//       transaction with retries = 0 {
-//           int c = a + b;
-//           function (int, int) returns int ar = (x, y) => let int m = 5 + x, int n = 5 + y
-//                                                    in x + y + m + n + a + b + c + globalVar;
-//           a = ar(1, 1);
-//       }
-//   }
-//   assertTrue(a == 58, "a == 58");
-//}
+//     }
+//     assertTrue(a == 48, "a == 48");
+// }
+
+// function testLetExprInArrowFunction() {
+//     int a = 10;
+//     if (a == 10) {
+//         int b = 11;
+//         transaction {
+//             int c = a + b;
+//             function (int, int) returns int ar = (x, y) => let int m = 5 + x, int n = 5 + y
+//                                                     in x + y + m + n + a + b + c + globalVar;
+//             a = ar(1, 1);
+//             checkpanic commit;
+//         }
+//     }
+//     assertTrue(a == 58, "a == 58");
+// }
 
 function testLetExprInJSON() returns error? {
     json j = {fname:"Jhon", lname:"Doe", age:let int x = 4 in 2 * x * globalVar};
@@ -213,21 +214,21 @@ function testLetExpressionRecordBindingComplexVar() {
     assertTrue(city == "Colombo, Sri Lanka", "city == \"Colombo, Sri Lanka\"");
 }
 
-//function testLetExpressionErrorBindingSimple() {
-//    int k = let SampleError error(reason, info = info, fatal = fatal) = getSampleError(), int x = 1
-//        in reason.length() + x;
-//    assertTrue(k == 13, "k == 13");
-//}
+function testLetExpressionErrorBindingSimple() {
+   int k = let SampleError error(reason, info = info, fatal = fatal) = getSampleError(), int x = 1
+       in reason.length() + x;
+   assertTrue(k == 13, "k == 13");
+}
 
-//function testLetExpressionErrorBindingVar() {
-//    boolean k = <boolean>let var error(reasonTwo, ...params) = getSampleError() in params["fatal"];
-//    assertTrue(k, "k == true");
-//}
+function testLetExpressionErrorBindingVar() {
+   boolean k = <boolean> checkpanic let var error(reasonTwo, ...params) = getSampleError() in params["fatal"];
+   assertTrue(k, "k == true");
+}
 
-//function testLetExpressionRecordConstrainedErrorBinding() {
-//     string msg = let var error(_, detailMsg = detailMsg, isFatal = isFatal) = getRecordConstrainedError() in detailMsg;
-//     assertTrue(msg == "Failed Message", "msg == \"Failed Message\"");
-//}
+function testLetExpressionRecordConstrainedErrorBinding() {
+    string msg = let var error(_, detailMsg = detailMsg, isFatal = isFatal) = getRecordConstrainedError() in detailMsg;
+    assertTrue(msg == "Failed Message", "msg == \"Failed Message\"");
+}
 
 //type Student record {
 //    int marks = let int x = 3, int z = 5 in z*x;
@@ -243,7 +244,7 @@ function testLetExpressionRecordBindingComplexVar() {
 //};
 
 //
-//function testLetExprInOBj() {
+//function testLetExprInObj() {
 //    Car s = new;
 //    assertTrue(s.year == 15, "s.year == 15");
 //}

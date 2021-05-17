@@ -1,4 +1,0 @@
-[[dependency]]
-org = "testOrg"
-name = "testModule"
-version = "1.1.1"
