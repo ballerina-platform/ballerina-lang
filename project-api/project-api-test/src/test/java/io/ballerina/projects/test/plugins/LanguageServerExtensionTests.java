@@ -52,6 +52,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Tests for language server's code action extension.
+ */
+@Test
 public class LanguageServerExtensionTests {
 
     private static final Path RESOURCE_DIRECTORY = Paths.get(

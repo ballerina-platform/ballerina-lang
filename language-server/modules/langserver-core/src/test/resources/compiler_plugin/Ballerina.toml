@@ -1,7 +1,0 @@
-[package]
-org = "lstest"
-name = "compiler_plugin"
-version = "0.1.0"
-
-[build-options]
-observabilityIncluded = true

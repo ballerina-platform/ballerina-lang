@@ -1,7 +1,4 @@
-[[dependency]]
+[package]
 org = "lstest"
 name = "package_comp_plugin_with_codeactions"
 version = "0.1.0"
-repository = "local"
-
-
