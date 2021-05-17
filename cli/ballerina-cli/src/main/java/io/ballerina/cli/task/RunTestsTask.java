@@ -240,7 +240,7 @@ public class RunTestsTask implements Task {
                     }
                     try {
                         generateCoverage(project, jBallerinaBackend);
-                        generateHtmlReport(project, this.out, testReport, target);
+                        generateTesterinaReports(project, this.out, testReport, target);
                     } catch (IOException e) {
                         cleanTempCache(project, cachesRoot);
                         throw createLauncherException("error occurred while generating test report :", e);
@@ -312,12 +312,12 @@ public class RunTestsTask implements Task {
     }
 
     /**
-     * Write the test report content into a json file.
+     * Write the test report content into testerina report formats(json and html).
      *
      * @param out        PrintStream object to print messages to console
      * @param testReport Data that are parsed to the json
      */
-    private void generateHtmlReport(Project project, PrintStream out, TestReport testReport, Target target)
+    private void generateTesterinaReports(Project project, PrintStream out, TestReport testReport, Target target)
             throws IOException {
         if (!report && !coverage) {
             return;
@@ -356,32 +356,35 @@ public class RunTestsTask implements Task {
         Path reportZipPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_LIB).
                 resolve(TesterinaConstants.TOOLS_DIR_NAME).resolve(TesterinaConstants.COVERAGE_DIR).
                 resolve(REPORT_ZIP_NAME);
-        if (Files.exists(reportZipPath)) {
-            String content;
-            try {
-                try (FileInputStream fileInputStream = new FileInputStream(reportZipPath.toFile())) {
-                    CodeCoverageUtils.unzipReportResources(fileInputStream,
-                            reportDir.toFile());
+        // Dump the Testerina html report only if '--test-report' flag is provided
+        if (report) {
+            if (Files.exists(reportZipPath)) {
+                String content;
+                try {
+                    try (FileInputStream fileInputStream = new FileInputStream(reportZipPath.toFile())) {
+                        CodeCoverageUtils.unzipReportResources(fileInputStream,
+                                reportDir.toFile());
+                    }
+                    content = Files.readString(reportDir.resolve(RESULTS_HTML_FILE));
+                    content = content.replace(REPORT_DATA_PLACEHOLDER, json);
+                } catch (IOException e) {
+                    throw createLauncherException("error occurred while preparing test report: " + e.toString());
                 }
-                content = Files.readString(reportDir.resolve(RESULTS_HTML_FILE));
-                content = content.replace(REPORT_DATA_PLACEHOLDER, json);
-            } catch (IOException e) {
-                throw createLauncherException("error occurred while preparing test report: " + e.toString());
-            }
-            File htmlFile = new File(reportDir.resolve(RESULTS_HTML_FILE).toString());
-            try (FileOutputStream fileOutputStream = new FileOutputStream(htmlFile)) {
-                try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
-                    writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-                    out.println("\tView the test report at: " +
-                            FILE_PROTOCOL + Paths.get(htmlFile.getPath()).toAbsolutePath().normalize().toString());
+                File htmlFile = new File(reportDir.resolve(RESULTS_HTML_FILE).toString());
+                try (FileOutputStream fileOutputStream = new FileOutputStream(htmlFile)) {
+                    try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
+                        writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+                        out.println("\tView the test report at: " +
+                                FILE_PROTOCOL + Paths.get(htmlFile.getPath()).toAbsolutePath().normalize().toString());
+                    }
                 }
+            } else {
+                String reportToolsPath = "<" + BALLERINA_HOME + ">" + File.separator + BALLERINA_HOME_LIB +
+                        File.separator + TOOLS_DIR_NAME + File.separator + COVERAGE_DIR + File.separator +
+                        REPORT_ZIP_NAME;
+                out.println("warning: Could not find the required HTML report tools for code coverage at "
+                        + reportToolsPath);
             }
-        } else {
-            String reportToolsPath = "<" + BALLERINA_HOME + ">" + File.separator + BALLERINA_HOME_LIB +
-                    File.separator + TOOLS_DIR_NAME + File.separator + COVERAGE_DIR + File.separator +
-                    REPORT_ZIP_NAME;
-            out.println("warning: Could not find the required HTML report tools for code coverage at "
-                    + reportToolsPath);
         }
     }
 
