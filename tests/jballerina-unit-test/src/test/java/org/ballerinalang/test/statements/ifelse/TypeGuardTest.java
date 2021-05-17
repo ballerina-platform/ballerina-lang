@@ -210,7 +210,6 @@ public class TypeGuardTest {
                 "'map<int>'", 480, 30);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean[]', found '" +
                 "(string|boolean)[]'", 484, 23);
-
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
