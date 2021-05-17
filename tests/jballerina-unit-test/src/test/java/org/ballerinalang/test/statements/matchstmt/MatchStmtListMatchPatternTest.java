@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
  *
  * @since 2.0.0
  */
-@Test(groups = {"disableOnOldParser"})
 public class MatchStmtListMatchPatternTest {
 
     private CompileResult result, resultNegative, resultSemanticsNegative, restMatchPatternResult;
@@ -196,6 +195,11 @@ public class MatchStmtListMatchPatternTest {
     @Test
     public void testListMatchPattern29() {
         BRunUtil.invoke(result, "testListMatchPattern29");
+    }
+
+    @Test
+    public void testListMatchPattern30() {
+        BRunUtil.invoke(result, "testListMatchPattern30");
     }
 
     @Test

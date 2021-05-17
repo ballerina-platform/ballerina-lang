@@ -198,22 +198,24 @@ public class AnnotationUtil {
             if (resultType.isPresent() && (resultType.get().typeKind() == TypeDescKind.RECORD
                     || resultType.get().typeKind() == TypeDescKind.MAP)) {
                 List<RecordFieldSymbol> requiredFields = new ArrayList<>();
-                annotationStart.append(" ").append(OPEN_BRACE_KEY).append(LINE_SEPARATOR);
                 if (resultType.get().typeKind() == TypeDescKind.RECORD) {
                     requiredFields.addAll(CommonUtil.getMandatoryRecordFields((RecordTypeSymbol) resultType.get()));
                 }
-                List<String> insertTexts = new ArrayList<>();
-                for (int i = 0; i < requiredFields.size(); i++) {
-                    RecordFieldSymbol field = requiredFields.get(i);
-                    String fieldInsertionText = "\t" +
-                            getRecordFieldCompletionInsertText(field, Collections.emptyList(), 1, i + 1);
-                    insertTexts.add(fieldInsertionText);
+                if (!requiredFields.isEmpty()) {
+                    annotationStart.append(" ").append(OPEN_BRACE_KEY).append(LINE_SEPARATOR);
+                    List<String> insertTexts = new ArrayList<>();
+                    for (int i = 0; i < requiredFields.size(); i++) {
+                        RecordFieldSymbol field = requiredFields.get(i);
+                        String fieldInsertionText = "\t" +
+                                getRecordFieldCompletionInsertText(field, Collections.emptyList(), 1, i + 1);
+                        insertTexts.add(fieldInsertionText);
+                    }
+                    annotationStart.append(String.join("," + LINE_SEPARATOR, insertTexts));
+                    if (requiredFields.isEmpty()) {
+                        annotationStart.append("\t").append("${1}");
+                    }
+                    annotationStart.append(LINE_SEPARATOR).append(CLOSE_BRACE_KEY);
                 }
-                annotationStart.append(String.join("," + LINE_SEPARATOR, insertTexts));
-                if (requiredFields.isEmpty()) {
-                    annotationStart.append("\t").append("${1}");
-                }
-                annotationStart.append(LINE_SEPARATOR).append(CLOSE_BRACE_KEY);
             }
         } else {
             annotationStart.append(annotationSymbol.getName().get());

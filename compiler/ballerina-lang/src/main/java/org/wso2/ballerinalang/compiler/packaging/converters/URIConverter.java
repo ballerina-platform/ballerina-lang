@@ -18,12 +18,12 @@
 
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
+import io.ballerina.projects.internal.model.Proxy;
 import org.ballerinalang.cli.module.Pull;
 import org.ballerinalang.cli.module.exeptions.CommandException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.toml.model.Proxy;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeBalaRepo;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -124,7 +124,7 @@ public class URIConverter implements Converter<URI> {
             String errorMessage = "";
             try {
                 Pull.execute(remoteURI.toString(), modulePathInBalaCache.toString(), orgName + "/" + moduleName,
-                             proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(),
+                             proxy.host(), proxy.port(), proxy.username(), proxy.password(),
                              supportedVersionRange, this.isBuild, nightlyBuild,
                              supportedPlatform, RepoUtils.getBallerinaVersion());
             } catch (CommandException e) {

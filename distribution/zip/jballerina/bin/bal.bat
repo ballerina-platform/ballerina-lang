@@ -150,6 +150,10 @@ set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024
 
 set jar=%2
 if "%1" == "run" if not "%2" == "" if "%jar:~-4%" == ".jar" goto runJarFile
+
+set jar=%4
+if "%1" == "run" if not "%2" == "" if "%2" == "--debug" if "%jar:~-4%" == ".jar" goto runJarDebugMode
+
 :runJava
 "%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% io.ballerina.cli.launcher.Main %CMD%
 goto end
@@ -157,6 +161,11 @@ goto end
 :runJarFile
 for /f "tokens=1,*" %%a in ("%*") do set ARGS=%%b
 "%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% -jar %ARGS%
+goto end
+
+:runJarDebugMode
+for /f "tokens=3,*" %%a in ("%*") do set ARGS=%%b
+"%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=%3 -jar %ARGS%
 goto end
 
 :end

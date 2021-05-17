@@ -23,7 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 /**
  * @since 0.94
  */
-public abstract class BLangVariableReference extends BLangAccessExpression implements VariableReferenceNode {
+public abstract class BLangVariableReference extends BLangValueExpression implements VariableReferenceNode {
 
     public BSymbol pkgSymbol;
 

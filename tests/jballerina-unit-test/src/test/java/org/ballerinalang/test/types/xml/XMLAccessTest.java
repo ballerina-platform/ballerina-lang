@@ -211,7 +211,17 @@ public class XMLAccessTest {
                 "<object xmlns=\"http://www.force.com/2009/06/asyncapi/dataload\">Account</object>");
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
+    public void testXMLNavigationExpressionWithXMLSubtypeOnLHS() {
+        BRunUtil.invoke(navigation, "testXMLNavigationExpressionWithXMLSubtypeOnLHS");
+    }
+
+    @Test
+    public void testXMLNavigationDescendantsStepWithXMLSubtypeOnLHS() {
+        BRunUtil.invoke(navigation, "testXMLNavigationDescendantsStepWithXMLSubtypeOnLHS");
+    }
+
+    @Test
     public void testInvalidXMLAccessWithIndex() {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "invalid expr in assignment lhs", 4, 10);
@@ -243,7 +253,7 @@ public class XMLAccessTest {
     }
 
     @Test
-    public void testXMLNavExpressionMethodInvocationNegative() {
+    public void testXMLNavExpressionNegative() {
         String methodInvocMessage = "method invocations are not yet supported within XML navigation expressions, " +
                 "use a grouping expression (parenthesis) " +
                 "if you intend to invoke the method on the result of the navigation expression.";
@@ -260,6 +270,19 @@ public class XMLAccessTest {
         BAssertUtil.validateError(navigationNegative, i++, navIndexingMessage, 8, 14);
         BAssertUtil.validateError(navigationNegative, i++, navIndexingMessage, 9, 14);
         Assert.assertEquals(navigationNegative.getErrorCount(), i);
+    }
+
+    @Test
+    public void testXMLNavExpressionTypeCheckNegative() {
+        CompileResult compile = BCompileUtil.compile("test-src/types/xml/xml-nav-access-type-check-negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(compile, i++,
+                "incompatible types: expected 'xml<xml:Comment>', found 'xml<xml:Element>'", 19, 27);
+        BAssertUtil.validateError(compile, i++,
+                "incompatible types: expected 'xml<xml:Comment>', found 'xml<xml:Element>'", 20, 27);
+        BAssertUtil.validateError(compile, i++,
+                "incompatible types: expected 'xml<xml:Comment>', found 'xml<xml:Element>'", 21, 28);
+        Assert.assertEquals(compile.getErrorCount(), i);
     }
 
     @Test void testXMLFilterExpressionsNegative() {

@@ -111,8 +111,8 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'table<TableEmployee>' cannot be cast to " +
-                    "'table<TableEmployeeTwo>'.*", enabled = false)
+            expectedExceptionsMessageRegExp = ".*error: \\{ballerina}TypeCastError \\{\"message\":\"incompatible " +
+                    "types: 'table<TableEmployee> key\\(id\\)' cannot be cast to 'table<TableEmployeeTwo>'\"}.*")
     public void testTableCastNegative() {
         BRunUtil.invoke(result, "testTableCastNegative");
     }
@@ -139,8 +139,8 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: incompatible types: expected 'function \\(string\\) " +
-                    "returns \\(string\\)', found 'function \\(string,int\\) returns \\(string\\)'.*", enabled = false)
+            expectedExceptionsMessageRegExp = ".*error: \\{ballerina}TypeCastError \\{\"message\":\"incompatible " +
+                    "types: 'future' cannot be cast to 'future'\"}.*")
     public void testFutureCastNegative() {
         BRunUtil.invoke(result, "testFutureCastNegative");
     }

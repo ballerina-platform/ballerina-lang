@@ -25,6 +25,7 @@ import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.Settings;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
@@ -34,7 +35,6 @@ import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
-import org.ballerinalang.toml.model.Settings;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -147,6 +147,11 @@ public class PushCommand implements BLauncherCmd {
                     pushPackage(project);
                 } else {
                     Settings settings = readSettings();
+                    if (settings.diagnostics().hasErrors()) {
+                        CommandUtil.printError(this.errStream, settings.getErrorMessage(), null, false);
+                        CommandUtil.exitError(this.exitWhenFinish);
+                        return;
+                    }
                     CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                                                                    initializeProxy(settings.getProxy()),
                                                                    getAccessTokenOfCLI(settings));

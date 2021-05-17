@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type SMS error <record {| string message?; error cause?; string...; |}>;
-type SMA error <record {| string message?; error cause?; string|boolean...; |}>;
+type SMS error <record {| string message?; error cause?; string detail?; string extra?; |}>;
+type SMA error <record {| string message?; error cause?; string|boolean fatal?; string|boolean detail?; string|boolean extra?; |}>;
 
 function testBasicErrorVariableWithMapDetails() {
-    SMS err1 = SMS("Error One", message = "Msg One", detail = "Detail Msg");
-    SMA err2 = SMA("Error Two", message = "Msg Two", fatal = true);
+    SMS err1 = error SMS("Error One", message = "Msg One", detail = "Detail Msg");
+    SMA err2 = error SMA("Error Two", message = "Msg Two", fatal = true);
 
     boolean reason11; // expected 'boolean', found 'string'
     map<int> detail11; // expected 'map<int>', found 'map<string>'
@@ -52,8 +52,8 @@ type Foo record {
 type FooError error <Foo>;
 
 function testBasicErrorVariableWithRecordDetails() {
-    FooError err1 = FooError("Error One", message = "Something Wrong", fatal = true);
-    FooError err2 = FooError("Error One", message = "Something Wrong", fatal = true);
+    FooError err1 = error FooError("Error One", message = "Something Wrong", fatal = true);
+    FooError err2 = error FooError("Error One", message = "Something Wrong", fatal = true);
 
     string res1;
     map<any|error> rec; // expected 'map', found 'Foo'
@@ -84,35 +84,24 @@ type Bar record {
     error e;
 };
 
-function testErrorInRecordWithDestructure() {
-    Bar b = { x: 1000, e: error("Err3", message = "Something Wrong3") };
-    int x;
-    boolean reason;
-    Bar detail;
-    map<anydata|readonly> detail2;
-    { x, e: error (reason, ... detail) } = b;
-    { x, e: error (reason, ... detail2) } = b;
-}
+// function testErrorInRecordWithDestructure() {
+//     Bar b = { x: 1000, e: error("Err3", message = "Something Wrong3") };
+//     int x;
+//     boolean reason;
+//     Bar detail;
+//     map<anydata|readonly> detail2;
+//     { x, e: error (reason, ...detail) } = b;
+//     { x, e: error (reason, ...detail2) } = b;
+// }
 
-function testErrorInRecordWithDestructure2() {
-    Bar b = { x: 1000, e: error("Err3", message = "Something Wrong3") };
-    int x;
-    string reason;
-    anydata|readonly message;
-    anydata|readonly extra;
-    { x, e: error (reason, message = message, extra = extra) } = b;
-}
-
-function testBasicErrorVariableWithIndexBasedRef() returns map<anydata|error> {
-    FooError err1 = FooError("Error One", message = "Something Wrong", fatal = true);
-
-    map<map<anydata|error>> results = {};
-
-    error (results["res1"]["reason"], ...results["rec"]) = err1;
-    error (results["res2"]["reason"], message = results["detail"]["message"], fatal = results["detail"]["fatal"]) = err1;
-
-    return results;
-}
+// function testErrorInRecordWithDestructure2() {
+//     Bar b = { x: 1000, e: error("Err3", message = "Something Wrong3") };
+//     int x;
+//     string reason;
+//     anydata|readonly message;
+//     anydata|readonly extra;
+//     { x, e: error (reason, message = message, extra = extra) } = b;
+// }
 
 const FILE_OPN = "FILE-OPEN";
 type FileOpenErrorDetail record {|
@@ -125,7 +114,7 @@ type FileOpenErrorDetail record {|
 type FileOpenError error<FileOpenErrorDetail>;
 
 function testIndirectErrorRefMandatoryFields() {
-    FileOpenError e = FileOpenError(FILE_OPN, message="file open failed",
+    FileOpenError e = error FileOpenError(FILE_OPN, message="file open failed",
                                 targetFileName="/usr/bhah/a.log",
                                 errorCode=45221,
                                 flags=128);
@@ -144,26 +133,3 @@ public function testOptionalDetailFields() {
 
     error(reason, message = message, other = other) = e;
 }
-
-function testDuplicateBinding() {
-    string? s;
-    SMS err1 = SMS("Error One", message = "Msg One", detail = "Detail Msg");
-    error(s, message = s, detail = s) = err1;
-}
-
-public function testAssigningValuesToFinalVars() {
-    error e = error("ErrReason", message = "error message", abc = 1, def = 2.0);
-    final var error(r, message = message, abc = abc) = e;
-    error(r, message = message, abc = abc) = e;
-
-    final var error(r2, message = message2, ...rest) = e;
-    error(r2, message = message2, ...rest) = e;
-
-    BarError e3 = BarError("bar", message = "error message", code = 1);
-    final var BarError(r3, message = message3, abc = abc3) = e3;
-    error(_, message = message3, abc = abc3) = e3;
-}
-
-const BAR = "bar";
-
-type BarError error<record {string message?; error cause?; int code;}>;

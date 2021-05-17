@@ -138,7 +138,7 @@ type ErrorDetails record {
 type Err error<ErrorDetails>;
 
 function getError2(int errId) returns string|Err {
-    Err e = Err("Failed to create object", id = errId);
+    Err e = error Err("Failed to create object", id = errId);
     return e;
 }
 
@@ -176,10 +176,10 @@ type BarErr error<BarErrData>;
 
 function getMultipleErrors(boolean isFoo) returns string|FooErr|BarErr {
     if (isFoo) {
-        FooErr e = FooErr("Foo Error", f = "foo");
+        FooErr e = error FooErr("Foo Error", f = "foo");
         return e;
     } else {
-        BarErr e = BarErr("Bar Error", b = "bar");
+        BarErr e = error BarErr("Bar Error", b = "bar");
         return e;
     }
 }
@@ -291,7 +291,7 @@ class Student3 {
     }
 
     public function getMarks() returns int {
-        var v = self.init(0);
+        error? v = self.init(0);
         return self.marks;
     }
 }
@@ -313,7 +313,7 @@ function testObjInitWithCheck(int id) returns ([Student3|error, int, int]) {
         return [student, marksBeforeChange, marksAfterChange];
     }
 
-    Student3 s = <Student3> student;
+    Student3 s = checkpanic student;
     marksBeforeChange = s.getMarks();
     s.marks = 95;
     marksAfterChange = s.getMarks();
@@ -366,7 +366,7 @@ class Student5 {
     }
 
     public function getMarks() returns int {
-        var v = self.init(0);
+        error? v = self.init(0);
         return self.marks;
     }
 }
@@ -380,7 +380,7 @@ function testInitInvocationWithCheckAndRestParams(int id, string... modules) ret
         return [student, marksBeforeChange, marksAfterChange];
     }
 
-    Student5 s = <Student5> student;
+    Student5 s = checkpanic student;
     marksBeforeChange = s.getMarks();
     s.marks = 95;
     marksAfterChange = s.getMarks();

@@ -48,9 +48,6 @@ import java.util.regex.Pattern;
  */
 public class ImportsManager {
     private static final QuotedIdentifier ANON_SOURCE = new QuotedIdentifier("$");
-    // Regex patterns
-    private static final Pattern CLONEABLE_SIGNATURE_PATTERN =
-            Pattern.compile("readonly\\|xml<[^>]*>\\|\\(Cloneable\\)\\[]\\|map<Cloneable>\\|table<map<Cloneable>>");
     private static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN =
             Pattern.compile("([\\w]+)/([\\w.]+):([^:]+):([\\w]+)[|]?");
     // Special imports
@@ -234,13 +231,8 @@ public class ImportsManager {
      */
     protected String extractImportsFromType(TypeSymbol typeSymbol, Set<QuotedIdentifier> imports) {
         String text = typeSymbol.signature();
-
-        // Replace all Cloneable with a qualified signature
-        String cloneableReplacedText = CLONEABLE_SIGNATURE_PATTERN.matcher(text)
-                .replaceAll(CLONEABLE_TYPE_DEF);
-
         StringBuilder newText = new StringBuilder();
-        Matcher matcher = FULLY_QUALIFIED_MODULE_ID_PATTERN.matcher(cloneableReplacedText);
+        Matcher matcher = FULLY_QUALIFIED_MODULE_ID_PATTERN.matcher(text);
         int nextStart = 0;
         // Matching Fully-Qualified-Module-IDs (eg.`abc/mod1:1.0.0`)
         // Purpose is to transform `int|abc/mod1:1.0.0:Person` into `int|mod1:Person` or `int|Person`

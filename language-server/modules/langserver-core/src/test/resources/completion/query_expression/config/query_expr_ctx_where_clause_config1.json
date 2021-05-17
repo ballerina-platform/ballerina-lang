@@ -416,57 +416,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testIterableOperation()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "insertText": "testIterableOperation()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "customerList",
-      "kind": "Variable",
-      "detail": "Customer[]",
-      "sortText": "B",
-      "insertText": "customerList",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
       "sortText": "M",
       "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Customer",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "Customer",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "customer",
-      "kind": "Variable",
-      "detail": "Customer",
-      "sortText": "B",
-      "insertText": "customer",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "c1",
-      "kind": "Variable",
-      "detail": "Customer",
-      "sortText": "B",
-      "insertText": "c1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -486,6 +440,45 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "testIterableOperation()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "testIterableOperation",
+      "insertText": "testIterableOperation()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Customer",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "Customer",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "customer",
+      "kind": "Variable",
+      "detail": "Customer",
+      "sortText": "B",
+      "insertText": "customer",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "customerList",
+      "kind": "Variable",
+      "detail": "Customer[]",
+      "sortText": "B",
+      "insertText": "customerList",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -494,6 +487,14 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "c1",
+      "kind": "Variable",
+      "detail": "Customer",
+      "sortText": "B",
+      "insertText": "c1",
       "insertTextFormat": "Snippet"
     },
     {

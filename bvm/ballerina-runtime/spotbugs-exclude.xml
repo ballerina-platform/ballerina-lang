@@ -44,9 +44,6 @@
         <Package name="io.ballerina.runtime.observability.tracer"/>
     </Match>
     <Match>
-        <Class name="io.ballerina.runtime.internal.util.ArgumentParser"/>
-    </Match>
-    <Match>
         <OR>
             <Bug pattern="EI_EXPOSE_REP"/>
         </OR>

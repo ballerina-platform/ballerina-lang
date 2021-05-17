@@ -4166,6 +4166,12 @@ public class Types {
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
+        } else if (type.tag == TypeTags.TUPLE && lhsType.tag == TypeTags.TUPLE) {
+            BType intersectionType = createTupleAndTupleIntersection(intersectionContext,
+                    (BTupleType) lhsType, (BTupleType) type, env);
+            if (intersectionType != symTable.semanticError) {
+                return intersectionType;
+            }
         } else if (isAnydataOrJson(type) && lhsType.tag == TypeTags.RECORD) {
             BType intersectionType = createRecordIntersection(intersectionContext, (BRecordType) lhsType,
                     getEquivalentRecordType(getMapTypeForAnydataOrJson(type)), env);
@@ -4274,6 +4280,45 @@ public class Types {
             return new BTupleType(null, tupleMemberTypes);
         }
         return new BTupleType(null, tupleMemberTypes, restIntersectionType, 0);
+    }
+
+    private BType createTupleAndTupleIntersection(IntersectionContext intersectionContext,
+                                                  BTupleType lhsTupleType, BTupleType tupleType, SymbolEnv env) {
+        if (lhsTupleType.restType == null && tupleType.restType != null) {
+            return symTable.semanticError;
+        }
+
+        if (lhsTupleType.restType == null && lhsTupleType.tupleTypes.size() != tupleType.tupleTypes.size()) {
+            return symTable.semanticError;
+        }
+
+        List<BType> lhsTupleTypes = lhsTupleType.tupleTypes;
+        List<BType> tupleTypes = tupleType.tupleTypes;
+
+        if (lhsTupleTypes.size() > tupleTypes.size()) {
+            return symTable.semanticError;
+        }
+
+        List<BType> tupleMemberTypes = new ArrayList<>();
+        for (int i = 0; i < tupleTypes.size(); i++) {
+            BType lhsType = (lhsTupleTypes.size() > i) ? lhsTupleTypes.get(i) : lhsTupleType.restType;
+            BType intersectionType = getTypeIntersection(intersectionContext, tupleTypes.get(i), lhsType, env);
+            if (intersectionType == symTable.semanticError) {
+                return symTable.semanticError;
+            }
+            tupleMemberTypes.add(intersectionType);
+        }
+
+        if (lhsTupleType.restType != null && tupleType.restType != null) {
+            BType restIntersectionType = getTypeIntersection(intersectionContext, tupleType.restType,
+                    lhsTupleType.restType, env);
+            if (restIntersectionType == symTable.semanticError) {
+                return new BTupleType(null, tupleMemberTypes);
+            }
+            return new BTupleType(null, tupleMemberTypes, restIntersectionType, 0);
+        }
+
+        return new BTupleType(null, tupleMemberTypes);
     }
 
     private BType getIntersectionForErrorTypes(IntersectionContext intersectionContext,
@@ -4534,7 +4579,7 @@ public class Types {
 
     public BErrorType createErrorType(BType detailType, long flags, SymbolEnv env) {
         String name = anonymousModelHelper.getNextAnonymousIntersectionErrorTypeName(env.enclPkg.packageID);
-        BErrorTypeSymbol errorTypeSymbol = Symbols.createErrorSymbol(flags, names.fromString(name),
+        BErrorTypeSymbol errorTypeSymbol = Symbols.createErrorSymbol(flags | Flags.ANONYMOUS, names.fromString(name),
                                                                      env.enclPkg.symbol.pkgID, null,
                                                                      env.scope.owner, symTable.builtinPos, VIRTUAL);
         errorTypeSymbol.scope = new Scope(errorTypeSymbol);

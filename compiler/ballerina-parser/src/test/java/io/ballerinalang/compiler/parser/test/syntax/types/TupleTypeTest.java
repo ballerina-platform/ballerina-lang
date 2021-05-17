@@ -59,5 +59,4 @@ public class TupleTypeTest extends AbstractTypesTest {
     public void testTupleTypeArrayRecovery() {
         testTopLevelNode("tuple-type/tuple_type_source_06.bal", "tuple-type/tuple_type_assert_06.json");
     }
-
 }
