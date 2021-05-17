@@ -1601,7 +1601,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             //have to see apbot type Foo map<Foo>
             default:
-                //Union Type
                 newTypeNode = BUnionType.create(null, new LinkedHashSet<>());
                 typeDefSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(typeDef.flagSet),
                         newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
@@ -1622,13 +1621,17 @@ public class SymbolEnter extends BLangNodeVisitor {
             //define symbols in main scope
             BType newTypeNode = defineSymbolsForCyclicTypeDefinitions(typeDef, env);
             switch (typeDef.typeNode.getKind()) {
-                case TUPLE_TYPE_NODE:
-                    break;
                 case ARRAY_TYPE:
                     break;
                     //have to see apbot type Foo map<Foo>
+                case TUPLE_TYPE_NODE:
                 default:
-                    List<BLangType> memberTypeNodes = ((BLangUnionTypeNode) typeDef.typeNode).memberTypeNodes;
+                    List<BLangType> memberTypeNodes;
+                    if (typeDef.typeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
+                        memberTypeNodes = ((BLangUnionTypeNode) typeDef.typeNode).memberTypeNodes;
+                    } else {
+                        memberTypeNodes = ((BLangTupleTypeNode) typeDef.typeNode).memberTypeNodes;
+                    }
                     for (BLangType member : memberTypeNodes) {
                         if (member.getKind() != NodeKind.USER_DEFINED_TYPE) {
                             continue;
@@ -1657,10 +1660,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             switch (resolvedTypeNodes.tag) {
                 case TypeTags.TUPLE:
                     BTupleType definedTupleType = (BTupleType) resolvedTypeNodes;
-                    BTupleType newTupleType = (BTupleType) newTypeNode;
-
-                    newTypeNode = new BTupleType(null, new ArrayList<>());
-
+                    newTypeNode = new BTupleType (newTypeNode.tsymbol, definedTupleType.getTupleTypes(),
+                            definedTupleType.restType, definedTupleType.flags, newTypeNode.isCyclic);
                     break;
                 default:
                     BUnionType definedUnionType = (BUnionType) resolvedTypeNodes;
@@ -1668,11 +1669,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                     for (BType member : definedUnionType.getMemberTypes()) {
                         newUnionType.add(member);
                     }
-                    newTypeNode = (BType) newUnionType;
+                    newTypeNode = newUnionType;
                     break;
             }
-
-            //test if memeber types are in newTypeNode
 
             typeDef.typeNode.type = newTypeNode;
             typeDef.typeNode.type.tsymbol.type = newTypeNode;
