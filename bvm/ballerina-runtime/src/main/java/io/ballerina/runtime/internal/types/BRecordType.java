@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.Field;
@@ -29,11 +30,9 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
-import io.ballerina.runtime.internal.values.TypedescValue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,7 +49,6 @@ public class BRecordType extends BStructureType implements RecordType {
     public int typeFlags;
     private final boolean readonly;
     private IntersectionType immutableType;
-    public TypedescValue typedescValue;
 
     /**
      * Create a {@code BRecordType} which represents the user defined record type.
@@ -111,7 +109,7 @@ public class BRecordType extends BStructureType implements RecordType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) typedescValue.instantiate(Scheduler.getStrand());
+        return (V) ValueCreator.createRecordValue(this.pkg, this.typeName);
     }
 
     @SuppressWarnings("unchecked")
