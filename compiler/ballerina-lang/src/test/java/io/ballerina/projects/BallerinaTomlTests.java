@@ -23,7 +23,6 @@ import io.ballerina.projects.providers.SemverDataProvider;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.testng.Assert;
-import org.testng.SkipException;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
