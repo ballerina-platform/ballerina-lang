@@ -71,6 +71,8 @@ public class AnnotationDeclarationNodeContext extends AbstractCompletionProvider
                         .collect(Collectors.toList());
                 completionItemList.addAll(this.getCompletionItemList(filteredSymbols, context));
                 completionItemList.addAll(this.getModuleCompletionItems(context));
+                completionItemList.add(new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()));
+                completionItemList.add(new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD_TYPE_DESC.get()));
             }
         } else if (this.onSuggestOnKeyword(context, node)) {
             completionItemList.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));

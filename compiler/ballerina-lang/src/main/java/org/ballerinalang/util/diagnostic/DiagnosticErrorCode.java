@@ -349,10 +349,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_ERROR_REASON_BINDING_PATTERN("BCE2613", "invalid.error.reason.binding.pattern"),
     INVALID_ERROR_REST_BINDING_PATTERN("BCE2614", "invalid.error.rest.binding.pattern"),
     INVALID_TYPE_DEFINITION_FOR_ERROR_VAR("BCE2615", "invalid.type.definition.for.error.var"),
-    INVALID_ERROR_DESTRUCTURING_NO_REASON_GIVEN("BCE2616", "invalid.error.destructuring.reason"),
-    INVALID_ERROR_MATCH_PATTERN("BCE2617", "invalid.error.match.pattern"),
-    DUPLICATE_VARIABLE_IN_BINDING_PATTERN("BCE2618", "duplicate.variable.in.binding.pattern"),
-    INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN("BCE2619", "invalid.variable.reference.in.binding.pattern"),
+    INVALID_ERROR_MATCH_PATTERN("BCE2616", "invalid.error.match.pattern"),
+    DUPLICATE_VARIABLE_IN_BINDING_PATTERN("BCE2617", "duplicate.variable.in.binding.pattern"),
+    INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN("BCE2618", "invalid.variable.reference.in.binding.pattern"),
+    CANNOT_ASSIGN_VALUE_TO_TYPE_DEF("BCE2619", "cannot.assign.value.to.type.def"),
 
     INVALID_NAMESPACE_PREFIX("BCE2620", "invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("BCE2621", "mismatching.xml.start.end.tags"),
@@ -658,8 +658,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     CONFIGURABLE_VARIABLE_CANNOT_BE_DECLARED_WITH_VAR(
             "BCE3968", "configurable.variable.cannot.be.declared.with.var"),
-    CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA_AND_READONLY(
-            "BCE3969", "configurable.variable.must.be.anydata.and.readonly"),
+    CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA(
+            "BCE3969", "configurable.variable.must.be.anydata"),
     ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_CONFIGURABLE(
             "BCE3970", "only.simple.variables.are.allowed.to.be.configurable"),
     CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED(
@@ -713,13 +713,11 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_MAIN_OPTION_PARAMS_TYPE("BCE4003", "invalid.main.option.params.type"),
     WORKER_INTERACTION_AFTER_WAIT_ACTION("BCE4005", "invalid.worker.message.passing.after.wait.action"),
     OPTIONAL_OPERAND_PRECEDES_OPERAND("BCE4006", "optional.operand.precedes.operand"),
-
     UNIMPLEMENTED_REFERENCED_METHOD_IN_SERVICE_DECL("BCE4007",
             "unimplemented.referenced.method.in.service.declaration"),
     UNIMPLEMENTED_REFERENCED_METHOD_IN_OBJECT_CTOR("BCE4008", "unimplemented.referenced.method.in.object.constructor"),
-
     UNSUPPORTED_REMOTE_METHOD_NAME_IN_SCOPE("BCE4009", "unsupported.remote.method.name.in.scope")
-            ;
+    ;
 
     private String diagnosticId;
     private String messageKey;

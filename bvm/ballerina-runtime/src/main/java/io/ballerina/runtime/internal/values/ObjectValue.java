@@ -29,6 +29,6 @@ import io.ballerina.runtime.api.values.BObject;
  * 
  * @since 0.995.0
  */
-public interface ObjectValue extends BObject, RefValue {
+public interface ObjectValue extends BObject {
 
 }

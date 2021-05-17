@@ -36,6 +36,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static io.ballerina.runtime.test.config.ConfigTest.COLOR_ENUM;
+
 /**
  * Test cases specific for configuration provided via cli.
  */
@@ -117,7 +119,11 @@ public class CliProviderNegativeTest {
                         new BIntersectionType(ROOT_MODULE, new Type[]{}, PredefinedTypes.TYPE_XML, 0, true),
                         "error: [xmlVar=<book] configurable variable 'xmlVar' is expected to be of type 'xml<(lang" +
                                 ".xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>', but " +
-                                "found '<book'"}
+                                "found '<book'"},
+                // Invalid config enum value
+                {new String[]{"-Ccolor=red"}, "rootOrg", "rootMod", "color", COLOR_ENUM,
+                        "error: [color=red] configurable variable 'color' is expected to be of type 'Colors', but " +
+                                "found 'red'"}
         };
     }
 

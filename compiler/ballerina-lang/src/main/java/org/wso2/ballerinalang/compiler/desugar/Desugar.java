@@ -3185,14 +3185,6 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangValueExpression varRef = compoundAssignment.varRef;
         if (compoundAssignment.varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR) {
-            // Create a new varRef if this is a simpleVarRef. Because this can be a
-            // narrowed type var. In that case, lhs and rhs must be visited in two
-            // different manners.
-            if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                varRef = ASTBuilderUtil.createVariableRef(compoundAssignment.varRef.pos, varRef.symbol);
-                varRef.isLValue = true;
-            }
-
             result = ASTBuilderUtil.createAssignmentStmt(compoundAssignment.pos, rewriteExpr(varRef),
                     rewriteExpr(compoundAssignment.modifiedExpr));
             return;
@@ -7934,6 +7926,10 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangExpression createTypeCastExpr(BLangExpression expr, BType targetType) {
+        if (expr.type.tag == targetType.tag) {
+            return expr;
+        }
+
         BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         conversionExpr.pos = expr.pos;
         conversionExpr.expr = expr;

@@ -44,6 +44,8 @@ public class FieldsTestResource implements InterfaceTestResource {
     public boolean getInstanceBoolean = true;
     public String getInstanceString = "hello";
 
+    public int[][] testUnsupportedArray = new int[10][20];
+
     // Instance primitive field single-dimensional arrays
     public byte[] getInstanceByteArray = "hello".getBytes();
     public char[] getInstanceCharArray = {'h', 'e', 'y'};

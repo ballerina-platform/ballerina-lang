@@ -116,3 +116,8 @@ function testQueryExpression() {
         where st.name == "Foo"
         select {name: st.name};
 }
+
+function testXMLNavigation() {
+    xml val = xml `<foo><bar>0</bar></foo>`;
+    xml bar = val/<bar>;
+}

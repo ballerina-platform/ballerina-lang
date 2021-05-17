@@ -268,6 +268,16 @@ public class IfElseStmtTest {
                 "incompatible types: expected 'boolean', found '[int,string]'", 41, 8);
     }
 
+    @Test()
+    public void ifStmtTypeNarrowingTest() {
+        BValue[] args = {new BString("ballerina")};
+        BRunUtil.invoke(result, "testTypeNarrowingWithClosure");
+        BRunUtil.invoke(result, "testResetTypeNarrowingForConditionalExpr");
+        BValue[] returns = BRunUtil.invoke(result, "testTypeNarrowing", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "ballerina");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

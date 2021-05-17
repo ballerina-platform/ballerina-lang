@@ -64,7 +64,7 @@ public class BindgenTestCase extends BaseTest {
         String buildMsg = "target/bin/bindgen.jar";
         LogLeecher buildLeecher = new LogLeecher(buildMsg);
 
-        String bindgenMsg1 = "class could not be generated.";
+        String bindgenMsg1 = "error: unable to generate the '";
         LogLeecher bindgenLeecher1 = new LogLeecher(bindgenMsg1, ERROR);
 
         String bindgenMsg2 = "Oh no, something really went wrong. Bad. Sad.";

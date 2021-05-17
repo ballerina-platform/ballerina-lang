@@ -92,6 +92,19 @@ public class MavenSupportTest extends CommandTest {
                 Paths.get(testResources.toString(), "assert-files", "Ballerina.toml").toString()));
     }
 
+    @Test(description = "Test the error given for a maven library that is unavailable")
+    public void testUnavailableMvnLibrary() throws IOException {
+        String projectDir = Paths.get(testResources.toString(), "balProject").toString();
+        String[] args = {"-mvn=org.yamls:snakeyaml:1.25", "-o=" + projectDir, "org.yaml.snakeyaml.Yaml"};
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        bindgenCommand.execute();
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("error: unable to resolve the maven dependency: Could not " +
+                "find artifact org.yamls:snakeyaml:jar:1.25 in central"));
+    }
+
     private boolean isTomlUpdated(String updated, String expected) throws IOException {
         File updatedToml = new File(updated);
         File expectedToml = new File(expected);

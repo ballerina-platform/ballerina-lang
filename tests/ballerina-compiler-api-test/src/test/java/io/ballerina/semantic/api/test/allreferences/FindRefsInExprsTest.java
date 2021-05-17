@@ -135,6 +135,11 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                                 location(115, 17, 21),
                                 location(116, 25, 29))
                 },
+                // XML Navigation
+                {121, 15, location(120, 8, 11),
+                        List.of(location(120, 8, 11),
+                                location(121, 14, 17))
+                }
         };
     }
 

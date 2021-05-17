@@ -165,9 +165,9 @@ public class IntersectionTypeTest {
         validateError(result, index++,
                 "invalid intersection: field 'x' contains a default value in type 'DetailX'", 79, 36);
         validateError(result, index++,
-                "invalid intersection type 'E & ErrorX': no intersection", 82, 21);
+                "invalid intersection type 'E & ErrorX': no intersection", 82, 22);
         validateError(result, index++,
-                "invalid intersection: field 'x' contains a default value in type 'DetailX'", 82, 25);
+                "invalid intersection: field 'x' contains a default value in type 'DetailX'", 82, 26);
 
         assertEquals(result.getErrorCount(), index);
     }
