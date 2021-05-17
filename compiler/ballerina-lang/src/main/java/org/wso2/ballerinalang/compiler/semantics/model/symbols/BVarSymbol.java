@@ -22,6 +22,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.Annotatable;
 import org.ballerinalang.model.symbols.AnnotationSymbol;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.symbols.VariableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -49,6 +50,7 @@ public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
                       SymbolOrigin origin) {
         super(VARIABLE, flags, name, pkgID, type, owner, pos, origin);
         this.annots = new ArrayList<>();
+        this.kind = SymbolKind.VARIABLE;
     }
 
     public BVarSymbol(long flags, boolean isIgnorable, Name name, PackageID pkgID, BType type, BSymbol owner,
@@ -73,5 +75,10 @@ public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
     @Override
     public Object getConstValue() {
         return null;
+    }
+
+    @Override
+    public SymbolKind getKind() {
+        return this.kind;
     }
 }

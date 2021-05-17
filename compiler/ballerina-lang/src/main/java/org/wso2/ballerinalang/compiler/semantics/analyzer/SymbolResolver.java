@@ -1616,7 +1616,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 } else {
                     List<ScopeEntry> scopeEntries = visibleEntries.get(name);
                     entryList.forEach(scopeEntry -> {
-                        if (!scopeEntries.contains(scopeEntry)) {
+                        if (!scopeEntries.contains(scopeEntry) && !isModuleLevelVar(scopeEntry.symbol)) {
                             scopeEntries.add(scopeEntry);
                         }
                     });
@@ -2133,6 +2133,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         dlog.error(inferDefaultLocation,
                    DiagnosticErrorCode.CANNOT_USE_INFERRED_TYPEDESC_DEFAULT_WITH_UNREFERENCED_PARAM);
         return false;
+    }
+
+    private boolean isModuleLevelVar(BSymbol symbol) {
+        return symbol.getKind() == SymbolKind.VARIABLE && symbol.owner.getKind() == SymbolKind.PACKAGE;
     }
 
     private static class ParameterizedTypeInfo {
