@@ -82,6 +82,8 @@ public class CreateVarCodeAction implements CodeAction {
                 case ARG_VAR_TYPE:
                     type = argument.valueAs(String.class);
                     break;
+                default:
+                    // Nothing
             }
         }
 
@@ -92,7 +94,6 @@ public class CreateVarCodeAction implements CodeAction {
         SyntaxTree syntaxTree = context.currentDocument().syntaxTree();
         TextDocument textDocument = syntaxTree.textDocument();
         int start = textDocument.textPositionFrom(lineRange.startLine());
-        int end = textDocument.textPositionFrom(lineRange.endLine());
 
         TextEdit edit = TextEdit.from(TextRange.from(start, 0), type + " myVar = ");
         TextDocumentChange textDocumentChange = TextDocumentChange.from(List.of(edit).toArray(new TextEdit[0]));
