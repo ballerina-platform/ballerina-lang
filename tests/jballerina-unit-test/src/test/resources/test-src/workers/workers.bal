@@ -10,40 +10,6 @@ function workerReturnTest() returns int {
     return res + 1;
 }
 
-int updateMultiple = 0;
-function waitOnSameFutureByMultiple() returns int {
-    @strand{thread:"any"}
-    worker w1 returns int {
-        return 9;
-    }
-
-    waitOnSameFutureWorkers(w1);
-    sleep(1000);
-    return updateMultiple;
-}
-
-function waitOnSameFutureWorkers(future<int> aa) {
-
-    @strand{thread:"any"}
-    worker w1 {
-        int|error result = wait aa;
-        lock {
-            if (result is int) {
-                updateMultiple = updateMultiple + result;
-            }
-        }
-    }
-    @strand{thread:"any"}
-    worker w2 {
-        int|error result = wait aa;
-        lock {
-            if (result is int) {
-                updateMultiple = updateMultiple + result;
-            }
-        }
-    }
-}
-
 public function workerSendToWorker() returns int {
     @strand{thread:"any"}
     worker w1 {
