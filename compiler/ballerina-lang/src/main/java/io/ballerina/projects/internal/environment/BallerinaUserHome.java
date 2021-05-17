@@ -33,12 +33,15 @@ public final class BallerinaUserHome {
 
     private BallerinaUserHome(Environment environment, Path ballerinaUserHomeDirPath) {
         this.ballerinaUserHomeDirPath = ballerinaUserHomeDirPath;
+        Path settingsTomlPath = Paths.get(String.valueOf(ballerinaUserHomeDirPath),
+                ProjectConstants.SETTINGS_FILE_NAME);
         Path remotePackageRepositoryPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
                 .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME);
         try {
             Files.createDirectories(remotePackageRepositoryPath);
         } catch (AccessDeniedException ae) {
-            throw new ProjectException("permission denied: " + ae.getMessage());
+            throw new ProjectException("failed to create: " + settingsTomlPath + "permission denied: "
+                    + ae.getMessage());
         } catch (IOException exception) {
             throw new ProjectException("unable to create the file system cache of Ballerina Central repository: " +
                     remotePackageRepositoryPath);
