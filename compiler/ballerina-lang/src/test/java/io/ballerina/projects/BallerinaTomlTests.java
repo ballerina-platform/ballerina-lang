@@ -189,12 +189,6 @@ public class BallerinaTomlTests {
 
     @Test
     public void testBallerinaTomlWithInvalidOrgNameVersion() throws IOException {
-        // TODO: enable this after the alpha2-release
-        String os = System.getProperty("os.name").toLowerCase(Locale.getDefault());
-        if (os.contains("win")) {
-            throw new SkipException("Skipping tests on Windows");
-        }
-
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("invalid-org-name-version.toml"));
         Assert.assertTrue(packageManifest.diagnostics().hasErrors());
         Assert.assertEquals(packageManifest.diagnostics().errors().size(), 3);
@@ -205,7 +199,15 @@ public class BallerinaTomlTests {
         Assert.assertEquals(firstDiagnostic.message(), "invalid 'name' under [package]: 'name' can only contain "
                 + "alphanumerics, underscores and periods and the maximum length is 256 characters");
         Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(1:7,1:23)");
-        Assert.assertEquals(firstDiagnostic.location().textRange().toString(), "(17,33)");
+
+        String os = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+        if (os.contains("win")) {
+            // text range including minutiae, if we get a node that includes newline minutiae,
+            // its text range will be different. i.e windows will have an extra 1 length due to \r\n.
+            Assert.assertEquals(firstDiagnostic.location().textRange().toString(), "(17,34)");
+        } else {
+            Assert.assertEquals(firstDiagnostic.location().textRange().toString(), "(17,33)");
+        }
 
         Assert.assertEquals(iterator.next().message(), "invalid 'org' under [package]: 'org' can only contain "
                 + "alphanumerics, underscores and the maximum length is 256 characters");
