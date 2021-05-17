@@ -1616,7 +1616,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 } else {
                     List<ScopeEntry> scopeEntries = visibleEntries.get(name);
                     entryList.forEach(scopeEntry -> {
-                        if (!scopeEntries.contains(scopeEntry) && !(scopeEntry.symbol instanceof BVarSymbol)) {
+                        if (!scopeEntries.contains(scopeEntry)) {
                             scopeEntries.add(scopeEntry);
                         }
                     });

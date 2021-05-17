@@ -1946,7 +1946,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (varSymbol.type == symTable.semanticError && varSymbol.state == DiagnosticState.VALID) {
             varSymbol.state = DiagnosticState.UNKNOWN_TYPE;
         }
-        
+
         varSymbol.markdownDocumentation = getMarkdownDocAttachment(varNode.markdownDocumentationAttachment);
         varNode.symbol = varSymbol;
         if (varNode.symbol.type.tsymbol != null && Symbols.isFlagOn(varNode.symbol.type.tsymbol.flags, Flags.CLIENT)) {
