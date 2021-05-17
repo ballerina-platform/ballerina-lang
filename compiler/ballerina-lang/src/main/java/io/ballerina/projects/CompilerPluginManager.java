@@ -26,8 +26,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 /**
@@ -64,16 +62,14 @@ class CompilerPluginManager {
 
     private static List<CompilerPluginInfo> loadInBuiltCompilerPlugins(Package rootPackage) {
         List<CompilerPluginInfo> compilerPluginInfoList = new ArrayList<>();
-        ServiceLoader<CompilerPlugin> pluginServiceLoader = ServiceLoader
-                .load(CompilerPlugin.class, ClassLoader.getSystemClassLoader());
-        for (CompilerPlugin plugin : pluginServiceLoader) {
+        for (CompilerPlugin plugin : CompilerPlugins.getBuiltInPlugins()) {
             CompilerPlugin compilerPlugin;
             try {
                 if (!rootPackage.manifest().descriptor().isBuiltInPackage() &&
                         rootPackage.project().kind().equals(ProjectKind.BUILD_PROJECT)) {
                     compilerPlugin = CompilerPlugins.loadCompilerPlugin(
                             plugin.getClass().getName(), Collections.emptyList());
-                    compilerPluginInfoList.add(new CompilerPluginInfo(compilerPlugin));
+                    compilerPluginInfoList.add(new BuiltInCompilerPluginInfo(compilerPlugin));
                 }
             } catch (Throwable e) {
                 // Used Throwable here to catch any sort of error produced by the in-built compiler plugin code
@@ -126,7 +122,7 @@ class CompilerPluginManager {
                     ":" + pkgManifest.version() + "'. " + e.getMessage(), e);
         }
 
-        return new CompilerPluginInfo(compilerPlugin, pkgManifest.descriptor(), pluginDescriptor);
+        return new PackageProvidedCompilerPluginInfo(compilerPlugin, pkgManifest.descriptor(), pluginDescriptor);
     }
 
     private static List<Package> getDirectDependencies(ResolvedPackageDependency rootPkgNode,
@@ -153,16 +149,17 @@ class CompilerPluginManager {
             compilerPluginInfo.compilerPlugin().init(pluginContext);
         } catch (Throwable e) {
             // Used Throwable here catch any sort of error produced by the third-party compiler plugin code
-            Optional<PackageDescriptor> pkgDesc = compilerPluginInfo.packageDesc();
             String message;
-            if (pkgDesc.isEmpty()) {
+            if (compilerPluginInfo.kind().equals(CompilerPluginKind.PACKAGE_PROVIDED)) {
+                PackageDescriptor pkgDesc = ((PackageProvidedCompilerPluginInfo) compilerPluginInfo).packageDesc();
+                message = "Failed to initialize the compiler plugin in package: '"
+                        + pkgDesc.org() +
+                        ":" + pkgDesc.name() +
+                        ":" + pkgDesc.version() + "'. ";
+
+            } else {
                 message = "Failed to initialize the compiler plugin: '"
                         + compilerPluginInfo.compilerPlugin().getClass().getName()  + "'. ";
-            } else {
-                message = "Failed to initialize the compiler plugin in package: '"
-                        + pkgDesc.get().org() +
-                        ":" + pkgDesc.get().name() +
-                        ":" + pkgDesc.get().version() + "'. ";
             }
             throw new ProjectException(message + e.getMessage(), e);
 
