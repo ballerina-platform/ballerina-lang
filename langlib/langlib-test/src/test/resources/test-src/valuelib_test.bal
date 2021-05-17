@@ -969,6 +969,14 @@ function testCloneWithTypeImmutableStructuredTypes() {
     assert(person4.id, 14);
 }
 
+type IntOneOrTwo 1|2;
+
+function testCloneWithTypeWithFiniteArrayTypeFromIntArray() {
+    int[] x = [1,2];
+    IntOneOrTwo[]|error a = x.cloneWithType();
+    assert(a is IntOneOrTwo[], true);
+}
+
 /////////////////////////// Tests for `fromJsonWithType()` ///////////////////////////
 type Student2 record {
     string name;
