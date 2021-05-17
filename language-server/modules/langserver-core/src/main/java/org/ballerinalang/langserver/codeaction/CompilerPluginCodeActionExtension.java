@@ -66,7 +66,8 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
     public List<? extends CodeAction> execute(CodeActionParams inputParams,
                                               CodeActionContext context,
                                               LanguageServerContext serverContext) {
-        Optional<PackageCompilation> packageCompilation = context.workspace().waitAndGetPackageCompilation(context.filePath());
+        Optional<PackageCompilation> packageCompilation = 
+                context.workspace().waitAndGetPackageCompilation(context.filePath());
         if (packageCompilation.isEmpty() || context.currentDocument().isEmpty() ||
                 context.currentSemanticModel().isEmpty()) {
             return Collections.emptyList();
@@ -74,10 +75,7 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
 
         Position position = context.cursorPosition();
         LinePosition linePosition = LinePosition.from(position.getLine(), position.getCharacter());
-
-//        Range range = CommonUtil.toRange(LineRange.from(context.fileUri(), linePosition, linePosition));
-//        NonTerminalNode node = CommonUtil.findNode(range, context.currentSyntaxTree().get());
-
+        
         CodeActionPluginContext codeActionPluginContext = CodeActionPluginContextImpl.from(context.fileUri(),
                 context.filePath(), linePosition, context.currentDocument().get(),
                 context.currentSemanticModel().get());
@@ -95,9 +93,11 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
                                 CodeAction action = new CodeAction(codeActionCommand.getTitle());
 
                                 List<Object> arguments = new LinkedList<>();
-                                arguments.add(CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, context.fileUri()));
+                                arguments.add(CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, 
+                                        context.fileUri()));
                                 arguments.addAll(codeActionCommand.getArguments());
-                                action.setCommand(new Command(codeActionCommand.getTitle(), codeActionCommand.getProviderName(), arguments));
+                                action.setCommand(new Command(codeActionCommand.getTitle(), 
+                                        codeActionCommand.getProviderName(), arguments));
                                 return action;
                             })
                             .forEach(codeActions::add);
@@ -132,11 +132,11 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
                     context.languageServercontext().get(ExtendedLanguageClient.class);
 
             extendedLanguageClient.unregisterCapability(new UnregistrationParams(Collections.singletonList(
-                    new Unregistration(BallerinaWorkspaceService.executeCommandCapabilityId,
+                    new Unregistration(BallerinaWorkspaceService.EXECUTE_COMMAND_CAPABILITY_ID,
                             "workspace/executeCommand"))));
 
             extendedLanguageClient.registerCapability(new RegistrationParams(Collections.singletonList(
-                    new Registration(BallerinaWorkspaceService.executeCommandCapabilityId,
+                    new Registration(BallerinaWorkspaceService.EXECUTE_COMMAND_CAPABILITY_ID,
                             "workspace/executeCommand", serverCapabilities.getExecuteCommandProvider()))));
         }
 

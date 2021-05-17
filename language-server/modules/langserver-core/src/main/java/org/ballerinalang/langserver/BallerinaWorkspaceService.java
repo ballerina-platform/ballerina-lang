@@ -19,13 +19,13 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.CodeActionManager;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.CodeActionManager;
 import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
-import io.ballerina.projects.plugins.codeaction.DocumentEdit;
 import io.ballerina.projects.plugins.codeaction.CodeActionPluginContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionPluginContextImpl;
+import io.ballerina.projects.plugins.codeaction.DocumentEdit;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
@@ -76,7 +76,7 @@ import java.util.stream.Collectors;
  */
 public class BallerinaWorkspaceService implements WorkspaceService {
     
-    public static final String executeCommandCapabilityId = UUID.randomUUID().toString();
+    public static final String EXECUTE_COMMAND_CAPABILITY_ID = UUID.randomUUID().toString();
     
     private final BallerinaLanguageServer languageServer;
     private final LSClientConfigHolder configHolder;
@@ -189,7 +189,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
         List<String> commandsList = LSCommandExecutorProvidersHolder.getInstance(serverContext).getCommandsList();
         ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandsList);
         client.registerCapability(new RegistrationParams(Collections.singletonList(
-                new Registration(executeCommandCapabilityId, "workspace/executeCommand", executeCommandOptions))));
+                new Registration(EXECUTE_COMMAND_CAPABILITY_ID, "workspace/executeCommand", executeCommandOptions))));
         serverContext.get(ServerCapabilities.class).setExecuteCommandProvider(executeCommandOptions);
     }
 
@@ -217,7 +217,8 @@ public class BallerinaWorkspaceService implements WorkspaceService {
             return Collections.emptyList();
         }
 
-        Optional<PackageCompilation> packageCompilation = context.workspace().waitAndGetPackageCompilation(filePath.get());
+        Optional<PackageCompilation> packageCompilation = 
+                context.workspace().waitAndGetPackageCompilation(filePath.get());
         Optional<Document> document = context.workspace().document(filePath.get());
         Optional<SemanticModel> semanticModel = context.workspace().semanticModel(filePath.get());
         if (packageCompilation.isEmpty() || document.isEmpty() || semanticModel.isEmpty()) {
@@ -241,9 +242,11 @@ public class BallerinaWorkspaceService implements WorkspaceService {
             }
 
             LineRange lineRange = originalST.get().rootNode().lineRange();
-            Range range = CommonUtil.toRange(LineRange.from(docEdit.getFileUri(), lineRange.startLine(), lineRange.endLine()));
+            Range range = CommonUtil.toRange(LineRange.from(docEdit.getFileUri(), 
+                    lineRange.startLine(), lineRange.endLine()));
             TextEdit edit = new TextEdit(range, docEdit.getModifiedSyntaxTree().toSourceCode());
-            TextDocumentEdit documentEdit = new TextDocumentEdit(new VersionedTextDocumentIdentifier(docEdit.getFileUri(), null), Collections.singletonList(edit));
+            TextDocumentEdit documentEdit = new TextDocumentEdit(new VersionedTextDocumentIdentifier(
+                    docEdit.getFileUri(), null), Collections.singletonList(edit));
             Either<TextDocumentEdit, ResourceOperation> either = Either.forLeft(documentEdit);
             edits.add(either);
         });
