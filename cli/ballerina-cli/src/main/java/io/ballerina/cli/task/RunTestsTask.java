@@ -100,21 +100,24 @@ public class RunTestsTask implements Task {
     private boolean report;
     private boolean coverage;
     private boolean enableJacocoXML;
+    private String coverageReportFormat;
     private boolean isSingleTestExecution;
     private boolean isRerunTestExecution;
     private List<String> singleExecTests;
     TestReport testReport;
 
-    public RunTestsTask(PrintStream out, PrintStream err, String includes, boolean enableJacocoXML) {
+    public RunTestsTask(PrintStream out, PrintStream err, String includes, boolean enableJacocoXML,
+                        String coverageFormat) {
         this.out = out;
         this.err = err;
         this.includesInCoverage = includes;
         this.enableJacocoXML = enableJacocoXML;
+        this.coverageReportFormat = coverageFormat;
     }
 
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, List<String> groupList,
-                        List<String> disableGroupList, List<String> testList, String includes,
-                        boolean enableJacocoXML) {
+                        List<String> disableGroupList, List<String> testList, String includes, boolean enableJacocoXML,
+                        String coverageFormat) {
         this.out = out;
         this.err = err;
         this.isSingleTestExecution = false;
@@ -137,6 +140,7 @@ public class RunTestsTask implements Task {
         }
         this.includesInCoverage = includes;
         this.enableJacocoXML = enableJacocoXML;
+        this.coverageReportFormat = coverageFormat;
     }
 
     @Override
@@ -184,7 +188,7 @@ public class RunTestsTask implements Task {
         // as "." are ignored. This is to be consistent with the "bal test" command which only executes tests
         // in packages.
 
-        for (ModuleId moduleId :  project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
+        for (ModuleId moduleId : project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
             Module module = project.currentPackage().module(moduleId);
             ModuleName moduleName = module.moduleName();
 
@@ -278,7 +282,8 @@ public class RunTestsTask implements Task {
             CoverageReport coverageReport = new CoverageReport(module, moduleCoverageMap,
                     packageNativeClassCoverageList, packageBalClassCoverageList, packageSourceCoverageList,
                     packageExecData, packageSessionInfo);
-            coverageReport.generateReport(jBallerinaBackend, this.includesInCoverage, enableJacocoXML);
+            coverageReport.generateReport(jBallerinaBackend, this.includesInCoverage, this.enableJacocoXML,
+                    this.coverageReportFormat);
         }
         // Traverse coverage map and add module wise coverage to test report
         for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
@@ -286,12 +291,14 @@ public class RunTestsTask implements Task {
             ModuleCoverage moduleCoverage = (ModuleCoverage) mapElement.getValue();
             testReport.addCoverage(moduleName, moduleCoverage);
         }
-        if (enableJacocoXML) {
+        if (CodeCoverageUtils.isRequestedReportFormat(this.coverageReportFormat,
+                TesterinaConstants.JACOCO_XML_FORMAT) || enableJacocoXML) {
             // Generate coverage XML report
             CodeCoverageUtils.createXMLReport(project, packageExecData, packageNativeClassCoverageList,
                     packageBalClassCoverageList, packageSourceCoverageList, packageSessionInfo);
         }
     }
+
 
     private void filterTestGroups() {
         TesterinaRegistry testerinaRegistry = TesterinaRegistry.getInstance();
