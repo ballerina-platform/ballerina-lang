@@ -18,11 +18,9 @@
 package org.ballerinalang.langserver.command;
 
 import com.google.gson.JsonObject;
-import io.ballerina.projects.Project;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -36,14 +34,10 @@ import java.util.List;
  */
 public class CompilerPluginCodeActionExecutionTest extends AbstractCommandExecutionTest {
 
-    private Project project;
-
     @BeforeClass
     @Override
     public void init() throws Exception {
-        CompileResult compileResult = BCompileUtil.compileAndCacheBala(
-                "compiler_plugin_tests/package_comp_plugin_with_codeactions");
-        project = compileResult.project();
+        BCompileUtil.compileAndCacheBala("compiler_plugin_tests/package_comp_plugin_with_codeactions");
         super.init();
     }
 
@@ -78,6 +72,6 @@ public class CompilerPluginCodeActionExecutionTest extends AbstractCommandExecut
 
     @AfterClass
     public void tearDown() {
-        BCompileUtil.clearCachedBala(project);
+        BCompileUtil.clearCachedBala("compiler_plugin_tests/package_comp_plugin_with_codeactions");
     }
 }

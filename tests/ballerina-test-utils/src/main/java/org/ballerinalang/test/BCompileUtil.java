@@ -157,7 +157,14 @@ public class BCompileUtil {
         return compileResult;
     }
 
-    public static void clearCachedBala(Project project) {
+    public static void clearCachedBala(String sourceFilePath) {
+        Path sourcePath = Paths.get(sourceFilePath);
+        String sourceFileName = sourcePath.getFileName().toString();
+        Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
+
+        Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
+        Project project = ProjectLoader.loadProject(projectPath, getTestProjectEnvironmentBuilder());
+        
         Package currentPackage = project.currentPackage();
         Path balaCachePath = balaCachePath(currentPackage.packageOrg().toString(),
                 currentPackage.packageName().toString(), currentPackage.packageVersion().toString());
