@@ -6,6 +6,22 @@
   "source": "typedesc_context/source/error_typedesc2.bal",
   "items": [
     {
+      "label": "record {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "record {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record {||}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "record {|${1}|}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TestMap3",
       "kind": "TypeParameter",
       "detail": "Map",

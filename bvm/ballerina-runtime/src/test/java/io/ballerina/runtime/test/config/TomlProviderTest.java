@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
@@ -619,5 +620,37 @@ public class TomlProviderTest {
                 new String[]{"aa", "bb", "cc"});
         Assert.assertEquals(((BArray) configValueMap.get(keys[3])).getBooleanArray(),
                 new boolean[]{false, true, true, false});
+    }
+
+    @Test(dataProvider = "map-data-provider")
+    public void testTomlProviderMaps(String variableName, Type constraint, Map<String, Object> expectedValues) {
+        MapType type = TypeCreator.createMapType("MapType", constraint, ROOT_MODULE, false);
+        IntersectionType mapType = new BIntersectionType(ROOT_MODULE, new Type[]{type, PredefinedTypes.TYPE_READONLY}
+                , type, 1, true);
+        VariableKey mapVar = new VariableKey(ROOT_MODULE, variableName, mapType, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{mapVar}));
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
+                List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("MapTypeConfig.toml"),
+                        configVarMap.keySet())));
+        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+
+        Object obj = configValueMap.get(mapVar);
+        Assert.assertTrue(obj instanceof BMap<?, ?>, "Non-map value received for variable : " + variableName);
+        BMap<?, ?> mapValue = (BMap<?, ?>) obj;
+        for (Map.Entry<String, Object> expectedField : expectedValues.entrySet()) {
+            BString fieldName = StringUtils.fromString(expectedField.getKey());
+            Assert.assertEquals((mapValue.get(fieldName)), expectedField.getValue());
+        }
+    }
+
+    @DataProvider(name = "map-data-provider")
+    public Object[][] mapDataProvider() {
+        return new Object[][]{
+                {"intMap", PredefinedTypes.TYPE_INT, Map.ofEntries(Map.entry("int1", 12L), Map.entry("int2", 34L))},
+                {"decimalMap", PredefinedTypes.TYPE_DECIMAL,
+                        Map.ofEntries(Map.entry("d1", ValueCreator.createDecimalValue("56.78")),
+                        Map.entry("d2", ValueCreator.createDecimalValue("32.94")))}
+        };
     }
 }

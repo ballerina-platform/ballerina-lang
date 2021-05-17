@@ -88,12 +88,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createArrayNode(
             STNode openBracket,
-            STNode values,
+            STNode value,
             STNode closeBracket) {
 
         return new STArrayNode(
                 openBracket,
-                values,
+                value,
                 closeBracket);
     }
 
@@ -141,6 +141,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode value) {
 
         return new STIdentifierLiteralNode(
+                value);
+    }
+
+    public static STNode createKeyNode(
+            STNode value) {
+
+        return new STKeyNode(
                 value);
     }
 }

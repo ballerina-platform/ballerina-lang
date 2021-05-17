@@ -88,11 +88,6 @@ public class BuildOptionsBuilder {
         return this;
     }
 
-    public BuildOptionsBuilder showAllWarnings(Boolean value) {
-        compilationOptionsBuilder.showAllWarnings(value);
-        return this;
-    }
-
     public BuildOptions build() {
         CompilationOptions compilationOptions = compilationOptionsBuilder.build();
         return new BuildOptions(testReport, codeCoverage, compilationOptions);

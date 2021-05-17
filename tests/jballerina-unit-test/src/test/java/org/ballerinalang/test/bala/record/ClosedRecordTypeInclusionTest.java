@@ -188,7 +188,7 @@ public class ClosedRecordTypeInclusionTest {
         BRunUtil.invoke(compileResult, "testRestTypeOverriding");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testOutOfOrderFieldOverridingFieldFromTypeInclusion() {
         BRunUtil.invoke(compileResult, "testOutOfOrderFieldOverridingFieldFromTypeInclusion");
     }

@@ -1,4 +1,4 @@
 [package]
 org = "debug_test_resources"
-name = "basic_package"
+name = "basic_project"
 version = "0.0.1"

@@ -587,12 +587,12 @@ public class DebugTestRunner {
         switch (assertionMode) {
             case HARD_ASSERT:
                 Assert.assertEquals(frame.getName(), name);
-                Assert.assertEquals(frame.getLine().intValue(), line);
+                Assert.assertEquals(frame.getLine(), line);
                 Assert.assertEquals(frame.getSource().getName(), source);
                 return;
             case SOFT_ASSERT:
                 softAsserter.assertEquals(frame.getName(), name);
-                softAsserter.assertEquals(frame.getLine().intValue(), line);
+                softAsserter.assertEquals(frame.getLine(), line);
                 softAsserter.assertEquals(frame.getSource().getName(), source);
         }
     }

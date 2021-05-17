@@ -415,25 +415,25 @@
                       "kind": "UNION_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "FLOAT_TYPE_DESC",
-                          "children": [
-                            {
-                              "kind": "FLOAT_KEYWORD",
-                              "leadingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "    "
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "PIPE_TOKEN"
-                        },
-                        {
                           "kind": "UNION_TYPE_DESC",
                           "children": [
+                            {
+                              "kind": "FLOAT_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "FLOAT_KEYWORD",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "    "
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PIPE_TOKEN"
+                            },
                             {
                               "kind": "NIL_TYPE_DESC",
                               "children": [
@@ -444,21 +444,21 @@
                                   "kind": "CLOSE_PAREN_TOKEN"
                                 }
                               ]
-                            },
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "INT_TYPE_DESC",
+                          "children": [
                             {
-                              "kind": "PIPE_TOKEN"
-                            },
-                            {
-                              "kind": "INT_TYPE_DESC",
-                              "children": [
+                              "kind": "INT_KEYWORD",
+                              "trailingMinutiae": [
                                 {
-                                  "kind": "INT_KEYWORD",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
                                 }
                               ]
                             }

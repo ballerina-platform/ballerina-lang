@@ -16,6 +16,7 @@
 
 import ballerina/lang.'error as errorLib;
 import ballerina/lang.'value as valueLib;
+import ballerina/lang.test as test;
 
 type Detail record {|
     string message?;
@@ -98,4 +99,20 @@ public function testErrorStackTrace() returns [int, string] {
             return elem.callableName + ":" + elem.fileName;
         });
         return [e.stackTrace().callStack.length(), ar.toString()];
+}
+
+public function testErrorCallStack() {
+    error e = error("error!");
+    error:CallStack stackTrace = e.stackTrace();
+
+    any|error res = stackTrace;
+    test:assertFalse(res is error);
+
+    string s = "";
+    if (res is error) {
+        s = "error!";
+    } else {
+        s = res.toString();
+    }
+    test:assertValueEqual("object lang.error:CallStack", s);
 }

@@ -401,22 +401,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "p2",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "B",
-      "insertText": "p2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "newAge",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "newAge",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "p1",
       "kind": "Variable",
       "detail": "Person",
@@ -425,19 +409,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "p3",
+      "label": "p2",
       "kind": "Variable",
       "detail": "Person",
       "sortText": "B",
-      "insertText": "p3",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "personList",
-      "kind": "Variable",
-      "detail": "Person[]",
-      "sortText": "B",
-      "insertText": "personList",
+      "insertText": "p2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -449,11 +425,27 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "outputPersonList",
+      "label": "p3",
       "kind": "Variable",
-      "detail": "Person[]",
+      "detail": "Person",
       "sortText": "B",
-      "insertText": "outputPersonList",
+      "insertText": "p3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "newAge",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "newAge",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Customer",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "Customer",
       "insertTextFormat": "Snippet"
     },
     {
@@ -465,11 +457,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Customer",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "Customer",
+      "label": "personList",
+      "kind": "Variable",
+      "detail": "Person[]",
+      "sortText": "B",
+      "insertText": "personList",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "outputPersonList",
+      "kind": "Variable",
+      "detail": "Person[]",
+      "sortText": "B",
+      "insertText": "outputPersonList",
       "insertTextFormat": "Snippet"
     },
     {
@@ -483,6 +483,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "testOnConflictClauseWithNonTableTypes",
       "insertText": "testOnConflictClauseWithNonTableTypes()",
       "insertTextFormat": "Snippet"
     },

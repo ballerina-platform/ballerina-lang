@@ -263,7 +263,7 @@
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "Q",
-      "insertText": "strand {\n\t${1}\n}",
+      "insertText": "strand",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     }

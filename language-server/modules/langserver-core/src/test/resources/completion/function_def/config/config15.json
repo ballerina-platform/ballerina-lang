@@ -433,37 +433,27 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunction1(int testParam1, int testParam2)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` testParam1  \n- `int` testParam2(Defaultable)"
-        }
-      },
-      "sortText": "C",
-      "insertText": "testFunction1(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "testParam2",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "testParam2",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
       "sortText": "M",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testParam1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "testParam1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -477,23 +467,16 @@
         }
       },
       "sortText": "C",
+      "filterText": "testFunction",
       "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestRecord1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "TestRecord1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testParam1",
+      "label": "testParam2",
       "kind": "Variable",
       "detail": "int",
       "sortText": "B",
-      "insertText": "testParam1",
+      "insertText": "testParam2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -506,6 +489,25 @@
       "sortText": "L",
       "insertText": "StrandData",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testFunction1(int testParam1, int testParam2)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` testParam1  \n- `int` testParam2(Defaultable)"
+        }
+      },
+      "sortText": "C",
+      "filterText": "testFunction1",
+      "insertText": "testFunction1(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "readonly",

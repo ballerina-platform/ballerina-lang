@@ -75,7 +75,7 @@ public class AbstractObjectTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/abstract_anon_object_negative.bal");
         int index = 0;
         BAssertUtil.validateError(compileResult, index++,
-                "abstract object '$anonType$_1' cannot have a constructor method", 2, 45);
+                "object type descriptor '$anonType$_1' cannot have an init method", 2, 45);
         BAssertUtil.validateError(compileResult, index++, "missing object keyword", 2, 81);
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 2, 81);
         BAssertUtil.validateError(compileResult, index++, "missing identifier", 2, 83);
@@ -83,7 +83,7 @@ public class AbstractObjectTest {
         BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$_1'", 2, 90);
         BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$_2'", 3, 68);
         BAssertUtil.validateError(compileResult, index++,
-                "abstract object '$anonType$_6' cannot have a constructor method", 6, 49);
+                "object type descriptor '$anonType$_6' cannot have an init method", 6, 49);
         BAssertUtil.validateError(compileResult, index++, "missing object keyword", 6, 85);
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 6, 85);
         BAssertUtil.validateError(compileResult, index++, "invalid token '}'", 6, 89);

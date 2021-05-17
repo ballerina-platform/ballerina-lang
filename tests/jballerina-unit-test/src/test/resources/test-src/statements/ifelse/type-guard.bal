@@ -435,7 +435,7 @@ function testTypeNarrowingWithClosures() returns string {
     } else {
         var y = function() returns int {
                     if (x is int) {
-                        return x;
+                        return <int>x;
                     } else {
                         return -1;
                     }

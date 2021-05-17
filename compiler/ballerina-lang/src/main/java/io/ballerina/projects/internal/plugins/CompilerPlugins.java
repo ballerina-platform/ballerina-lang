@@ -80,7 +80,8 @@ public class CompilerPlugins {
 
     private static ClassLoader createClassLoader(List<Path> jarDependencyPaths) {
         return AccessController.doPrivileged(
-                (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(getJarURLS(jarDependencyPaths))
+                (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(getJarURLS(jarDependencyPaths),
+                        CompilerPlugins.class.getClassLoader())
         );
     }
 

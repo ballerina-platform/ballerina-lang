@@ -100,7 +100,7 @@ public class BindgenMvnResolver {
         try {
             return resolver.resolve(groupId, artifactId, version, true);
         } catch (MavenResolverException e) {
-            throw new BindgenException(e.getMessage());
+            throw new BindgenException("error: unable to resolve the maven dependency: " + e.getMessage());
         }
     }
 
@@ -151,8 +151,8 @@ public class BindgenMvnResolver {
                 fileWriter.write("artifactId = \"" + artifactId + "\"\n");
                 fileWriter.write("version = \"" + version + "\"");
             }
-        } catch (IOException io) {
-            throw new BindgenException("Error while updating the Ballerina.toml file.", io);
+        } catch (IOException e) {
+            throw new BindgenException("error: unable to update the Ballerina.toml file: " + e.getMessage(), e);
         }
     }
 

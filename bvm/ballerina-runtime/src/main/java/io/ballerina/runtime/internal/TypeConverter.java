@@ -604,7 +604,10 @@ public class TypeConverter {
     }
 
     public static BXml stringToXml(String value) throws BError {
-        return XmlUtils.parse(value);
+        StringBuilder sb = new StringBuilder();
+        sb.append("<root>").append(value).append("</root>");
+        BXml item = XmlUtils.parse(sb.toString());
+        return item.children();
     }
 
     public static BString anyToChar(Object sourceVal) {

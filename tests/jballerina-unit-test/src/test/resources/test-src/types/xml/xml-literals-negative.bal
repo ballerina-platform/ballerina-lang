@@ -100,3 +100,13 @@ function testXMLSequence() {
     xml<'xml:Text> x36 = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
     xml<'xml:Text> x37 = xml `<?foo?><?faa?>`;
 }
+
+function testUndefinedVariable() {
+    xml c = xml `text1 text2 ${b}`;
+}
+
+function testIncompatibleTypesInTemplates() {
+    map<string> b = {};
+    error err = error("xml error");
+    xml c = xml `text1 text2 ${b} ${err}`;
+}

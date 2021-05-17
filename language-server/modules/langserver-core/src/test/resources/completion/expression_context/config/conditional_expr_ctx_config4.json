@@ -361,10 +361,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "flag",
-      "kind": "Variable",
-      "detail": "boolean",
-      "insertText": "flag",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -377,14 +377,15 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
+      "filterText": "name",
       "insertText": "name()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "insertText": "Thread",
+      "label": "flag",
+      "kind": "Variable",
+      "detail": "boolean",
+      "insertText": "flag",
       "insertTextFormat": "Snippet"
     },
     {
