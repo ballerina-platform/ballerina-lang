@@ -274,6 +274,22 @@
       "sortText": "Q",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "record {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record {||}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "record {|${1}|}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
