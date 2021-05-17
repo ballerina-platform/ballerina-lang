@@ -75,6 +75,9 @@ public class BLangUserDefinedType extends BLangType implements UserDefinedTypeNo
 
         if (typeName.startsWith("$") && this.type != null) {
             String tName = this.type.toString();
+
+            // When there are errors in this type, we can't just use the tName.
+            // Fall back to pkgAlias:typeName pattern
             if (!tName.equals("other")) {
                 return tName;
             }

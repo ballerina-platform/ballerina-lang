@@ -1919,9 +1919,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             isErrorIntersection = true;
         }
 
-        if ((typeOne.tag == typeTwo.tag && typeOne.tag != TypeTags.ERROR)
-            || (!hasReadOnlyType && (typeOne.tag != TypeTags.ERROR || typeTwo.tag != TypeTags.ERROR))) {
-            dlog.error(intersectionTypeNode.pos, DiagnosticErrorCode.UNSUPPORTED_INTERSECTION, intersectionTypeNode);
+        if (!(hasReadOnlyType || isErrorIntersection)) {
+            dlog.error(intersectionTypeNode.pos,
+                    DiagnosticErrorCode.UNSUPPORTED_TYPE_INTERSECTION, intersectionTypeNode);
             return symTable.noType;
         }
 
@@ -1932,12 +1932,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             isAlreadyExistingType = true;
         }
 
-        LinkedHashSet<BType> constituentBTypes = new LinkedHashSet<>() {
-            {
-                add(typeOne);
-                add(typeTwo);
-            }
-        };
+        LinkedHashSet<BType> constituentBTypes = new LinkedHashSet<>();
+        constituentBTypes.add(typeOne);
+        constituentBTypes.add(typeTwo);
 
         if (potentialIntersectionType == symTable.semanticError) {
             validIntersection = false;
