@@ -190,6 +190,7 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.contains("unsupported coverage report format 'html' found. Only 'xml' format is supported."));
+        Assert.assertTrue(buildLog.contains("unsupported coverage report format 'html' found. Only 'xml' format is " +
+                "supported."));
     }
 }
