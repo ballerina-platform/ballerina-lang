@@ -776,12 +776,12 @@ public class TypedescriptorTest {
         assertEquals(type.typeKind(), UNION);
         assertEquals(type.signature(), "Colour?");
 
-        List<TypeSymbol> userSpecifiedMembers = ((UnionTypeSymbol) type).memberTypeDescriptors();
-        assertEquals(userSpecifiedMembers.size(), 4);
-        assertEquals(userSpecifiedMembers.get(0).typeKind(), SINGLETON);
-        assertEquals(userSpecifiedMembers.get(1).typeKind(), SINGLETON);
-        assertEquals(userSpecifiedMembers.get(2).typeKind(), SINGLETON);
-        assertEquals(userSpecifiedMembers.get(3).typeKind(), NIL);
+        List<TypeSymbol> expandedMembers = ((UnionTypeSymbol) type).memberTypeDescriptors();
+        assertEquals(expandedMembers.size(), 4);
+        assertEquals(expandedMembers.get(0).typeKind(), SINGLETON);
+        assertEquals(expandedMembers.get(1).typeKind(), SINGLETON);
+        assertEquals(expandedMembers.get(2).typeKind(), SINGLETON);
+        assertEquals(expandedMembers.get(3).typeKind(), NIL);
 
         symbol = model.symbol(srcFile, from(230, 13));
         type = ((VariableSymbol) symbol.get()).typeDescriptor();
@@ -791,11 +791,11 @@ public class TypedescriptorTest {
         type = ((TypeReferenceTypeSymbol) type).typeDescriptor();
         assertEquals(type.typeKind(), UNION);
 
-        userSpecifiedMembers = ((UnionTypeSymbol) type).memberTypeDescriptors();
-        assertEquals(userSpecifiedMembers.get(0).typeKind(), INT);
-        assertEquals(userSpecifiedMembers.get(1).typeKind(), STRING);
-        assertEquals(userSpecifiedMembers.get(2).typeKind(), FLOAT);
-        assertEquals(userSpecifiedMembers.get(3).typeKind(), BOOLEAN);
+        expandedMembers = ((UnionTypeSymbol) type).memberTypeDescriptors();
+        assertEquals(expandedMembers.get(0).typeKind(), INT);
+        assertEquals(expandedMembers.get(1).typeKind(), STRING);
+        assertEquals(expandedMembers.get(2).typeKind(), FLOAT);
+        assertEquals(expandedMembers.get(3).typeKind(), BOOLEAN);
     }
 
     private Symbol getSymbol(int line, int column) {

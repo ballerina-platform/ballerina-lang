@@ -501,6 +501,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVariableDef varDefNode) {
         BLangVariable var = varDefNode.var;
         if (var.expr == null) {
+            if (var.typeNode != null) {
+                analyzeNode(var.typeNode, env);
+            }
             return;
         }
 
@@ -1566,6 +1569,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangFunctionTypeNode functionTypeNode) {
         for (BLangVariable param : functionTypeNode.params) {
             analyzeNode(param.typeNode, env);
+        }
+        if (functionTypeNode.restParam != null) {
+            analyzeNode(functionTypeNode.restParam.typeNode, env);
         }
         analyzeNode(functionTypeNode.returnTypeNode, env);
     }

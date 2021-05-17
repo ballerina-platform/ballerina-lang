@@ -1102,4 +1102,9 @@ public class EqualAndNotEqualOperationsTest {
                 {"testSelfAndCyclicReferencingTupleEqualityNegative"}
         };
     }
+
+    @Test(description = "Test equality with tables")
+    public void testTableEquality() {
+        BRunUtil.invoke(result, "testTableEquality");
+    }
 }
