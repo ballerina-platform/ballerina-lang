@@ -3709,7 +3709,7 @@ public class TypeChecker extends BLangNodeVisitor {
     // eventual type if not directly referring a worker is T|error. future<T> --> T|error
     private void setEventualTypeForExpression(BLangExpression expression,
                                               BType currentExpectedType) {
-        if ((expression.getKind() != NodeKind.SIMPLE_VARIABLE_REF) || (expression == null)) {
+        if ((expression == null) || (expression.getKind() != NodeKind.SIMPLE_VARIABLE_REF)) {
             return;
         }
 
