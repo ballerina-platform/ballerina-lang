@@ -20,26 +20,28 @@ function waitOnSameFutureByMultiple() returns int {
     waitOnSameFutureWorkers(w1);
     sleep(1000);
     return updateMultiple;
-
 }
 
 function waitOnSameFutureWorkers(future<int> aa) {
 
     @strand{thread:"any"}
     worker w1 {
-        int result = wait aa;
+        int|error result = wait aa;
         lock {
-        updateMultiple = updateMultiple + result;
+            if (result is int) {
+                updateMultiple = updateMultiple + result;
+            }
         }
     }
     @strand{thread:"any"}
     worker w2 {
-        int result = wait aa;
+        int|error result = wait aa;
         lock {
-        updateMultiple = updateMultiple + result;
+            if (result is int) {
+                updateMultiple = updateMultiple + result;
+            }
         }
     }
-
 }
 
 public function workerSendToWorker() returns int {
@@ -483,7 +485,7 @@ public function testComplexType() returns Rec {
 }
 
 // First cancel the future and then wait
-public function workerWithFutureTest1() returns int {
+public function workerWithFutureTest1() returns int|error {
     future<int> f1 = @strand{thread:"any"} start add2(5, 5);
     @strand{thread:"any"}
     worker w1 {
@@ -492,10 +494,10 @@ public function workerWithFutureTest1() returns int {
     }
 
     @strand{thread:"any"}
-    worker w2 returns int {
+    worker w2 returns int|error {
       // Delay the execution of worker w2
       sleep(1000);
-      int i = wait f1;
+      int|error i = wait f1;
       return i;
     }
 
@@ -503,7 +505,7 @@ public function workerWithFutureTest1() returns int {
 }
 
 // First wait on the future and then cancel
-public function workerWithFutureTest2() returns int {
+public function workerWithFutureTest2() returns int|error {
     future<int> f1 = @strand{thread:"any"} start add(6, 6);
     @strand{thread:"any"}
     worker w1 {
@@ -514,8 +516,8 @@ public function workerWithFutureTest2() returns int {
     }
 
     @strand{thread:"any"}
-    worker w2 returns int {
-      int i = wait f1;
+    worker w2 returns int|error {
+      int|error i = wait f1;
       return i;
     }
     return wait w2;
@@ -534,7 +536,7 @@ public function workerWithFutureTest3() returns int {
     worker w2 returns int {
       // Delay the execution of worker w1
       sleep(1000);
-      int i = wait f1;
+      int i = checkpanic wait f1;
       return i;
     }
     return wait w2;

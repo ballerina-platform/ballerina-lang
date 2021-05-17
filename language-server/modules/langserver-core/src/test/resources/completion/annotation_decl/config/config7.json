@@ -30,6 +30,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "object function",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -54,11 +62,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "parameter",
+      "label": "return",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
-      "insertText": "parameter",
+      "insertText": "return",
       "insertTextFormat": "Snippet"
     },
     {
@@ -67,6 +75,22 @@
       "detail": "Keyword",
       "sortText": "P",
       "insertText": "service",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "record ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -83,6 +107,14 @@
       "detail": "Keyword",
       "sortText": "P",
       "insertText": "record field",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "field",
       "insertTextFormat": "Snippet"
     },
     {

@@ -210,7 +210,6 @@ public class TypeGuardTest {
                 "'map<int>'", 480, 30);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean[]', found '" +
                 "(string|boolean)[]'", 484, 23);
-
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -411,7 +410,7 @@ public class TypeGuardTest {
         Assert.assertEquals(returns[0].stringValue(), "status: 500");
     }
 
-    @Test(groups = { "brokenOnJBallerina", "brokenOnNewParser" })
+    @Test
     public void testTypeGuardsWithErrorInmatch() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardsWithErrorInmatch");
         Assert.assertEquals(returns[0].stringValue(), "some error");
@@ -628,13 +627,13 @@ public class TypeGuardTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(groups = { "brokenOnJBallerina", "brokenOnNewParser"})
+    @Test
     public void testTypeGuardForErrorDestructuringAssignmentPositive() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForErrorDestructuringAssignmentPositive");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(groups = { "brokenOnJBallerina", "brokenOnNewParser" })
+    @Test
     public void testTypeGuardForErrorDestructuringAssignmentNegative() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForErrorDestructuringAssignmentNegative");
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());

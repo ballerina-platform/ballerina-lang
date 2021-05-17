@@ -3526,7 +3526,7 @@ public class BallerinaParser extends AbstractParser {
 
         ArrayList<STNode> recordFields = new ArrayList<>();
         STToken token = peek();
-        STNode recordRestDescriptor = null;
+        STNode recordRestDescriptor = STNodeFactory.createEmptyNode();
         while (!isEndOfRecordTypeNode(token.kind)) {
             STNode field = parseFieldOrRestDescriptor();
             if (field == null) {
@@ -3545,19 +3545,21 @@ public class BallerinaParser extends AbstractParser {
                 continue;
             } else if (field.kind == SyntaxKind.RECORD_REST_TYPE) {
                 recordRestDescriptor = field;
+                // If there are more fields after rest type descriptor, parse them and mark as invalid.
+                while (!isEndOfRecordTypeNode(token.kind)) {
+                    STNode invalidField = parseFieldOrRestDescriptor();
+                    if (invalidField == null) {
+                        break;
+                    }
+                    recordRestDescriptor = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(recordRestDescriptor,
+                            invalidField,
+                            DiagnosticErrorCode.ERROR_MORE_RECORD_FIELDS_AFTER_REST_FIELD);
+                    token = peek();
+                }
                 break;
             }
 
             recordFields.add(field);
-        }
-
-        // Following loop will only run if there are more fields after the rest type descriptor.
-        // Try to parse them and mark as invalid.
-        while (recordRestDescriptor != null && !isEndOfRecordTypeNode(token.kind)) {
-            STNode invalidField = parseFieldOrRestDescriptor();
-            recordRestDescriptor = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(recordRestDescriptor, invalidField,
-                    DiagnosticErrorCode.ERROR_MORE_RECORD_FIELDS_AFTER_REST_FIELD);
-            token = peek();
         }
 
         STNode fields = STNodeFactory.createNodeList(recordFields);

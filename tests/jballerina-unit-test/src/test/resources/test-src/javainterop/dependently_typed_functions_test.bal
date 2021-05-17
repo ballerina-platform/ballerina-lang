@@ -134,7 +134,7 @@ function testFuture() {
     var fn = function (string name) returns string => "Hello " + name;
     future<string> f = start fn("Pubudu");
     future<string> fNew = getFuture(f, string);
-    string res = wait fNew;
+    string res = checkpanic wait fNew;
     assertSame(f, fNew);
     assert("Hello Pubudu", res);
 }

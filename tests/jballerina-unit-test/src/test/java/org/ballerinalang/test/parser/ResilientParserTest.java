@@ -134,6 +134,7 @@ public class ResilientParserTest {
         BAssertUtil.validateError(result, 95, "unknown type 'Request'", 103, 52);
     }
 
+    @Test(enabled = false)
     public void testResilientParsingModuleDeclaration() {
         CompileResult result = BCompileUtil.compile("test-src/parser/resilient-parsing-for-module-decl.bal");
         Assert.assertEquals(result.getErrorCount(), 53);

@@ -443,54 +443,7 @@ public class ObjectInBalaTest {
 //                "'[Person, Employee, Foo, Bar]'", 32, 5);
 //    }
 //
-//    @Test (description = "Negative test to test self reference types")
-//    public void testNonMatchingAttachedFunction() {
-//        CompileResult result = BCompileUtil.compile("test-src/object/object_invalid_attached_func_def.bal");
-//        Assert.assertEquals(result.getErrorCount(), 21);
-//        BAssertUtil.validateError(result, 0, "cannot initialize object 'Person', no " +
-//                "implementation for the interface 'Person.test0'", 3, 16);
-//        BAssertUtil.validateError(result, 1, "cannot initialize object 'Person', no " +
-//                "implementation for the interface 'Person.test1'", 3, 16);
-//        BAssertUtil.validateError(result, 2, "cannot initialize object 'Person', no " +
-//                "implementation for the interface 'Person.test2'", 3, 16);
-//        BAssertUtil.validateError(result, 3, "cannot initialize object 'Person', no " +
-//                "implementation for the interface 'Person.test3'", 3, 16);
-//        BAssertUtil.validateError(result, 4, "cannot initialize object 'Person', no " +
-//                "implementation for the interface 'Person.test5'", 3, 16);
-//        BAssertUtil.validateError(result, 5, "cannot initialize object 'Person', no " +
-//                "implementation for the interface 'Person.test6'", 3, 16);
-//        BAssertUtil.validateError(result, 6, "cannot initialize object 'Person', no " +
-//                "implementation for the interface 'Person.test7'", 3, 16);
-//        BAssertUtil.validateError(result, 7, "cannot initialize object 'Person', no " +
-//                "implementation for the interface 'Person.test9'", 3, 16);
-//        BAssertUtil.validateError(result, 8, "cannot initialize object 'Person', no " +
-//                "implementation for the interface 'Person.test12'", 3, 16);
-//        BAssertUtil.validateError(result, 9, "cannot initialize object 'Person', no " +
-//                "implementation for the interface 'Person.test13'", 3, 16);
-//        BAssertUtil.validateError(result, 10, "cannot find matching interface " +
-//                "function 'test0' in the object 'Person'", 42, 1);
-//        BAssertUtil.validateError(result, 11, "cannot find matching interface " +
-//                "function 'test1' in the object 'Person'", 46, 1);
-//        BAssertUtil.validateError(result, 12, "cannot find matching interface " +
-//                "function 'test2' in the object 'Person'", 50, 1);
-//        BAssertUtil.validateError(result, 13, "cannot find matching interface " +
-//                "function 'test3' in the object 'Person'", 54, 1);
-//        BAssertUtil.validateError(result, 14, "incompatible types: expected " +
-//                "'string', found 'int'", 54, 44);
-//        BAssertUtil.validateError(result, 15, "cannot find matching interface " +
-//                "function 'test5' in the object 'Person'", 62, 1);
-//        BAssertUtil.validateError(result, 16, "cannot find matching interface " +
-//                "function 'test6' in the object 'Person'", 66, 1);
-//        BAssertUtil.validateError(result, 17, "cannot find matching interface " +
-//                "function 'test7' in the object 'Person'", 70, 1);
-//        BAssertUtil.validateError(result, 18, "cannot find matching interface " +
-//                "function 'test9' in the object 'Person'", 78, 1);
-//        BAssertUtil.validateError(result, 19, "cannot find matching interface " +
-//                "function 'test12' in the object 'Person'", 90, 1);
-//        BAssertUtil.validateError(result, 20, "cannot find matching interface " +
-//                "function 'test13' in the object 'Person'", 94, 1);
-//    }
-//
+
     @Test (description = "Negative test to test initializing objects with only interface functions")
     public void testInitializingInterfaceObject() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_initialize_interface_object.bal");
@@ -512,22 +465,6 @@ public class ObjectInBalaTest {
         Assert.assertEquals(result.getErrorCount(), 1);
         BAssertUtil.validateError(result, 0, "undefined symbol 'abc'", 6, 9);
     }
-
-//    @Test (description = "Negative test to test nillable initialization")
-//    public void testNillableInitialization() {
-//        CompileResult result = BCompileUtil.compile("test-src/object/object_nillable_init.bal");
-//        Assert.assertEquals(result.getErrorCount(), 10);
-//        BAssertUtil.validateError(result, 0, "cannot infer type of the object from 'Person?'", 1, 14);
-//        BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'Person?'", 2, 14);
-//        BAssertUtil.validateError(result, 2, "cannot infer type of the object from 'Person?'", 5, 18);
-//        BAssertUtil.validateError(result, 3, "cannot infer type of the object from 'Person?'", 6, 18);
-//        BAssertUtil.validateError(result, 4, "cannot infer type of the object from 'Person?'", 8, 10);
-//        BAssertUtil.validateError(result, 5, "cannot infer type of the object from 'Person?'", 10, 10);
-//        BAssertUtil.validateError(result, 6, "cannot infer type of the object from 'Person?'", 22, 22);
-//        BAssertUtil.validateError(result, 7, "cannot infer type of the object from 'Person?'", 23, 22);
-//        BAssertUtil.validateError(result, 8, "cannot infer type of the object from 'Person?'", 28, 14);
-//        BAssertUtil.validateError(result, 9, "cannot infer type of the object from 'Person?'", 29, 14);
-//    }
 
     @Test
     public void testObjectReferingTypeFromBala_1() {
