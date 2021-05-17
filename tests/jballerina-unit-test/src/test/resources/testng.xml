@@ -37,7 +37,33 @@
             <package name="org.ballerinalang.test.enums.*"/>
             <package name="org.ballerinalang.test.error.*"/>
             <package name="org.ballerinalang.test.execution.*" />
-            <package name="org.ballerinalang.test.expressions.*" />
+
+            <package name="org.ballerinalang.test.expressions.access.*" />
+            <package name="org.ballerinalang.test.expressions.async.*" />
+            <package name="org.ballerinalang.test.expressions.binaryoperations.*" />
+            <package name="org.ballerinalang.test.expressions.builtinoperations.*" />
+            <package name="org.ballerinalang.test.expressions.checkedexpr.*" />
+            <package name="org.ballerinalang.test.expressions.checkpanicexpr.*" />
+            <package name="org.ballerinalang.test.expressions.conversion.*" />
+            <package name="org.ballerinalang.test.expressions.elvis.*" />
+            <package name="org.ballerinalang.test.expressions.errorconstructorexpr.*" />
+            <package name="org.ballerinalang.test.expressions.group.*" />
+            <package name="org.ballerinalang.test.expressions.invocations.*" />
+            <package name="org.ballerinalang.test.expressions.lambda.*" />
+            <package name="org.ballerinalang.test.expressions.let.*" />
+            <package name="org.ballerinalang.test.expressions.listconstructor.*" />
+            <package name="org.ballerinalang.test.expressions.literals.*" />
+            <package name="org.ballerinalang.test.expressions.mappingconstructor.*" />
+            <package name="org.ballerinalang.test.expressions.object.*" />
+            <package name="org.ballerinalang.test.expressions.rawtemplate.*" />
+            <package name="org.ballerinalang.test.expressions.stamp.*" />
+            <package name="org.ballerinalang.test.expressions.ternary.*" />
+            <package name="org.ballerinalang.test.expressions.trap.*" />
+            <package name="org.ballerinalang.test.expressions.typecast.*" />
+            <package name="org.ballerinalang.test.expressions.typeof.*" />
+            <package name="org.ballerinalang.test.expressions.unaryoperations.*" />
+            <package name="org.ballerinalang.test.expressions.varref.*" />
+
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.identifiers.*"/>
             <package name="org.ballerinalang.test.imports.*"/>
@@ -127,6 +153,8 @@
         </packages>
 
         <classes>
+            <class name="org.ballerinalang.test.expressions.TemplateExpressionTest"/>
+
             <class name="org.ballerinalang.test.parser.ResilientParserTest"/>
 
             <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
