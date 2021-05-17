@@ -26,12 +26,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.Collections;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.ws.rs.core.HttpHeaders;
 
 import static org.ballerinalang.cli.module.util.CliModuleConstants.SETTINGS_TOML_FILE;
@@ -104,8 +104,8 @@ public class TokenUpdater {
                 String response = "<svg xmlns=\"http://www.w3.org/2000/svg\"/>";
                 httpExchange.getResponseHeaders()
                         .put(HttpHeaders.CONTENT_TYPE, Collections.singletonList("image/svg+xml"));
-                httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK,
-                        response.getBytes(StandardCharsets.UTF_8).length);
+                httpExchange.sendResponseHeaders(HttpsURLConnection.HTTP_OK,
+                                                 response.getBytes(StandardCharsets.UTF_8).length);
                 os = httpExchange.getResponseBody();
                 os.write(response.getBytes(StandardCharsets.UTF_8));
             } catch (IOException e) {

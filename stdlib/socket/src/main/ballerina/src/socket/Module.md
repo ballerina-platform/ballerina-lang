@@ -54,5 +54,5 @@ service echoServer on server {
 ```
 
 For information on the operations, which you can perform with this module, see the below **Functions**. For examples on the usage of the operations, see the following.
- * [Basic TCP Socket Example](https://ballerina.io/learn/by-example/tcp-socket-listener-client.html)
- * [Basic UDP Client Socket Example](https://ballerina.io/learn/by-example/udp-socket-client.html)
+ * [Basic TCP Socket Example](https://ballerina.io/1.2/learn/by-example/tcp-socket-listener-client.html)
+ * [Basic UDP Client Socket Example](https://ballerina.io/1.2/learn/by-example/udp-socket-client.html)

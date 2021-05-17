@@ -172,6 +172,10 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--home-cache", description = "Custom home cache")
     private String homeCache;
 
+    @CommandLine.Option(names = "--includes", hidden = true,
+            description = "hidden option for code coverage to include all classes")
+    private String includes;
+
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
@@ -191,6 +195,11 @@ public class BuildCommand implements BLauncherCmd {
         // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
         if (!this.skipTests && this.debugPort != null) {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
+        }
+
+        // Skip --include-all flag if it is set without code coverage
+        if (!coverage && includes != null) {
+            this.outStream.println("warning: ignoring --includes flag since code coverage is not enabled");
         }
 
         String[] userArgs = LaunchUtils.getUserArgs(args, new HashMap<>());
@@ -414,8 +423,8 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateJarTask(this.dumpBIR, skipCopyLibsFromDist))
                 .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist, skipTests))
-                .addTask(new RunTestsTask(testReport, coverage, args), this.skipTests || isSingleFileBuild) // run tests
-                                                                                                // (projects only)
+                .addTask(new RunTestsTask(testReport, coverage, args, includes), this.skipTests || isSingleFileBuild)
+                // run tests (projects only)
                 .addTask(new CreateExecutableTask(), this.compile)  // create the executable.jar
                                                                                         // file
                 .addTask(new CopyExecutableTask(outputPath), !isSingleFileBuild)    // copy executable

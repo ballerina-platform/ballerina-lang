@@ -22,11 +22,12 @@ import org.ballerinalang.cli.module.util.Utils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.net.HttpURLConnection;
 import java.net.Proxy;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import static org.ballerinalang.cli.module.util.Utils.convertToUrl;
-import static org.ballerinalang.cli.module.util.Utils.createHttpUrlConnection;
+import static org.ballerinalang.cli.module.util.Utils.createHttpsUrlConnection;
 
 /**
  * Unit tests for Utils class.
@@ -50,20 +51,20 @@ public class UtilsTest {
 
     }
 
-    @Test(description = "Test create http URL connection without proxy")
+    @Test(description = "Test create https URL connection without proxy")
     public void testCreateHttpUrlConnection() {
-        HttpURLConnection conn;
+        HttpsURLConnection conn;
         // Test without proxy
-        conn = createHttpUrlConnection(convertToUrl(TEST_URL), "", 0, "", "");
+        conn = createHttpsUrlConnection(convertToUrl(TEST_URL), "", 0, "", "");
         Assert.assertNotNull(conn);
         // Test with the proxy
-        conn = createHttpUrlConnection(convertToUrl(TEST_URL), "http://localhost", 9090, "testUser", "testPassword");
+        conn = createHttpsUrlConnection(convertToUrl(TEST_URL), "http://localhost", 9090, "testUser", "testPassword");
         Assert.assertNotNull(conn);
     }
 
     @Test(description = "Test set request")
     public void testSetRequestMethod() {
-        HttpURLConnection conn = createHttpUrlConnection(convertToUrl(TEST_URL), "", 0, "", "");
+        HttpsURLConnection conn = createHttpsUrlConnection(convertToUrl(TEST_URL), "", 0, "", "");
         Utils.setRequestMethod(conn, Utils.RequestMethod.POST);
         Assert.assertEquals(conn.getRequestMethod(), "POST");
     }

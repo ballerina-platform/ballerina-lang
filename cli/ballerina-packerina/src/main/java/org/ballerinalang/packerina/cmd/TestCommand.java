@@ -152,6 +152,10 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--tests", split = ",", description = "Test functions to be executed")
     private List<String> testList;
 
+    @CommandLine.Option(names = "--includes", hidden = true,
+            description = "hidden option for code coverage to include all classes")
+    private String includes;
+    
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TEST_COMMAND);
@@ -228,6 +232,11 @@ public class TestCommand implements BLauncherCmd {
                     true);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
+        }
+
+        // Skip --include-all flag if it is set without code coverage
+        if (!coverage && includes != null) {
+            this.outStream.println("warning: ignoring --includes flag since code coverage is not enabled");
         }
 
         // when -a or --all flag is provided. check if the command is executed within a ballerina project. update source
@@ -397,7 +406,7 @@ public class TestCommand implements BLauncherCmd {
                 // skip the task or to execute
                 .addTask(new ListTestGroupsTask(), !listGroups) // list the available test groups
                 // run tests
-                .addTask(new RunTestsTask(testReport, coverage, args, groupList, disableGroupList, testList),
+                .addTask(new RunTestsTask(testReport, coverage, args, groupList, disableGroupList, testList, includes),
                         listGroups)
                 .build();
 
