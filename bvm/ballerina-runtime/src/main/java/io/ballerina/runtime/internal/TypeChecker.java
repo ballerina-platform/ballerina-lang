@@ -2377,17 +2377,30 @@ public class TypeChecker {
                         return true;
                     }
 
-                    if (targetTypeElementType.getTag() != TypeTags.UNION_TAG) {
-                        return false;
+                    if (targetTypeElementType.getTag() == TypeTags.UNION_TAG) {
+                        List<Type> targetNumericTypes = new ArrayList<>();
+                        for (Type memType : ((BUnionType) targetTypeElementType).getMemberTypes()) {
+
+                            if (memType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+                                if (checkIsFiniteTypeAssignableFromArrayType(source, sourceElementType,
+                                        memType)) {
+                                    return true;
+                                }
+                            }
+
+                            if (isNumericType(memType) && !targetNumericTypes.contains(memType)) {
+                                targetNumericTypes.add(memType);
+                            }
+                        }
+                        return targetNumericTypes.size() == 1;
                     }
 
-                    List<Type> targetNumericTypes = new ArrayList<>();
-                    for (Type memType : ((BUnionType) targetTypeElementType).getMemberTypes()) {
-                        if (isNumericType(memType) && !targetNumericTypes.contains(memType)) {
-                            targetNumericTypes.add(memType);
-                        }
+                    if (targetTypeElementType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+                        return checkIsFiniteTypeAssignableFromArrayType(source, sourceElementType,
+                                targetTypeElementType);
                     }
-                    return targetNumericTypes.size() == 1;
+
+                    return false;
                 }
 
                 if (isNumericType(targetTypeElementType) && targetTypeElementType.getTag() != TypeTags.BYTE_TAG) {
@@ -2545,6 +2558,18 @@ public class TypeChecker {
         }
         return true;
     }
+
+    private static boolean checkIsFiniteTypeAssignableFromArrayType(ArrayValue source, Type sourceElementType,
+                                                                    Type targetTypeElementType) {
+        for (int i = 0; i < source.size(); i++) {
+            if (!checkFiniteTypeAssignable(source.get(i), sourceElementType,
+                    (BFiniteType) targetTypeElementType)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     private static boolean checkFiniteTypeAssignable(Object sourceValue, Type sourceType, BFiniteType targetType) {
         for (Object valueSpaceItem : targetType.valueSpace) {
