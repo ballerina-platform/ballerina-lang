@@ -8,7 +8,7 @@
     {
       "label": "fs2",
       "kind": "Variable",
-      "detail": "future<string>",
+      "detail": "future<string|error>",
       "sortText": "B",
       "insertText": "fs2",
       "insertTextFormat": "Snippet"
@@ -16,7 +16,7 @@
     {
       "label": "fs",
       "kind": "Variable",
-      "detail": "future<string>",
+      "detail": "future<string|error>",
       "sortText": "B",
       "insertText": "fs",
       "insertTextFormat": "Snippet"
