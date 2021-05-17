@@ -35,4 +35,7 @@ public class TraceConstants {
 
     public static final String TAG_SPAN_KIND_SERVER = "server";
     public static final String TAG_SPAN_KIND_CLIENT = "client";
+
+    public static final String TRACE_ID = "traceId";
+    public static final String SPAN_ID = "spanId";
 }
