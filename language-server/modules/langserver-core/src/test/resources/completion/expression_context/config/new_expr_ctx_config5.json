@@ -138,29 +138,6 @@
       ]
     },
     {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
@@ -424,14 +401,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "commit",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "insertText": "commit;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -464,11 +433,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "obj1",
-      "kind": "Variable",
-      "detail": "module1:TestClass1",
-      "sortText": "C",
-      "insertText": "obj1",
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "L",
+      "insertText": "TestObject1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -477,14 +446,6 @@
       "detail": "Union",
       "sortText": "N",
       "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestObject1",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "L",
-      "insertText": "TestObject1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -506,7 +467,16 @@
         }
       },
       "sortText": "D",
+      "filterText": "testNewFunction",
       "insertText": "testNewFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "obj1",
+      "kind": "Variable",
+      "detail": "module1:TestClass1",
+      "sortText": "C",
+      "insertText": "obj1",
       "insertTextFormat": "Snippet"
     },
     {

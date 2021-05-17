@@ -247,7 +247,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             updateCompilerPluginToml(params.getTextDocument().getText(), projectPair, true);
         } else if (ProjectPaths.isBalFile(filePath)) {
             // Create or update .bal document
-            updateDocument(filePath, params.getTextDocument().getText(), projectPair, true);
+            updateBalDocument(filePath, params.getTextDocument().getText(), projectPair, true);
         }
     }
 
@@ -278,9 +278,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             updateCompilerPluginToml(params.getContentChanges().get(0).getText(), projectPair, false);
         } else if (ProjectPaths.isBalFile(filePath)) {
             // Update .bal document
-            updateDocument(filePath, params.getContentChanges().get(0).getText(), projectPair, false);
-        } else {
-            throw new WorkspaceDocumentException("Unsupported file update");
+            updateBalDocument(filePath, params.getContentChanges().get(0).getText(), projectPair, false);
         }
     }
 
@@ -757,7 +755,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
-    private void updateDocument(Path filePath, String content, ProjectPair projectPair, boolean createIfNotExists)
+    private void updateBalDocument(Path filePath, String content, ProjectPair projectPair, boolean createIfNotExists)
             throws WorkspaceDocumentException {
         // Lock Project Instance
         Lock lock = projectPair.lockAndGet();

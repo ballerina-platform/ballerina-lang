@@ -374,7 +374,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 funcNode.mapSymbol, ASTBuilderUtil.createLiteral(funcNode.pos, symTable.stringType,
                         paramSymbol.name.value));
         accessExpr.type = ((BMapType) funcNode.mapSymbol.type).constraint;
-        accessExpr.lhsVar = true;
+        accessExpr.isLValue = true;
         BLangAssignment stmt = desugar.rewrite(ASTBuilderUtil.createAssignmentStmt(funcNode.pos, accessExpr,
                 localVarRef), symbolEnv);
         ((BLangBlockFunctionBody) funcNode.body).stmts.add(position, stmt);
@@ -448,7 +448,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                                                                   .createLiteral(varDefNode.pos, symTable.stringType,
                                                                                  varDefNode.var.name.value));
         accessExpr.type = ((BMapType) mapSymbol.type).constraint;
-        accessExpr.lhsVar = true;
+        accessExpr.isLValue = true;
         // Written to: 'map["x"] = 8'.
         return ASTBuilderUtil.createAssignmentStmt(varDefNode.pos, accessExpr, varDefNode.var.expr);
     }
@@ -817,7 +817,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         rewriteExprs(errorConstructorExpr.positionalArgs);
-        rewriteExprs(errorConstructorExpr.namedArgs);
+        rewriteExpr(errorConstructorExpr.errorDetail);
         result = errorConstructorExpr;
     }
 

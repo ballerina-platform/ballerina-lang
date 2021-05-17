@@ -1,0 +1,20 @@
+{
+  "executorPositions": [
+    {
+      "kind": "test",
+      "name": "testAssertNilEquals",
+      "range": {
+        "filePath": "test.bal",
+        "startLine": {
+          "line": 2,
+          "offset": 0
+        },
+        "endLine": {
+          "line": 6,
+          "offset": 1
+        }
+      },
+      "filePath": ""
+    }
+  ]
+}

@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
  *
  * @since 2.0.0
  */
-@Test(groups = { "disableOnOldParser" })
 public class MatchStmtConstPatternTest {
 
     private CompileResult result, resultNegative, resultNegativeSemantics;
@@ -131,6 +130,11 @@ public class MatchStmtConstPatternTest {
     @Test
     public void testConstPattern18() {
         BRunUtil.invoke(result, "testConstPattern18");
+    }
+
+    @Test
+    public void testConstPatternWithNegativeLiteral() {
+        BRunUtil.invoke(result, "testConstPatternWithNegativeLiteral");
     }
 
     @Test(description = "Test pattern will not be matched")

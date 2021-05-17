@@ -90,8 +90,8 @@ public class SymbolFlagToQualifierMappingTest {
                 {57, 22, Set.of(REMOTE, ISOLATED)},
                 {65, 17, Set.of(LISTENER, FINAL)},
                 {66, 24, Set.of(RESOURCE, ISOLATED)},
-                {77, 19, Set.of(CONFIGURABLE)},
-                {78, 20, Set.of(CONFIGURABLE)}
+                {77, 19, Set.of(CONFIGURABLE, FINAL)},
+                {78, 20, Set.of(CONFIGURABLE, FINAL)}
         };
     }
 

@@ -11,19 +11,25 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "isMissing": true,
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_IDENTIFIER"
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_IDENTIFIER"
+                          ]
+                        }
                       ]
                     }
                   ]

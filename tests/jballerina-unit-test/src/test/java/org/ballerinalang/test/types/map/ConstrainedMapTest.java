@@ -51,8 +51,7 @@ public class ConstrainedMapTest {
         negativeResult = BCompileUtil.compile("test-src/types/map/constrained-map-negative.bal");
     }
 
-    @Test(description = "Test Map constrained with type negative semantic validations.",
-            groups = { "brokenOnNewParser" })
+    @Test(description = "Test Map constrained with type negative semantic validations.")
     public void testConstrainedMapNegative() {
         Assert.assertEquals(negativeResult.getErrorCount(), 7);
         int i = 0;

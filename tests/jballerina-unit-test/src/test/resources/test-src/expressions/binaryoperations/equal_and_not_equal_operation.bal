@@ -101,6 +101,14 @@ function checkEqualityToNilNegative(any a) returns boolean {
     return (a == ()) || !(a != ());
 }
 
+function checkAnyDataEqualityPositive(anydata a, anydata b) returns boolean {
+    return (a == b) && !(a != b);
+}
+
+function checkAnyDataEqualityNegative(anydata a, anydata b) returns boolean {
+    return (a == b) || !(a != b);
+}
+
 type ErrorDetail record {
     string message?;
     error cause?;
@@ -1237,6 +1245,79 @@ function testEmptyMapAndRecordEquality() returns boolean {
     map<string> m = {};
     record {| string s?; int...; |} r = {};
     return m == r;
+}
+
+type Student record {
+    readonly string name;
+    int id;
+};
+
+type Teacher record {
+    string name;
+    int id;
+};
+
+type StudentTable table<Student> key(name);
+type TeacherTable table<Teacher>;
+
+function testTableEquality() {
+    table<Student> key(name) tbl1 = table [
+        {name: "Amy", id: 1234},
+        {name: "John", id: 4567}
+    ];
+    table<Student> key(name) tbl2 = table [
+        {name: "Amy", id: 1234},
+        {name: "John", id: 4567}
+    ];
+    var tbl3 = table key(name) [
+        {name: "Amy", id: 1234},
+        {name: "John", id: 4567}
+    ];
+    var tbl4 = tbl2;
+    anydata tbl5 = table key(name) [
+        {name: "Amy", id: 1234},
+        {name: "John", id: 4567}
+    ];
+    var ids = checkpanic table key(id) from var {id} in tbl1 select {id};
+    table<record {| int id; |}> key(id) tbl6 = ids;
+    StudentTable tbl7 = table key(name) [
+        {name: "Amy", id: 1234},
+        {name: "John", id: 4567}
+    ];
+    StudentTable|int tbl8 = tbl7;
+    map<anydata> a1 = {"a": table key(id) [{"id": 1234}, {"id": 4567}], "b": 12};
+    record {| int id; anydata tbl9; |} a2 = {id: 1, tbl9: table key(id) [{"id": 1234}, {"id": 4567}]};
+    anydata[] a3 = [12, "A", table key(id) [{"id": 1234}, {"id": 4567}]];
+    [StudentTable, int, string] a4 = [table key(name) [{name: "Amy", id: 1234}, {name: "John", id: 4567}], 12, "A"];
+    TeacherTable tbl10 = table [{name: "Amy", id: 1234}, {name: "John", id: 4567}];
+    var tbl11 = table [{name: "Amy", id: 1234}, {name: "John", id: 4567}];
+    table<record {| string name; int id; |}> tbl12 = table [{name: "Amy", id: 1234}, {name: "John", id: 4567}];
+    var tbl13 = table [{name: "Amber", id: 1234}, {name: "John", id: 4567}];
+    TeacherTable tbl14 = table [{name: "John", id: 4567}, {name: "Amber", id: 1234}];
+
+    assert(tbl1 == tbl2, true);
+    assert(tbl1 == tbl3, true);
+    assert(tbl3 == tbl4, true);
+    assert(tbl2 == tbl5, true);
+    assert(tbl3 == tbl5, true);
+    assert(table key(id) [{"id": 1234}, {"id": 4567}] == tbl6, true);
+    assert(tbl1 == tbl7, true);
+    assert(tbl3 == tbl7, true);
+    assert(tbl5 == tbl7, true);
+    assert(tbl1 == tbl8, true);
+    assert(a1["a"] == tbl6, true);
+    assert(a1["a"] == a2.tbl9, true);
+    assert(a2.tbl9 == a3[2], true);
+    assert(tbl1 == a4[0], true);
+    assert(tbl10 == tbl11, true);
+    assert(tbl10 == tbl12, true);
+    assert(tbl3 != tbl11, true);
+    assert(tbl5 != tbl6, true);
+    assert(tbl2 != tbl10, true);
+    assert(a1["a"] != tbl12, true);
+    assert(tbl11 != tbl13, true);
+    assert(tbl10 != tbl14, true);
+    assert(table key(id) [{"id": 4567}, {"id": 1234}] != tbl6, true);
 }
 
 function isEqual(anydata a, anydata b) returns boolean {

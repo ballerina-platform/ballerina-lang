@@ -158,14 +158,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "insertText": "ballerina/lang.query;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/lang.int",
       "kind": "Module",
       "detail": "Module",
@@ -190,14 +182,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lsproject.module3",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "A",
-      "insertText": "lsproject.module3",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "lsproject.module2",
       "kind": "Module",
       "detail": "Module",
@@ -211,6 +195,14 @@
       "detail": "Module",
       "sortText": "A",
       "insertText": "lsproject.hierarchy.module4",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lsproject.module3",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "A",
+      "insertText": "lsproject.module3",
       "insertTextFormat": "Snippet"
     }
   ]

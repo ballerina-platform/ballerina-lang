@@ -18,7 +18,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "test",
+      "insertText": "test1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -32,7 +32,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.test as test1 ;\n"
         }
       ]
     },
@@ -102,29 +102,6 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
         }
       ]
     },
@@ -392,14 +369,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "commit",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "commit;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -432,6 +401,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testFunction()(int)",
       "kind": "Function",
       "detail": "Function",
@@ -442,15 +419,8 @@
         }
       },
       "sortText": "C",
+      "filterText": "testFunction",
       "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -462,14 +432,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestObject",
-      "kind": "Interface",
-      "detail": "Object",
-      "sortText": "K",
-      "insertText": "TestObject",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -478,6 +440,14 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "K",
+      "insertText": "TestObject",
       "insertTextFormat": "Snippet"
     },
     {

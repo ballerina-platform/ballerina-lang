@@ -46,7 +46,6 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,8 +56,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -81,14 +78,12 @@ public class CodeCoverageUtils {
      * @param destination path to extract the classes
      * @param orgName     org name of the project being executed
      * @param moduleName  name of the module being executed
-     * @param version     version of the module being executed
      * @throws NoSuchFileException if source file doesnt exist
      */
-    public static void unzipCompiledSource(Path source, Path destination, String orgName, String moduleName,
-                                           String version, boolean enableIncludesFilter,
+    public static void unzipCompiledSource(Path source, Path destination, String orgName,
+                                           String moduleName, boolean enableIncludesFilter,
                                            String includesInCoverage) throws NoSuchFileException {
-        String destJarDir = destination.resolve(source.getFileName()).toString();
-
+        String destJarDir = destination.toString();
         try (JarFile jarFile = new JarFile(source.toFile())) {
             Enumeration<JarEntry> enu = jarFile.entries();
             while (enu.hasMoreElements()) {
@@ -102,14 +97,12 @@ public class CodeCoverageUtils {
                     if (entry.isDirectory()) {
                         continue;
                     }
-                    InputStream is = jarFile.getInputStream(entry);
-                    Files.copy(is, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    try (InputStream is = jarFile.getInputStream(entry)) {
+                        Files.copy(is, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    }
                 }
 
             }
-
-            copyClassFilesToBinPath(destination, destJarDir, moduleName, version);
-            deleteDirectory(new File(destJarDir));
         } catch (NoSuchFileException e) {
             String msg = "Unable to generate code coverage for the module " + moduleName + ". Source file does not " +
                     "exist";
@@ -117,81 +110,6 @@ public class CodeCoverageUtils {
             throw new NoSuchFileException(msg);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Copy class files to bin path for analysis.
-     *
-     * @param destination Path
-     * @param destJarDir String
-     * @param moduleName String
-     * @param version String
-     * @throws IOException
-     */
-    public static void copyClassFilesToBinPath(Path destination, String destJarDir, String moduleName,
-                                                String version) throws IOException {
-        Path binClassDirPath;
-        Path extractedJarPath = Paths.get(destJarDir);
-
-        // First we resolve the destination to where the .class files will go
-        if (TesterinaConstants.DOT.equals(moduleName)) {
-            binClassDirPath = destination.resolve(TesterinaConstants.BIN_DIR);
-        } else {
-            binClassDirPath = destination.resolve(TesterinaConstants.BIN_DIR).resolve(moduleName).resolve(version);
-        }
-
-        // binClassDirPath : /target/coverage/bin/<moduleName>/version
-        if (!binClassDirPath.toFile().exists()) {
-            Files.createDirectories(binClassDirPath);
-        }
-
-        //Next we walk through extractedJarPath and copy only the class files
-        List<Path> pathList;
-        try (Stream<Path> walk = Files.walk(extractedJarPath)) {
-            pathList = walk.map(path -> path).filter(f -> f.toString().endsWith(".class")).collect(Collectors.toList());
-        } catch (IOException e) {
-            return;
-        }
-
-        // If the path list is empty there are no .class files extracted
-        if (!pathList.isEmpty()) {
-            // For every .class found we move it to /target/coverage/bin/<moduleName>/<version>/<class_module>/
-            for (Path classPath : pathList) {
-                if (classPath != null) {
-                    String resolvedClassDir = resolveClassDir(classPath, version);
-                    // Create a directory with the module name if it doesnt exist
-                    // This is to prevent class files with same names from different modules getting overwritten
-                    if (!binClassDirPath.endsWith(resolvedClassDir)) {
-                        binClassDirPath = binClassDirPath.resolve(resolvedClassDir);
-                        if (!binClassDirPath.toFile().exists()) {
-                            Files.createDirectories(binClassDirPath);
-                        }
-                    }
-
-                    Path target = binClassDirPath.resolve(classPath.getFileName());
-                    // target/coverage/bin/<moduleName>/<version>/<class_module>
-                    Files.move(classPath, target, StandardCopyOption.REPLACE_EXISTING);
-                }
-            }
-        }
-    }
-
-    private static String resolveClassDir(Path classPath, String version) {
-        // Typical class path is .jar/<moduleName>/<version>/class for .bal files
-        // This function extracts the <moduleName> to create a unique directory for .bal files
-        // For .java files, the parent directory of the class file is returned
-        version = version.replace(".", "_");
-        Path resolvedPath = classPath;
-        if (!resolvedPath.toString().contains(version)) {
-            return resolvedPath.getParent().getFileName().toString();
-        } else {
-            String pathVersion;
-            do {
-                resolvedPath = resolvedPath.getParent();
-                pathVersion = resolvedPath.getFileName().toString();
-            } while (!pathVersion.equals(version));
-            return resolvedPath.getParent().getFileName().toString();
         }
     }
 

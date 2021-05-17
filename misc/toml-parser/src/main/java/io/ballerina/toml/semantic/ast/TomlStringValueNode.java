@@ -20,6 +20,9 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.toml.syntax.tree.LiteralStringLiteralNode;
+import io.ballerina.toml.syntax.tree.StringLiteralNode;
+import io.ballerina.toml.syntax.tree.SyntaxKind;
 
 /**
  * Represents A String Value in Toml AST.
@@ -27,12 +30,35 @@ import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
  * @since 2.0.0
  */
 public class TomlStringValueNode extends TomlBasicValueNode<String> {
-    public TomlStringValueNode(String value, TomlNodeLocation location) {
-        super(value, TomlType.STRING, location);
+    public TomlStringValueNode(StringLiteralNode stringLiteralNode, String value, TomlNodeLocation location) {
+        super(stringLiteralNode, value, TomlType.STRING, location);
+    }
+
+    public TomlStringValueNode(LiteralStringLiteralNode literalStringNode, String value, TomlNodeLocation location) {
+        super(literalStringNode, value, TomlType.STRING, location);
     }
 
     @Override
     public void accept(TomlNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public boolean isMissingNode() {
+        if (this.externalTreeNode().kind() == SyntaxKind.STRING_LITERAL) {
+            StringLiteralNode stringLiteralNode = (StringLiteralNode) this.externalTreeNode();
+            if (stringLiteralNode.isMissing()) {
+                return true;
+            }
+            return stringLiteralNode.startDoubleQuote().isMissing() || stringLiteralNode.endDoubleQuote().isMissing();
+        }
+        if (this.externalTreeNode().kind() == SyntaxKind.LITERAL_STRING) {
+            LiteralStringLiteralNode literalStringNode = (LiteralStringLiteralNode) this.externalTreeNode();
+            if (literalStringNode.isMissing()) {
+                return true;
+            }
+            return literalStringNode.startSingleQuote().isMissing() || literalStringNode.startSingleQuote().isMissing();
+        }
+        return false;
     }
 }

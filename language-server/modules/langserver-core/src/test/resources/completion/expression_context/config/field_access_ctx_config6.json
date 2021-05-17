@@ -24,6 +24,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "testMethod",
       "insertText": "testMethod()",
       "insertTextFormat": "Snippet"
     }

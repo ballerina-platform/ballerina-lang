@@ -42,7 +42,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "test",
+      "insertText": "test1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -56,7 +56,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.test as test1 ;\n"
         }
       ]
     },
@@ -149,29 +149,6 @@
             }
           },
           "newText": "import ballerina/module1;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
         }
       ]
     },
@@ -439,14 +416,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "commit",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "insertText": "commit;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -479,19 +448,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "test",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "C",
-      "insertText": "test",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
       "sortText": "N",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "test",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "C",
+      "insertText": "test",
       "insertTextFormat": "Snippet"
     },
     {
@@ -505,6 +474,7 @@
         }
       },
       "sortText": "A",
+      "filterText": "getIntValue",
       "insertText": "getIntValue()",
       "insertTextFormat": "Snippet"
     },

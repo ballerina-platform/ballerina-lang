@@ -142,6 +142,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "foreach i",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "O",
+      "insertText": "foreach ${1:int} ${2:i} in ${3:0}...${4:9} {\n\t${5}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "fork",
       "kind": "Snippet",
       "detail": "Statement",
@@ -302,29 +310,6 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
         }
       ]
     },
@@ -531,19 +516,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "service",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "service",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "byte",
       "kind": "Unit",
       "detail": "type",
       "sortText": "Q",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "service",
       "insertTextFormat": "Snippet"
     },
     {
@@ -595,24 +580,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunctionWithParams2(int a, int b)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \nThis is a test function without a return type\n  \n**Params**  \n- `int` a: Parameter a Description  \n- `int` b: Parameter b Description"
-        }
-      },
-      "sortText": "C",
-      "insertText": "testFunctionWithParams2(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "testFunctionWithParams1(int a, int b)",
       "kind": "Function",
       "detail": "Function",
@@ -623,7 +590,27 @@
         }
       },
       "sortText": "C",
+      "filterText": "testFunctionWithParams1",
       "insertText": "testFunctionWithParams1(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "testFunctionWithParams2(int a, int b)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \nThis is a test function without a return type\n  \n**Params**  \n- `int` a: Parameter a Description  \n- `int` b: Parameter b Description"
+        }
+      },
+      "sortText": "C",
+      "filterText": "testFunctionWithParams2",
+      "insertText": "testFunctionWithParams2(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -641,15 +628,8 @@
         }
       },
       "sortText": "C",
+      "filterText": "testFunction",
       "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "valueB",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "valueB",
       "insertTextFormat": "Snippet"
     },
     {
@@ -658,6 +638,14 @@
       "detail": "int",
       "sortText": "B",
       "insertText": "valueA",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "valueB",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "valueB",
       "insertTextFormat": "Snippet"
     },
     {

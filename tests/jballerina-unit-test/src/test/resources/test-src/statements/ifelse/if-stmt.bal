@@ -127,3 +127,80 @@ function testConditionScope(int b) returns (int) {
     }
     return output;
 }
+
+const ONE = 1;
+
+function testTypeNarrowing(string? s) returns string {
+    int|boolean a = 5;
+    if a == ONE {
+        ONE b = a;
+    } else {
+        int|boolean c = a;
+    }
+
+    if a == 5 {
+        5 b = a;
+    } else {
+        int|boolean c = a;
+    }
+
+    if () == s {
+        () t = s;
+    } else {
+        string u = s;
+    }
+
+    // Narrow type for !=
+    if s != () {
+        string u = s;
+    } else {
+        () t = s;
+    }
+
+    if s == () {
+        return "";
+    } else {
+        return s;
+    }
+}
+
+function testTypeNarrowingWithLambda() {
+    string? optionalName = "Ballerina";
+    var lambdaFunc = function (int|string id) returns ONE {
+        int? optionalAge = 20;
+        if optionalAge == () {
+            () d = optionalAge;
+        }
+
+        if id != ONE {
+            return 1;
+        } else {
+            return id;
+        }
+    };
+}
+
+function testResetTypeNarrowingForCompoundAssignment() {
+    int a = 5;
+    if a == 5 {
+        a += 1;
+    }
+}
+
+function assertTrue(any|error actual) {
+    assertEquality(true, actual);
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("AssertionError", message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}

@@ -17,6 +17,12 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
+
+import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
+
 /**
  * JVM bytecode generation related constants.
  *
@@ -176,7 +182,6 @@ public class JvmConstants {
     public static final String OPTION = "io/ballerina/runtime/internal/cli/Option";
     public static final String OPERAND = "io/ballerina/runtime/internal/cli/Operand";
     public static final String CLI_SPEC = "io/ballerina/runtime/internal/cli/CliSpec";
-    public static final String ARGUMENT_PARSER = "io/ballerina/runtime/internal/util/ArgumentParser";
     public static final String LAUNCH_UTILS = "io/ballerina/runtime/internal/launch/LaunchUtils";
     public static final String MATH_UTILS = "io/ballerina/runtime/internal/MathUtils";
     public static final String BAL_ERROR_REASONS =
@@ -266,6 +271,8 @@ public class JvmConstants {
     public static final String TYPEDESC_CLASS_PREFIX = "$typedesc$";
     public static final String BALLERINA = "ballerina";
     public static final String ENCODED_DOT_CHARACTER = "$0046";
+    public static final PackageID DEFAULT = new PackageID(Names.ANON_ORG, new Name(ENCODED_DOT_CHARACTER),
+                                                          DEFAULT_VERSION);
     public static final String BUILT_IN_PACKAGE_NAME = "lang" + ENCODED_DOT_CHARACTER + "annotations";
     public static final String MODULE_START_ATTEMPTED = "$moduleStartAttempted";
     public static final String MODULE_STARTED = "$moduleStarted";

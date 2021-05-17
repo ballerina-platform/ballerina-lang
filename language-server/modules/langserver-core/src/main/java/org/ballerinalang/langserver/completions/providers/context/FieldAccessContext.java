@@ -16,15 +16,22 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.FieldAccessCompletionResolver;
+import org.ballerinalang.langserver.completions.util.ForeachCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
+import org.ballerinalang.langserver.completions.util.TypeGuardCompletionUtil;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Generic Completion provider for field access providers.
@@ -50,10 +57,22 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
     protected List<LSCompletionItem> getEntries(BallerinaCompletionContext ctx,
                                                 ExpressionNode expr,
                                                 boolean optionalFieldAccess) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         FieldAccessCompletionResolver resolver = new FieldAccessCompletionResolver(ctx, optionalFieldAccess);
         List<Symbol> symbolList = resolver.getVisibleEntries(expr);
-
-        return this.getCompletionItemList(symbolList, ctx);
+        //Add typegurad and foreach snippets.
+        if (expr.parent().kind() == SyntaxKind.FIELD_ACCESS) {
+            Optional<TypeSymbol> typeSymbol = resolver.getTypeSymbol(expr);
+            if (typeSymbol.isPresent()) {
+                FieldAccessExpressionNode fieldAccessExpr = (FieldAccessExpressionNode) expr.parent();
+                completionItems.addAll(TypeGuardCompletionUtil.getTypeGuardDestructedItems(
+                        ctx, fieldAccessExpr, typeSymbol.get()));
+                completionItems.addAll(ForeachCompletionUtil.getForeachCompletionItemsForIterable(ctx,
+                        fieldAccessExpr, typeSymbol.get()));
+            }
+        }
+        completionItems.addAll(this.getCompletionItemList(symbolList, ctx));
+        return completionItems;
     }
 
     @Override

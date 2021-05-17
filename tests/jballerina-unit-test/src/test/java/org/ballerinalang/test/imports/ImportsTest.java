@@ -41,28 +41,26 @@ public class ImportsTest {
                         "'testorg/selfimport.foo:1.0.0 -> testorg/selfimport.foo:1.0.0'", 2, 1);
     }
 
-    @Test(enabled = false, description = "Test cyclic imports")
+    // https://github.com/ballerina-platform/ballerina-lang/issues/27371
+    @Test(description = "Test cyclic imports", enabled = false)
     public void testCyclicImports() {
-//        CompileResult result = BCompileUtil.compile("test-src/imports/cyclic-imports", "abc");
         CompileResult result = BCompileUtil.compile("test-src/imports/cyclic-imports");
         assertEquals(result.getErrorCount(), 3);
         validateError(result, 0, "cyclic module imports detected " +
-                                 "'cyclic-imports/def:1.0.0 -> cyclic-imports/ghi:1.0.0 -> cyclic-imports/def:1.0.0'",
+                                 "'cyclic_imports/def:1.0.0 -> cyclic_imports/ghi:1.0.0 -> cyclic_imports/def:1.0.0'",
                 2, 1);
         validateError(result, 1, "cyclic module imports detected " +
-                                 "'cyclic-imports/abc:1.0.0 -> cyclic-imports/def:1.0.0 -> " +
-                                 "cyclic-imports/ghi:1.0.0 -> cyclic-imports/jkl:1.0.0 -> cyclic-imports/abc:1.0.0'",
+                                 "'cyclic_imports/abc:1.0.0 -> cyclic_imports/def:1.0.0 -> " +
+                                 "cyclic_imports/ghi:1.0.0 -> cyclic_imports/jkl:1.0.0 -> cyclic_imports/abc:1.0.0'",
                 2, 1);
-        validateError(result, 2, "cyclic module imports detected 'cyclic-imports/abc:1.0.0 -> " +
-                                 "cyclic-imports/def:1.0.0 -> cyclic-imports/ghi:1.0.0 -> cyclic-imports/abc:1.0.0'",
+        validateError(result, 2, "cyclic module imports detected 'cyclic_imports/abc:1.0.0 -> " +
+                                 "cyclic_imports/def:1.0.0 -> cyclic_imports/ghi:1.0.0 -> cyclic_imports/abc:1.0.0'",
                 3, 1);
     }
 
-    @Test(enabled = false, description = "Test importing same module " +
-            "name but with different org names")
+    @Test(description = "Test importing same module name but with different org names")
     public void testSameModuleNameDifferentOrgImports() {
-//        CompileResult result = BCompileUtil.compile("test-src/imports/same-module-different-org-import", "math");
-        CompileResult result = BCompileUtil.compile("test-src/imports/same-module-different-org-import");
+        CompileResult result = BCompileUtil.compile("test-src/imports/lang.float");
         BValue[] returns = BRunUtil.invoke(result, "getStringValueOfPI");
         Assert.assertTrue((returns[0]).stringValue().startsWith("3.14"));
     }

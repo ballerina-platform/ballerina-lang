@@ -142,6 +142,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "foreach i",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "O",
+      "insertText": "foreach ${1:int} ${2:i} in ${3:0}...${4:9} {\n\t${5}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "fork",
       "kind": "Snippet",
       "detail": "Statement",
@@ -302,29 +310,6 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 2,
-              "character": 0
-            },
-            "end": {
-              "line": 2,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
         }
       ]
     },
@@ -514,7 +499,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "module1",
+      "insertText": "module11",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -528,7 +513,7 @@
               "character": 0
             }
           },
-          "newText": "import lsproject.module1;\n"
+          "newText": "import lsproject.module1 as module11 ;\n"
         }
       ]
     },
@@ -600,19 +585,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "service",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "service",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "byte",
       "kind": "Unit",
       "detail": "type",
       "sortText": "Q",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "service",
       "insertTextFormat": "Snippet"
     },
     {
@@ -664,7 +649,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testImports()",
+      "label": "testFunction()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -674,7 +659,8 @@
         }
       },
       "sortText": "C",
-      "insertText": "testImports()",
+      "filterText": "testFunction",
+      "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -688,11 +674,12 @@
         }
       },
       "sortText": "C",
+      "filterText": "testFunction4",
       "insertText": "testFunction4()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunction()",
+      "label": "testImports()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -702,7 +689,8 @@
         }
       },
       "sortText": "C",
-      "insertText": "testFunction()",
+      "filterText": "testImports",
+      "insertText": "testImports()",
       "insertTextFormat": "Snippet"
     },
     {

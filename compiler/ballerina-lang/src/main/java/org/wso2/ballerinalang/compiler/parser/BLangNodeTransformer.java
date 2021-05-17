@@ -884,13 +884,27 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private List<TypeDescriptorNode> flattenUnionType(UnionTypeDescriptorNode unionTypeDescriptorNode) {
         List<TypeDescriptorNode> list = new ArrayList<>();
-        list.add(unionTypeDescriptorNode.leftTypeDesc());
-        while (unionTypeDescriptorNode.rightTypeDesc().kind() == SyntaxKind.UNION_TYPE_DESC) {
-            unionTypeDescriptorNode = (UnionTypeDescriptorNode) unionTypeDescriptorNode.rightTypeDesc();
-            list.add(unionTypeDescriptorNode.leftTypeDesc());
-        }
-        list.add(unionTypeDescriptorNode.rightTypeDesc());
+        flattenUnionType(list, unionTypeDescriptorNode);
         return list;
+    }
+
+    private void flattenUnionType(List<TypeDescriptorNode> list, TypeDescriptorNode typeDescriptorNode) {
+        if (typeDescriptorNode.kind() != SyntaxKind.UNION_TYPE_DESC) {
+            list.add(typeDescriptorNode);
+            return;
+        }
+
+        UnionTypeDescriptorNode unionTypeDescriptorNode = (UnionTypeDescriptorNode) typeDescriptorNode;
+        updateListWithNonUnionTypes(list, unionTypeDescriptorNode.leftTypeDesc());
+        updateListWithNonUnionTypes(list, unionTypeDescriptorNode.rightTypeDesc());
+    }
+
+    private void updateListWithNonUnionTypes(List<TypeDescriptorNode> list, TypeDescriptorNode typeDescNode) {
+        if (typeDescNode.kind() != SyntaxKind.UNION_TYPE_DESC) {
+            list.add(typeDescNode);
+        } else {
+            flattenUnionType(list, typeDescNode);
+        }
     }
 
     private <T> void reverseFlatMap(List<List<T>> listOfLists, List<T> result) {
@@ -965,13 +979,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             } else {
                 errorType.detailType = createTypeNode(typeNode);
             }
-            NonTerminalNode parent = errorTypeDescriptorNode.parent();
-            if (parent.kind() == SyntaxKind.DISTINCT_TYPE_DESC) {
-                parent = parent.parent();
-            }
-            if (parent.kind() != SyntaxKind.TYPE_DEFINITION) {
-                return deSugarTypeAsUserDefType(errorType);
-            }
+        }
+
+        NonTerminalNode parent = errorTypeDescriptorNode.parent();
+        boolean isDistinctError = parent.kind() == SyntaxKind.DISTINCT_TYPE_DESC;
+        if (isDistinctError) {
+            parent = parent.parent();
+        }
+        if ((typeParam.isPresent() || isDistinctError) && parent.kind() != SyntaxKind.TYPE_DEFINITION) {
+            return deSugarTypeAsUserDefType(errorType);
         }
 
         return errorType;
@@ -1949,7 +1965,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
-        BLangFieldBasedAccess bLFieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
+        BLangFieldBasedAccess bLFieldBasedAccess;
         Node fieldName = optionalFieldAccessExpressionNode.fieldName();
 
         if (fieldName.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
@@ -2765,6 +2781,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 markVariableWithFlag(var, Flag.FINAL);
             } else if (qualifier.kind() == SyntaxKind.CONFIGURABLE_KEYWORD) {
                 var.flagSet.add(Flag.CONFIGURABLE);
+                var.flagSet.add(Flag.FINAL);
                 // Initializer is always present for configurable, hence get directly
                 if (initializer.get().kind() == SyntaxKind.REQUIRED_EXPRESSION) {
                     var.flagSet.add(Flag.REQUIRED);

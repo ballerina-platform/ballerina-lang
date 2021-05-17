@@ -4,6 +4,7 @@ import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.Settings;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.ResolutionRequest;
@@ -11,7 +12,6 @@ import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
-import org.ballerinalang.toml.model.Settings;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.net.Proxy;
@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
@@ -58,7 +59,7 @@ public class RemotePackageRepository implements PackageRepository {
         FileSystemRepository fileSystemRepository = new FileSystemRepository(
                 environment, cacheDirectory, ballerinaShortVersion);
         Proxy proxy = initializeProxy(settings.getProxy());
-        CentralAPIClient client = new CentralAPIClient(repoUrl, proxy);
+        CentralAPIClient client = new CentralAPIClient(repoUrl, proxy, getAccessTokenOfCLI(settings));
 
         return new RemotePackageRepository(fileSystemRepository, client);
     }

@@ -148,10 +148,10 @@ function testStructToStruct() returns (Student) {
     return p2;
 }
 
-//function testNullStructToStruct() returns (Student) {
-//    Person | () p;
-//    return <Student> p;
-//}
+function testNullStructToStruct() returns Student {
+    Person? p = ();
+    return <Student> p;
+}
 
 function testStructAsAnyToStruct() returns Person|error {
     Person p1 = { name:"Supun",
@@ -224,6 +224,11 @@ function testIncompatibleJsonToFloat() returns float|error {
     float value;
     value = check floats:fromString(j.toJsonString());
     return value;
+}
+
+function testBooleanInJsonToInt() returns int|error {
+    json j = true;
+    return trap <int> j;
 }
 
 type Address record {
@@ -465,6 +470,54 @@ function testAnyNullToString() returns string {
     return s;
 }
 
+function testAnyBooleanToIntWithErrors() {
+    any a = true;
+    var result =  trap <int> a;
+    assertEquality(result is error , true);
+    error e = <error>result;
+    assertEquality(e.detail()["message"], "incompatible types: 'boolean' cannot be cast to 'int'");
+}
+
+function testAnyBooleanToFloatWithErrors() {
+    any a = true;
+    var result = trap <float> a;
+    assertEquality(result is error , true);
+    error e = <error>result;
+    assertEquality(e.detail()["message"], "incompatible types: 'boolean' cannot be cast to 'float'");
+}
+
+function testAnyBooleanToDecimalWithErrors() {
+    any a = true;
+    var result =  trap <decimal> a;
+    assertEquality(result is error , true);
+    error e = <error>result;
+    assertEquality(e.detail()["message"], "incompatible types: 'boolean' cannot be cast to 'decimal'");
+}
+
+function testAnyBooleanToStringWithErrors() {
+    any a = true;
+    var result =  trap <string> a;
+    assertEquality(result is error , true);
+    error e = <error>result;
+    assertEquality(e.detail()["message"], "incompatible types: 'boolean' cannot be cast to 'string'");
+}
+
+function testAnyBooleanToByteWithErrors() {
+    any a = true;
+    var result =  trap <byte> a;
+    assertEquality(result is error , true);
+    error e = <error>result;
+    assertEquality(e.detail()["message"], "incompatible types: 'boolean' cannot be cast to 'byte'");
+}
+
+function testAnyBooleanToUnionWithErrors() {
+    any a = true;
+    var result =  trap <int|string> a;
+    assertEquality(result is error , true);
+    error e = <error>result;
+    assertEquality(e.detail()["message"], "incompatible types: 'boolean' cannot be cast to '(int|string)'");
+}
+
 function testSameTypeCast() returns int {
     int a = 10;
 
@@ -513,6 +566,115 @@ type Employee record {
 
 function testAnonRecordInCast() returns record {| string name; |} {
     return <record {| string name; |}>{ name: "Pubudu" };
+}
+
+///////////////// Test casting of immutable array type //////////////////////
+
+function testCastOfReadonlyIntArrayToByteArray() {
+    readonly & int[] a = [1, 255];
+    any b = a;
+
+    assertEquality(true, b is (float|byte)[]);
+    assertEquality(false, b is (boolean|float)[]);
+
+    byte[] c = <byte[]> b;
+
+    assertEquality(true, c === b);
+    assertEquality("[1,255]", c.toString());
+    assertEquality(1, c[0]);
+    assertEquality(255, c[1]);
+}
+
+function testCastOfReadonlyIntArrayToByteArrayNegative() {
+    readonly & int[] e = [1, 100, 1000];
+    any f = e;
+    byte[]|error g = trap <byte[]> f;
+    assertEquality(true, g is error);
+    error err = <error> g;
+    assertEquality("{ballerina}TypeCastError", err.message());
+    assertEquality("incompatible types: 'int[] & readonly' cannot be cast to 'byte[]'", <string> checkpanic err.detail()["message"]);
+}
+
+function testCastOfReadonlyAnyToByteArray() {
+    readonly & any x = [1, 2, 3];
+    any xx = x;
+    byte[] y = <byte[]> xx;
+    assertEquality(true, xx === y);
+    assertEquality(1, y[0]);
+}
+
+function testCastOfReadonlyArrayToUnion() {
+    readonly & int[] a = [1, 255];
+    any b = a;
+    (float|byte)[] i = <(float|byte)[]> b;
+    assertEquality(true, i === b);
+    assertEquality("[1,255]", i.toString());
+
+    readonly & float[] d = [1, 2.5, 27.5f];
+    any e = d;
+    (int|float|byte)[] f = <(int|float|byte)[]> e;
+    assertEquality("[1.0,2.5,27.5]", f.toString());
+}
+
+function testCastOfReadonlyUnionArrayToByteArray() {
+    readonly & (int|byte)[] a = [1,2,3];
+    any b = a;
+    byte[] c = <byte[]> b;
+    assertEquality("[1,2,3]", c.toString());
+
+    readonly & (any|byte)[] d = [1,2,3];
+    any e = d;
+    byte[] f = <byte[]> e;
+    assertEquality("[1,2,3]", f.toString());
+}
+
+type Foo record {|
+    string s;
+    int[] arr;
+|};
+
+type Bar record {|
+    string s;
+    byte[] arr;
+|};
+
+function testCastOfReadonlyRecord() {
+    (Foo & readonly) f = {s: "a", arr: [1,2,3]};
+    any a = f;
+    Bar b = <Bar> a;
+    assertEquality(true, b === a);
+    assertEquality("{\"s\":\"a\",\"arr\":[1,2,3]}", b.toString());
+}
+
+function testCastOfReadonlyRecordNegative() {
+    (Foo & readonly) f = {s: "a", arr: [1,2,300]};
+    any a = f;
+    Bar|error b = trap <Bar> a;
+    assertEquality(true, b is error);
+    error err = <error> b;
+    assertEquality("{ballerina}TypeCastError", err.message());
+    assertEquality("incompatible types: '(Foo & readonly)' cannot be cast to 'Bar'", <string> checkpanic err.detail()["message"]);
+}
+
+const FOO = "foo";
+
+function testCastOfReadonlyStringArrayToStringConstantArray() {
+
+    readonly & string[] d = [FOO, FOO];
+    any e =  d;
+    FOO[] f = <FOO[]> e;
+
+    assertEquality(true, f === e);
+    assertEquality("[\"foo\",\"foo\"]", f.toString());
+}
+
+function testCastOfTwoDimensionalIntArrayToByteArray() {
+    (readonly & int[][]) a = [[1,2,3], [4,5,6]];
+    any b = a;
+    byte[][] c = <byte[][]> b;
+
+    assertEquality(true, c === b);
+    assertEquality("[[1,2,3],[4,5,6]]", c.toString());
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

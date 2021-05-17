@@ -240,10 +240,6 @@
           "value": "\n"
         },
         {
-          "kind": "END_OF_LINE_MINUTIAE",
-          "value": "\n"
-        },
-        {
           "kind": "COMMENT_MINUTIAE",
           "value": "// Intentionally, left with EOF token"
         },

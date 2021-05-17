@@ -28,7 +28,7 @@
                                         "character": 0
                                     }
                                 },
-                                "newText": "\n\nfunction getSchool() returns School {\n    \n    return {students: []};\n}\n"
+                                "newText": "\n\nfunction getSchool() returns School {\n    return {students: []};\n}\n"
                             }
                         ]
                     }

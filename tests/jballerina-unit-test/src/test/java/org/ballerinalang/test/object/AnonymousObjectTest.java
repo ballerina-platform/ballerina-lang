@@ -34,7 +34,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.970.0
  */
-@Test(groups = "brokenOnClassChange")
+@Test
 public class AnonymousObjectTest {
 
     private CompileResult compileResult;
@@ -153,21 +153,24 @@ public class AnonymousObjectTest {
     @Test(description = "Negative test to test un-defaultable anon object")
     public void testUndefaultableAnonObject() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_un_defaultable_anon.bal");
-        Assert.assertEquals(result.getErrorCount(), 3);
+        Assert.assertEquals(result.getErrorCount(), 4);
         BAssertUtil.validateError(result, 0,
-                "no implementation found for the function 'test' of non-abstract object " +
-                        "'object { public int age; public string name; function test () returns (); }'", 3, 54);
+                "incompatible types: expected 'object { public int age; public string name; function test () returns " +
+                        "(); }', found 'object { public int age; public string name; }'", 18, 8);
         BAssertUtil.validateError(result, 1,
-                "no implementation found for the function 'test' of non-abstract object " +
-                        "'object { public int age; public string name; function test () returns (); }'", 7, 58);
+                "incompatible types: expected 'object { public int age; public string name; function test () returns " +
+                        "(); }', found 'object { public int age; public string name; }'", 32, 12);
         BAssertUtil.validateError(result, 2,
-                "no implementation found for the function 'test' of non-abstract object " +
-                        "'object { public int age; public string name; function test () returns (); }'", 8, 58);
+                "incompatible types: expected 'object { public int age; public string name; function test () returns " +
+                        "(); }', found 'Foo'", 33, 10);
+        BAssertUtil.validateError(result, 3,
+                "incompatible types: expected 'object { public int age; public string name; function test () returns " +
+                        "(); }', found 'object { public int age; public string name; }'", 38, 12);
     }
 
     @Test(description = "Test Code analyzer execution on Anonymous objects")
     public void testCodeAnalyzerRunningOnAnonymousObjectsForDeprecatedFunctionAnnotation() {
-        BAssertUtil.validateWarning(compileResult, 0, "usage of construct 'Test()' is deprecated", 218, 17);
+        BAssertUtil.validateWarning(compileResult, 0, "usage of construct 'Test()' is deprecated", 287, 25);
     }
 
     @AfterClass

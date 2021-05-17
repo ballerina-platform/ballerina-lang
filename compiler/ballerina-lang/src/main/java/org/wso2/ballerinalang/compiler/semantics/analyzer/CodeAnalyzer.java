@@ -247,6 +247,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -311,6 +312,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int commitCountWithinBlock;
     private int rollbackCountWithinBlock;
     private boolean queryToTableWithKey;
+    private final Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();
+    private int workerSystemMovementSequence;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -479,7 +482,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.validateModuleInitFunction(funcNode);
         try {
-
             this.initNewWorkerActionSystem();
             this.workerActionSystemStack.peek().startWorkerActionStateMachine(DEFAULT_WORKER_NAME,
                                                                               funcNode.pos,
@@ -490,6 +492,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.finalizeCurrentWorkerActionSystem();
         }
         funcNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
+
+        validateNamedWorkerUniqueReferences();
+    }
+
+    private void validateNamedWorkerUniqueReferences() {
+        for (var nodes : this.workerReferences.values()) {
+            if (nodes.size() > 1) {
+                for (BLangNode node: nodes) {
+                    dlog.error(node.pos, DiagnosticErrorCode.ILLEGAL_WORKER_REFERENCE_AS_A_VARIABLE_REFERENCE, node);
+                }
+            }
+        }
+
+        this.workerReferences.clear();
     }
 
     private void validateParams(BLangFunction funcNode) {
@@ -2333,17 +2349,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         varNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
 
-    private void checkWorkerPeerWorkerUsageInsideWorker(Location pos, BSymbol symbol, SymbolEnv env) {
-        if ((symbol.flags & Flags.WORKER) == Flags.WORKER) {
-            if (isCurrentPositionInWorker(env) && env.scope.lookup(symbol.name).symbol == null) {
-                if (referingForkedWorkerOutOfFork(symbol, env)) {
-                    return;
-                }
-                dlog.error(pos, DiagnosticErrorCode.INVALID_WORKER_REFERRENCE, symbol);
-            }
-        }
-    }
-
     private boolean isCurrentPositionInWorker(SymbolEnv env) {
         if (env.enclInvokable != null && env.enclInvokable.flagSet.contains(Flag.WORKER)) {
             return true;
@@ -2354,12 +2359,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return isCurrentPositionInWorker(env.enclEnv);
         }
         return false;
-    }
-
-    private boolean referingForkedWorkerOutOfFork(BSymbol symbol, SymbolEnv env) {
-        return (symbol.flags & Flags.FORKED) == Flags.FORKED
-                && env.enclInvokable.getKind() == NodeKind.FUNCTION
-                && ((BLangFunction) env.enclInvokable).anonForkName == null;
     }
 
     @Override
@@ -2607,8 +2606,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         return env.enclInvokable.flagSet.contains(Flag.WORKER);
     }
 
-    private boolean isCommunicationAllowedLocation(String workerIdentifier) {
-        return (isDefaultWorkerCommunication(workerIdentifier) && isInWorker()) || isTopLevel();
+    private boolean isCommunicationAllowedLocation() {
+        return isTopLevel();
     }
 
     private boolean isDefaultWorkerCommunication(String workerIdentifier) {
@@ -2649,13 +2648,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         String workerName = workerSendNode.workerIdentifier.getValue();
-        boolean allowedLocation = isCommunicationAllowedLocation(workerName);
-        if (!allowedLocation) {
-            this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.INVALID_WORKER_SEND_POSITION);
+        if (!isCommunicationAllowedLocation()) {
+            this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
 
-        if (!this.workerExists(workerSendNode.type, workerName)) {
+        if (!this.workerExists(workerSendNode.type, workerName)
+                || (!isWorkerFromFunction(env, names.fromString(workerName)) && !workerName.equals("function"))) {
             this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
             was.hasErrors = true;
         }
@@ -2701,9 +2700,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         String workerName = syncSendExpr.workerIdentifier.getValue();
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
-        boolean allowedLocation = isCommunicationAllowedLocation(workerName);
-        if (!allowedLocation) {
-            this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.INVALID_WORKER_SEND_POSITION);
+        if (!isCommunicationAllowedLocation()) {
+            this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
 
@@ -2729,8 +2727,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
         String workerName = workerReceiveNode.workerIdentifier.getValue();
-        boolean allowedLocation = isCommunicationAllowedLocation(workerName);
-        if (!allowedLocation) {
+        if (!isCommunicationAllowedLocation()) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.INVALID_WORKER_RECEIVE_POSITION);
             was.hasErrors = true;
         }
@@ -2741,7 +2738,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         workerReceiveNode.matchingSendsError = createAccumulatedErrorTypeForMatchingSyncSend(workerReceiveNode);
-
         was.addWorkerAction(workerReceiveNode);
     }
 
@@ -2973,12 +2969,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 return;
             default:
                 if (varRefExpr.type != null && varRefExpr.type.tag == TypeTags.FUTURE) {
-                    checkWorkerPeerWorkerUsageInsideWorker(varRefExpr.pos, varRefExpr.symbol, this.env);
+                    trackNamedWorkerReferences(varRefExpr);
                 }
         }
         if (varRefExpr.symbol != null && Symbols.isFlagOn(varRefExpr.symbol.flags, Flags.DEPRECATED)) {
             dlog.warning(varRefExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, varRefExpr);
         }
+    }
+
+    private void trackNamedWorkerReferences(BLangSimpleVarRef varRefExpr) {
+        if (varRefExpr.symbol == null || (varRefExpr.symbol.flags & Flags.WORKER) != Flags.WORKER) {
+            return;
+        }
+
+        this.workerReferences.computeIfAbsent(varRefExpr.symbol, s -> new LinkedHashSet<>());
+        this.workerReferences.get(varRefExpr.symbol).add(varRefExpr);
     }
 
     public void visit(BLangRecordVarRef varRefExpr) {
@@ -3110,14 +3115,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     /**
      * Actions can only occur as part of a statement or nested inside other actions.
      */
-    private void validateActionParentNode(Location pos, BLangNode node) {
+    private boolean validateActionParentNode(Location pos, BLangNode node) {
         // Validate for parent nodes.
         BLangNode parent = node.parent;
 
         while (parent != null) {
             final NodeKind kind = parent.getKind();
             if (parent instanceof StatementNode) {
-                return;
+                return true;
             } else if (parent instanceof ActionNode || parent instanceof BLangVariable || kind == NodeKind.CHECK_EXPR ||
                     kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.TRAP_EXPR || kind == NodeKind.GROUP_EXPR ||
                     kind == NodeKind.TYPE_CONVERSION_EXPR) {
@@ -3132,6 +3137,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             break;
         }
         dlog.error(pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION_AS_EXPR);
+        return false;
     }
 
     public void visit(BLangTypeInit cIExpr) {
@@ -3151,30 +3157,46 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangWaitExpr awaitExpr) {
         BLangExpression expr = awaitExpr.getExpression();
-        validateWaitFutureExpr(expr);
+        boolean validWaitFuture = validateWaitFutureExpr(expr);
         analyzeExpr(expr);
-        validateActionParentNode(awaitExpr.pos, awaitExpr);
+        boolean validActionParent = validateActionParentNode(awaitExpr.pos, awaitExpr);
+
+        WorkerActionSystem was = this.workerActionSystemStack.peek();
+        was.addWorkerAction(awaitExpr, env);
+        if (!(validWaitFuture || validActionParent)) {
+            was.hasErrors = true;
+        }
     }
 
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
+        boolean validWaitFuture = true;
         for (BLangWaitForAllExpr.BLangWaitKeyValue keyValue : waitForAllExpr.keyValuePairs) {
             BLangExpression expr = keyValue.valueExpr != null ? keyValue.valueExpr : keyValue.keyExpr;
-            validateWaitFutureExpr(expr);
+            validWaitFuture = validWaitFuture && validateWaitFutureExpr(expr);
             analyzeExpr(expr);
         }
 
-        validateActionParentNode(waitForAllExpr.pos, waitForAllExpr);
+        boolean validActionParent = validateActionParentNode(waitForAllExpr.pos, waitForAllExpr);
+
+        WorkerActionSystem was = this.workerActionSystemStack.peek();
+        was.addWorkerAction(waitForAllExpr, env);
+        if (!(validWaitFuture || validActionParent)) {
+            was.hasErrors = true;
+        }
     }
 
     // wait-future-expr := expression but not mapping-constructor-expr
-    private void validateWaitFutureExpr(BLangExpression expr) {
+    private boolean validateWaitFutureExpr(BLangExpression expr) {
         if (expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
             dlog.error(expr.pos, DiagnosticErrorCode.INVALID_WAIT_MAPPING_CONSTRUCTORS);
+            return false;
         }
 
         if (expr instanceof ActionNode) {
             dlog.error(expr.pos, DiagnosticErrorCode.INVALID_WAIT_ACTIONS);
+            return false;
         }
+        return true;
     }
 
     @Override
@@ -3383,7 +3405,22 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
         boolean statementReturn = this.statementReturns;
-        this.visitFunction(bLangLambdaFunction.function);
+        // If this is a worker we are already in a worker action system,
+        // if not we need to initiate a worker action system
+        if (isWorker) {
+            this.visitFunction(bLangLambdaFunction.function);
+        } else {
+            try {
+                this.initNewWorkerActionSystem();
+                this.workerActionSystemStack.peek().startWorkerActionStateMachine(DEFAULT_WORKER_NAME,
+                        bLangLambdaFunction.pos,
+                        bLangLambdaFunction.function);
+                this.visitFunction(bLangLambdaFunction.function);
+                this.workerActionSystemStack.peek().endWorkerActionStateMachine();
+            } finally {
+                this.finalizeCurrentWorkerActionSystem();
+            }
+        }
         this.statementReturns = statementReturn;
 
         if (isWorker) {
@@ -3829,6 +3866,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         return action.getKind() == NodeKind.WORKER_SYNC_SEND;
     }
 
+    private static boolean isWaitAction(BLangNode action) {
+        return action.getKind() == NodeKind.WAIT_EXPR;
+    }
+
     private String extractWorkerId(BLangNode action) {
         if (isWorkerSend(action)) {
             return ((BLangWorkerSend) action).workerIdentifier.value;
@@ -3840,20 +3881,42 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateWorkerInteractions(WorkerActionSystem workerActionSystem) {
+        if (!validateWorkerInteractionsAfterWaitAction(workerActionSystem)) {
+            return;
+        }
+
         BLangNode currentAction;
         boolean systemRunning;
+        this.workerSystemMovementSequence = 0;
+        int systemIterationCount = 0;
+        int prevWorkerSystemMovementSequence = this.workerSystemMovementSequence;
         do {
             systemRunning = false;
+            systemIterationCount++;
             for (WorkerActionStateMachine worker : workerActionSystem.finshedWorkers) {
                 if (worker.done()) {
                     continue;
                 }
                 currentAction = worker.currentAction();
+
+                if (isWaitAction(currentAction)) {
+                    handleWaitAction(workerActionSystem, currentAction, worker);
+                    systemRunning = true;
+                    continue;
+                }
                 if (!isWorkerSend(currentAction) && !isWorkerSyncSend(currentAction)) {
                     continue;
                 }
+
                 WorkerActionStateMachine otherSM = workerActionSystem.find(this.extractWorkerId(currentAction));
-                if (otherSM == null || !otherSM.currentIsReceive(worker.workerId)) {
+                if (otherSM.done()) {
+                    continue;
+                }
+                if (isWaitAction(otherSM.currentAction())) {
+                    systemRunning = false;
+                    continue;
+                }
+                if (!otherSM.currentIsReceive(worker.workerId)) {
                     continue;
                 }
                 BLangWorkerReceive receive = (BLangWorkerReceive) otherSM.currentAction();
@@ -3863,7 +3926,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     this.validateWorkerActionParameters((BLangWorkerSend) currentAction, receive);
                 }
                 otherSM.next();
+                this.workerSystemMovementSequence++;
                 worker.next();
+                this.workerSystemMovementSequence++;
+
 
                 systemRunning = true;
                 String channelName = generateChannelName(worker.workerId, otherSM.workerId);
@@ -3871,10 +3937,157 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
                 worker.node.sendsToThis.add(channelName);
             }
+
+            // If we iterated move than the number of workers in the system and did not progress,
+            // this means we are in a deadlock.
+            if (systemIterationCount > workerActionSystem.finshedWorkers.size()) {
+                systemIterationCount = 0;
+                if (prevWorkerSystemMovementSequence == this.workerSystemMovementSequence) {
+                    systemRunning = false;
+                }
+                prevWorkerSystemMovementSequence = this.workerSystemMovementSequence;
+            }
         } while (systemRunning);
+
         if (!workerActionSystem.everyoneDone()) {
             this.reportInvalidWorkerInteractionDiagnostics(workerActionSystem);
         }
+    }
+
+    private boolean validateWorkerInteractionsAfterWaitAction(WorkerActionSystem workerActionSystem) {
+        boolean isValid = true;
+        for (WorkerActionStateMachine worker : workerActionSystem.finshedWorkers) {
+            Set<String> waitingOnWorkerSet = new HashSet<>();
+            for (BLangNode action : worker.actions) {
+                if (isWaitAction(action)) {
+                    if (action instanceof BLangWaitForAllExpr) {
+                        BLangWaitForAllExpr waitForAllExpr = (BLangWaitForAllExpr) action;
+                        for (BLangWaitForAllExpr.BLangWaitKeyValue keyValuePair : waitForAllExpr.keyValuePairs) {
+                            BSymbol workerSymbol = getWorkerSymbol(keyValuePair);
+                            if (workerSymbol != null) {
+                                waitingOnWorkerSet.add(workerSymbol.name.value);
+                            }
+                        }
+                    } else {
+                        BLangWaitExpr wait = (BLangWaitExpr) action;
+                        for (String workerName : getWorkerNameList(wait.exprList.get(0),
+                                workerActionSystem.getActionEnvironment(wait))) {
+                            waitingOnWorkerSet.add(workerName);
+                        }
+                    }
+                } else  if (isWorkerSend(action)) {
+                    BLangWorkerSend send = (BLangWorkerSend) action;
+                    if (waitingOnWorkerSet.contains(send.workerIdentifier.value)) {
+                        dlog.error(action.pos, DiagnosticErrorCode.WORKER_INTERACTION_AFTER_WAIT_ACTION, action);
+                        isValid = false;
+                    }
+                } else if (isWorkerSyncSend(action)) {
+                    BLangWorkerSyncSendExpr syncSend = (BLangWorkerSyncSendExpr) action;
+                    if (waitingOnWorkerSet.contains(syncSend.workerIdentifier.value)) {
+                        dlog.error(action.pos, DiagnosticErrorCode.WORKER_INTERACTION_AFTER_WAIT_ACTION, action);
+                        isValid = false;
+                    }
+                } else if (action.getKind() == NodeKind.WORKER_RECEIVE) {
+                    BLangWorkerReceive receive = (BLangWorkerReceive) action;
+                    if (waitingOnWorkerSet.contains(receive.workerIdentifier.value)) {
+                        dlog.error(action.pos, DiagnosticErrorCode.WORKER_INTERACTION_AFTER_WAIT_ACTION, action);
+                        isValid = false;
+                    }
+                }
+            }
+        }
+        return isValid;
+    }
+
+    private void handleWaitAction(WorkerActionSystem workerActionSystem, BLangNode currentAction,
+                                  WorkerActionStateMachine worker) {
+        if (currentAction instanceof BLangWaitForAllExpr) {
+            boolean allWorkersAreDone = true;
+            BLangWaitForAllExpr waitForAllExpr = (BLangWaitForAllExpr) currentAction;
+            for (BLangWaitForAllExpr.BLangWaitKeyValue keyValuePair : waitForAllExpr.keyValuePairs) {
+                BSymbol workerSymbol = getWorkerSymbol(keyValuePair);
+                if (isWorkerSymbol(workerSymbol)) {
+                    Name workerName = workerSymbol.name;
+                    if (isWorkerFromFunction(workerActionSystem.getActionEnvironment(currentAction), workerName)) {
+                        WorkerActionStateMachine otherSM = workerActionSystem.find(workerName.value);
+                        allWorkersAreDone = allWorkersAreDone && otherSM.done();
+                    }
+                }
+            }
+            if (allWorkersAreDone) {
+                worker.next();
+                this.workerSystemMovementSequence++;
+            }
+        } else {
+            BLangWaitExpr wait = (BLangWaitExpr) currentAction;
+            List<String> workerNameList = getWorkerNameList(wait.exprList.get(0),
+                    workerActionSystem.getActionEnvironment(currentAction));
+            if (workerNameList.isEmpty()) {
+                // No workers found, there must be only future references in the waiting list, we can move to next state
+                worker.next();
+                this.workerSystemMovementSequence++;
+            }
+            for (String workerName : workerNameList) {
+                // If any worker in wait is done, we can continue.
+                var otherSM = workerActionSystem.find(workerName);
+                if (otherSM.done()) {
+                    worker.next();
+                    this.workerSystemMovementSequence++;
+                    break;
+                }
+            }
+        }
+    }
+
+    private BSymbol getWorkerSymbol(BLangWaitForAllExpr.BLangWaitKeyValue keyValuePair) {
+        BLangExpression value = keyValuePair.getValue();
+        if (value != null && value.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            return ((BLangSimpleVarRef) value).symbol;
+        } else if (keyValuePair.keyExpr != null && keyValuePair.keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            return ((BLangSimpleVarRef) keyValuePair.keyExpr).symbol;
+        }
+        return null;
+    }
+
+    private List<String> getWorkerNameList(BLangExpression expr, SymbolEnv functionEnv) {
+        ArrayList<String> workerNames = new ArrayList<>();
+        populateWorkerNameList(expr, workerNames, functionEnv);
+        return workerNames;
+    }
+
+    private void populateWorkerNameList(BLangExpression expr, ArrayList<String> workerNames, SymbolEnv functionEnv) {
+        if (expr.getKind() == NodeKind.BINARY_EXPR) {
+            BLangBinaryExpr binaryExpr = (BLangBinaryExpr) expr;
+            populateWorkerNameList(binaryExpr.lhsExpr, workerNames, functionEnv);
+            populateWorkerNameList(binaryExpr.rhsExpr, workerNames, functionEnv);
+        } else if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) expr;
+            if (isWorkerSymbol(varRef.symbol) && isWorkerFromFunction(functionEnv, varRef.symbol.name)) {
+                workerNames.add(varRef.variableName.value);
+            }
+        }
+    }
+
+    private boolean isWorkerFromFunction(SymbolEnv functionEnv, Name workerName) {
+        if (functionEnv == null) {
+            return false;
+        }
+
+        if (functionEnv.scope.lookup(workerName).symbol != null) {
+            return true;
+        }
+
+        if (functionEnv.enclInvokable != null) {
+            Set<Flag> flagSet = functionEnv.enclInvokable.flagSet;
+            if (flagSet.contains(Flag.LAMBDA) && !flagSet.contains(Flag.WORKER)) {
+                return false;
+            }
+        }
+        return isWorkerFromFunction(functionEnv.enclEnv, workerName);
+    }
+
+    private boolean isWorkerSymbol(BSymbol symbol) {
+        return symbol != null && (symbol.flags & Flags.WORKER) == Flags.WORKER;
     }
 
     private void reportInvalidWorkerInteractionDiagnostics(WorkerActionSystem workerActionSystem) {
@@ -3995,6 +4208,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         public List<WorkerActionStateMachine> finshedWorkers = new ArrayList<>();
         private Stack<WorkerActionStateMachine> workerActionStateMachines = new Stack<>();
+        private Map<BLangNode, SymbolEnv> workerInteractionEnvironments = new IdentityHashMap<>();
         private boolean hasErrors = false;
 
 
@@ -4035,6 +4249,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         public String currentWorkerId() {
             return workerActionStateMachines.peek().workerId;
         }
+
+        public void addWorkerAction(BLangNode action, SymbolEnv env) {
+            addWorkerAction(action);
+            this.workerInteractionEnvironments.put(action, env);
+        }
+
+        private SymbolEnv getActionEnvironment(BLangNode currentAction) {
+            return workerInteractionEnvironments.get(currentAction);
+        }
     }
 
     /**
@@ -4072,8 +4295,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 return false;
             }
             BLangNode action = this.currentAction();
-            return !isWorkerSend(action) && !isWorkerSyncSend(action) &&
-                    ((BLangWorkerReceive) action).workerIdentifier.value.equals(sourceWorkerId);
+            return !isWorkerSend(action) && !isWorkerSyncSend(action) && !isWaitAction(action)
+                    && ((BLangWorkerReceive) action).workerIdentifier.value.equals(sourceWorkerId);
         }
 
         public void next() {
@@ -4090,6 +4313,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     return ((BLangWorkerSend) action).toActionString();
                 } else if (isWorkerSyncSend(action)) {
                     return ((BLangWorkerSyncSendExpr) action).toActionString();
+                } else if (isWaitAction(action)) {
+                    return action.toString();
                 } else {
                     return ((BLangWorkerReceive) action).toActionString();
                 }

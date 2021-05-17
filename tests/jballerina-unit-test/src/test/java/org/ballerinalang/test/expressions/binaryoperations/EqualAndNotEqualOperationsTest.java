@@ -19,6 +19,7 @@ package org.ballerinalang.test.expressions.binaryoperations;
 import org.ballerinalang.core.model.util.JsonParser;
 import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BByte;
+import org.ballerinalang.core.model.values.BDecimal;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
@@ -162,6 +163,22 @@ public class EqualAndNotEqualOperationsTest {
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected value to be identified as not equal to " +
                 "nil");
+    }
+
+    @Test(description = "Test equals/unequals operation with equal any values", dataProvider = "anyDataValues")
+    public void checkAnyDataEqualityPositive(BValue a, BValue b) {
+        BValue[] returns = BRunUtil.invoke(result, "checkAnyDataEqualityPositive", new BValue[]{a, b});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected values to be identified as equal");
+    }
+
+    @Test(description = "Test equals/unequals operation with not equal any values", dataProvider = "nonAnyDataValues")
+    public void checkAnyDataEqualityNegative(BValue a, BValue b) {
+        BValue[] returns = BRunUtil.invoke(result, "checkAnyDataEqualityNegative", new BValue[]{a, b});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected values to be identified as not equal");
     }
 
     @Test(description = "Test equals/unequals operation with two equal open records")
@@ -878,10 +895,6 @@ public class EqualAndNotEqualOperationsTest {
         validateError(resultNegative, 29, "operator '!=' not defined for 'int' and 'any'", 115, 27);
         validateError(resultNegative, 30, "operator '==' not defined for 'map<(int|string)>' and 'map'", 119, 15);
         validateError(resultNegative, 31, "operator '!=' not defined for 'map' and 'map<(int|string)>'", 119, 27);
-
-        //TODO Table remove - Fix
-//        validateError(resultNegative, 32, "equality not yet supported for type 'table'", 131, 17);
-//        validateError(resultNegative, 33, "equality not yet supported for type 'table'", 132, 9);
         validateError(resultNegative, 32, "operator '==' not defined for 'Employee' and '()'", 166, 9);
         validateError(resultNegative, 33, "operator '==' not defined for 'Foo' and '()'", 172, 9);
         validateError(resultNegative, 34, "operator '==' not defined for 'function () returns (string)' and '()'",
@@ -983,6 +996,30 @@ public class EqualAndNotEqualOperationsTest {
         };
     }
 
+    @DataProvider(name = "anyDataValues")
+    public Object[][] anydataValues() {
+        return new Object[][]{
+                {new BInteger(10), new BInteger(10)},
+                {new BInteger(10), new BByte(10)},
+                {new BByte(5), new BByte(5)},
+                {new BByte(24), new BInteger(24)}
+        };
+    }
+
+    @DataProvider(name = "nonAnyDataValues")
+    public Object[][] nonAnyDataValues() {
+        return new Object[][]{
+                {new BInteger(10), new BInteger(12)},
+                {new BInteger(10), new BByte(12)},
+                {new BInteger(10), new BFloat(10)},
+                {new BInteger(10), new BDecimal("10")},
+                {new BByte(16), new BByte(8)},
+                {new BByte(8), new BInteger(4)},
+                {new BByte(10), new BFloat(10)},
+                {new BByte(10), new BDecimal("10")}
+        };
+    }
+
     @DataProvider(name = "equalArrayValues")
     public Object[][] equalArrayValues() {
         return new Object[][]{
@@ -1060,5 +1097,10 @@ public class EqualAndNotEqualOperationsTest {
                 {"testSelfAndCyclicReferencingArrayEqualityNegative"},
                 {"testSelfAndCyclicReferencingTupleEqualityNegative"}
         };
+    }
+
+    @Test(description = "Test equality with tables")
+    public void testTableEquality() {
+        BRunUtil.invoke(result, "testTableEquality");
     }
 }

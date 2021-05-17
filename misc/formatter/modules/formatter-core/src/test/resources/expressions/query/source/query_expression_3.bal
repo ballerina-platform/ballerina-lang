@@ -13,10 +13,7 @@ public function main() {
        //When the `where` condition evaluates to false, the current iteration is skipped.
        where   student  .  gpa   >=   2.0
                              //The `let` clause binds the variables.
-                             let
-                             string   degreeName   =   "Bachelor of Medicine"  ,   int   graduationYear   =
-                             calGraduationYear  (  student.
-                             intakeYear  )
+                             let     string   degreeName   =   "Bachelor of Medicine"  ,   int   graduationYear   =   calGraduationYear  (  student.    intakeYear  )
                              //The `order by` clause sorts the output items based on the given `order-key` and `order-direction`.
                              //The `order-key` must be an ordered type. The `order-direction` is `ascending` if not specified explicitly.
                              order   by   student . firstName   descending

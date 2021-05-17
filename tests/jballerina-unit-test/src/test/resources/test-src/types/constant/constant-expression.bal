@@ -15,7 +15,7 @@
 // under the License.
 
 const int CAI = 10 + 5;
-const float CAF = 10.0 + 5;
+const float CAF = 10.0 + 5.0;
 const decimal CAD = 11.5 + 4;
 const string CAS = "hello" + "world";
 
@@ -24,7 +24,7 @@ function getConstAdditions() returns [int, float, decimal, string] {
 }
 
 const int CSI = 10 - 5;
-const float CSF = 10.5 - 5;
+const float CSF = 10.5 - 5.0;
 const decimal CSD = 10.5 - 5;
 
 function getConstSubtracts() returns [int, float, decimal] {
@@ -32,7 +32,7 @@ function getConstSubtracts() returns [int, float, decimal] {
 }
 
 const int CMI = 10 * 5;
-const float CMF = 10.5 * 5;
+const float CMF = 10.5 * 5.0;
 const decimal CMD = 10.5 * 5;
 
 function getConstMultiplications() returns [int, float, decimal] {
@@ -40,9 +40,9 @@ function getConstMultiplications() returns [int, float, decimal] {
 }
 
 const int CDI = 10 / 5;
-const float CDF = 10.5 / 5;
-const float NAN = 0.0 / 0;
-const float IFN = 1.0 / 0;
+const float CDF = 10.5 / 5.0;
+const float NAN = 0.0 / 0.0;
+const float IFN = 1.0 / 0.0;
 const decimal CDD = 10.5 / 5;
 
 function getConstDivisions() returns [int, float, float, float, decimal] {

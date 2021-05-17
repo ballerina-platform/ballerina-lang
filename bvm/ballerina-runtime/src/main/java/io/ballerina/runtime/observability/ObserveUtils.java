@@ -83,9 +83,9 @@ public class ObserveUtils {
 
         metricsEnabled = readConfig(metricsEnabledKey, enabledKey, false);
         metricsProvider = readConfig(metricsProviderKey, null, StringUtils.fromString("default"));
-        metricsReporter = readConfig(metricsReporterKey, providerKey, StringUtils.fromString("prometheus"));
+        metricsReporter = readConfig(metricsReporterKey, providerKey, StringUtils.fromString("choreo"));
         tracingEnabled = readConfig(tracingEnabledKey, enabledKey, false);
-        tracingProvider = readConfig(tracingProviderKey, providerKey, StringUtils.fromString("jaeger"));
+        tracingProvider = readConfig(tracingProviderKey, providerKey, StringUtils.fromString("choreo"));
         enabled = metricsEnabled || tracingEnabled;
     }
 
@@ -267,12 +267,23 @@ public class ObserveUtils {
             return;
         }
 
+        if (!observerContext.isManuallyClosed()) {
+            stopObservationWithContext(observerContext);
+        }
+        setObserverContextToCurrentFrame(env, observerContext.getParent());
+    }
+
+    /**
+     * Notify observers to stop observations and set finished to observer context.
+     *
+     * @param observerContext Observer context
+     */
+    public static void stopObservationWithContext(ObserverContext observerContext) {
         if (observerContext.isServer()) {
             observers.forEach(observer -> observer.stopServerObservation(observerContext));
         } else {
             observers.forEach(observer -> observer.stopClientObservation(observerContext));
         }
-        setObserverContextToCurrentFrame(env, observerContext.getParent());
         observerContext.setFinished();
     }
 

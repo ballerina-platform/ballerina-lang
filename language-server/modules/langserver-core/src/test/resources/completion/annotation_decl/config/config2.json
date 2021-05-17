@@ -14,17 +14,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "L",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
@@ -38,6 +27,17 @@
       "detail": "Array",
       "sortText": "M",
       "insertText": "TestRecordArrayType1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "L",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -137,29 +137,6 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
         }
       ]
     },
@@ -296,6 +273,22 @@
       "detail": "type",
       "sortText": "Q",
       "insertText": "xml",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "record {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record {||}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "record {|${1}|}",
       "insertTextFormat": "Snippet"
     }
   ]

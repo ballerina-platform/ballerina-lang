@@ -45,6 +45,7 @@
             <class name="io.ballerina.semantic.api.test.allreferences.AnnotationRefsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindModulePrefixRefsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsAcrossFilesTest" />
+            <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInDoStmtTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInExprsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInLambdasTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInMatchStmtTest" />
@@ -85,6 +86,9 @@
 
             <!--Statements-->
             <class name="io.ballerina.semantic.api.test.statements.SymbolsInMatchStmtTest" />
+
+            <!--Symbols-->
+            <class name="io.ballerina.semantic.api.test.symbols.FunctionSymbolTest" />
         </classes>
     </test>
 </suite>

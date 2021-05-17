@@ -101,28 +101,6 @@
       ]
     },
     {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
@@ -355,13 +333,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "commit",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "commit;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -390,20 +361,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "flag",
-      "kind": "Variable",
-      "detail": "boolean",
-      "insertText": "flag",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "n",
-      "kind": "Variable",
-      "detail": "int",
-      "insertText": "n",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
@@ -420,7 +377,22 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
+      "filterText": "name",
       "insertText": "name()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "flag",
+      "kind": "Variable",
+      "detail": "boolean",
+      "insertText": "flag",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "n",
+      "kind": "Variable",
+      "detail": "int",
+      "insertText": "n",
       "insertTextFormat": "Snippet"
     },
     {

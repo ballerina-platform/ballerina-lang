@@ -57,7 +57,8 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
         Token classKeyword = node.classKeyword();
 
         // class <cursor>. added +1 in order to keep at least one space after the class keyword
-        return !classKeyword.isMissing() && cursor >= classKeyword.textRange().endOffset() + 1;
+        return !classKeyword.isMissing() && cursor > classKeyword.textRange().endOffset()
+                && cursor <= node.closeBrace().textRange().startOffset();
     }
 
     private boolean withinBody(BallerinaCompletionContext context, ClassDefinitionNode node) {
@@ -87,6 +88,9 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
         if (ClassDefinitionNodeContextUtil.onSuggestResourceSnippet(node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.get()));
+        }
+        if (ClassDefinitionNodeContextUtil.onSuggestInitFunction(node)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_INIT_FUNCTION.get()));
         }
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getModuleCompletionItems(context));

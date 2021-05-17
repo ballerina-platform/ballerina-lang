@@ -22,12 +22,15 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 
+import java.util.Objects;
+
 /**
  * Represents the location of a TOML AST Node.
  *
  * @since 2.0.0
  */
 public class TomlNodeLocation implements Location {
+
     private final LineRange lineRange;
     private final TextRange textRange;
 
@@ -46,4 +49,20 @@ public class TomlNodeLocation implements Location {
         return textRange;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        TomlNodeLocation that = (TomlNodeLocation) o;
+        return Objects.equals(lineRange, that.lineRange) && Objects.equals(textRange, that.textRange);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(lineRange, textRange);
+    }
 }

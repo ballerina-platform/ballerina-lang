@@ -653,6 +653,9 @@ public class BIRGen extends BLangNodeVisitor {
         // Populate annotation attachments on function in BIRFunction node
         populateBIRAnnotAttachments(astFunc.annAttachments, birFunc.annotAttachments, this.env);
 
+        // Populate annotation attachments on return type
+        populateBIRAnnotAttachments(astFunc.returnTypeAnnAttachments, birFunc.returnTypeAnnots, this.env);
+
         birFunc.argsCount = astFunc.requiredParams.size()
                 + (astFunc.restParam != null ? 1 : 0) + astFunc.paramClosureMap.size();
         if (astFunc.flagSet.contains(Flag.ATTACHED) && typeDefs.containsKey(astFunc.receiver.type.tsymbol)) {
@@ -1812,7 +1815,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         setScopeAndEmit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos, InstructionKind.MAP_LOAD, tempVarRef,
                 keyRegIndex, varRefRegIndex, astMapAccessExpr.optionalFieldAccess,
-                                              astMapAccessExpr.lhsVar && !astMapAccessExpr.leafNode));
+                                              astMapAccessExpr.isLValue && !astMapAccessExpr.leafNode));
         this.env.targetOperand = tempVarRef;
         this.varAssignment = variableStore;
     }
@@ -2603,7 +2606,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         setScopeAndEmit(new BIRNonTerminator.FieldAccess(astArrayAccessExpr.pos, InstructionKind.ARRAY_LOAD, tempVarRef,
                                               keyRegIndex, varRefRegIndex, false,
-                                              astArrayAccessExpr.lhsVar && !astArrayAccessExpr.leafNode));
+                                              astArrayAccessExpr.isLValue && !astArrayAccessExpr.leafNode));
         this.env.targetOperand = tempVarRef;
 
         this.varAssignment = variableStore;
@@ -2668,7 +2671,7 @@ public class BIRGen extends BLangNodeVisitor {
             setScopeAndEmit(
                     new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, insKind, tempVarRef, keyRegIndex,
                             varRefRegIndex, except,
-                            astIndexBasedAccessExpr.lhsVar && !astIndexBasedAccessExpr.leafNode));
+                            astIndexBasedAccessExpr.isLValue && !astIndexBasedAccessExpr.leafNode));
             this.env.targetOperand = tempVarRef;
         }
         this.varAssignment = variableStore;

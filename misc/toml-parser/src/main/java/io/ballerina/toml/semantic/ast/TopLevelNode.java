@@ -20,6 +20,7 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.toml.syntax.tree.Node;
 
 /**
  * Represents a Top Level Node in TOML.
@@ -30,8 +31,8 @@ public abstract class TopLevelNode extends TomlNode {
 
     private final TomlKeyNode key;
 
-    public TopLevelNode(TomlKeyNode key, TomlType type, TomlNodeLocation location) {
-        super(type, location);
+    public TopLevelNode(Node node, TomlKeyNode key, TomlType type, TomlNodeLocation location) {
+        super(node, type, location);
         this.key = key;
     }
 

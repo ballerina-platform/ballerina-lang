@@ -20,6 +20,13 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.toml.syntax.tree.DocumentMemberDeclarationNode;
+import io.ballerina.toml.syntax.tree.DocumentNode;
+import io.ballerina.toml.syntax.tree.KeyValueNode;
+import io.ballerina.toml.syntax.tree.Node;
+import io.ballerina.toml.syntax.tree.SyntaxKind;
+import io.ballerina.toml.syntax.tree.TableArrayNode;
+import io.ballerina.toml.syntax.tree.TableNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.LinkedHashMap;
@@ -36,21 +43,34 @@ public class TomlTableNode extends TopLevelNode {
     private final Map<String, TopLevelNode> entries;
     private final boolean generated;
 
-    public TomlTableNode(TomlKeyNode key, TomlNodeLocation location) {
-        super(key, TomlType.TABLE, location);
+    public TomlTableNode(DocumentNode documentNode, TomlKeyNode key, TomlNodeLocation location) {
+        super(documentNode, key, TomlType.TABLE, location);
         this.entries = new LinkedHashMap<>();
         this.generated = false;
     }
 
-    public TomlTableNode(TomlKeyNode key, boolean generated, TomlNodeLocation location) {
-        super(key, TomlType.TABLE, location);
+    public TomlTableNode(DocumentMemberDeclarationNode node, TomlKeyNode key, TomlNodeLocation location) {
+        super(node, key, TomlType.TABLE, location);
+        this.entries = new LinkedHashMap<>();
+        this.generated = false;
+    }
+
+    public TomlTableNode(DocumentMemberDeclarationNode node, TomlKeyNode key, boolean generated,
+                         TomlNodeLocation location) {
+        super(node, key, TomlType.TABLE, location);
         this.entries = new LinkedHashMap<>();
         this.generated = generated;
     }
 
-    public TomlTableNode(TomlKeyNode key, boolean generated, TomlNodeLocation location,
+    public TomlTableNode(TableNode tableNode, TomlKeyNode key, boolean generated, TomlNodeLocation location) {
+        super(tableNode, key, TomlType.TABLE, location);
+        this.entries = new LinkedHashMap<>();
+        this.generated = generated;
+    }
+
+    public TomlTableNode(TableNode tableNode, TomlKeyNode key, boolean generated, TomlNodeLocation location,
                          Map<String, TopLevelNode> entries) {
-        super(key, TomlType.TABLE, location);
+        super(tableNode, key, TomlType.TABLE, location);
         this.entries = entries;
         this.generated = generated;
     }
@@ -108,5 +128,41 @@ public class TomlTableNode extends TopLevelNode {
     @Override
     public void accept(TomlNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public boolean isMissingNode() {
+        Node node = this.externalTreeNode();
+        if (node.isMissing()) {
+            return true;
+        }
+        if (node.kind() == SyntaxKind.MODULE_PART) {
+            return false;
+        }
+        if (node.kind() == SyntaxKind.KEY_VALUE) {
+            KeyValueNode keyValueNode = (KeyValueNode) node;
+            if (keyValueNode.isMissing()) {
+                return true;
+            }
+            if (keyValueNode.identifier().isMissing()) {
+                return true;
+            }
+            return keyValueNode.value().isMissing();
+        }
+        if (node.kind() == SyntaxKind.TABLE) {
+            TableNode tableNode = (TableNode) node;
+            if (tableNode.isMissing()) {
+                return true;
+            }
+            return tableNode.identifier().isMissing();
+        }
+        if (node.kind() == SyntaxKind.TABLE_ARRAY) {
+            TableArrayNode tableArrayNode = (TableArrayNode) node;
+            if (tableArrayNode.isMissing()) {
+                return true;
+            }
+            return tableArrayNode.identifier().isMissing();
+        }
+        return false;
     }
 }

@@ -119,7 +119,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "value",
+      "insertText": "value3",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -133,30 +133,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
+          "newText": "import ballerina/lang.value as value3 ;\n"
         }
       ]
     },
@@ -424,14 +401,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "commit",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "insertText": "commit;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -464,11 +433,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "AnnotationType",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "M",
-      "insertText": "AnnotationType",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "A",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -480,11 +449,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "A",
-      "insertText": "Thread",
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "M",
+      "insertText": "AnnotationType",
       "insertTextFormat": "Snippet"
     },
     {
@@ -498,6 +467,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "getTDesc",
       "insertText": "getTDesc()",
       "insertTextFormat": "Snippet"
     },

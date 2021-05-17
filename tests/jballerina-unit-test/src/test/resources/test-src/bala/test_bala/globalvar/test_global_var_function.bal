@@ -11,7 +11,7 @@ function accessGlobalVar() returns int {
 }
 
 function changeGlobalVar(int addVal) returns float {
-    foo:setGlbVarFloatChange(77 + <float> addVal);
+    foo:setGlbVarFloatChange(77.0 + <float> addVal);
     float value = foo:getGlbVarFloatChange();
     return value;
 }

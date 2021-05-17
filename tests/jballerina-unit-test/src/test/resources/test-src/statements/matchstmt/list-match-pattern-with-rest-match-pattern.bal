@@ -153,6 +153,25 @@ function testListMatchPatternWithClosedArray() {
     assertEquals(6, listMatchPattern8([1, 2, 3]));
 }
 
+function listMatchPatternWithRestPattern11(json j) returns json[] {
+    match j {
+        [var x, ...var y] => {
+            y.push(x);
+            return y;
+        }
+    }
+    return [];
+}
+
+function testListMatchPatternWithRestPattern11() {
+    assertEquals(["hello"], listMatchPatternWithRestPattern11(["hello"]));
+    assertEquals([1, "hello world"], listMatchPatternWithRestPattern11(["hello world", 1]));
+    assertEquals(["world", (), "hello"], listMatchPatternWithRestPattern11(["hello", "world", ()]));
+    assertEquals([], listMatchPatternWithRestPattern11([]));
+    assertEquals([], listMatchPatternWithRestPattern11({}));
+    assertEquals([], listMatchPatternWithRestPattern11(1));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
