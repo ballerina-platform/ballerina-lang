@@ -164,21 +164,10 @@ function testTypeNarrowing(string? s) returns string {
     }
 }
 
-function testTypeNarrowingWithClosure() {
+function testTypeNarrowingWithLambda() {
     string? optionalName = "Ballerina";
     var lambdaFunc = function (int|string id) returns ONE {
         int? optionalAge = 20;
-        if optionalName == "Ballerina" {
-            boolean result;
-            // Type of optionalName should not be narrowed since it's not a local var or param
-            if (optionalName is string?) {
-                result = true;
-            } else {
-                result = false;
-            }
-            assertTrue(result);
-        }
-
         if optionalAge == () {
             () d = optionalAge;
         }
@@ -191,7 +180,7 @@ function testTypeNarrowingWithClosure() {
     };
 }
 
-function testResetTypeNarrowingForConditionalExpr() {
+function testResetTypeNarrowingForCompoundAssignment() {
     int a = 5;
     if a == 5 {
         a += 1;
