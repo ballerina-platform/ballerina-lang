@@ -1180,18 +1180,6 @@ class NodeFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangDo doNode) {
-        lookupNode(doNode.body);
-        lookupNode(doNode.onFailClause);
-    }
-
-    @Override
-    public void visit(BLangOnFailClause onFailClause) {
-        lookupNode((BLangNode) onFailClause.variableDefinitionNode);
-        lookupNode(onFailClause.body);
-    }
-
-    @Override
     public void visit(BLangMatchStatement matchStatementNode) {
         lookupNode(matchStatementNode.expr);
         lookupNodes(matchStatementNode.matchClauses);
