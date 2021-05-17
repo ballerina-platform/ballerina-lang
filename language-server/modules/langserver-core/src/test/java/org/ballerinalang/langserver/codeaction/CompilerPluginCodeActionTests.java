@@ -15,8 +15,11 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import io.ballerina.projects.Project;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -28,9 +31,14 @@ import java.io.IOException;
  */
 public class CompilerPluginCodeActionTests extends AbstractCodeActionTest {
 
+    private Project project;
+
     @BeforeClass
     public void init() throws Exception {
-        BCompileUtil.compileAndCacheBala("compiler_plugin_tests/package_comp_plugin_with_codeactions");
+        CompileResult compileResult = BCompileUtil.compileAndCacheBala(
+                "compiler_plugin_tests/package_comp_plugin_with_codeactions");
+        project = compileResult.project();
+
         super.init();
     }
 
@@ -50,5 +58,10 @@ public class CompilerPluginCodeActionTests extends AbstractCodeActionTest {
     @Override
     public String getResourceDir() {
         return "compiler-plugins";
+    }
+
+    @AfterClass
+    public void tearDown() {
+        BCompileUtil.clearCachedBala(project);
     }
 }

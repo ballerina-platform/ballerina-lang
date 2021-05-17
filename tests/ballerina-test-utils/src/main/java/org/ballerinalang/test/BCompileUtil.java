@@ -29,6 +29,7 @@ import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.repos.FileSystemCache;
+import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.slf4j.Logger;
@@ -154,6 +155,17 @@ public class BCompileUtil {
         CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
         invokeModuleInit(compileResult);
         return compileResult;
+    }
+
+    public static void clearCachedBala(Project project) {
+        Package currentPackage = project.currentPackage();
+        Path balaCachePath = balaCachePath(currentPackage.packageOrg().toString(),
+                currentPackage.packageName().toString(), currentPackage.packageVersion().toString());
+        try {
+            FileUtils.deletePath(balaCachePath);
+        } catch (IOException e) {
+            logger.error("Unable to delete bala cache dir", e);
+        }
     }
 
     private static JBallerinaBackend jBallerinaBackend(Package currentPackage) {

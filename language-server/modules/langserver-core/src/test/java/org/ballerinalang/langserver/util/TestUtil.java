@@ -75,6 +75,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -421,7 +422,7 @@ public class TestUtil {
     public static Endpoint initializeLanguageSever() {
         BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
         Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(languageServer,
-                ExtendedLanguageClient.class, System.in, System.out);
+                ExtendedLanguageClient.class, System.in, OutputStream.nullOutputStream());
         ExtendedLanguageClient client = launcher.getRemoteProxy();
         languageServer.connect(client);
         
