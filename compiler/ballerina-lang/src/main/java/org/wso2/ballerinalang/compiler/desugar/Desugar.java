@@ -2649,20 +2649,7 @@ public class Desugar extends BLangNodeVisitor {
             Location pos = parentBlockStmt.pos;
             BLangSimpleVarRef restParamRef = (BLangSimpleVarRef) parentRecordVarRef.restParam;
 
-//            BType restParamType = restParamRef.type;;
-//            if (restParamRef.type.tag == TypeTags.RECORD) {
-//                restParamType = restParamRef.type;
-//            } else {
-//                restParamType = (BMapType) restParamRef.type;
-//            }
-
             BType restParamType = restParamRef.type;
-//            if (restParamRef.type.tag == TypeTags.RECORD) {
-//                restParamType = new BMapType(TypeTags.MAP,
-//                        ((BRecordType) restParamRef.type).restFieldType, null);
-//            } else {
-//                restParamType = (BMapType) restParamRef.type;
-//            }
             BLangSimpleVarRef variableReference;
 
             if (parentIndexAccessExpr != null) {
