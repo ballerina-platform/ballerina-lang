@@ -258,7 +258,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             Predicate<Symbol> predicate = symbol -> symbol.getName().isPresent()
                     && symbol.kind() == SymbolKind.FUNCTION;
             Predicate<Symbol> qNamePredicate =
-                    predicate.and(symbol -> symbol.getName().get().equals(qNameRef.identifier().text()));
+                    predicate.and(symbol -> symbol.getName().isPresent()
+                            && symbol.getName().get().equals(qNameRef.identifier().text()));
             funcSymbol = this.getTypeFromQNameReference(qNameRef, qNamePredicate);
         } else if (nameRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             funcSymbol = getSymbolByName(((SimpleNameReferenceNode) nameRef).name().text());
@@ -266,7 +267,12 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
-        if (!CommonUtil.isInFunctionCallParameterContext(context, node)) {
+        if (funcSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+
+        if (!CommonUtil.isInFunctionCallParameterContext(context, node)
+                || !(funcSymbol.get() instanceof FunctionSymbol)) {
             return SymbolUtil.getTypeDescriptor(funcSymbol.get());
         }
 
