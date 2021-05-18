@@ -222,14 +222,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lang.float",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "float",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
@@ -457,14 +449,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -473,6 +457,14 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -588,14 +580,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "validator2",
-      "kind": "Variable",
-      "detail": "boolean",
-      "sortText": "B",
-      "insertText": "validator2",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "validator1",
       "kind": "Variable",
       "detail": "boolean",
@@ -621,6 +605,14 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "validator2",
+      "kind": "Variable",
+      "detail": "boolean",
+      "sortText": "B",
+      "insertText": "validator2",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "worker",

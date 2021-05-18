@@ -76,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
@@ -100,8 +101,6 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static org.ballerinalang.langserver.common.utils.CommonKeys.PKG_DELIMITER_KEYWORD;
@@ -182,10 +181,10 @@ public class CommonUtil {
      */
     public static List<TextEdit> getAutoImportTextEdits(@Nonnull String orgName, String pkgName,
                                                         DocumentServiceContext context) {
-        List<ImportDeclarationNode> currentDocImports = context.currentDocImports();
+        Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();
         Position start = new Position(0, 0);
         if (currentDocImports != null && !currentDocImports.isEmpty()) {
-            ImportDeclarationNode last = CommonUtil.getLastItem(currentDocImports);
+            ImportDeclarationNode last = CommonUtil.getLastItem(new ArrayList<>(currentDocImports.keySet()));
             int endLine = last.lineRange().endLine().line();
             start = new Position(endLine, 0);
         }
@@ -210,10 +209,10 @@ public class CommonUtil {
      */
     public static List<TextEdit> getAutoImportTextEdits(@Nonnull String orgName, String pkgName, String alias,
                                                         DocumentServiceContext context) {
-        List<ImportDeclarationNode> currentDocImports = context.currentDocImports();
+        Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();
         Position start = new Position(0, 0);
         if (currentDocImports != null && !currentDocImports.isEmpty()) {
-            ImportDeclarationNode last = CommonUtil.getLastItem(currentDocImports);
+            ImportDeclarationNode last = CommonUtil.getLastItem(new ArrayList<>(currentDocImports.keySet()));
             int endLine = last.lineRange().endLine().line();
             start = new Position(endLine, 0);
         }
@@ -824,7 +823,7 @@ public class CommonUtil {
             pkgPrefix = (!preDeclaredLangLib && BALLERINA_KEYWORDS.contains(pkgPrefix)) ? "'" + pkgPrefix : pkgPrefix;
 
             // See if an alias (ex: import project.module1 as mod1) is used
-            List<ImportDeclarationNode> existingModuleImports = context.currentDocImports().stream()
+            List<ImportDeclarationNode> existingModuleImports = context.currentDocImportsMap().keySet().stream()
                     .filter(importDeclarationNode ->
                             CodeActionModuleId.from(importDeclarationNode).moduleName().equals(moduleID.moduleName()))
                     .collect(Collectors.toList());
@@ -1024,8 +1023,8 @@ public class CommonUtil {
     public static Optional<ImportDeclarationNode> matchingImportedModule(CompletionContext context, Package pkg) {
         String name = pkg.packageName().value();
         String orgName = pkg.packageOrg().value();
-        List<ImportDeclarationNode> currentDocImports = context.currentDocImports();
-        return currentDocImports.stream()
+        Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();
+        return currentDocImports.keySet().stream()
                 .filter(importPkg -> importPkg.orgName().isPresent()
                         && importPkg.orgName().get().orgName().text().equals(orgName)
                         && CommonUtil.getPackageNameComponentsCombined(importPkg).equals(name))
@@ -1042,17 +1041,12 @@ public class CommonUtil {
      */
     public static Optional<ImportDeclarationNode> matchingImportedModule(DocumentServiceContext context, String orgName,
                                                                          String modName) {
-        List<ImportDeclarationNode> currentDocImports = context.currentDocImports();
-        return currentDocImports.stream()
+        Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();
+        return currentDocImports.keySet().stream()
                 .filter(importPkg -> (importPkg.orgName().isEmpty()
                         || importPkg.orgName().get().orgName().text().equals(orgName))
                         && CommonUtil.getPackageNameComponentsCombined(importPkg).equals(modName))
                 .findFirst();
-    }
-
-    public static boolean isPreDeclaredLangLib(Package pkg) {
-        return "ballerina".equals(pkg.packageOrg().value())
-                && CommonUtil.PRE_DECLARED_LANG_LIBS.contains(pkg.packageName().value());
     }
 
     public static String getModifiedTypeName(DocumentServiceContext context, TypeSymbol typeSymbol) {
@@ -1095,11 +1089,12 @@ public class CommonUtil {
         String[] modNameComponents = modName.split("\\.");
         return modNameComponents[modNameComponents.length - 1];
     }
+
     /**
      * Get the validated symbol name against the visible symbols.
      * This method can be used to auto generate the symbol names without conflicting with the existing symbol names
      *
-     * @param context completion context
+     * @param context    completion context
      * @param symbolName raw symbol name to modify with the numbered suffix
      * @return {@link String} modified symbol name
      */
@@ -1134,7 +1129,7 @@ public class CommonUtil {
 
     /**
      * Escape a given value.
-     * 
+     *
      * @param value to be escape
      * @return {@link String}
      */
