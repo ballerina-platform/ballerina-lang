@@ -1189,6 +1189,7 @@ public class BRunUtil {
                 return new BTypeDesc(typedescType.getName(),
                         typedescType.getPackage() == null ? null : typedescType.getPackage().getName());
             case io.ballerina.runtime.api.TypeTags.NULL_TAG:
+            case io.ballerina.runtime.api.TypeTags.NEVER_TAG:
                 return BTypes.typeNull;
             case io.ballerina.runtime.api.TypeTags.FINITE_TYPE_TAG:
                 io.ballerina.runtime.api.types.FiniteType jvmBFiniteType =
