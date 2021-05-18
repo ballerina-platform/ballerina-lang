@@ -240,22 +240,6 @@ public class PackageLoader {
 
     }
 
-    private RepoNode[] loadSystemRepos() {
-        List<RepoNode> systemList;
-        ServiceLoader<SystemPackageRepositoryProvider> loader
-                = ServiceLoader.load(SystemPackageRepositoryProvider.class);
-        systemList = StreamSupport.stream(loader.spliterator(), false)
-                                  .map(SystemPackageRepositoryProvider::loadRepository)
-                                  .filter(Objects::nonNull)
-                                  .map(r -> node(r))
-                                  .collect(Collectors.toList());
-        return systemList.toArray(new RepoNode[systemList.size()]);
-    }
-    
-    private PackageEntity loadPackageEntity(PackageID pkgId) {
-        return loadPackageEntity(pkgId, null, null);
-    }
-    
     private PackageEntity loadPackageEntity(PackageID pkgId, PackageID enclPackageId,
                                             RepoHierarchy encPkgRepoHierarchy) {
         updateModuleIDVersion(pkgId, enclPackageId);
@@ -386,38 +370,6 @@ public class PackageLoader {
         return packageNode;
     }
 
-    public BLangPackage loadPackage(PackageID pkgId) {
-        // TODO Remove this method()
-        BLangPackage bLangPackage = packageCache.get(pkgId);
-        if (bLangPackage != null) {
-            return bLangPackage;
-        }
-    
-        BLangPackage packageNode = loadPackageFromEntity(pkgId, loadPackageEntity(pkgId));
-        if (packageNode == null) {
-            throw ProjectDirs.getPackageNotFoundError(pkgId);
-        }
-        return packageNode;
-    }
-
-    public BLangPackage loadAndDefinePackage(String orgName, String pkgName, String version) {
-        // TODO This is used only to load the builtin package.
-        PackageID pkgId = getPackageID(orgName, pkgName, version);
-        return loadAndDefinePackage(pkgId);
-    }
-
-    public BLangPackage loadAndDefinePackage(PackageID pkgId) {
-        // TODO this used only by the language server component and the above method.
-        BLangPackage bLangPackage = loadPackage(pkgId);
-        if (bLangPackage == null) {
-            return null;
-        }
-
-        this.symbolEnter.definePackage(bLangPackage);
-        bLangPackage.symbol.compiledPackage = createInMemoryCompiledPackage(bLangPackage);
-        return bLangPackage;
-    }
-
     public BPackageSymbol loadPackageSymbol(PackageID packageId, PackageID enclPackageId,
                                             RepoHierarchy encPkgRepoHierarchy) {
         BPackageSymbol packageSymbol = this.packageCache.getSymbol(packageId);
@@ -449,20 +401,6 @@ public class PackageLoader {
 
     // Private methods
 
-    private PackageID getPackageID(String org, String sourcePkg, String version) {
-        // split from '.', '\' and '/'
-        List<Name> pkgNameComps = getPackageNameComps(sourcePkg);
-        Name orgName = new Name(org);
-        return new PackageID(orgName, pkgNameComps, new Name(version));
-    }
-
-    private List<Name> getPackageNameComps(String sourcePkg) {
-        String[] pkgParts = sourcePkg.split("\\.|\\\\|\\/");
-        return Arrays.stream(pkgParts)
-                     .map(names::fromString)
-                     .collect(Collectors.toList());
-    }
-
     private BPackageSymbol parseAndDefine(PackageID pkgId, PackageSource pkgSource) {
         // 1) Parse the source package
         BLangPackage pkgNode = parse(pkgId, pkgSource);
@@ -481,16 +419,6 @@ public class PackageLoader {
             testablePackage.symbol.compiledPackage = createInMemoryCompiledPackage(testablePackage);
         }
         return pkgNode.symbol;
-    }
-
-    private BLangPackage loadPackageFromEntity(PackageID pkgId, PackageEntity pkgEntity) {
-        if (pkgEntity == null) {
-            return null;
-        }
-
-        BLangPackage bLangPackage = parse(pkgId, (PackageSource) pkgEntity);
-        this.packageCache.put(pkgId, bLangPackage);
-        return bLangPackage;
     }
 
     private BLangPackage parse(PackageID pkgId, PackageSource pkgSource) {
