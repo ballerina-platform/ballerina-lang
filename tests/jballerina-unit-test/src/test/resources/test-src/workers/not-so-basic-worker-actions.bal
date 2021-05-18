@@ -27,7 +27,7 @@ function forkWithTimeoutTest1() returns map<anydata> {
     }
 
     future<map<anydata>> f = @strand{thread:"any"} start timeoutFunction1(1000, m);
-    map<anydata> waitedResult = (wait w3 | f);
+    map<anydata> waitedResult = checkpanic (wait w3 | f);
     var result = waitedResult.clone();
     return result;
 }
@@ -55,7 +55,7 @@ function forkWithTimeoutTest2() returns map<anydata> {
     }
 
     future<map<anydata>> f = @strand{thread:"any"} start timeoutFunction1(5000, m);
-    map<anydata> waitedResult = (wait w3 | f);
+    map<anydata> waitedResult = checkpanic (wait w3 | f);
     var result = waitedResult.clone();
     return result;
 }
@@ -295,7 +295,7 @@ function forkWithWaitOnAllSelectedWorkers2() returns int {
     }
 
     future<int> f = @strand{thread:"any"} start timeoutFunction2(1000);
-    return (wait w4 | f);
+    return checkpanic (wait w4 | f);
 }
 
 // Function used to provide timeout functionality

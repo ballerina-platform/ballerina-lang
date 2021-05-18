@@ -14,6 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.test.worker;
 
 import org.ballerinalang.core.model.values.BInteger;
@@ -293,13 +294,6 @@ public class WorkerTest {
         } finally {
             System.setOut(defaultOut);
         }
-    }
-
-    @Test
-    public void waitOnSameFutureByMultiple() {
-        BValue[] returns = BRunUtil.invoke(result, "waitOnSameFutureByMultiple");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 18);
     }
 
     @Test
