@@ -276,7 +276,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(localVariables, "tableVar", "table<Employee>[3]", "table");
 
         // stream variable visibility test
-        debugTestRunner.assertVariable(localVariables, "oddNumberStream", "stream<int,error>", "stream");
+        debugTestRunner.assertVariable(localVariables, "oddNumberStream", "stream<int, error>", "stream");
 
         // never variable visibility test
         debugTestRunner.assertVariable(localVariables, "neverVar", "", "xml");

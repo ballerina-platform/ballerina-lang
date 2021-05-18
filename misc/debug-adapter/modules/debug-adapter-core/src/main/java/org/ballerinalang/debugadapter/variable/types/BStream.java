@@ -49,11 +49,13 @@ public class BStream extends BSimpleVariable {
      */
     private static String processStringValue(String stringValue) {
         if (stringValue.startsWith("stream <stream") && stringValue.endsWith(">>")) {
-            stringValue = stringValue.replaceFirst("stream <stream", "stream").replaceFirst(">>$", ">");
+            stringValue = stringValue.replaceFirst("^stream <stream", "stream").replaceFirst(">>$", ">");
         }
         if (stringValue.startsWith("stream<(") && stringValue.endsWith(")>")) {
             stringValue = stringValue.replaceFirst("stream<\\(", "stream <").replaceFirst("\\)>$", ">");
         }
+        // Adds trailing whitespaces for comma separators, if required.
+        stringValue = stringValue.replaceAll(",\\s*", ", ");
         return stringValue;
     }
 }
