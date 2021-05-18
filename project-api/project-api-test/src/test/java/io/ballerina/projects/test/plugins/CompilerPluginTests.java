@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public class CompilerPluginTests {
+
     private static final Path RESOURCE_DIRECTORY = Paths.get(
             "src/test/resources/compiler_plugin_tests").toAbsolutePath();
     private static final PrintStream OUT = System.out;
@@ -61,6 +62,8 @@ public class CompilerPluginTests {
                 "compiler_plugin_tests/package_comp_plugin_with_func_node_analyzer");
         BCompileUtil.compileAndCacheBala(
                 "compiler_plugin_tests/package_comp_plugin_lifecycle_listener");
+        BCompileUtil.compileAndCacheBala(
+                "compiler_plugin_tests/package_comp_plugin_with_codeactions");
     }
 
     @Test

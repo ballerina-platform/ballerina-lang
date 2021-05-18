@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
@@ -46,11 +47,13 @@ import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DocumentFormattingParams;
 import org.eclipse.lsp4j.DocumentSymbolParams;
+import org.eclipse.lsp4j.ExecuteCommandCapabilities;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.FoldingRangeCapabilities;
 import org.eclipse.lsp4j.FoldingRangeRequestParams;
 import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.InitializeParams;
+import org.eclipse.lsp4j.InitializedParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceContext;
@@ -63,13 +66,16 @@ import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.eclipse.lsp4j.WorkspaceClientCapabilities;
 import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
+import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -415,8 +421,14 @@ public class TestUtil {
      */
     public static Endpoint initializeLanguageSever() {
         BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
+        Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(languageServer,
+                ExtendedLanguageClient.class, System.in, OutputStream.nullOutputStream());
+        ExtendedLanguageClient client = launcher.getRemoteProxy();
+        languageServer.connect(client);
+        
         Endpoint endpoint = ServiceEndpoints.toEndpoint(languageServer);
         endpoint.request("initialize", getInitializeParams());
+        endpoint.request("initialized", new InitializedParams());
 
         return endpoint;
     }
@@ -529,6 +541,12 @@ public class TestUtil {
         textDocumentClientCapabilities.setFoldingRange(foldingRangeCapabilities);
 
         capabilities.setTextDocument(textDocumentClientCapabilities);
+
+        WorkspaceClientCapabilities workspaceCapabilities = new WorkspaceClientCapabilities();
+        workspaceCapabilities.setExecuteCommand(new ExecuteCommandCapabilities(true));
+
+        capabilities.setWorkspace(workspaceCapabilities);
+        
         params.setCapabilities(capabilities);
         return params;
     }
