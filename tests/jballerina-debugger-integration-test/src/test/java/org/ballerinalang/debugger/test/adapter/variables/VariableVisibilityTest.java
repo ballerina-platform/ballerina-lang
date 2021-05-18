@@ -337,7 +337,8 @@ public class VariableVisibilityTest extends BaseTestCase {
 
         // record child variable visibility test (Student record)
         Map<String, Variable> studentRecordChildVariables =
-            debugTestRunner.fetchChildVariables(localVariables.get("recordVar"));
+                debugTestRunner.fetchChildVariables(localVariables.get("recordVar"));
+        Assert.assertEquals(studentRecordChildVariables.size(), 3);
         debugTestRunner.assertVariable(studentRecordChildVariables, "1st_name", "John Doe", "string");
         debugTestRunner.assertVariable(studentRecordChildVariables, "grades", "Grades", "record");
         debugTestRunner.assertVariable(studentRecordChildVariables, "Ȧɢέ_ /:@[`{~π", "20", "int");

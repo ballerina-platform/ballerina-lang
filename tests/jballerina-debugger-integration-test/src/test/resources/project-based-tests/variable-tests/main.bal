@@ -19,7 +19,7 @@ import ballerina/lang.'int;
 type '\ \/\:\@\[\`\{\~\u{03C0}_123_ƮέŞŢ_Student record {
     string '1st_name;
     int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{03C0};
-    Grades grades;
+    Grades grades?;
 };
 
 type Address record {|
