@@ -242,6 +242,20 @@ function testErrorMatchPattern13() {
     assertEquals("Matched", result);
 }
 
+function testErrorMatchPattern14() {
+    any|error e = error("Message1");
+    string result = "Not Matched";
+    match e {
+        error("Message1", det1 = var det1) => {
+            result = "Matched with incorrect error";
+        }
+        error("Message1")=> {
+            result = "Matched";
+        }
+    }
+    assertEquals("Matched", result);
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
