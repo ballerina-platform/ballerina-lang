@@ -249,7 +249,7 @@ function testErrorMatchPattern14() {
         error("Message1", det1 = var det1) => {
             result = "Matched with incorrect error";
         }
-        error("Message1")=> {
+        error("Message1") => {
             result = "Matched";
         }
     }
