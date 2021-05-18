@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
-import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -55,15 +54,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortText;
-import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortTextForInitContextItem;
 import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortTextForModule;
-import static org.ballerinalang.langserver.completions.util.SortingUtil.getAssignableType;
 
 /**
  * Completion provider for {@link ListenerDeclarationNode} context.

@@ -21,8 +21,9 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.eclipse.lsp4j.CompletionItem;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
+
+import javax.annotation.Nullable;
 
 /**
  * Represents a Type Descriptor Based Completion Item.

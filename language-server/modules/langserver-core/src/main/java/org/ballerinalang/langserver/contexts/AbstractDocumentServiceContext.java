@@ -36,7 +36,6 @@ import org.eclipse.lsp4j.Position;
 
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
