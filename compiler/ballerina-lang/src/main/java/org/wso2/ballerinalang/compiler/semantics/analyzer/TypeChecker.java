@@ -4092,7 +4092,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (types.isTypeCastable(expr, exprType, targetType, this.env)) {
             // We reach this block only if the cast is valid, so we set the target type as the actual type.
             actualType = targetType;
-        } else if (exprType != symTable.semanticError) {
+        } else if (exprType != symTable.semanticError && exprType != symTable.noType) {
             dlog.error(conversionExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES_CAST, exprType, targetType);
         }
         resultType = types.checkType(conversionExpr, actualType, this.expType);
