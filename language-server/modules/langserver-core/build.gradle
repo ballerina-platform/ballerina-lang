@@ -33,8 +33,8 @@ configurations {
     }
     libs
     distributionBala
-    compilerPluginJar {
-        transitive false
+    tests {
+        transitive true
     }
 }
 
@@ -80,9 +80,6 @@ dependencies {
     dependency 'com.google.guava:guava:24.1.1-jre'
 
     testCompile 'org.testng:testng'
-    testCompile project(':ballerina-test-utils')
-
-    compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-codeactions')
 }
 
 description = 'Ballerina - Language server - Core'
@@ -107,9 +104,16 @@ task createZip(type: Zip) {
     dependsOn createBalHome
 }
 
+task testJar(type: Jar, dependsOn: testClasses) {
+    baseName = "test-${project.archivesBaseName}"
+    from sourceSets.test.output
+}
+
 artifacts {
     dist file: file(createZip.archiveFile), builtBy: createZip
     libs configurations.dependency.files
+    
+    tests testJar
 }
 
 createJavadoc {
@@ -117,13 +121,7 @@ createJavadoc {
     exclude "**"
 }
 
-task copyCompilerPluginJars(type: Copy) {
-    from configurations.compilerPluginJar
-    into "$buildDir/compiler-plugin-jars"
-}
-
 test {
-    dependsOn copyCompilerPluginJars
     dependsOn loadDistributionCache
     systemProperty "ballerina.home", "$buildDir/"
     systemProperty "experimental", "true"
