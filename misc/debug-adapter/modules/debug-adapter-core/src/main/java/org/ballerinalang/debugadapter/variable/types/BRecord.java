@@ -35,6 +35,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALU
 public class BRecord extends NamedCompoundVariable {
 
     private static final String RECORD_FIELD_PATTERN_IDENTIFIER = "$value$";
+    private static final String GENERATED_RECORD_FIELD_IDENTIFIER = "$";
 
     public BRecord(SuspendedContext context, String name, Value value) {
         super(context, name, BVariableType.RECORD, value);
@@ -59,7 +60,8 @@ public class BRecord extends NamedCompoundVariable {
             Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
             Map<String, Value> recordFields = new LinkedHashMap<>();
             fieldValueMap.forEach((field, value) -> {
-                if (field.toString().contains(RECORD_FIELD_PATTERN_IDENTIFIER)) {
+                if (field.toString().contains(RECORD_FIELD_PATTERN_IDENTIFIER)
+                        && !field.name().contains(GENERATED_RECORD_FIELD_IDENTIFIER)) {
                     recordFields.put(field.name(), value);
                 }
             });
