@@ -97,9 +97,6 @@ dependencies {
     dist 'com.atomikos:atomikos-util:5.0.8'
     dist 'com.atomikos:transactions:5.0.8'
 
-    // Temporary workaround until moving to native Toml Parser
-    dist 'com.moandjiezana.toml:toml4j:0.7.2'
-
     dist project(':ballerina-tools-api')
     dist project(':ballerina-parser')
     dist project(':ballerina-tools-api')
