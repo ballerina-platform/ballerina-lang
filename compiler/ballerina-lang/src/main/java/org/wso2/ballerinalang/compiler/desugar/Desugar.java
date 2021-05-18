@@ -1864,7 +1864,6 @@ public class Desugar extends BLangNodeVisitor {
         } else {
             constraintType = ((BMapType) targetType).constraint;
         }
-        targetType = new BMapType(TypeTags.MAP, constraintType, null);
         BType entriesType = new BMapType(TypeTags.MAP,
                 new BTupleType(Arrays.asList(symTable.stringType, constraintType)), null);
         BLangSimpleVariable entriesInvocationVar = defVariable(pos, entriesType, parentBlockStmt,
@@ -1885,10 +1884,18 @@ public class Desugar extends BLangNodeVisitor {
                 mapInvocation,
                 filteredVarName);
 
+        BLangSimpleVariable converted = filtered;
+
+        if (targetType.tag == TypeTags.RECORD) {
+            String filteredRecVarName = "$filteredRecord";
+            BLangInvocation recordConversion = generateCloneWithTypeInvocation(pos, targetType, filtered.symbol);
+            converted = defVariable(pos, targetType, parentBlockStmt, recordConversion, filteredRecVarName);
+        }
+
         String filteredRestVarName = "$restVar$" + UNDERSCORE + restNum;
 
         return defVariable(pos, targetType, parentBlockStmt,
-                addConversionExprIfRequired(createVariableRef(pos, filtered.symbol), targetType),
+                addConversionExprIfRequired(createVariableRef(pos, converted.symbol), targetType),
                 filteredRestVarName);
     }
 
@@ -2642,13 +2649,20 @@ public class Desugar extends BLangNodeVisitor {
             Location pos = parentBlockStmt.pos;
             BLangSimpleVarRef restParamRef = (BLangSimpleVarRef) parentRecordVarRef.restParam;
 
-            BMapType restParamType;
-            if (restParamRef.type.tag == TypeTags.RECORD) {
-                restParamType = new BMapType(TypeTags.MAP,
-                        ((BRecordType) restParamRef.type).restFieldType, null);
-            } else {
-                restParamType = (BMapType) restParamRef.type;
-            }
+//            BType restParamType = restParamRef.type;;
+//            if (restParamRef.type.tag == TypeTags.RECORD) {
+//                restParamType = restParamRef.type;
+//            } else {
+//                restParamType = (BMapType) restParamRef.type;
+//            }
+
+            BType restParamType = restParamRef.type;
+//            if (restParamRef.type.tag == TypeTags.RECORD) {
+//                restParamType = new BMapType(TypeTags.MAP,
+//                        ((BRecordType) restParamRef.type).restFieldType, null);
+//            } else {
+//                restParamType = (BMapType) restParamRef.type;
+//            }
             BLangSimpleVarRef variableReference;
 
             if (parentIndexAccessExpr != null) {

@@ -139,6 +139,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -2474,8 +2475,10 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         if (recordVar.restParam != null) {
             BType restType = getRestParamType(recordVarType);
-            BType restConstraint = createRecordTypeForRestField(env, recordVarType, recordVar,
-                    restType);
+            List<String> varList = recordVar.variableList.stream().map(t -> t.getKey().value)
+                    .collect(Collectors.toList());
+            BType restConstraint = createRecordTypeForRestField(recordVar.restParam.getPosition(), env, recordVarType,
+                    varList, restType);
             defineMemberNode(((BLangSimpleVariable) recordVar.restParam), env, restConstraint);
         }
 
@@ -2556,9 +2559,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         return this.types.mergeTypes(restVarSymbolMapType, restConstraintType);
     }
 
-    BType createRecordTypeForRestField(SymbolEnv env, BRecordType recordType, BLangRecordVariable recordVariable,
+    BType createRecordTypeForRestField(Location pos, SymbolEnv env, BRecordType recordType,
+                                       List<String> variableList,
                                        BType restConstraint) {
-        Location pos = recordVariable.pos;
         BRecordTypeSymbol recordSymbol = createAnonRecordSymbol(env, pos);
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
 
@@ -2566,8 +2569,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             putAll(recordType.fields);
         }};
 
-        for (BLangRecordVariable.BLangRecordVariableKeyValue recordVariableKeyValue : recordVariable.variableList) {
-            String fieldName = recordVariableKeyValue.key.value;
+        for (String fieldName : variableList) {
             unMappedFields.remove(fieldName);
             BField newField = new BField(names.fromString(fieldName), pos,
                     new BVarSymbol(Flags.OPTIONAL, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
@@ -2579,6 +2581,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         recordVarType.fields = fields;
         BType restType = getRestMatchPatternConstraintType(recordType, unMappedFields, restConstraint);
         recordVarType.restFieldType = restType;
+
+        BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(recordVarType,
+                env.enclPkg.packageID, symTable, pos);
+        recordTypeNode.initFunction =
+                TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
+        TypeDefBuilderHelper.addTypeDefinition(recordVarType, recordSymbol, recordTypeNode, env);
+
         return recordVarType;
     }
 
