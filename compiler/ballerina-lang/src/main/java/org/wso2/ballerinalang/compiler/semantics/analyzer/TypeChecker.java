@@ -3728,7 +3728,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
         String workerName = isReferencingNonWorker((BLangBinaryExpr) expression);
-        if (workerName == null && !workerName.isEmpty()) {
+        if (workerName != null && !workerName.isEmpty()) {
             return;
         }
 
@@ -3776,7 +3776,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangExpression lhsExpr = binaryExpr.lhsExpr;
         BLangExpression rhsExpr = binaryExpr.rhsExpr;
         String lhsWorkerName = isReferencingNonWorker(lhsExpr);
-        if (lhsWorkerName != null) {
+        if (lhsWorkerName != null && lhsWorkerName.isEmpty()) {
             return lhsWorkerName;
         }
         return isReferencingNonWorker(rhsExpr);
@@ -3846,10 +3846,11 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = ((BFutureType) resultType).constraint;
         }
 
-        if (waitExpr.exprList.size() == 1) {
-            setEventualTypeForWaitExpression(waitExpr.getExpression(), waitExpr.pos);
+        BLangExpression waitFutureExpression = waitExpr.getExpression();
+        if (waitFutureExpression.getKind() == NodeKind.BINARY_EXPR) {
+            setEventualTypeForAlternateWaitExpression(waitFutureExpression, waitExpr.pos);
         } else {
-            setEventualTypeForAlternateWaitExpression(waitExpr.getExpression(), waitExpr.pos);
+            setEventualTypeForWaitExpression(waitFutureExpression, waitExpr.pos);
         }
         waitExpr.type = resultType;
 
