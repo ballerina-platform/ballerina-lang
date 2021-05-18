@@ -40,4 +40,10 @@ public class STInvalidNodeMinutiae extends STMinutiae {
     public void writeTo(StringBuilder builder) {
         invalidNode.writeTo(builder);
     }
+
+    @Override
+    public String toString() {
+        // TODO for testing purpose only
+        return " INVALID[" + this.text() + "]";
+    }
 }

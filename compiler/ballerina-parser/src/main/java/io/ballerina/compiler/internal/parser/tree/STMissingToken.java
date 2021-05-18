@@ -74,7 +74,7 @@ public class STMissingToken extends STToken {
     @Override
     public String toString() {
         // TODO for testing purpose only
-        return " MISSING[" + kind.stringValue() + "]";
+        return " MISSING[" + leadingMinutiae + kind.stringValue() + trailingMinutiae + "]";
     }
 
     @Override

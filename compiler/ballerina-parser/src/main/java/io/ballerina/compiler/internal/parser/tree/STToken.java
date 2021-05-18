@@ -77,6 +77,17 @@ public class STToken extends STNode {
         return trailingMinutiae;
     }
 
+    public boolean hasTrailingNewline() {
+        // TODO: Instead of looping here, try to set this as a token property at the lexer
+        STNodeList minutiaeList = (STNodeList) this.trailingMinutiae;
+        for (int i = 0; i < minutiaeList.size(); i++) {
+            if (minutiaeList.get(i).kind == SyntaxKind.END_OF_LINE_MINUTIAE) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public int lookbackTokenCount() {
         return lookback;
     }
