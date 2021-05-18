@@ -172,10 +172,30 @@ function testTableFromBalString() {
     string s2 = "table key() [{\"id\":1,\"name\":\"Mary\",\"grade\":12}," +
                        "{\"id\":2,\"name\":\"John\",\"grade\":13}]";
     string s3 = "table key(id,name) []";
+    table<UndergradStudent> underGradTable = table key(name) [
+            { id: 1, name: "Mary", grade: 12 },
+            { id: 2, name: "John", grade: 13 },
+            { id: 3, name: "Jane", grade: 13 }
+    ];
 
     anydata|error tbl = s1.fromBalString();
-    if (tbl is table<any|error>) {
+    assert(tbl is table<map<anydata>>, true);
+    if (tbl is table<map<anydata>>) {
         tbl.add({ id: 3, name: "Jane", grade: 13 });
+        assert(tbl, underGradTable);
+    }
+
+    anydata|error tbl2 = s2.fromBalString();
+    assert(tbl2 is anydata, true);
+    if (tbl2 is anydata) {
+        assert(tbl2, table [{ id: 1, name: "Mary", grade: 12 }, { id: 2, name: "John", grade: 13 }]);
+    }
+
+    anydata|error tbl3 = s3.fromBalString();
+    assert(tbl3 is anydata, true);
+    if (tbl3 is anydata) {
+        table<UndergradStudent> key(id, name) underGradTable2 = table [];
+        assert(tbl3, underGradTable2);
     }
 }
 
