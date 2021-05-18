@@ -21,35 +21,26 @@ import io.ballerina.projects.plugins.codeaction.CodeActionPluginContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionPluginContextImpl;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.BallerinaWorkspaceService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.CodeActionExtension;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
+import org.ballerinalang.langserver.util.LSClientUtil;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Registration;
-import org.eclipse.lsp4j.RegistrationParams;
-import org.eclipse.lsp4j.ServerCapabilities;
-import org.eclipse.lsp4j.Unregistration;
-import org.eclipse.lsp4j.UnregistrationParams;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Code action extension implementation for ballerina.
+ * Compiler plugin code action extension implementation for ballerina.
  *
  * @since 2.0.0
  */
@@ -66,7 +57,7 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
     public List<? extends CodeAction> execute(CodeActionParams inputParams,
                                               CodeActionContext context,
                                               LanguageServerContext serverContext) {
-        Optional<PackageCompilation> packageCompilation = 
+        Optional<PackageCompilation> packageCompilation =
                 context.workspace().waitAndGetPackageCompilation(context.filePath());
         if (packageCompilation.isEmpty() || context.currentDocument().isEmpty() ||
                 context.currentSemanticModel().isEmpty()) {
@@ -75,7 +66,7 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
 
         Position position = context.cursorPosition();
         LinePosition linePosition = LinePosition.from(position.getLine(), position.getCharacter());
-        
+
         CodeActionPluginContext codeActionPluginContext = CodeActionPluginContextImpl.from(context.fileUri(),
                 context.filePath(), linePosition, context.currentDocument().get(),
                 context.currentSemanticModel().get());
@@ -93,53 +84,25 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
                                 CodeAction action = new CodeAction(codeActionCommand.getTitle());
 
                                 List<Object> arguments = new LinkedList<>();
-                                arguments.add(CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, 
+                                arguments.add(CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI,
                                         context.fileUri()));
                                 arguments.addAll(codeActionCommand.getArguments());
-                                action.setCommand(new Command(codeActionCommand.getTitle(), 
+                                action.setCommand(new Command(codeActionCommand.getTitle(),
                                         codeActionCommand.getProviderName(), arguments));
                                 return action;
                             })
                             .forEach(codeActions::add);
                 });
 
-        if (!chekAndRegisterCommands(codeActions, context)) {
+        List<String> commands = codeActions.stream()
+                .filter(codeAction -> codeAction.getCommand() != null)
+                .map(codeAction -> codeAction.getCommand().getCommand())
+                .collect(Collectors.toList());
+
+        if (!LSClientUtil.chekAndRegisterCommands(commands, context.languageServercontext())) {
             return Collections.emptyList();
         }
 
         return codeActions;
-    }
-
-    private boolean chekAndRegisterCommands(List<CodeAction> codeActions, CodeActionContext context) {
-        Set<String> commands = codeActions.stream()
-                .filter(codeAction -> codeAction.getCommand() != null)
-                .map(codeAction -> codeAction.getCommand().getCommand())
-                .collect(Collectors.toSet());
-
-        ServerCapabilities serverCapabilities = context.languageServercontext().get(ServerCapabilities.class);
-        if (serverCapabilities.getExecuteCommandProvider() == null) {
-            return false;
-        }
-
-        Set<String> supportedCommands = new HashSet<>(serverCapabilities.getExecuteCommandProvider().getCommands());
-        boolean shouldReRegister = commands.stream().anyMatch(command -> !supportedCommands.contains(command));
-
-        if (shouldReRegister) {
-            supportedCommands.addAll(commands);
-            serverCapabilities.getExecuteCommandProvider().setCommands(new ArrayList<>(supportedCommands));
-
-            ExtendedLanguageClient extendedLanguageClient =
-                    context.languageServercontext().get(ExtendedLanguageClient.class);
-
-            extendedLanguageClient.unregisterCapability(new UnregistrationParams(Collections.singletonList(
-                    new Unregistration(BallerinaWorkspaceService.EXECUTE_COMMAND_CAPABILITY_ID,
-                            "workspace/executeCommand"))));
-
-            extendedLanguageClient.registerCapability(new RegistrationParams(Collections.singletonList(
-                    new Registration(BallerinaWorkspaceService.EXECUTE_COMMAND_CAPABILITY_ID,
-                            "workspace/executeCommand", serverCapabilities.getExecuteCommandProvider()))));
-        }
-
-        return true;
     }
 }

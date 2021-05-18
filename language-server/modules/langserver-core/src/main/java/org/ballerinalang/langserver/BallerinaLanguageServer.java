@@ -37,6 +37,7 @@ import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPacka
 import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolService;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolServiceImpl;
+import org.ballerinalang.langserver.util.LSClientUtil;
 import org.eclipse.lsp4j.CodeLensOptions;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.DidChangeWatchedFilesRegistrationOptions;
@@ -136,10 +137,9 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 
         // We are not registering commands here because they need to be registered/unregistered dynamically.
         // Only if the client doesn't support dynamic command registration, we do registration here
-        if (!params.getCapabilities().getWorkspace().getExecuteCommand().getDynamicRegistration()) {
-            final List<String> commandList = LSCommandExecutorProvidersHolder.getInstance(this.serverContext)
-                    .getCommandsList();
-            final ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandList);
+        if (!LSClientUtil.isDynamicCommandRegistrationSupported(params.getCapabilities())) {
+            List<String> commandsList = LSCommandExecutorProvidersHolder.getInstance(serverContext).getCommandsList();
+            ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandsList);
             res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
         }
 
@@ -174,9 +174,9 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         startListeningFileChanges();
 
         // If the client support dynamic registration of commands, we register the capability here
-        LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
-        if (clientCapabilities.getWorkspaceCapabilities().getExecuteCommand().getDynamicRegistration()) {
-            ((BallerinaWorkspaceService) workspaceService).registerCommands(client);
+        if (LSClientUtil.isDynamicCommandRegistrationSupported(serverContext)) {
+            List<String> commandsList = LSCommandExecutorProvidersHolder.getInstance(serverContext).getCommandsList();
+            LSClientUtil.registerCommands(serverContext, commandsList);
         }
     }
 

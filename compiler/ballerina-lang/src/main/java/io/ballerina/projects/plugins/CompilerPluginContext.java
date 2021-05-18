@@ -41,7 +41,7 @@ public interface CompilerPluginContext {
     void addCompilerLifecycleListener(CompilerLifecycleListener lifecycleListener);
 
     /**
-     * Add a {@link CodeAction} to the current compilation
+     * Add a {@link CodeAction} to the current compilation.
      *
      * @param provider the {@link CodeAction} instance
      */

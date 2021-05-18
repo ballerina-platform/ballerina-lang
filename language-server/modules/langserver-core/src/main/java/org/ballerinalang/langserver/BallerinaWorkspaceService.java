@@ -76,8 +76,6 @@ import java.util.stream.Collectors;
  */
 public class BallerinaWorkspaceService implements WorkspaceService {
     
-    public static final String EXECUTE_COMMAND_CAPABILITY_ID = UUID.randomUUID().toString();
-    
     private final BallerinaLanguageServer languageServer;
     private final LSClientConfigHolder configHolder;
     private LSClientCapabilities clientCapabilities;
@@ -178,19 +176,6 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                                        null, (Position) null);
             return false;
         });
-    }
-
-    /**
-     * Registers the initially available set of commands at the LS Client.
-     *
-     * @param client LS Client
-     */
-    public void registerCommands(LanguageClient client) {
-        List<String> commandsList = LSCommandExecutorProvidersHolder.getInstance(serverContext).getCommandsList();
-        ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandsList);
-        client.registerCapability(new RegistrationParams(Collections.singletonList(
-                new Registration(EXECUTE_COMMAND_CAPABILITY_ID, "workspace/executeCommand", executeCommandOptions))));
-        serverContext.get(ServerCapabilities.class).setExecuteCommandProvider(executeCommandOptions);
     }
 
     /**

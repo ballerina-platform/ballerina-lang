@@ -22,7 +22,7 @@ import io.ballerina.tools.text.LinePosition;
 import java.nio.file.Path;
 
 /**
- * Code action context
+ * Code action context.
  *
  * @since 2.0.0
  */
