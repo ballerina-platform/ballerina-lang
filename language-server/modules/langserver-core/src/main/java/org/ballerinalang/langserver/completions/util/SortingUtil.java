@@ -67,7 +67,7 @@ public class SortingUtil {
      */
     public static boolean isModuleCompletionItem(LSCompletionItem item) {
         return (item instanceof SymbolCompletionItem
-                && ((SymbolCompletionItem) item).getSymbol() instanceof BPackageSymbol)
+                && ((SymbolCompletionItem) item).getSymbol().orElse(null) instanceof BPackageSymbol)
                 || (item instanceof StaticCompletionItem
                 && (((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.MODULE
                 || ((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.LANG_LIB_MODULE));
@@ -81,7 +81,7 @@ public class SortingUtil {
      */
     public static boolean isTypeCompletionItem(LSCompletionItem item) {
         return (item instanceof SymbolCompletionItem
-                && ((SymbolCompletionItem) item).getSymbol() instanceof BTypeSymbol)
+                && ((SymbolCompletionItem) item).getSymbol().orElse(null) instanceof BTypeSymbol)
                 || (item instanceof StaticCompletionItem
                 && ((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.TYPE);
     }

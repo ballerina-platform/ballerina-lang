@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.commons.completion.AbstractLSCompletionItem;
 import org.eclipse.lsp4j.CompletionItem;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 /**
  * Represents a Symbol Based Completion Item.
@@ -44,7 +45,7 @@ public class SymbolCompletionItem extends AbstractLSCompletionItem {
         this.bSymbol = bSymbol;
     } 
 
-    public Symbol getSymbol() {
-        return bSymbol;
+    public Optional<Symbol> getSymbol() {
+        return Optional.ofNullable(bSymbol);
     }
 }

@@ -52,6 +52,7 @@ import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
+import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.ballerinalang.langserver.completions.builder.ConstantCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.FieldCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
@@ -224,7 +225,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
 
         completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
         completionItems.addAll(Arrays.asList(
-                new SymbolCompletionItem(context, null, TypeCompletionItemBuilder.build(null, "service")),
+                new TypeCompletionItem(context, null, TypeCompletionItemBuilder.build(null, "service")),
                 new SnippetCompletionItem(context, Snippet.KW_RECORD.get()),
                 new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()),
                 new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()),
@@ -448,6 +449,10 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
         // TODO: anon function expressions, 
         return completionItems;
+    }
+    
+    protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context, T node) {
+        return this.expressionCompletions(context);
     }
 
     private List<LSCompletionItem> getBasicAndOtherTypeCompletions(BallerinaCompletionContext context) {

@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.eclipse.lsp4j.CompletionItem;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 /**
  * Represents a Type Descriptor Based Completion Item.
@@ -37,7 +38,7 @@ public class TypeCompletionItem extends SymbolCompletionItem {
         this.typeDescriptor = typeSymbol;
     }
 
-    public TypeSymbol getTypeSymbol() {
-        return typeDescriptor;
+    public Optional<TypeSymbol> getTypeSymbol() {
+        return Optional.ofNullable(typeDescriptor);
     }
 }
