@@ -3669,7 +3669,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (expression == null) {
             return;
         }
-        if (isSimpleWorkerReference(expression)){
+        if (isSimpleWorkerReference(expression)) {
             return;
         }
         BFutureType futureType = (BFutureType) expression.expectedType;
@@ -3690,11 +3690,10 @@ public class TypeChecker extends BLangNodeVisitor {
     private void setEventualTypeForWaitExpression(BLangExpression expression,
                                                   Location pos) {
         if ((resultType == symTable.semanticError) ||
-                (expression == null) ||
                 (types.containsErrorType(resultType))) {
             return;
         }
-        if (isSimpleWorkerReference(expression)){
+        if (isSimpleWorkerReference(expression)) {
             return;
         }
         BType currentExpectedType = ((BFutureType) expType).constraint;
@@ -3719,7 +3718,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void setEventualTypeForAlternateWaitExpression(BLangExpression expression, Location pos) {
         if ((resultType == symTable.semanticError) ||
-                (expression == null) ||
                 (expression.getKind() != NodeKind.BINARY_EXPR) ||
                 (types.containsErrorType(resultType))) {
             return;
@@ -3761,18 +3759,13 @@ public class TypeChecker extends BLangNodeVisitor {
         if (varRefSymbol == null) {
             return false;
         }
-        String varRefSymbolName = varRefSymbol.getName().value;
-        if (workerExists(env, varRefSymbolName) || workerExists(env, simpleVarRef.variableName.value)) {
+        if (workerExists(env, simpleVarRef.variableName.value)) {
             return true;
         }
         return false;
     }
 
     private String isReferencingNonWorker(BLangBinaryExpr binaryExpr) {
-        if (binaryExpr == null) {
-            return null;
-        }
-
         BLangExpression lhsExpr = binaryExpr.lhsExpr;
         BLangExpression rhsExpr = binaryExpr.rhsExpr;
         String lhsWorkerName = isReferencingNonWorker(lhsExpr);
@@ -3783,18 +3776,11 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private String isReferencingNonWorker(BLangExpression expression) {
-        if (expression == null) {
-            return null;
-        }
-
         if (expression.getKind() == NodeKind.BINARY_EXPR) {
             return isReferencingNonWorker((BLangBinaryExpr) expression);
         } else if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) expression;
             BSymbol varRefSymbol = simpleVarRef.symbol;
-            if (varRefSymbol == null) {
-                return null; // TODO: inconclusive
-            }
             String varRefSymbolName = varRefSymbol.getName().value;
             if (workerExists(env, varRefSymbolName)) {
                 return varRefSymbolName;
