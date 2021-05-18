@@ -295,46 +295,145 @@ function testRecordVariableWithOnlyRestParam() returns map<anydata|error> {
     return rest;
 }
 
-class Object {
-    private int 'field;
+//class Object {
+//    private int 'field;
+//
+//    public function init() {
+//        self.'field = 12;
+//    }
+//
+//    public function getField() returns int {
+//        return self.'field;
+//    }
+//}
 
-    public function init() {
-        self.'field = 12;
-    }
+//type IntRestRecord record {|
+//    string name;
+//    boolean married;
+//    anydata...;
+//|};
+//
+//type ObjectRestRecord record {|
+//    string name;
+//    boolean married;
+//    Object...;
+//|};
+//
+//function testRestParameterType() returns [boolean, boolean, boolean, boolean, boolean] {
+//    IntRestRecord rec1 = { name: "A", married: true, "age": 19, "token": 200 };
+//    IntRestRecord { name: name1, ...other1 } = rec1;
+//    var { name: name2, ...other2 } = rec1;
+//
+//    IntRestRecord|ObjectRestRecord rec3 = rec1;
+//    IntRestRecord|ObjectRestRecord { name: name5, ...other5 } = rec3;
+//
+//    map<string> stringMap = { a: "A", b: "B" };
+//    map<string> { a, ...other6 } = stringMap;
+//
+//    any a1 = other1;
+//    any a2 = other2;
+//    any a5 = other5;
+//    any a6 = other6;
+//
+//    return [a1 is record{|never name?; boolean|int...;|}, a2 is record{|never name?; int...;|},
+//    a5 is record{|any|error...;|}, a5 is map<anydata>, a6 is record{|never a?; string...;|}];
+//}
 
-    public function getField() returns int {
-        return self.'field;
-    }
+type XY record {
+    int x;
+    int y;
+};
+
+// any field other than x and y
+type NotXY record {
+    never x?;
+    never y?;
+};
+
+function testInferredType(XY xy) returns NotXY {
+    var {x: _, y: _, ...extra} = xy;
+    return extra;
 }
 
-type IntRestRecord record {|
+function testInferredResType() {
+    NotXY extra = testInferredType({x: 10, y: 20, "foo": "bar"});
+    assertEquality(extra["foo"], "bar");
+}
+
+function testRecordDestructuring1() {
+    var {s: s, i: i, ...rest} = recordReturningFunc(10);
+    int num1 = <int>rest.get("f");
+    assertEquality(num1, 10);
+    {s: s, i: i, ...rest} = recordReturningFunc((20));
+    int num2 = <int>rest["f"];
+    assertEquality(num2, 20);
+}
+
+function recordReturningFunc(int num) returns record { string s; int? i; } {
+    return {s: "hello", i: 10, "f": num};
+}
+
+type Emp record {|
     string name;
-    boolean married;
-    int...;
+    int age;
+    string...;
 |};
 
-type ObjectRestRecord record {|
-    string name;
-    boolean married;
-    Object...;
-|};
+function testRecordDestructuring2() {
+    string stdName;
+    int age;
+    map<string> details;
+    {name: stdName, age, ...details} = <Emp>{name: "Jane Doe", age: 10, "foo": "bar"};
+    assertEquality("bar", details["foo"]);
+}
 
-function testRestParameterType() returns [boolean, boolean, boolean, boolean, boolean] {
-    IntRestRecord rec1 = { name: "A", married: true, "age": 19, "token": 200 };
-    IntRestRecord { name: name1, ...other1 } = rec1;
-    var { name: name2, ...other2 } = rec1;
+type StudentRecord record {
+    int? Id;
+    string studentName;
+};
 
-    IntRestRecord|ObjectRestRecord rec3 = rec1;
-    IntRestRecord|ObjectRestRecord { name: name5, ...other5 } = rec3;
+public record {
+    int Id;
+    string studentName;
+} {Id, ...studentDetail} = {Id: 1001, studentName: "John", "Age": 24, "surName": "Paker"};
 
-    map<string> stringMap = { a: "A", b: "B" };
-    map<string> { a, ...other6 } = stringMap;
+public function testRecordDestructuring3() {
+    record {
+        int? Id;
+        string studentName;
+    } {Id, ...studentDetail} = getStudentRecord(1);
 
-    any a1 = other1;
-    any a2 = other2;
-    any a5 = other5;
-    any a6 = other6;
+    assertEquality("John", <string>studentDetail["studentName"]);
+    assertEquality(24, <int>studentDetail["Age"]);
+    assertEquality("Paker", <string>studentDetail["surName"]);
+}
 
-    return [a1 is map<anydata|error>, a2 is map<int>, a5 is map<any|error>,
-                                                                    a5 is map<anydata>, a6 is map<anydata|error>];
+function getStudentRecord(int? id) returns record { int? Id; string studentName; } {
+    return {Id: id, studentName: "John", "Age": 24, "surName": "Paker"};
+}
+
+function testRestFieldResolving() {
+    testInferredResType();
+    testRecordDestructuring1();
+    testRecordDestructuring2();
+    testRecordDestructuring3();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
