@@ -251,20 +251,17 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(FunctionCallExpressionNode node) {
-        Optional<Symbol> funcSymbol;
+        Optional<Symbol> funcSymbol = Optional.empty();
         NameReferenceNode nameRef = node.functionName();
         if (nameRef.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nameRef;
             Predicate<Symbol> predicate = symbol -> symbol.getName().isPresent()
                     && symbol.kind() == SymbolKind.FUNCTION;
             Predicate<Symbol> qNamePredicate =
-                    predicate.and(symbol -> symbol.getName().isPresent()
-                            && symbol.getName().get().equals(qNameRef.identifier().text()));
+                    predicate.and(symbol -> symbol.getName().orElse("").equals(qNameRef.identifier().text()));
             funcSymbol = this.getTypeFromQNameReference(qNameRef, qNamePredicate);
         } else if (nameRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             funcSymbol = getSymbolByName(((SimpleNameReferenceNode) nameRef).name().text());
-        } else {
-            return Optional.empty();
         }
 
         if (funcSymbol.isEmpty()) {
@@ -414,7 +411,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
      * @param positionalArgumentNode   Positional argument node
      * @param argumentNodes            Argument nodes of the function/method call expression
      * @param functionOrMethodCallExpr Function/method call expression
-     * @return Optional type symbol
+     * @return {@link Optional<TypeSymbol>} Type symbol.
      */
     private Optional<TypeSymbol> getPositionalArgumentTypeForFunction(PositionalArgumentNode positionalArgumentNode,
                                                                       NodeList<FunctionArgumentNode> argumentNodes,
