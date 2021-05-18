@@ -15,13 +15,16 @@
  */
 package org.ballerinalang.diagramutil;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -36,8 +39,7 @@ import java.util.Optional;
 public class SyntaxTreeGenTest {
     private final Path emptyFile = TestUtil.RES_DIR.resolve("empty")
             .resolve("empty.bal");
-    private final Path mainHttpFile = TestUtil.RES_DIR.resolve("mainHttpCall")
-            .resolve("mainHttpCall.bal");
+    private final Path mainHttpProject = TestUtil.RES_DIR.resolve("mainHttpCall");
 
     @Test(description = "Generate ST for empty bal file.")
     public void testEmptyBalST() throws IOException {
@@ -67,8 +69,8 @@ public class SyntaxTreeGenTest {
 
     @Test(description = "Generate ST for http invocation in a main bal file.")
     public void testHttpMainBalST() throws IOException {
-        Path inputFile = TestUtil.createTempFile(mainHttpFile);
-        SingleFileProject project = SingleFileProject.load(inputFile);
+        Path inputFile = TestUtil.createTempProject(mainHttpProject);
+        BuildProject project = BuildProject.load(inputFile);
         Optional<ModuleId> optionalModuleId = project.currentPackage().moduleIds().stream().findFirst();
         if (optionalModuleId.isEmpty()) {
             Assert.fail("Failed to retrieve the module ID");
@@ -89,5 +91,27 @@ public class SyntaxTreeGenTest {
         Assert.assertEquals(stJson.getAsJsonObject().get("kind").getAsString(), "ModulePart");
         Assert.assertTrue(stJson.getAsJsonObject().get("members").isJsonArray());
         Assert.assertTrue(stJson.getAsJsonObject().get("members").getAsJsonArray().size() > 0);
+        JsonArray members = stJson.getAsJsonObject().get("members").getAsJsonArray();
+
+        // Validate module var is identified as an Endpoint.
+        JsonObject moduleVar = members.get(0).getAsJsonObject();
+        Assert.assertTrue(moduleVar.has("typeData"));
+        Assert.assertTrue(moduleVar.get("typeData").getAsJsonObject().has("isEndpoint"));
+        Assert.assertTrue(moduleVar.get("typeData").getAsJsonObject().get("isEndpoint").getAsBoolean());
+
+        // Validate local var is identified as an Endpoint.
+        JsonObject function = members.get(1).getAsJsonObject();
+        JsonObject functionBody = function.get("functionBody").getAsJsonObject();
+        JsonArray visibleEndpoints = functionBody.get("VisibleEndpoints").getAsJsonArray();
+
+        visibleEndpoints.forEach(jsonElement -> {
+            JsonObject endpoint = jsonElement.getAsJsonObject();
+            if (endpoint.get("name").getAsString().equals("clientEndpoint")
+                    || endpoint.get("name").getAsString().equals("myClient")) {
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail("Additional endpoint has been found");
+            }
+        });
     }
 }
