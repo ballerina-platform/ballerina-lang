@@ -35,8 +35,8 @@ public class VariableUtils {
     public static final String FIELD_TYPE = "type";
     public static final String FIELD_TYPENAME = "typeName";
     public static final String FIELD_VALUE = "value";
-    public static final String FIELD_CONSTRAINT = "constraint";
-    public static final String METHOD_STRINGVALUE = "stringValue";
+    private static final String FIELD_CONSTRAINT = "constraint";
+    private static final String METHOD_STRINGVALUE = "stringValue";
     public static final String UNKNOWN_VALUE = "unknown";
     private static final String LAMBDA_PARAM_MAP_PATTERN = "\\$.*[Mm][Aa][Pp].*\\$.*";
     // Used to trim redundant beginning and ending double quotes from a string, if presents.
@@ -187,7 +187,7 @@ public class VariableUtils {
         Field field = parentRef.referenceType().fieldByName(fieldName);
         if (field == null) {
             throw new DebugVariableException(
-                    String.format("No fields found with name: \"%s\", in %s", fieldName, parent.toString()));
+                    String.format("No fields found with name: \"%s\", in %s", fieldName, parent));
         }
         return Optional.ofNullable(parentRef.getValue(field));
     }
@@ -207,10 +207,10 @@ public class VariableUtils {
         List<Method> methods = parentRef.referenceType().methodsByName(methodName);
         if (methods.isEmpty()) {
             throw new DebugVariableException(String.format("No methods found for name: \"%s\", in %s",
-                    methodName, parent.toString()));
+                    methodName, parent));
         } else if (methods.size() > 1) {
             throw new DebugVariableException(String.format("Overloaded methods found for name: \"%s\", in %s",
-                    methodName, parent.toString()));
+                    methodName, parent));
         }
         return Optional.of(methods.get(0));
     }

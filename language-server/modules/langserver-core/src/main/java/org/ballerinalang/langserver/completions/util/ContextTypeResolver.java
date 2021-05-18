@@ -96,6 +96,7 @@ import javax.annotation.Nonnull;
  * @since 2.0.0
  */
 public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
+
     private final PositionedOperationContext context;
     private final List<Node> visitedNodes = new ArrayList<>();
 
@@ -149,7 +150,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                 && (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS)
                 && symbol.getName().get().equals(node.identifier().text());
         List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, node, predicate);
-        if (moduleContent.size() > 1) {
+        if (moduleContent.size() != 1) {
             // At the moment we do not handle the ambiguity. Hence consider only single item
             return Optional.empty();
         }
@@ -244,8 +245,39 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (filteredSymbol.isEmpty()) {
             return Optional.empty();
         }
-        
+
         return SymbolUtil.getTypeDescriptor(filteredSymbol.get());
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(FunctionCallExpressionNode node) {
+        Optional<Symbol> funcSymbol;
+        NameReferenceNode nameRef = node.functionName();
+        if (nameRef.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nameRef;
+            Predicate<Symbol> predicate = symbol -> symbol.getName().isPresent()
+                    && symbol.kind() == SymbolKind.FUNCTION;
+            Predicate<Symbol> qNamePredicate =
+                    predicate.and(symbol -> symbol.getName().get().equals(qNameRef.identifier().text()));
+            funcSymbol = this.getTypeFromQNameReference(qNameRef, qNamePredicate);
+        } else if (nameRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            funcSymbol = getSymbolByName(((SimpleNameReferenceNode) nameRef).name().text());
+        } else {
+            return Optional.empty();
+        }
+
+        if (!CommonUtil.isInFunctionCallParameterContext(context, node)) {
+            return SymbolUtil.getTypeDescriptor(funcSymbol.get());
+        }
+
+        Optional<ParameterSymbol> paramSymbol =
+                CommonUtil.resolveFunctionParameterSymbol(
+                        ((FunctionSymbol) funcSymbol.get()).typeDescriptor(), context, node);
+
+        if (paramSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        return SymbolUtil.getTypeDescriptor(paramSymbol.get());
     }
 
     @Override
@@ -289,8 +321,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(NamedArgumentNode namedArgumentNode) {
         switch (namedArgumentNode.parent().kind()) {
-            case FUNCTION_CALL: 
-            case METHOD_CALL: 
+            case FUNCTION_CALL:
+            case METHOD_CALL:
                 NonTerminalNode parentNode = namedArgumentNode.parent();
                 Optional<List<ParameterSymbol>> parameterSymbols = context.currentSemanticModel()
                         .flatMap(semanticModel -> semanticModel.symbol(parentNode))

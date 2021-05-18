@@ -62,7 +62,7 @@ public class TestReportTest extends BaseTestCase {
     @Test()
     public void testWarningForReportTools() throws BallerinaTestException, IOException {
         String msg = "warning: Could not find the required HTML report tools for code coverage";
-        String[] args = mergeCoverageArgs(new String[]{});
+        String[] args = mergeCoverageArgs(new String[]{"--test-report"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg)) {
@@ -71,13 +71,13 @@ public class TestReportTest extends BaseTestCase {
     }
 
     @Test ()
-    public void testWarningForJacocoXMLFlag() throws BallerinaTestException {
-        String msg = "warning: ignoring --jacoco-xml flag since code coverage is not enabled";
-        String[] args = new String[]{"--jacoco-xml"};
+    public void testWarningForCoverageFormatFlag() throws BallerinaTestException {
+        String msg = "warning: ignoring --coverage-format flag since code coverage is not enabled";
+        String[] args = new String[]{"--coverage-format=xml"};
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg)) {
-            Assert.fail("Test failed due to jacoco-xml flag validation failure.");
+            Assert.fail("Test failed due to coverage-format flag validation failure.");
         }
     }
 
