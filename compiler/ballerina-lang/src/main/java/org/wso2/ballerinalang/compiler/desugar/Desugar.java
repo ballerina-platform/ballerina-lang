@@ -4612,7 +4612,6 @@ public class Desugar extends BLangNodeVisitor {
             detailRecordType.fields.put(fieldName.value, new BField(fieldName, bindingPattern.pos, fieldSym));
             detailRecordTypeSymbol.scope.define(fieldName, fieldSym);
             typeDefFields.add(ASTBuilderUtil.createVariable(null, fieldName.value, fieldType, null, fieldSym));
-
         }
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(typeDefFields, detailRecordType,
                 errorFieldMatchPatterns.pos);
