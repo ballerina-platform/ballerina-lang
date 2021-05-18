@@ -4566,6 +4566,11 @@ public class Desugar extends BLangNodeVisitor {
                             .resolveBinaryOperator(OperatorKind.AND, symTable.booleanType, symTable.booleanType));
         }
 
+        BType matchingType = createMatchingRecordType(errorFieldMatchPatterns);
+        BLangExpression isLikeExpr = createIsLikeExpression(errorFieldMatchPatterns.pos, matchExprVarRef, matchingType);
+        condition = ASTBuilderUtil.createBinaryExpr(errorFieldMatchPatterns.pos, condition, isLikeExpr,
+                symTable.booleanType, OperatorKind.AND, (BOperatorSymbol) symResolver
+                        .resolveBinaryOperator(OperatorKind.AND, symTable.booleanType, symTable.booleanType));
         BLangBlockStmt tempBLock = ASTBuilderUtil.createBlockStmt(pos);
         tempBLock.addStatement(successResult);
         BLangIf ifStmtForFieldMatchPatterns = ASTBuilderUtil.createIfElseStmt(pos, condition, tempBLock, null);
@@ -4575,6 +4580,46 @@ public class Desugar extends BLangNodeVisitor {
                 resultVarRef);
         statementExpression.type = symTable.booleanType;
         return statementExpression;
+    }
+
+    private BType createMatchingRecordType(BLangErrorFieldMatchPatterns errorFieldMatchPatterns) {
+        BRecordTypeSymbol detailRecordTypeSymbol = new BRecordTypeSymbol(
+                SymTag.RECORD,
+                Flags.PUBLIC,
+                names.fromString("$anonErrorType$" + UNDERSCORE + recordCount++ + "$detailType"),
+                env.enclPkg.symbol.pkgID, null, null, errorFieldMatchPatterns.pos, VIRTUAL);
+
+        detailRecordTypeSymbol.initializerFunc = createRecordInitFunc();
+        detailRecordTypeSymbol.scope = new Scope(detailRecordTypeSymbol);
+        detailRecordTypeSymbol.scope.define(
+                names.fromString(detailRecordTypeSymbol.name.value + "." +
+                        detailRecordTypeSymbol.initializerFunc.funcName.value),
+                detailRecordTypeSymbol.initializerFunc.symbol);
+
+        BRecordType detailRecordType = new BRecordType(detailRecordTypeSymbol);
+        detailRecordType.restFieldType = symTable.anydataType;
+        List<BLangSimpleVariable> typeDefFields = new ArrayList<>();
+        for (BLangNamedArgMatchPattern bindingPattern : errorFieldMatchPatterns.namedArgMatchPatterns) {
+            Name fieldName = names.fromIdNode(bindingPattern.argName);
+            BVarSymbol declaredVarSym = bindingPattern.declaredVars.get(fieldName.value);
+            if (declaredVarSym == null) {
+                // constant match pattern expr, not needed for detail record type
+                continue;
+            }
+            BType fieldType = declaredVarSym.type;
+            BVarSymbol fieldSym = new BVarSymbol(Flags.PUBLIC, fieldName, detailRecordTypeSymbol.pkgID, fieldType,
+                    detailRecordTypeSymbol, bindingPattern.pos, VIRTUAL);
+            detailRecordType.fields.put(fieldName.value, new BField(fieldName, bindingPattern.pos, fieldSym));
+            detailRecordTypeSymbol.scope.define(fieldName, fieldSym);
+            typeDefFields.add(ASTBuilderUtil.createVariable(null, fieldName.value, fieldType, null, fieldSym));
+
+        }
+        BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(typeDefFields, detailRecordType,
+                errorFieldMatchPatterns.pos);
+        recordTypeNode.initFunction = TypeDefBuilderHelper
+                .createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
+        TypeDefBuilderHelper.addTypeDefinition(detailRecordType, detailRecordType.tsymbol, recordTypeNode, env);
+        return detailRecordType;
     }
 
     private BLangExpression createConditionForErrorFieldBindingPatterns(
