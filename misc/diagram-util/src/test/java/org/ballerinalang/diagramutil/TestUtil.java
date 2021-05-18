@@ -35,4 +35,14 @@ public class TestUtil {
         Files.copy(filePath, tempFilePath, StandardCopyOption.REPLACE_EXISTING);
         return tempFilePath;
     }
+
+    public static Path createTempProject(Path projectPath) throws IOException {
+        Path tempFilePath = BUILD_DIR.resolve("tmp")
+                .resolve(UUID.randomUUID() + "");
+        Path directoryPath = Files.createDirectory(tempFilePath);
+        Files.copy(projectPath, directoryPath, StandardCopyOption.REPLACE_EXISTING);
+        FileVisitor fileVisitor = new FileVisitor(projectPath, directoryPath);
+        Files.walkFileTree(projectPath, fileVisitor);
+        return directoryPath;
+    }
 }
