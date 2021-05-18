@@ -26,19 +26,21 @@ function testXML() returns [xml, map<string>, (string|error), xml] {
     return [x, x.getAttributes(), x.ns0:b, x/*];
 }
 
-function testFieldBasedAccess() returns [xml, xml, xml, xml, xml, xml] {
+function testXmlNavigation() returns [xml, xml, xml, xml, xml, xml, xml, xml] {
     xml x1 = xml `<name1><fname><foo>1</foo><bar>2</bar></fname><lname1><foo>3</foo><bar>4</bar></lname1></name1>`;
     xml x2 = xml `<name2><fname><foo>5</foo><bar>6</bar></fname><lname2><foo>7</foo><bar>8</bar></lname2></name2>`;
     xml x3 = x1 + x2 + xml `<foo>apple</foo>`;
 
     xml x4 = x3/*;
     xml x5 = x1/<fname>;
-    xml x6 = x3/<fname>/<foo>[1];
-    xml x7 = x3/<fname>[1]/<foo>;
-    xml x8 = x3/*.<bar>[1];
-    xml x9 = x3/*/*;
+    xml x6 = x3/<fname>/<foo>[0];
+    xml x7 = x3/<fname>/<foo>[1];
+    xml x8 = x3/<fname>[1];
+    xml x9 = x3/<fname>[0]/<foo>;
+    xml x10 = x3/*/<bar>[0];
+    xml x11 = x3/*/*;
 
-    return [x4, x5, x6, x7, x8, x9];
+    return [x4, x5, x6, x7, x8, x9, x10, x11];
 }
 
 function testDollarSignOnXMLLiteralTemplate() returns [xml, xml, xml] {

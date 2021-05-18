@@ -50,10 +50,11 @@ public class ExpressionFunctionBodyNodeContext extends AbstractCompletionProvide
             List<Symbol> expressionContextEntries = QNameReferenceUtil.getExpressionContextEntries(ctx, qNameRef);
             completionItems.addAll(this.getCompletionItemList(expressionContextEntries, ctx));
         } else {
+            completionItems.addAll(this.actionKWCompletions(ctx));
             completionItems.addAll(this.expressionCompletions(ctx));
         }
         this.sort(ctx, node, completionItems);
-        
+
         return completionItems;
     }
 

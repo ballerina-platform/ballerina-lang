@@ -1194,18 +1194,18 @@ function testAsyncFpArgsWithArrays() returns [int, int[]] {
     int count = 0;
     int[] filter = numbers.filter(function (int i) returns boolean {
         future<int> f1 = start getRandomNumber(i);
-        int a = wait f1;
+        int a = checkpanic wait f1;
         return a >= 0;
     });
     filter.forEach(function (int i) {
         future<int> f1 = start getRandomNumber(i);
-        int a = wait f1;
+        int a = checkpanic wait f1;
         filter[count] = i + 2;
         count = count + 1;
     });
     int reduce = filter.reduce(function (int total, int i) returns int {
         future<int> f1 = start getRandomNumber(i);
-        int a = wait f1;
+        int a = checkpanic wait f1;
         return total + a;
     }, 0);
     return [reduce, filter];

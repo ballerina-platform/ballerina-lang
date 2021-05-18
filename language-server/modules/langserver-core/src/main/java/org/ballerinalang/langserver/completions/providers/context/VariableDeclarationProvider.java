@@ -33,8 +33,10 @@ import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
@@ -122,7 +124,9 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
         completionItems.addAll(this.actionKWCompletions(context));
         completionItems.addAll(this.expressionCompletions(context));
         completionItems.addAll(getNewExprCompletionItems(context, typeDsc));
-
+        if (withinTransactionStatementNode(context)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_COMMIT.get()));
+        }
         return completionItems;
     }
 
@@ -160,5 +164,19 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
         classSymbol.ifPresent(typeDesc -> completionItems.add(this.getImplicitNewCompletionItem(typeDesc, context)));
 
         return completionItems;
+    }
+
+    private boolean withinTransactionStatementNode(BallerinaCompletionContext context) {
+        NonTerminalNode evalNode = context.getNodeAtCursor().parent();
+        boolean withinTransaction = false;
+
+        while (evalNode != null) {
+            if (evalNode.kind() == SyntaxKind.TRANSACTION_STATEMENT) {
+                withinTransaction = true;
+                break;
+            }
+            evalNode = evalNode.parent();
+        }
+        return withinTransaction;
     }
 }

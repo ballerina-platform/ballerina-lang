@@ -850,32 +850,10 @@ function testStructArrayConversion2() returns T2|error {
     return b[0];
 }
 
-public type T3 record {
-  int x = 0;
-  int y = 0;
-};
-
 public class O1 {
   public int x = 0;
   public int y = 0;
 }
-
-public class O2 {
-  public int x = 0;
-  public int y = 0;
-  public int z = 0;
-}
-
-//function testObjectRecordConversionFail() {
-//    O2 a = new;
-//    T3 b = {};
-//    var result = b.cloneWithType(O2);
-//    if (result is O2) {
-//        a = result;
-//    } else {
-//        panic result;
-//    }
-//}
 
 function testTupleConversion1() returns [T1, T1]|error {
     T1 a = {};

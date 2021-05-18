@@ -254,7 +254,7 @@ function nonAnydataTypes() returns string {
 
     match y {
         {var1: 12} => {return "a";} // pattern will not be matched
-        {"var1": 12} => {return "a";} // pattern will not be matched
+        {var1: 12} => {return "a";} // pattern will not be matched
         //{foo(): 12} => {return "a";} // pattern will not be matched and invalid key
     }
     return "Fail";

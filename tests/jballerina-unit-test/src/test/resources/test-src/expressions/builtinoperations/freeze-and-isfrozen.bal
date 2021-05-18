@@ -383,7 +383,8 @@ function testFrozenTableAddition() {
             { id: 3, name: "Jim" }
         ];
     Employee1 e = { id: 5, name: "Anne" };
-    empTable.add(e);
+    table<Employee1> key(id) empTable2  = empTable.cloneReadOnly();
+    empTable2.add(e);
 }
 
 function testFrozenTableRemoval() {
@@ -392,7 +393,8 @@ function testFrozenTableRemoval() {
             { id: 2, name: "John" },
             { id: 3, name: "Jim" }
         ];
-    var rm = empTable.remove(2);
+    table<Employee1> key(id) empTable2 = empTable.cloneReadOnly();
+    _ = empTable2.remove(2);
 }
 
 function testSimpleUnionFreeze() returns boolean {
