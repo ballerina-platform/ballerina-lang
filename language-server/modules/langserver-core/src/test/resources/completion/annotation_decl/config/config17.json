@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 3,
+    "character": 69
+  },
+  "source": "annotation_decl/source/source17.bal",
+  "items": [
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

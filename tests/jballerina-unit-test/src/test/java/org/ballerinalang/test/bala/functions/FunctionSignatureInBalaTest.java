@@ -337,23 +337,18 @@ public class FunctionSignatureInBalaTest {
         BRunUtil.invoke(result, "testInvocationWithArgVarargMix");
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test
     public void testNegativeFunctionInvocations() {
         int i = 0;
         validateError(resultNegative, i++, "missing required parameter 'b' in call to 'functionWithAllTypesParams()'",
                 4, 12);
-        validateError(resultNegative, i++, "too many arguments in call to 'functionWithAllTypesParams()'", 4, 12);
-        validateError(resultNegative, i++, "incompatible types: expected 'string', found 'float'", 4, 56);
-        validateError(resultNegative, i++, "positional argument not allowed after named arguments", 4, 56);
-        validateError(resultNegative, i++, "redeclared argument 'c'", 4, 62);
-        validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 4, 72);
-        validateError(resultNegative, i++, "positional argument not allowed after named arguments", 4, 72);
-        validateError(resultNegative, i++, "positional argument not allowed after named arguments", 4, 76);
+        validateError(resultNegative, i++, "named arg followed by positional arg", 4, 47);
+        validateError(resultNegative, i++, "named arg followed by positional arg", 4, 62);
+        validateError(resultNegative, i++, "named arg followed by positional arg", 4, 62);
         validateError(resultNegative, i++, "missing required parameter 'b' in call to 'functionWithAllTypesParams()'",
                 9, 12);
-        validateError(resultNegative, i++, "incompatible types: expected 'string', found 'float'", 9, 56);
-        validateError(resultNegative, i++, "positional argument not allowed after named arguments", 9, 56);
-        validateError(resultNegative, i++, "redeclared argument 'c'", 9, 62);
+        validateError(resultNegative, i++, "named arg followed by positional arg", 9, 47);
+        validateError(resultNegative, i++, "rest arg followed by another arg", 9, 72);
         validateError(resultNegative, i++, "rest argument not allowed after named arguments", 9, 72);
         validateError(resultNegative, i++, "rest argument not allowed after named arguments", 13, 78);
         validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 17, 53);
@@ -366,16 +361,16 @@ public class FunctionSignatureInBalaTest {
         validateError(resultNegative, i++, "incompatible types: expected 'boolean', found 'int'", 28, 31);
         validateError(resultNegative, i++, "incompatible types: expected 'boolean', found 'string'", 28, 34);
         validateError(resultNegative, i++, "variable assignment is required", 30, 5);
-        validateError(resultNegative, i++, "incompatible types: expected '[int,boolean...]', found '[float," +
-                "string...]'", 30, 16);
+        validateError(resultNegative, i++, "incompatible types: expected '([int,boolean...]|record {| int i; |})', " +
+                "found '[float,string...]'", 30, 16);
         validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 33, 13);
-        validateError(resultNegative, i++, "incompatible types: expected '[float,boolean...]', found '[int," +
-                "boolean,boolean]'", 33, 19);
-        validateError(resultNegative, i++, "incompatible types: expected '[string,float,boolean...]', found " +
-                "'[float,string...]'", 35, 16);
+        validateError(resultNegative, i++, "incompatible types: expected '([float,boolean...]|record {| float f?; |})" +
+                "', found '[int,boolean,boolean]'", 33, 19);
+        validateError(resultNegative, i++, "incompatible types: expected '([string,float,boolean...]|record {| string" +
+                " s; float f?; |})', found '[float,string...]'", 35, 16);
         validateError(resultNegative, i++, "rest argument not allowed after named arguments", 41, 24);
-        validateError(resultNegative, i++, "incompatible types: expected '[float,boolean...]', found " +
-                "'boolean[]'", 43, 27);
+        validateError(resultNegative, i++, "incompatible types: expected '([float,boolean...]|record {| float f?; |})" +
+                "', found 'boolean[]'", 43, 27);
         validateError(resultNegative, i++, "incompatible types: expected 'boolean', found 'float'", 49, 24);
 
         validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 58, 16);
@@ -385,16 +380,16 @@ public class FunctionSignatureInBalaTest {
         validateError(resultNegative, i++, "incompatible types: expected 'boolean', found 'int'", 62, 29);
         validateError(resultNegative, i++, "incompatible types: expected 'boolean', found 'string'", 62, 32);
         validateError(resultNegative, i++, "variable assignment is required", 64, 5);
-        validateError(resultNegative, i++, "incompatible types: expected '[int,boolean...]', found '[float," +
-                "string...]'", 64, 14);
+        validateError(resultNegative, i++, "incompatible types: expected '([int,boolean...]|record {| int i; |})', " +
+                "found '[float,string...]'", 64, 14);
         validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 67, 12);
-        validateError(resultNegative, i++, "incompatible types: expected '[float,boolean...]', found '[int," +
-                "boolean,boolean]'", 67, 18);
-        validateError(resultNegative, i++, "incompatible types: expected '[string,float,boolean...]', found " +
-                "'[float,string...]'", 69, 15);
+        validateError(resultNegative, i++, "incompatible types: expected '([float,boolean...]|record {| float f?; |})" +
+                "', found '[int,boolean,boolean]'", 67, 18);
+        validateError(resultNegative, i++, "incompatible types: expected '([string,float,boolean...]|record {| string" +
+                " s; float f?; |})', found '[float,string...]'", 69, 15);
         validateError(resultNegative, i++, "rest argument not allowed after named arguments", 77, 22);
-        validateError(resultNegative, i++, "incompatible types: expected '[float,boolean...]', found " +
-                "'boolean[]'", 79, 26);
+        validateError(resultNegative, i++, "incompatible types: expected '([float,boolean...]|record {| float f?; |})" +
+                "', found 'boolean[]'", 79, 26);
         validateError(resultNegative, i++, "incompatible types: expected 'boolean', found 'float'", 85, 22);
 
         Assert.assertEquals(i,  resultNegative.getErrorCount());

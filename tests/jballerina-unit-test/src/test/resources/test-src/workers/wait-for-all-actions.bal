@@ -16,73 +16,73 @@
 
 import ballerina/jballerina.java;
 
-function waitTest1() returns map<anydata> { // {f1: 7, f2: 22, f4: "hello foo", f6: true}
+function waitTest1() returns map<anydata|error> { // {f1: 7, f2: 22, f4: "hello foo", f6: true}
     future<int> f1 = @strand{thread:"any"} start add_1(5, 2);
     future<int> f2 = @strand{thread:"any"} start add_2(10, 12);
     future<string> f3 = @strand{thread:"any"} start concat("foo");
     future<boolean> f4 = @strand{thread:"any"} start status();
 
-    map<anydata> result = wait {f1, f2, f3, f4};
+    map<anydata|error> result = wait {f1, f2, f3, f4};
     return result;
 }
 
-function waitTest2() returns map<int|string> { // {f1: 7, str1: "hello foo", f3: 150, str2: "hello xyz"}
+function waitTest2() returns map<int|string|error> { // {f1: 7, str1: "hello foo", f3: 150, str2: "hello xyz"}
     future<int> f1 = start add_1(5, 2);
     future<string> f4 = @strand{thread:"any"} start concat("foo");
     future<int> f3 = @strand{thread:"any"} start add_3(50, 100);
     future<int|string> f7 =  start concat("xyz");
 
-    map<int|string> result = wait {f1, str1: f4, f3: f3, str2: f7};
+    map<int|string|error> result = wait {f1, str1: f4, f3: f3, str2: f7};
     return result;
 }
 
-function waitTest3() returns any { // {f1: 7, f3: 150, f5: "hello bar"}
+function waitTest3() returns record {| int|error f1; int|error f3; string|error f5; |} { // {f1: 7, f3: 150, f5: "hello bar"}
     future<int> f1 = start add_1(5, 2);
     future<int> f3 = @strand{thread:"any"} start add_3(50, 100);
     future<string> f5 = @strand{thread:"any"} start concat("bar");
 
-    any result = wait {f1, f3, f5};
+    record {| int|error f1; int|error f3; string|error f5; |} result = wait {f1, f3, f5};
     return result;
 }
 
-function waitTest4() returns map<anydata> { // {f1: 7, f2: 22, f4: "hello foo"}
+function waitTest4() returns map<anydata|error> { // {f1: 7, f2: 22, f4: "hello foo"}
     future<int> f1 = start add_1(5, 2);
     future<string> f4 = @strand{thread:"any"} start concat("foo");
     future<int> f2 = @strand{thread:"any"} start add_2(10, 12);
-    record { int f1 = 0; int f2 = 0; string f4 = "";} anonRec = wait {f1, f4, f2};
+    record { int|error f1 = 0; int|error f2 = 0; string|error f4 = "";} anonRec = wait {f1, f4, f2};
 
-    map<anydata> m = {};
+    map<anydata|error> m = {};
     m["f1"] = anonRec.f1;
     m["f2"] = anonRec.f2;
     m["f4"] = anonRec.f4;
     return m;
 }
 
-function waitTest5() returns map<anydata> { // {id: 66, name: "hello foo"}
+function waitTest5() returns map<anydata|error> { // {id: 66, name: "hello foo"}
     future<string> f5 = @strand{thread:"any"} start concat("foo");
-    record { int id; string name; } anonRec = wait {id: fuInt(), name: f5};
+    record { int|error id; string|error name; } anonRec = wait {id: fuInt(), name: f5};
 
-    map<anydata> m = {};
+    map<anydata|error> m = {};
     m["id"] = anonRec.id;
     m["name"] = anonRec.name;
     return m;
 }
 
-function waitTest6() returns map<anydata> { // {idField: 150, stringField: "hello foo"}
+function waitTest6() returns map<anydata|error> { // {idField: 150, stringField: "hello foo"}
     future<int> f3 = @strand{thread:"any"} start add_3(50, 100);
     future<string> f4 = @strand{thread:"any"} start concat("foo");
-    record { int idField; string stringField;} anonRec = wait {idField: f3, stringField: f4};
+    record { int|error idField; string|error stringField;} anonRec = wait {idField: f3, stringField: f4};
 
-    map<anydata> m = {};
+    map<anydata|error> m = {};
     m["idField"] = anonRec.idField;
     m["stringField"] = anonRec.stringField;
     return m;
 }
 
-function waitTest7() returns int { // {f1: 7}
+function waitTest7() returns int|error { // {f1: 7}
     future<int> f1 = @strand{thread:"any"} start add_1(5, 2);
-    record { int f1; string f3?; } anonRec = wait {f1};
-    int result = anonRec.f1;
+    record { int|error f1; string|error f3?; } anonRec = wait {f1};
+    int|error result = anonRec.f1;
     return result;
 }
 
@@ -127,24 +127,24 @@ function waitTest13() returns fourthRec { // error
 }
 
 
-function waitTest14() returns map<anydata> { // {idField: 150, stringField: "hello foo"}
+function waitTest14() returns map<anydata|error> { // {idField: 150, stringField: "hello foo"}
     future<string> f4 = @strand{thread:"any"} start concat("foo");
     future<int> f3 = @strand{thread:"any"} start add_panic(50, 100);
-    record { int i; string j;} anonRec = wait {i: f3, j: f4};
+    record { int|error i; string|error j;} anonRec = wait {i: f3, j: f4};
 
-    map<anydata> m = {};
+    map<anydata|error> m = {};
     m["i"] = anonRec.i;
     m["j"] = anonRec.j;
     return m;
 }
 
-function waitTest15() returns map<anydata> { // {f1: 7, f2: 22, f4: "hello foo", f6: true}
+function waitTest15() returns map<anydata|error> { // {f1: 7, f2: 22, f4: "hello foo", f6: true}
     future<int> f1 = start add_1(5, 2);
     future<string> f3 = start concat("foo");
     future<boolean> f4 = start status();
     future<int> f2 = start add_panic(10, 12);
 
-    map<anydata> result = wait {f1, f2, f3, f4};
+    map<anydata|error> result = wait {f1, f2, f3, f4};
     return result;
 }
 
@@ -162,21 +162,21 @@ function waitTest16() returns int {
     }
 }
 
-function waitTest17() returns any{
+function waitTest17() returns any {
     worker w1  returns any {
         future<int> f1 = @strand{thread:"any"} start add_1(5, 2);
         future<int> f2 = @strand{thread:"any"} start add_3(50, 100);
-        any result = wait {f1, f2};
+        TwoIntOrErrorFields result = wait {f1, f2};
         return result;
     }
     worker w2 returns any {
         future<int> f1 = @strand{thread:"any"} start add_1(6, 6);
         future<string> f2 = @strand{thread:"any"} start concat("foo");
-        map <int|string> m = wait {id: f1, name : f2};
+        map <int|string|error> m = wait {id: f1, name : f2};
         sleep(2000);
         return m;
     }
-    any a = wait {f1: w1, f2: w2};
+    record {| any f1; any f2; |} a = wait {f1: w1, f2: w2};
     return a;
 }
 
@@ -267,12 +267,12 @@ function waitTest24() returns restRec2 {
     return rec;
 }
 
-function waitTest25() returns map<anydata> {
+function waitTest25() returns map<anydata|error> {
     future<int> f1 = @strand{thread:"any"} start add_1(5, 2);
     future<string> f2 = @strand{thread:"any"} start concat("foo");
 
-    record {| int id = 0; string name = "default"; |} anonRec = wait {id: f1, name : f2};
-    map<anydata> m = {};
+    record {| int|error id = 0; string|error name = "default"; |} anonRec = wait {id: f1, name : f2};
+    map<anydata|error> m = {};
     m["id"] = anonRec.id;
     m["name"] = anonRec.name;
     return m;
@@ -283,7 +283,11 @@ function waitTest26() returns map<anydata|error> {
     future<string> f2 = @strand{thread:"any"} start concat("world");
     future<string> f3 = @strand{thread:"any"} start concat("moo");
 
-    record { int id = 0; string name = "default";} anonRec = wait {id: f1, name : f2, status: f3};
+    record {|
+        int|error id = 0;
+        string|error name = "default";
+        anydata|error...;
+    |} anonRec = wait {id: f1, name : f2, status: f3};
     map<anydata|error> m = {};
     m["id"] = anonRec.id;
     m["name"] = anonRec.name;
@@ -291,13 +295,14 @@ function waitTest26() returns map<anydata|error> {
     return m;
 }
 
-function waitTest27() returns map<anydata> {
+function waitTest27() returns map<anydata|error> {
     future<int> f1 = @strand{thread:"any"} start add_1(100, 100);
     future<string> f2 = @strand{thread:"any"} start concat("mello");
     future<string> f3 = @strand{thread:"any"} start concat("sunshine");
 
-    record {| int id = 0; string name = "default"; string...; |} anonRec = wait {id: f1, name : f2, greet: f3};
-    map<anydata> m = {};
+    record {| int|error id = 0; string|error name = "default"; string|error...; |} anonRec = wait {id: f1, name : f2,
+    greet: f3};
+    map<anydata|error> m = {};
     m["id"] = anonRec.id;
     m["name"] = anonRec.name;
     m["greet"] = anonRec["greet"];
@@ -305,47 +310,52 @@ function waitTest27() returns map<anydata> {
 }
 
 type sealedRec record {|
-    int id = 0;
-    string name = "default";
+    int|error id = 0;
+    string|error name = "default";
 |};
 
-type openRec record {
-    int id = 0;
-    string name = "default";
-};
+type openRec record {|
+    int|error id = 0;
+    string|error name = "default";
+    anydata|error...;
+|};
 
 type restRec1 record {|
-    int id = 0;
-    string name = "default";
-    int...;
+    int|error id = 0;
+    string|error name = "default";
+    int|error...;
 |};
 
 type restRec2 record {|
-    int id = 0;
-    string name = "default";
-    string...;
+    int|error id = 0;
+    string|error name = "default";
+    string|error...;
 |};
 
 type firstRec record {
-    int id = 1;
-    string name = "first-default";
+    int|error id = 1;
+    string|error name = "first-default";
 };
 
 type secondRec record {
-    int f1 = 1;
-    string f5 = "second-default";
+    int|error f1 = 1;
+    string|error f5 = "second-default";
 };
 
 type thirdRec record {
-    int f1 = 0;
-    string 'field = "third-default";
+    int|error f1 = 0;
+    string|error 'field = "third-default";
     int f4?;
 };
 
 type fourthRec record {
-    int|string id = 0;
+    int|string|error id = 0;
 };
 
+type TwoIntOrErrorFields record {|
+    int|error f1;
+    int|error f2;
+|};
 // Util functions
 
 function add_1(int i, int j) returns int {

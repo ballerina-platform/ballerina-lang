@@ -62,4 +62,17 @@ public class ClosureNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "variable 'localVar2' is not initialized", 39, 17);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
+
+    @Test
+    public void testTypeNarrowingWithClosure() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/closures/closure_negative_02.bal");
+        int index = 0;
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Ballerina', found " +
+                "'string?'", 22, 31);
+        BAssertUtil.validateError(compileResult, index++, "operator '>' not defined for '(int|string)' and 'int'",
+                30, 25);
+        BAssertUtil.validateError(compileResult, index++, "operator '+' not defined for '(int|string)' and 'int'",
+                31, 17);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
+    }
 }

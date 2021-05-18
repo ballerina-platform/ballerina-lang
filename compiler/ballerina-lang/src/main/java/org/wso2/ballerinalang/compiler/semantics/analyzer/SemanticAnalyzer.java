@@ -1574,7 +1574,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        resetTypeNarrowing(varRef, compoundAssignment.expr.type);
+        resetTypeNarrowing(compoundAssignment.varRef, compoundAssignment.expr.type);
     }
 
     public void visit(BLangAssignment assignNode) {

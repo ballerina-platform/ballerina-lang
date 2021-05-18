@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-service x =
-service {
-    resource function foo() returns error? = external;
+service object {} x =
+service object {
+    resource function get foo() returns error? = external;
 
-    resource function bar() = external;
+    resource function put bar() = external;
 
-    resource function baz(float f) = external;
+    resource function post baz(float f) = external;
 };
