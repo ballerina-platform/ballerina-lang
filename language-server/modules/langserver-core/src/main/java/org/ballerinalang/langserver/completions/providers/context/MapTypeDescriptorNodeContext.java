@@ -17,8 +17,8 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.MapTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
@@ -35,15 +35,15 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class ParameterizedTypeDescriptorNodeContext
-        extends AbstractCompletionProvider<ParameterizedTypeDescriptorNode> {
+public class MapTypeDescriptorNodeContext
+        extends AbstractCompletionProvider<MapTypeDescriptorNode> {
 
-    public ParameterizedTypeDescriptorNodeContext() {
-        super(ParameterizedTypeDescriptorNode.class);
+    public MapTypeDescriptorNodeContext() {
+        super(MapTypeDescriptorNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, ParameterizedTypeDescriptorNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, MapTypeDescriptorNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
 

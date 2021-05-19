@@ -107,6 +107,7 @@ import io.ballerina.compiler.syntax.tree.MappingBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
 import io.ballerina.compiler.syntax.tree.MappingMatchPatternNode;
+import io.ballerina.compiler.syntax.tree.MapTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.MarkdownCodeBlockNode;
 import io.ballerina.compiler.syntax.tree.MarkdownCodeLineNode;
 import io.ballerina.compiler.syntax.tree.MarkdownDocumentationLineNode;
@@ -147,7 +148,6 @@ import io.ballerina.compiler.syntax.tree.OrderByClauseNode;
 import io.ballerina.compiler.syntax.tree.OrderKeyNode;
 import io.ballerina.compiler.syntax.tree.PanicStatementNode;
 import io.ballerina.compiler.syntax.tree.ParameterNode;
-import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
@@ -1079,13 +1079,13 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     @Override
-    public ParameterizedTypeDescriptorNode transform(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
-        Token parameterizedType = formatToken(parameterizedTypeDescriptorNode.parameterizedType(), 0, 0);
-        TypeParameterNode typeParameter = formatNode(parameterizedTypeDescriptorNode.typeParameter(),
+    public MapTypeDescriptorNode transform(MapTypeDescriptorNode mapTypeDescriptorNode) {
+        Token mapKeywordToken = formatToken(mapTypeDescriptorNode.mapKeywordToken(), 0, 0);
+        TypeParameterNode mapTypeParamsNode = formatNode(mapTypeDescriptorNode.mapTypeParamsNode(),
                 env.trailingWS, env.trailingNL);
-        return parameterizedTypeDescriptorNode.modify()
-                .withParameterizedType(parameterizedType)
-                .withTypeParameter(typeParameter)
+        return mapTypeDescriptorNode.modify()
+                .withMapKeywordToken(mapKeywordToken)
+                .withMapTypeParamsNode(mapTypeParamsNode)
                 .apply();
     }
 

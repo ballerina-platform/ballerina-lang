@@ -285,8 +285,8 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(remoteMethodCallActionNode);
     }
 
-    public void visit(STParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
-        visitSyntaxNode(parameterizedTypeDescriptorNode);
+    public void visit(STMapTypeDescriptorNode mapTypeDescriptorNode) {
+        visitSyntaxNode(mapTypeDescriptorNode);
     }
 
     public void visit(STNilLiteralNode nilLiteralNode) {

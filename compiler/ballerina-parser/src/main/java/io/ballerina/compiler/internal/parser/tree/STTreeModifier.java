@@ -927,13 +927,13 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STParameterizedTypeDescriptorNode transform(
-            STParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
-        STNode parameterizedType = modifyNode(parameterizedTypeDescriptorNode.parameterizedType);
-        STNode typeParameter = modifyNode(parameterizedTypeDescriptorNode.typeParameter);
-        return parameterizedTypeDescriptorNode.modify(
-                parameterizedType,
-                typeParameter);
+    public STMapTypeDescriptorNode transform(
+            STMapTypeDescriptorNode mapTypeDescriptorNode) {
+        STNode mapKeywordToken = modifyNode(mapTypeDescriptorNode.mapKeywordToken);
+        STNode mapTypeParamsNode = modifyNode(mapTypeDescriptorNode.mapTypeParamsNode);
+        return mapTypeDescriptorNode.modify(
+                mapKeywordToken,
+                mapTypeParamsNode);
     }
 
     @Override

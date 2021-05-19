@@ -1186,15 +1186,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public ParameterizedTypeDescriptorNode transform(
-            ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
-        Token parameterizedType =
-                modifyToken(parameterizedTypeDescriptorNode.parameterizedType());
-        TypeParameterNode typeParameter =
-                modifyNode(parameterizedTypeDescriptorNode.typeParameter());
-        return parameterizedTypeDescriptorNode.modify(
-                parameterizedType,
-                typeParameter);
+    public MapTypeDescriptorNode transform(
+            MapTypeDescriptorNode mapTypeDescriptorNode) {
+        Token mapKeywordToken =
+                modifyToken(mapTypeDescriptorNode.mapKeywordToken());
+        TypeParameterNode mapTypeParamsNode =
+                modifyNode(mapTypeDescriptorNode.mapTypeParamsNode());
+        return mapTypeDescriptorNode.modify(
+                mapKeywordToken,
+                mapTypeParamsNode);
     }
 
     @Override

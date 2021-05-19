@@ -1038,6 +1038,10 @@ public class ParserTestUtils {
                 return SyntaxKind.VAR_TYPE_DESC;
             case "SERVICE_TYPE_DESC":
                 return SyntaxKind.SERVICE_TYPE_DESC;
+            case "MAP_TYPE_DESC":
+                return SyntaxKind.MAP_TYPE_DESC;
+            case "FUTURE_TYPE_DESC":
+                return SyntaxKind.FUTURE_TYPE_DESC;
 
             // Others
             case "FUNCTION_BODY_BLOCK":
@@ -1088,8 +1092,6 @@ public class ParserTestUtils {
                 return SyntaxKind.METADATA;
             case "ANNOTATION":
                 return SyntaxKind.ANNOTATION;
-            case "PARAMETERIZED_TYPE_DESC":
-                return SyntaxKind.PARAMETERIZED_TYPE_DESC;
             case "ANNOTATION_ATTACH_POINT":
                 return SyntaxKind.ANNOTATION_ATTACH_POINT;
             case "NAMED_WORKER_DECLARATION":

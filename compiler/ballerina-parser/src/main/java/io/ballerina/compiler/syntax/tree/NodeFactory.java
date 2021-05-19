@@ -1148,16 +1148,16 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stRemoteMethodCallActionNode.createUnlinkedFacade();
     }
 
-    public static ParameterizedTypeDescriptorNode createParameterizedTypeDescriptorNode(
-            Token parameterizedType,
-            TypeParameterNode typeParameter) {
-        Objects.requireNonNull(parameterizedType, "parameterizedType must not be null");
-        Objects.requireNonNull(typeParameter, "typeParameter must not be null");
+    public static MapTypeDescriptorNode createMapTypeDescriptorNode(
+            Token mapKeywordToken,
+            TypeParameterNode mapTypeParamsNode) {
+        Objects.requireNonNull(mapKeywordToken, "mapKeywordToken must not be null");
+        Objects.requireNonNull(mapTypeParamsNode, "mapTypeParamsNode must not be null");
 
-        STNode stParameterizedTypeDescriptorNode = STNodeFactory.createParameterizedTypeDescriptorNode(
-                parameterizedType.internalNode(),
-                typeParameter.internalNode());
-        return stParameterizedTypeDescriptorNode.createUnlinkedFacade();
+        STNode stMapTypeDescriptorNode = STNodeFactory.createMapTypeDescriptorNode(
+                mapKeywordToken.internalNode(),
+                mapTypeParamsNode.internalNode());
+        return stMapTypeDescriptorNode.createUnlinkedFacade();
     }
 
     public static NilLiteralNode createNilLiteralNode(

@@ -17,9 +17,9 @@
  */
 package io.ballerina.compiler.internal.parser.tree;
 
+import io.ballerina.compiler.syntax.tree.MapTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -30,56 +30,56 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STParameterizedTypeDescriptorNode extends STTypeDescriptorNode {
-    public final STNode parameterizedType;
-    public final STNode typeParameter;
+public class STMapTypeDescriptorNode extends STTypeDescriptorNode {
+    public final STNode mapKeywordToken;
+    public final STNode mapTypeParamsNode;
 
-    STParameterizedTypeDescriptorNode(
-            STNode parameterizedType,
-            STNode typeParameter) {
+    STMapTypeDescriptorNode(
+            STNode mapKeywordToken,
+            STNode mapTypeParamsNode) {
         this(
-                parameterizedType,
-                typeParameter,
+                mapKeywordToken,
+                mapTypeParamsNode,
                 Collections.emptyList());
     }
 
-    STParameterizedTypeDescriptorNode(
-            STNode parameterizedType,
-            STNode typeParameter,
+    STMapTypeDescriptorNode(
+            STNode mapKeywordToken,
+            STNode mapTypeParamsNode,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.PARAMETERIZED_TYPE_DESC, diagnostics);
-        this.parameterizedType = parameterizedType;
-        this.typeParameter = typeParameter;
+        super(SyntaxKind.MAP_TYPE_DESC, diagnostics);
+        this.mapKeywordToken = mapKeywordToken;
+        this.mapTypeParamsNode = mapTypeParamsNode;
 
         addChildren(
-                parameterizedType,
-                typeParameter);
+                mapKeywordToken,
+                mapTypeParamsNode);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STParameterizedTypeDescriptorNode(
-                this.parameterizedType,
-                this.typeParameter,
+        return new STMapTypeDescriptorNode(
+                this.mapKeywordToken,
+                this.mapTypeParamsNode,
                 diagnostics);
     }
 
-    public STParameterizedTypeDescriptorNode modify(
-            STNode parameterizedType,
-            STNode typeParameter) {
+    public STMapTypeDescriptorNode modify(
+            STNode mapKeywordToken,
+            STNode mapTypeParamsNode) {
         if (checkForReferenceEquality(
-                parameterizedType,
-                typeParameter)) {
+                mapKeywordToken,
+                mapTypeParamsNode)) {
             return this;
         }
 
-        return new STParameterizedTypeDescriptorNode(
-                parameterizedType,
-                typeParameter,
+        return new STMapTypeDescriptorNode(
+                mapKeywordToken,
+                mapTypeParamsNode,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ParameterizedTypeDescriptorNode(this, position, parent);
+        return new MapTypeDescriptorNode(this, position, parent);
     }
 
     @Override

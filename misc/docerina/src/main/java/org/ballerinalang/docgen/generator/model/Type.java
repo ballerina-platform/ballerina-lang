@@ -37,11 +37,11 @@ import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.FutureTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.MapTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.NilTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
@@ -220,14 +220,12 @@ public class Type {
                     type.returnType = Type.fromNode(returnType.type(), semanticModel);
                 }
             }
-        } else if (node instanceof ParameterizedTypeDescriptorNode) {
-            ParameterizedTypeDescriptorNode parameterizedNode = (ParameterizedTypeDescriptorNode) node;
-            if (parameterizedNode.parameterizedType().kind().equals(SyntaxKind.MAP_KEYWORD)) {
+        } else if (node instanceof MapTypeDescriptorNode) {
+            MapTypeDescriptorNode mapTypeDesc = (MapTypeDescriptorNode) node;
                 type.name = "map";
                 type.category = "map";
                 type.version = ballerinaShotVersion;
-                type.constraint = fromNode(parameterizedNode.typeParameter().typeNode(), semanticModel);
-            }
+                type.constraint = fromNode(mapTypeDesc.mapTypeParamsNode().typeNode(), semanticModel);
         } else if (node instanceof FutureTypeDescriptorNode) {
             // Do nothing
         } else if (node instanceof ErrorTypeDescriptorNode) {

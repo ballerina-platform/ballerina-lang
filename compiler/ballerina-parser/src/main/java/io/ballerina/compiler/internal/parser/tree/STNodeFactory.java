@@ -876,13 +876,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeParenToken);
     }
 
-    public static STNode createParameterizedTypeDescriptorNode(
-            STNode parameterizedType,
-            STNode typeParameter) {
+    public static STNode createMapTypeDescriptorNode(
+            STNode mapKeywordToken,
+            STNode mapTypeParamsNode) {
 
-        return new STParameterizedTypeDescriptorNode(
-                parameterizedType,
-                typeParameter);
+        return new STMapTypeDescriptorNode(
+                mapKeywordToken,
+                mapTypeParamsNode);
     }
 
     public static STNode createNilLiteralNode(

@@ -2451,7 +2451,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseNilOrParenthesisedTypeDesc();
             case MAP_KEYWORD: // map type desc
                 reportInvalidQualifierList(qualifiers);
-                return parseParameterizedTypeDescriptor(consume());
+                return parseMapTypeDescriptor(consume());
             case FUTURE_KEYWORD: // future type desc
                 reportInvalidQualifierList(qualifiers);
                 return parseFutureTypeDescriptor(consume());
@@ -2577,7 +2577,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseErrorTypeDescriptor(preDeclaredPrefix);
             case MAP_KEYWORD:
                 reportInvalidQualifierList(qualifiers);
-                return parseParameterizedTypeDescriptor(preDeclaredPrefix);
+                return parseMapTypeDescriptor(preDeclaredPrefix);
             case FUTURE_KEYWORD:
                 reportInvalidQualifierList(qualifiers);
                 return parseFutureTypeDescriptor(preDeclaredPrefix);
@@ -8521,16 +8521,22 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse parameterized type descriptor.
-     * parameterized-type-descriptor := map type-parameter | future type-parameter | typedesc type-parameter
+     * Parse map type descriptor.
+     * map-type-descriptor := `map` type-parameter
      *
      * @return Parsed node
      */
-    private STNode parseParameterizedTypeDescriptor(STNode parameterizedTypeKeyword) {
+    private STNode parseMapTypeDescriptor(STNode mapKeyword) {
         STNode typeParameter = parseTypeParameter();
-        return STNodeFactory.createParameterizedTypeDescriptorNode(parameterizedTypeKeyword, typeParameter);
+        return STNodeFactory.createMapTypeDescriptorNode(mapKeyword, typeParameter);
     }
 
+    /**
+     * Parse future type descriptor.
+     * future-type-descriptor := `future` [type-parameter]
+     *
+     * @return Parsed node
+     */
     private STNode parseFutureTypeDescriptor(STNode futureKeywordToken) {
         STNode futureTypeParamsNode;
         STToken nextToken = peek();
@@ -10031,7 +10037,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse typedesc type descriptor.
-     * typedesc-type-descriptor := typedesc type-parameter
+     * typedesc-type-descriptor := `typedesc` [type-parameter]
      *
      * @return Parsed typedesc type node
      */

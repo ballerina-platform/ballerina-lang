@@ -285,8 +285,8 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(remoteMethodCallActionNode);
     }
 
-    public T transform(STParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
-        return transformSyntaxNode(parameterizedTypeDescriptorNode);
+    public T transform(STMapTypeDescriptorNode mapTypeDescriptorNode) {
+        return transformSyntaxNode(mapTypeDescriptorNode);
     }
 
     public T transform(STNilLiteralNode nilLiteralNode) {
