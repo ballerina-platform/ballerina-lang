@@ -2390,5 +2390,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 arguments,
                 closeParenToken);
     }
+
+    public static STNode createFutureTypeDescriptorNode(
+            STNode futureKeywordToken,
+            STNode futureTypeParamsNode) {
+
+        return new STFutureTypeDescriptorNode(
+                futureKeywordToken,
+                futureTypeParamsNode);
+    }
 }
 

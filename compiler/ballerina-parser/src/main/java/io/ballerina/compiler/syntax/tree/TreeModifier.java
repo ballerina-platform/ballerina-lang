@@ -3242,6 +3242,18 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 closeParenToken);
     }
 
+    @Override
+    public FutureTypeDescriptorNode transform(
+            FutureTypeDescriptorNode futureTypeDescriptorNode) {
+        Token futureKeywordToken =
+                modifyToken(futureTypeDescriptorNode.futureKeywordToken());
+        TypeParameterNode futureTypeParamsNode =
+                modifyNode(futureTypeDescriptorNode.futureTypeParamsNode().orElse(null));
+        return futureTypeDescriptorNode.modify(
+                futureKeywordToken,
+                futureTypeParamsNode);
+    }
+
     // Tokens
 
     @Override

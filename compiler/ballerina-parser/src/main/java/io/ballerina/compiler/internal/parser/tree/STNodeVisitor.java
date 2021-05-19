@@ -817,6 +817,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(errorConstructorExpressionNode);
     }
 
+    public void visit(STFutureTypeDescriptorNode futureTypeDescriptorNode) {
+        visitSyntaxNode(futureTypeDescriptorNode);
+    }
+
     // STNodeList
     public void visit(STNodeList nodeList) {
         visitChildren(nodeList);

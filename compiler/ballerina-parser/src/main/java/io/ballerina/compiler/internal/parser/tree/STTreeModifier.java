@@ -2566,6 +2566,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 closeParenToken);
     }
 
+    @Override
+    public STFutureTypeDescriptorNode transform(
+            STFutureTypeDescriptorNode futureTypeDescriptorNode) {
+        STNode futureKeywordToken = modifyNode(futureTypeDescriptorNode.futureKeywordToken);
+        STNode futureTypeParamsNode = modifyNode(futureTypeDescriptorNode.futureTypeParamsNode);
+        return futureTypeDescriptorNode.modify(
+                futureKeywordToken,
+                futureTypeParamsNode);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {

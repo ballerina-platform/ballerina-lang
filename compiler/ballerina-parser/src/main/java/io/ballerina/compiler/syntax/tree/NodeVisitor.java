@@ -827,6 +827,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(errorConstructorExpressionNode);
     }
 
+    public void visit(FutureTypeDescriptorNode futureTypeDescriptorNode) {
+        visitSyntaxNode(futureTypeDescriptorNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

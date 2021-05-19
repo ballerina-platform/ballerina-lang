@@ -35,6 +35,7 @@ import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.FutureTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.NilTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -227,6 +228,8 @@ public class Type {
                 type.version = ballerinaShotVersion;
                 type.constraint = fromNode(parameterizedNode.typeParameter().typeNode(), semanticModel);
             }
+        } else if (node instanceof FutureTypeDescriptorNode) {
+            // Do nothing
         } else if (node instanceof ErrorTypeDescriptorNode) {
             ErrorTypeDescriptorNode errorType = (ErrorTypeDescriptorNode) node;
             type.name = errorType.errorKeywordToken().text();

@@ -3155,5 +3155,16 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 closeParenToken.internalNode());
         return stErrorConstructorExpressionNode.createUnlinkedFacade();
     }
+
+    public static FutureTypeDescriptorNode createFutureTypeDescriptorNode(
+            Token futureKeywordToken,
+            TypeParameterNode futureTypeParamsNode) {
+        Objects.requireNonNull(futureKeywordToken, "futureKeywordToken must not be null");
+
+        STNode stFutureTypeDescriptorNode = STNodeFactory.createFutureTypeDescriptorNode(
+                futureKeywordToken.internalNode(),
+                getOptionalSTNode(futureTypeParamsNode));
+        return stFutureTypeDescriptorNode.createUnlinkedFacade();
+    }
 }
 

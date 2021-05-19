@@ -75,6 +75,7 @@ import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.FutureTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
@@ -2551,6 +2552,24 @@ public class FormattingTreeModifier extends TreeModifier {
         return typedescTypeDescriptorNode.modify()
                 .withTypedescTypeParamsNode(typedescTypeParamsNode)
                 .withTypedescKeywordToken(typedescKeyword)
+                .apply();
+    }
+
+    @Override
+    public FutureTypeDescriptorNode transform(FutureTypeDescriptorNode futureTypeDescriptorNode) {
+        Token futureKeyword;
+        if (futureTypeDescriptorNode.futureTypeParamsNode().isPresent()) {
+            futureKeyword = formatToken(futureTypeDescriptorNode.futureKeywordToken(), 0, 0);
+        } else {
+            futureKeyword = formatToken(futureTypeDescriptorNode.futureKeywordToken(), env.trailingWS, env.trailingNL);
+        }
+
+        TypeParameterNode futureTypeParamsNode =
+                formatNode(futureTypeDescriptorNode.futureTypeParamsNode().orElse(null), env.trailingWS,
+                        env.trailingNL);
+        return futureTypeDescriptorNode.modify()
+                .withFutureTypeParamsNode(futureTypeParamsNode)
+                .withFutureKeywordToken(futureKeyword)
                 .apply();
     }
 

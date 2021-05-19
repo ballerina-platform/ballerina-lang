@@ -74,6 +74,7 @@ import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.FutureTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
@@ -2686,6 +2687,24 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         refType.pos = getPosition(typedescTypeDescriptorNode);
 
         Optional<TypeParameterNode> node = typedescTypeDescriptorNode.typedescTypeParamsNode();
+        if (node.isPresent()) {
+            BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
+            constrainedType.type = refType;
+            constrainedType.constraint = createTypeNode(node.get().typeNode());
+            constrainedType.pos = refType.pos;
+            return constrainedType;
+        }
+
+        return refType;
+    }
+
+    @Override
+    public BLangNode transform(FutureTypeDescriptorNode futureTypeDescriptorNode) {
+        BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
+        refType.typeKind = TypeKind.FUTURE;
+        refType.pos = getPosition(futureTypeDescriptorNode);
+
+        Optional<TypeParameterNode> node = futureTypeDescriptorNode.futureTypeParamsNode();
         if (node.isPresent()) {
             BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
             constrainedType.type = refType;

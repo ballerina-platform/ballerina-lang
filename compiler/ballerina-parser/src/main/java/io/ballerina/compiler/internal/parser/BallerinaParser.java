@@ -2450,9 +2450,11 @@ public class BallerinaParser extends AbstractParser {
                 reportInvalidQualifierList(qualifiers);
                 return parseNilOrParenthesisedTypeDesc();
             case MAP_KEYWORD: // map type desc
-            case FUTURE_KEYWORD: // future type desc
                 reportInvalidQualifierList(qualifiers);
                 return parseParameterizedTypeDescriptor(consume());
+            case FUTURE_KEYWORD: // future type desc
+                reportInvalidQualifierList(qualifiers);
+                return parseFutureTypeDescriptor(consume());
             case TYPEDESC_KEYWORD:
                 reportInvalidQualifierList(qualifiers);
                 return parseTypedescTypeDescriptor(consume());
@@ -2574,9 +2576,11 @@ public class BallerinaParser extends AbstractParser {
                 reportInvalidQualifierList(qualifiers);
                 return parseErrorTypeDescriptor(preDeclaredPrefix);
             case MAP_KEYWORD:
-            case FUTURE_KEYWORD:
                 reportInvalidQualifierList(qualifiers);
                 return parseParameterizedTypeDescriptor(preDeclaredPrefix);
+            case FUTURE_KEYWORD:
+                reportInvalidQualifierList(qualifiers);
+                return parseFutureTypeDescriptor(preDeclaredPrefix);
             case OBJECT_KEYWORD:
                 STNode objectTypeQualifiers = createObjectTypeQualNodeList(qualifiers);
                 return parseObjectTypeDescriptor(preDeclaredPrefix, objectTypeQualifiers);
@@ -8525,6 +8529,17 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseParameterizedTypeDescriptor(STNode parameterizedTypeKeyword) {
         STNode typeParameter = parseTypeParameter();
         return STNodeFactory.createParameterizedTypeDescriptorNode(parameterizedTypeKeyword, typeParameter);
+    }
+
+    private STNode parseFutureTypeDescriptor(STNode futureKeywordToken) {
+        STNode futureTypeParamsNode;
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.LT_TOKEN) {
+            futureTypeParamsNode = parseTypeParameter();
+        } else {
+            futureTypeParamsNode = STNodeFactory.createEmptyNode();
+        }
+        return STNodeFactory.createFutureTypeDescriptorNode(futureKeywordToken, futureTypeParamsNode);
     }
 
     /**

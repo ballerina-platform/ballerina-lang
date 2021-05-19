@@ -4357,6 +4357,22 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "FutureTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "FUTURE_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "futureKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "futureTypeParamsNode",
+                    "type": "TypeParameterNode",
+                    "isOptional": true
+                }
+            ]
         }
     ]
 }

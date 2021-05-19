@@ -828,6 +828,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(errorConstructorExpressionNode);
     }
 
+    public T transform(FutureTypeDescriptorNode futureTypeDescriptorNode) {
+        return transformSyntaxNode(futureTypeDescriptorNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

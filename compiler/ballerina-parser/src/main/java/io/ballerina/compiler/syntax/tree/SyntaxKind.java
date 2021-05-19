@@ -359,6 +359,7 @@ public enum SyntaxKind {
     SINGLETON_TYPE_DESC(2031),
     TYPE_REFERENCE_TYPE_DESC(2032),
     TYPEDESC_TYPE_DESC(2033),
+    FUTURE_TYPE_DESC(2034),
 
 
     // Actions
