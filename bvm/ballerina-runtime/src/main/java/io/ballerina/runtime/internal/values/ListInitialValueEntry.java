@@ -18,14 +18,14 @@
 
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.values.BInitialValueEntry;
+import io.ballerina.runtime.api.values.BListInitialValueEntry;
 
 /**
  * Represents an initial value entry in a list constructor expression.
  *
  * @since 1.3.0
  */
-public abstract class ListInitialValueEntry implements BInitialValueEntry {
+public abstract class ListInitialValueEntry implements BListInitialValueEntry {
 
     /**
      * Represents an initial expression entry in a list constructor expression.
