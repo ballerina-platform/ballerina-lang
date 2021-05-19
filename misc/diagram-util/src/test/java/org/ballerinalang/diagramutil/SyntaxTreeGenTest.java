@@ -94,13 +94,13 @@ public class SyntaxTreeGenTest {
         JsonArray members = stJson.getAsJsonObject().get("members").getAsJsonArray();
 
         // Validate module var is identified as an Endpoint.
-        JsonObject moduleVar = members.get(0).getAsJsonObject();
+        JsonObject moduleVar = members.get(1).getAsJsonObject();
         Assert.assertTrue(moduleVar.has("typeData"));
         Assert.assertTrue(moduleVar.get("typeData").getAsJsonObject().has("isEndpoint"));
         Assert.assertTrue(moduleVar.get("typeData").getAsJsonObject().get("isEndpoint").getAsBoolean());
 
         // Validate local var is identified as an Endpoint.
-        JsonObject function = members.get(1).getAsJsonObject();
+        JsonObject function = members.get(2).getAsJsonObject();
         JsonObject functionBody = function.get("functionBody").getAsJsonObject();
         JsonArray visibleEndpoints = functionBody.get("VisibleEndpoints").getAsJsonArray();
 
