@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,23 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.symbol;
 
-import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
-import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
-
-import java.util.concurrent.CompletableFuture;
+import org.ballerinalang.langserver.commons.LSOperation;
 
 /**
- * An extension interface for Language server to fetch information about ballerina symbols.
+ * Represents a document context.
  *
- * @since 0.981.2
+ * @since 2.0.0
  */
-@JsonSegment("ballerinaSymbol")
-public interface BallerinaSymbolService {
+public enum SymbolContext implements LSOperation {
+    SC_TYPE_API("ballerinaSymbol/type");
+    private final String name;
 
-    @JsonRequest
-    CompletableFuture<BallerinaEndpointsResponse> endpoints();
+    SymbolContext(String name) {
+        this.name = name;
+    }
 
-    @JsonRequest
-    CompletableFuture<ExpressionTypeResponse> type(ExpressionTypeRequest params);
+    @Override
+    public String getName() {
+        return name;
+    }
 }
