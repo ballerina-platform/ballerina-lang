@@ -207,3 +207,16 @@ function testErrorBindingPattern() returns [string, boolean, value:Cloneable] {
 
     return [info, fatal, transactionData];
 }
+
+function testLocalErrorType() {
+    error err = error("Error Code", message = "Fatal");
+    error<record {| value:Cloneable...; |}> error(reason, message = message) = err;
+
+    if (message is string) {
+        if (message == "Fatal") {
+        return;
+        }
+        panic error("Expected message=Fatal, found message=" + message);
+    }
+    panic error("Expected string, found: " + (typeof message).toString());
+}

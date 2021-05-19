@@ -436,6 +436,32 @@ function testErrorBindingPattern() {
     assertEquality(b, false);
 }
 
+function testLocalErrorTypeWithinLambda() {
+    var f = function () returns error {
+        error<record {| int i; |}> e = error("hi", i = 33);
+        return e;
+    };
+    error err = f();
+    assertEquality(err.detail()["i"], 33);
+}
+
+function testLocalErrorTypeWithClosure() {
+    final int k = 2;
+    error<record {| int i = k; |}> e = error("hi");
+    assertEquality(e.detail()["i"], k);
+}
+
+// Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/30659
+//function testLocalErrorTypeWithClosureInALambda() {
+//    final int k = 2;
+//    var f = function () returns error {
+//        error<record {| int i = k; |}> e = error("hi");
+//        return e;
+//    };
+//    error err = f();
+//    assertEquality(err.detail()["i"], k);
+//}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error actual, any|error expected) {

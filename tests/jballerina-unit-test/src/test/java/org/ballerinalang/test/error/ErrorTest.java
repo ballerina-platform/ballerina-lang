@@ -215,6 +215,16 @@ public class ErrorTest {
     }
 
     @Test
+    public void testLocalErrorTypeWithClosure() {
+        BRunUtil.invoke(errorTestResult, "testLocalErrorTypeWithClosure");
+    }
+
+    @Test
+    public void testLocalErrorTypeWithinLambda() {
+        BRunUtil.invoke(errorTestResult, "testLocalErrorTypeWithinLambda");
+    }
+
+    @Test
     public void testErrorNegative() {
         CompileResult negativeCompileResult = BCompileUtil.compile("test-src/error/error_test_negative.bal");
         int i = 0;
