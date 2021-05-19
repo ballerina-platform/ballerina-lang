@@ -75,11 +75,11 @@ public class ObserveUtils {
         Module observeModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "observe", "0.9.0");
         VariableKey enabledKey = new VariableKey(observeModule, "enabled");
         VariableKey providerKey = new VariableKey(observeModule, "provider");
-        VariableKey metricsEnabledKey = new VariableKey(observeModule, "metricsEnabled");
-        VariableKey metricsProviderKey = new VariableKey(observeModule, "metricsProvider");
-        VariableKey metricsReporterKey = new VariableKey(observeModule, "metricsReporter");
-        VariableKey tracingEnabledKey = new VariableKey(observeModule, "tracingEnabled");
-        VariableKey tracingProviderKey = new VariableKey(observeModule, "tracingProvider");
+        VariableKey metricsEnabledKey = new VariableKey(observeModule, "metrics.enabled");
+        VariableKey metricsProviderKey = new VariableKey(observeModule, "metrics.provider");
+        VariableKey metricsReporterKey = new VariableKey(observeModule, "metrics.reporter");
+        VariableKey tracingEnabledKey = new VariableKey(observeModule, "tracing.enabled");
+        VariableKey tracingProviderKey = new VariableKey(observeModule, "tracing.provider");
 
         metricsEnabled = readConfig(metricsEnabledKey, enabledKey, false);
         metricsProvider = readConfig(metricsProviderKey, null, StringUtils.fromString("default"));

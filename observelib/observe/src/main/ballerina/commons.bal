@@ -17,12 +17,21 @@
 import ballerina/jballerina.java;
 
 // Configurations
+type MetricsConfig record {|
+    boolean enabled = enabled;
+    string reporter = provider;
+|} & readonly;
+
+type TracingConfig record {|
+    boolean enabled = enabled;
+    string provider = provider;
+|} & readonly;
+
+// Enables both metrics and tracing
 configurable boolean enabled = false;
-configurable string provider = "";
-configurable boolean metricsEnabled = false;
-configurable string metricsReporter = "choreo";
-configurable boolean tracingEnabled = false;
-configurable string tracingProvider = "choreo";
+configurable string provider = "choreo";    // Deprecated and should not be used
+configurable MetricsConfig metrics = {};
+configurable TracingConfig tracing = {};
 
 function init() {
     externInitializeModule();
