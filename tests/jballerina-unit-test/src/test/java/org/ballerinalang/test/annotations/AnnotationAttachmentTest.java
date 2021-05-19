@@ -245,7 +245,7 @@ public class AnnotationAttachmentTest {
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v12", "str", "v12 value");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testAnnotOnExternal() {
         BLangFunction function = getFunction("externalFunction");
         List<BLangAnnotationAttachment> attachments = function.annAttachments;
@@ -258,24 +258,49 @@ public class AnnotationAttachmentTest {
         Assert.assertNull(attachment.expr);
 
         attachments = ((BLangExternalFunctionBody) function.body).annAttachments;
-        Assert.assertEquals(attachments.size(), 1);
-        assertAnnotationNameAndKeyValuePair(attachments.get(0), "v13", "strOne", "one");
-        assertAnnotationNameAndKeyValuePair(attachments.get(0), "v13", "strTwo", "two");
+        Assert.assertEquals(attachments.size(), 2);
+        BLangAnnotationAttachment externalAttachment = attachments.get(0);
+        if (!externalAttachment.annotationName.getValue().equals("v13")) {
+            externalAttachment = attachments.get(1);
+        }
+
+        BLangRecordLiteral mappingConstructor = getMappingConstructor(externalAttachment, "v13");
+        Assert.assertEquals(mappingConstructor.getFields().size(), 2);
+        BLangRecordLiteral.BLangRecordKeyValueField keyValuePairOne =
+                (BLangRecordLiteral.BLangRecordKeyValueField) mappingConstructor.getFields().get(0);
+        BLangRecordLiteral.BLangRecordKeyValueField keyValuePairTwo =
+                (BLangRecordLiteral.BLangRecordKeyValueField) mappingConstructor.getFields().get(1);
+
+        Object strOneValue;
+        Object strTwoValue;
+        if (getKeyString(keyValuePairOne).equals("strOne")) {
+            strOneValue = ((BLangLiteral) keyValuePairOne.getValue()).value;
+            strTwoValue = ((BLangLiteral) keyValuePairTwo.getValue()).value;
+        } else {
+            strTwoValue = ((BLangLiteral) keyValuePairOne.getValue()).value;
+            strOneValue = ((BLangLiteral) keyValuePairTwo.getValue()).value;
+        }
+        Assert.assertEquals(strOneValue, "one");
+        Assert.assertEquals(strTwoValue, "two");
     }
 
     private void assertAnnotationNameAndKeyValuePair(BLangAnnotationAttachment attachment, String annotName,
                                                      String fieldName, Object value) {
-        Assert.assertEquals(attachment.annotationName.getValue(), annotName);
-        BLangExpression expression = getActualExpressionFromAnnotationAttachmentExpr(attachment.expr);
-        Assert.assertEquals(expression.getKind(), NodeKind.RECORD_LITERAL_EXPR);
-
-        BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
+        BLangRecordLiteral recordLiteral = getMappingConstructor(attachment, annotName);
         Assert.assertEquals(recordLiteral.getFields().size(), 1);
 
         BLangRecordLiteral.BLangRecordKeyValueField keyValuePair =
                 (BLangRecordLiteral.BLangRecordKeyValueField) recordLiteral.getFields().get(0);
         Assert.assertEquals(getKeyString(keyValuePair), fieldName);
         Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, value);
+    }
+
+
+    private BLangRecordLiteral getMappingConstructor(BLangAnnotationAttachment attachment, String annotName) {
+        Assert.assertEquals(attachment.annotationName.getValue(), annotName);
+        BLangExpression expression = getActualExpressionFromAnnotationAttachmentExpr(attachment.expr);
+        Assert.assertEquals(expression.getKind(), NodeKind.RECORD_LITERAL_EXPR);
+        return (BLangRecordLiteral) expression;
     }
 
     private BLangExpression getActualExpressionFromAnnotationAttachmentExpr(BLangExpression expression) {
@@ -311,11 +336,7 @@ public class AnnotationAttachmentTest {
                 .getClassDefinitions().get(0).getAnnotationAttachments();
         Assert.assertEquals(attachments.size(), 1);
         BLangAnnotationAttachment attachment = attachments.get(0);
-        Assert.assertEquals(attachment.annotationName.getValue(), "v1");
-        BLangExpression annotationExpression = getActualExpressionFromAnnotationAttachmentExpr(attachment.expr);
-        Assert.assertEquals(annotationExpression.getKind(), NodeKind.RECORD_LITERAL_EXPR);
-
-        BLangRecordLiteral recordLiteral = (BLangRecordLiteral) annotationExpression;
+        BLangRecordLiteral recordLiteral = getMappingConstructor(attachment, "v1");
         Assert.assertEquals(recordLiteral.getFields().size(), 2);
 
         BLangRecordLiteral.BLangRecordKeyValueField keyValuePair =

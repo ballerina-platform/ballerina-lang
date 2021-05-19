@@ -24,6 +24,7 @@ import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.Location;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Represents New Toml Diagnostics.
@@ -31,6 +32,7 @@ import java.util.List;
  * @since 2.0.0
  */
 public class TomlDiagnostic extends Diagnostic {
+
     private final TomlNodeLocation location;
     private final DiagnosticInfo diagnosticInfo;
     private final String message;
@@ -59,5 +61,24 @@ public class TomlDiagnostic extends Diagnostic {
     @Override
     public List<DiagnosticProperty<?>> properties() {
         return null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        TomlDiagnostic that = (TomlDiagnostic) o;
+        return Objects.equals(location, that.location) &&
+                Objects.equals(diagnosticInfo, that.diagnosticInfo) &&
+                Objects.equals(message, that.message);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(location, diagnosticInfo, message);
     }
 }

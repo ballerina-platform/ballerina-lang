@@ -52,6 +52,7 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
     private List<Qualifier> qualifiers;
     private String signature;
     private boolean deprecated;
+    private String escapedName;
 
     public BallerinaRecordFieldSymbol(CompilerContext context, BField bField) {
         super(bField.name.value, SymbolKind.RECORD_FIELD, bField.symbol, context);
@@ -62,7 +63,11 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
 
     @Override
     public Optional<String> getName() {
-        return Optional.of(this.bField.getName().getValue());
+        if (this.escapedName != null) {
+            return Optional.of(this.escapedName);
+        }
+        this.escapedName = escapeReservedKeyword(this.bField.getName().getValue());
+        return Optional.ofNullable(this.escapedName);
     }
 
     /**

@@ -18,7 +18,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "test",
+      "insertText": "test1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -32,7 +32,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.test as test1 ;\n"
         }
       ]
     },
@@ -102,29 +102,6 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
         }
       ]
     },
@@ -264,24 +241,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "typeAnnotation2",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "Q",
-      "insertText": "typeAnnotation2",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
-      "label": "deprecated",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "Q",
-      "insertText": "deprecated",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
       "label": "display",
       "kind": "Property",
       "detail": "Annotation",
@@ -291,11 +250,11 @@
       "additionalTextEdits": []
     },
     {
-      "label": "untainted",
+      "label": "typeAnnotation3",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "Q",
-      "insertText": "untainted",
+      "insertText": "typeAnnotation3",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
@@ -309,11 +268,11 @@
       "additionalTextEdits": []
     },
     {
-      "label": "typeAnnotation1",
+      "label": "untainted",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "Q",
-      "insertText": "typeAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertText": "untainted",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
@@ -336,11 +295,29 @@
       "additionalTextEdits": []
     },
     {
-      "label": "typeAnnotation3",
+      "label": "typeAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "Q",
-      "insertText": "typeAnnotation3",
+      "insertText": "typeAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "typeAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "typeAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "deprecated",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "deprecated",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     }

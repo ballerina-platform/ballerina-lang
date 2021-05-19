@@ -57,7 +57,7 @@ public abstract class AbstractParserErrorHandler {
     /*
      * Abstract methods, to be implemented by the classes that extends this abstract error handler
      */
-    protected abstract boolean isProductionWithAlternatives(ParserRuleContext context);
+    protected abstract boolean hasAlternativePaths(ParserRuleContext context);
 
     protected abstract Result seekMatch(ParserRuleContext context, int lookahead, int currentDepth,
                                         boolean isEntryPoint);
@@ -112,8 +112,7 @@ public abstract class AbstractParserErrorHandler {
         }
 
         // Fail safe. This means we can't find a path to recover.
-        // TODO: enable assert
-        // assert itterCount == ITTER_LIMIT : "fail safe reached";
+        assert itterCount != ITTER_LIMIT : "fail safe reached";
         return getFailSafeSolution(currentCtx, nextToken);
     }
 

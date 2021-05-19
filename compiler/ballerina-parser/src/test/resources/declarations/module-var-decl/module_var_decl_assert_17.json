@@ -69,12 +69,18 @@
         },
         {
           "kind": "MODULE_VAR_DECL",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "LIST",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "CONFIGURABLE_KEYWORD",
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_CONFIGURABLE_VAR_IMPLICITLY_FINAL"
+                  ],
                   "leadingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
@@ -85,21 +91,18 @@
                     {
                       "kind": "WHITESPACE_MINUTIAE",
                       "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "FINAL_KEYWORD",
-                  "trailingMinutiae": [
+                    },
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "ISOLATED_KEYWORD",
-                  "trailingMinutiae": [
+                      "kind": "INVALID_NODE_MINUTIAE",
+                      "invalidNode": {
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "children": [
+                          {
+                            "kind": "FINAL_KEYWORD"
+                          }
+                        ]
+                      }
+                    },
                     {
                       "kind": "WHITESPACE_MINUTIAE",
                       "value": " "
@@ -110,12 +113,35 @@
             },
             {
               "kind": "TYPED_BINDING_PATTERN",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "INT_TYPE_DESC",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "INT_KEYWORD",
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_QUALIFIER_NOT_ALLOWED"
+                      ],
+                      "leadingMinutiae": [
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
+                              {
+                                "kind": "ISOLATED_KEYWORD"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",

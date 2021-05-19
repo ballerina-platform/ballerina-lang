@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function main(typedesc<any> t, int|string m, *Student st1, boolean n, boolean[] o, boolean? p, map<int> q,
-    Student st2, int|typedesc<any> i = 1, float|string r = 3.0, FooObject... f) {
+public function main(typedesc<any> t, int|string m, boolean n, boolean[] o, boolean? p, map<int> q,
+    Student st2, int|typedesc<any> i = 1, float|string r = 3.0, *Student st1, FooObject... f) {
 }
 
 public class FooObject {

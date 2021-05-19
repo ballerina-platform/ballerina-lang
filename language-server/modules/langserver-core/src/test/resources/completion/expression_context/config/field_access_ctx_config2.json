@@ -6,6 +6,58 @@
   "source": "expression_context/source/field_access_ctx_source2.bal",
   "items": [
     {
+      "label": "foreach",
+      "kind": "Snippet",
+      "detail": "foreach var item in expr",
+      "documentation": {
+        "left": "foreach statement for iterable variable - functionWithReturn()"
+      },
+      "sortText": "Q",
+      "insertText": "foreach var item in functionWithReturn() {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 4
+            },
+            "end": {
+              "line": 3,
+              "character": 26
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "foreach i",
+      "kind": "Snippet",
+      "detail": "foreach int i in 0...expr",
+      "documentation": {
+        "left": "foreach i statement for iterable variable - functionWithReturn()"
+      },
+      "sortText": "Q",
+      "insertText": "foreach int i in ${1:0}...functionWithReturn().length() {\n\t${2}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 4
+            },
+            "end": {
+              "line": 3,
+              "character": 26
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
       "label": "testField",
       "kind": "Field",
       "detail": "module1:TestRecord1",
@@ -24,6 +76,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "reduce",
       "insertText": "reduce(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -42,6 +95,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "hasKey",
       "insertText": "hasKey(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -60,6 +114,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "forEach",
       "insertText": "forEach(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -78,6 +133,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "keys",
       "insertText": "keys()",
       "insertTextFormat": "Snippet"
     },
@@ -92,6 +148,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "length",
       "insertText": "length()",
       "insertTextFormat": "Snippet"
     },
@@ -106,6 +163,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "remove",
       "insertText": "remove(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -124,6 +182,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "filter",
       "insertText": "filter(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -142,6 +201,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "removeIfHasKey",
       "insertText": "removeIfHasKey(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -160,6 +220,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "iterator",
       "insertText": "iterator()",
       "insertTextFormat": "Snippet"
     },
@@ -174,6 +235,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "entries",
       "insertText": "entries()",
       "insertTextFormat": "Snippet"
     },
@@ -188,6 +250,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "removeAll",
       "insertText": "removeAll()",
       "insertTextFormat": "Snippet"
     },
@@ -202,6 +265,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "get",
       "insertText": "get(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -220,6 +284,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toArray",
       "insertText": "toArray()",
       "insertTextFormat": "Snippet"
     },
@@ -234,6 +299,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "map",
       "insertText": "map(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -252,6 +318,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "cloneWithType",
       "insertText": "cloneWithType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -260,16 +327,17 @@
       }
     },
     {
-      "label": "cloneReadOnly()(Cloneable & readonly)",
+      "label": "cloneReadOnly()(CloneableType & readonly)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `Cloneable & readonly`   \n- immutable clone of `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `CloneableType & readonly`   \n- immutable clone of `v`  \n  \n"
         }
       },
       "sortText": "D",
+      "filterText": "cloneReadOnly",
       "insertText": "cloneReadOnly()",
       "insertTextFormat": "Snippet"
     },
@@ -284,6 +352,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toBalString",
       "insertText": "toBalString()",
       "insertTextFormat": "Snippet"
     },
@@ -298,6 +367,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toJson",
       "insertText": "toJson()",
       "insertTextFormat": "Snippet"
     },
@@ -312,20 +382,22 @@
         }
       },
       "sortText": "D",
+      "filterText": "isReadOnly",
       "insertText": "isReadOnly()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "clone()(Cloneable)",
+      "label": "clone()(CloneableType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `Cloneable`   \n- clone of `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `CloneableType`   \n- clone of `v`  \n  \n"
         }
       },
       "sortText": "D",
+      "filterText": "clone",
       "insertText": "clone()",
       "insertTextFormat": "Snippet"
     },
@@ -340,6 +412,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "ensureType",
       "insertText": "ensureType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -358,6 +431,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toString",
       "insertText": "toString()",
       "insertTextFormat": "Snippet"
     },
@@ -372,6 +446,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
     }

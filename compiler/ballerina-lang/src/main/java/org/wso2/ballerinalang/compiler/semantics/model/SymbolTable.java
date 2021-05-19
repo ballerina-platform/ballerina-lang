@@ -165,6 +165,7 @@ public class SymbolTable {
     public final BXMLSubType xmlCommentType = new BXMLSubType(TypeTags.XML_COMMENT, Names.XML_COMMENT);
     public final BXMLSubType xmlTextType = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT, Flags.READONLY);
     public final BType xmlNeverType = new BXMLType(neverType,  null);
+    public final BType xmlElementSeqType = new BXMLType(xmlElementType, null);
 
     public final BType xmlType = new BXMLType(BUnionType.create(null, xmlElementType, xmlCommentType,
             xmlPIType, xmlTextType),  null);
@@ -451,42 +452,14 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.ADD, charStringType, charStringType, stringType);
         defineBinaryOperator(OperatorKind.ADD, floatType, floatType, floatType);
         defineBinaryOperator(OperatorKind.ADD, decimalType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.ADD, intType, floatType, floatType);
-        defineBinaryOperator(OperatorKind.ADD, floatType, intType, floatType);
-        defineBinaryOperator(OperatorKind.ADD, intType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.ADD, decimalType, intType, decimalType);
-        defineBinaryOperator(OperatorKind.ADD, floatType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.ADD, decimalType, floatType, decimalType);
         defineBinaryOperator(OperatorKind.SUB, floatType, floatType, floatType);
         defineBinaryOperator(OperatorKind.SUB, decimalType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.SUB, floatType, intType, floatType);
-        defineBinaryOperator(OperatorKind.SUB, intType, floatType, floatType);
-        defineBinaryOperator(OperatorKind.SUB, decimalType, intType, decimalType);
-        defineBinaryOperator(OperatorKind.SUB, intType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.SUB, decimalType, floatType, decimalType);
-        defineBinaryOperator(OperatorKind.SUB, floatType, decimalType, decimalType);
         defineBinaryOperator(OperatorKind.DIV, floatType, floatType, floatType);
         defineBinaryOperator(OperatorKind.DIV, decimalType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.DIV, intType, floatType, floatType);
-        defineBinaryOperator(OperatorKind.DIV, floatType, intType, floatType);
-        defineBinaryOperator(OperatorKind.DIV, intType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.DIV, decimalType, intType, decimalType);
-        defineBinaryOperator(OperatorKind.DIV, floatType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.DIV, decimalType, floatType, decimalType);
         defineBinaryOperator(OperatorKind.MUL, floatType, floatType, floatType);
         defineBinaryOperator(OperatorKind.MUL, decimalType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.MUL, floatType, intType, floatType);
-        defineBinaryOperator(OperatorKind.MUL, intType, floatType, floatType);
-        defineBinaryOperator(OperatorKind.MUL, decimalType, intType, decimalType);
-        defineBinaryOperator(OperatorKind.MUL, intType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.MUL, decimalType, floatType, decimalType);
-        defineBinaryOperator(OperatorKind.MUL, floatType, decimalType, decimalType);
         defineBinaryOperator(OperatorKind.MOD, floatType, floatType, floatType);
         defineBinaryOperator(OperatorKind.MOD, decimalType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.MOD, floatType, intType, floatType);
-        defineBinaryOperator(OperatorKind.MOD, intType, floatType, floatType);
-        defineBinaryOperator(OperatorKind.MOD, decimalType, intType, decimalType);
-        defineBinaryOperator(OperatorKind.MOD, intType, decimalType, decimalType);
 
         defineIntegerBitwiseAndOperations();
         defineIntegerBitwiseOrOperations(OperatorKind.BITWISE_OR);

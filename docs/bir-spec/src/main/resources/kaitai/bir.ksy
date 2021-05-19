@@ -205,11 +205,8 @@ types:
     seq:
       - id: constraint_type_cp_index
         type: s4
-      - id: has_error_type
-        type: u1
-      - id: error_type_cp_index
+      - id: completion_type_cp_index
         type: s4
-        if: has_error_type == 1
   type_typedesc:
     seq:
       - id: constraint_type_cp_index
@@ -720,6 +717,8 @@ types:
       - id: type_cp_index
         type: s4
       - id: annotation_attachments_content
+        type: annotation_attachments_content
+      - id: return_type_annotations
         type: annotation_attachments_content
       - id: required_param_count
         type: s4

@@ -172,7 +172,7 @@ public function main() {
     };
 
     future<int> futureVar = start sum(40, 50);
-    _ = wait futureVar;
+    _ = checkpanic wait futureVar;
 
     'Person_\\\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ objectVar = new;
 

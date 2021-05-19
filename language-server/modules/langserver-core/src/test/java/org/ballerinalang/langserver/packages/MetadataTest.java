@@ -70,17 +70,17 @@ public class MetadataTest {
         JsonObject responseJsonObject = JSON_PARSER.parse(response).getAsJsonObject().getAsJsonObject("result");
         JsonPrimitive packageName = expectedJsonObject.getAsJsonPrimitive(PACKAGE_NAME);
         if (packageName != null) {
-            Assert.assertEquals(responseJsonObject.getAsJsonPrimitive(PACKAGE_NAME),
-                    packageName, "Package MetadataTest" + PACKAGE_NAME + " fails with " + projectName + "test case.");
+            Assert.assertEquals(responseJsonObject.getAsJsonPrimitive(PACKAGE_NAME), packageName,
+                    "Package MetadataTest " + PACKAGE_NAME + " fails with " + projectName + " test case.");
         } else {
             Assert.assertNull(responseJsonObject.getAsJsonPrimitive(PACKAGE_NAME),
-                    "Package MetadataTest" + PACKAGE_NAME + " fails with " + projectName + "test case.");
+                    "Package MetadataTest " + PACKAGE_NAME + " fails with " + projectName + " test case.");
         }
         Assert.assertEquals(responseJsonObject.getAsJsonPrimitive(KIND),
                 expectedJsonObject.getAsJsonPrimitive(KIND),
-                "Package MetadataTest" + KIND + " fails with " + projectName + "test case.");
+                "Package MetadataTest " + KIND + " fails with " + projectName + " test case.");
         Assert.assertNotNull(responseJsonObject.getAsJsonPrimitive(PATH),
-                "Package MetadataTest" + PATH + " fails with " + projectName + "test case.");
+                "Package MetadataTest " + PATH + " fails with " + projectName + " test case.");
     }
 
     @AfterClass

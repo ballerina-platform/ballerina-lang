@@ -3,7 +3,5 @@ function      name() {
 
     }
 
-    int
-
-    a = 12;
+    int a = 12;
 }

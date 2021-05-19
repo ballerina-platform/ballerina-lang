@@ -14,5 +14,5 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function main(int[] a, float[] b, decimal[] c, string[] d) {
+public function main(int[] a) {
 }

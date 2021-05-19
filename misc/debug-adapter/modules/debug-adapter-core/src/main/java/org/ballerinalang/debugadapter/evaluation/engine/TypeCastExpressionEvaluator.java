@@ -24,6 +24,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -104,7 +105,7 @@ public class TypeCastExpressionEvaluator extends Evaluator {
                 methodArgTypeNames);
         List<Value> methodArgs = new ArrayList<>(resolvedTypes);
         method.setArgValues(methodArgs);
-        return method.invoke();
+        return method.invokeSafely();
     }
 
     /**
@@ -121,6 +122,6 @@ public class TypeCastExpressionEvaluator extends Evaluator {
         methodArgs.add(lhsExpressionResult);
         methodArgs.add(type);
         method.setArgValues(methodArgs);
-        return new BExpressionValue(context, method.invoke());
+        return new BExpressionValue(context, method.invokeSafely());
     }
 }

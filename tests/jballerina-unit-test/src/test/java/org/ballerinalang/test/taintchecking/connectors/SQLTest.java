@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
  *
  * @since 0.965.0
  */
-@Test(enabled = false)
 public class SQLTest {
 
     //TODO Table remove - Fix

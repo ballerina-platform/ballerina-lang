@@ -87,7 +87,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "value",
+      "insertText": "value3",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -101,30 +101,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
+          "newText": "import ballerina/lang.value as value3 ;\n"
         }
       ]
     },
@@ -392,14 +369,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "commit",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "commit;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -432,17 +401,42 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getInt()(int)",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getField()(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `string`   \n  \n"
         }
       },
       "sortText": "C",
-      "insertText": "getInt()",
+      "filterText": "getField",
+      "insertText": "getField()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value2",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "value2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "value1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -464,23 +458,8 @@
         }
       },
       "sortText": "C",
+      "filterText": "doTask",
       "insertText": "doTask()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "value2",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "value2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "value1",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "value1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -494,29 +473,8 @@
         }
       },
       "sortText": "C",
+      "filterText": "testFunction",
       "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getField()(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `string`   \n  \n"
-        }
-      },
-      "sortText": "C",
-      "insertText": "getField()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -528,6 +486,21 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getInt()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "getInt",
+      "insertText": "getInt()",
       "insertTextFormat": "Snippet"
     },
     {

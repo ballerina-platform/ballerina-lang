@@ -6,7 +6,5 @@ type ObjectName object {
 
 function testFunction2() r  //<cursor>
 
-
-
 function testFunction1() {
 }

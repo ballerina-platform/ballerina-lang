@@ -24,8 +24,6 @@ function testStructuredMatchPatternsBasic1() returns string {
             return "Matched Values : " + s + ", " + i.toString() + ", " + f.toString();
         }
     }
-
-    return "Default";
 }
 
 function testStructuredMatchPatternsBasic2() returns string {
@@ -36,8 +34,6 @@ function testStructuredMatchPatternsBasic2() returns string {
             return "Matched Values : " + s + ", " + i.toString() + ", " + f.toString();
         }
     }
-
-    return "Default";
 }
 
 function testStructuredMatchPatternsBasic3() returns string {
@@ -48,8 +44,6 @@ function testStructuredMatchPatternsBasic3() returns string {
             return "Matched Values : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", t);
         }
     }
-
-    return "Default";
 }
 
 function testStructuredMatchPatternsBasics5() returns string[] {

@@ -646,6 +646,7 @@ class NodeFinder extends BaseVisitor {
         lookupNodes(actionInvocationExpr.requiredArgs);
         lookupNodes(actionInvocationExpr.restArgs);
         lookupNode(actionInvocationExpr.expr);
+        lookupNodes(actionInvocationExpr.argExprs);
     }
 
     @Override
@@ -1179,18 +1180,6 @@ class NodeFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangDo doNode) {
-        lookupNode(doNode.body);
-        lookupNode(doNode.onFailClause);
-    }
-
-    @Override
-    public void visit(BLangOnFailClause onFailClause) {
-        lookupNode((BLangNode) onFailClause.variableDefinitionNode);
-        lookupNode(onFailClause.body);
-    }
-
-    @Override
     public void visit(BLangMatchStatement matchStatementNode) {
         lookupNode(matchStatementNode.expr);
         lookupNodes(matchStatementNode.matchClauses);
@@ -1337,6 +1326,21 @@ class NodeFinder extends BaseVisitor {
     public void visit(BLangListBindingPattern listBindingPattern) {
         lookupNodes(listBindingPattern.bindingPatterns);
         lookupNode(listBindingPattern.restBindingPattern);
+    }
+
+    @Override
+    public void visit(BLangDo doNode) {
+        lookupNode(doNode.body);
+        lookupNode(doNode.onFailClause);
+    }
+
+    @Override
+    public void visit(BLangOnFailClause onFailClause) {
+        lookupNode((BLangNode) onFailClause.variableDefinitionNode);
+        lookupNode(onFailClause.body);
+
+        // Adding this as the last stmt to ensure that var define in on fail clause will also be considered.
+        this.enclosingContainer = onFailClause;
     }
 
     private boolean setEnclosingNode(BLangNode node, Location pos) {

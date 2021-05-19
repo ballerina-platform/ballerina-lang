@@ -22,5 +22,5 @@ package org.ballerinalang.model.types;
  */
 public interface StreamType extends ConstrainedType {
 
-    Type getError();
+    Type getCompletionType();
 }

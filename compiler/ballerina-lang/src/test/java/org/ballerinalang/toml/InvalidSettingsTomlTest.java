@@ -17,14 +17,20 @@
  */
 package org.ballerinalang.toml;
 
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
-import org.ballerinalang.toml.parser.SettingsProcessor;
+import io.ballerina.projects.Settings;
+import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.internal.SettingsBuilder;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -32,13 +38,21 @@ import java.util.Objects;
  */
 public class InvalidSettingsTomlTest {
 
-    private final String expMsg = ".*invalid 'Settings.toml' file.*";
+    @Test(description = "Test invalid Settings.toml")
+    public void testParseTomlContentFromFile() throws IOException, URISyntaxException {
+        URI settingsTomlURI = Objects.requireNonNull(getClass().getClassLoader().getResource("invalid-settings.toml"))
+                .toURI();
+        Path settingsFilePath = Paths.get(settingsTomlURI);
 
-    @Test(description = "Test invalid Settings.toml", expectedExceptions = SettingsTomlException.class,
-            expectedExceptionsMessageRegExp = expMsg)
-    public void testParseTomlContentFromFile() throws IOException, URISyntaxException, SettingsTomlException {
-        URI settingsTomlURI =
-                Objects.requireNonNull(getClass().getClassLoader().getResource("invalid-settings.toml")).toURI();
-        SettingsProcessor.parseTomlContentFromFile(Paths.get(settingsTomlURI));
+        TomlDocument settingsTomlDocument = TomlDocument
+                .from(String.valueOf(settingsFilePath.getFileName()), Files.readString(settingsFilePath));
+        SettingsBuilder settingsBuilder = SettingsBuilder.from(settingsTomlDocument);
+        Settings settings = settingsBuilder.settings();
+        Assert.assertTrue(settings.diagnostics().hasErrors());
+        Collection<Diagnostic> errors = settings.diagnostics().errors();
+        Assert.assertEquals(errors.size(), 2);
+        Diagnostic firstDiagnostic = errors.iterator().next();
+        Assert.assertEquals(firstDiagnostic.message(), "missing equal token");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(2:0,2:0)");
     }
 }

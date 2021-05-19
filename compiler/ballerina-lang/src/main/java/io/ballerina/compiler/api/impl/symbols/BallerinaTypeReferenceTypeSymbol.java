@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -50,18 +51,20 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     private ModuleSymbol module;
     private Symbol definition;
     private boolean moduleEvaluated;
+    private BTypeSymbol tSymbol;
 
     public BallerinaTypeReferenceTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType,
-                                            String definitionName) {
+                                            BTypeSymbol tSymbol) {
         super(context, TypeDescKind.TYPE_REFERENCE, bType);
-        this.definitionName = definitionName;
+        this.definitionName = tSymbol != null ? tSymbol.getName().getValue() : null;
+        this.tSymbol = tSymbol;
     }
 
     @Override
     public TypeSymbol typeDescriptor() {
         if (this.typeDescriptorImpl == null) {
             TypesFactory typesFactory = TypesFactory.getInstance(this.context);
-            this.typeDescriptorImpl = typesFactory.getTypeDescriptor(this.getBType(), true);
+            this.typeDescriptorImpl = typesFactory.getTypeDescriptor(this.getBType(), this.tSymbol, true);
         }
 
         return this.typeDescriptorImpl;

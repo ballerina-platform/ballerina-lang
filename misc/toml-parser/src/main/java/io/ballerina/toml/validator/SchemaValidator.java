@@ -69,9 +69,11 @@ public class SchemaValidator extends TomlNodeVisitor {
     @Override
     public void visit(TomlTableNode tomlTableNode) {
         if (schema.type() != Type.OBJECT) {
-            TomlDiagnostic diagnostic = getTomlDiagnostic(tomlTableNode.location(), "TVE0002", "error.invalid.type",
-                    DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.OBJECT));
-            tomlTableNode.addDiagnostic(diagnostic);
+            if (!tomlTableNode.isMissingNode()) {
+                TomlDiagnostic diagnostic = getTomlDiagnostic(tomlTableNode.location(), "TVE0002", "error.invalid.type",
+                        DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.OBJECT));
+                tomlTableNode.addDiagnostic(diagnostic);
+            }
             return;
         }
         Schema objectSchema = (Schema) schema;
@@ -125,10 +127,11 @@ public class SchemaValidator extends TomlNodeVisitor {
     @Override
     public void visit(TomlTableArrayNode tomlTableArrayNode) {
         if (schema.type() != Type.ARRAY) {
-            TomlDiagnostic diagnostic =
-                    getTomlDiagnostic(tomlTableArrayNode.location(), "TVE0002", "error.invalid.type",
-                            DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.ARRAY));
-            tomlTableArrayNode.addDiagnostic(diagnostic);
+            if (!tomlTableArrayNode.isMissingNode()) {
+                TomlDiagnostic diagnostic = getTomlDiagnostic(tomlTableArrayNode.location(), "TVE0002", "error" +
+                        ".invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.ARRAY));
+                tomlTableArrayNode.addDiagnostic(diagnostic);
+            }
             return;
         }
         ArraySchema arraySchema = (ArraySchema) schema;
@@ -172,10 +175,11 @@ public class SchemaValidator extends TomlNodeVisitor {
     @Override
     public void visit(TomlStringValueNode tomlStringValueNode) {
         if (schema.type() != Type.STRING) {
-            TomlDiagnostic diagnostic =
-                    getTomlDiagnostic(tomlStringValueNode.location(), "TVE0002", "error.invalid.type",
-                            DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.STRING));
-            tomlStringValueNode.addDiagnostic(diagnostic);
+            if (!tomlStringValueNode.isMissingNode()) {
+                TomlDiagnostic diagnostic = getTomlDiagnostic(tomlStringValueNode.location(), "TVE0002", "error" +
+                        ".invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.STRING));
+                tomlStringValueNode.addDiagnostic(diagnostic);
+            }
             return;
         }
         StringSchema stringSchema = (StringSchema) this.schema;
@@ -192,9 +196,11 @@ public class SchemaValidator extends TomlNodeVisitor {
     @Override
     public void visit(TomlDoubleValueNodeNode tomlDoubleValueNodeNode) {
         if (schema.type() != Type.NUMBER) {
-            TomlDiagnostic diagnostic = getTomlDiagnostic(tomlDoubleValueNodeNode.location(), "TVE0002",
-                    "error.invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.NUMBER));
-            tomlDoubleValueNodeNode.addDiagnostic(diagnostic);
+            if (!tomlDoubleValueNodeNode.isMissingNode()) {
+                TomlDiagnostic diagnostic = getTomlDiagnostic(tomlDoubleValueNodeNode.location(), "TVE0002",
+                        "error.invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.NUMBER));
+                tomlDoubleValueNodeNode.addDiagnostic(diagnostic);
+            }
             return;
         }
         List<Diagnostic> diagnostics = validateMinMaxValues((NumericSchema) schema, tomlDoubleValueNodeNode.getValue(),
@@ -205,9 +211,11 @@ public class SchemaValidator extends TomlNodeVisitor {
     @Override
     public void visit(TomlLongValueNode tomlLongValueNode) {
         if (schema.type() != Type.INTEGER) {
-            TomlDiagnostic diagnostic = getTomlDiagnostic(tomlLongValueNode.location(), "TVE0002",
-                    "error.invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.INTEGER));
-            tomlLongValueNode.addDiagnostic(diagnostic);
+            if (!tomlLongValueNode.isMissingNode()) {
+                TomlDiagnostic diagnostic = getTomlDiagnostic(tomlLongValueNode.location(), "TVE0002",
+                        "error.invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.INTEGER));
+                tomlLongValueNode.addDiagnostic(diagnostic);
+            }
             return;
         }
         List<Diagnostic> diagnostics =
@@ -221,10 +229,12 @@ public class SchemaValidator extends TomlNodeVisitor {
     @Override
     public void visit(TomlArrayValueNode tomlArrayValueNode) {
         if (schema.type() != Type.ARRAY) {
-            TomlDiagnostic diagnostic =
-                    getTomlDiagnostic(tomlArrayValueNode.location(), "TVE0002", "error.invalid.type",
-                            DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.ARRAY));
-            tomlArrayValueNode.addDiagnostic(diagnostic);
+            if (!tomlArrayValueNode.isMissingNode()) {
+                TomlDiagnostic diagnostic =
+                        getTomlDiagnostic(tomlArrayValueNode.location(), "TVE0002", "error.invalid.type",
+                                DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.ARRAY));
+                tomlArrayValueNode.addDiagnostic(diagnostic);
+            }
             return;
         }
         ArraySchema arraySchema = (ArraySchema) schema;
@@ -279,9 +289,11 @@ public class SchemaValidator extends TomlNodeVisitor {
     @Override
     public void visit(TomlBooleanValueNode tomlBooleanValueNode) {
         if (schema.type() != Type.BOOLEAN) {
-            TomlDiagnostic diagnostic = getTomlDiagnostic(tomlBooleanValueNode.location(), "TVE0002",
-                    "error.invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.BOOLEAN));
-            tomlBooleanValueNode.addDiagnostic(diagnostic);
+            if (!tomlBooleanValueNode.isMissingNode()) {
+                TomlDiagnostic diagnostic = getTomlDiagnostic(tomlBooleanValueNode.location(), "TVE0002",
+                        "error.invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.BOOLEAN));
+                tomlBooleanValueNode.addDiagnostic(diagnostic);
+            }
         }
     }
 
@@ -320,6 +332,6 @@ public class SchemaValidator extends TomlNodeVisitor {
         if (objectSchema.required() == null) {
             return new ArrayList<>();
         }
-        return objectSchema.required();
+        return new ArrayList<>(objectSchema.required());
     }
 }

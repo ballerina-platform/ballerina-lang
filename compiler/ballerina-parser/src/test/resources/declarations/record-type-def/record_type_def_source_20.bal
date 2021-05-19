@@ -4,3 +4,8 @@ string b;
 string...;
 int a;
 |}
+
+record {|
+    string...;
+    in
+|} testVar = expr;

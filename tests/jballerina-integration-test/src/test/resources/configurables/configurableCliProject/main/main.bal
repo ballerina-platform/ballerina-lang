@@ -25,13 +25,25 @@ configurable boolean booleanVar = ?;
 configurable decimal decimalVar = ?;
 configurable xml & readonly xmlVar = ?;
 
+enum Colors {
+    RED,
+    GREEN
+}
+
+enum CountryCodes {
+    SL = "Sri Lanka",
+    US = "United States"
+}
+
+configurable Colors & readonly color = ?;
+configurable CountryCodes & readonly countryCode = ?;
+
 public function main() {
     testSimpleValues();
     testXmlValues();
+    testEnumValues();
     print("Tests passed");
 }
-
-
 
 function testSimpleValues() {
     test:assertEquals(42, intVar);
@@ -48,6 +60,12 @@ function testSimpleValues() {
 
 function testXmlValues() {
     xml x1 = xml `<book>The Lost World</book>`;
+    test:assertEquals(xmlVar, x1);
+}
+
+function testEnumValues() {
+    test:assertEquals(color, RED);
+    test:assertEquals(countryCode, SL);
 }
 
 //Extern methods to verify no errors while testing

@@ -97,7 +97,7 @@ public class JDIEventProcessor {
             }
             // Tries terminating the debug server, only if there is no any termination requests received from the
             // debug client.
-            if (!context.getAdapter().isTerminationRequestReceived()) {
+            if (!context.isTerminateRequestReceived()) {
                 // It is not required to terminate the debuggee (remote VM) in here, since it must be disconnected or
                 // dead by now.
                 context.getAdapter().terminateServer(false);
@@ -142,7 +142,7 @@ public class JDIEventProcessor {
             // will resume the EventSet. Therefore to avoid this, we are disabling possible event requests before doing
             // the condition evaluation.
             context.getEventManager().classPrepareRequests().forEach(EventRequest::disable);
-            context.getEventManager().stepRequests().forEach(EventRequest::disable);
+            context.getEventManager().breakpointRequests().forEach(BreakpointRequest::disable);
             CompletableFuture<Boolean> resultFuture = evaluateBreakpointCondition(condition, bpEvent.thread());
             try {
                 Boolean result = resultFuture.get(5000, TimeUnit.MILLISECONDS);
@@ -154,10 +154,13 @@ public class JDIEventProcessor {
                 context.getAdapter().sendOutput("Warning: Skipping the conditional breakpoint at line: "
                         + lineNumber + ", due to the timeout when evaluating the condition.", STDOUT);
             }
+            // As we are disabling all the breakpoint requests before evaluating the user's conditional expression,
+            // need to re-enable all the breakpoints before continuing the remote VM execution.
+            restoreBreakpoints(context.getLastInstruction());
             context.getDebuggeeVM().resume();
         } else if (event instanceof StepEvent) {
             StepEvent stepEvent = (StepEvent) event;
-            long threadId = stepEvent.thread().uniqueID();
+            int threadId = (int) stepEvent.thread().uniqueID();
             if (isBallerinaSource(stepEvent.location())) {
                 notifyStopEvent(event);
             } else {
@@ -174,7 +177,7 @@ public class JDIEventProcessor {
     }
 
     void setBreakpoints(String path, Map<Integer, BalBreakpoint> breakpoints) {
-        this.breakpoints.put(getQualifiedClassName(path), breakpoints);
+        this.breakpoints.put(getQualifiedClassName(context, path), breakpoints);
         if (context.getDebuggeeVM() != null) {
             // Setting breakpoints to a already running debug session.
             context.getEventManager().deleteAllBreakpoints();
@@ -182,7 +185,7 @@ public class JDIEventProcessor {
         }
     }
 
-    void sendStepRequest(long threadId, int stepType) {
+    void sendStepRequest(int threadId, int stepType) {
         if (stepType == StepRequest.STEP_OVER) {
             configureDynamicBreakPoints(threadId);
         } else if (stepType == StepRequest.STEP_INTO || stepType == StepRequest.STEP_OUT) {
@@ -221,7 +224,7 @@ public class JDIEventProcessor {
             }
             Map<Integer, BalBreakpoint> breakpoints = this.breakpoints.get(qualifiedClassName);
             for (BalBreakpoint bp : breakpoints.values()) {
-                List<Location> locations = referenceType.locationsOfLine(bp.getLine().intValue());
+                List<Location> locations = referenceType.locationsOfLine(bp.getLine());
                 if (!locations.isEmpty()) {
                     Location loc = locations.get(0);
                     BreakpointRequest bpReq = context.getEventManager().createBreakpointRequest(loc);
@@ -233,7 +236,7 @@ public class JDIEventProcessor {
         }
     }
 
-    private void configureDynamicBreakPoints(long threadId) {
+    private void configureDynamicBreakPoints(int threadId) {
         ThreadReferenceProxyImpl threadReference = context.getAdapter().getAllThreads().get(threadId);
         try {
             List<StackFrameProxyImpl> jStackFrames = threadReference.frames();
@@ -284,7 +287,7 @@ public class JDIEventProcessor {
         }
     }
 
-    private void createStepRequest(long threadId, int stepType) {
+    private void createStepRequest(int threadId, int stepType) {
         context.getEventManager().deleteEventRequests(stepEventRequests);
         ThreadReferenceProxyImpl proxy = context.getAdapter().getAllThreads().get(threadId);
         if (proxy == null || proxy.getThreadReference() == null) {
@@ -316,14 +319,14 @@ public class JDIEventProcessor {
     private CompletableFuture<Boolean> evaluateBreakpointCondition(String expression, ThreadReference threadReference) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                ThreadReferenceProxyImpl thread = context.getAdapter().getAllThreads().get(threadReference.uniqueID());
+                ThreadReferenceProxyImpl thread = context.getAdapter().getAllThreads()
+                        .get((int) threadReference.uniqueID());
                 List<BallerinaStackFrame> validFrames = filterValidBallerinaFrames(thread.frames());
                 if (validFrames.isEmpty()) {
                     return false;
                 }
 
-                SuspendedContext ctx = new SuspendedContext(context.getSourceProject(), context.getDebuggeeVM(),
-                        thread, validFrames.get(0).getJStackFrame());
+                SuspendedContext ctx = new SuspendedContext(context, thread, validFrames.get(0).getJStackFrame());
                 ExpressionEvaluator evaluator = new ExpressionEvaluator(ctx);
                 Value evaluatorResult = evaluator.evaluate(expression);
                 String condition = VariableFactory.getVariable(ctx, evaluatorResult).getDapVariable().getValue();
@@ -347,7 +350,7 @@ public class JDIEventProcessor {
                 if (!isBalStackFrame(stackFrameProxy.getStackFrame())) {
                     continue;
                 }
-                BallerinaStackFrame balStackFrame = new BallerinaStackFrame(context, 0L, stackFrameProxy);
+                BallerinaStackFrame balStackFrame = new BallerinaStackFrame(context, 0, stackFrameProxy);
                 if (balStackFrame.getAsDAPStackFrame().isEmpty()) {
                     continue;
                 }
@@ -386,10 +389,10 @@ public class JDIEventProcessor {
 
         if (event instanceof BreakpointEvent) {
             stoppedEventArguments.setReason(StoppedEventArgumentsReason.BREAKPOINT);
-            stoppedEventArguments.setThreadId(((BreakpointEvent) event).thread().uniqueID());
+            stoppedEventArguments.setThreadId((int) ((BreakpointEvent) event).thread().uniqueID());
         } else if (event instanceof StepEvent) {
             stoppedEventArguments.setReason(StoppedEventArgumentsReason.STEP);
-            stoppedEventArguments.setThreadId(((StepEvent) event).thread().uniqueID());
+            stoppedEventArguments.setThreadId((int) ((StepEvent) event).thread().uniqueID());
         }
 
         stoppedEventArguments.setAllThreadsStopped(true);

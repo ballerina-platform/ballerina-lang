@@ -93,7 +93,7 @@ public class PackageImportTest {
         BAssertUtil.validateError(result, i, "unused import module 'ballerina/jballerina.java as otherJAVA'", 2, 1);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testIgnoreImport() {
         PrintStream out = System.out;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -104,15 +104,6 @@ public class PackageImportTest {
 
         System.setOut(out);
         String output = new String(baos.toByteArray());
-        Assert.assertTrue(output.contains("initializing bar\nRunning foo"), "found: " + output);
-    }
-
-    @Test(enabled = false)
-    // New spec change has introduced to support this
-    public void testUnderscoreAsPkgQualifier() {
-        CompileResult result =
-                BCompileUtil.compile("test-src/statements/package/imports/invalid-package-qualifier-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "invalid package name '_'", 4, 5);
+        Assert.assertTrue(output.contains("initializing bar"), "found: " + output);
     }
 }

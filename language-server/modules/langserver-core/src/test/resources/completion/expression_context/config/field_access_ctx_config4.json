@@ -6,6 +6,58 @@
   "source": "expression_context/source/field_access_ctx_source4.bal",
   "items": [
     {
+      "label": "foreach",
+      "kind": "Snippet",
+      "detail": "foreach var item in expr",
+      "documentation": {
+        "left": "foreach statement for iterable variable - xmlVal"
+      },
+      "sortText": "Q",
+      "insertText": "foreach xml item in xmlVal {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 11
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "foreach i",
+      "kind": "Snippet",
+      "detail": "foreach int i in 0...expr",
+      "documentation": {
+        "left": "foreach i statement for iterable variable - xmlVal"
+      },
+      "sortText": "Q",
+      "insertText": "foreach int i in ${1:0}...xmlVal.length() {\n\t${2}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 11
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
       "label": "data()(string)",
       "kind": "Function",
       "detail": "Function",
@@ -16,6 +68,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "data",
       "insertText": "data()",
       "insertTextFormat": "Snippet"
     },
@@ -30,6 +83,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "forEach",
       "insertText": "forEach(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -48,6 +102,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "length",
       "insertText": "length()",
       "insertTextFormat": "Snippet"
     },
@@ -62,6 +117,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "filter",
       "insertText": "filter(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -80,6 +136,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "iterator",
       "insertText": "iterator()",
       "insertTextFormat": "Snippet"
     },
@@ -94,6 +151,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "strip",
       "insertText": "strip()",
       "insertTextFormat": "Snippet"
     },
@@ -108,6 +166,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "slice",
       "insertText": "slice(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -126,6 +185,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "children",
       "insertText": "children()",
       "insertTextFormat": "Snippet"
     },
@@ -140,6 +200,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "get",
       "insertText": "get(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -158,6 +219,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "elements",
       "insertText": "elements(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -176,6 +238,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "text",
       "insertText": "text()",
       "insertTextFormat": "Snippet"
     },
@@ -190,6 +253,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "elementChildren",
       "insertText": "elementChildren(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -208,6 +272,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "map",
       "insertText": "map(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -222,10 +287,11 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConstructs a value with a specified type by cloning another value.  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed  \n  \n**Returns** `t|error`   \n- a new value that belongs to type `t`, or an error if this cannot be done  \n  \nWhen `v` is a structural value, the inherent type of the value to be constructed  \ncomes from `t`. When `t` is a union, it must be possible to determine which  \nmember of the union to use for the inherent type by following the same rules  \nthat are used by list constructor expressions and mapping constructor expressions  \nwith the contextually expected type. If not, then an error is returned.  \nThe `cloneWithType` operation is recursively applied to each member of `v` using  \nthe type descriptor that the inherent type requires for that member.  \n  \nLike the Clone abstract operation, this does a deep copy, but differs in  \nthe following respects:  \n- the inherent type of any structural values constructed comes from the specified  \ntype descriptor rather than the value being constructed  \n- the read-only bit of values and fields comes from the specified type descriptor  \n- the graph structure of `v` is not preserved; the result will always be a tree;  \nan error will be returned if `v` has cycles  \n- immutable structural values are copied rather being returned as is; all  \nstructural values in the result will be mutable.  \n- numeric values can be converted using the NumericConvert abstract operation  \n- if a record type descriptor specifies default values, these will be used  \nto supply any missing members  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConstructs a value with a specified type by cloning another value.  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed(Defaultable)  \n  \n**Returns** `t|error`   \n- a new value that belongs to type `t`, or an error if this cannot be done  \n  \nWhen `v` is a structural value, the inherent type of the value to be constructed  \ncomes from `t`. When `t` is a union, it must be possible to determine which  \nmember of the union to use for the inherent type by following the same rules  \nthat are used by list constructor expressions and mapping constructor expressions  \nwith the contextually expected type. If not, then an error is returned.  \nThe `cloneWithType` operation is recursively applied to each member of `v` using  \nthe type descriptor that the inherent type requires for that member.  \n  \nLike the Clone abstract operation, this does a deep copy, but differs in  \nthe following respects:  \n- the inherent type of any structural values constructed comes from the specified  \ntype descriptor rather than the value being constructed  \n- the read-only bit of values and fields comes from the specified type descriptor  \n- the graph structure of `v` is not preserved; the result will always be a tree;  \nan error will be returned if `v` has cycles  \n- immutable structural values are copied rather being returned as is; all  \nstructural values in the result will be mutable.  \n- numeric values can be converted using the NumericConvert abstract operation  \n- if a record type descriptor specifies default values, these will be used  \nto supply any missing members  \n  \n"
         }
       },
       "sortText": "D",
+      "filterText": "cloneWithType",
       "insertText": "cloneWithType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -234,16 +300,17 @@
       }
     },
     {
-      "label": "cloneReadOnly()(Cloneable & readonly)",
+      "label": "cloneReadOnly()(CloneableType & readonly)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `Cloneable & readonly`   \n- immutable clone of `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `CloneableType & readonly`   \n- immutable clone of `v`  \n  \n"
         }
       },
       "sortText": "D",
+      "filterText": "cloneReadOnly",
       "insertText": "cloneReadOnly()",
       "insertTextFormat": "Snippet"
     },
@@ -258,6 +325,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toBalString",
       "insertText": "toBalString()",
       "insertTextFormat": "Snippet"
     },
@@ -272,6 +340,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toJson",
       "insertText": "toJson()",
       "insertTextFormat": "Snippet"
     },
@@ -286,20 +355,22 @@
         }
       },
       "sortText": "D",
+      "filterText": "isReadOnly",
       "insertText": "isReadOnly()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "clone()(Cloneable)",
+      "label": "clone()(CloneableType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `Cloneable`   \n- clone of `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `CloneableType`   \n- clone of `v`  \n  \n"
         }
       },
       "sortText": "D",
+      "filterText": "clone",
       "insertText": "clone()",
       "insertTextFormat": "Snippet"
     },
@@ -310,10 +381,11 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nSafely casts a value to a type.\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it\nreturn - `v` cast to the type described by `t`, or an error, if the cast cannot be done  \n  \n**Returns** `t|error`   \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nSafely casts a value to a type.\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it\nreturn - `v` cast to the type described by `t`, or an error, if the cast cannot be done(Defaultable)  \n  \n**Returns** `t|error`   \n  \n"
         }
       },
       "sortText": "D",
+      "filterText": "ensureType",
       "insertText": "ensureType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -332,6 +404,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toString",
       "insertText": "toString()",
       "insertTextFormat": "Snippet"
     },
@@ -346,6 +419,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
     }

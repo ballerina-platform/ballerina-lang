@@ -161,29 +161,6 @@
       ]
     },
     {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
@@ -447,14 +424,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "commit",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "insertText": "commit;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -487,71 +456,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getDriver(models:Person person)(models:Driver)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n**Params**  \n- `models:Person` person  \n  \n**Returns** `models:Driver`   \n  \n"
-        }
-      },
-      "sortText": "D",
-      "insertText": "getDriver(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "getOddNumber()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "sortText": "A",
-      "insertText": "getOddNumber()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getAge()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "sortText": "A",
-      "insertText": "getAge()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "main()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n"
-        }
-      },
-      "sortText": "D",
-      "insertText": "main()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
       "sortText": "N",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "num",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "C",
+      "insertText": "num",
       "insertTextFormat": "Snippet"
     },
     {
@@ -565,15 +482,72 @@
         }
       },
       "sortText": "D",
+      "filterText": "getPerson",
       "insertText": "getPerson()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "num",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "C",
-      "insertText": "num",
+      "label": "getAge()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "sortText": "A",
+      "filterText": "getAge",
+      "insertText": "getAge()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getDriver(models:Person person)(models:Driver)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n**Params**  \n- `models:Person` person  \n  \n**Returns** `models:Driver`   \n  \n"
+        }
+      },
+      "sortText": "D",
+      "filterText": "getDriver",
+      "insertText": "getDriver(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "stringFunction()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `string`   \n  \n"
+        }
+      },
+      "sortText": "D",
+      "filterText": "stringFunction",
+      "insertText": "stringFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getOddNumber()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "sortText": "A",
+      "filterText": "getOddNumber",
+      "insertText": "getOddNumber()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -588,17 +562,18 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "stringFunction()(string)",
+      "label": "main()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `string`   \n  \n"
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n"
         }
       },
       "sortText": "D",
-      "insertText": "stringFunction()",
+      "filterText": "main",
+      "insertText": "main()",
       "insertTextFormat": "Snippet"
     },
     {

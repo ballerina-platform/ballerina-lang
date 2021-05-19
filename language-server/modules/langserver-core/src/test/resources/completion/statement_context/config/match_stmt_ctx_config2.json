@@ -138,29 +138,6 @@
       ]
     },
     {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
@@ -424,14 +401,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "commit",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "commit;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -464,22 +433,28 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "bar(string|int|boolean i)(string|int|boolean)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string|int|boolean` i  \n  \n**Returns** `string|int|boolean`   \n  \n"
-        }
-      },
-      "sortText": "C",
-      "insertText": "bar(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "i",
+      "kind": "Variable",
+      "detail": "string|int|boolean",
+      "sortText": "B",
+      "insertText": "i",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "var5",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "B",
+      "insertText": "var5",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "p",
@@ -487,14 +462,6 @@
       "detail": "$CompilationError$",
       "sortText": "B",
       "insertText": "p",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -533,20 +500,23 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "var5",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "B",
-      "insertText": "var5",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "i",
-      "kind": "Variable",
-      "detail": "string|int|boolean",
-      "sortText": "B",
-      "insertText": "i",
-      "insertTextFormat": "Snippet"
+      "label": "bar(string|int|boolean i)(string|int|boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string|int|boolean` i  \n  \n**Returns** `string|int|boolean`   \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "bar",
+      "insertText": "bar(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "readonly",

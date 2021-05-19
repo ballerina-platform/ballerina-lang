@@ -20,6 +20,7 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.toml.syntax.tree.NumericLiteralNode;
 
 /**
  * Represents A Double Value in Toml AST.
@@ -27,12 +28,21 @@ import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
  * @since 2.0.0
  */
 public class TomlDoubleValueNodeNode extends TomlBasicValueNode<Double> {
-    public TomlDoubleValueNodeNode(Double value, TomlNodeLocation location) {
-        super(value, TomlType.DOUBLE, location);
+    public TomlDoubleValueNodeNode(NumericLiteralNode numericLiteralNode, Double value, TomlNodeLocation location) {
+        super(numericLiteralNode, value, TomlType.DOUBLE, location);
     }
 
     @Override
     public void accept(TomlNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public boolean isMissingNode() {
+        NumericLiteralNode numericLiteralNode = (NumericLiteralNode) this.externalTreeNode();
+        if (numericLiteralNode.isMissing()) {
+            return true;
+        }
+        return numericLiteralNode.value().isMissing();
     }
 }

@@ -49,7 +49,8 @@ type Type1 any|error;
 public isolated function filter(stream<Type,CompletionType> stm, @isolatedParam function(Type val) returns boolean func)
         returns stream<Type,CompletionType>  {
     FilterSupport itrObj = new(stm, func);
-    return <stream<Type,CompletionType>>internal:construct(internal:getElementType(typeof stm), itrObj);
+    return <stream<Type,CompletionType>>internal:construct(internal:getElementType(typeof stm),
+        internal:getCompletionType(typeof stm), itrObj);
 }
 
 # Returns the next element in the stream wrapped in a record or () if the stream ends.
@@ -81,7 +82,7 @@ public isolated function next(stream<Type, CompletionType> strm) returns record 
 public isolated function 'map(stream<Type,CompletionType> stm, @isolatedParam function(Type val) returns Type1 func)
         returns stream<Type1,CompletionType> {
     MapSupport iteratorObj = new(stm, func);
-    return internal:construct(internal:getReturnType(func), iteratorObj);
+    return internal:construct(internal:getReturnType(func), internal:getCompletionType(typeof stm), iteratorObj);
 }
 
 // Refer to issue https://github.com/ballerina-platform/ballerina-lang/issues/21527
@@ -153,7 +154,7 @@ public isolated function close(stream<Type,CompletionType> stm) returns Completi
     var itrObj = internal:getIteratorObj(stm);
     if (itrObj is object {
         public isolated function next() returns record {|Type value;|}|CompletionType;
-        public isolated function close() returns CompletionType;
+        public isolated function close() returns CompletionType?;
     }) {
         return itrObj.close();
     }
