@@ -32,7 +32,11 @@ public function test() {
 
     // undefined type reference
     Foo b;
+
+    abc d = 10;
 }
 
 class Person {
 }
+
+type abc int;

@@ -36,6 +36,7 @@ import java.util.Optional;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.COMPILATION_ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static org.testng.Assert.assertEquals;
@@ -259,30 +260,33 @@ public class SymbolAtCursorTest {
         };
     }
 
-    @Test(dataProvider = "SymWithErrorPosProvider")
-    public void testVarSymbolsWithCompileErrorType(int line, int col, TypeDescKind typeKind, DiagnosticState state) {
+    @Test(dataProvider = "SymWithDiagnosticStatePosProvider")
+    public void testVarSymbolsWithDiagnosticState(int line, int col, TypeDescKind typeKind, DiagnosticState state) {
         Project project = BCompileUtil.loadProject("test-src/var_symbols_with_error_type_test.bal");
         SemanticModel model = getDefaultModulesSemanticModel(project);
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
 
+        assertTrue(symbol.isPresent());
         assertEquals(symbol.get().kind(), VARIABLE);
         assertEquals(((VariableSymbol) symbol.get()).typeDescriptor().typeKind(), typeKind);
         assertEquals(((VariableSymbol) symbol.get()).diagnosticState(), state);
     }
 
-    @DataProvider(name = "SymWithErrorPosProvider")
-    public Object[][] getSymWithErrPos() {
+    @DataProvider(name = "SymWithDiagnosticStatePosProvider")
+    public Object[][] getSymWithDiagnosticStatePos() {
         return new Object[][]{
                 {17, 8, INT, DiagnosticState.VALID},
                 {20, 10, COMPILATION_ERROR, DiagnosticState.REDECLARED},
                 {23, 8, COMPILATION_ERROR, DiagnosticState.FAILED_TO_DETERMINE_TYPE},
                 {24, 8, COMPILATION_ERROR, DiagnosticState.FAILED_TO_DETERMINE_TYPE},
                 {25, 8, COMPILATION_ERROR, DiagnosticState.FAILED_TO_DETERMINE_TYPE},
+                {26, 11, TYPE_REFERENCE, DiagnosticState.VALID},
                 {27, 8, COMPILATION_ERROR, DiagnosticState.FAILED_TO_DETERMINE_TYPE},
                 {30, 8, COMPILATION_ERROR, DiagnosticState.FAILED_TO_DETERMINE_TYPE},
                 {33, 8, COMPILATION_ERROR, DiagnosticState.UNKNOWN_TYPE},
+                {35, 8, INT, DiagnosticState.VALID},
         };
     }
 }
