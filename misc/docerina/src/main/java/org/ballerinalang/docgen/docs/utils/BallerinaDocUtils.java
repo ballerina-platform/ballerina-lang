@@ -166,7 +166,8 @@ public class BallerinaDocUtils {
         public void visit(Heading heading) {
             if (heading.getFirstChild() instanceof Text
                     && (StringUtils.equalsIgnoreCase(((Text) heading.getFirstChild()).getLiteral(), "module overview")
-                    || StringUtils.equalsIgnoreCase(((Text) heading.getFirstChild()).getLiteral(), "package overview"))
+                    || StringUtils.equalsIgnoreCase(((Text) heading.getFirstChild()).getLiteral(), "package overview")
+                    || StringUtils.equalsIgnoreCase(((Text) heading.getFirstChild()).getLiteral(), "overview"))
                     && heading.getNext() instanceof Paragraph
             ) {
                 summary = heading.getNext();
