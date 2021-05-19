@@ -113,4 +113,10 @@ public class BArrayType extends BType implements ArrayType {
     public BIntersectionType getImmutableType() {
         return this.immutableType;
     }
+
+    // In the case of a reference based cyclic Array, this aids in
+    //adding resolved element type to a previously defined Array shell in main scope
+    public void setElementType(BType eType) {
+        this.eType = eType;
+    }
 }

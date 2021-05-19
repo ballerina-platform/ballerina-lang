@@ -95,4 +95,10 @@ public class BTupleType extends BType implements TupleType {
     public BIntersectionType getImmutableType() {
         return this.immutableType;
     }
+
+    // In the case of a reference based cyclic tuple, this aids in
+    //adding resolved members to a previously defined empty tuple shell in main scope
+    public void addMembers(List<BType> tupleTypes) {
+        this.tupleTypes = tupleTypes;
+    }
 }

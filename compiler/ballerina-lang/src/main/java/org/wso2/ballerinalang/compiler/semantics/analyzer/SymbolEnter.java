@@ -1111,7 +1111,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             // definition node cannot be resolved. So we iterate through each node recursively looking for cyclic
             // dependencies or undefined types in type node.
 
-
             for (BLangNode unresolvedType : unresolvedTypes) {
                 Stack<String> references = new Stack<>();
                 var unresolvedKind = unresolvedType.getKind();
@@ -1598,139 +1597,109 @@ public class SymbolEnter extends BLangNodeVisitor {
                         typeDef.name.pos, SOURCE);
                 break;
             case ARRAY_TYPE:
+                newTypeNode = new BArrayType(symTable.noType);
+                typeDefSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.asMask(typeDef.flagSet),
+                        newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
+                        typeDef.name.pos, SOURCE);
                 break;
-            //have to see apbot type Foo map<Foo>
             default:
                 newTypeNode = BUnionType.create(null, new LinkedHashSet<>());
                 typeDefSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(typeDef.flagSet),
                         newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
                         typeDef.name.pos, SOURCE);
         }
-        typeDef.symbol = typeDefSymbol;
+        newTypeNode.isCyclic = true;
         BSymbol foundSym = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(typeDef.name));
         if (foundSym == symTable.notFoundSymbol) {
+            typeDef.symbol = typeDefSymbol;
             defineTypeInMainScope(typeDefSymbol, typeDef);
+            newTypeNode.tsymbol = typeDefSymbol;
+            newTypeNode.flags |= typeDefSymbol.flags;
+            return newTypeNode;
         }
-        newTypeNode.isCyclic = true;
-        newTypeNode.tsymbol = typeDefSymbol;
-        newTypeNode.flags |= typeDefSymbol.flags;
+        newTypeNode = foundSym.type;
+        newTypeNode.tsymbol = (BTypeSymbol) foundSym;
+        newTypeNode.flags |= foundSym.flags;
         return newTypeNode;
     }
 
-        private BType getCyclicDefinedType(BLangTypeDefinition typeDef, SymbolEnv env) {
-            //define symbols in main scope
-            BType newTypeNode = defineSymbolsForCyclicTypeDefinitions(typeDef, env);
-            switch (typeDef.typeNode.getKind()) {
-                case ARRAY_TYPE:
-                    break;
-                    //have to see apbot type Foo map<Foo>
-                case TUPLE_TYPE_NODE:
-                default:
-                    List<BLangType> memberTypeNodes;
-                    if (typeDef.typeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
-                        memberTypeNodes = ((BLangUnionTypeNode) typeDef.typeNode).memberTypeNodes;
-                    } else {
-                        memberTypeNodes = ((BLangTupleTypeNode) typeDef.typeNode).memberTypeNodes;
-                    }
-                    for (BLangType member : memberTypeNodes) {
-                        if (member.getKind() != NodeKind.USER_DEFINED_TYPE) {
-                            continue;
+    private BType getCyclicDefinedType(BLangTypeDefinition typeDef, SymbolEnv env) {
+        //define symbols in main scope
+        BType newTypeNode = defineSymbolsForCyclicTypeDefinitions(typeDef, env);
+        switch (typeDef.typeNode.getKind()) {
+            case ARRAY_TYPE:
+                BLangType elementType = ((BLangArrayType) typeDef.typeNode).elemtype;
+                Name elementTypeName = names.fromIdNode(((BLangUserDefinedType) elementType).typeName);
+
+                for (BLangNode unresolvedNode : unresolvedTypes) {
+                    BLangTypeDefinition unresolvedTypeInTypeDefinition = (BLangTypeDefinition) unresolvedNode;
+                    Name unresolvedNodeName = names.fromIdNode(unresolvedTypeInTypeDefinition.name);
+
+                    if (elementTypeName.value.equals(unresolvedNodeName.value)) {
+                        BSymbol foundSym = symResolver.lookupSymbolInMainSpace(env, unresolvedNodeName);
+                        if (foundSym == symTable.notFoundSymbol) {
+                            defineSymbolsForCyclicTypeDefinitions(unresolvedTypeInTypeDefinition, env);
                         }
-                        for (BLangNode unresolvedNode: unresolvedTypes) {
-                            BLangTypeDefinition unresolvedTypeInTypeDefinition = (BLangTypeDefinition) unresolvedNode;
-                            Name unresolvedNodeName = names.fromIdNode(unresolvedTypeInTypeDefinition.name);
-                            Name memberName = names.fromIdNode(((BLangUserDefinedType) member).typeName);
-                            if (memberName.value.equals(unresolvedNodeName.value)) {
-                                BSymbol foundSym = symResolver.lookupSymbolInMainSpace(env, unresolvedNodeName);
-                                if (foundSym == symTable.notFoundSymbol) {
-                                    defineSymbolsForCyclicTypeDefinitions(unresolvedTypeInTypeDefinition, env);
-                                }
-                                break;
+                        break;
+                    }
+                }
+
+                break;
+            case TUPLE_TYPE_NODE:
+            default:
+                List<BLangType> memberTypeNodes;
+                if (typeDef.typeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
+                    memberTypeNodes = ((BLangUnionTypeNode) typeDef.typeNode).memberTypeNodes;
+                } else {
+                    memberTypeNodes = ((BLangTupleTypeNode) typeDef.typeNode).memberTypeNodes;
+                }
+                for (BLangType member : memberTypeNodes) {
+                    if (member.getKind() != NodeKind.USER_DEFINED_TYPE) {
+                        continue;
+                    }
+                    for (BLangNode unresolvedNode : unresolvedTypes) {
+                        BLangTypeDefinition unresolvedTypeInTypeDefinition = (BLangTypeDefinition) unresolvedNode;
+                        Name unresolvedNodeName = names.fromIdNode(unresolvedTypeInTypeDefinition.name);
+                        Name memberName = names.fromIdNode(((BLangUserDefinedType) member).typeName);
+
+                        if (memberName.value.equals(unresolvedNodeName.value)) {
+                            BSymbol foundSym = symResolver.lookupSymbolInMainSpace(env, unresolvedNodeName);
+                            if (foundSym == symTable.notFoundSymbol) {
+                                defineSymbolsForCyclicTypeDefinitions(unresolvedTypeInTypeDefinition, env);
                             }
+                            break;
                         }
                     }
-            }
-
-            // Resolver only manages to resolve members as they are defined as user defined types.
-            // Since we defined the symbol, user defined types get resolved.
-            // Since we are calling this API we don't have to call
-            // `markParameterizedType(unionType, memberTypes);` again for resolved members
-            BType resolvedTypeNodes = symResolver.resolveTypeNode(typeDef.typeNode, env);
-
-            switch (resolvedTypeNodes.tag) {
-                case TypeTags.TUPLE:
-                    BTupleType definedTupleType = (BTupleType) resolvedTypeNodes;
-                    newTypeNode = new BTupleType (newTypeNode.tsymbol, definedTupleType.getTupleTypes(),
-                            definedTupleType.restType, definedTupleType.flags, newTypeNode.isCyclic);
-                    break;
-                default:
-                    BUnionType definedUnionType = (BUnionType) resolvedTypeNodes;
-                    BUnionType newUnionType = (BUnionType) newTypeNode;
-                    for (BType member : definedUnionType.getMemberTypes()) {
-                        newUnionType.add(member);
-                    }
-                    newTypeNode = newUnionType;
-                    break;
-            }
-
-            typeDef.typeNode.type = newTypeNode;
-            typeDef.typeNode.type.tsymbol.type = newTypeNode;
-            typeDef.symbol.type = newTypeNode;
-            typeDef.type = newTypeNode;
-            return newTypeNode;
-
-//            BUnionType unionType = BUnionType.create(null, new LinkedHashSet<>());
-
-//            unionType.isCyclic = true;
-//            Name typeDefName = names.fromIdNode(typeDef.name);
-//
-//            BTypeSymbol typeDefSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(typeDef.flagSet),
-//                    typeDefName, env.enclPkg.symbol.pkgID, unionType, env.scope.owner,
-//                    typeDef.name.pos, SOURCE);
-//
-//            typeDef.symbol = typeDefSymbol;
-//            unionType.tsymbol = typeDefSymbol;
-
-            // We define the union type in the main scope here
-//            if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
-//                typeDefSymbol.origin = BUILTIN;
-//                handleLangLibTypes(typeDef);
-//            } else {
-//                defineSymbol(typeDef.name.pos, typeDefSymbol);
-//            }
-
-            // resolvedUnionWrapper is not the union we need. Resolver tries to create a union for us but only manages to
-            // resolve members as they are defined as user defined types. Since we define the symbol user defined types
-            // gets resolved. We also expect becaue we are calling this API we dont have to call
-            // `markParameterizedType(unionType, memberTypes);` again for resolved members
-//            BType resolvedTypeNodes = symResolver.resolveTypeNode(typeDef.typeNode, env);
-
-
-            // Transform all members from union wrapper to defined union type
-//            if (resolvedUnionWrapper.tag == TypeTags.UNION) {
-//                BUnionType definedUnionType = (BUnionType) resolvedUnionWrapper;
-//                definedUnionType.tsymbol = typeDefSymbol;
-//                unionType.flags |= typeDefSymbol.flags;
-//                for (BType member : definedUnionType.getMemberTypes()) {
-//                    unionType.add(member);
-//                }
-//            }
-
-//            unionType.isCyclic = true;
-//            Name typeDefName = names.fromIdNode(typeDef.name);
-//
-//            BTypeSymbol typeDefSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(typeDef.flagSet),
-//                    typeDefName, env.enclPkg.symbol.pkgID, unionType, env.scope.owner,
-//                    typeDef.name.pos, SOURCE);
-//
-//            typeDef.symbol = typeDefSymbol;
-//            unionType.tsymbol = typeDefSymbol;
-//            typeDef.typeNode.type = unionType;
-//            typeDef.typeNode.type.tsymbol.type = unionType;
-//            typeDef.symbol.type = unionType;
-//            typeDef.type = unionType;
-//            return unionType;
+                }
         }
+
+        // Resolver only manages to resolve members as they are defined as user defined types.
+        // Since we defined the symbols, the user defined types get resolved.
+        // Since we are calling this API we don't have to call
+        // `markParameterizedType(unionType, memberTypes);` again for resolved members
+        BType resolvedTypeNodes = symResolver.resolveTypeNode(typeDef.typeNode, env);
+
+        switch (resolvedTypeNodes.tag) {
+            case TypeTags.TUPLE:
+                ((BTupleType) newTypeNode).addMembers(((BTupleType) resolvedTypeNodes).getTupleTypes());
+                break;
+            case TypeTags.ARRAY:
+                ((BArrayType) newTypeNode).setElementType(((BArrayType) resolvedTypeNodes).getElementType());
+                break;
+            default:
+                BUnionType definedUnionType = (BUnionType) resolvedTypeNodes;
+                for (BType member : definedUnionType.getMemberTypes()) {
+                    ((BUnionType) newTypeNode).add(member);
+                }
+                break;
+        }
+
+        typeDef.typeNode.type = newTypeNode;
+        typeDef.typeNode.type.tsymbol.type = newTypeNode;
+        typeDef.symbol.type = newTypeNode;
+        typeDef.type = newTypeNode;
+        return newTypeNode;
+    }
 
     private void validateUnionForDistinctType(BUnionType definedType, Location pos) {
         Set<BType> memberTypes = definedType.getMemberTypes();
