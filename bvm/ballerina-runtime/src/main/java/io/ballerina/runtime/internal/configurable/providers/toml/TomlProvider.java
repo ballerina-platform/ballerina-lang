@@ -86,7 +86,7 @@ import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_INVALID_ADDTIONAL_RECORD_FIELD;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_INVALID_MODULE_STRUCTURE;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_REQUIRED_FILED_NOT_PROVIDED;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_TABLE_KEY__NOT_PROVIDED;
+import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_TABLE_KEY_NOT_PROVIDED;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_UNUSED_VALUE;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TYPE_NOT_SUPPORTED;
 
@@ -812,7 +812,7 @@ public class TomlProvider implements ConfigProvider {
         for (String key : fieldNames) {
             if (recordTable.entries().get(key) == null) {
                 invalidTomlLines.add(recordTable.location().lineRange());
-                throw new ConfigException(CONFIG_TOML_TABLE_KEY__NOT_PROVIDED, getLineRange(recordTable), key,
+                throw new ConfigException(CONFIG_TOML_TABLE_KEY_NOT_PROVIDED, getLineRange(recordTable), key,
                                           tableType.toString()
                         , variableName);
             }

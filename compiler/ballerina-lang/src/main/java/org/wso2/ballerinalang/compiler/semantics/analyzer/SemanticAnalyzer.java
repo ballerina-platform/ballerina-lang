@@ -837,8 +837,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
                 if (!isSupportedConfigType(lhsType)) {
                     // TODO: remove this check once runtime support all configurable types
-                    dlog.error(varNode.typeNode.pos,
-                            DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED, lhsType);
+                    dlog.error(varNode.pos, DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED, lhsType);
                 }
             }
         }
@@ -878,6 +877,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private boolean isSupportedConfigType(BType type) {
         switch (type.getKind()) {
+            case FINITE:
+                return false;
             case ARRAY:
                 BType elementType = ((BArrayType) type).eType;
                 if (elementType.tag == TypeTags.INTERSECTION) {

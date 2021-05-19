@@ -91,7 +91,7 @@ public enum RuntimeErrors implements DiagnosticCode {
     CONFIG_TOML_INVALID_ADDTIONAL_RECORD_FIELD("config.toml.invalid.additional.record.field", "RUNTIME_0060"),
     CONFIG_TOML_FEILD_NOT_SUPPORTED("config.toml.field.not.supported", "RUNTIME_0061"),
     CONFIG_TOML_REQUIRED_FILED_NOT_PROVIDED("config.toml.required.field.not.provided", "RUNTIME_0062"),
-    CONFIG_TOML_TABLE_KEY__NOT_PROVIDED("config.toml.table.key.not.provided", "RUNTIME_0063"),
+    CONFIG_TOML_TABLE_KEY_NOT_PROVIDED("config.toml.table.key.not.provided", "RUNTIME_0063"),
     CONFIG_TOML_INVALID_MODULE_STRUCTURE("config.toml.invalid.module.structure", "RUNTIME_0065"),
     CONFIG_TOML_DEFAULT_FILED_NOT_SUPPORTED("config.toml.default.field.not.supported", "RUNTIME_0067"),
     CONFIG_TOML_EMPTY_FILE("config.toml.empty.file", "RUNTIME_0068"),

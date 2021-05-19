@@ -66,5 +66,12 @@ configurable map<anydata> & readonly mapVar = ?;
 
 // Unsupported union types
 configurable string|int unionVar1 = ?;
-configurable Colors unionVar2 = ?;
-configurable anydata unionVar3 = ?;
+configurable anydata unionVar2 = ?;
+
+// Unsupported finite types
+configurable Colors finiteVar1 = ?;
+configurable 1|0 finiteVar2 = ?;
+configurable 2|1.7|"test" finiteVar3 = ?;
+
+// Unsupported tuple type
+configurable [int, string] tupleVar = ?;

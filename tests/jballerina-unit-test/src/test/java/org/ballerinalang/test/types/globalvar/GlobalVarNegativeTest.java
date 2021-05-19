@@ -84,28 +84,34 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, "invalid type for configurable variable: expected a subtype" +
                 " of 'anydata'", 22, 22);
         BAssertUtil.validateError(result, i++, "missing close brace token", 27, 1);
-        BAssertUtil.validateError(result, i++, "invalid token '}'", 31, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for " +
-                "'(json & readonly)'", 31, 14);
+                "'(json & readonly)'", 31, 1);
+        BAssertUtil.validateError(result, i++, "invalid token '}'", 31, 1);
         BAssertUtil.validateError(result, i++, "only simple variables are allowed to be configurable", 34, 1);
         BAssertUtil.validateError(result, i++, "'final' qualifier not allowed: configurable variables are " +
                 "implicitly final", 37, 7);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(table<Person> key" +
-                "(name)[] & readonly)'", 52, 14);
+                "(name)[] & readonly)'", 52, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '((table<Person> " +
-                "key(name) & readonly)[] & readonly)'", 53, 14);
+                "key(name) & readonly)[] & readonly)'", 53, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(UnsupportedRecord" +
-                " & readonly)'", 56, 14);
+                " & readonly)'", 56, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '" +
-                "(table<map<anydata>> & readonly)'", 59, 14);
+                "(table<map<anydata>> & readonly)'", 59, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(anydata[] & " +
-                "readonly)'", 62, 14);
+                "readonly)'", 62, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(map<anydata> & " +
-                "readonly)'", 65, 14);
+                "readonly)'", 65, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '((string|int) & " +
-                "readonly)'", 68, 14);
+                "readonly)'", 68, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(anydata & " +
-                "readonly)'", 70, 14);
+                "readonly)'", 69, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for 'Red|Green'", 72, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '1|0'", 73, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '2|1.7f|test'", 74,
+                1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '([int,string] & " +
+                        "readonly)'", 77, 1);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
