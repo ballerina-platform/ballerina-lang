@@ -339,24 +339,6 @@ isolated class InvalidIsolatedClassWithNonInvalidObjectFields {
     final object {} c = object {}; // should be an `isolated object`
 }
 
-isolated class InvalidIsolatedClassReferringSelfOutsideLock {
-    final int a = 1;
-    private int[] b = [];
-
-    function foo() {
-        bar(self);
-        self.baz();
-    }
-
-    function baz() {
-
-    }
-}
-
-function bar(InvalidIsolatedClassReferringSelfOutsideLock x) {
-
-}
-
 isolated class IsolatedClass {
     function nonIsolatedFunc() returns int => 1;
 }
