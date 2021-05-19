@@ -80,7 +80,7 @@ public class InitCommand implements BLauncherCmd {
         // If the current directory is a ballerina project ignore.
         if (ProjectUtils.isBallerinaProject(this.userDir)) {
             CommandUtil.printError(errStream,
-                    "Directory is already a ballerina project",
+                    "Directory is already a Ballerina project",
                     null,
                     false);
             return;
@@ -101,7 +101,7 @@ public class InitCommand implements BLauncherCmd {
         Path projectRoot = ProjectUtils.findProjectRoot(this.userDir);
         if (projectRoot != null) {
             CommandUtil.printError(errStream,
-                    "Directory is already within a ballerina project :" +
+                    "Directory is already within a Ballerina project :" +
                             projectRoot.resolve(ProjectConstants.BALLERINA_TOML).toString(),
                     null,
                     false);
@@ -162,7 +162,7 @@ public class InitCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("initialize a ballerina project in current directory");
+        out.append("initialize a Ballerina project in current directory");
     }
 
     @Override

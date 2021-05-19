@@ -98,7 +98,7 @@ public class NewCommand implements BLauncherCmd {
         // If the current directory is a ballerina project, fail the command.
         if (ProjectUtils.isBallerinaProject(this.userDir)) {
             CommandUtil.printError(errStream,
-                    "Directory is already a ballerina project",
+                    "Directory is already a Ballerina project",
                     null,
                     false);
             return;
