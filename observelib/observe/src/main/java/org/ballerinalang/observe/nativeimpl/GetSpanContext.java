@@ -31,6 +31,8 @@ import io.ballerina.runtime.observability.tracer.BSpan;
 /**
  * This implements the getSpanContext function for observe.
  * The map returned by the method contains traceId and spanId if the request was sampled.
+ *
+ * @since 2.0.0
  */
 
 public class GetSpanContext {

@@ -25,5 +25,4 @@ service /testServiceSeven on new testobserve:Listener(19097) {
         json spanContextJson = checkpanic spanContext.cloneWithType(json);
         checkpanic caller->respond(spanContextJson.toJsonString());
     }
-
 }

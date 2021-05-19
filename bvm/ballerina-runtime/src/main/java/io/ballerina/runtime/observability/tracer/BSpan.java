@@ -180,8 +180,8 @@ public class BSpan {
                 MapType immutableStringMap = TypeCreator.createMapType(PredefinedTypes.TYPE_STRING, true);
                 BMapInitialValueEntry[] values = new BMapInitialValueEntry[]{
                         new MappingInitialValueEntry.KeyValueEntry(
-                                StringUtils.fromString(TraceConstants.TRACE_ID), spanContext.getTraceId())
-                        , new MappingInitialValueEntry.KeyValueEntry(
+                                StringUtils.fromString(TraceConstants.TRACE_ID), spanContext.getTraceId()),
+                        new MappingInitialValueEntry.KeyValueEntry(
                                 StringUtils.fromString(TraceConstants.SPAN_ID), spanContext.getSpanId())
                 };
                 bSpanContext = ValueCreator.createMapValue(immutableStringMap, values);

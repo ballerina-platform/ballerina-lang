@@ -32,6 +32,8 @@ import java.util.Optional;
 
 /**
  * Test cases span context.
+ *
+ * @since 2.0.0
  */
 @Test(groups = "tracing-test")
 public class SpanContextTestCase extends TracingBaseTestCase {
