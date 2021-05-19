@@ -20,12 +20,12 @@ package io.ballerinalang.compiler.parser.test.syntax.types;
 import org.testng.annotations.Test;
 
 /**
- * Test parsing parameterized type.
+ * Test parsing map and future types.
  */
 
 public class ParameterizedTypeTest extends AbstractTypesTest {
 
-    //Valid source test
+    // Valid source test
 
     @Test
     public void testValidLocalLevelParameterizedType() {
@@ -38,6 +38,11 @@ public class ParameterizedTypeTest extends AbstractTypesTest {
         test("map<string> a;", "parameterized-type/parameterized_type_assert_02.json");
     }
 
+    @Test
+    public void testSimpleFutureType() {
+        test("future a;", "parameterized-type/parameterized_type_assert_15.json");
+    }
+    
     @Test
     public void testValidModuleLevelFutureTypeWithUserDefinedType() {
         test("future<T> a;", "parameterized-type/parameterized_type_assert_03.json");
@@ -59,7 +64,7 @@ public class ParameterizedTypeTest extends AbstractTypesTest {
                 "parameterized-type/parameterized_type_assert_11.json");
     }
 
-    //Recovery tests
+    // Recovery tests
 
     @Test
     public void testInValidModuleLevelMapTypeWithMissingGT() {
@@ -72,8 +77,8 @@ public class ParameterizedTypeTest extends AbstractTypesTest {
     }
 
     @Test
-    public void testInValidModuleLevelFutureTypeWithMissingLT() {
-        test("future int> a;", "parameterized-type/parameterized_type_assert_08.json");
+    public void testInValidModuleLevelFutureTypeWithMissingGT() {
+        test("future <int a;", "parameterized-type/parameterized_type_assert_08.json");
     }
 
     @Test

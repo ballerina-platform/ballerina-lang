@@ -74,7 +74,7 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "PARAMETERIZED_TYPE_DESC",
+                      "kind": "MAP_TYPE_DESC",
                       "hasDiagnostics": true,
                       "children": [
                         {
