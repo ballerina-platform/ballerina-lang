@@ -1955,6 +1955,32 @@ public class Types {
         return unionType.getMemberTypes().iterator().next();
     }
 
+    public BType getTypeWithEffectiveIntersectionTypes(BType type) {
+        if (type.tag == TypeTags.INTERSECTION) {
+            type = ((BIntersectionType) type).effectiveType;
+        }
+
+        if (type.tag != TypeTags.UNION) {
+            return type;
+        }
+
+        LinkedHashSet<BType> members = new LinkedHashSet<>();
+        boolean hasDifferentMember = false;
+
+        for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+            BType effectiveType = getTypeWithEffectiveIntersectionTypes(memberType);
+            if (effectiveType != memberType) {
+                hasDifferentMember = true;
+            }
+            members.add(effectiveType);
+        }
+
+        if (hasDifferentMember) {
+            return BUnionType.create(null, members);
+        }
+        return type;
+    }
+
     /**
      * Enum to represent type test result.
      *
