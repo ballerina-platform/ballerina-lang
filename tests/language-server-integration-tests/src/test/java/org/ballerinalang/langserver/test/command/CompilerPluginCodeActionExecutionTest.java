@@ -51,7 +51,7 @@ public class CompilerPluginCodeActionExecutionTest extends AbstractCommandExecut
                 {
                         "compiler_plugin_code_action_exec_config1.json",
                         "package_plugin_user_with_codeactions_1/main.bal",
-                        "lstest_package_comp_plugin_with_codeactions_CREATE_VAR"
+                        "BCE2526/lstest/package_comp_plugin_with_codeactions/CREATE_VAR"
                 }
         };
     }

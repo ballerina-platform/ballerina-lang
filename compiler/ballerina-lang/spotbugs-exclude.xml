@@ -325,4 +325,8 @@
         <Class name="io.ballerina.projects.CompilerPluginManager"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.projects.CodeActionManager"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
 </FindBugsFilter>

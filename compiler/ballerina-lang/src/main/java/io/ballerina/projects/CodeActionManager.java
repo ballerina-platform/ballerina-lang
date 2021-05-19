@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Manages interaction with code actions via compiler plugins.
@@ -37,11 +36,9 @@ import java.util.Optional;
  */
 public class CodeActionManager {
 
-    private final List<CompilerPluginContextIml> compilerPluginContexts;
     private final Map<String, List<CodeActionDescriptor>> codeActionsMap;
 
     private CodeActionManager(List<CompilerPluginContextIml> compilerPluginContexts) {
-        this.compilerPluginContexts = compilerPluginContexts;
         this.codeActionsMap = new HashMap<>();
         compilerPluginContexts.forEach(compilerPluginContext -> {
             // Find code actions of this context
@@ -70,7 +67,8 @@ public class CodeActionManager {
                         codeActionDescriptor.codeAction().codeActionInfo(context, diagnostic).stream()
                                 .peek(codeActionInfo -> {
                                     // We change the provider name with package prefix
-                                    codeActionInfo.setProviderName(getPackagePrefixedProviderName(
+                                    codeActionInfo.setProviderName(getModifiedCodeActionName(
+                                            diagnostic.diagnosticInfo().code(),
                                             codeActionDescriptor.compilerPluginInfo(),
                                             codeActionDescriptor.codeAction().name()));
                                     codeActionInfo.setArguments(codeActionInfo.getArguments());
@@ -90,47 +88,62 @@ public class CodeActionManager {
      */
     public List<DocumentEdit> executeCodeAction(String codeActionName, CodeActionPluginContext context,
                                                 List<CodeActionArgument> arguments) {
-        for (CompilerPluginContextIml compilerPluginContext : compilerPluginContexts) {
-            String prefix = getPackagePrefix(compilerPluginContext.compilerPluginInfo());
-            if (!codeActionName.startsWith(prefix)) {
+        String[] parts = codeActionName.split("/");
+
+        String diagnosticCode;
+        if (parts.length >= 2) {
+            diagnosticCode = parts[0];
+        } else {
+            return Collections.emptyList();
+        }
+
+        CompilerPluginKind compilerPluginKind = null;
+        if (parts.length >= 4) {
+            compilerPluginKind = CompilerPluginKind.PACKAGE_PROVIDED;
+        } else {
+            compilerPluginKind = CompilerPluginKind.BUILT_IN;
+        }
+
+        if (!codeActionsMap.containsKey(diagnosticCode)) {
+            return Collections.emptyList();
+        }
+
+        CodeAction codeAction = null;
+        for (CodeActionDescriptor descriptor : codeActionsMap.get(diagnosticCode)) {
+            if (descriptor.compilerPluginInfo().kind() != compilerPluginKind) {
                 continue;
             }
 
-            if (codeActionName.length() == prefix.length()) {
-                continue;
-            }
-
-            // Get command name. Substring excluding the "_"
-            codeActionName = codeActionName.substring(prefix.length() + 1);
-            if (codeActionName.isEmpty()) {
-                continue;
-            }
-
-            String finalCodeActionName = codeActionName;
-            Optional<CodeAction> codeActionProvider = compilerPluginContext.codeActions().stream()
-                    .filter(provider -> finalCodeActionName.equals(provider.name()))
-                    .findFirst();
-
-            if (codeActionProvider.isPresent()) {
-                return codeActionProvider.get().execute(context, arguments);
+            if (codeActionName.equals(getModifiedCodeActionName(diagnosticCode, descriptor.compilerPluginInfo(),
+                    descriptor.codeAction().name()))) {
+                codeAction = descriptor.codeAction();
+                break;
             }
         }
 
-        return Collections.emptyList();
+        if (codeAction == null) {
+            return Collections.emptyList();
+        }
+
+        return codeAction.execute(context, arguments);
     }
 
     static CodeActionManager from(List<CompilerPluginContextIml> compilerPluginContexts) {
         return new CodeActionManager(compilerPluginContexts);
     }
 
-    private static String getPackagePrefix(CompilerPluginInfo compilerPluginInfo) {
-        PackageDescriptor packageDescriptor = compilerPluginInfo.packageDesc();
-        return packageDescriptor.org().value().replaceAll("\\.", "_") + "_" +
-                packageDescriptor.name().value().replaceAll("\\.", "_");
+    private static String getProviderPrefix(String diagnosticCode, CompilerPluginInfo compilerPluginInfo) {
+        if (compilerPluginInfo.kind() == CompilerPluginKind.PACKAGE_PROVIDED) {
+            PackageDescriptor descriptor = ((PackageProvidedCompilerPluginInfo) compilerPluginInfo).packageDesc();
+            return String.format("%s/%s/%s", diagnosticCode, descriptor.org().value(), descriptor.name().value());
+        } else {
+            return diagnosticCode;
+        }
     }
 
-    private static String getPackagePrefixedProviderName(CompilerPluginInfo compilerPluginInfo, String providerName) {
-        return getPackagePrefix(compilerPluginInfo) + "_" + providerName;
+    private static String getModifiedCodeActionName(String diagnosticCode, CompilerPluginInfo compilerPluginInfo,
+                                                    String codeActionName) {
+        return getProviderPrefix(diagnosticCode, compilerPluginInfo) + "/" + codeActionName;
     }
 
     /**

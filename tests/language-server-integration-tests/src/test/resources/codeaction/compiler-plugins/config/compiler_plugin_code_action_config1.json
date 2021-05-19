@@ -6,7 +6,7 @@
       "title": "Introduce Variable",
       "command": {
         "title": "Introduce Variable",
-        "command": "lstest_package_comp_plugin_with_codeactions_CREATE_VAR",
+        "command": "BCE2526/lstest/package_comp_plugin_with_codeactions/CREATE_VAR",
         "arguments": [
           {
             "key": "node.range",
