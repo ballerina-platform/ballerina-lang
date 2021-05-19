@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
@@ -53,6 +54,7 @@ import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
+import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.ballerinalang.langserver.completions.builder.ConstantCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.FieldCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
@@ -73,6 +75,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -225,7 +228,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
 
         completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
         completionItems.addAll(Arrays.asList(
-                new SymbolCompletionItem(context, null, TypeCompletionItemBuilder.build(null, "service")),
+                new TypeCompletionItem(context, null, TypeCompletionItemBuilder.build(null, "service")),
                 new SnippetCompletionItem(context, Snippet.KW_RECORD.get()),
                 new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()),
                 new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()),
@@ -247,21 +250,17 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
     protected List<LSCompletionItem> getModuleCompletionItems(BallerinaCompletionContext ctx) {
         // First we include the packages from the imported list.
         List<String> processedList = new ArrayList<>();
-        List<ImportDeclarationNode> currentDocImports = ctx.currentDocImports();
+        Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = ctx.currentDocImportsMap();
         // Generate completion items for the import statements in the current document
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        currentDocImports.forEach(importNode -> {
+        currentDocImports.forEach((importNode, moduleSymbol) -> {
             String orgName = importNode.orgName().isEmpty() ? "" : importNode.orgName().get().orgName().text();
             String pkgName = importNode.moduleName().stream()
                     .map(Token::text)
                     .collect(Collectors.joining("."));
-            /*
-            For the predeclared langlibs with prefix/alias, we suggest the alias.
-            If the import does not have an alias, skip
-             */
+            
             if (CommonUtil.PRE_DECLARED_LANG_LIBS.contains(pkgName.replace("'", ""))) {
-                CompletionItem cItem = TypeCompletionItemBuilder.build(null, pkgName.replace("'", ""));
-                completionItems.add(new SymbolCompletionItem(ctx, null, cItem));
+                // skip the predeclared langlib imports
                 return;
             }
             String processedModuleHash = orgName.isEmpty() ? pkgName : orgName + CommonKeys.SLASH_KEYWORD_KEY + pkgName;
@@ -275,7 +274,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             String insertText = CommonUtil.escapeReservedKeyword(prefix);
             CompletionItem item = this.getModuleCompletionItem(label, insertText, new ArrayList<>());
             processedList.add(processedModuleHash);
-            completionItems.add(new SymbolCompletionItem(ctx, null, item));
+            completionItems.add(new SymbolCompletionItem(ctx, moduleSymbol, item));
         });
 
         // Generate completion items for the distribution repo packages excluding the pre-declared lang-libs
@@ -312,9 +311,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             }
             String moduleNamePart = module.moduleName().moduleNamePart();
             // In order to support the hierarchical module names, split and get the last component as the module name
-//            String[] moduleNameComponents = moduleNamePart.split("\\.");
-//            String aliasComponent = moduleNameComponents[moduleNameComponents.length - 1];
-
             List<String> moduleNameComponents = Arrays.stream(moduleNamePart.split("\\."))
                     .map(CommonUtil::escapeReservedKeyword)
                     .collect(Collectors.toList());
@@ -456,6 +452,10 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
         // TODO: anon function expressions, 
         return completionItems;
+    }
+
+    protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context, T node) {
+        return this.expressionCompletions(context);
     }
 
     private List<LSCompletionItem> getBasicAndOtherTypeCompletions(BallerinaCompletionContext context) {

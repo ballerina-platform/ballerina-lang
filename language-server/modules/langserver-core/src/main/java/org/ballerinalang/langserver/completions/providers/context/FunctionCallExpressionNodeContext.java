@@ -94,10 +94,10 @@ public class FunctionCallExpressionNodeContext extends BlockNodeContextProvider<
             CompletionItemKind completionItemKind = lsCompletionItem.getCompletionItem().getKind();
             if (lsCompletionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
 
-                Symbol symbol = ((SymbolCompletionItem) lsCompletionItem).getSymbol();
-                Optional<TypeSymbol> symbolType = SymbolUtil.getTypeDescriptor(symbol);
+                Optional<Symbol> symbol = ((SymbolCompletionItem) lsCompletionItem).getSymbol();
+                Optional<TypeSymbol> symbolType = SymbolUtil.getTypeDescriptor(symbol.orElse(null));
 
-                if (!symbolType.isEmpty()) {
+                if (symbolType.isPresent()) {
                     switch (completionItemKind) {
                         case Variable:
                             if (symbolType.get().assignableTo(parameterSymbol.get())) {
@@ -108,7 +108,7 @@ public class FunctionCallExpressionNodeContext extends BlockNodeContextProvider<
                         case Function:
                             if (symbolType.get() instanceof FunctionTypeSymbol) {
                                 Optional<TypeSymbol> returnType =
-                                        ((FunctionSymbol) symbol).typeDescriptor().returnTypeDescriptor();
+                                        ((FunctionSymbol) symbol.get()).typeDescriptor().returnTypeDescriptor();
                                 if (returnType.isPresent() && returnType.get().assignableTo(parameterSymbol.get())) {
                                     rank = 2;
                                 }

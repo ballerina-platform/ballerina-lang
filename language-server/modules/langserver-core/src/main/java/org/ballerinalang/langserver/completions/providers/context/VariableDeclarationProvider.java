@@ -79,15 +79,15 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
             if (completionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
                 SymbolCompletionItem symbolCompletionItem = (SymbolCompletionItem) completionItem;
 
-                Optional<TypeSymbol> completionItemType =
-                        SymbolUtil.getTypeDescriptor(symbolCompletionItem.getSymbol());
+                Optional<TypeSymbol> completionItemType = symbolCompletionItem.getSymbol().isEmpty() ?
+                        Optional.empty() : SymbolUtil.getTypeDescriptor(symbolCompletionItem.getSymbol().get());
                 if (completionItemType.isPresent() && completionItemType.get() instanceof FunctionTypeSymbol) {
                     completionItemType = ((FunctionTypeSymbol) completionItemType.get()).returnTypeDescriptor();
                 }
 
                 // TODO: Remove the symbol equality check after #25607
-                if (symbolCompletionItem.getSymbol() != null && completionItemType.isPresent() &&
-                        !symbolCompletionItem.getSymbol().equals(symbolAtCursor.get()) &&
+                if (symbolCompletionItem.getSymbol().isPresent() && completionItemType.isPresent() &&
+                        !symbolCompletionItem.getSymbol().get().equals(symbolAtCursor.get()) &&
                         completionItemType.get().assignableTo(typeSymbol)) {
                     rank = 1;
                 }
@@ -100,7 +100,7 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
     protected List<LSCompletionItem> initializerContextCompletions(BallerinaCompletionContext context,
                                                                    TypeDescriptorNode typeDsc) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             /*
             Captures the following cases
             (1) [module:]TypeName c = module:<cursor>
@@ -135,7 +135,7 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<ClassSymbol> classSymbol;
-        if (this.onQualifiedNameIdentifier(context, typeDescriptorNode)) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, typeDescriptorNode)) {
             String modulePrefix = QNameReferenceUtil.getAlias(((QualifiedNameReferenceNode) typeDescriptorNode));
             Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, modulePrefix);
             if (module.isEmpty()) {

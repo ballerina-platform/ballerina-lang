@@ -22,6 +22,8 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.AbstractLSCompletionItem;
 import org.eclipse.lsp4j.CompletionItem;
 
+import java.util.Optional;
+
 import javax.annotation.Nullable;
 
 /**
@@ -37,14 +39,14 @@ public class SymbolCompletionItem extends AbstractLSCompletionItem {
                                 CompletionItem completionItem) {
         this(lsContext, bSymbol, completionItem, CompletionItemType.SYMBOL);
     }
-    
+
     protected SymbolCompletionItem(BallerinaCompletionContext lsContext, @Nullable Symbol bSymbol,
                                    CompletionItem completionItem, CompletionItemType type) {
         super(lsContext, completionItem, type);
         this.bSymbol = bSymbol;
-    } 
+    }
 
-    public Symbol getSymbol() {
-        return bSymbol;
+    public Optional<Symbol> getSymbol() {
+        return Optional.ofNullable(bSymbol);
     }
 }
