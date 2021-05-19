@@ -484,3 +484,19 @@ function jsonIntersectionNegative(json j) {
         boolean[] a = j;
     }
 }
+
+public type Bar record {|
+    record {|
+        string s;
+    |} baz?;
+|};
+
+function testIntersectionWithIntersectionTypeNegative() {
+    Bar? & readonly bar = ();
+
+    if bar is Bar {
+        var t = bar?.t;
+        boolean x = bar?.baz;
+        (record {| string s; |} & readonly)? y = bar.baz;
+    }
+}
