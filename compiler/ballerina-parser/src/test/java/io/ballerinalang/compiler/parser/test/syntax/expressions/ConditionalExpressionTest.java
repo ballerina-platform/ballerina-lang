@@ -53,6 +53,11 @@ public class ConditionalExpressionTest extends AbstractExpressionsTest {
         test("a ? b is c :\"d\"", "conditional-expr/conditional_expr_assert_25.json");
     }
 
+    @Test
+    public void testConditionalExprWithModuleFunctionCall() {
+        testFile("conditional-expr/conditional_expr_source_26.bal", "conditional-expr/conditional_expr_assert_26.json");
+    }
+
     // Recovery tests
 
     @Test
