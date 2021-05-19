@@ -18,13 +18,13 @@ import ballerina/jballerina.java;
 
 // Configurations
 type MetricsConfig record {|
-    boolean enabled = enabled;
-    string reporter = provider;
+    boolean enabled = false;
+    string reporter = "choreo";
 |} & readonly;
 
 type TracingConfig record {|
-    boolean enabled = enabled;
-    string provider = provider;
+    boolean enabled = false;
+    string provider = "choreo";
 |} & readonly;
 
 // Enables both metrics and tracing
