@@ -23,17 +23,36 @@ package io.ballerina.runtime.api;
  * @since 0.995.0
  */
 public class TypeTags {
+
     public static final int INT_TAG = 1;
     public static final int BYTE_TAG = INT_TAG + 1;
     public static final int FLOAT_TAG = BYTE_TAG + 1;
     public static final int DECIMAL_TAG = FLOAT_TAG + 1;
     public static final int STRING_TAG = DECIMAL_TAG + 1;
     public static final int BOOLEAN_TAG = STRING_TAG + 1;
-    public static final int JSON_TAG = BOOLEAN_TAG + 1;
+
+    // subtypes of int & string
+    public static final int SIGNED32_INT_TAG = BOOLEAN_TAG + 1;
+    public static final int SIGNED16_INT_TAG = SIGNED32_INT_TAG + 1;
+    public static final int SIGNED8_INT_TAG = SIGNED16_INT_TAG + 1;
+    public static final int UNSIGNED32_INT_TAG = SIGNED8_INT_TAG + 1;
+    public static final int UNSIGNED16_INT_TAG = UNSIGNED32_INT_TAG + 1;
+    public static final int UNSIGNED8_INT_TAG = UNSIGNED16_INT_TAG + 1;
+    public static final int CHAR_STRING_TAG = UNSIGNED8_INT_TAG + 1;
+
+    public static final int JSON_TAG = CHAR_STRING_TAG + 1;
     public static final int XML_TAG = JSON_TAG + 1;
     public static final int TABLE_TAG = XML_TAG + 1;
     public static final int NULL_TAG = TABLE_TAG + 1;
-    public static final int ANYDATA_TAG = NULL_TAG + 1;
+
+    // subtypes of Xml & ()
+    public static final int XML_ELEMENT_TAG = NULL_TAG + 1;
+    public static final int XML_PI_TAG = XML_ELEMENT_TAG + 1;
+    public static final int XML_COMMENT_TAG = XML_PI_TAG + 1;
+    public static final int XML_TEXT_TAG = XML_COMMENT_TAG + 1;
+    public static final int NEVER_TAG = XML_TEXT_TAG + 1;
+
+    public static final int ANYDATA_TAG = NEVER_TAG + 1;
     public static final int RECORD_TYPE_TAG = ANYDATA_TAG + 1;
     public static final int TYPEDESC_TAG = RECORD_TYPE_TAG + 1;
     public static final int STREAM_TAG = TYPEDESC_TAG + 1;
@@ -64,21 +83,7 @@ public class TypeTags {
     public static final int HANDLE_TAG = FUNCTION_POINTER_TAG + 1;
     public static final int READONLY_TAG = HANDLE_TAG + 1;
 
-    // Subtypes
-    public static final int SIGNED32_INT_TAG = READONLY_TAG + 1;
-    public static final int SIGNED16_INT_TAG = SIGNED32_INT_TAG + 1;
-    public static final int SIGNED8_INT_TAG = SIGNED16_INT_TAG + 1;
-    public static final int UNSIGNED32_INT_TAG = SIGNED8_INT_TAG + 1;
-    public static final int UNSIGNED16_INT_TAG = UNSIGNED32_INT_TAG + 1;
-    public static final int UNSIGNED8_INT_TAG = UNSIGNED16_INT_TAG + 1;
-    public static final int CHAR_STRING_TAG = UNSIGNED8_INT_TAG + 1;
-    public static final int XML_ELEMENT_TAG = CHAR_STRING_TAG + 1;
-    public static final int XML_PI_TAG = XML_ELEMENT_TAG + 1;
-    public static final int XML_COMMENT_TAG = XML_PI_TAG + 1;
-    public static final int XML_TEXT_TAG = XML_COMMENT_TAG + 1;
-    public static final int NEVER_TAG = XML_TEXT_TAG + 1;
-
-    public static final int PARAMETERIZED_TYPE_TAG = NEVER_TAG + 1;
+    public static final int PARAMETERIZED_TYPE_TAG = READONLY_TAG + 1;
 
     public static boolean isIntegerTypeTag(int tag) {
 

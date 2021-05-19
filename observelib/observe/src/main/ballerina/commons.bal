@@ -17,12 +17,12 @@
 import ballerina/jballerina.java;
 
 // Configurations
-final configurable boolean enabled = false;
-final configurable string provider = "";
-final configurable boolean metricsEnabled = false;
-final configurable string metricsReporter = "choreo";
-final configurable boolean tracingEnabled = false;
-final configurable string tracingProvider = "choreo";
+configurable boolean enabled = false;
+configurable string provider = "";
+configurable boolean metricsEnabled = false;
+configurable string metricsReporter = "choreo";
+configurable boolean tracingEnabled = false;
+configurable string tracingProvider = "choreo";
 
 function init() {
     externInitializeModule();

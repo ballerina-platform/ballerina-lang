@@ -17,15 +17,18 @@
  */
 package org.ballerinalang.langserver.contexts;
 
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Language server context implementation.
@@ -37,6 +40,8 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
     private final List<Node> resolverChain = new ArrayList<>();
     private Token tokenAtCursor;
     private NonTerminalNode nodeAtCursor;
+    private boolean isContextTypeFound = false;
+    private TypeSymbol contextType;
 
     public BallerinaCompletionContextImpl(CompletionContext context, LanguageServerContext serverContext) {
         super(context.operation(),
@@ -81,5 +86,33 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
     @Override
     public List<Node> getResolverChain() {
         return this.resolverChain;
+    }
+
+    @Override
+    public Optional<TypeSymbol> getContextType() {
+
+        if (this.isContextTypeFound) {
+            return Optional.ofNullable(this.contextType);
+        }
+
+        this.isContextTypeFound = true;
+        if (this.getNodeAtCursor() == null) {
+            this.contextType = null;
+            return Optional.ofNullable(contextType);
+        }
+
+        NonTerminalNode node = getNodeAtCursor();
+        do {
+            ContextTypeResolver contextTypeResolver = new ContextTypeResolver(this);
+            Optional<TypeSymbol> typeSymbol = node.apply(contextTypeResolver);
+            if (typeSymbol == null || typeSymbol.isEmpty()) {
+                this.contextType = null;
+            } else {
+                this.contextType = typeSymbol.get();
+            }
+            node = node.parent();
+        } while (this.contextType == null && node != null);
+
+        return Optional.ofNullable(this.contextType);
     }
 }

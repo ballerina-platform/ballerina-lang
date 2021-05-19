@@ -19,9 +19,9 @@ function testBasicTypes() {
     future<boolean> f2 = start status();
     future<string> f3 = start concat("foo");
 
-    int result1 = wait f1;
-    boolean result2 = wait f2;
-    string result3 = wait f3;
+    int result1 = checkpanic wait f1;
+    boolean result2 = checkpanic wait f2;
+    string result3 = checkpanic wait f3;
 
     assertEquality(7, result1);
     assertEquality(true, result2);
@@ -46,8 +46,8 @@ function testRefTypes() {
     future<xml> a = start xmlFile();
     future<json> b = start getJson();
 
-    xml x = wait a;
-    json y = wait b;
+    xml x = checkpanic wait a;
+    json y = checkpanic wait b;
 
     assertEquality(xml `aaa`, x);
     assertEquality(5, y);
@@ -67,7 +67,7 @@ function testRefTypes() {
 function testArrayTypes() {
     future<int[]> a = start intArray();
     
-    int[] x = wait a;
+    int[] x = checkpanic wait a;
     
     assertEquality(intArray(), x);
 }
@@ -83,7 +83,7 @@ function testArrayTypes() {
 function testRecordTypes() {
     future<Person> a = start getNewPerson();
     
-    Person x = wait a;
+    Person x = checkpanic wait a;
     
     assertEquality(getNewPerson(), x);
 }
@@ -99,7 +99,7 @@ function testRecordTypes() {
 function testObjectTypes() {
     future<PersonA> a = start getPersonAObject();
 
-    PersonA x = wait a;
+    PersonA x = checkpanic wait a;
     string name = x.getName();
     
     assertEquality("sample name", name);
@@ -237,3 +237,4 @@ function assertEquality(any|error expected, any|error actual) {
     panic error(ASSERTION_ERROR_REASON,
                  message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
+

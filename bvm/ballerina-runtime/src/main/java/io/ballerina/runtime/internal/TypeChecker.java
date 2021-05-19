@@ -34,7 +34,6 @@ import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
-import io.ballerina.runtime.internal.types.BAnydataType;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BField;
@@ -1913,8 +1912,8 @@ public class TypeChecker {
 
     private static boolean isMutable(Object value, Type sourceType) {
         // All the value types are immutable
-        if (value == null || sourceType.getTag() < TypeTags.JSON_TAG || TypeTags.isIntegerTypeTag(sourceType.getTag())
-                || sourceType.getTag() == TypeTags.FINITE_TYPE_TAG || TypeTags.isStringTypeTag(sourceType.getTag())) {
+        if (value == null || sourceType.getTag() < TypeTags.JSON_TAG ||
+                sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
             return false;
         }
 
@@ -2584,7 +2583,7 @@ public class TypeChecker {
     }
 
     private static boolean isSimpleBasicType(Type type) {
-        return type.getTag() < TypeTags.JSON_TAG || TypeTags.isIntegerTypeTag(type.getTag());
+        return type.getTag() < TypeTags.JSON_TAG;
     }
 
     private static boolean isHandleType(Type type) {
@@ -2741,19 +2740,24 @@ public class TypeChecker {
             return false;
         }
 
-        if (((BTableType) lhsTable.getType()).getFieldNames() != null &&
-                ((BTableType) lhsTable.getType()).getFieldNames().length > 0) {
-            for (Map.Entry<BAnydataType, Object> lhsTableEntry :
-                    (Iterable<Map.Entry<BAnydataType, Object>>) lhsTable.entrySet()) {
-                if (!isEqual(lhsTableEntry.getValue(), rhsTable.get(lhsTableEntry.getKey()), checkedValues)) {
+        boolean isLhsKeyedTable = ((BTableType) lhsTable.getType()).getFieldNames() != null &&
+                ((BTableType) lhsTable.getType()).getFieldNames().length > 0;
+        boolean isRhsKeyedTable = ((BTableType) rhsTable.getType()).getFieldNames() != null &&
+                ((BTableType) rhsTable.getType()).getFieldNames().length > 0;
+
+        Object[] lhsTableValues = lhsTable.values().toArray();
+        Object[] rhsTableValues = rhsTable.values().toArray();
+
+        if (isLhsKeyedTable == isRhsKeyedTable) {
+            for (int i = 0; i < lhsTableValues.length; i++) {
+                if (!isEqual(lhsTableValues[i], rhsTableValues[i], checkedValues)) {
                     return false;
                 }
             }
-
             return true;
         }
 
-        return lhsTable.entrySet().equals(rhsTable.entrySet());
+        return false;
     }
 
 
@@ -2864,7 +2868,8 @@ public class TypeChecker {
         if (type == null) {
             return true;
         }
-        if (type.getTag() < TypeTags.RECORD_TYPE_TAG || TypeTags.isIntegerTypeTag(type.getTag())) {
+        if (type.getTag() < TypeTags.RECORD_TYPE_TAG &&
+                !(type.getTag() == TypeTags.CHAR_STRING_TAG || type.getTag() == TypeTags.NEVER_TAG)) {
             return true;
         }
         switch (type.getTag()) {

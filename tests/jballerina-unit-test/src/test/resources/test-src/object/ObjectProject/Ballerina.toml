@@ -3,4 +3,4 @@
 org = "testorg"
 name = "objectpkg"
 version = "1.0.0"
-exported = ["objectpkg"]
+export = ["objectpkg", "objectpkg.org_foo", "objectpkg.org_foo_bar"]

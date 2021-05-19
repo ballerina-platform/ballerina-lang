@@ -14,22 +14,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.value;
+
 type StringRestRec record {|
     string...;
 |};
 
-type SMS error <record {| string message?; error cause?; string...; |}>;
-type SMA error <record {| string message?; error cause?; string|boolean...; |}>;
-type CMS error <record {| string message?; error cause?; string...; |}>;
-type CMA error <record {| string message?; error cause?; anydata...; |}>;
+type SMS error <record {| string message?; error cause?; string detail?; string extra?; |}>;
+type SMA error <record {| string message?; error cause?; boolean fatal?; boolean|string detail?; boolean|string extra?; |}>;
+type CMS error <record {| string message?; error cause?; string detail?; string extra?; |}>;
+type CMA error <record {| string message?; error cause?; anydata fatal?; anydata detail?; anydata extra?; |}>;
 
 const ERROR1 = "Some Error One";
 const ERROR2 = "Some Error Two";
 
 function testBasicErrorVariableWithMapDetails() returns [string, string, string, string, map<string|error>, string?,
                                                             string?, string?, map<any|error>, any, any, any] {
-    SMS err1 = SMS("Error One", message = "Msg One", detail = "Detail Msg");
-    SMA err2 = SMA("Error Two", message = "Msg Two", fatal = true );
+    SMS err1 = error SMS("Error One", message = "Msg One", detail = "Detail Msg");
+    SMA err2 = error SMA("Error Two", message = "Msg Two", fatal = true );
 
     string reason11;
     map<string|error> detail11;
@@ -57,8 +59,8 @@ function testBasicErrorVariableWithMapDetails() returns [string, string, string,
 
 function testBasicErrorVariableWithConstAndMap() returns [string, string, string, string, map<string|error>, string?, string?,
                                                              string?, map<any|error>, any, any, any, error?] {
-    CMS err3 = CMS(ERROR1, message = "Msg Three", detail = "Detail Msg");
-    CMA err4 = CMA(ERROR2, err3, message = "Msg Four", fatal = true);
+    CMS err3 = error CMS(ERROR1, message = "Msg Three", detail = "Detail Msg");
+    CMA err4 = error CMA(ERROR2, err3, message = "Msg Four", fatal = true);
 
     string reason31;
     map<string|error> detail31;
@@ -94,8 +96,8 @@ type Foo record {
 type FooError error <Foo>;
 
 function testBasicErrorVariableWithRecordDetails() returns [string, string, string, boolean, map<anydata|error>] {
-    FooError err1 = FooError("Error One", message = "Something Wrong", fatal = true);
-    FooError err2 = FooError("Error One", message = "Something Wrong", fatal = true);
+    FooError err1 = error FooError("Error One", message = "Something Wrong", fatal = true);
+    FooError err2 = error FooError("Error One", message = "Something Wrong", fatal = true);
 
     string res1;
     map<anydata|error> mapRec;
@@ -109,7 +111,7 @@ function testBasicErrorVariableWithRecordDetails() returns [string, string, stri
     return [res1, res2, message, fatal, mapRec];
 }
 
-function testErrorInTuple() returns [int, string, string, anydata|readonly, boolean] {
+function testErrorInTuple() returns [int, string, string, value:Cloneable, boolean] {
     Foo f = { message: "fooMsg", fatal: true };
     [int, string, error, [error, Foo]] t1 = [12, "Bal", error("Err", message = "Something Wrong"),
                                                             [error("Err2", message = "Something Wrong2"), f]];
@@ -125,67 +127,67 @@ function testErrorInTuple() returns [int, string, string, anydata|readonly, bool
     return [intVar, stringVar, errorVar.message(), errorVar2.detail()["message"], fooVar.fatal];
 }
 
-function testErrorInTupleWithDestructure() returns [int, string, string, map<anydata|readonly>, boolean] {
-    [int, string, [error, boolean]] t1 = [12, "Bal", [error("Err2", message = "Something Wrong2"), true]];
+// function testErrorInTupleWithDestructure() returns [int, string, string, map<anydata|readonly>, boolean] {
+//     [int, string, [error, boolean]] t1 = [12, "Bal", [error("Err2", message = "Something Wrong2"), true]];
 
-    int intVar;
-    string stringVar;
-    string reasonVar;
-    map<anydata|readonly> detailVar;
-    boolean booleanVar;
+//     int intVar;
+//     string stringVar;
+//     string reasonVar;
+//     map<anydata|readonly> detailVar;
+//     boolean booleanVar;
 
-    [intVar, stringVar, [error(reasonVar, ...detailVar), booleanVar]] = t1;
+//     [intVar, stringVar, [error(reasonVar, ...detailVar), booleanVar]] = t1;
 
-    return [intVar, stringVar, reasonVar, detailVar, booleanVar];
-}
+//     return [intVar, stringVar, reasonVar, detailVar, booleanVar];
+// }
 
-function testErrorInTupleWithDestructure2() returns [int, string, string, anydata|readonly, boolean] {
-    [int, string, [error, boolean]] t1 = [12, "Bal", [error("Err2", message = "Something Wrong2"), true]];
+// function testErrorInTupleWithDestructure2() returns [int, string, string, anydata|readonly, boolean] {
+//     [int, string, [error, boolean]] t1 = [12, "Bal", [error("Err2", message = "Something Wrong2"), true]];
 
-    int intVar;
-    string stringVar;
-    string reasonVar;
-    anydata|readonly message;
-    boolean booleanVar;
+//     int intVar;
+//     string stringVar;
+//     string reasonVar;
+//     anydata|readonly message;
+//     boolean booleanVar;
 
-    [intVar, stringVar, [error(reasonVar, message = message), booleanVar]] = t1;
+//     [intVar, stringVar, [error(reasonVar, message = message), booleanVar]] = t1;
 
-    return [intVar, stringVar, reasonVar, message, booleanVar];
-}
+//     return [intVar, stringVar, reasonVar, message, booleanVar];
+// }
 
 type Bar record {
     int x;
     error e;
 };
 
-function testErrorInRecordWithDestructure() returns [int, string, anydata|readonly] {
-    Bar b = { x: 1000, e: error("Err3", message = "Something Wrong3") };
+// function testErrorInRecordWithDestructure() returns [int, string, anydata|readonly] {
+//     Bar b = { x: 1000, e: error("Err3", message = "Something Wrong3") };
 
-    int x;
-    string reason;
-    map<anydata|readonly> detail;
-    { x, e: error (reason, ... detail) } = b;
+//     int x;
+//     string reason;
+//     map<anydata|readonly> detail;
+//     { x, e: error (reason, ... detail) } = b;
 
-    return [x, reason, detail["message"]];
-}
+//     return [x, reason, detail["message"]];
+// }
 
-function testErrorInRecordWithDestructure2() returns [int, string, anydata|readonly, anydata|readonly] {
-    Bar b = { x: 1000, e: error("Err3", message = "Something Wrong3") };
+// function testErrorInRecordWithDestructure2() returns [int, string, anydata|readonly, anydata|readonly] {
+//     Bar b = { x: 1000, e: error("Err3", message = "Something Wrong3") };
 
-    int x;
-    string reason;
-    anydata|readonly message;
-    anydata|readonly extra;
+//     int x;
+//     string reason;
+//     anydata|readonly message;
+//     anydata|readonly extra;
 
-    { x, e: error (reason, message = message, extra = extra) } = b;
+//     { x, e: error (reason, message = message, extra = extra) } = b;
 
-    return [x, reason, message, extra];
-}
+//     return [x, reason, message, extra];
+// }
 
 type StrError error<map<string|readonly>>;
 
 function testErrorWithRestParam() returns map<string|readonly> {
-    StrError errWithMap = StrError("Error", message = "Fatal", fatal = "true");
+    StrError errWithMap = error StrError("Error", message = "Fatal", fatal = "true");
 
     string reason;
     string|readonly message;
@@ -197,7 +199,7 @@ function testErrorWithRestParam() returns map<string|readonly> {
 }
 
 function testErrorWithUnderscore() returns [string, map<string|readonly>] {
-    StrError errWithMap = StrError("Error", message = "Fatal", fatal = "true");
+    StrError errWithMap = error StrError("Error", message = "Fatal", fatal = "true");
 
     string reason;
     map<string|readonly> detail;
@@ -217,12 +219,12 @@ function testDefaultErrorRefBindingPattern() returns string {
     return reason;
 }
 
-function testIndirectErrorRefBindingPattern() returns [anydata|readonly, any|readonly] {
+function testIndirectErrorRefBindingPattern() returns [value:Cloneable, any|readonly] {
     SampleError e = error("the reason", message="msg");
-    anydata|readonly message;
+    value:Cloneable message;
     any|readonly other;
-    map<anydata|readonly> rest;
-    SampleError(_, message=message, other=other, ...rest) = e;
+    map<value:Cloneable> rest;
+    error SampleError(_, message=message, other=other, ...rest) = e;
     return [message, other];
 }
 
@@ -236,72 +238,98 @@ type FileOpenErrorDetail record {|
 |};
 type FileOpenError error<FileOpenErrorDetail>;
 
-function testIndirectErrorRefMandatoryFields() returns
-        [string, string, int, int?, map<anydata|readonly>,
-            string, map<string|int|error>] {
-    FileOpenError e = FileOpenError(FILE_OPN, message="file open failed",
+function testIndirectErrorRefMandatoryFields() {
+    error causeErr = error("c");
+    FileOpenError e = error FileOpenError(FILE_OPN, message="file open failed",
                                 targetFileName="/usr/bhah/a.log",
                                 errorCode=45221,
                                 flags=128,
-                                cause=error("c"));
+                                cause=causeErr);
     string message;
     string fileName;
     int errorCode;
     int? flags;
-    FileOpenError(_, message=message,
+    error  FileOpenError(_, message=message,
                     targetFileName=fileName,
                     errorCode=errorCode,
                     flags=flags) = e;
 
     error upcast = e;
-    map<anydata|readonly> rest;
+    map<value:Cloneable> rest;
     error(_, ...rest) = upcast;
 
     string messageX;
     map<string|int|error> rest2;
     error(_, message=messageX, ...rest2) = e;
 
-    return [message, fileName, errorCode, flags,
-                rest, messageX, rest2];
+    assertEquality("file open failed", message);
+    assertEquality("/usr/bhah/a.log", fileName);
+    assertEquality(45221, errorCode);
+    assertEquality(128, flags);
+    assertEquality("file open failed", rest["message"]);
+    assertEquality(causeErr, rest["cause"]);
+    assertEquality("/usr/bhah/a.log", rest["targetFileName"]);
+    assertEquality(45221, rest["errorCode"]);
+    assertEquality(128, rest["flags"]);
+    assertEquality("file open failed", messageX);
+    assertEquality(causeErr, rest2["cause"]);
+    assertEquality("/usr/bhah/a.log", rest2["targetFileName"]);
+    assertEquality(45221, rest2["errorCode"]);
+    assertEquality(128, rest2["flags"]);
 }
 
 public function testNoErrorReasonGiven() returns string? {
     error e = error("errorCode", message = "message");
 
-    anydata|readonly message;
+    value:Cloneable message;
     anydata|error other;
 
     error(_, message = message) = e; // no simple-binding-pattern here
-    return <string?>message;
+    return <string?> checkpanic message;
 }
 
-public function testErrorDestructuringInATuppleDestructuring() returns [string, anydata|readonly] {
-    string r;
-    anydata|readonly message;
-    int i;
+// public function testErrorDestructuringInATupleDestructuring() returns [string, anydata|readonly] {
+//     string r;
+//     anydata|readonly message;
+//     int i;
 
-    error e = error("r2", message = "msg");
-    [i, error(r, message = message)] = [1, e];
+//     error e = error("r2", message = "msg");
+//     [i, error(r, message = message)] = [1, e];
 
-    return [r, message];
-}
+//     return [r, message];
+// }
 
-function testIndirectErrorVarRefInTuppleRef() returns [string?, string?, int] {
-    SMS err1 = SMS("Error One", message = "Msg One", detail = "Detail Msg");
+// function testIndirectErrorVarRefInTuppleRef() returns [string?, string?, int] {
+//     SMS err1 = error SMS("Error One", message = "Msg One", detail = "Detail Msg");
 
-    string? message;
-    string? detail;
-    int i;
+//     string? message;
+//     string? detail;
+//     int i;
 
-    [i, SMS(_, message = message, detail = detail)] = [1, err1];
-    return [message, detail, i];
-}
+//     [i, error SMS(_, message = message, detail = detail)] = [1, err1];
+//     return [message, detail, i];
+// }
 
-public function testErrorRefAndCtorInSameStatement() returns [string, anydata|readonly, int] {
-    string r;
-    anydata|readonly message;
-    int i;
+// public function testErrorRefAndCtorInSameStatement() returns [string, anydata|readonly, int] {
+//     string r;
+//     anydata|readonly message;
+//     int i;
 
-    [i, error(r, message = message)] = [1, error("r2", message = "Detail Msg")];
-    return [r, message, i];
+//     [i, error(r, message = message)] = [1, error("r2", message = "Detail Msg")];
+//     return [r, message, i];
+// }
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+
 }

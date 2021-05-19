@@ -378,7 +378,7 @@ function testFutureCastPositive() returns boolean {
 function testFutureCastNegative() {
     future<int> s1 = start testFutureFunc();
     any a = s1;
-    future<json> s2 = <future<json>> a;
+    future<int[]> s2 = <future<int[]>> a;
 }
 
 function testObjectCastPositive() returns boolean {

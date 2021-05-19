@@ -343,19 +343,19 @@ public class TaintedStatusPropagationTest {
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 5, 24);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testSimpleWorkerInteractionWithTupleAssignment() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/simple-worker-interaction-with-tuple-assignment.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testSimpleWorkerInteractionWithTupleAssignmentNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" +
                 "simple-worker-interaction-with-tuple-assignment-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 13, 24);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 11, 24);
     }
 
     @Test
@@ -470,12 +470,12 @@ public class TaintedStatusPropagationTest {
         BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 31, 20);
     }
 
-//    @Test () Disabled on #21823
-//    public void testLambdaFunctionBlockedAnalysis() {
-//        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/lambda-func.bal");
-//        Assert.assertEquals(result.getDiagnostics().length, 1);
-//        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureParameter'", 5, 36);
-//    }
+    @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/21823
+    public void testLambdaFunctionBlockedAnalysis() {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/lambda-func.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 1);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureParameter'", 5, 36);
+    }
 
     @Test
     public void testDependentlyTypedFunctionWithInferredTypedescDefaultNegative() {

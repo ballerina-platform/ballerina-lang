@@ -90,7 +90,7 @@ public class employee04 {
 
     public int age = 0;
     public string name = "";
-    public string address = "";
+    private string address = "";
 
 
     private int id = 0;

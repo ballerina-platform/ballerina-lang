@@ -4,45 +4,46 @@ int globalResult = 0;
 
 function testAsyncNonNativeBasic1() returns int {
     future<int> f1 = start add(5, 2);
-    int result = wait f1;
+    int result = checkpanic wait f1;
     return result;
 }
 
 function testAsyncNonNativeBasic2() returns int {
     future<int> f1 = start add(5, 2);
-    int result1 = wait f1;
+    int result1 = checkpanic wait f1;
     future<int> f2 = start add(10, 2);
     sleep(100);
-    int result2 = wait f2;
+    int result2 = checkpanic wait f2;
     result1 = result1 + result2;
     return result1;
 }
 
 function testAsyncNonNativeBasic3() returns int {
     future<int> f1 = start add(5, 2);
-    int result = wait f1;
+    int result = checkpanic wait f1;
     future<int> f2 = start add(10, 2);
-    int result2 = wait f2;
+    int result2 = checkpanic  wait f2;
     result = result + result2;
-    int result3 = wait f2;
+    f2 = start add(10, 2);
+    int result3 = checkpanic wait f2;
     result = result + result3;
     return result;
 }
 
 function testAsyncNonNativeBasic4() returns int {
     future<any> f1 = start addGlobal(1, 2);
-    _ = wait f1;
+    _ = checkpanic wait f1;
     return globalResult;
 }
 
 function testAsyncNonNativeBasic5() returns float {
     future<float> f1 = start addSlow(10.5, 20.5);
-    return wait f1;
+    return checkpanic wait f1;
 }
 
 function testAsyncNonNativeBasic6() returns boolean {
     future<float> f1 = start addSlower(5.0, 5.0);
-    float v1 = wait f1;
+    float v1 = checkpanic wait f1;
     future<any> f2 = start infiniteFunc();
     f2.cancel();
     future<any> f3 = start testNativeAsynchBlocking();
@@ -59,7 +60,7 @@ function testNativeAsynchBlocking() {
 function testAsyncNonNativeBasic7() returns int {
     future<int> f1 = start subtract(5, 2);
     f1.cancel();
-    int result = wait f1;
+    int result = checkpanic wait f1;
     return result;
 }
 
@@ -68,7 +69,7 @@ function testAsyncNonNativeBasic8() returns int {
     future<int> f2 = start subtract(5, 2);
     f1.cancel();
     f2.cancel();
-    int result = wait f1 | f2;
+    int result = checkpanic wait f1 | f2;
     return result;
 }
 
@@ -76,7 +77,7 @@ function testAsyncNonNativeBasic9() returns int {
     future<int> f1 = start subtract(5, 2);
     future<int> f2 = start addNum(5, 2);
     f1.cancel();
-    int result = wait f1 | f2;
+    int result = checkpanic wait f1 | f2;
     return result;
 }
 
@@ -84,7 +85,7 @@ function testAsyncNonNativeBasic10() returns any {
     future<int> f1 = start addNum(5, 2);
     future<int> f2 = start subtract(5, 2);
     f2.cancel();
-    any result = wait {f1,f2};
+    record {| int|error f1; int|error f2; |} result = wait {f1,f2};
     return result;
 }
 
@@ -93,7 +94,7 @@ function testAsyncNonNativeBasic11() returns any {
     future<int> f2 = start subtract(5, 2);
     f1.cancel();
     f2.cancel();
-    any result = wait {f1,f2};
+    record {| int|error f1; int|error f2; |} result = wait {f1,f2};
     return result;
 }
 
@@ -148,8 +149,8 @@ class foo {
     function doFoo(int x) returns int {
         future<int> f1 = start self.b.doBar(x);
         future<int> f2 = start self.doFoo1(x);
-        int a = wait f1;
-        int b = wait f2;
+        int a = checkpanic wait f1;
+        int b = checkpanic wait f2;
         return a + b;
     }
 
@@ -166,12 +167,12 @@ class bar {
 
 public function testAsyncInvWithoutDefaultParams() returns int {
    future<int> aa = start asyncTest("example value!!!!!!!!");
-   return wait aa;
+   return checkpanic wait aa;
 }
 
 public function testAsyncInvWithDefaultParams() returns int {
    future<int> aa = start asyncTest("example value!!!!!!!!", e = 45);
-   return wait aa;
+   return checkpanic wait aa;
 }
 
 public function asyncTest(string a, int e = 5) returns int {
@@ -182,12 +183,12 @@ Person p = new();
 
 public function testAttachedAsyncInvWithoutDefaultParams() returns int {
    future<int> aa = start p.asyncTest("value");
-   return wait aa;
+   return checkpanic wait aa;
 }
 
 public function testAttachedAsyncInvWithDefaultParams() returns int {
    future<int> aa = start p.asyncTest("value", e = new);
-   return wait aa;
+   return checkpanic wait aa;
 }
 
 public class Person {

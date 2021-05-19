@@ -895,10 +895,6 @@ public class EqualAndNotEqualOperationsTest {
         validateError(resultNegative, 29, "operator '!=' not defined for 'int' and 'any'", 115, 27);
         validateError(resultNegative, 30, "operator '==' not defined for 'map<(int|string)>' and 'map'", 119, 15);
         validateError(resultNegative, 31, "operator '!=' not defined for 'map' and 'map<(int|string)>'", 119, 27);
-
-        //TODO Table remove - Fix
-//        validateError(resultNegative, 32, "equality not yet supported for type 'table'", 131, 17);
-//        validateError(resultNegative, 33, "equality not yet supported for type 'table'", 132, 9);
         validateError(resultNegative, 32, "operator '==' not defined for 'Employee' and '()'", 166, 9);
         validateError(resultNegative, 33, "operator '==' not defined for 'Foo' and '()'", 172, 9);
         validateError(resultNegative, 34, "operator '==' not defined for 'function () returns (string)' and '()'",
@@ -1101,5 +1097,10 @@ public class EqualAndNotEqualOperationsTest {
                 {"testSelfAndCyclicReferencingArrayEqualityNegative"},
                 {"testSelfAndCyclicReferencingTupleEqualityNegative"}
         };
+    }
+
+    @Test(description = "Test equality with tables")
+    public void testTableEquality() {
+        BRunUtil.invoke(result, "testTableEquality");
     }
 }

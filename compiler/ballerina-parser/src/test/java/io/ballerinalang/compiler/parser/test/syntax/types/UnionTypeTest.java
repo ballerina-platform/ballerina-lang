@@ -24,7 +24,8 @@ import org.testng.annotations.Test;
  */
 public class UnionTypeTest extends AbstractTypesTest {
 
-    //Valid source test
+    // Valid source test
+    
     @Test
     public void testValidLocalLevelUnionType() {
         testTopLevelNode("union-type/union_type_source_01.bal", "union-type/union_type_assert_01.json");
@@ -40,7 +41,7 @@ public class UnionTypeTest extends AbstractTypesTest {
         test("T|A a;", "union-type/union_type_assert_05.json");
     }
 
-    //Recovery test
+    // Recovery test
 
     @Test
     public void testInValidLocalLevelUnionTypeMissingRightTypeDesc() {

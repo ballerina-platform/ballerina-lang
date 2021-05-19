@@ -19,7 +19,7 @@ package io.ballerina.compiler.internal.parser;
 
 /**
  * Operator precedence levels.
- * 
+ *
  * @since 1.2.0
  */
 public enum OperatorPrecedence {
@@ -51,9 +51,9 @@ public enum OperatorPrecedence {
     DEFAULT(21),            //  (start x), ...
     ;
 
-    private int level = 0;
+    private final int level;
 
-    private OperatorPrecedence(int level) {
+    OperatorPrecedence(int level) {
         this.level = level;
     }
 

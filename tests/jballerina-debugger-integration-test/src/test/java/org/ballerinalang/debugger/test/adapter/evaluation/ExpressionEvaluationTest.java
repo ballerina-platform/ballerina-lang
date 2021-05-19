@@ -138,7 +138,8 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // error variable test
         debugTestRunner.assertExpression(context, ERROR_VAR, "SimpleErrorType", "error");
         // anonymous function variable test
-        debugTestRunner.assertExpression(context, ANON_FUNCTION_VAR, "function (string,string) returns (string)",
+        debugTestRunner.assertExpression(context, ANON_FUNCTION_VAR, "function isolated function (string,string) " +
+                                                 "returns (string)",
                 "function");
         // future variable test
         debugTestRunner.assertExpression(context, FUTURE_VAR, "future", "future");
@@ -159,7 +160,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // table variable test
         debugTestRunner.assertExpression(context, TABLE_VAR, "table<Employee>[3]", "table");
         // stream variable test
-        debugTestRunner.assertExpression(context, STREAM_VAR, "stream<int>", "stream");
+        debugTestRunner.assertExpression(context, STREAM_VAR, "stream<int, error>", "stream");
         // never variable test
         debugTestRunner.assertExpression(context, NEVER_VAR, "", "xml");
         // json variable test

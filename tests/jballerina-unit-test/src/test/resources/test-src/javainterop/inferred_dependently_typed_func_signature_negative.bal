@@ -178,3 +178,10 @@ function (typedesc<boolean> td = <>) fn2 = bar;
 function (typedesc t, typedesc<boolean> td = <>) returns int|string fn3 = baz;
 
 function (typedesc t = <>, typedesc<boolean> td = <>) returns t|td fn4 = baz;
+
+type BooleanStream stream<boolean>;
+
+function testInvalidUsageWithCasts() {
+    var a = <function (function, boolean)> getFunctionWithAnyFunctionParamType(function (function x, int y) { });
+    BooleanStream|handle b = <BooleanStream> check funcReturningUnionWithBuiltInRefType(());
+}

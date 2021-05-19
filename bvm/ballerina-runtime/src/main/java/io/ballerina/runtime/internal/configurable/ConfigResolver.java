@@ -124,6 +124,9 @@ public class ConfigResolver {
                     case TypeTags.RECORD_TYPE_TAG:
                         return getConfigValue(key, configProvider -> configProvider
                                 .getAsRecordAndMark(module, key));
+                    case TypeTags.MAP_TAG:
+                        return getConfigValue(key, configProvider -> configProvider
+                                .getAsMapAndMark(module, key));
                     case TypeTags.TABLE_TAG:
                         return getConfigValue(key, configProvider -> configProvider
                                 .getAsTableAndMark(module, key));

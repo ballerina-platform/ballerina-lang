@@ -209,11 +209,10 @@ public class TomlProviderNegativeTest {
         return new Object[][]{
                 {"RecordTypeError", "[RecordTypeError.toml:(2:1,2:40)] configurable variable 'recordVar' " +
                         "is expected to be of type 'test_module:Person', but found 'string'", 0},
-                {"RecordFieldTypeError", "[RecordFieldTypeError.toml:(2:8,2:12)] field 'name' from configurable " +
-                        "variable 'recordVar' is expected to be of type 'string', but found 'int'", 1},
-                {"RecordFieldStructureError", "[RecordFieldStructureError.toml:(2:1,2:24)] field 'name' from " +
-                        "configurable variable 'recordVar' is expected to be of type 'string', but found " +
-                        "'record'", 0},
+                {"RecordFieldTypeError", "[RecordFieldTypeError.toml:(2:8,2:12)] configurable variable 'recordVar" +
+                        ".name' is expected to be of type 'string', but found 'int'", 1},
+                {"RecordFieldStructureError", "[RecordFieldStructureError.toml:(2:1,2:24)] configurable variable " +
+                        "'recordVar.name' is expected to be of type 'string', but found 'record'", 0},
                 {"AdditionalFieldRecord", "[AdditionalFieldRecord.toml:(3:1,3:9)] additional field 'age' provided for" +
                         " configurable variable 'recordVar' of record 'test_module:Person' is not " +
                         "supported", 0},
@@ -269,12 +268,10 @@ public class TomlProviderNegativeTest {
                 {"TableTypeError", "[TableTypeError.toml:(1:1,3:9)] configurable variable 'tableVar'" +
                         " is expected to be of type 'table<test_module:Person> key(name) & readonly'," +
                         " but found 'record'", 2},
-                {"TableFieldTypeError", "[TableFieldTypeError.toml:(2:8,2:11)] field 'name' " +
-                        "from configurable variable 'tableVar' is expected to be of type 'string'," +
-                        " but found 'int'", 2},
-                {"TableFieldStructureError", "[TableFieldStructureError.toml:(2:1,2:24)] field 'name' " +
-                        "from configurable variable 'tableVar' is expected to be of type 'string'," +
-                        " but found 'record'", 1},
+                {"TableFieldTypeError", "[TableFieldTypeError.toml:(2:8,2:11)] configurable variable 'tableVar.name' " +
+                        "is expected to be of type 'string', but found 'int'", 2},
+                {"TableFieldStructureError", "[TableFieldStructureError.toml:(2:1,2:24)] configurable variable " +
+                        "'tableVar.name' is expected to be of type 'string', but found 'record'", 1},
                 {"AdditionalField", "[AdditionalField.toml:(4:1,4:17)] additional field 'city' provided for" +
                         " configurable variable 'tableVar' of record 'test_module:Person'" +
                         " is not supported", 0},
@@ -286,7 +283,7 @@ public class TomlProviderNegativeTest {
 
     @Test()
     public void testInvalidTableConstraint() {
-        MapType mapType = TypeCreator.createMapType(PredefinedTypes.TYPE_STRING, true);
+        MapType mapType = TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA, true);
         TableType tableType = TypeCreator.createTableType(mapType, true);
         IntersectionType intersectionType = new BIntersectionType(ROOT_MODULE, new Type[]{tableType,
                 PredefinedTypes.TYPE_READONLY}, tableType, 1, true);
@@ -294,8 +291,8 @@ public class TomlProviderNegativeTest {
         VariableKey tableVar = new VariableKey(ROOT_MODULE, "tableVar", intersectionType, true);
 
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{tableVar}));
-        String errorMsg = "[InvalidTableConstraint.toml:(1:1,2:16)] table constraint type 'map<string> & readonly'" +
-                " in configurable variable 'tableVar' is not supported";
+        String errorMsg = "[InvalidTableConstraint.toml:(1:1,2:16)] table constraint type 'map<anydata & readonly> & " +
+                "readonly' in configurable variable 'tableVar' is not supported";
         validateTomlProviderErrors("InvalidTableConstraint", errorMsg, configVarMap, 1, 1);
     }
 
@@ -501,6 +498,80 @@ public class TomlProviderNegativeTest {
         for (int i = 0; i < warnings.length; i++) {
             Assert.assertEquals(diagnosticLog.getDiagnosticList().get(i).toString(), warnings[i]);
         }
+    }
+
+    @Test(dataProvider = "map-negative-tests")
+    public void testMapNegativeConfig(String tomlFileName, String errorMsg, int warnCount) {
+        MapType type = TypeCreator.createMapType("MapType", PredefinedTypes.TYPE_STRING, ROOT_MODULE, false);
+        IntersectionType mapType = new BIntersectionType(ROOT_MODULE, new Type[]{type, PredefinedTypes.TYPE_READONLY}
+                , type, 1, true);
+        VariableKey mapVar = new VariableKey(ROOT_MODULE, "mapVar", mapType, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{mapVar}));
+        validateTomlProviderErrors(tomlFileName, errorMsg, configVarMap, 1, warnCount);
+    }
+
+    @DataProvider(name = "map-negative-tests")
+    public Object[][] getMapNegativeTests() {
+        return new Object[][]{
+                {"MapTypeError", "[MapTypeError.toml:(2:1,2:37)] configurable variable 'mapVar' is expected to be of " +
+                        "type 'map<string>', but found 'string'", 0},
+                {"MapFieldTypeError", "[MapFieldTypeError.toml:(2:8,2:12)] configurable variable 'mapVar.name' is " +
+                        "expected to be of type 'string', but found 'int'", 1},
+                {"MapFieldStructureError", "[MapFieldStructureError.toml:(2:1,2:24)] configurable variable 'mapVar" +
+                        ".name' is expected to be of type 'string', but found 'record'", 0},
+        };
+    }
+
+    @Test
+    public void testUnsupportedMap() {
+        MapType type = TypeCreator.createMapType("MapType", PredefinedTypes.TYPE_ANYDATA, ROOT_MODULE, false);
+        IntersectionType mapType = new BIntersectionType(ROOT_MODULE, new Type[]{type, PredefinedTypes.TYPE_READONLY}
+                , type, 1, true);
+        VariableKey mapVar = new VariableKey(ROOT_MODULE, "mapVar", mapType, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{mapVar}));
+        String error = "configurable variable 'mapVar' with type 'map<anydata>' is not supported";
+        validateTomlProviderErrors("UnsupportedMapType", error, configVarMap, 1, 2);
+    }
+
+    @Test
+    public void testUnsupportedArray() {
+        ArrayType arrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_ANYDATA, true);
+        VariableKey anyArr = new VariableKey(ROOT_MODULE, "anyArr",
+                new BIntersectionType(ROOT_MODULE, new Type[]{arrayType, PredefinedTypes.TYPE_READONLY}, arrayType, 0,
+                        true), true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{anyArr}));
+        String error = "configurable variable 'anyArr' with type 'anydata & readonly[] & readonly' is not supported";
+        validateTomlProviderErrors("UnsupportedArrayType", error, configVarMap, 1, 0);
+    }
+
+    @Test
+    public void testUnsupportedMapConstraint() {
+        Field name = TypeCreator.createField(PredefinedTypes.TYPE_ANYDATA, "name", SymbolFlags.REQUIRED);
+        Map<String, Field> fields = Map.ofEntries(Map.entry("name", name));
+        RecordType type =
+                TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY, fields, null, true, 6);
+        MapType mapType = TypeCreator.createMapType(type);
+        VariableKey mapVar = new VariableKey(ROOT_MODULE, "mapVar", new BIntersectionType(ROOT_MODULE,
+                new Type[]{mapType, PredefinedTypes.TYPE_READONLY}, mapType, 0, true), true);
+
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{mapVar}));
+        String error = "configurable variable 'mapVar' with type 'map<test_module:Person>' is not supported";
+        validateTomlProviderErrors("UnsupportedConstraintRecordType", error, configVarMap, 1, 1);
+    }
+
+    @Test
+    public void testInvalidIntersectionArray() {
+        ArrayType arrayType =
+                TypeCreator.createArrayType(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT, true), true);
+
+        BIntersectionType intersectionType =
+                new BIntersectionType(ROOT_MODULE, new Type[]{arrayType, PredefinedTypes.TYPE_READONLY}, arrayType, 0,
+                        true);
+        VariableKey intArr = new VariableKey(ROOT_MODULE, "intArr", intersectionType, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{intArr}));
+        String error = "[InvalidIntersectionArray.toml:(1:1,1:28)] configurable variable 'intArr' is expected to be " +
+                "of type 'int[][] & readonly', but found 'record'";
+        validateTomlProviderErrors("InvalidIntersectionArray", error, configVarMap, 1, 0);
     }
 
     private VariableKey[] getSimpleVariableKeys(Module module) {

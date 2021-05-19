@@ -1,6 +1,6 @@
 public function main() {
     future<int> f1 = start addition(1, 2);
-    map<int> results = wait {f1};
+    map<int|error> results = wait {f1};
 
     worker w1 {
         int x = multiply(3,4);

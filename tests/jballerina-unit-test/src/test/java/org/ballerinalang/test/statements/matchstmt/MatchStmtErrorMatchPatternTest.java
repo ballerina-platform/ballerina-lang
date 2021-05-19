@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
  *
  * @since 2.0.0
  */
-@Test(groups = { "disableOnOldParser" })
 public class MatchStmtErrorMatchPatternTest {
     private CompileResult result, restPatternResult, resultNegative;
     private String patternNotMatched = "pattern will not be matched";

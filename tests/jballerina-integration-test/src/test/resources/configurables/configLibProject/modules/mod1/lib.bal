@@ -33,3 +33,6 @@ public enum HttpVersion {
     HTTP_1_1,
     HTTP_2
 }
+
+public type IntMap map<int>;
+public type ManagerMap map<Manager>;
