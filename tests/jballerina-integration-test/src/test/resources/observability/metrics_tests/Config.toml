@@ -1,3 +1,5 @@
 [ballerina.observe]
-metricsEnabled=true    # Flag to enable Metrics
-metricsReporter="mock"
+enabled=true
+
+[ballerina.observe.metrics]
+reporter="prometheus"

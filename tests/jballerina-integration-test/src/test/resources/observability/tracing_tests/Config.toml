@@ -1,3 +1,5 @@
 [ballerina.observe]
-tracingEnabled=true    # Flag to enable Metrics
-tracingProvider="mock"
+enabled=true
+
+[ballerina.observe.tracing]
+provider="jaeger"
