@@ -220,6 +220,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
             symbolMetaInfo.addProperty("orgName", orgName);
             symbolMetaInfo.addProperty("moduleName", moduleName);
+            symbolMetaInfo.addProperty("isModuleVar", false);
         } else if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             VariableDeclarationNode variableDeclarationNode = (VariableDeclarationNode) node;
             CaptureBindingPatternNode captureBindingPatternNode =
@@ -229,6 +230,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
             symbolMetaInfo.addProperty("orgName", orgName);
             symbolMetaInfo.addProperty("moduleName", moduleName);
+            symbolMetaInfo.addProperty("isModuleVar", false);
         } else if (node.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
             AssignmentStatementNode assignmentStatementNode = (AssignmentStatementNode) node;
             if (assignmentStatementNode.varRef() instanceof SimpleNameReferenceNode) {
@@ -239,6 +241,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
                 symbolMetaInfo.addProperty("orgName", orgName);
                 symbolMetaInfo.addProperty("moduleName", moduleName);
+                symbolMetaInfo.addProperty("isModuleVar", false);
             }
         } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
             JsonObject metaInfoForModuleVar = new JsonObject();
@@ -251,6 +254,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             metaInfoForModuleVar.addProperty("typeName", typeSymbol.getName().orElse(""));
             metaInfoForModuleVar.addProperty("orgName", orgName);
             metaInfoForModuleVar.addProperty("moduleName", moduleName);
+            metaInfoForModuleVar.addProperty("isModuleVar", true);
 
             this.visibleEpsForModule.add(metaInfoForModuleVar);
         }
