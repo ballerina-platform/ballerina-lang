@@ -808,13 +808,13 @@ public class ValueCreator {
     /**
      * Create an table value using the given type.
      *
-     * @param tableType table type.
-     * @param data table data
+     * @param tableType  table type.
+     * @param data       table data
      * @param fieldNames table field names
      * @return table value for given type.
      */
     public static BTable createTableValue(TableType tableType, BArray data, BArray fieldNames) {
-        return new TableValueImpl(tableType,  (ArrayValue)data, (ArrayValue)fieldNames);
+        return new TableValueImpl(tableType, (ArrayValue) data, (ArrayValue) fieldNames);
     }
 
     private ValueCreator() {
