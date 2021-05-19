@@ -176,7 +176,7 @@ function testFuture() {
     var fn = function (string name) returns string => "Hello " + name;
     future<string> f = start fn("Pubudu");
     future<string> fNew = getFuture(f, string);
-    string res = wait fNew;
+    string res = checkpanic wait fNew;
     assertSame(f, fNew);
     assert("Hello Pubudu", res);
 }
@@ -363,6 +363,34 @@ function testFunctionWithAnyFunctionParamType() {
 
    function (function, int) x = getFunctionWithAnyFunctionParamType(fn);
    assertSame(fn, x);
+}
+
+function testUsageWithCasts() {
+    int a = <int> getValue();
+    assert(150, a);
+
+    var b = <float> getValue();
+    assert(12.34, b);
+
+    any c = <decimal> getValue();
+    assert(23.45d, <anydata> c);
+
+    string|xml|float d = <string> getValue();
+    assert("Hello World!", d);
+
+    anydata e = <boolean> getValue();
+    assert(true, e);
+
+    anydata f = <[int, Person, boolean...]> getTupleWithRestDesc(int, Person);
+    assert(<[int, Person, boolean...]>[150, expPerson, true, true], f);
+
+    record {| stream<int> x; |} g = {x: (<int[]> [1, 2, 3]).toStream()};
+    var h = <object {}|record {| stream<int> x; |}|int> checkpanic getValueWithUnionReturnType(g);
+    assert(101, <int> h);
+
+    PersonObj i = new ("John", "Doe");
+    any|error j = <object {}|record {| stream<int> x; |}|string[]|error> getValueWithUnionReturnType(i);
+    assertSame(i, j);
 }
 
 // Interop functions

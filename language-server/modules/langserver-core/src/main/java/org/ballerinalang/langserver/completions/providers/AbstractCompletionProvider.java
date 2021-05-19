@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.symbols.WorkerSymbol;
@@ -159,7 +160,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 return;
             }
             if (symbol.kind() == FUNCTION || symbol.kind() == METHOD) {
-                completionItems.add(populateBallerinaFunctionCompletionItem(symbol, ctx));
+                completionItems.addAll(populateBallerinaFunctionCompletionItems(symbol, ctx));
             } else if (symbol.kind() == SymbolKind.CONSTANT || symbol.kind() == SymbolKind.ENUM_MEMBER) {
                 CompletionItem constantCItem = ConstantCompletionItemBuilder.build((ConstantSymbol) symbol, ctx);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, constantCItem));
@@ -175,7 +176,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 TypeSymbol typeDesc = paramSymbol.typeDescriptor();
                 String typeName = CommonUtil.getModifiedTypeName(ctx, typeDesc);
                 CompletionItem variableCItem = ParameterCompletionItemBuilder.build(paramSymbol.getName().get(),
-                                                                                    typeName);
+                        typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
             } else if (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS
                     || symbol.kind() == ENUM) {
@@ -314,13 +315,11 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
 //            String[] moduleNameComponents = moduleNamePart.split("\\.");
 //            String aliasComponent = moduleNameComponents[moduleNameComponents.length - 1];
 
-
             List<String> moduleNameComponents = Arrays.stream(moduleNamePart.split("\\."))
                     .map(CommonUtil::escapeReservedKeyword)
                     .collect(Collectors.toList());
             String aliasComponent = moduleNameComponents.get(moduleNameComponents.size() - 1);
-            
-            
+
             // TODO: 2021-04-23 This has to be revamped with completion/resolve request for faster responses 
             String insertText = CommonUtil.getValidatedSymbolName(ctx, aliasComponent);
             String alias = !insertText.equals(aliasComponent) ? insertText : "";
@@ -383,18 +382,27 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
     // Private Methods
 
     /**
-     * Populate the Ballerina Function Completion Item.
+     * Populate the Ballerina Function Completion Items.
      *
      * @param symbol symbol Entry
      * @return completion item
      */
-    private LSCompletionItem populateBallerinaFunctionCompletionItem(Symbol symbol,
-                                                                     BallerinaCompletionContext context) {
+    private List<LSCompletionItem> populateBallerinaFunctionCompletionItems(Symbol symbol,
+                                                                            BallerinaCompletionContext context) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         if (symbol.kind() != SymbolKind.FUNCTION && symbol.kind() != SymbolKind.METHOD) {
-            return null;
+            return completionItems;
+        }
+        Optional<TypeSymbol> contextType = context.getContextType();
+        if (contextType.isPresent() && contextType.get().typeKind() == TypeDescKind.FUNCTION) {
+                CompletionItem pointerCompletionItem =
+                        FunctionCompletionItemBuilder.buildFunctionPointer((FunctionSymbol) symbol, context);
+                completionItems.add(new SymbolCompletionItem(context, symbol, pointerCompletionItem));
+
         }
         CompletionItem completionItem = FunctionCompletionItemBuilder.build((FunctionSymbol) symbol, context);
-        return new SymbolCompletionItem(context, symbol, completionItem);
+        completionItems.add(new SymbolCompletionItem(context, symbol, completionItem));
+        return completionItems;
     }
 
     protected List<LSCompletionItem> actionKWCompletions(BallerinaCompletionContext context) {
