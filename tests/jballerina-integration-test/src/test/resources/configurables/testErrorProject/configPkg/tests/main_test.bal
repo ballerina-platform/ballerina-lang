@@ -16,7 +16,7 @@
 
 import ballerina/test;
  
-configurable map<anydata> & readonly invalidMap = ?;
+configurable map<string> & readonly invalidMap = ?;
 
 @test:Config {}
  function testVariable() {

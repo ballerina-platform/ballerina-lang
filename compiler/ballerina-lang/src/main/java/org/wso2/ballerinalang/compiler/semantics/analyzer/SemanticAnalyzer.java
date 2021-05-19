@@ -33,7 +33,9 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
+import org.ballerinalang.model.types.Field;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
+import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -63,6 +65,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -832,16 +835,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     varNode.type = lhsType;
                     varNode.symbol.type = lhsType;
                 }
-
-                if (!(types.isAssignable(lhsType, symTable.intType) ||
-                        types.isAssignable(lhsType, symTable.floatType) ||
-                        types.isAssignable(lhsType, symTable.stringType) ||
-                        types.isAssignable(lhsType, symTable.booleanType) ||
-                        types.isAssignable(lhsType, symTable.decimalType) ||
-                        types.isAssignable(lhsType, symTable.xmlType) ||
-                        types.isAssignable(lhsType, symTable.arrayType) ||
-                        types.isAssignable(lhsType, symTable.mapAnydataType) ||
-                        types.isAssignable(lhsType, symTable.tableType))) {
+                if (!isSupportedConfigType(lhsType)) {
                     // TODO: remove this check once runtime support all configurable types
                     dlog.error(varNode.typeNode.pos,
                             DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED, lhsType);
@@ -880,6 +874,43 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         transferForkFlag(varNode);
+    }
+
+    private boolean isSupportedConfigType(BType type) {
+        switch (type.getKind()) {
+            case ARRAY:
+                BType elementType = ((BArrayType) type).eType;
+                if (elementType.tag == TypeTags.INTERSECTION) {
+                    elementType = ((BIntersectionType) elementType).getEffectiveType();
+                }
+                 return elementType.tag != TypeTags.TABLE && isSupportedConfigType(elementType);
+            case RECORD:
+                BRecordType recordType = (BRecordType) type;
+                for (Field field : recordType.getFields().values()) {
+                    Type fieldType = field.getType();
+                    if (!isSupportedConfigType((BType) fieldType)) {
+                        return false;
+                    }
+                }
+                return true;
+            case MAP:
+                BMapType mapType = (BMapType) type;
+                return isSupportedConfigType(mapType.constraint);
+            case TABLE:
+                BTableType tableType = (BTableType) type;
+                return isSupportedConfigType(tableType.constraint);
+            case INTERSECTION:
+                return isSupportedConfigType(((BIntersectionType) type).effectiveType);
+            case UNION:
+                return Symbols.isFlagOn(type.flags, Flags.ENUM);
+            default:
+                return  (types.isAssignable(type, symTable.intType) ||
+                        types.isAssignable(type, symTable.floatType) ||
+                        types.isAssignable(type, symTable.stringType) ||
+                        types.isAssignable(type, symTable.booleanType) ||
+                        types.isAssignable(type, symTable.decimalType) ||
+                        types.isAssignable(type, symTable.xmlType));
+        }
     }
 
     private void analyzeTypeNode(BLangType typeNode, SymbolEnv env) {

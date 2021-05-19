@@ -35,3 +35,36 @@ configurable [int, string] [intVar, stringVar] = ?;
 
 // 'final' qualifier not allowed: configurable variables are implicitly final
 final configurable string systemAlias = "Ballerina";
+
+// Unsupported configurable types from runtime
+
+type Person record {|
+    readonly string name;
+|};
+
+type UnsupportedRecord record {|
+    anydata field1;
+|};
+
+type Colors "Red" | "Green";
+
+// Unsupported array of table
+configurable table<Person> key(name)[] tableArr1 = ?;
+configurable (table<Person> key(name) & readonly)[] tableArr2 = ?;
+
+// Unsupported record field
+configurable UnsupportedRecord recordVar = ?;
+
+// Unsupported table constraint
+configurable table<map<anydata>> tableVar = ?;
+
+// Unsupported array constraint
+configurable anydata[] arrayVar = ?;
+
+// Unsupported map constraint
+configurable map<anydata> & readonly mapVar = ?;
+
+// Unsupported union types
+configurable string|int unionVar1 = ?;
+configurable Colors unionVar2 = ?;
+configurable anydata unionVar3 = ?;
