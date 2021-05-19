@@ -59,10 +59,3 @@ function testTupleInvalidPattern() returns string {
     }
     return "Default";
 }
-
-function singleMatchStmt() returns string {
-    any k = 1;
-    match k {
-        var x => {return "A";} // pattern will always be matched
-    }
-}

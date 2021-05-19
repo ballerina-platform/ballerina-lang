@@ -21,6 +21,7 @@ import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -79,13 +80,11 @@ public class ArrayInitializerExprTest {
         Assert.assertEquals(returns[0].toString(), "Terminating");
     }
     
-//    @Test(description = "Test arrays initializing with different types",
-//            expectedExceptions = {SemanticException.class },
-//            expectedExceptionsMessageRegExp = "multi-type-array-initializer.bal:3: " +
-//                    "incompatible types: 'string' cannot be assigned to 'int'")
-//    public void testMultiTypeMapInit() {
-//        BTestUtils.compile("test-src/statements/arrays/multi-type-array-initializer.bal");
-//    }
+    @Test
+    public void testMultiTypeMapInit() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/arrays/multi-type-array-initializer.bal");
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'int', found 'string'", 3, 10);
+    }
     
     @Test(description = "Test nested array inline initializing")
     public void testNestedArrayInit() {

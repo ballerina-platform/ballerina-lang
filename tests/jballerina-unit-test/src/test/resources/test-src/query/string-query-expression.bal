@@ -320,20 +320,19 @@ function testQueryExprWithLimitForStringResult() returns string {
     return outputNameString;
 }
 
-// Disabled due to #25585
-//function testQueryExprWithLimitForStringResultV2() returns string {
-//    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
-//    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
-//    Person p3 = {firstName: "John", lastName: "David", age: 33};
-//
-//    Person[] personList = [p1, p2, p3];
-//
-//    string outputNameString =
-//                from var person in personList
-//                let int limitValue = 2
-//                where person.age >= 30
-//                limit limitValue
-//                select person.firstName+" ";
-//
-//    return outputNameString;
-//}
+function testQueryExprWithLimitForStringResultV2() returns string {
+   Person p1 = {firstName: "Alex", lastName: "George", age: 23};
+   Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+   Person p3 = {firstName: "John", lastName: "David", age: 33};
+
+   Person[] personList = [p1, p2, p3];
+
+   string outputNameString =
+               from var person in personList
+               let int limitValue = 2
+               where person.age >= 30
+               limit limitValue
+               select person.firstName+" ";
+
+   return outputNameString;
+}

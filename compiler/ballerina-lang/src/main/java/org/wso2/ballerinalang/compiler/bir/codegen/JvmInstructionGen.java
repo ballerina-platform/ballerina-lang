@@ -1574,9 +1574,9 @@ public class JvmInstructionGen {
         asyncDataCollector.incrementLambdaIndex();
         String pkgName = JvmCodeGenUtil.getPackageName(inst.pkgId);
 
-        BType returnType = inst.lhsOp.variableDcl.type;
-        if (returnType.tag != TypeTags.INVOKABLE) {
-            throw new BLangCompilerException("Expected BInvokableType, found " + String.format("%s", returnType));
+        BType type = inst.type;
+        if (type.tag != TypeTags.INVOKABLE) {
+            throw new BLangCompilerException("Expected BInvokableType, found " + String.format("%s", type));
         }
 
         for (BIROperand operand : inst.closureMaps) {
@@ -1587,7 +1587,7 @@ public class JvmInstructionGen {
 
         JvmCodeGenUtil.visitInvokeDynamic(mv, asyncDataCollector.getEnclosingClass(), lambdaName,
                                           inst.closureMaps.size());
-        jvmTypeGen.loadType(this.mv, returnType);
+        jvmTypeGen.loadType(this.mv, type);
         if (inst.strandName != null) {
             mv.visitLdcInsn(inst.strandName);
         } else {

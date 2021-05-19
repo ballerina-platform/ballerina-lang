@@ -25,14 +25,10 @@ public type Baz record {|
     string b;
 |};
 
-public type Bar record {|
-    float f;
-|};
-
 map<int|string|float> m = {};
 Baz? bn = ();
 
-public function main(Foo fv, Bar bv) {
-    m = {...fv, a: 1, ...bv};
+public function main(*Foo fv) {
+    m = {...fv, a: 1};
     bn = {...fv, b: "hello"};
 }

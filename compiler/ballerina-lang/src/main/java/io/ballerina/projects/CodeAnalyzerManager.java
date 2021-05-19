@@ -223,11 +223,21 @@ class CodeAnalyzerManager {
                 analysisTask.perform(syntaxNodeAnalysisContext);
             } catch (Throwable e) {
                 // Used Throwable here catch any sort of error produced by the third-party compiler plugin code
-                PackageDescriptor pkgDesc = codeAnalyzerInfo.compilerPluginInfo().packageDesc();
-                throw new ProjectException("The compiler extension in package '" +
-                        pkgDesc.org() +
-                        ":" + pkgDesc.name() +
-                        ":" + pkgDesc.version() + "' failed to complete. " + e.getMessage(), e);
+                String message;
+                if (codeAnalyzerInfo.compilerPluginInfo().kind().equals(CompilerPluginKind.PACKAGE_PROVIDED)) {
+                    PackageProvidedCompilerPluginInfo compilerPluginInfo =
+                            (PackageProvidedCompilerPluginInfo) codeAnalyzerInfo.compilerPluginInfo();
+                    PackageDescriptor pkgDesc = compilerPluginInfo.packageDesc();
+                    message = "The compiler extension in package '" +
+                            pkgDesc.org() +
+                            ":" + pkgDesc.name() +
+                            ":" + pkgDesc.version() + "' failed to complete. ";
+                } else {
+                    message = "The compiler extension '" +
+                            codeAnalyzerInfo.compilerPluginInfo().compilerPlugin().getClass().getName()
+                            + "' failed to complete. ";
+                }
+                throw new ProjectException(message + e.getMessage(), e);
             }
         }
 
@@ -256,11 +266,21 @@ class CodeAnalyzerManager {
                 analysisTask.perform(compilationAnalysisContext);
             } catch (Throwable e) {
                 // Used Throwable here catch any sort of error produced by the third-party compiler plugin code
-                PackageDescriptor pkgDesc = codeAnalyzerInfo.compilerPluginInfo().packageDesc();
-                throw new ProjectException("The compiler extension in package '" +
-                        pkgDesc.org() +
-                        ":" + pkgDesc.name() +
-                        ":" + pkgDesc.version() + "' failed to complete. " + e.getMessage(), e);
+                String message;
+                if (codeAnalyzerInfo.compilerPluginInfo().kind().equals(CompilerPluginKind.PACKAGE_PROVIDED)) {
+                    PackageProvidedCompilerPluginInfo compilerPluginInfo =
+                            (PackageProvidedCompilerPluginInfo) codeAnalyzerInfo.compilerPluginInfo();
+                    PackageDescriptor pkgDesc = compilerPluginInfo.packageDesc();
+                    message = "The compiler extension in package '" +
+                            pkgDesc.org() +
+                            ":" + pkgDesc.name() +
+                            ":" + pkgDesc.version() + "' failed to complete. ";
+                } else {
+                    message = "The compiler extension '"
+                            + codeAnalyzerInfo.compilerPluginInfo().compilerPlugin().getClass().getName()
+                            + "' failed to complete. ";
+                }
+                throw new ProjectException(message + e.getMessage(), e);
             }
         }
     }

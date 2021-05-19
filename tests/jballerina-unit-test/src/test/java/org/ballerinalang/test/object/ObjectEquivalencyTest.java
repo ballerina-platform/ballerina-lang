@@ -37,7 +37,6 @@ public class ObjectEquivalencyTest {
     @BeforeClass
     public void setup() {
 
-//        compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "ObjectEquivalencyTest");
         compileResult = BCompileUtil.compile("test-src/object/ObjectEquivalencyProject");
     }
 

@@ -111,8 +111,8 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'table<TableEmployee>' cannot be cast to " +
-                    "'table<TableEmployeeTwo>'.*", enabled = false)
+            expectedExceptionsMessageRegExp = ".*error: \\{ballerina}TypeCastError \\{\"message\":\"incompatible " +
+                    "types: 'table<TableEmployee> key\\(id\\)' cannot be cast to 'table<TableEmployeeTwo>'\"}.*")
     public void testTableCastNegative() {
         BRunUtil.invoke(result, "testTableCastNegative");
     }
@@ -132,15 +132,15 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-        expectedExceptionsMessageRegExp = ".*'function \\(string,int\\) returns \\(string\\)' cannot be cast to " +
-                "'function \\(string\\) returns \\(string\\)'.*")
+        expectedExceptionsMessageRegExp = ".*'isolated function \\(string,int\\) returns \\(string\\)' cannot be cast" +
+                " to 'function \\(string\\) returns \\(string\\)'.*")
     public void testFunctionCastNegative() {
         BRunUtil.invoke(result, "testFunctionCastNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: incompatible types: expected 'function \\(string\\) " +
-                    "returns \\(string\\)', found 'function \\(string,int\\) returns \\(string\\)'.*", enabled = false)
+            expectedExceptionsMessageRegExp = ".*error: \\{ballerina}TypeCastError \\{\"message\":\"incompatible " +
+                    "types: 'future' cannot be cast to 'future'\"}.*")
     public void testFutureCastNegative() {
         BRunUtil.invoke(result, "testFutureCastNegative");
     }
@@ -200,7 +200,7 @@ public class TypeCastExpressionsTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "incompatible types: 'function (string,int) returns (string)' cannot be cast to " +
+                            "incompatible types: 'isolated function (string,int) returns (string)' cannot be cast to " +
                                     "'function (string) returns (string)'");
     }
 

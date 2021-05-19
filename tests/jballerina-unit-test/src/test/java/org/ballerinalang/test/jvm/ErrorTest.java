@@ -76,13 +76,13 @@ public class ErrorTest {
         BRunUtil.invoke(compileResult, "testSelfReferencingError");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testRuntimeOOMError() {
         try {
             CompileResult compileResult = BCompileUtil.compile("test-src/jvm/runtime-oom-error.bal");
             BRunUtil.runMain(compileResult, new String[]{});
         } catch (Throwable e) {
-            Assert.assertTrue(e.getMessage().contains("java.lang.OutOfMemoryError: Java heap space"));
+            Assert.assertTrue(e.getMessage().contains("ballerina: Oh no, something really went wrong."));
             return;
         }
         Assert.fail("runtime out of memory errors are not handled");
