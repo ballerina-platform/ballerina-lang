@@ -12498,7 +12498,8 @@ public class BallerinaParser extends AbstractParser {
                 if (functionCallExpr.functionName.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
                     STQualifiedNameReferenceNode qualifiedNameRef =
                             (STQualifiedNameReferenceNode) functionCallExpr.functionName;
-                    STNode endExpr = STNodeFactory.createFunctionCallExpressionNode(qualifiedNameRef.identifier,
+                    STNode newFuncName = STNodeFactory.createSimpleNameReferenceNode(qualifiedNameRef.identifier);
+                    STNode endExpr = STNodeFactory.createFunctionCallExpressionNode(newFuncName,
                             functionCallExpr.openParenToken, functionCallExpr.arguments,
                             functionCallExpr.closeParenToken);
                     return generateConditionalExpr(lhsExpr, qualifiedNameRef, questionMark, endExpr);
