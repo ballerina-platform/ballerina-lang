@@ -95,7 +95,7 @@ public class LanguageServerExtensionTests {
 
         Assert.assertFalse(codeActionInfos.isEmpty());
         Optional<CodeActionInfo> info = codeActionInfos.stream()
-                .filter(codeActionInfo -> "lstest_package_comp_plugin_with_codeactions_CREATE_VAR"
+                .filter(codeActionInfo -> "BCE2526/lstest/package_comp_plugin_with_codeactions/CREATE_VAR"
                         .equals(codeActionInfo.getProviderName()))
                 .filter(codeActionInfo -> "Introduce Variable".equals(codeActionInfo.getTitle()))
                 .findFirst();
