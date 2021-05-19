@@ -37,42 +37,50 @@ import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageDependencyScope;
+import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
-import io.ballerina.projects.bala.BalaProject;
+import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.ResolutionRequest;
+import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.repos.TempDirCompilationCache;
+import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.exception.LSConnectorException;
-import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.packaging.Patten;
-import org.wso2.ballerinalang.compiler.packaging.repo.HomeBalaRepo;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Implementation of the BallerinaConnectorService.
@@ -112,32 +120,50 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
     }
 
     private Path getBalaPath(String org, String module, String version) throws LSConnectorException, IOException {
-        Path balaPath;
+        Path platformBalaPath;
 
-        Path connectorPath = STD_LIB_SOURCE_ROOT.resolve(org).resolve(module)
+        Path rootBalaPath = STD_LIB_SOURCE_ROOT.resolve(org).resolve(module)
                 .resolve(version.isEmpty() ? ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version);
-        String pattern = connectorPath.toFile().getAbsolutePath() + "/*.bala";
-        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
-        Stream<Path> paths = Files.find(connectorPath, 1, (path, f) -> pathMatcher.matches(path));
-        List<Path> pathList = paths.collect(Collectors.toList());
-
-        if (pathList.isEmpty()) {
-            //check external modules
-            PackageID packageID = new PackageID(new Name(org), new Name(module), new Name(version));
-            HomeBalaRepo homeBalaRepo = new HomeBalaRepo(new HashMap<>());
-            Patten patten = homeBalaRepo.calculate(packageID);
-            Stream<Path> s = patten.convert(new BalaConverter(), packageID);
-            Optional<Path> path = s.reduce(Path::resolve);
-            if (path.isPresent() && Files.exists(path.get().toAbsolutePath())) {
-                balaPath = path.get().toAbsolutePath();
-            } else {
-                throw new LSConnectorException("No file exist in '" + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT
-                        + path.get().toAbsolutePath() + "'");
-            }
-        } else {
-            balaPath = pathList.get(0);
+        if (!Files.exists(rootBalaPath)) {
+            Path homeRepoPath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BALA_CACHE_DIR_NAME);
+            rootBalaPath = homeRepoPath.resolve(org).resolve(module)
+                    .resolve(version.isEmpty() ? ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version);
         }
-        return balaPath;
+        Path anyPlatformBala = rootBalaPath.resolve("any");
+        Path jvmBala = rootBalaPath.resolve(JvmTarget.JAVA_11.code());
+        if (Files.exists(anyPlatformBala)) {
+            platformBalaPath = anyPlatformBala;
+        } else if (Files.exists(jvmBala)) {
+            platformBalaPath = jvmBala;
+        } else {
+            throw new LSConnectorException("No bala project found for package at '"
+                    + rootBalaPath.toString() + "'");
+        }
+        return platformBalaPath;
+    }
+
+    private Path resolveBalaPath(String org, String pkgName, String version) throws LSConnectorException {
+        // TODO this is to reset offline flag modified in BuildProject#load and SingleFileProject#load
+        System.setProperty(ProjectConstants.BALLERINA_OFFLINE_FLAG, String.valueOf(false));
+        Environment environment = EnvironmentBuilder.buildDefault();
+
+        PackageDescriptor packageDescriptor = PackageDescriptor.from(
+        PackageOrg.from(org), PackageName.from(pkgName), PackageVersion.from(version));
+        ResolutionRequest resolutionRequest = ResolutionRequest.from(packageDescriptor, PackageDependencyScope.DEFAULT);
+
+        PackageResolver packageResolver = environment.getService(PackageResolver.class);
+        List<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
+            Collections.singletonList(resolutionRequest));
+        ResolutionResponse resolutionResponse = resolutionResponses.stream().findFirst().get();
+
+        if (resolutionResponse.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
+            Package resolvedPackage = resolutionResponse.resolvedPackage();
+            if (resolvedPackage != null) {
+                return resolvedPackage.project().sourceRoot();
+            }
+        }
+        throw new LSConnectorException("No bala project found for package '"
+                    + packageDescriptor.toString() + "'");
     }
 
     @Override
@@ -150,11 +176,11 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         String error = "";
         if (st == null) {
             try {
-                Path balaPath = getBalaPath(request.getOrg(), request.getModule(), request.getVersion());
+                Path balaPath = resolveBalaPath(request.getOrg(), request.getModule(), request.getVersion());
 
                 ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
                 defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-                BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+                Project balaProject = ProjectLoader.loadProject(balaPath, defaultBuilder);
                 ModuleId moduleId = balaProject.currentPackage().moduleIds().stream()
                         .filter(modId -> modId.moduleName().equals(request.getModule())).findFirst().get();
                 Module module = balaProject.currentPackage().module(moduleId);
@@ -331,10 +357,10 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         String error = "";
         if (ast == null) {
             try {
-                Path balaPath = getBalaPath(request.getOrg(), request.getModule(), request.getVersion());
+                Path balaPath = resolveBalaPath(request.getOrg(), request.getModule(), request.getVersion());
                 ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
                 defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-                BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+                Project balaProject = ProjectLoader.loadProject(balaPath, defaultBuilder);
                 ModuleId moduleId = balaProject.currentPackage().moduleIds().stream().findFirst().get();
                 Module module = balaProject.currentPackage().module(moduleId);
                 PackageCompilation packageCompilation = balaProject.currentPackage().getCompilation();
