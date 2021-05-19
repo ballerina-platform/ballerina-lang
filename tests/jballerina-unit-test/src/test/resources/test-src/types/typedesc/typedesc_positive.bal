@@ -198,22 +198,55 @@ function testCustomErrorTypeDescWithoutConstraint() {
 }
 
 type ImmutableIntArray int[] & readonly;
+type ImmutableTypleArray [int, int, int] & readonly;
+type ImmutableJsonArray json[] & readonly;
+type ImmutableTableArray table<Employee> & readonly;
 
 function testTypeDefWithIntersectionTypeDescAsTypedesc() {
+
+    // tests for cloneWithType
     typedesc<anydata> a = ImmutableIntArray;
     (int|string)[] arr = [1, 2, 3];
     anydata|error b = arr.cloneWithType(a);
-    // https://github.com/ballerina-platform/ballerina-lang/issues/28912
-    //assertEquality(true, (typeof b).toString());
-    //assertEquality(true, b is int[]);
-    //assertEquality(true, (<int[]> checkpanic b).isReadOnly());
-    //assertEquality(<int[]> [1, 2, 3], b);
+    assertEquality("typedesc int[] & readonly", (typeof b).toString());
+    assertEquality(true, b is int[]);
+    assertEquality(true, (<int[]> checkpanic b).isReadOnly());
+    assertEquality(<int[]> [1, 2, 3], b);
 
+    typedesc<anydata> t = ImmutableTypleArray;
+    anydata|error t1 = arr.cloneWithType(a);
+    assertEquality(true, t1 is [int, int, int]);
+    assertEquality(true, (<int[]> checkpanic t1).isReadOnly());
+    assertEquality(<[int, int, int]> [1, 2, 3], t1);
+
+    typedesc<anydata> j = ImmutableJsonArray;
+    anydata|error j1 = arr.cloneWithType(a);
+    assertEquality(true, j1 is json[]);
+    assertEquality(true, (<json[]> checkpanic j1).isReadOnly());
+    assertEquality(<json[]> [1, 2, 3], j1);
+
+    // tests for fromJsonWithType
     anydata|error c = arr.fromJsonWithType(ImmutableIntArray);
-    // https://github.com/ballerina-platform/ballerina-lang/issues/28912
-    //assertEquality(true, c is int[]);
-    //assertEquality(true, (<int[]> checkpanic c).isReadOnly());
-    //assertEquality(<int[]> [1, 2, 3], c);
+    assertEquality(true, c is int[]);
+    assertEquality(true, (<int[]> checkpanic c).isReadOnly());
+    assertEquality(<int[]> [1, 2, 3], c);
+
+    anydata|error t2 = arr.fromJsonWithType(ImmutableTypleArray);
+    assertEquality(true, t2 is [int, int, int]);
+    assertEquality(true, (<int[]> checkpanic t2).isReadOnly());
+    assertEquality(<[int, int, int]> [1, 2, 3], t2);
+
+    anydata|error j2 = arr.fromJsonWithType(ImmutableJsonArray);
+    assertEquality(true, j2 is json[]);
+    assertEquality(true, (<json[]> checkpanic j2).isReadOnly());
+    assertEquality(<json[]> [1, 2, 3], j2);
+
+    json arr2 = [{name:"waruna"}, {name:"manu"}];
+    table<Employee>|error table1 = checkpanic arr2.fromJsonWithType(ImmutableTableArray);
+    assertEquality(true, table1 is (table<Employee>));
+    assertEquality(true, (<table<Employee>> checkpanic table1).isReadOnly());
+    table<Employee> & readonly expectedTable = table [{name:"waruna"}, {name:"manu"}];
+    assertEquality(expectedTable, table1);
 
     typedesc<readonly> d = ImmutableIntArray;
 }
