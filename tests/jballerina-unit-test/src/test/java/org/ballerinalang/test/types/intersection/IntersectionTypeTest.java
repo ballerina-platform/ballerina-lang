@@ -149,7 +149,7 @@ public class IntersectionTypeTest {
         validateError(result, index++,
                 "invalid intersection: field 'x' contains a default value in type 'DetailX'", 74, 39);
         validateError(result, index++,
-                "invalid intersection type '$anonType$_4 & $anonType$_5 & ErrorX': no intersection", 76, 44);
+                "invalid intersection type '$anonType$_3 & $anonType$_4 & ErrorX': no intersection", 76, 44);
         validateError(result, index++,
                 "invalid intersection: field 'x' contains a default value in type 'DetailX'", 76, 61);
         validateError(result, index++,
