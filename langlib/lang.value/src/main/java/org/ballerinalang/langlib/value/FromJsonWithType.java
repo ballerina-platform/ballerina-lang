@@ -19,9 +19,11 @@ package org.ballerinalang.langlib.value;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
@@ -30,9 +32,10 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BListInitialValueEntry;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.TypeConverter;
@@ -145,36 +148,52 @@ public class FromJsonWithType {
                                      BTypedesc t) {
         switch (targetType.getTag()) {
             case TypeTags.MAP_TAG:
-                BMap<BString, Object> newMap = ValueCreator.createMapValue(targetType);
+                BMapInitialValueEntry[] initialValues = new BMapInitialValueEntry[map.entrySet().size()];
                 Type constraintType = ((MapType) targetType).getConstrainedType();
+                int count = 0;
                 for (Map.Entry entry : map.entrySet()) {
-                    putToMap(newMap, entry, constraintType, unresolvedValues, t);
+                    Object newValue = convert(entry.getValue(), constraintType, unresolvedValues, t);
+                    initialValues[count] = ValueCreator
+                            .createKeyFieldEntry(StringUtils.fromString(entry.getKey().toString()), newValue);
+                    count++;
                 }
-                return newMap;
+                return ValueCreator.createMapValue(targetType, initialValues);
             case TypeTags.RECORD_TYPE_TAG:
-                RecordType  recordType = (RecordType) targetType;
+                RecordType recordType = (RecordType) targetType;
                 BMap<BString, Object> newRecord;
-                if (t.getDescribingType() == targetType) {
-                    newRecord = (BMap<BString, Object>) t.instantiate(Scheduler.getStrand());
-                } else {
-                    newRecord = (BMap<BString, Object>) ValueCreator
-                            .createRecordValue(recordType.getPackage(), recordType.getName());
-                }
+
+                initialValues = new BMapInitialValueEntry[map.entrySet().size()];
+                count = 0;
 
                 Type restFieldType = recordType.getRestFieldType();
                 Map<String, Type> targetTypeField = new HashMap<>();
                 for (Field field : recordType.getFields().values()) {
                     targetTypeField.put(field.getFieldName(), field.getFieldType());
                 }
-
-                for (Map.Entry entry : map.entrySet()) {
-                    Type fieldType = targetTypeField.getOrDefault(entry.getKey().toString(), restFieldType);
-                    putToMap(newRecord, entry, fieldType, unresolvedValues, t);
+                if (t.getDescribingType() == targetType) {
+                    for (Map.Entry entry : map.entrySet()) {
+                        Type fieldType = targetTypeField.getOrDefault(entry.getKey().toString(), restFieldType);
+                        Object newValue = convert(entry.getValue(), fieldType, unresolvedValues, t);
+                        initialValues[count] = ValueCreator
+                                .createKeyFieldEntry(StringUtils.fromString(entry.getKey().toString()), newValue);
+                        count++;
+                    }
+                    newRecord = (BMap<BString, Object>) t.instantiate(Scheduler.getStrand(), initialValues);
+                } else {
+                    Map<String, Object> valueMap = new HashMap<>();
+                    for (Map.Entry entry : map.entrySet()) {
+                        Type fieldType = targetTypeField.getOrDefault(entry.getKey().toString(), restFieldType);
+                        Object newValue = convert(entry.getValue(), fieldType, unresolvedValues, t);
+                        valueMap.put(entry.getKey().toString(), newValue);
+                    }
+                    newRecord = ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName(), valueMap);
                 }
                 return newRecord;
             case TypeTags.JSON_TAG:
                 Type matchingType = TypeConverter.resolveMatchingTypeForUnion(map, targetType);
                 return convert(map, matchingType, unresolvedValues, t);
+            case TypeTags.INTERSECTION_TAG:
+                return convertMap(map, ((IntersectionType) targetType).getEffectiveType(), unresolvedValues, t);
         }
         // should never reach here
         throw CloneUtils.createConversionError(map, targetType);
@@ -186,47 +205,53 @@ public class FromJsonWithType {
         switch (targetType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 ArrayType arrayType = (ArrayType) targetType;
-                BArray newArray = ValueCreator.createArrayValue(arrayType);
+                BListInitialValueEntry[] arrayValues = new BListInitialValueEntry[array.size()];
                 for (int i = 0; i < array.size(); i++) {
                     Object newValue = convert(array.get(i), arrayType.getElementType(), unresolvedValues, t);
-                    newArray.add(i, newValue);
+                    arrayValues[i] = ValueCreator.createListInitialValueEntry(newValue);
                 }
-                return newArray;
+                return ValueCreator.createArrayValue(arrayType, arrayType.getSize(), arrayValues);
             case TypeTags.TUPLE_TAG:
                 TupleType tupleType = (TupleType) targetType;
-                BArray newTuple = ValueCreator.createTupleValue(tupleType);
                 int minLen = tupleType.getTupleTypes().size();
+                BListInitialValueEntry[] tupleValues = new BListInitialValueEntry[array.size()];
                 for (int i = 0; i < array.size(); i++) {
                     Type elementType = (i < minLen) ? tupleType.getTupleTypes().get(i) : tupleType.getRestType();
                     Object newValue = convert(array.get(i), elementType, unresolvedValues, t);
-                    newTuple.add(i, newValue);
+                    tupleValues[i] = ValueCreator.createListInitialValueEntry(newValue);
                 }
-                return newTuple;
+                return ValueCreator.createTupleValue(tupleType, array.size(), tupleValues);
             case TypeTags.JSON_TAG:
-                newArray = ValueCreator.createArrayValue((ArrayType) PredefinedTypes.TYPE_JSON_ARRAY);
+                Object[] jsonValues = new Object[array.size()];
                 for (int i = 0; i < array.size(); i++) {
                     Object newValue = convert(array.get(i), targetType, unresolvedValues, t);
-                    newArray.add(i, newValue);
+                    jsonValues[i] = newValue;
                 }
-                return newArray;
+                return ValueCreator.createArrayValue(jsonValues,
+                                                     TypeCreator.createArrayType(PredefinedTypes.TYPE_JSON));
             case TypeTags.TABLE_TAG:
                 TableType tableType = (TableType) targetType;
-                BTable newTable = ValueCreator.createTableValue(tableType);
+                Object[] tableValues = new Object[array.size()];
                 for (int i = 0; i < array.size(); i++) {
                     BMap bMap = (BMap) convert(array.get(i), tableType.getConstrainedType(),
-                            unresolvedValues, t);
-                    newTable.add(bMap);
+                                               unresolvedValues, t);
+                    tableValues[i] = bMap;
                 }
-                return newTable;
+                BArray data = ValueCreator
+                        .createArrayValue(tableValues, TypeCreator.createArrayType(tableType.getConstrainedType()));
+                BArray fieldNames;
+                if (tableType.getFieldNames() != null) {
+                    fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
+                } else {
+                    fieldNames = ValueCreator.createArrayValue(new BString[]{});
+                }
+                return ValueCreator.createTableValue(tableType, data, fieldNames);
+            case TypeTags.INTERSECTION_TAG:
+                return convertArray(array, ((IntersectionType) targetType).getEffectiveType(),
+                                    unresolvedValues, t);
         }
         // should never reach here
         throw CloneUtils.createConversionError(array, targetType);
-    }
-
-    private static void putToMap(BMap<BString, Object> map, Map.Entry entry, Type fieldType,
-                                 List<TypeValuePair> unresolvedValues, BTypedesc t) {
-        Object newValue = convert(entry.getValue(), fieldType, unresolvedValues, t);
-        map.put(StringUtils.fromString(entry.getKey().toString()), newValue);
     }
 
     private static BError createConversionError(Object inputValue, Type targetType) {

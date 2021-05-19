@@ -33,6 +33,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
@@ -275,12 +276,11 @@ public class TypeConverter {
     }
 
     public static List<Type> getConvertibleTypesFromJson(Object value, Type targetType,
-                                                          List<TypeValuePair> unresolvedValues) {
-        List<Type> convertibleTypes = new ArrayList<>();
+                                                         List<TypeValuePair> unresolvedValues) {
 
         int targetTypeTag = targetType.getTag();
 
-        convertibleTypes.addAll(TypeConverter.getConvertibleTypes(value, targetType));
+        List<Type> convertibleTypes = new ArrayList<>(TypeConverter.getConvertibleTypes(value, targetType));
 
         if (convertibleTypes.size() == 0) {
             switch (targetTypeTag) {
@@ -290,8 +290,7 @@ public class TypeConverter {
                     }
                     break;
                 case TypeTags.TABLE_TAG:
-                    if (((BTableType) targetType).getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG ||
-                            ((BTableType) targetType).getConstrainedType().getTag() == TypeTags.MAP_TAG) {
+                    if (isConvertibleToTableType(((BTableType) targetType).getConstrainedType())) {
                         convertibleTypes.add(targetType);
                     }
                     break;
@@ -304,6 +303,9 @@ public class TypeConverter {
                         convertibleTypes.add(targetType);
                     }
                     break;
+                case TypeTags.INTERSECTION_TAG:
+                    return getConvertibleTypesFromJson(value, ((BIntersectionType) targetType).getEffectiveType(),
+                                                       unresolvedValues);
             }
         }
         return convertibleTypes;
@@ -375,6 +377,17 @@ public class TypeConverter {
             }
         }
         return true;
+    }
+
+    private static boolean isConvertibleToTableType(Type tableConstrainedType) {
+        switch (tableConstrainedType.getTag()) {
+            case TypeTags.RECORD_TYPE_TAG:
+            case TypeTags.MAP_TAG:
+                return true;
+            case TypeTags.INTERSECTION_TAG:
+                return isConvertibleToTableType(((BIntersectionType) tableConstrainedType).getEffectiveType());
+        }
+        return false;
     }
 
     static long anyToInt(Object sourceVal, Supplier<BError> errorFunc) {
