@@ -1118,8 +1118,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             } else if (!varRefExpr.isLValue && parent != null && isInvalidTransfer(varRefExpr, true)) {
                 exprInfo.copyOutVarRefs.add(varRefExpr);
             }
-        } else if (isMethodCallOnSelfInIsolatedObject(varRefExpr, parent)) {
-            dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_REFERENCE_TO_SELF_IN_ISOLATED_OBJECT_OUTSIDE_LOCK);
         }
 
         boolean inIsolatedFunction = isInIsolatedFunction(enclInvokable);
@@ -1201,12 +1199,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         if (inLockStatement) {
             addToAccessedRestrictedVars(copyInLockInfoStack.peek().accessedRestrictedVars,
                                         (BLangSimpleVarRef) fieldAccessExpr.expr);
-            return;
-        }
-
-        if (((BObjectType) env.enclInvokable.symbol.owner.type).fields.get(fieldAccessExpr.field.value) == null) {
-            dlog.error(fieldAccessExpr.pos,
-                       DiagnosticErrorCode.INVALID_REFERENCE_TO_SELF_IN_ISOLATED_OBJECT_OUTSIDE_LOCK);
             return;
         }
 
@@ -2256,7 +2248,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (field == null) {
             // Bound method access.
-            return true;
+            return false;
         }
 
         return isExpectedToBeAPrivateField(field.symbol, field.type);

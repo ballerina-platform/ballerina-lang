@@ -37,6 +37,7 @@ import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ChildNodeEntry;
 import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.MinutiaeList;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -67,10 +68,12 @@ import java.util.stream.Collectors;
 public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
     private SemanticModel semanticModel;
     private List<JsonObject> visibleEpsForEachBlock;
+    private List<JsonObject> visibleEpsForModule;
 
     public SyntaxTreeMapGenerator(SemanticModel semanticModel) {
         this.semanticModel = semanticModel;
         this.visibleEpsForEachBlock = new ArrayList<>();
+        this.visibleEpsForModule = new ArrayList<>();
     }
 
     @Override
@@ -178,6 +181,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                     && nodeJson.get("typeData") != null) {
                 JsonArray eps = new JsonArray();
                 this.visibleEpsForEachBlock.forEach(eps::add);
+                this.visibleEpsForModule.forEach(eps::add);
                 nodeJson.add("VisibleEndpoints", eps);
                 this.visibleEpsForEachBlock = new ArrayList<>();
             }
@@ -216,6 +220,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
             symbolMetaInfo.addProperty("orgName", orgName);
             symbolMetaInfo.addProperty("moduleName", moduleName);
+            symbolMetaInfo.addProperty("isModuleVar", false);
         } else if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             VariableDeclarationNode variableDeclarationNode = (VariableDeclarationNode) node;
             CaptureBindingPatternNode captureBindingPatternNode =
@@ -225,6 +230,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
             symbolMetaInfo.addProperty("orgName", orgName);
             symbolMetaInfo.addProperty("moduleName", moduleName);
+            symbolMetaInfo.addProperty("isModuleVar", false);
         } else if (node.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
             AssignmentStatementNode assignmentStatementNode = (AssignmentStatementNode) node;
             if (assignmentStatementNode.varRef() instanceof SimpleNameReferenceNode) {
@@ -235,7 +241,22 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
                 symbolMetaInfo.addProperty("orgName", orgName);
                 symbolMetaInfo.addProperty("moduleName", moduleName);
+                symbolMetaInfo.addProperty("isModuleVar", false);
             }
+        } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
+            JsonObject metaInfoForModuleVar = new JsonObject();
+            ModuleVariableDeclarationNode variableDeclarationNode = (ModuleVariableDeclarationNode) node;
+            CaptureBindingPatternNode captureBindingPatternNode =
+                    (CaptureBindingPatternNode) variableDeclarationNode.typedBindingPattern().bindingPattern();
+            metaInfoForModuleVar.addProperty("name", captureBindingPatternNode.variableName().text());
+            metaInfoForModuleVar.addProperty("isCaller", "Caller".equals(typeSymbol.getName()
+                    .orElse(null)));
+            metaInfoForModuleVar.addProperty("typeName", typeSymbol.getName().orElse(""));
+            metaInfoForModuleVar.addProperty("orgName", orgName);
+            metaInfoForModuleVar.addProperty("moduleName", moduleName);
+            metaInfoForModuleVar.addProperty("isModuleVar", true);
+
+            this.visibleEpsForModule.add(metaInfoForModuleVar);
         }
 
         return symbolMetaInfo;

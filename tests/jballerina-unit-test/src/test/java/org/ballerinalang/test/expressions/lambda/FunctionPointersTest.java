@@ -85,6 +85,11 @@ public class FunctionPointersTest {
         Assert.assertEquals(returns[0].stringValue(), "test5 string1.0");
     }
 
+    @Test
+    public void testUnionLambdaAsReturnParameter() {
+        BRunUtil.invoke(fpProgram, "testUnionLambdaAsReturnParameter");
+    }
+
 
     @Test
     public void testNestedFunctionPointersAsParameters() {
