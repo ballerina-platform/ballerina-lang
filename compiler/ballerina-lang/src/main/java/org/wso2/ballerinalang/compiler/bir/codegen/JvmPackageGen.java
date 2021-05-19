@@ -222,9 +222,9 @@ public class JvmPackageGen {
 
         String varName = globalVar.name.value;
         BType bType = globalVar.type;
-        String typeSig = JvmCodeGenUtil.getFieldTypeSignature(bType);
-        cw.visitField(ACC_PUBLIC + ACC_STATIC, varName, typeSig, null, null).visitEnd();
-
+        String descriptor = JvmCodeGenUtil.getFieldTypeSignature(bType);
+        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, varName, descriptor, null, null);
+        fv.visitEnd();
     }
 
     private static void generateLockForVariable(ClassWriter cw) {
@@ -235,23 +235,44 @@ public class JvmPackageGen {
         fv.visitEnd();
     }
 
-    private static void generateStaticInitializer(ClassWriter cw, String className,
-                                                  PackageID packageID, boolean isInitClass,
-                                                  boolean serviceEPAvailable, AsyncDataCollector asyncDataCollector) {
+    private static void generateStaticInitializer(ClassWriter cw, String className, BIRPackage birPackage,
+                                                  boolean isInitClass, boolean serviceEPAvailable,
+                                                  AsyncDataCollector asyncDataCollector,
+                                                  JvmBStringConstantsGen stringConstantsGen) {
         if (!isInitClass && asyncDataCollector.getStrandMetadata().isEmpty()) {
             return;
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
         if (isInitClass) {
+            setConstantFields(mv, birPackage, className, stringConstantsGen);
             setLockStoreField(mv, className);
             setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
             setModuleStatusField(cw, mv, className);
-            setCurrentModuleField(cw, mv, packageID, className);
+            setCurrentModuleField(cw, mv, birPackage.packageID, className);
         }
-        JvmCodeGenUtil.generateStrandMetadata(mv, className, packageID, asyncDataCollector);
+        JvmCodeGenUtil.generateStrandMetadata(mv, className, birPackage.packageID, asyncDataCollector);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    private static void setConstantFields(MethodVisitor mv, BIRPackage birPackage, String className,
+                                          JvmBStringConstantsGen stringConstantsGen) {
+        for (BIRNode.BIRConstant constant : birPackage.constants) {
+            if (constant != null) {
+                setConstantField(mv, constant, className, stringConstantsGen);
+            }
+        }
+    }
+
+    private static void setConstantField(MethodVisitor mv, BIRNode.BIRConstant constant, String className,
+                                         JvmBStringConstantsGen stringConstantsGen) {
+        BIRNode.ConstValue constValue = constant.constValue;
+        if (JvmCodeGenUtil.isSimpleBasicType(constValue.type)) {
+            String descriptor = JvmCodeGenUtil.getFieldTypeSignature(constValue.type);
+            JvmCodeGenUtil.loadConstantValue(constValue.type, constValue.value, mv, stringConstantsGen);
+            mv.visitFieldInsn(PUTSTATIC, className, constant.name.value, descriptor);
+        }
     }
 
     private static void setLockStoreField(MethodVisitor mv, String className) {
@@ -446,8 +467,8 @@ public class JvmPackageGen {
                 lambdaGen.generateLambdaMethod(call, cw, name);
             }
             JvmCodeGenUtil.visitStrandMetadataFields(cw, asyncDataCollector.getStrandMetadata());
-            generateStaticInitializer(cw, moduleClass, module.packageID, isInitClass, serviceEPAvailable,
-                                      asyncDataCollector);
+            generateStaticInitializer(cw, moduleClass, module, isInitClass, serviceEPAvailable,
+                    asyncDataCollector, stringConstantsGen);
             cw.visitEnd();
 
             byte[] bytes = getBytes(cw, moduleClass, module);
@@ -493,9 +514,8 @@ public class JvmPackageGen {
 
         if (isEntry) {
             for (BIRNode.BIRConstant constant : module.constants) {
-                module.globalVars.add(new BIRGlobalVariableDcl(constant.pos, constant.flags, constant.type, null,
-                                                               constant.name, VarScope.GLOBAL, VarKind.CONSTANT, "",
-                                                               constant.origin));
+                module.globalVars.add(new BIRGlobalVariableDcl(constant.pos, constant.flags, constant.constValue.type,
+                        null, constant.name, VarScope.GLOBAL, VarKind.CONSTANT, "", constant.origin));
             }
         }
         String pkgName = JvmCodeGenUtil.getPackageName(module.packageID);

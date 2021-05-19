@@ -46,11 +46,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "test",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -64,7 +64,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "value3",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value as value3 ;\n"
         }
       ]
     },
@@ -115,11 +138,11 @@
       ]
     },
     {
-      "label": "ballerina/lang.value",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "value3",
+      "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -133,30 +156,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value as value3 ;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -433,11 +433,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
+      "label": "value1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "value1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -449,12 +449,83 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "value1",
+      "label": "lambda",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
       "sortText": "B",
-      "insertText": "value1",
+      "filterText": "lambda",
+      "insertText": "lambda",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lambda()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "lambda",
+      "insertText": "lambda()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testFunction",
+      "kind": "Variable",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "B",
+      "filterText": "testFunction",
+      "insertText": "testFunction",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testFunction()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "testFunction",
+      "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "doTask",
+      "kind": "Variable",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` c"
+        }
+      },
+      "sortText": "B",
+      "filterText": "doTask",
+      "insertText": "doTask",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "doTask(int a, int c)",
@@ -476,36 +547,6 @@
       }
     },
     {
-      "label": "testFunction()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "testFunction",
-      "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lambda()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "lambda",
-      "insertText": "lambda()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -514,6 +555,14 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {

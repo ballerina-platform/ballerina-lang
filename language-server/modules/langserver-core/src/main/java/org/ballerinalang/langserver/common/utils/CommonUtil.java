@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.common.utils;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
@@ -32,10 +33,12 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -112,6 +115,7 @@ import static org.ballerinalang.langserver.common.utils.CommonKeys.SLASH_KEYWORD
  * Common utils to be reuse in language server implementation.
  */
 public class CommonUtil {
+
     private static final Path TEMP_DIR = Paths.get(System.getProperty("java.io.tmpdir"));
 
     public static final String MD_LINE_SEPARATOR = "  " + System.lineSeparator();
@@ -871,6 +875,7 @@ public class CommonUtil {
      * Node comparator to compare the nodes by position.
      */
     public static class BLangNodeComparator implements Comparator<BLangNode> {
+
         /**
          * {@inheritDoc}
          */
@@ -1169,5 +1174,47 @@ public class CommonUtil {
         } catch (ClassNotFoundException e) {
             return Collections.emptyList();
         }
+    }
+
+    /**
+     * Given the cursor position information, returns the expected ParameterSymbol
+     * information corresponding to the FunctionTypeSymbol instance.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param ctx                Positioned operation context information.
+     * @param node               Function call expression node.
+     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
+     */
+    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                           PositionedOperationContext ctx,
+                                                                           FunctionCallExpressionNode node) {
+        int cursorPosition = ctx.getCursorPositionInTree();
+        int argIndex = -1;
+        for (Node child : node.arguments()) {
+            if (child.textRange().endOffset() < cursorPosition) {
+                argIndex += 1;
+            }
+        }
+        Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
+        if (params.isEmpty() || params.get().size() < argIndex + 2) {
+            return Optional.empty();
+        }
+        return Optional.of(params.get().get(argIndex + 1));
+    }
+
+    /**
+     * Check if the cursor is positioned in a function call expression parameter context.
+     *
+     * @param ctx  PositionedOperationContext
+     * @param node FunctionCallExpressionNode
+     * @return {@link Boolean} whether the cursor is in parameter context.
+     */
+    public static Boolean isInFunctionCallParameterContext(PositionedOperationContext ctx,
+                                                           FunctionCallExpressionNode node) {
+        int cursorPosition = ctx.getCursorPositionInTree();
+        return (!node.openParenToken().isMissing())
+                && (node.openParenToken().textRange().endOffset() <= cursorPosition)
+                && (!node.closeParenToken().isMissing())
+                && (cursorPosition <= node.closeParenToken().textRange().startOffset());
     }
 }

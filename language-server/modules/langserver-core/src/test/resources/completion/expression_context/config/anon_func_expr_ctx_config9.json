@@ -180,6 +180,21 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "function1",
+      "kind": "Variable",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n"
+        }
+      },
+      "sortText": "B",
+      "filterText": "function1",
+      "insertText": "function1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "function1()",
       "kind": "Function",
       "detail": "Function",
@@ -192,6 +207,21 @@
       "sortText": "C",
       "filterText": "function1",
       "insertText": "function1()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function2",
+      "kind": "Variable",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n"
+        }
+      },
+      "sortText": "B",
+      "filterText": "function2",
+      "insertText": "function2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -210,6 +240,25 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "function3",
+      "kind": "Variable",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Returns** `int`   \n- Return Value Description  \n  \n"
+        }
+      },
+      "sortText": "B",
+      "filterText": "function3",
+      "insertText": "function3",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "function3(int param1, int param2, float... param3)(int)",
       "kind": "Function",
       "detail": "Function",
@@ -222,6 +271,25 @@
       "sortText": "C",
       "filterText": "function3",
       "insertText": "function3(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "function4",
+      "kind": "Variable",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function4 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `string` param3: param3 Parameter Description(Defaultable)  \n- `float[]` param4: param4 Parameter Description"
+        }
+      },
+      "sortText": "B",
+      "filterText": "function4",
+      "insertText": "function4",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

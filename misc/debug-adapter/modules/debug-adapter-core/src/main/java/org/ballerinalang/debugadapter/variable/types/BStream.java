@@ -21,19 +21,13 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 
-import java.util.Optional;
-
-import static org.ballerinalang.debugadapter.variable.VariableUtils.FIELD_TYPENAME;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
-import static org.ballerinalang.debugadapter.variable.VariableUtils.getFieldValue;
-import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFrom;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringValue;
 
 /**
  * Ballerina stream variable type.
  */
 public class BStream extends BSimpleVariable {
-
-    private static final String FIELD_CONSTRAINT_TYPE = "constraintType";
 
     public BStream(SuspendedContext context, String name, Value value) {
         super(context, name, BVariableType.STREAM, value);
@@ -42,17 +36,26 @@ public class BStream extends BSimpleVariable {
     @Override
     public String computeValue() {
         try {
-            Optional<Value> constraintType = getFieldValue(jvmValue, FIELD_CONSTRAINT_TYPE);
-            if (constraintType.isEmpty()) {
-                return UNKNOWN_VALUE;
-            }
-            Optional<Value> constraintTypeName = getFieldValue(constraintType.get(), FIELD_TYPENAME);
-            if (constraintTypeName.isEmpty()) {
-                return UNKNOWN_VALUE;
-            }
-            return String.format("stream<%s>", getStringFrom(constraintTypeName.get()));
+            String stringValue = getStringValue(context, jvmValue);
+            return processStringValue(stringValue);
         } catch (Exception e) {
             return UNKNOWN_VALUE;
         }
+    }
+
+    /**
+     * Some additional processing is required, as `stringValue()` output of the runtime stream values contains some
+     * redundant information.
+     */
+    private static String processStringValue(String stringValue) {
+        if (stringValue.startsWith("stream <stream") && stringValue.endsWith(">>")) {
+            stringValue = stringValue.replaceFirst("^stream <stream", "stream").replaceFirst(">>$", ">");
+        }
+        if (stringValue.startsWith("stream<(") && stringValue.endsWith(")>")) {
+            stringValue = stringValue.replaceFirst("stream<\\(", "stream <").replaceFirst("\\)>$", ">");
+        }
+        // Adds trailing whitespaces for comma separators, if required.
+        stringValue = stringValue.replaceAll(",\\s*", ", ");
+        return stringValue;
     }
 }

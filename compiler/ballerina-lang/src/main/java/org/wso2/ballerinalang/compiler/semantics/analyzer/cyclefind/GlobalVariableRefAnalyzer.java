@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -529,6 +530,8 @@ public class GlobalVariableRefAnalyzer {
                     return ((BLangSimpleVariable) node).name;
                 } else if (node.getKind() == NodeKind.FUNCTION) {
                     return ((BLangFunction) node).name;
+                } else if (node.getKind() == NodeKind.CLASS_DEFN) {
+                    return ((BLangClassDefinition) node).name;
                 } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
                     if (((BLangTypeDefinition) node).typeNode.getKind() == NodeKind.OBJECT_TYPE) {
                         return ((BLangTypeDefinition) node).name;
@@ -544,6 +547,8 @@ public class GlobalVariableRefAnalyzer {
             return ((BLangVariable) node).symbol;
         } else if (node.getKind() == NodeKind.FUNCTION) {
             return ((BLangFunction) node).symbol;
+        } else if (node.getKind() == NodeKind.CLASS_DEFN) {
+            return ((BLangClassDefinition) node).symbol;
         } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
             if (((BLangTypeDefinition) node).typeNode.getKind() == NodeKind.OBJECT_TYPE) {
                 return ((BLangObjectTypeNode) ((BLangTypeDefinition) node).typeNode).symbol;
