@@ -630,6 +630,38 @@ isolated class IsolatedClassWithBoundMethodAccess {
     }
 }
 
+isolated class IsolatedClassReferringSelfOutsideLock {
+    final int a = 1;
+    private int[] b = [];
+
+    function foo() {
+        f1(self);
+        self.baz();
+    }
+
+    isolated function baz() {
+        f2(1, self);
+    }
+}
+
+function f1(IsolatedClassReferringSelfOutsideLock x) {
+
+}
+
+isolated function f2(int i, IsolatedClassReferringSelfOutsideLock x) {
+
+}
+
+public isolated class IsolatedClassWithBoundMethodAccessOutsideLock {
+
+    public isolated function bar() {
+        isolated function () fn = self.baz;
+    }
+
+    isolated function baz() {
+    }
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }
