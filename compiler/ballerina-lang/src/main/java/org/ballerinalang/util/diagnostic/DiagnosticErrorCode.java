@@ -712,7 +712,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_MAIN_OPTION_PARAMS_TYPE("BCE4002", "invalid.main.option.params.type"),
     WORKER_INTERACTION_AFTER_WAIT_ACTION("BCE4003", "invalid.worker.message.passing.after.wait.action"),
     OPTIONAL_OPERAND_PRECEDES_OPERAND("BCE4004", "optional.operand.precedes.operand"),
-    UNIMPLEMENTED_REFERENCED_METHOD_IN_SERVICE_DECL("BCE4004",
+    UNIMPLEMENTED_REFERENCED_METHOD_IN_SERVICE_DECL("BCE4005",
             "unimplemented.referenced.method.in.service.declaration"),
     UNIMPLEMENTED_REFERENCED_METHOD_IN_OBJECT_CTOR("BCE4006", "unimplemented.referenced.method.in.object.constructor"),
     UNSUPPORTED_REMOTE_METHOD_NAME_IN_SCOPE("BCE4007", "unsupported.remote.method.name.in.scope")
