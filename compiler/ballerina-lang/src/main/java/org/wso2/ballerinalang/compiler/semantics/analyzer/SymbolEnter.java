@@ -1125,7 +1125,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             for (BLangNode unresolvedType : unresolvedTypes) {
                 Stack<String> references = new Stack<>();
-                var unresolvedKind = unresolvedType.getKind();
+                NodeKind unresolvedKind = unresolvedType.getKind();
                 if (unresolvedKind == NodeKind.TYPE_DEFINITION || unresolvedKind == NodeKind.CONSTANT) {
                     TypeDefinition def = (TypeDefinition) unresolvedType;
                     // We need to keep track of all visited types to print cyclic dependency.
@@ -1422,7 +1422,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             for (BLangSimpleVariable variable : structureTypeNode.fields) {
                 BType referencedType = symResolver.resolveTypeNode(variable.typeNode, env);
                 if (referencedType == symTable.noType) {
-                    if (this.unresolvedRecordDueToFields.add(typeDefinition)) {
+                    if (this.unresolvedRecordDueToFields.add(typeDefinition) &&
+                            !this.unresolvedTypes.contains(typeDefinition)) {
                         this.unresolvedTypes.add(typeDefinition);
                         return;
                     }
