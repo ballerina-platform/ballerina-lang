@@ -2302,8 +2302,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 env.scope.owner, recordVar.pos, SOURCE);
         BRecordType recordVarType = (BRecordType) symTable.recordType;
 
-        LinkedHashMap<String, BField> fields =
-                populateAndGetPossibleFieldsForRecVar(recordVar, possibleTypes, recordSymbol, env);
+        List<String> mappedFields = recordVar.variableList.stream().map(varKeyValue -> varKeyValue.getKey().value)
+                .collect(Collectors.toList());
+        LinkedHashMap<String, BField> fields = populateAndGetPossibleFieldsForRecVar(recordVar.pos, possibleTypes,
+                mappedFields, recordSymbol, env);
 
         if (recordVar.restParam != null) {
             LinkedHashSet<BType> memberTypes = possibleTypes.stream()
@@ -2318,15 +2320,23 @@ public class SymbolEnter extends BLangNodeVisitor {
                     })
                     .collect(Collectors.toCollection(LinkedHashSet::new));
 
-            LinkedHashMap<String, BField> unmappedMembers = new LinkedHashMap<>();
-            for (BType possibleType:possibleTypes) {
+            List<String> intersectionFields = getIntersectionFields(possibleTypes);
+            LinkedHashMap<String, BField> unmappedMembers = populateAndGetPossibleFieldsForRecVar(recordVar.pos,
+                    possibleTypes, intersectionFields, recordSymbol, env);
+
+            LinkedHashMap<String, BField> optionalFields = new LinkedHashMap<>();
+            possibleTypes.forEach(possibleType -> {
                 if (possibleType.tag == TypeTags.RECORD) {
-                    unmappedMembers.putAll(((BRecordType) possibleType).fields);
+                    optionalFields.putAll(((BRecordType) possibleType).fields);
                 }
-            }
-            for (String fieldName: fields.keySet()) {
-                unmappedMembers.remove(fieldName);
-            }
+            });
+
+            intersectionFields.forEach(optionalFields::remove);
+            fields.keySet().forEach(unmappedMembers::remove);
+
+            optionalFields.values().forEach(field -> field.symbol.flags |= Flags.OPTIONAL);
+            unmappedMembers.putAll(optionalFields);
+
             BRecordType restRecord = new BRecordType(null);
             restRecord.fields = unmappedMembers;
             restRecord.restFieldType = memberTypes.size() > 1 ?
@@ -2341,23 +2351,45 @@ public class SymbolEnter extends BLangNodeVisitor {
         return recordVarType;
     }
 
+    private List<String> getIntersectionFields(List<BType> possibleTypes) {
+        List<LinkedHashMap<String, BField>> fieldList = new ArrayList<>();
+        List<BRecordType> recordTypes = new ArrayList<>();
+        for (BType possibleType : possibleTypes) {
+            if (possibleType.tag == TypeTags.RECORD) {
+                recordTypes.add((BRecordType) possibleType);
+            }
+        }
+        recordTypes.forEach(type -> fieldList.add(type.fields));
+
+        LinkedHashMap<String, BField> intersectionMap = fieldList.get(0);
+        HashSet<String> intersectionSet = new HashSet<>(intersectionMap.keySet());
+
+        for (int i = 1; i < fieldList.size(); i++) {
+            LinkedHashMap<String, BField> map = fieldList.get(i);
+            HashSet<String> set = new HashSet<>(map.keySet());
+            intersectionSet.retainAll(set);
+        }
+
+        return new ArrayList<>(intersectionSet);
+    }
+
     /**
      * This method will resolve field types based on a list of possible types.
      * When a record variable has multiple possible assignable types, each field will be a union of the relevant
      * possible types field type.
      *
-     * @param recordVar record variable whose fields types are to be resolved
+     * @param pos line number information of the source file
      * @param possibleTypes list of possible types
+     * @param fieldNames fields types to be resolved
      * @param recordSymbol symbol of the record type to be used in creating fields
+     * @param env environment to define the symbol
      * @return the list of fields
      */
-    private LinkedHashMap<String, BField> populateAndGetPossibleFieldsForRecVar(BLangRecordVariable recordVar,
-                                                                                List<BType> possibleTypes,
-                                                                                BRecordTypeSymbol recordSymbol,
-                                                                                SymbolEnv env) {
+    private LinkedHashMap<String, BField> populateAndGetPossibleFieldsForRecVar(Location pos, List<BType> possibleTypes,
+                                                                                List<String> fieldNames,
+                                                                                BSymbol recordSymbol, SymbolEnv env) {
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
-        for (BLangRecordVariable.BLangRecordVariableKeyValue bLangRecordVariableKeyValue : recordVar.variableList) {
-            String fieldName = bLangRecordVariableKeyValue.key.value;
+        for (String fieldName : fieldNames) {
             LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
             for (BType possibleType : possibleTypes) {
                 if (possibleType.tag == TypeTags.RECORD) {
@@ -2387,9 +2419,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             BType fieldType = memberTypes.size() > 1 ?
                     BUnionType.create(null, memberTypes) : memberTypes.iterator().next();
-            BField field = new BField(names.fromString(fieldName), recordVar.pos,
+            BField field = new BField(names.fromString(fieldName), pos,
                     new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
-                            fieldType, recordSymbol, recordVar.pos, SOURCE));
+                            fieldType, recordSymbol, pos, SOURCE));
             fields.put(field.name.value, field);
         }
         return fields;
