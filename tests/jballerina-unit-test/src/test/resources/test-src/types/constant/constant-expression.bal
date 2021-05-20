@@ -66,15 +66,6 @@ function checkMapAccessReference()  returns map<float> {
     return CFMap;
 }
 
-const int CUI1 = -(10);
-const int CUI2 = -(+(5));
-const int CUI3 = -(10/5);
-const float CUF = (+(5.0 + 10.0));
-
-function getConstUnaryExpressions() returns [int, int, int, float] {
-    return [CUI1, CUI2, CUI3, CUF];
-}
-
 const int SHIFTED = (1 << CAI) + 1;
 
 const int RSHIFTED = (64 >>  1);
@@ -121,6 +112,16 @@ function testBitwiseConstExpressions() {
     assertEqual(ZERO_EXT_3, 0x0);
     assertEqual(ZERO_EXT_4, 0x0);
     assertEqual(ZERO_EXT_5, 0x0);
+}
+
+const int CUI1 = -(10);
+const int CUI2 = (-(+(5+10)));
+const int CUI3 = +(10/5);
+
+function testConstUnaryExpressions() {
+    assertEqual(CUI1, -10);
+    assertEqual(CUI2, -15);
+    assertEqual(CUI3, 2);
 }
 
 function assertEqual(int actual, int expected) {

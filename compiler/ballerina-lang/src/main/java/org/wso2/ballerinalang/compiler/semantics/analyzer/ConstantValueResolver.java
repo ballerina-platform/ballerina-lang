@@ -29,7 +29,15 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.expressions.*;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -165,7 +173,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         this.result = visitExpr(groupExpr.expression);
     }
 
-    @Override
     public void visit(BLangUnaryExpr unaryExpr) {
 
         BLangConstantValue value = visitExpr(unaryExpr.expr);
@@ -362,7 +369,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BLangConstantValue calculateNegation(BLangConstantValue value) {
-        
+
         Object result = null;
         switch (this.currentConstSymbol.type.tag) {
             case TypeTags.INT:
