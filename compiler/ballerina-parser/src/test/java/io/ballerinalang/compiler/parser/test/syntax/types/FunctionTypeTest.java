@@ -56,6 +56,11 @@ public class FunctionTypeTest extends AbstractTypesTest {
         testFile("func-type/func_type_source_11.bal", "func-type/func_type_assert_11.json");
     }
 
+    @Test
+    public void testFuncTypeWithBindingPatterns() {
+        testFile("func-type/func_type_source_17.bal", "func-type/func_type_assert_17.json");
+    }
+
     // Recovery test
 
     @Test
