@@ -1214,7 +1214,7 @@ public class BallerinaParser extends AbstractParser {
                         funcSignature, isObjectMember, isObjectTypeDesc);
             default:
                 STToken token = peek();
-                if (isValidTypeContinuationToken(token)) {
+                if (isValidTypeContinuationToken(token) || isBindingPatternsStartToken(token.kind)) {
                     return parseVarDeclWithFunctionType(metadata, visibilityQualifier, qualifiers, functionKeyword,
                                                         STNodeFactory.createEmptyNode(), isObjectMember,
                                                         isObjectTypeDesc, false);
@@ -1224,6 +1224,18 @@ public class BallerinaParser extends AbstractParser {
                         functionKeyword, isObjectMember, isObjectTypeDesc);
                 return parseFunctionKeywordRhs(metadata, visibilityQualifier, qualifiers, functionKeyword,
                         isObjectMember, isObjectTypeDesc);
+        }
+    }
+
+    private boolean isBindingPatternsStartToken(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case IDENTIFIER_TOKEN:
+            case OPEN_BRACKET_TOKEN:
+            case OPEN_BRACE_TOKEN:
+            case ERROR_KEYWORD:
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -1653,7 +1665,7 @@ public class BallerinaParser extends AbstractParser {
 
         // Check if it is a complex type desc starting with function type.
         typeDesc = parseComplexTypeDescriptor(typeDesc,
-                ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, false);
+                ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true);
 
         if (isObjectMember) {
             endContext();
@@ -2840,6 +2852,7 @@ public class BallerinaParser extends AbstractParser {
             case CONST_KEYWORD:
             case ANNOTATION_KEYWORD:
             case LISTENER_KEYWORD:
+            case CLASS_KEYWORD:
                 return true;
             case SERVICE_KEYWORD:
                 return isServiceDeclStart(ParserRuleContext.OBJECT_MEMBER, 1);
@@ -11081,7 +11094,7 @@ public class BallerinaParser extends AbstractParser {
         if (peek().kind == SyntaxKind.DO_KEYWORD) {
             STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
             STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
-            return parseQueryAction(queryConstructType, queryPipeline, selectClause, isRhsExpr);
+            return parseQueryAction(queryConstructType, queryPipeline, selectClause);
         }
 
         if (selectClause == null) {
@@ -12380,6 +12393,12 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseFieldAccessIdentifier(boolean isInConditionalExpr) {
+        if (isEndOfStatements()) {
+            STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                    DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER);
+            return STNodeFactory.createSimpleNameReferenceNode(identifier);
+        }
+
         return parseQualifiedIdentifier(ParserRuleContext.FIELD_ACCESS_IDENTIFIER, isInConditionalExpr);
     }
 
@@ -12396,8 +12415,7 @@ public class BallerinaParser extends AbstractParser {
      * @param selectClause       Select clause if any This is only for validation.
      * @return Query action node
      */
-    private STNode parseQueryAction(STNode queryConstructType, STNode queryPipeline, STNode selectClause,
-                                    boolean isRhsExpr) {
+    private STNode parseQueryAction(STNode queryConstructType, STNode queryPipeline, STNode selectClause) {
         if (queryConstructType != null) {
             queryPipeline = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(queryPipeline, queryConstructType,
                     DiagnosticErrorCode.ERROR_QUERY_CONSTRUCT_TYPE_IN_QUERY_ACTION);
