@@ -1616,7 +1616,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             analyzeNode(field, objectEnv);
         }
 
-        for (BLangSimpleVariable referencedField : objectTypeNode.referencedFields) {
+        for (BLangSimpleVariable referencedField : objectTypeNode.includedFields) {
             analyzeNode(referencedField, objectEnv);
         }
 
@@ -1669,7 +1669,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             analyzeNode(field, typeEnv);
         }
 
-        for (BLangSimpleVariable referencedField : recordTypeNode.referencedFields) {
+        for (BLangSimpleVariable referencedField : recordTypeNode.includedFields) {
             analyzeNode(referencedField, typeEnv);
         }
 

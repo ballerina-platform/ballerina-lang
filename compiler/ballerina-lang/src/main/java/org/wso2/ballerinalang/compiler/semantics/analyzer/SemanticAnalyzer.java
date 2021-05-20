@@ -694,7 +694,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         List<BLangSimpleVariable> recordFields = new ArrayList<>(recordTypeNode.fields);
-        recordFields.addAll(recordTypeNode.referencedFields);
+        recordFields.addAll(recordTypeNode.includedFields);
 
         for (BLangSimpleVariable field : recordFields) {
             if (field.flagSet.contains(Flag.READONLY)) {

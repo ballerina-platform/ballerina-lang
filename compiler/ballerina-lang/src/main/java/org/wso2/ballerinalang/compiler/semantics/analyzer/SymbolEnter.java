@@ -519,14 +519,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private Comparator<BLangNode> getTypePrecedenceComparator() {
-        return new Comparator<BLangNode>() {
-            @Override
-            public int compare(BLangNode l, BLangNode r) {
-                if (l instanceof OrderedNode && r instanceof OrderedNode) {
-                    return ((OrderedNode) l).getPrecedence() - ((OrderedNode) r).getPrecedence();
-                }
-                return 0;
+        return (l, r) -> {
+            if (l instanceof OrderedNode && r instanceof OrderedNode) {
+                return ((OrderedNode) l).getPrecedence() - ((OrderedNode) r).getPrecedence();
             }
+            return 0;
         };
     }
 
@@ -3317,7 +3314,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .collect(getFieldCollector());
 
         // Resolve referenced types and their fields of structural type
-        resolveReferencedFields(structureTypeNode, typeDefEnv);
+        resolveIncludedFields(structureTypeNode, typeDefEnv);
 
         // collect resolved type refs from structural type
         structureType.typeInclusions = new ArrayList<>();
@@ -3332,7 +3329,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineReferencedFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode,
                                         SymbolEnv typeDefEnv) {
-        for (BLangSimpleVariable field : structureTypeNode.referencedFields) {
+        for (BLangSimpleVariable field : structureTypeNode.includedFields) {
             defineNode(field, typeDefEnv);
             if (field.symbol.type == symTable.semanticError) {
                 continue;
@@ -4104,7 +4101,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return docAttachment;
     }
 
-    private void resolveReferencedFields(BLangStructureTypeNode structureTypeNode, SymbolEnv typeDefEnv) {
+    private void resolveIncludedFields(BLangStructureTypeNode structureTypeNode, SymbolEnv typeDefEnv) {
         Set<BSymbol> referencedTypes = new HashSet<>();
         List<BLangType> invalidTypeRefs = new ArrayList<>();
         // Get the inherited fields from the type references
@@ -4114,7 +4111,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             fieldNames.put(fieldVariable.name.value, fieldVariable);
         }
 
-        structureTypeNode.referencedFields = structureTypeNode.typeRefs.stream().flatMap(typeRef -> {
+        structureTypeNode.includedFields = structureTypeNode.typeRefs.stream().flatMap(typeRef -> {
             BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
             if (referredType == symTable.semanticError) {
                 return Stream.empty();
