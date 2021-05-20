@@ -14,8 +14,19 @@
  * limitations under the License.
  *
  */
-
 apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+
+configurations {
+    dist {
+        transitive false
+    }
+    dependency {
+        transitive false
+    }
+    libs
+    distributionBala
+}
 
 dependencies {
     implementation project(':ballerina-lang')
@@ -25,6 +36,7 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
     implementation 'com.google.code.gson:gson'
 
+    testCompile 'org.testng:testng'
 }
 
 description = 'Diagram utils for Syntax tree JSON generation'
@@ -38,5 +50,15 @@ compileJava {
                 '--module-path', classpath.asPath,
         ]
         classpath = files()
+    }
+}
+
+test {
+    dependsOn loadDistributionCache
+    systemProperty "ballerina.home", "$buildDir/"
+    systemProperty "experimental", "true"
+    systemProperty "ballerina.version", project.version
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
     }
 }

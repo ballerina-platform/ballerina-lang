@@ -25,7 +25,6 @@ import org.eclipse.lsp4j.CompletionCapabilities;
  * @since 2.0.0
  */
 public interface CompletionContext extends PositionedOperationContext {
-
     /**
      * Get the client capabilities.
      *

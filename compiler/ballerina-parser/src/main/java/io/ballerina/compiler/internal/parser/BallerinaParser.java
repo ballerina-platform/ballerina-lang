@@ -33,6 +33,7 @@ import io.ballerina.compiler.internal.parser.tree.STDefaultableParameterNode;
 import io.ballerina.compiler.internal.parser.tree.STErrorConstructorExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STFieldAccessExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STFunctionArgumentNode;
+import io.ballerina.compiler.internal.parser.tree.STFunctionCallExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STFunctionSignatureNode;
 import io.ballerina.compiler.internal.parser.tree.STFunctionTypeDescriptorNode;
 import io.ballerina.compiler.internal.parser.tree.STIndexedExpressionNode;
@@ -3526,7 +3527,7 @@ public class BallerinaParser extends AbstractParser {
 
         ArrayList<STNode> recordFields = new ArrayList<>();
         STToken token = peek();
-        STNode recordRestDescriptor = null;
+        STNode recordRestDescriptor = STNodeFactory.createEmptyNode();
         while (!isEndOfRecordTypeNode(token.kind)) {
             STNode field = parseFieldOrRestDescriptor();
             if (field == null) {
@@ -3545,19 +3546,21 @@ public class BallerinaParser extends AbstractParser {
                 continue;
             } else if (field.kind == SyntaxKind.RECORD_REST_TYPE) {
                 recordRestDescriptor = field;
+                // If there are more fields after rest type descriptor, parse them and mark as invalid.
+                while (!isEndOfRecordTypeNode(token.kind)) {
+                    STNode invalidField = parseFieldOrRestDescriptor();
+                    if (invalidField == null) {
+                        break;
+                    }
+                    recordRestDescriptor = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(recordRestDescriptor,
+                            invalidField,
+                            DiagnosticErrorCode.ERROR_MORE_RECORD_FIELDS_AFTER_REST_FIELD);
+                    token = peek();
+                }
                 break;
             }
 
             recordFields.add(field);
-        }
-
-        // Following loop will only run if there are more fields after the rest type descriptor.
-        // Try to parse them and mark as invalid.
-        while (recordRestDescriptor != null && !isEndOfRecordTypeNode(token.kind)) {
-            STNode invalidField = parseFieldOrRestDescriptor();
-            recordRestDescriptor = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(recordRestDescriptor, invalidField,
-                    DiagnosticErrorCode.ERROR_MORE_RECORD_FIELDS_AFTER_REST_FIELD);
-            token = peek();
         }
 
         STNode fields = STNodeFactory.createNodeList(recordFields);
@@ -12482,36 +12485,59 @@ public class BallerinaParser extends AbstractParser {
         // parsing conditional expr. That is done by lowering the current precedence.
         STNode middleExpr = parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, true, false, true);
 
-        // Special case "a ? b : c", since "b:c" matches to var-ref due to expr-precedence.
-        STNode nextToken = peek();
-        STNode endExpr;
-        STNode colon;
-        if (nextToken.kind != SyntaxKind.COLON_TOKEN && middleExpr.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            STQualifiedNameReferenceNode qualifiedNameRef = (STQualifiedNameReferenceNode) middleExpr;
-            STNode modulePrefix = qualifiedNameRef.modulePrefix;
-            if (modulePrefix.kind == SyntaxKind.IDENTIFIER_TOKEN) {
-                middleExpr = STNodeFactory.createSimpleNameReferenceNode(modulePrefix);
-            } else {
-                // If it is not an identifier it will be a predeclared prefix and it is already a
-                // STBuiltinSimpleNameReferenceNode
-                middleExpr = modulePrefix;
-            }
-            colon = qualifiedNameRef.colon;
-            endContext();
-            endExpr = STNodeFactory.createSimpleNameReferenceNode(qualifiedNameRef.identifier);
-        } else {
-            // Case identifier:identifier : expr or preDeclaredPrefix:identifier : expr
+        if (peek().kind != SyntaxKind.COLON_TOKEN) {
+            // There are two special cases when the nextToken is not `:`
+            // 1. Special case `a ? b : c`, since `b:c` matches to var-ref due to expr-precedence.
+            // 2. Special case `a ? b : c()`, since `b:c()` matches to func-call due to expr-precedence.
             if (middleExpr.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-                middleExpr = generateQualifiedNameRef(middleExpr);
+                STQualifiedNameReferenceNode qualifiedNameRef = (STQualifiedNameReferenceNode) middleExpr;
+                STNode endExpr = STNodeFactory.createSimpleNameReferenceNode(qualifiedNameRef.identifier);
+                return generateConditionalExpr(lhsExpr, qualifiedNameRef, questionMark, endExpr);
+            } else if (middleExpr.kind == SyntaxKind.FUNCTION_CALL) {
+                STFunctionCallExpressionNode functionCallExpr = (STFunctionCallExpressionNode) middleExpr;
+                if (functionCallExpr.functionName.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                    STQualifiedNameReferenceNode qualifiedNameRef =
+                            (STQualifiedNameReferenceNode) functionCallExpr.functionName;
+                    STNode newFuncName = STNodeFactory.createSimpleNameReferenceNode(qualifiedNameRef.identifier);
+                    STNode endExpr = STNodeFactory.createFunctionCallExpressionNode(newFuncName,
+                            functionCallExpr.openParenToken, functionCallExpr.arguments,
+                            functionCallExpr.closeParenToken);
+                    return generateConditionalExpr(lhsExpr, qualifiedNameRef, questionMark, endExpr);
+                }
             }
-
-            colon = parseColon();
-            endContext();
-            // start parsing end-expr, by giving higher-precedence to the end-expr, over currently
-            // parsing conditional expr. That is done by lowering the current precedence.
-            endExpr = parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, true, false);
         }
 
+        // Case identifier:identifier : expr or preDeclaredPrefix:identifier : expr
+        if (middleExpr.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            middleExpr = generateQualifiedNameRef(middleExpr);
+        }
+
+        return parseConditionalExprRhs(lhsExpr, questionMark, middleExpr);
+    }
+
+    private STNode parseConditionalExprRhs(STNode lhsExpr, STNode questionMark, STNode middleExpr) {
+        STNode colon = parseColon();
+        endContext();
+        // start parsing end-expr, by giving higher-precedence to the end-expr, over currently
+        // parsing conditional expr. That is done by lowering the current precedence.
+        STNode endExpr = parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, true, false);
+        return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, colon, endExpr);
+    }
+
+    private STNode generateConditionalExpr(STNode lhsExpr, STQualifiedNameReferenceNode qualifiedNameRef,
+                                           STNode questionMark, STNode endExpr) {
+        STNode middleExpr;
+        STNode modulePrefix = qualifiedNameRef.modulePrefix;
+        if (modulePrefix.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+            middleExpr = STNodeFactory.createSimpleNameReferenceNode(modulePrefix);
+        } else {
+            // If it is not an identifier it will be a predeclared prefix and it is already a
+            // STBuiltinSimpleNameReferenceNode
+            middleExpr = modulePrefix;
+        }
+
+        STNode colon = qualifiedNameRef.colon;
+        endContext();
         return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, colon, endExpr);
     }
 

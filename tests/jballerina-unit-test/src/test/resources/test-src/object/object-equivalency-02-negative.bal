@@ -1,5 +1,5 @@
-import testorg/org.foo;
-import testorg/org.foo.bar;
+import testorg/objectpkg.org_foo as foo;
+import testorg/objectpkg.org_foo_bar as bar;
 
 function handleUser(foo:user u) returns (string) {
     return u.name;

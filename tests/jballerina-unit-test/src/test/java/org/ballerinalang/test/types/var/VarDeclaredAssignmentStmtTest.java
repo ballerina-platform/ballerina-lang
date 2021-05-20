@@ -153,17 +153,6 @@ public class VarDeclaredAssignmentStmtTest {
         BAssertUtil.validateError(res, 0, "initializer required for variables declared with var", 2, 5);
     }
 
-    @Test(groups = { "brokenOnNewParser" })
-    public void testVarTypeInServiceLevelVariableDefStatement() {
-        //var type is not not allowed in service level variable def statements
-        CompileResult res = BCompileUtil.compile("test-src/types/var/service-level-variable-def-with-var-negative.bal");
-        BAssertUtil.validateError(res, 0,
-                                  "mismatched input 'var'. expecting {'public', 'private', 'resource', 'function', " +
-                                          "'remote', 'transactional', '}', '@', DocumentationLineStart}", 4, 5);
-        BAssertUtil.validateError(res, 1, "extraneous input 'resource'", 6, 5);
-        BAssertUtil.validateError(res, 2, "extraneous input '}'", 12, 1);
-    }
-
     @Test(groups = { "disableOnOldParser" })
     public void testVarDeclarationWithStructFieldAssignmentLHSExpr() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-invalid-usage-struct-field-negative.bal");

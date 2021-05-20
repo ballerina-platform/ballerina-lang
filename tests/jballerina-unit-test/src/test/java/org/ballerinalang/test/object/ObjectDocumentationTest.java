@@ -18,6 +18,7 @@ package org.ballerinalang.test.object;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.tree.PackageNode;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -86,38 +87,38 @@ public class ObjectDocumentationTest {
         Assert.assertEquals(dNode.getParameters().get(2).getParameterDocumentation().replaceAll(CARRIAGE_RETURN_CHAR,
                 EMPTY_STRING), "struct `field c` documentation");
     }
-//
-//    @Test(description = "Test doc negative cases.", groups = { "disableOnOldParser" })
-//    public void testDocumentationNegative() {
-//        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_documentation_negative.bal");
-//        Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
-//        Assert.assertEquals(compileResult.getWarnCount(), 21);
-//        int i = 0;
-//        BAssertUtil.validateWarning(compileResult, i++, "field 'a' already documented", 6, 5);
-//        BAssertUtil.validateWarning(compileResult, i++, "no such documentable field 'c'", 8, 5);
-//        BAssertUtil.validateWarning(compileResult, i++, "undocumented field 'cd'", 12, 5);
-//        BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'testConst'", 19, 5);
-//        BAssertUtil.validateWarning(compileResult, i++, "field 'a' already documented", 25, 5);
-//        BAssertUtil.validateWarning(compileResult, i++, "no such documentable field 'c'", 27, 5);
-//        BAssertUtil.validateWarning(compileResult, i++, "undocumented field 'cdd'", 31, 5);
-//        BAssertUtil.validateWarning(compileResult, i++, "undocumented return parameter", 41, 5);
-//        BAssertUtil.validateWarning(compileResult, i++, "parameter 'accessMode' already documented", 46, 9);
-//        BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'successfuls'", 47, 9);
-//        BAssertUtil.validateWarning(compileResult, i++, "field 'url' already documented", 71, 5);
-//        BAssertUtil.validateWarning(compileResult, i++, "no such documentable field 'urls'", 72, 5);
-//        BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'conn'", 79, 5);
-//        BAssertUtil.validateWarning(compileResult, i++, "parameter 'req' already documented", 85, 9);
-//        BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'reqest'", 86, 9);
-//        BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'testConstd'", 97, 5);
-//        BAssertUtil.validateWarning(compileResult, i++, "field 'abc' already documented", 101, 5);
-//      BAssertUtil.validateWarning(compileResult, i++, "invalid reference in documentation 'Baz' for type 'type'", 101,
-//                                    75);
-//      BAssertUtil.validateWarning(compileResult, i++, "invalid reference in documentation 'Baz' for type 'type'", 105,
-//                                    33);
-//        BAssertUtil.validateWarning(compileResult, i++, "undocumented field 'def'", 109, 5);
-//        BAssertUtil.validateWarning(compileResult, i, "invalid reference in documentation 'Baz' for type 'type'", 112,
-//                                    33);
-//    }
+
+    @Test(description = "Test doc negative cases.", groups = { "disableOnOldParser" })
+    public void testDocumentationNegative() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_documentation_negative.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
+        Assert.assertEquals(compileResult.getWarnCount(), 21);
+        int i = 0;
+        BAssertUtil.validateWarning(compileResult, i++, "field 'a' already documented", 6, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable field 'c'", 8, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "undocumented field 'cd'", 12, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'testConst'", 19, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "field 'a' already documented", 25, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable field 'c'", 27, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "undocumented field 'cdd'", 31, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "undocumented return parameter", 41, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "parameter 'accessMode' already documented", 46, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'successfuls'", 47, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "field 'url' already documented", 71, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable field 'urls'", 72, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable field 'conn'", 79, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "parameter 'req' already documented", 85, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'reqest'", 86, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'testConstd'", 97, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "field 'abc' already documented", 101, 5);
+      BAssertUtil.validateWarning(compileResult, i++, "invalid reference in documentation 'Baz' for type 'type'", 101,
+                                    75);
+      BAssertUtil.validateWarning(compileResult, i++, "invalid reference in documentation 'Baz' for type 'type'", 105,
+                                    33);
+        BAssertUtil.validateWarning(compileResult, i++, "undocumented field 'def'", 109, 5);
+        BAssertUtil.validateWarning(compileResult, i, "invalid reference in documentation 'Baz' for type 'type'", 112,
+                                    33);
+    }
 
     private String getErrorString(Diagnostic[] diagnostics) {
         StringBuilder sb = new StringBuilder();

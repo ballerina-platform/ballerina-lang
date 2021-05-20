@@ -2833,7 +2833,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         setScopeAndEmit(
                 new BIRNonTerminator.FPLoad(fpVarRef.pos, funcSymbol.pkgID, funcName, lhsOp, params, new ArrayList<>(),
-                        funcSymbol.retType, funcSymbol.strandName, funcSymbol.schedulerPolicy));
+                        funcSymbol.type, funcSymbol.strandName, funcSymbol.schedulerPolicy));
         this.env.targetOperand = lhsOp;
     }
 

@@ -1,4 +1,4 @@
-import ballerina/http;
+
 
 # Documentation for Test annotation
 #
@@ -77,18 +77,18 @@ class TestConnector {
 # PizzaService HTTP Service
 #
 # + conn - HTTP connection.
-service PizzaService on new http:Listener(9997) {
+service "PizzaService" on new Listener() {
 
     # Check orderPizza resource.
     #
     # + req - In request.
     # + req - In request.
     # + reqest - In request.
-//  # + conn - HTTP connection. Commented due to https://github.com/ballerina-lang/ballerina/issues/5586 issue
+    # + conn - Listener.
 
-    resource function orderPizza(http:Caller conn, http:Request req) {
-        http:Response res = new;
-        checkpanic conn->respond(res);
+    resource function get pizza(Listener conn, map<json> req) {
+
+
     }
 }
 
@@ -115,3 +115,20 @@ public class Foo {
 
 type Bar record {
 };
+
+class Listener {
+    public function attach(service object {} s, string[]|string? name = ()) returns error? {
+    }
+
+    public function detach(service object {} s) returns error? {
+    }
+
+    public function 'start() returns error? {
+    }
+
+    public function gracefulStop() returns error? {
+    }
+
+    public function immediateStop() returns error? {
+    }
+}

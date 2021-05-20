@@ -67,7 +67,7 @@ public class CodeCoverageReportTest extends BaseTestCase {
         projectPath = projectBasedTestsPath.resolve(singleModuleTestRoot).toString();
         coverageXMLPath = projectBasedTestsPath.resolve(singleModuleTestRoot).resolve("target").resolve("report")
                 .resolve("codecov").resolve("coverage-report.xml");
-        balClient.runMain("test", new String[]{"--code-coverage", "--jacoco-xml"}, null,
+        balClient.runMain("test", new String[]{"--code-coverage", "--coverage-format=xml"}, null,
                 new String[]{}, new LogLeecher[]{}, projectPath);
         Path reportRoot = projectBasedTestsPath.resolve(singleModuleTestRoot).resolve("target").
                 resolve("report").resolve("codecov");
@@ -90,7 +90,7 @@ public class CodeCoverageReportTest extends BaseTestCase {
         projectPath = projectBasedTestsPath.resolve(multiModuleTestRoot).toString();
         coverageXMLPath = projectBasedTestsPath.resolve(multiModuleTestRoot).resolve("target").resolve("report")
                 .resolve("foo").resolve("coverage-report.xml");
-        balClient.runMain("test", new String[]{"--code-coverage", "--jacoco-xml"}, null,
+        balClient.runMain("test", new String[]{"--code-coverage", "--coverage-format=xml"}, null,
                 new String[]{}, new LogLeecher[]{}, projectPath);
         Path reportRoot = projectBasedTestsPath.resolve(multiModuleTestRoot).resolve("target").
                 resolve("report").resolve("foo");
@@ -114,7 +114,7 @@ public class CodeCoverageReportTest extends BaseTestCase {
     @Test
     public void normalizedCoverageClassTest() throws BallerinaTestException {
         projectPath = projectBasedTestsPath.resolve(multiModuleTestRoot).toString();
-        balClient.runMain("test", new String[]{"--code-coverage", "--jacoco-xml"}, null,
+        balClient.runMain("test", new String[]{"--code-coverage", "--coverage-format=xml"}, null,
                 new String[]{}, new LogLeecher[]{}, projectPath);
         Path reportRoot = projectBasedTestsPath.resolve(multiModuleTestRoot).resolve("target").
                 resolve("report").resolve("foo");

@@ -28,13 +28,13 @@ public function main() {
     worker w1 returns FooError|TrxError? {
         int j = 25;
         if (false) {
-            return FooError(FOO);
+            return error FooError(FOO);
         }
 
         j = <- w2;
 
         if (1 == 2) {
-            TrxError e = TrxError("trxError");
+            TrxError e = error TrxError("trxError");
             return e;
         }
         j = <- w2;

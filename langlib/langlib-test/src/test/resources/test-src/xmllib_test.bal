@@ -433,21 +433,21 @@ function testAsyncFpArgsWithXmls() returns [int, xml] {
     ((bookstore/*).elements()).forEach(function (xml x) {
       int value = <int> checkpanic langint:fromString((x/<year>/*).toString()) ;
       future<int> f1 = start getRandomNumber(value);
-      int result = wait f1;
+      int result = checkpanic wait f1;
       sum = sum + result;
     });
 
     var filter = ((bookstore/*).elements()).filter(function (xml x) returns boolean {
       int value =   <int> checkpanic langint:fromString((x/<year>/*).toString()) ;
       future<int> f1 = start getRandomNumber(value);
-      int result = wait f1;
+      int result = checkpanic wait f1;
       return result > 2000;
     });
 
     var filter2 = (filter).map(function (xml x) returns xml {
       int value =   <int> checkpanic langint:fromString((x/<year>/*).toString()) ;
       future<int> f1 = start getRandomNumber(value);
-      int result = wait f1;
+      int result = checkpanic wait f1;
       return xml `<year>${result}</year>`;
     });
     return [sum, filter];
@@ -775,6 +775,20 @@ function testData() {
 
     xml concat = authors + text + cmnt + pi + x;
     assertEquals(concat.data(), "EnidBlytonhello>abc<");
+}
+
+function testXmlSubtypeFillerValue() {
+    xml:Text x1 = xml:createText("text 1");
+    xml:Text x2 = xml:createText("text 2");
+    xml:Text x3 = xml:createText("text 3");
+
+    xml:Text[] x = [x1, x2];
+    insertListValue(x, 3, x3);
+    assertEquals(x.toString(), "[`text 1`,`text 2`,``,`text 3`]");
+}
+
+function insertListValue('xml:Text[] list, int pos, 'xml:Text value) {
+    list[pos] = value;
 }
 
 function testXmlGetContentOverACommentSequence() {

@@ -306,7 +306,7 @@ function testNonAnyDataType() returns string {
 function testStringLiteralKeyInRecordMatch() returns string {
     Foo f = {x: 12, y: "B"};
     match f {
-        {"x": 12, y: "B"} => {
+        {x: 12, y: "B"} => {
             return "Value is 'Correct'";
         }
     }
