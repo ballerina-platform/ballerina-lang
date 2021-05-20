@@ -153,6 +153,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -2316,9 +2317,22 @@ public class SymbolEnter extends BLangNodeVisitor {
                         }
                     })
                     .collect(Collectors.toCollection(LinkedHashSet::new));
-            recordVarType.restFieldType = memberTypes.size() > 1 ?
+
+            LinkedHashMap<String, BField> unmappedMembers = new LinkedHashMap<>();
+            for (BType possibleType:possibleTypes) {
+                if (possibleType.tag == TypeTags.RECORD) {
+                    unmappedMembers.putAll(((BRecordType) possibleType).fields);
+                }
+            }
+            for (String fieldName: fields.keySet()) {
+                unmappedMembers.remove(fieldName);
+            }
+            BRecordType restRecord = new BRecordType(null);
+            restRecord.fields = unmappedMembers;
+            restRecord.restFieldType = memberTypes.size() > 1 ?
                     BUnionType.create(null, memberTypes) :
                     memberTypes.iterator().next();
+            recordVarType.restFieldType = restRecord;
         }
 
         recordVarType.tsymbol = recordSymbol;
@@ -2477,8 +2491,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             BType restType = getRestParamType(recordVarType);
             List<String> varList = recordVar.variableList.stream().map(t -> t.getKey().value)
                     .collect(Collectors.toList());
-            BType restConstraint = createRecordTypeForRestField(recordVar.restParam.getPosition(), env, recordVarType,
-                    varList, restType);
+            BRecordType restConstraint = createRecordTypeForRestField(recordVar.restParam.getPosition(), env,
+                    recordVarType, varList, restType);
             defineMemberNode(((BLangSimpleVariable) recordVar.restParam), env, restConstraint);
         }
 
@@ -2529,12 +2543,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             memberType = hasOnlyAnyDataTypedFields(recordType) ? symTable.anydataType : symTable.anyType;
         }
-
+        if (memberType.tag == TypeTags.RECORD) {
+            memberType = getRestParamType((BRecordType) memberType);
+        }
         return memberType;
     }
 
-    BType getRestMatchPatternConstraintType(BRecordType recordType,
-                                           LinkedHashMap<String, BField> remainingFields,
+    public BType getRestMatchPatternConstraintType(BRecordType recordType,
+                                           Map<String, BField> remainingFields,
                                            BType restVarSymbolMapType) {
         LinkedHashSet<BType> constraintTypes = new LinkedHashSet<>();
         for (BField field : remainingFields.values()) {
@@ -2559,7 +2575,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return this.types.mergeTypes(restVarSymbolMapType, restConstraintType);
     }
 
-    BType createRecordTypeForRestField(Location pos, SymbolEnv env, BRecordType recordType,
+    BRecordType createRecordTypeForRestField(Location pos, SymbolEnv env, BRecordType recordType,
                                        List<String> variableList,
                                        BType restConstraint) {
         BRecordTypeSymbol recordSymbol = createAnonRecordSymbol(env, pos);
@@ -2578,9 +2594,22 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BRecordType recordVarType = new BRecordType(recordSymbol);
+        LinkedList<BField> unmapped = new LinkedList<>();
+        if (recordType.restFieldType.tag == TypeTags.RECORD) {
+            unmapped.addAll(((BRecordType) recordType.restFieldType).fields.values());
+        } else {
+            unmapped.addAll(unMappedFields.values());
+        }
+        for (BField field : unmapped) {
+            BField newField = new BField(field.name, pos,
+                    new BVarSymbol(field.symbol.flags, field.name, env.enclPkg.symbol.pkgID,
+                            field.type, recordSymbol, pos, VIRTUAL));
+            fields.put(field.name.value, newField);
+            recordSymbol.scope.define(newField.name, newField.symbol);
+        }
+
         recordVarType.fields = fields;
-        BType restType = getRestMatchPatternConstraintType(recordType, unMappedFields, restConstraint);
-        recordVarType.restFieldType = restType;
+        recordVarType.restFieldType = restConstraint;
 
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(recordVarType,
                 env.enclPkg.packageID, symTable, pos);

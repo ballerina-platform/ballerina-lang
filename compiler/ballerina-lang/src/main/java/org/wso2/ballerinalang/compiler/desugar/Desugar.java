@@ -349,6 +349,7 @@ public class Desugar extends BLangNodeVisitor {
     private static final String DESUGARED_VARARG_KEY = "$vararg$";
     private static final String GENERATED_ERROR_VAR = "$error$";
     private static final String HAS_KEY = "hasKey";
+    private static final String CREATE_RECORD_VALUE = "createRecordFromMap";
 
     public static final String XML_INTERNAL_SELECT_DESCENDANTS = "selectDescendants";
     public static final String XML_INTERNAL_CHILDREN = "children";
@@ -1860,7 +1861,12 @@ public class Desugar extends BLangNodeVisitor {
         String entriesVarName = "$map$ref$entries$" + UNDERSCORE + restNum;
         BType constraintType;
         if (targetType.tag == TypeTags.RECORD) {
-            constraintType = ((BRecordType) targetType).restFieldType;
+            BRecordType recordType = (BRecordType) targetType;
+            Map<String, BField> remainingFields = recordType.fields.entrySet()
+                    .stream().filter(entry -> entry.getValue().type.tag != TypeTags.NEVER)
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            constraintType = symbolEnter.getRestMatchPatternConstraintType(recordType, remainingFields,
+                    recordType.restFieldType);
         } else {
             constraintType = ((BMapType) targetType).constraint;
         }
@@ -1888,7 +1894,7 @@ public class Desugar extends BLangNodeVisitor {
 
         if (targetType.tag == TypeTags.RECORD) {
             String filteredRecVarName = "$filteredRecord";
-            BLangInvocation recordConversion = generateCloneWithTypeInvocation(pos, targetType, filtered.symbol);
+            BLangInvocation recordConversion = generateCreateRecValueInvocation(pos, targetType, filtered.symbol);
             converted = defVariable(pos, targetType, parentBlockStmt, recordConversion, filteredRecVarName);
         }
 
@@ -2106,6 +2112,23 @@ public class Desugar extends BLangNodeVisitor {
             onExpr = ASTBuilderUtil.createVariableRef(pos, errorVarSymbol);
         }
         return createLangLibInvocationNode(ERROR_CAUSE_FUNCTION_NAME, onExpr, new ArrayList<>(), causeType, pos);
+    }
+
+    private BLangInvocation generateCreateRecValueInvocation(Location pos,
+                                                            BType targetType,
+                                                            BVarSymbol source) {
+        BType typedescType = new BTypedescType(targetType, symTable.typeDesc.tsymbol);
+        BLangInvocation invocationNode = createInvocationNode(CREATE_RECORD_VALUE, new ArrayList<>(), typedescType);
+
+        BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
+        typedescExpr.resolvedType = targetType;
+        typedescExpr.type = typedescType;
+
+        invocationNode.expr = typedescExpr;
+        invocationNode.symbol = symResolver.lookupLangLibMethod(typedescType, names.fromString(CREATE_RECORD_VALUE));
+        invocationNode.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, source), typedescExpr);
+        invocationNode.type = BUnionType.create(null, targetType, symTable.errorType);
+        return invocationNode;
     }
 
     private BLangInvocation generateCloneWithTypeInvocation(Location pos,

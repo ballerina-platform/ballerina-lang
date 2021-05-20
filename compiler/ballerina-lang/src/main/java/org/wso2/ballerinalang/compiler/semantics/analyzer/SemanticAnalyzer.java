@@ -1781,12 +1781,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             } else {
                 lhsRefType = ((BLangSimpleVarRef) lhsVarRef.restParam).type;
             }
-            BTypeSymbol recordSymbol = symbolEnter.createAnonRecordSymbol(env, rhsPos);
-            BRecordType recordRecordType = new BRecordType(recordSymbol);
-            recordRecordType.fields = unMappedFields;
-            recordRecordType.restFieldType = ((BRecordType) rhsType).restFieldType;
 
-            BType rhsResType = recordRecordType;
+            List<String> varList = lhsVarRef.recordRefFields.stream().map(t -> t.variableName.value)
+                    .collect(Collectors.toList());
+            BRecordType rhsResType = symbolEnter.createRecordTypeForRestField(pos, env, rhsRecordType,
+                    varList, rhsRecordType.restFieldType);
 
             types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos,
                     rhsResType, lhsRefType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
