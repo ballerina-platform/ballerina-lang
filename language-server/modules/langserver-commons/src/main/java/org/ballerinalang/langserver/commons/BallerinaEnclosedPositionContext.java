@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -17,18 +17,18 @@
  */
 package org.ballerinalang.langserver.commons;
 
-import org.eclipse.lsp4j.CompletionCapabilities;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+
+import java.util.Optional;
 
 /**
- * Represents the Completion operation context.
+ * Represents a Ballerina operation context where the cursor is enclosed within a module member.
  *
  * @since 2.0.0
  */
-public interface CompletionContext extends PositionedOperationContext {
+public interface BallerinaEnclosedPositionContext {
     /**
-     * Get the client capabilities.
-     *
-     * @return {@link CompletionCapabilities} client's completion capabilities
+     * Set the cursor position as an offset value according to the syntax tree.
      */
-    CompletionCapabilities getCapabilities();
+    Optional<ModuleMemberDeclarationNode> enclosedModuleMember();
 }
