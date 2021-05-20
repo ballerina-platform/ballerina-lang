@@ -81,8 +81,8 @@ public class Runtime {
          if (isIsolate) {
              return scheduler.schedule(new Object[1], func, null, callback, strandName, metadata).result;
          } else {
-             return scheduler.scheduleToObjectGroup(object, new Object[1], func, null, callback, strandName, metadata)
-                     .result;
+             return scheduler.scheduleToObjectGroup(object, new Object[1], func, null, callback, null,
+                                                    PredefinedTypes.TYPE_NULL, strandName, metadata).result;
          }
      }
 
@@ -127,8 +127,14 @@ public class Runtime {
             throw new NullPointerException();
         }
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
-        return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
-                metadata);
+        boolean isIsolate = isIsolated(object.getType(), methodName);
+        if (isIsolate) {
+            return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
+                                      metadata);
+        } else {
+            return scheduler.scheduleToObjectGroup(object, new Object[1], func, null, callback, properties,
+                                                   returnType, strandName, metadata);
+        }
     }
 
     public void registerListener(BObject listener) {
