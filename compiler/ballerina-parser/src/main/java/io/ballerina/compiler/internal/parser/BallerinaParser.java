@@ -2539,8 +2539,7 @@ public class BallerinaParser extends AbstractParser {
                 context = ParserRuleContext.ERROR_TYPE_OR_TYPE_REF;
                 break;
             case MAP_KEYWORD:
-            case FUTURE_KEYWORD:
-                context = ParserRuleContext.PARAMETERIZED_TYPE_OR_TYPE_REF;
+                context = ParserRuleContext.MAP_TYPE_OR_TYPE_REF;
                 break;
             case OBJECT_KEYWORD:
                 context = ParserRuleContext.OBJECT_TYPE_OR_TYPE_REF;
@@ -2552,13 +2551,12 @@ public class BallerinaParser extends AbstractParser {
                 context = ParserRuleContext.TABLE_TYPE_OR_TYPE_REF;
                 break;
             case TYPEDESC_KEYWORD:
-                context = ParserRuleContext.TYPEDESC_TYPE_OR_TYPE_REF;
-                break;
+            case FUTURE_KEYWORD:
             case XML_KEYWORD:
-                context = ParserRuleContext.XML_TYPE_OR_TYPE_REF;
+                context = ParserRuleContext.TYPEDESC_FUTURE_XML_TYPE_OR_TYPE_REF;
                 break;
             default:
-                context = ParserRuleContext.TYPEDESC_RHS_OR_TYPE_REF;
+                context = ParserRuleContext.TYPE_DESC_RHS_OR_TYPE_REF;
         }
 
         Solution solution = recover(peek(), context);
@@ -10056,6 +10054,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse stream type descriptor.
      * <p>
      * stream-type-descriptor := stream [stream-type-parameters]
+     * <br/>
      * stream-type-parameters := < type-descriptor [, type-descriptor]>
      * </p>
      *

@@ -508,16 +508,19 @@ public class SyntaxErrors {
             case STRING_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_STRING_KEYWORD;
             case XML_KEYWORD:
+            case XML_TYPE_DESCRIPTOR:
                 return DiagnosticErrorCode.ERROR_MISSING_XML_KEYWORD;
             case VAR_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_VAR_KEYWORD;
             case MAP_KEYWORD:
             case NAMED_WORKER_DECL:
-            case PARAMETERIZED_TYPE:
+            case MAP_TYPE_DESCRIPTOR:
                 return DiagnosticErrorCode.ERROR_MISSING_MAP_KEYWORD;
             case FUTURE_KEYWORD:
+            case FUTURE_TYPE_DESCRIPTOR:
                 return DiagnosticErrorCode.ERROR_MISSING_FUTURE_KEYWORD;
             case TYPEDESC_KEYWORD:
+            case TYPEDESC_TYPE_DESCRIPTOR:
                 return DiagnosticErrorCode.ERROR_MISSING_TYPEDESC_KEYWORD;
             case ERROR_KEYWORD:
             case ERROR_BINDING_PATTERN:
