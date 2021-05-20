@@ -1,0 +1,37 @@
+{
+  "source": {
+    "file": "projectls/modules/lsmod1/source1.bal"
+  },
+  "position": {
+    "line": 9,
+    "character": 13
+  },
+  "result": [
+    {
+      "uri": "projectls/modules/lsmod1/source1.bal",
+      "range": {
+        "start": {
+          "line": 9,
+          "character": 12
+        },
+        "end": {
+          "line": 9,
+          "character": 21
+        }
+      }
+    },
+    {
+      "uri": "projectls/error_types.bal",
+      "range": {
+        "start": {
+          "line": 19,
+          "character": 24
+        },
+        "end": {
+          "line": 19,
+          "character": 33
+        }
+      }
+    }
+  ]
+}

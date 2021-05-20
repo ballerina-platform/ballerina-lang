@@ -1067,13 +1067,13 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
-        if (userDefinedType.type == null || userDefinedType.type.tsymbol == null) {
+        if (userDefinedType.symbol == null) {
             return;
         }
         if (!userDefinedType.pkgAlias.value.isEmpty()) {
-            addIfSameSymbol(userDefinedType.type.tsymbol.owner, userDefinedType.pkgAlias.pos);
+            addIfSameSymbol(userDefinedType.symbol.owner, userDefinedType.pkgAlias.pos);
         }
-        addIfSameSymbol(userDefinedType.type.tsymbol, userDefinedType.typeName.pos);
+        addIfSameSymbol(userDefinedType.symbol, userDefinedType.typeName.pos);
     }
 
     @Override
