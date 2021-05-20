@@ -172,7 +172,7 @@ public class MarkdownDocumentationTest {
         Assert.assertNull(returnParameter);
     }
 
-    @Test(description = "Test doc type", groups = { "disableOnOldParser" })
+    @Test(description = "Test doc type")
     public void testDocType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_type.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
@@ -224,7 +224,7 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(references.get(7).referenceName, "annot");
     }
 
-    @Test(description = "Test doc function", groups = { "disableOnOldParser" })
+    @Test(description = "Test doc function")
     public void testDocFunction() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_function.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
@@ -338,7 +338,7 @@ public class MarkdownDocumentationTest {
                 "The error struct to be logged with unicode name");
     }
 
-    @Test(description = "Test doc function with function keyword", groups = { "disableOnOldParser" })
+    @Test(description = "Test doc function with function keyword")
     public void testDocFunctionSpecial() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_function_special.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
@@ -387,7 +387,7 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(references.get(4).identifier, "foo");
     }
 
-    @Test(description = "Test doc negative cases.", groups = { "disableOnOldParser" })
+    @Test(description = "Test doc negative cases.")
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
@@ -651,21 +651,21 @@ public class MarkdownDocumentationTest {
         documentationAttachment = packageNode.getFunctions().get(0).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentationLines().get(1).text, "```bal\n" +
-                "    # Purpose of adding\n" +
-                "    # this documentation is\n" +
-                "    # to check backtic documentations\n" +
-                "    # ```");
+                "Purpose of adding\n" +
+                "this documentation is\n" +
+                "to check backtic documentations\n" +
+                "```");
 
         documentationAttachment = packageNode.getFunctions().get(1).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentationLines().get(1).text, "```\n" +
-                "    # Purpose of adding\n" +
-                "    # this documentation is\n" +
-                "    # to check backtic documentations\n" +
-                "    # ```");
+                "Purpose of adding\n" +
+                "this documentation is\n" +
+                "to check backtic documentations\n" +
+                "```");
     }
 
-    @Test(description = "Test doc multiple.", groups = { "disableOnOldParser" })
+    @Test(description = "Test doc multiple.")
     public void testMultiple() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_multiple.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
