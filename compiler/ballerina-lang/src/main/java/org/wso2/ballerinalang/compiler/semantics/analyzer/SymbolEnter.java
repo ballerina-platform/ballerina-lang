@@ -1190,6 +1190,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 memberTypeNodes = ((BLangTupleTypeNode) currentTypeOrClassNode).memberTypeNodes;
                 for (BLangType memberTypeNode : memberTypeNodes) {
                     checkErrors(env, unresolvedType, memberTypeNode, visitedNodes, true);
+                    if (((BLangTypeDefinition) unresolvedType).hasCyclicReference) {
+                        break;
+                    }
                 }
                 break;
             case CONSTRAINED_TYPE:
@@ -1260,15 +1263,15 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (sameTypeNode || isVisited) {
             if (typeDef) {
                 BLangTypeDefinition typeDefinition = (BLangTypeDefinition) unresolvedType;
-                if (fromStructuredType) {
+                if (fromStructuredType && (typeDefinition.getTypeNode().getKind() == NodeKind.UNION_TYPE_NODE
+                        || typeDefinition.getTypeNode().getKind() == NodeKind.TUPLE_TYPE_NODE)) {
                     // Valid cyclic dependency
-                    // type A int|map<A>;
                     typeDefinition.hasCyclicReference = true;
                     return;
                 }
             }
 
-            // Only type definitions with unions are allowed to have cyclic reference
+            //type definitions with tuple and unions are allowed to have cyclic reference atm
             if (isVisited) {
                 // Invalid dependency detected. But in here, all the types in the list might not
                 // be necessary for the cyclic dependency error message.
@@ -1596,12 +1599,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                         newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
                         typeDef.name.pos, SOURCE);
                 break;
-            case ARRAY_TYPE:
-                newTypeNode = new BArrayType(symTable.noType);
-                typeDefSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.asMask(typeDef.flagSet),
-                        newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
-                        typeDef.name.pos, SOURCE);
-                break;
             default:
                 newTypeNode = BUnionType.create(null, new LinkedHashSet<>());
                 typeDefSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(typeDef.flagSet),
@@ -1627,24 +1624,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         //define symbols in main scope
         BType newTypeNode = defineSymbolsForCyclicTypeDefinitions(typeDef, env);
         switch (typeDef.typeNode.getKind()) {
-            case ARRAY_TYPE:
-                BLangType elementType = ((BLangArrayType) typeDef.typeNode).elemtype;
-                Name elementTypeName = names.fromIdNode(((BLangUserDefinedType) elementType).typeName);
-
-                for (BLangNode unresolvedNode : unresolvedTypes) {
-                    BLangTypeDefinition unresolvedTypeInTypeDefinition = (BLangTypeDefinition) unresolvedNode;
-                    Name unresolvedNodeName = names.fromIdNode(unresolvedTypeInTypeDefinition.name);
-
-                    if (elementTypeName.value.equals(unresolvedNodeName.value)) {
-                        BSymbol foundSym = symResolver.lookupSymbolInMainSpace(env, unresolvedNodeName);
-                        if (foundSym == symTable.notFoundSymbol) {
-                            defineSymbolsForCyclicTypeDefinitions(unresolvedTypeInTypeDefinition, env);
-                        }
-                        break;
-                    }
-                }
-
-                break;
             case TUPLE_TYPE_NODE:
             default:
                 List<BLangType> memberTypeNodes;
@@ -1682,9 +1661,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         switch (resolvedTypeNodes.tag) {
             case TypeTags.TUPLE:
                 ((BTupleType) newTypeNode).addMembers(((BTupleType) resolvedTypeNodes).getTupleTypes());
-                break;
-            case TypeTags.ARRAY:
-                ((BArrayType) newTypeNode).setElementType(((BArrayType) resolvedTypeNodes).getElementType());
                 break;
             default:
                 BUnionType definedUnionType = (BUnionType) resolvedTypeNodes;
