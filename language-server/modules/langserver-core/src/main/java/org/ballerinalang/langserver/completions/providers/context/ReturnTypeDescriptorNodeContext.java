@@ -18,12 +18,14 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.CompletionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,10 +62,13 @@ public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<
             (1) function test() returns <cursor>
             (2) function test() returns i<cursor>
             */
+            if (node.type().kind() == SyntaxKind.FUNCTION_TYPE_DESC) {
+                completionItems.addAll(CompletionUtil.route(context, node.type()));
+            }
             completionItems.addAll(this.getModuleCompletionItems(context));
             completionItems.addAll(this.getTypeItems(context));
-        }
 
+        }
         return completionItems;
     }
 
