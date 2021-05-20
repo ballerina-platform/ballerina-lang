@@ -241,7 +241,7 @@ public class VariableVisibilityTest extends BaseTestCase {
 
         // anonymous function variable visibility test
         debugTestRunner.assertVariable(localVariables, "anonFunctionVar",
-                "function (string,string) returns (string)", "function");
+                "isolated function (string,string) returns (string)", "function");
 
         // future variable visibility test
         debugTestRunner.assertVariable(localVariables, "futureVar", "future", "future");
@@ -276,7 +276,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(localVariables, "tableVar", "table<Employee>[3]", "table");
 
         // stream variable visibility test
-        debugTestRunner.assertVariable(localVariables, "oddNumberStream", "stream<int>", "stream");
+        debugTestRunner.assertVariable(localVariables, "oddNumberStream", "stream<int, error>", "stream");
 
         // never variable visibility test
         debugTestRunner.assertVariable(localVariables, "neverVar", "", "xml");

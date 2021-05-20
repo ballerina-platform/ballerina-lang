@@ -365,6 +365,34 @@ function testFunctionWithAnyFunctionParamType() {
    assertSame(fn, x);
 }
 
+function testUsageWithCasts() {
+    int a = <int> getValue();
+    assert(150, a);
+
+    var b = <float> getValue();
+    assert(12.34, b);
+
+    any c = <decimal> getValue();
+    assert(23.45d, <anydata> c);
+
+    string|xml|float d = <string> getValue();
+    assert("Hello World!", d);
+
+    anydata e = <boolean> getValue();
+    assert(true, e);
+
+    anydata f = <[int, Person, boolean...]> getTupleWithRestDesc(int, Person);
+    assert(<[int, Person, boolean...]>[150, expPerson, true, true], f);
+
+    record {| stream<int> x; |} g = {x: (<int[]> [1, 2, 3]).toStream()};
+    var h = <object {}|record {| stream<int> x; |}|int> checkpanic getValueWithUnionReturnType(g);
+    assert(101, <int> h);
+
+    PersonObj i = new ("John", "Doe");
+    any|error j = <object {}|record {| stream<int> x; |}|string[]|error> getValueWithUnionReturnType(i);
+    assertSame(i, j);
+}
+
 // Interop functions
 function getValue(typedesc<int|float|decimal|string|boolean> td = <>) returns td = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",

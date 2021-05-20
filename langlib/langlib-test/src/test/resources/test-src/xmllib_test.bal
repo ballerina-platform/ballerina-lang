@@ -777,6 +777,20 @@ function testData() {
     assertEquals(concat.data(), "EnidBlytonhello>abc<");
 }
 
+function testXmlSubtypeFillerValue() {
+    xml:Text x1 = xml:createText("text 1");
+    xml:Text x2 = xml:createText("text 2");
+    xml:Text x3 = xml:createText("text 3");
+
+    xml:Text[] x = [x1, x2];
+    insertListValue(x, 3, x3);
+    assertEquals(x.toString(), "[`text 1`,`text 2`,``,`text 3`]");
+}
+
+function insertListValue('xml:Text[] list, int pos, 'xml:Text value) {
+    list[pos] = value;
+}
+
 function testXmlGetContentOverACommentSequence() {
     xml a = xml `<elem><!--Hello--></elem>`;
     xml c = a/*;

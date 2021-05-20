@@ -112,6 +112,8 @@ public class DefinitionTest {
                 {"defProject5.json", "project"},
                 {"defProject6.json", "project"},
                 {"defProject7.json", "project"},
+                {"defProject9.json", "project"},
+                {"defProject10.json", "project"},
         };
     }
 

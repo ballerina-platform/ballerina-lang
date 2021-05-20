@@ -21,6 +21,8 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.eclipse.lsp4j.CompletionItem;
 
+import java.util.Optional;
+
 import javax.annotation.Nullable;
 
 /**
@@ -37,7 +39,7 @@ public class TypeCompletionItem extends SymbolCompletionItem {
         this.typeDescriptor = typeSymbol;
     }
 
-    public TypeSymbol getTypeSymbol() {
-        return typeDescriptor;
+    public Optional<TypeSymbol> getTypeSymbol() {
+        return Optional.ofNullable(typeDescriptor);
     }
 }
