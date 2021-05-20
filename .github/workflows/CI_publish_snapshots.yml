@@ -24,6 +24,7 @@ jobs:
                 env:
                     packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
                     packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
+                    isRelease: "true"
                 run: |
                     ./gradlew clean build -x createJavadoc --scan publish --continue --rerun-tasks
                     ./gradlew createCodeCoverageReport

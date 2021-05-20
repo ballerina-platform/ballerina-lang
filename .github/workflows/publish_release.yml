@@ -21,6 +21,7 @@ jobs:
           packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
           packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          isRelease: "true"
         run: |
           git config user.name ${{ secrets.BALLERINA_BOT_USERNAME }}
           git config user.email ${{ secrets.BALLERINA_BOT_EMAIL }}
