@@ -33,14 +33,12 @@ subprojects {
             }
         }
         repositories {
-            if (System.getenv("isRelease") == "true") {
-                maven {
-                    name = "GitHubPackages"
-                    url = uri("https://maven.pkg.github.com/kaneeldias/ballerina-lang")
-                    credentials {
-                        username System.getenv("packageUser")
-                        password System.getenv("packagePAT")
-                    }
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/ballerina-platform/ballerina-lang")
+                credentials {
+                    username System.getenv("publishUser")
+                    password System.getenv("publishPAT")
                 }
             }
         }
