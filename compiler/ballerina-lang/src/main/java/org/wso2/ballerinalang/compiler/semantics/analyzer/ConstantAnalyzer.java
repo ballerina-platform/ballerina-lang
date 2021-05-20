@@ -24,14 +24,7 @@ import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.*;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Stack;
@@ -111,7 +104,7 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
 
         for (int i = expressions.size() - 1; i >= 0; i--) {
             NodeKind kind = expressions.get(i).getKind();
-            if (kind == NodeKind.GROUP_EXPR) {
+            if (kind == NodeKind.GROUP_EXPR || kind == NodeKind.UNARY_EXPR) {
                 continue;
             }
             if (kind != NodeKind.BINARY_EXPR) {
@@ -127,6 +120,18 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
         analyzeExpr(expr.expression);
     }
 
+    @Override
+    public void visit(BLangUnaryExpr unaryExpr) {
+
+        switch (unaryExpr.operator) {
+            case ADD:
+            case SUB:
+                analyzeExpr(unaryExpr.expr);
+                return;
+        }
+        dlog.error(unaryExpr.pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
+    }
+
     void analyzeExpr(BLangExpression expr) {
 
         switch (expr.getKind()) {
@@ -136,6 +141,7 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
             case SIMPLE_VARIABLE_REF:
             case BINARY_EXPR:
             case GROUP_EXPR:
+            case UNARY_EXPR:
                 this.expressions.push(expr);
                 expr.accept(this);
                 this.expressions.pop();

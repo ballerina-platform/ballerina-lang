@@ -29,14 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.*;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -172,6 +165,13 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         this.result = visitExpr(groupExpr.expression);
     }
 
+    @Override
+    public void visit(BLangUnaryExpr unaryExpr) {
+
+        BLangConstantValue value = visitExpr(unaryExpr.expr);
+        this.result = calculateConstValue(value, unaryExpr.operator);
+    }
+
     private BLangConstantValue calculateConstValue(BLangConstantValue lhs, BLangConstantValue rhs, OperatorKind kind) {
 
         if (lhs == null || rhs == null || lhs.value == null || rhs.value == null) {
@@ -204,6 +204,25 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                     return calculateBitWiseOp(lhs, rhs, (a, b) -> a ^ b);
                 default:
                     dlog.error(currentPos, DiagnosticErrorCode.CONSTANT_EXPRESSION_NOT_SUPPORTED);
+            }
+        } catch (NumberFormatException nfe) {
+            // Ignore. This will be handled as a compiler error.
+        } catch (ArithmeticException ae) {
+            dlog.error(currentPos, DiagnosticErrorCode.INVALID_CONST_EXPRESSION, ae.getMessage());
+        }
+        // This is a compilation error already logged.
+        // This is to avoid NPE exceptions in sub-sequent validations.
+        return new BLangConstantValue(null, this.currentConstSymbol.type);
+    }
+
+    private BLangConstantValue calculateConstValue(BLangConstantValue value, OperatorKind kind) {
+
+        try {
+            switch (kind) {
+                case ADD:
+                    return new BLangConstantValue(value.value, currentConstSymbol.type);
+                case SUB:
+                    return calculateNegation(value);
             }
         } catch (NumberFormatException nfe) {
             // Ignore. This will be handled as a compiler error.
@@ -342,6 +361,27 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return new BLangConstantValue(result, currentConstSymbol.type);
     }
 
+    private BLangConstantValue calculateNegation(BLangConstantValue value) {
+        
+        Object result = null;
+        switch (this.currentConstSymbol.type.tag) {
+            case TypeTags.INT:
+            case TypeTags.BYTE: // Byte will be a compiler error.
+                result = -1 * ((Long) (value.value));
+                break;
+            case TypeTags.FLOAT:
+                result = String.valueOf(-1 * Double.parseDouble(String.valueOf(value.value)));
+                break;
+            case TypeTags.DECIMAL:
+                BigDecimal valDecimal = new BigDecimal(String.valueOf(value.value), MathContext.DECIMAL128);
+                BigDecimal negDecimal = new BigDecimal(String.valueOf(-1), MathContext.DECIMAL128);
+                BigDecimal resultDecimal = valDecimal.multiply(negDecimal, MathContext.DECIMAL128);
+                result = resultDecimal.toPlainString();
+                break;
+        }
+        return new BLangConstantValue(result, currentConstSymbol.type);
+    }
+
     private BLangConstantValue visitExpr(BLangExpression node) {
 
         if (!node.typeChecked) {
@@ -354,6 +394,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             case SIMPLE_VARIABLE_REF:
             case BINARY_EXPR:
             case GROUP_EXPR:
+            case UNARY_EXPR:
                 BLangConstantValue prevResult = this.result;
                 Location prevPos = this.currentPos;
                 this.currentPos = node.pos;
