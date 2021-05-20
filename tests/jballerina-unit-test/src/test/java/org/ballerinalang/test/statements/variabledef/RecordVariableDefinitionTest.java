@@ -350,6 +350,15 @@ public class RecordVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'map<string>', found 'record {| never name?; int age; string...; |}'",
                 260, 24);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'map<(int|string)>', found " +
+                        "'record {| never name?; (int|boolean|string) age; boolean married?; (string|int)...; |}'",
+                285, 29);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid operation: type " +
+                        "'record {| never name?; (int|boolean|string) age; boolean married?; (string|int)...; |}' " +
+                        "does not support field access for non-required field 'married'",
+                287, 23);
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 

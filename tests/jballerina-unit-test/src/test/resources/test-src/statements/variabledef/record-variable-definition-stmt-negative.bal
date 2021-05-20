@@ -259,3 +259,30 @@ function DeclaredRestFieldMismach() {
     map<string> details;
     {name: stdName, ...details} = <PersonClosed>{name: "Jane Doe", age: 10, "foo": "bar"};
 }
+
+type SchemaA record {|
+    string name;
+    int age;
+    string...;
+|};
+
+type SchemaB record {|
+    string name;
+    boolean age;
+    boolean married;
+    int...;
+|};
+
+type SchemaC record {|
+    string name;
+    string age;
+    int...;
+|};
+
+function testRestFieldResolving() {
+    SchemaA recA = {name: "David", age:10, "foo":"bar"};
+    SchemaA|SchemaB|SchemaC {name, ...rest} = recA;
+    map<int|string> extra = rest;
+    var extraRec = rest;
+    boolean married = extraRec.married;
+}

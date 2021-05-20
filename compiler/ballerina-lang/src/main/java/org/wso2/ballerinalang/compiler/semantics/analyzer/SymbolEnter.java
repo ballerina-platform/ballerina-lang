@@ -2308,59 +2308,61 @@ public class SymbolEnter extends BLangNodeVisitor {
                 mappedFields, recordSymbol, env);
 
         if (recordVar.restParam != null) {
-            LinkedHashSet<BType> memberTypes = possibleTypes.stream()
-                    .map(possibleType -> {
-                        if (possibleType.tag == TypeTags.RECORD) {
-                            return ((BRecordType) possibleType).restFieldType;
-                        } else if (possibleType.tag == TypeTags.MAP) {
-                            return ((BMapType) possibleType).constraint;
-                        } else {
-                            return possibleType;
-                        }
-                    })
-                    .collect(Collectors.toCollection(LinkedHashSet::new));
-
-            List<String> intersectionFields = getIntersectionFields(possibleTypes);
-            LinkedHashMap<String, BField> unmappedMembers = populateAndGetPossibleFieldsForRecVar(recordVar.pos,
-                    possibleTypes, intersectionFields, recordSymbol, env);
-
-            LinkedHashMap<String, BField> optionalFields = new LinkedHashMap<>();
-            possibleTypes.forEach(possibleType -> {
-                if (possibleType.tag == TypeTags.RECORD) {
-                    optionalFields.putAll(((BRecordType) possibleType).fields);
-                }
-            });
-
-            intersectionFields.forEach(optionalFields::remove);
-            fields.keySet().forEach(unmappedMembers::remove);
-
-            optionalFields.values().forEach(field -> field.symbol.flags |= Flags.OPTIONAL);
-            unmappedMembers.putAll(optionalFields);
-
-            BRecordType restRecord = new BRecordType(null);
-            restRecord.fields = unmappedMembers;
-            restRecord.restFieldType = memberTypes.size() > 1 ?
-                    BUnionType.create(null, memberTypes) :
-                    memberTypes.iterator().next();
-            recordVarType.restFieldType = restRecord;
+            recordVarType.restFieldType = createRestFieldFromPossibleTypes(recordVar.pos, env, possibleTypes,
+                    fields, recordSymbol);
         }
-
         recordVarType.tsymbol = recordSymbol;
         recordVarType.fields = fields;
         recordSymbol.type = recordVarType;
         return recordVarType;
     }
 
-    private List<String> getIntersectionFields(List<BType> possibleTypes) {
-        List<LinkedHashMap<String, BField>> fieldList = new ArrayList<>();
-        List<BRecordType> recordTypes = new ArrayList<>();
+    private BType createRestFieldFromPossibleTypes(Location pos, SymbolEnv env, List<BType> possibleTypes,
+                                                   LinkedHashMap<String, BField> boundedFields, BSymbol recordSymbol) {
+        LinkedHashSet<BType> restFieldMemberTypes = new LinkedHashSet<>();
+        List<LinkedHashMap<String, BField>> possibleRecordFieldMapList = new ArrayList<>();
+
         for (BType possibleType : possibleTypes) {
+            BRecordType recordType = (BRecordType) possibleType;
             if (possibleType.tag == TypeTags.RECORD) {
-                recordTypes.add((BRecordType) possibleType);
+                possibleRecordFieldMapList.add(recordType.fields);
+                restFieldMemberTypes.add(recordType.restFieldType);
+            } else if (possibleType.tag == TypeTags.MAP) {
+                restFieldMemberTypes.add(((BMapType) possibleType).constraint);
+            } else {
+                restFieldMemberTypes.add(possibleType);
             }
         }
-        recordTypes.forEach(type -> fieldList.add(type.fields));
 
+        BType restFieldType = restFieldMemberTypes.size() > 1 ?
+                BUnionType.create(null, restFieldMemberTypes) :
+                restFieldMemberTypes.iterator().next();
+
+        if (!possibleRecordFieldMapList.isEmpty()) {
+            List<String> intersectionFields = getIntersectionFields(possibleRecordFieldMapList);
+            LinkedHashMap<String, BField> unmappedMembers = populateAndGetPossibleFieldsForRecVar(pos,
+                    possibleTypes, intersectionFields, recordSymbol, env);
+
+            LinkedHashMap<String, BField> optionalFields = new LinkedHashMap<>() {{
+                possibleRecordFieldMapList.forEach(map -> putAll(map));
+            }};
+
+            intersectionFields.forEach(optionalFields::remove);
+            boundedFields.keySet().forEach(unmappedMembers::remove);
+
+            optionalFields.values().forEach(field -> field.symbol.flags = Flags.OPTIONAL);
+            unmappedMembers.putAll(optionalFields);
+
+            BRecordType restRecord = new BRecordType(null);
+            restRecord.fields = unmappedMembers;
+            restRecord.restFieldType = restFieldType;
+            restFieldType = restRecord;
+        }
+
+        return restFieldType;
+    }
+
+    private List<String> getIntersectionFields(List<LinkedHashMap<String, BField>> fieldList) {
         LinkedHashMap<String, BField> intersectionMap = fieldList.get(0);
         HashSet<String> intersectionSet = new HashSet<>(intersectionMap.keySet());
 

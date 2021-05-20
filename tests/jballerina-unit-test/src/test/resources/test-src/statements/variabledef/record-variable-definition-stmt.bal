@@ -413,11 +413,45 @@ function getStudentRecord(int? id) returns record { int? Id; string studentName;
     return {Id: id, studentName: "John", "Age": 24, "surName": "Paker"};
 }
 
+type SchemaA record {|
+    string name;
+    int age;
+    string...;
+|};
+
+type SchemaB record {|
+    string name;
+    boolean age;
+    boolean married;
+    int...;
+|};
+
+function testRestFieldResolvingWithUnion() {
+    SchemaA recA = {name: "David", age:10, "foo":"bar"};
+    SchemaA|SchemaB {name, ...rest} = recA;
+
+    var age = rest.age;
+    var fooVal = rest["foo"];
+    assertEquality(10, age);
+    assertEquality("bar", fooVal);
+
+    rest.age = true;
+    rest["foo"] = 100;
+    age = rest.age;
+    fooVal = rest["foo"];
+    assertEquality(true, age);
+    assertEquality(100, fooVal);
+
+    rest.married = true;
+    assertEquality(true, rest?.married);
+}
+
 function testRestFieldResolving() {
     testInferredResType();
     testRecordDestructuring1();
     testRecordDestructuring2();
     testRecordDestructuring3();
+    testRestFieldResolvingWithUnion();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
