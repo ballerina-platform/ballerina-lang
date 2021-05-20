@@ -66,6 +66,15 @@ function checkMapAccessReference()  returns map<float> {
     return CFMap;
 }
 
+const int CUI1 = -(10);
+const int CUI2 = -(+(5));
+const int CUI3 = -(10/5);
+const float CUF = (+(5.0 + 10.0));
+
+function getConstUnaryExpressions() returns [int, int, int, float] {
+    return [CUI1, CUI2, CUI3, CUF];
+}
+
 const int SHIFTED = (1 << CAI) + 1;
 
 const int RSHIFTED = (64 >>  1);

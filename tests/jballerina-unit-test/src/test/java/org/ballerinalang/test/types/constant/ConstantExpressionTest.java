@@ -131,6 +131,17 @@ public class ConstantExpressionTest {
         Assert.assertEquals(returns[0].stringValue(), "{\"v1\":3.0, \"v2\":5.0}");
     }
 
+    @Test
+    public void getConstUnaryExpressions() {
+
+        BValue[] returns = BRunUtil.invoke(compileResult, "getConstUnaryExpressions");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns[0].stringValue(), "-10");
+        Assert.assertEquals(returns[1].stringValue(), "-5");
+        Assert.assertEquals(returns[2].stringValue(), "-2");
+        Assert.assertEquals(returns[3].stringValue(), "15.0");
+    }
+
     @Test void testBitwiseConstExpressions() {
         BRunUtil.invoke(compileResult, "testBitwiseConstExpressions");
     }
