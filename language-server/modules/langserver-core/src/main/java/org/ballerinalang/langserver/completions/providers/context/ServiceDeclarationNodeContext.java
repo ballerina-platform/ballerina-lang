@@ -73,7 +73,7 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
             (2) service mod:<cursor>
             function ...
              */
-            if (this.onQualifiedNameIdentifier(context, context.getTokenAtCursor().parent())) {
+            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getTokenAtCursor().parent())) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getTokenAtCursor().parent();
                 List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef,
                         ModulePartNodeContextUtil.serviceTypeDescPredicate());
@@ -94,7 +94,7 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
             Predicate<Symbol> predicate = symbol -> symbol instanceof VariableSymbol
                     && ((VariableSymbol) symbol).qualifiers().contains(Qualifier.LISTENER);
             NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-            if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context,
                         (QualifiedNameReferenceNode) nodeAtCursor, predicate);
                 completionItems.addAll(this.getCompletionItemList(moduleContent, context));

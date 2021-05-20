@@ -9,7 +9,7 @@
       "label": "test",
       "kind": "Variable",
       "detail": "none",
-      "sortText": "E",
+      "sortText": "B",
       "insertText": "test",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +17,7 @@
       "label": "mod",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "Q",
+      "sortText": "S",
       "insertText": "mod",
       "insertTextFormat": "Snippet"
     },
@@ -252,7 +252,7 @@
       "label": "new",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "E",
       "insertText": "new ",
       "insertTextFormat": "Snippet"
     },
@@ -260,7 +260,7 @@
       "label": "check",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "insertText": "check ",
       "insertTextFormat": "Snippet"
     },
@@ -268,7 +268,7 @@
       "label": "checkpanic",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "insertText": "checkpanic ",
       "insertTextFormat": "Snippet"
     },
@@ -276,7 +276,7 @@
       "label": "trap",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "insertText": "trap",
       "insertTextFormat": "Snippet"
     }
