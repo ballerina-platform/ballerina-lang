@@ -1,4 +1,3 @@
-
 Compiling source
 	file_create.bal
 

@@ -1,4 +1,3 @@
-
 Compiling source
 	pramodya/conflictProject:0.1.7
 

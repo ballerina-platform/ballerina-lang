@@ -1,4 +1,3 @@
-
 Compiling source
 	sameera/myproject:0.1.0
 
