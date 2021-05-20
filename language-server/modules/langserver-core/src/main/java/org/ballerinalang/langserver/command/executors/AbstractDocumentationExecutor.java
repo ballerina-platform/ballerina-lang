@@ -95,14 +95,19 @@ public abstract class AbstractDocumentationExecutor implements LSCommandExecutor
         SemanticModel semanticModel = ctx.workspace().semanticModel(filePath.get()).orElseThrow();
         Optional<Symbol> documentableSymbol = getDocumentableSymbol(node, semanticModel);
 
+        boolean isUpdate = false;
         DocAttachmentInfo docs;
         Range range;
         if (documentableSymbol.isPresent()) {
             Optional<Documentation> documentation = ((Documentable) documentableSymbol.get()).documentation();
             docs = docAttachmentInfo.get();
             Optional<Range> docsRange = DocumentationGenerator.getDocsRange(node);
-            if (documentation.isPresent() && docsRange.isPresent()) {
+            if (documentation.isPresent()) {
                 docs = docs.mergeDocAttachment(documentation.get());
+            }
+
+            if (docsRange.isPresent()) {
+                isUpdate = true;
                 range = docsRange.get();
             } else {
                 range = new Range(docs.getDocStartPos(), docs.getDocStartPos());
@@ -112,7 +117,7 @@ public abstract class AbstractDocumentationExecutor implements LSCommandExecutor
             range = new Range(docs.getDocStartPos(), docs.getDocStartPos());
         }
 
-        LanguageClient languageClient = ctx.getLanguageClient();
-        return applySingleTextEdit(docs.getDocumentationString(), range, textDocumentIdentifier, languageClient);
+        LanguageClient lsClient = ctx.getLanguageClient();
+        return applySingleTextEdit(docs.getDocumentationString(!isUpdate), range, textDocumentIdentifier, lsClient);
     }
 }

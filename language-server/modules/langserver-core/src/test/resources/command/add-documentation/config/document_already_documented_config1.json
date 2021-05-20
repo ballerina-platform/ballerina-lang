@@ -28,7 +28,7 @@
                     "character": 31
                   }
                 },
-                "newText": "# Given the last used ID, this will return the next ID to be used\n# for required purposes\n#\n# + lastId - Last used ID\n# + return - Next ID to be used  \n"
+                "newText": "# Given the last used ID, this will return the next ID to be used\n# for required purposes\n#\n# + lastId - Last used ID\n# + return - Next ID to be used"
               }
             ]
           }

@@ -28,7 +28,7 @@
                     "character": 28
                   }
                 },
-                "newText": "# This is a test method within a class\n    #\n    # + b - An int parameter\n    # # Deprecated\n    # Deprecated Description  \n    "
+                "newText": "# This is a test method within a class\n    #\n    # + b - An int parameter\n    # # Deprecated\n    # Deprecated Description"
               }
             ]
           }
