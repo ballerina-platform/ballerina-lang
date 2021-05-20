@@ -278,16 +278,16 @@ public class RecordVariableDefinitionTest {
                 "{name:\"John\", age:{age:30, format:\"YY\", year:1990}, married:true, work:\"SE\"}");
     }
 
-//    @Test(description = "Test record variables rest param types")
-//    public void testRestParameterType() {
-//        BValue[] returns = BRunUtil.invoke(result, "testRestParameterType");
-//        Assert.assertEquals(returns.length, 5);
-//        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-//        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
-//        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
-//        Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
-//        Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
-//    }
+    @Test(description = "Test record variables rest param types")
+    public void testRestParameterType() {
+        BValue[] returns = BRunUtil.invoke(result, "testRestParameterType");
+        Assert.assertEquals(returns.length, 5);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
+    }
 
     @Test(description = "Test resolving the rest field type during record restructuring")
     public void testResolvingRestField() {
@@ -329,16 +329,27 @@ public class RecordVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'map<int>', " +
                 "found 'map<(int|string)>'", 188, 12);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'map<int>', " +
-                "found 'record {| (int|anydata)...; |}'", 198, 12);
+                "found 'record {| int x; int y; anydata...; |}'", 198, 12);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'map<string>', " +
-                "found 'record {| int age; string...; |}'", 213, 18);
+                "found 'record {| never name?; int age; string...; |}'", 213, 18);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'map<string>', " +
-                "found 'record {| (int|error) id; string...; |}'", 228, 18);
+                "found 'record {| never name?; (int|error) id; string...; |}'", 228, 18);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'int', " +
                 "found '(int|error)'", 231, 15);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected " +
-                        "'record {| never name?; never age?; (int|string)...; |}', found 'record {| int age; string...; |}'",
+                        "'record {| never name?; never age?; (int|string)...; |}', " +
+                        "found 'record {| never name?; int age; string...; |}'",
                 240, 17);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected " +
+                        "'record {| never name?; int...; |}', found 'record {| never name?; int age; string...; |}'",
+                251, 44);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid operation: type 'record {| never name?; int age; string...; |}' does not support " +
+                        "field access for non-required field 'employed'",
+                253, 23);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'map<string>', found 'record {| never name?; int age; string...; |}'",
+                260, 24);
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 

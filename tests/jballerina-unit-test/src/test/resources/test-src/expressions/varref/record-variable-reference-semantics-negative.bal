@@ -158,10 +158,10 @@ function testRestParameterType() {
     map<error> other2 = {};
 
     IntRestRecord rec1 = { name: "A", married: true, "age": 19, "token": 200 };
-    { name, ...other1 } = rec1; // incompatible types: expected 'map<int>', found 'map<anydata>'
+    { name, ...other1 } = rec1; // expected 'map<int>', found 'record {| never name?; boolean married; int...; |}'
 
     ObjectRestRecord rec2 = { name: "A", married: true, "extra": new };
-    { name, ...other2 } = rec2; // incompatible types: expected 'map<error>', found 'map'
+    { name, ...other2 } = rec2; // expected 'map<error>', found 'record {| never name?; boolean married; Object...; |}'
 }
 
 type IntRecord record {|

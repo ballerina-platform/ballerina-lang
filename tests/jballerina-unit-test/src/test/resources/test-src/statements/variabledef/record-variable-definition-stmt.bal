@@ -295,49 +295,50 @@ function testRecordVariableWithOnlyRestParam() returns map<anydata|error> {
     return rest;
 }
 
-//class Object {
-//    private int 'field;
-//
-//    public function init() {
-//        self.'field = 12;
-//    }
-//
-//    public function getField() returns int {
-//        return self.'field;
-//    }
-//}
+class Object {
+    private int 'field;
 
-//type IntRestRecord record {|
-//    string name;
-//    boolean married;
-//    anydata...;
-//|};
-//
-//type ObjectRestRecord record {|
-//    string name;
-//    boolean married;
-//    Object...;
-//|};
-//
-//function testRestParameterType() returns [boolean, boolean, boolean, boolean, boolean] {
-//    IntRestRecord rec1 = { name: "A", married: true, "age": 19, "token": 200 };
-//    IntRestRecord { name: name1, ...other1 } = rec1;
-//    var { name: name2, ...other2 } = rec1;
-//
-//    IntRestRecord|ObjectRestRecord rec3 = rec1;
-//    IntRestRecord|ObjectRestRecord { name: name5, ...other5 } = rec3;
-//
-//    map<string> stringMap = { a: "A", b: "B" };
-//    map<string> { a, ...other6 } = stringMap;
-//
-//    any a1 = other1;
-//    any a2 = other2;
-//    any a5 = other5;
-//    any a6 = other6;
-//
-//    return [a1 is record{|never name?; boolean|int...;|}, a2 is record{|never name?; int...;|},
-//    a5 is record{|any|error...;|}, a5 is map<anydata>, a6 is record{|never a?; string...;|}];
-//}
+    public function init() {
+        self.'field = 12;
+    }
+
+    public function getField() returns int {
+        return self.'field;
+    }
+}
+
+type IntRestRecord record {|
+    string name;
+    boolean married;
+    int...;
+|};
+
+type ObjectRestRecord record {|
+    string name;
+    boolean married;
+    Object...;
+|};
+
+function testRestParameterType() returns [boolean, boolean, boolean, boolean, boolean] {
+    IntRestRecord rec1 = { name: "A", married: true, "age": 19, "token": 200 };
+    IntRestRecord { name: name1, ...other1 } = rec1;
+    var { name: name2, ...other2 } = rec1;
+
+    IntRestRecord|ObjectRestRecord rec3 = rec1;
+    IntRestRecord|ObjectRestRecord { name: name5, ...other5 } = rec3;
+
+    map<string> stringMap = { a: "A", b: "B" };
+    map<string> { a, ...other6 } = stringMap;
+
+    any a1 = other1;
+    any a2 = other2;
+    any a5 = other5;
+    any a6 = other6;
+
+    return [a1 is record{|never name?; boolean married; int...;|}, a2 is record{|int...;|},
+    a5 is record{|never name?; boolean married; int|Object...;|}, a5 is map<anydata>,
+    a6 is record{|never a?; string...;|}];
+}
 
 type XY record {
     int x;

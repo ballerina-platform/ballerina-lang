@@ -243,3 +243,19 @@ function testDefinedRestField() {
         panic error("Found 'age' field: " + rest.get("age").toString());
     }
 }
+
+function testTypedBinidingRestField() {
+    PersonClosed p = {name: "Jane Doe", age: 20, "employed": "false"};
+    PersonClosed {name,...rest} = p;
+
+    record{|never name?; int...;|} extra = rest;
+    int personAge = rest.age;
+    string employed = rest.employed;
+}
+
+function DeclaredRestFieldMismach() {
+    string stdName;
+    int age;
+    map<string> details;
+    {name: stdName, ...details} = <PersonClosed>{name: "Jane Doe", age: 10, "foo": "bar"};
+}
