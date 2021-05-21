@@ -164,3 +164,14 @@ function copyInInMethodCall2(map<int[]> y) {
         _ = y.clone().remove(isolatedModuleLevelMap["a"].toString());
     }
 }
+
+function copyOutAccessingIsolatedVar() returns map<int>[] {
+     map<int>[] y = [];
+     map<int> z;
+     lock {
+         map<int>[] y2 = [];
+         y2[0] = isolatedModuleLevelMap;
+         z = isolatedModuleLevelMap.cloneReadOnly();
+         return y2.clone();
+     }
+}

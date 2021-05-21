@@ -710,6 +710,27 @@ var isolatedObjectWithInvalidCopyInInMethodCall = isolated object {
     }
 };
 
+isolated class IsolatedClassAssigningProtectedFieldsToLocalVars {
+    private map<int> m = {};
+
+    isolated function baz() returns map<int>[] {
+        map<int>[] y = [];
+        map<int> z;
+        lock {
+            map<int>[] y2 = [self.m];
+            y2[0] = self.m;
+            y2.push(self.m);
+
+            map<int>[] y3 = y.clone();
+            y3[0] = self.m;
+
+            z = self.m.clone();
+
+            return y2.cloneReadOnly();
+        }
+    }
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }

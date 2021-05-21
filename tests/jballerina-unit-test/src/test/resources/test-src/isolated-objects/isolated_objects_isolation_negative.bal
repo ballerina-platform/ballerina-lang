@@ -674,3 +674,18 @@ var isolatedObjectWithInvalidCopyInInMethodCall = isolated object {
         }
     }
 };
+
+isolated class IsolatedClassWithInvalidCopyOut2 {
+    private map<int> m = {};
+
+    isolated function baz() returns map<int>[] {
+        map<int>[] y = [];
+        map<int> z;
+        lock {
+            map<int>[] y2 = [];
+            y[0] = self.m;
+            z = self.m;
+            return y2;
+        }
+    }
+}

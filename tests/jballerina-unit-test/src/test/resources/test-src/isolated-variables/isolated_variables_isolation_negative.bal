@@ -314,3 +314,14 @@ function invalidCopyInInMethodCall2(map<int[]> y) {
         _ = y.remove(isolatedModuleLevelMap["a"].toString());
     }
 }
+
+function invalidCopyOutAccessingIsolatedVar() returns map<int>[] {
+    map<int>[] y = [];
+    map<int> z;
+    lock {
+        map<int>[] y2 = [];
+        y[0] = isolatedModuleLevelMap;
+        z = isolatedModuleLevelMap;
+        return y2;
+    }
+}
