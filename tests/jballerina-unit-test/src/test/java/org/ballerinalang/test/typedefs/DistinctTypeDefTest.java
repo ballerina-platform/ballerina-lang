@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
 /**
  * Type definition test cases.
  */
-@Test(groups = "disableOnOldParser")
 public class DistinctTypeDefTest {
 
     private CompileResult negative;
