@@ -966,11 +966,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean checkKeySpecifier(BLangTableConstructorExpr tableConstructorExpr, BTableType tableType) {
         if (tableConstructorExpr.tableKeySpecifier != null) {
-            if (!(validateTableConstructorRecordLiterals(getTableKeyNameList(tableConstructorExpr.
-                    tableKeySpecifier), tableConstructorExpr.recordLiteralList))) {
-                resultType = symTable.semanticError;
-                return true;
-            }
             tableType.fieldNameList = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
         }
         return false;
@@ -1102,47 +1097,10 @@ public class TypeChecker extends BLangNodeVisitor {
                             ((BIntersectionType) constraint).effectiveType,
                     tableType.keyPos);
 
-            return (isKeySpecifierValidated && validateTableConstructorRecordLiterals(fieldNameList, recordLiterals));
+            return (isKeySpecifierValidated);
         }
 
         return true;
-    }
-
-    private boolean validateTableConstructorRecordLiterals(List<String> keySpecifierFieldNames,
-                                                           List<BLangRecordLiteral> recordLiterals) {
-        for (String fieldName : keySpecifierFieldNames) {
-            for (BLangRecordLiteral recordLiteral : recordLiterals) {
-                BLangRecordKeyValueField recordKeyValueField = getRecordKeyValueField(recordLiteral, fieldName);
-                if (recordKeyValueField.getValue().getKind() == NodeKind.LITERAL ||
-                        recordKeyValueField.getValue().getKind() == NodeKind.NUMERIC_LITERAL ||
-                        recordKeyValueField.getValue().getKind() == NodeKind.RECORD_LITERAL_EXPR ||
-                        recordKeyValueField.getValue().getKind() == NodeKind.ARRAY_LITERAL_EXPR ||
-                        recordKeyValueField.getValue().getKind() == NodeKind.TUPLE_LITERAL_EXPR ||
-                        recordKeyValueField.getValue().getKind() == NodeKind.XML_ELEMENT_LITERAL ||
-                        recordKeyValueField.getValue().getKind() == NodeKind.XML_TEXT_LITERAL) {
-                    continue;
-                }
-
-                dlog.error(recordLiteral.pos,
-                        DiagnosticErrorCode.KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT, fieldName);
-                resultType = symTable.semanticError;
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private BLangRecordKeyValueField getRecordKeyValueField(BLangRecordLiteral recordLiteral,
-                                                            String fieldName) {
-        for (RecordLiteralNode.RecordField recordField : recordLiteral.fields) {
-            BLangRecordKeyValueField recordKeyValueField = (BLangRecordKeyValueField) recordField;
-            if (fieldName.equals(recordKeyValueField.key.toString())) {
-                return recordKeyValueField;
-            }
-        }
-
-        return null;
     }
 
     public boolean validateKeySpecifier(List<String> fieldNameList, BType constraint,
