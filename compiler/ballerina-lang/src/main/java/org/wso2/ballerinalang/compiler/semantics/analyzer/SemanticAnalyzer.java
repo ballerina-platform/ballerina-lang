@@ -835,10 +835,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     varNode.type = lhsType;
                     varNode.symbol.type = lhsType;
                 }
-                if (!isSupportedConfigType(lhsType)) {
-                    // TODO: remove this check once runtime support all configurable types
-                    dlog.error(varNode.pos, DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED, lhsType);
-                }
+                // TODO: remove this check once runtime support all configurable types
+                checkSupportedConfigType(lhsType, varNode.pos);
             }
         }
 
@@ -875,7 +873,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         transferForkFlag(varNode);
     }
 
-    private boolean isSupportedConfigType(BType type) {
+    private void checkSupportedConfigType(BType type, Location location) {
+        List<String> errors = new ArrayList<>();
+        if (!isSupportedConfigType(type, errors) || !errors.isEmpty()) {
+            StringBuilder errorMsg = new StringBuilder();
+            for (String error : errors) {
+                errorMsg.append("\n\t").append(error);
+            }
+            dlog.error(location, DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED, type, errorMsg);
+        }
+    }
+
+    private boolean isSupportedConfigType(BType type, List<String> errors) {
         switch (type.getKind()) {
             case FINITE:
                 return false;
@@ -884,24 +893,34 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (elementType.tag == TypeTags.INTERSECTION) {
                     elementType = ((BIntersectionType) elementType).getEffectiveType();
                 }
-                 return elementType.tag != TypeTags.TABLE && isSupportedConfigType(elementType);
+                if (elementType.tag == TypeTags.TABLE || !isSupportedConfigType(elementType, errors)) {
+                    errors.add("array element type '" + elementType + "' is not supported");
+                }
+                return true;
             case RECORD:
                 BRecordType recordType = (BRecordType) type;
                 for (Field field : recordType.getFields().values()) {
                     Type fieldType = field.getType();
-                    if (!isSupportedConfigType((BType) fieldType)) {
-                        return false;
+                    if (!isSupportedConfigType((BType) fieldType, errors)) {
+                        errors.add("record field type '" + fieldType + "' of field '" + field.getName() + "' is not" +
+                                " supported");
                     }
                 }
                 return true;
             case MAP:
                 BMapType mapType = (BMapType) type;
-                return isSupportedConfigType(mapType.constraint);
+                if (!isSupportedConfigType(mapType.constraint, errors)) {
+                    errors.add("map constraint type '" + mapType.constraint + "' is not supported");
+                }
+                return true;
             case TABLE:
                 BTableType tableType = (BTableType) type;
-                return isSupportedConfigType(tableType.constraint);
+                if (!isSupportedConfigType(tableType.constraint, errors)) {
+                    errors.add("table constraint type '" + tableType.constraint + "' is not supported");
+                }
+                return true;
             case INTERSECTION:
-                return isSupportedConfigType(((BIntersectionType) type).effectiveType);
+                return isSupportedConfigType(((BIntersectionType) type).effectiveType, errors);
             case UNION:
                 return Symbols.isFlagOn(type.flags, Flags.ENUM);
             default:

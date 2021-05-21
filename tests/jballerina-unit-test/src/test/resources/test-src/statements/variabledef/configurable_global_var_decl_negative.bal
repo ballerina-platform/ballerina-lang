@@ -42,8 +42,17 @@ type Person record {|
     readonly string name;
 |};
 
-type UnsupportedRecord record {|
-    anydata field1;
+type Person1 record {|
+    anydata anydataField;
+|};
+
+type Person2 record {|
+    int|string unionField;
+    anydata anydataField;
+|};
+
+type Person3 record {|
+    (1|2)[] finiteArr;
 |};
 
 type Colors "Red" | "Green";
@@ -53,10 +62,13 @@ configurable table<Person> key(name)[] tableArr1 = ?;
 configurable (table<Person> key(name) & readonly)[] tableArr2 = ?;
 
 // Unsupported record field
-configurable UnsupportedRecord recordVar = ?;
+configurable Person1 person1 = ?;
+configurable Person2 person2 = ?;
+configurable Person3 person3 = ?;
 
 // Unsupported table constraint
-configurable table<map<anydata>> tableVar = ?;
+configurable table<map<anydata>> tableVar1 = ?;
+configurable table<Person1> tableVar2 = ?;
 
 // Unsupported array constraint
 configurable anydata[] arrayVar = ?;
