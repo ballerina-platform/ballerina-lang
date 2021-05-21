@@ -140,8 +140,8 @@ class AIDataMapperCodeActionUtil {
 
         List<DiagnosticProperty<?>> props = diagnostic.properties();
 
-        //To check if the left is a symbol (Fix issue 30379)
-        if(props.get(LEFT_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC){
+        //To check if the left is a symbol
+        if (props.get(LEFT_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC) {
             return fEdits;
         }
 
@@ -254,8 +254,8 @@ class AIDataMapperCodeActionUtil {
                         }
                     } else if ((positionDetails.matchedNode().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) &&
                             (((TypeCastExpressionNode) positionDetails.matchedNode()).expression().kind() ==
-                                SyntaxKind.FUNCTION_CALL)) {
-                            matchedNode = ((TypeCastExpressionNode) positionDetails.matchedNode()).expression();
+                                    SyntaxKind.FUNCTION_CALL)) {
+                        matchedNode = ((TypeCastExpressionNode) positionDetails.matchedNode()).expression();
                     }
 
                     if (matchedNode == null) {
