@@ -248,7 +248,8 @@ public class SymbolFactory {
             builder.withAnnotation(createAnnotationSymbol(annAttachment.annotationSymbol));
         }
 
-        return builder.withTypeDescriptor((FunctionTypeSymbol) typesFactory.getTypeDescriptor(invokableSymbol.type))
+        return builder.withTypeDescriptor((FunctionTypeSymbol) typesFactory
+                .getTypeDescriptor(invokableSymbol.type, invokableSymbol.type.tsymbol, true))
                 .build();
     }
 
