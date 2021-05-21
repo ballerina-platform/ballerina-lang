@@ -83,7 +83,7 @@ public class MethodGenUtils {
         mv.visitEnd();
     }
 
-    static String encodeModuleSpecialFuncName(String funcSuffix) {
+    public static String encodeModuleSpecialFuncName(String funcSuffix) {
         return IdentifierUtils.encodeFunctionIdentifier(funcSuffix);
     }
 
