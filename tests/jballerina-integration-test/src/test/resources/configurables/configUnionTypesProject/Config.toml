@@ -1,7 +1,17 @@
 [configUnionTypes]
 httpVersion = "HTTP_1_1"
 countryCode = "Sri Lanka"
+countryCodes = ["United States","Sri Lanka"]
+[configUnionTypes.httpResponse]
+httpVersion = "HTTP_2"
+[configUnionTypes.country]
+countryCode = "United States"
 
 [configUnionTypes.mod2]
 httpVersion = "HTTP_2"
 countryCode = "United States"
+countryCodes = ["Sri Lanka", "United States"]
+[configUnionTypes.mod2.httpResponse]
+httpVersion = "HTTP_1_1"
+[configUnionTypes.mod2.country]
+countryCode = "Sri Lanka"
