@@ -130,7 +130,6 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangUnaryExpr unaryExpr) {
-
         switch (unaryExpr.operator) {
             case ADD:
             case SUB:
