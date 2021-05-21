@@ -2558,10 +2558,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     BLangExpression varRef = ((BLangAssignment) parent).varRef;
 
                     if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-                        if (invokedOnSelf) {
-                            return !isIsolatedExpression(expression, false);
-                        }
-
                         // Will be validated for that expression.
                         return false;
                     }
