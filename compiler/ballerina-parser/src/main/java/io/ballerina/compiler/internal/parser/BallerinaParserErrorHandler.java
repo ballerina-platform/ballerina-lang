@@ -864,6 +864,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case SIMPLE_BINDING_PATTERN:
                 case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:
                 case PATH_SEGMENT_IDENT:
+                case MODULE_ENUM_NAME:
+                case ENUM_MEMBER_NAME:
+                case NAMED_ARG_BINDING_PATTERN:
                     hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
                 case IMPORT_PREFIX:
@@ -875,9 +878,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     break;
                 case OPEN_PARENTHESIS:
                 case PARENTHESISED_TYPE_DESC_START:
+                case ARG_LIST_OPEN_PAREN:
                     hasMatch = nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN;
                     break;
                 case CLOSE_PARENTHESIS:
+                case ARG_LIST_CLOSE_PAREN:
                     hasMatch = nextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN;
                     break;
                 case SIMPLE_TYPE_DESCRIPTOR:
@@ -917,12 +922,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     break;
                 case QUESTION_MARK:
                     hasMatch = nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN;
-                    break;
-                case ARG_LIST_OPEN_PAREN:
-                    hasMatch = nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN;
-                    break;
-                case ARG_LIST_CLOSE_PAREN:
-                    hasMatch = nextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN;
                     break;
                 case FIRST_OBJECT_CONS_QUALIFIER:
                 case SECOND_OBJECT_CONS_QUALIFIER:
@@ -1079,11 +1078,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case SERVICE_DECL_QUALIFIER:
                     hasMatch = nextToken.kind == SyntaxKind.ISOLATED_KEYWORD;
                     break;
-                case MODULE_ENUM_NAME:
-                case ENUM_MEMBER_NAME:
-                case NAMED_ARG_BINDING_PATTERN:
-                    hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
-                    break;
                 case UNION_OR_INTERSECTION_TOKEN:
                     hasMatch =
                             nextToken.kind == SyntaxKind.PIPE_TOKEN || nextToken.kind == SyntaxKind.BITWISE_AND_TOKEN;
@@ -1095,7 +1089,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.SLASH_LT_TOKEN;
                     break;
                 case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
-                    hasMatch = nextToken.kind == SyntaxKind.SLASH_ASTERISK_TOKEN;
+                    hasMatch = nextToken.kind == SyntaxKind.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN;
                     break;
                 case SLASH_ASTERISK_TOKEN:
                     hasMatch = nextToken.kind == SyntaxKind.SLASH_ASTERISK_TOKEN;
