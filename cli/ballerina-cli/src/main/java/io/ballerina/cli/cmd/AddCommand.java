@@ -102,8 +102,8 @@ public class AddCommand implements BLauncherCmd {
         Path projectPath = ProjectUtils.findProjectRoot(userDir);
         if (null == projectPath) {
             CommandUtil.printError(errStream,
-                    "not a ballerina project (or any parent up to mount point)\n" +
-                            "You should run this command inside a ballerina project", null, false);
+                    "not a Ballerina project (or any parent up to mount point)\n" +
+                            "You should run this command inside a Ballerina project", null, false);
             return;
         }
 
@@ -179,9 +179,9 @@ public class AddCommand implements BLauncherCmd {
             return;
         }
 
-        errStream.println("Added new ballerina module at '" + userDir.relativize(projectPath
+        errStream.println("Added new Ballerina module at " + userDir.relativize(projectPath
                 .resolve(ProjectConstants.MODULES_ROOT)
-                .resolve(moduleName)) + "'");
+                .resolve(moduleName)));
     }
 
     @Override
@@ -191,7 +191,7 @@ public class AddCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("add a new ballerina module");
+        out.append("add a new Ballerina module");
     }
 
     @Override

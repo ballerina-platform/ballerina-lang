@@ -37,10 +37,9 @@ public class BFunction extends BSimpleVariable {
     public String computeValue() {
         try {
             String stringVal = getStringValue(context, jvmValue);
-            // Todo - remove once the output of "stringValue()" method is fixed in jvm backend.
             String funcKeyword = BVariableType.FUNCTION.getString();
-            if (stringVal.contains(String.format("%s %s", funcKeyword, funcKeyword))) {
-                return stringVal.replaceFirst(String.format("%s %s", funcKeyword, funcKeyword), funcKeyword);
+            if (stringVal.startsWith(funcKeyword + " ")) {
+                stringVal = stringVal.replaceFirst(funcKeyword + " ", "");
             }
             return stringVal;
         } catch (Exception e) {

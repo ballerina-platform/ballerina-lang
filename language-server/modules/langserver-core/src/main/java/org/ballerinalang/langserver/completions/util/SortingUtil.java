@@ -28,6 +28,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.projects.Project;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -36,8 +37,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.Collections;
 import java.util.List;
@@ -56,6 +55,14 @@ public class SortingUtil {
 
     private static final int RANK_RANGE = 25;
 
+    private static final String BALLERINA_ORG = "ballerina";
+
+    private static final String LANG_LIB_PKG_PREFIX = "lang.";
+
+    private static final String LANG_LIB_LABEL_PREFIX = "ballerina/lang.";
+
+    private static final String BAL_LIB_LABEL_PREFIX = "ballerina/";
+
     private SortingUtil() {
     }
 
@@ -67,7 +74,7 @@ public class SortingUtil {
      */
     public static boolean isModuleCompletionItem(LSCompletionItem item) {
         return (item instanceof SymbolCompletionItem
-                && ((SymbolCompletionItem) item).getSymbol() instanceof BPackageSymbol)
+                && ((SymbolCompletionItem) item).getSymbol().orElse(null) instanceof ModuleSymbol)
                 || (item instanceof StaticCompletionItem
                 && (((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.MODULE
                 || ((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.LANG_LIB_MODULE));
@@ -81,7 +88,7 @@ public class SortingUtil {
      */
     public static boolean isTypeCompletionItem(LSCompletionItem item) {
         return (item instanceof SymbolCompletionItem
-                && ((SymbolCompletionItem) item).getSymbol() instanceof BTypeSymbol)
+                && ((SymbolCompletionItem) item).getSymbol().orElse(null) instanceof TypeSymbol)
                 || (item instanceof StaticCompletionItem
                 && ((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.TYPE);
     }
@@ -102,28 +109,41 @@ public class SortingUtil {
         (4) Standard libraries
         (5) Other modules 
          */
-//        PackageID currentModule = context.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
-//        String orgName = currentModule.orgName.getValue();
-//        String label = item.getCompletionItem().getLabel();
-//        if (item instanceof StaticCompletionItem && label.startsWith(orgName + "/")) {
-//            // Modules in the current project
-//            return genSortText(1);
-//        }
-//        if (item instanceof SymbolCompletionItem
-//                && ((SymbolCompletionItem) item).getSymbol().kind() == SymbolKind.MODULE && !label.contains("/")) {
-//            // Modules which have been imported already
-//            return genSortText(2);
-//        }
-//        if (label.startsWith("ballerina/lang.")) {
-//            // Langlib modules
-//            return genSortText(3);
-//        }
-//        if (label.startsWith("ballerina/")) {
-//            // Standard libraries modules
-//            return genSortText(4);
-//        }
+        Optional<Project> currentProject = context.workspace().project(context.filePath());
+        String currentOrg = currentProject.get().currentPackage().packageOrg().value();
+        String currentPkgName = currentProject.get().currentPackage().packageName().value();
+        String label = item.getCompletionItem().getLabel();
+        int rank = -1;
+        if (item instanceof SymbolCompletionItem && ((SymbolCompletionItem) item).getSymbol().isPresent() &&
+                ((SymbolCompletionItem) item).getSymbol().get().kind() == SymbolKind.MODULE) {
+            // Already imported module
+            ModuleSymbol moduleSymbol = (ModuleSymbol) ((SymbolCompletionItem) item).getSymbol().get();
+            String orgName = moduleSymbol.id().orgName();
+            String moduleName = moduleSymbol.id().moduleName();
 
-        return genSortText(5);
+            if (currentOrg.equals(orgName) && moduleName.startsWith(currentPkgName + ".")) {
+                // Module in the current project
+                rank = 1;
+            } else if (BALLERINA_ORG.equals(orgName) && !moduleName.startsWith(LANG_LIB_PKG_PREFIX)) {
+                // langLib module
+                rank = 2;
+            } else if (BALLERINA_ORG.equals(orgName)) {
+                // ballerina module
+                rank = 3;
+            } else {
+                // any other imported module
+                rank = 4;
+            }
+        } else if (label.startsWith(LANG_LIB_LABEL_PREFIX)) {
+            // Langlib modules
+            rank = 5;
+        } else if (label.startsWith(BAL_LIB_LABEL_PREFIX)) {
+            // Standard libraries modules
+            rank = 6;
+        }
+        rank = rank < 0 ? 7 : rank;
+
+        return genSortText(rank);
     }
 
     /**
@@ -258,7 +278,7 @@ public class SortingUtil {
     /**
      * Sets the sorting text to provided completion items using the default sorting.
      *
-     * @param context Completion context
+     * @param context         Completion context
      * @param completionItems Completion items to be set sorting texts
      */
     public static void toDefaultSorting(BallerinaCompletionContext context, List<LSCompletionItem> completionItems) {

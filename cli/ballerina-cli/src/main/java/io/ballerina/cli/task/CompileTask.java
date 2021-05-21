@@ -46,7 +46,6 @@ public class CompileTask implements Task {
 
     @Override
     public void execute(Project project) {
-        this.out.println();
         this.out.println("Compiling source");
 
         String sourceName;

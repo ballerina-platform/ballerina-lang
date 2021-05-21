@@ -10,9 +10,9 @@ DESCRIPTION
        test results. You can execute tests in a Ballerina package or a standalone
        Ballerina file.
     
-       Use 'ballerina test to execute tests in the current package.
+       Use 'bal test to execute tests in the current package.
 
-       Use 'ballerina test <balfile>' to execute the given Ballerina test file.
+       Use 'bal test <balfile>' to execute the given Ballerina test file.
               Note that testing single BAL files that belongs to a Ballerina package is not allowed.
               File path can be relative or absolute.
 

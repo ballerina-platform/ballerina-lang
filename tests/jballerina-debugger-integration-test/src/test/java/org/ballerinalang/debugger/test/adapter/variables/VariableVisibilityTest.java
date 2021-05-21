@@ -241,7 +241,7 @@ public class VariableVisibilityTest extends BaseTestCase {
 
         // anonymous function variable visibility test
         debugTestRunner.assertVariable(localVariables, "anonFunctionVar",
-                "function (string,string) returns (string)", "function");
+                "isolated function (string,string) returns (string)", "function");
 
         // future variable visibility test
         debugTestRunner.assertVariable(localVariables, "futureVar", "future", "future");

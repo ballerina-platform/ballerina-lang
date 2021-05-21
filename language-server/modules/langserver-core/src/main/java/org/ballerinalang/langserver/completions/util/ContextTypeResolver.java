@@ -41,6 +41,7 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
@@ -56,6 +57,7 @@ import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
@@ -102,6 +104,16 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     public ContextTypeResolver(PositionedOperationContext context) {
         this.context = context;
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(ListenerDeclarationNode node) {
+        Optional<TypeDescriptorNode> typeDesc = node.typeDescriptor();
+        if (typeDesc.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        return typeDesc.get().apply(this);
     }
 
     @Override
@@ -251,22 +263,25 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(FunctionCallExpressionNode node) {
-        Optional<Symbol> funcSymbol;
+        Optional<Symbol> funcSymbol = Optional.empty();
         NameReferenceNode nameRef = node.functionName();
         if (nameRef.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nameRef;
             Predicate<Symbol> predicate = symbol -> symbol.getName().isPresent()
                     && symbol.kind() == SymbolKind.FUNCTION;
             Predicate<Symbol> qNamePredicate =
-                    predicate.and(symbol -> symbol.getName().get().equals(qNameRef.identifier().text()));
+                    predicate.and(symbol -> symbol.getName().orElse("").equals(qNameRef.identifier().text()));
             funcSymbol = this.getTypeFromQNameReference(qNameRef, qNamePredicate);
         } else if (nameRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             funcSymbol = getSymbolByName(((SimpleNameReferenceNode) nameRef).name().text());
-        } else {
+        }
+
+        if (funcSymbol.isEmpty()) {
             return Optional.empty();
         }
 
-        if (!CommonUtil.isInFunctionCallParameterContext(context, node)) {
+        if (!CommonUtil.isInFunctionCallParameterContext(context, node)
+                || !(funcSymbol.get() instanceof FunctionSymbol)) {
             return SymbolUtil.getTypeDescriptor(funcSymbol.get());
         }
 
@@ -408,7 +423,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
      * @param positionalArgumentNode   Positional argument node
      * @param argumentNodes            Argument nodes of the function/method call expression
      * @param functionOrMethodCallExpr Function/method call expression
-     * @return Optional type symbol
+     * @return {@link Optional<TypeSymbol>} Type symbol.
      */
     private Optional<TypeSymbol> getPositionalArgumentTypeForFunction(PositionalArgumentNode positionalArgumentNode,
                                                                       NodeList<FunctionArgumentNode> argumentNodes,

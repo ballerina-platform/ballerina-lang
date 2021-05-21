@@ -63,7 +63,7 @@ public class AddCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(moduleDir));
         Assert.assertTrue(Files.isDirectory(moduleDir));
         Assert.assertTrue(Files.exists(moduleDir.resolve(moduleName + ".bal")));
-        Assert.assertTrue(readOutput().contains("Added new ballerina module"));
+        Assert.assertTrue(readOutput().contains("Added new Ballerina module"));
     }
 
     @Test(description = "Test add command outside a project")
@@ -74,7 +74,7 @@ public class AddCommandTest extends BaseCommandTest {
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("not a ballerina project"));
+        Assert.assertTrue(readOutput().contains("not a Ballerina project"));
     }
 
     @Test(description = "Test add command without arguments")

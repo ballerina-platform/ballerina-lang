@@ -1,5 +1,5 @@
 NAME
-       ballerina-shell - Run ballerina interactive REPL
+       ballerina-shell - Run Ballerina interactive REPL
 
 SYNOPSIS
        bal shell [-d|--debug] [--force-dumb] [-f|--file] [-t|--time-out]
@@ -24,14 +24,14 @@ OPTIONS
 
 
 EXAMPLES
-       Run ballerina shell.
+       Run Ballerina shell.
           $ bal shell
 
-       Run ballerina shell in debug mode.
+       Run Ballerina shell in debug mode.
           $ bal shell -d
 
-       Run ballerina shell with 1s time out.
+       Run Ballerina shell with 1s time out.
           $ bal shell -t 1000
 
-       Run ballerina shell loading initial declarations from "main.bal".
+       Run Ballerina shell loading initial declarations from "main.bal".
           $ bal shell -f main.bal

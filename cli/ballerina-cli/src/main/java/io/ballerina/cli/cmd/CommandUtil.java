@@ -143,7 +143,9 @@ public class CommandUtil {
             initPackage(path);
         }
         Path gitignore = path.resolve(ProjectConstants.GITIGNORE_FILE_NAME);
-        Files.createFile(gitignore);
+        if (Files.notExists(gitignore)) {
+            Files.createFile(gitignore);
+        }
         String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + GITIGNORE);
         Files.write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
     }
