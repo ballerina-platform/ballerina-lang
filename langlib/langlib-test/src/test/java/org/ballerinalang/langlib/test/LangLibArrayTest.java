@@ -137,6 +137,20 @@ public class LangLibArrayTest {
         assertEquals(((BInteger) result.getRefValue(5)).intValue(), 2);
     }
 
+    @Test(dataProvider = "testSliceOfReadonlyArrays")
+    public void testSliceOfReadonlyArray(String funcName) {
+        BRunUtil.invoke(compileResult, funcName);
+    }
+
+    @DataProvider(name = "testSliceOfReadonlyArrays")
+    public Object[] testSliceOfReadonlyArrays() {
+        return new Object[][]{
+                {"testSliceOfReadonlyIntArray"},
+                {"testSliceOfReadonlyStringArray"},
+                {"testSliceOfReadonlyBooleanArray"}
+        };
+    }
+
     @Test
     public void testPushAfterSlice() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testPushAfterSlice");

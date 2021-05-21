@@ -74,6 +74,27 @@ function testSlice() returns [float[], int, float[], int, float[], int] {
     return [r1, r1.length(), r2, r2.length(), r3, r3.length()];
 }
 
+function testSliceOfReadonlyIntArray() {
+    readonly & int[] a = [1, 2, 3, 4, 5];
+    int[] b = a.slice(2, 4);
+    b[0] = 7;
+    assertValueEquality([7, 4], b);
+}
+
+function testSliceOfReadonlyStringArray() {
+    readonly & string[] roNames = ["x"];
+    string[] rwNames = roNames.slice(0);
+    rwNames[0] = "y";
+    assertValueEquality(["y"], rwNames);
+}
+
+function testSliceOfReadonlyBooleanArray() {
+    readonly & boolean[] a = [true, false, true, true];
+    boolean[] b = a.slice(2);
+    b[1] = false;
+    assertValueEquality([true, false], b);
+}
+
 function testPushAfterSlice() returns [int, int, float[]] {
      float[] arr = [12.34, 23.45, 34.56, 45.67, 56.78];
      float[] s = arr.slice(1, 4);
