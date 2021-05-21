@@ -555,7 +555,7 @@ public class TomlProvider implements ConfigProvider {
                     getTomlTypeString(tomlValue));
         }
         visitedNodes.add(tomlValue);
-        return getBalValue(variableName, type.getTag(), value);
+        return getBalValue(variableName, type, value);
     }
 
     private BString retrieveUnionValue(TomlNode tomlValue, String variableName, UnionType unionType) {
@@ -617,6 +617,8 @@ public class TomlProvider implements ConfigProvider {
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
                 return getMapValueArray(tomlValue, variableName, arrayType, elementType);
+            case TypeTags.UNION_TAG:
+                return getEnumValueArray(tomlValue, variableName, arrayType, elementType);
             default:
                 Type effectiveType = ((IntersectionType) elementType).getEffectiveType();
                 switch(effectiveType.getTag()) {
@@ -656,6 +658,20 @@ public class TomlProvider implements ConfigProvider {
         return new ArrayValueImpl(arrayType, entries.length, entries);
     }
 
+    private BArray getEnumValueArray(TomlNode tomlValue, String variableName, ArrayType arrayType, Type elementType) {
+        TomlValueNode tomlNode = ((TomlKeyValueNode) tomlValue).value();
+        ListInitialValueEntry.ExpressionEntry[] expressionEntries;
+        if (tomlNode.kind() != getEffectiveTomlType(arrayType, variableName)) {
+            invalidTomlLines.add(tomlValue.location().lineRange());
+            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName, arrayType,
+                                      getTomlTypeString(tomlValue));
+        }
+        visitedNodes.add(tomlValue);
+        List<TomlValueNode> arrayList = ((TomlArrayValueNode) tomlNode).elements();
+        expressionEntries = createArray(variableName, arrayList, arrayType.getElementType());
+        return new ArrayValueImpl(arrayType, expressionEntries.length, expressionEntries);
+    }
+
     private BArray getPrimitiveArray(TomlNode tomlValue, String variableName, ArrayType arrayType) {
         ListInitialValueEntry.ExpressionEntry[] expressionEntries;
         if (tomlValue.kind() != getEffectiveTomlType(arrayType, variableName)) {
@@ -686,7 +702,7 @@ public class TomlProvider implements ConfigProvider {
                 ArrayType arrayType = (ArrayType) ((BIntersectionType) elementType).getEffectiveType();
                 balValue = getPrimitiveArray(tomlValueNode, variableName, arrayType);
             } else {
-                balValue = getBalValue(variableName, elementType.getTag(), arrayList.get(i));
+                balValue = getBalValue(variableName, elementType, arrayList.get(i));
             }
             arrayEntries[i] = new ListInitialValueEntry.ExpressionEntry(balValue);
         }
@@ -875,8 +891,9 @@ public class TomlProvider implements ConfigProvider {
         }
     }
 
-    private Object getBalValue(String variableName, int typeTag, TomlValueNode tomlValueNode) {
+    private Object getBalValue(String variableName, Type type, TomlValueNode tomlValueNode) {
         Object tomlValue = ((TomlBasicValueNode<?>) tomlValueNode).getValue();
+        int typeTag = type.getTag();
         if (typeTag == TypeTags.BYTE_TAG) {
             int value = ((Long) tomlValue).intValue();
             if (!isByteLiteral(value)) {
@@ -891,6 +908,9 @@ public class TomlProvider implements ConfigProvider {
         if (typeTag == TypeTags.STRING_TAG) {
             String stringVal = (String) tomlValue;
             return StringUtils.fromString(stringVal);
+        }
+        if (typeTag == TypeTags.UNION_TAG) {
+            return createEnumValue(tomlValueNode, tomlValue, variableName, (UnionType) type);
         }
         return tomlValue;
     }
