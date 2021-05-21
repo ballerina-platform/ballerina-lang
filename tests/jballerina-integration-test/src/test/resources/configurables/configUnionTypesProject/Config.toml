@@ -10,6 +10,6 @@ countryCode = "United States"
 httpVersion = "HTTP_2"
 countryCode = "United States"
 [configUnionTypes.mod2.httpResponse]
-httpVersion = "HTTP_1"
+httpVersion = "HTTP_1_1"
 [configUnionTypes.mod2.country]
 countryCode = "Sri Lanka"
