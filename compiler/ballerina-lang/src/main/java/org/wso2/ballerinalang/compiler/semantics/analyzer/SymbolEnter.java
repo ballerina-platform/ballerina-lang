@@ -1097,8 +1097,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        this.unresolvedTypes = new ArrayList<>();
-        this.unresolvedRecordDueToFields = new HashSet<>();
+        this.unresolvedTypes = new ArrayList<>(typeDefs.size());
+        this.unresolvedRecordDueToFields = new HashSet<>(typeDefs.size());
         this.resolveRecordsUnresolvedDueToFields = false;
         for (BLangNode typeDef : typeDefs) {
             if (isErrorIntersectionType(typeDef, env)) {
@@ -1399,12 +1399,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         // Check for any circular type references
-        if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE ||
-                typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
+        boolean hasTypeInclusions = false;
+        NodeKind typeNodeKind = typeDefinition.typeNode.getKind();
+        if (typeNodeKind == NodeKind.OBJECT_TYPE || typeNodeKind == NodeKind.RECORD_TYPE) {
             BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
             // For each referenced type, check whether the types are already resolved.
             // If not, then that type should get a higher precedence.
             for (BLangType typeRef : structureTypeNode.typeRefs) {
+                hasTypeInclusions = true;
                 BType referencedType = symResolver.resolveTypeNode(typeRef, env);
                 if (referencedType == symTable.noType) {
                     if (!this.unresolvedTypes.contains(typeDefinition)) {
@@ -1415,9 +1417,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
-        // check for unresolved fields. This record may be referencing another record
-        if (!this.resolveRecordsUnresolvedDueToFields &&
-                typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
+        // check for unresolved fields if there are type inclusions. This record may be referencing another record
+        if (hasTypeInclusions && !this.resolveRecordsUnresolvedDueToFields && typeNodeKind == NodeKind.RECORD_TYPE) {
             BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
             for (BLangSimpleVariable variable : structureTypeNode.fields) {
                 BType referencedType = symResolver.resolveTypeNode(variable.typeNode, env);
