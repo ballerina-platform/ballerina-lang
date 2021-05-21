@@ -98,10 +98,10 @@ EXAMPLES
         Run only the given set of functions in the current package.
             $ bal test --tests testFunction
 
-        Run the given set of functions in the default module only
+        Run the given set of functions in the default module only.
             $ bal test --tests PackageName:testA1,testB*
 
-        Run the all functions in the given module
+        Run the all functions in the given module.
             $ bal test --tests PackageName.ModuleName:*
 
         Run only the previously-failed test cases in the current package.
