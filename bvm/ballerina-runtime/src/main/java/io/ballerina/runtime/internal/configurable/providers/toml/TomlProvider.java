@@ -784,6 +784,9 @@ public class TomlProvider implements ConfigProvider {
                 } else {
                     return isSupportedType(constraintType);
                 }
+            case TypeTags.UNION_TAG:
+                BUnionType unionType = (BUnionType) type;
+                return SymbolFlags.isFlagOn(unionType.getFlags(), SymbolFlags.ENUM);
             default:
         }
         return false;
