@@ -30,7 +30,7 @@ public enum DiagnosticState {
      */
     VALID,
     /**
-     * Indicates that the symbol represents a redeclard symbol.
+     * Indicates that the symbol represents a redeclared symbol.
      */
     REDECLARED,
     /**
