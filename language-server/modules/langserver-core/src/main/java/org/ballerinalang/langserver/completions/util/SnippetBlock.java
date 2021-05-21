@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver;
+package org.ballerinalang.langserver.completions.util;
 
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import org.apache.commons.lang3.tuple.Pair;
@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.completions.builder.CompletionItemBuilder;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
@@ -37,17 +36,12 @@ import java.util.Optional;
  */
 public class SnippetBlock extends CompletionItemBuilder {
 
-    private String label = "";
-    private String detail = "";
+    private final String label;
+    private final String detail;
     private final String snippet;
     private final Kind kind;
     private final Pair<String, String>[] imports;
-
-    public SnippetBlock(String snippet, Kind kind) {
-        this.snippet = snippet;
-        this.kind = kind;
-        this.imports = null;
-    }
+    private String id;
 
     public SnippetBlock(String label, String snippet, String detail, Kind kind) {
         this.label = label;
@@ -111,30 +105,20 @@ public class SnippetBlock extends CompletionItemBuilder {
         return this.snippet;
     }
 
-    /**
-     * Returns LSP Snippet Type.
-     *
-     * @return {@link CompletionItemKind} LSP Snippet Type
-     */
-    private CompletionItemKind getCompletionItemKind() {
-        switch (kind) {
-            case KEYWORD:
-                return CompletionItemKind.Keyword;
-            case TYPE:
-                return CompletionItemKind.Unit;
-            case SNIPPET:
-            case STATEMENT:
-            default:
-                return CompletionItemKind.Snippet;
-        }
-    }
-
     public String getLabel() {
         return label;
     }
 
     public Kind kind() {
         return kind;
+    }
+
+    public Optional<String> getId() {
+        return Optional.ofNullable(this.id);
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**

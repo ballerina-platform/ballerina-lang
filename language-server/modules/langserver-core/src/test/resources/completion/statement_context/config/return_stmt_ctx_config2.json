@@ -193,7 +193,7 @@
       "label": "return",
       "kind": "Snippet",
       "detail": "Statement",
-      "sortText": "A",
+      "sortText": "P",
       "insertText": "return ",
       "insertTextFormat": "Snippet"
     },

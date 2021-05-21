@@ -41,9 +41,9 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
     private final List<Node> resolverChain = new ArrayList<>();
     private Token tokenAtCursor;
     private NonTerminalNode nodeAtCursor;
-    private boolean contextTypeCaptured = false;
+    private boolean isContextTypeCaptured = false;
     private TypeSymbol contextType;
-    private boolean capturedEnclosingNode = false;
+    private boolean isCapturedEnclosingNode = false;
     private ModuleMemberDeclarationNode enclosingNode = null;
 
     public BallerinaCompletionContextImpl(CompletionContext context, LanguageServerContext serverContext) {
@@ -93,8 +93,8 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
 
     @Override
     public Optional<TypeSymbol> getContextType() {
-        if (!this.contextTypeCaptured) {
-            this.contextTypeCaptured = true;
+        if (!this.isContextTypeCaptured) {
+            this.isContextTypeCaptured = true;
             NonTerminalNode node = getNodeAtCursor();
             do {
                 ContextTypeResolver contextTypeResolver = new ContextTypeResolver(this);
@@ -113,8 +113,8 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
 
     @Override
     public Optional<ModuleMemberDeclarationNode> enclosedModuleMember() {
-        if (!this.capturedEnclosingNode) {
-            this.capturedEnclosingNode = true;
+        if (!this.isCapturedEnclosingNode) {
+            this.isCapturedEnclosingNode = true;
             Optional<SyntaxTree> syntaxTree = this.currentSyntaxTree();
             if (syntaxTree.isEmpty()) {
                 throw new RuntimeException("Cannot find a valid syntax tree");

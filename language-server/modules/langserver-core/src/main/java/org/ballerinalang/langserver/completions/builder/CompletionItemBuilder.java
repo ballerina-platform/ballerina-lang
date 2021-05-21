@@ -1,7 +1,7 @@
 package org.ballerinalang.langserver.completions.builder;
 
 import io.ballerina.compiler.api.symbols.Symbol;
-import org.ballerinalang.langserver.SnippetBlock;
+import org.ballerinalang.langserver.completions.util.SnippetBlock;
 import org.eclipse.lsp4j.CompletionItemKind;
 
 /**

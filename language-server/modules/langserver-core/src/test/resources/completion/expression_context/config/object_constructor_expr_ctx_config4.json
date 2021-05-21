@@ -396,43 +396,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "remote",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "remote",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "remote function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "O",
-      "insertText": "remote function ${1:name}(${2})${3};",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "function",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
       "insertText": "function ${1:name}(${2})${3} {\n\t${4}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "function",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "function ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "resource",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "resource ",
       "insertTextFormat": "Snippet"
     },
     {

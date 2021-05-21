@@ -33,7 +33,6 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
@@ -71,7 +70,6 @@ import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortT
 public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<ListenerDeclarationNode> {
     
     private static final String INIT_METHOD_NAME = "init";
-    private static final String NEW_LABEL = "new";
 
     public ListenerDeclarationNodeContext() {
         super(ListenerDeclarationNode.class);
@@ -160,9 +158,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                             rank = 4;
                         }
                     }
-                } else if (lsItem.getType() == LSCompletionItem.CompletionItemType.SNIPPET
-                        && ((SnippetCompletionItem) lsItem).kind() == SnippetBlock.Kind.KEYWORD
-                        && cItem.getLabel().equals(NEW_LABEL)) {
+                } else if (Snippet.KW_NEW.equals(lsItem)) {
                     // new keyword completion item
                     rank = 5;
                 }
