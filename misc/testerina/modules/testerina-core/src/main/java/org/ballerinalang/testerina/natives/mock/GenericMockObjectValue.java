@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.values.TypedescValue;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -226,7 +227,7 @@ public class GenericMockObjectValue implements BObject {
         List<Object> newArgs = new ArrayList<>();
         int i = 0;
         while (i < args.length) {
-            if (args[i] != null) {
+            if (args[i] != null && !(args[i] instanceof TypedescValue)) {
                 newArgs.add(args[i]);
             }
             i += 2;
