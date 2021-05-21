@@ -2607,6 +2607,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return false;
             }
 
+            if (isCloneOrCloneReadOnlyInvocation(invocation)) {
+                return false;
+            }
+
+            if (!invokedOnSelf && invocation.type.tag == TypeTags.NIL) {
+                return !transferOut;
+            }
+
             return isInvalidTransfer(parentExpression, transferOut, invokedOnSelf);
         }
 
