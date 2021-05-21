@@ -12,4 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-listener L
+type Student record {
+    string name;
+    int age;
+};
+
+Student john = {
+    name: "John Doe",
+    age:16
+};
+
+listener L = john;

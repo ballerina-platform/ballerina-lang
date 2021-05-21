@@ -206,7 +206,6 @@ public class CodeActionTest {
         server.setHandler(new DataMapperServiceHandler(null));
         server.start();
 
-        JsonArray editResponse = null;
         // Read expected results
         String configJsonPath = "codeaction" + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
