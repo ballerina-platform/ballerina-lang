@@ -21,7 +21,16 @@ import ballerina/test;
 configurable configLib:HttpVersion & readonly httpVersion = ?;
 configurable mod1:CountryCodes & readonly countryCode = ?;
 
+type HttpResponse record {|
+    configLib:HttpVersion httpVersion;
+|};
+
+configurable HttpResponse httpResponse = ?;
+configurable mod1:Country country = ?;
+
 public function testEnumValues() {
     test:assertEquals(httpVersion, configLib:HTTP_2);
     test:assertEquals(countryCode, mod1:US);
+    test:assertEquals(httpResponse.httpVersion, configLib:HTTP_1_1);
+    test:assertEquals(country.countryCode, mod1:SL);
 }
