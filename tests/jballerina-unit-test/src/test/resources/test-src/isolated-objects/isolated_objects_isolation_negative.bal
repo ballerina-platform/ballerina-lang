@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
+import ballerina/lang.array;
 isolated class InvalidIsolatedClassWithNonPrivateMutableFields {
     int a;
     public map<int> b;
@@ -631,3 +631,46 @@ public isolated class IsolatedClassWithBoundMethodAccess {
     isolated function baz() {
     }
 }
+
+isolated class IsolatedClassWithInvalidCopyInInMethodCall {
+    private map<int> m = {};
+
+    isolated function baz() returns map<int>[] {
+        map<int>[] y = [];
+
+        lock {
+            y[0] = self.m;
+            y.push(self.m);
+            array:push(y, self.m);
+        }
+
+        return y;
+    }
+
+    function qux(map<int[]> y) {
+        lock {
+            _ = y.remove(self.m["a"].toString());
+        }
+    }
+}
+
+var isolatedObjectWithInvalidCopyInInMethodCall = isolated object {
+    private map<int> m = {};
+
+    isolated function baz() returns map<int>[] {
+        map<int>[] y = [];
+
+        lock {
+            y[0] = self.m;
+            y.push(self.m);
+            array:push(y, self.m);
+            return y;
+        }
+    }
+
+    function qux(map<int[]> y) {
+        lock {
+            _ = y.remove(self.m["a"].toString());
+        }
+    }
+};

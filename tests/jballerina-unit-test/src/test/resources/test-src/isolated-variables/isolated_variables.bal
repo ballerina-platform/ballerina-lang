@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.array;
+
 int[] a = getIntArray();
 
 isolated int[][] b = [a.cloneReadOnly(), getIntArray()];
@@ -139,4 +141,26 @@ function testValidTransferInAsArgInLockAccessingIsolatedVar(int[] n) {
 
 isolated function update(int[][] x, int[] y) {
     x.push(y);
+}
+
+isolated map<int> isolatedModuleLevelMap = {};
+
+isolated function copyInInMethodCall1() returns map<int>[] {
+    map<int>[] y = [];
+
+    lock {
+        map<int>[] y2 = y.clone();
+        y2[0] = isolatedModuleLevelMap;
+        y.clone().push(isolatedModuleLevelMap);
+        array:push(y.clone(), isolatedModuleLevelMap);
+        array:push(y2, isolatedModuleLevelMap);
+    }
+
+    return y;
+}
+
+function copyInInMethodCall2(map<int[]> y) {
+    lock {
+        _ = y.clone().remove(isolatedModuleLevelMap["a"].toString());
+    }
 }

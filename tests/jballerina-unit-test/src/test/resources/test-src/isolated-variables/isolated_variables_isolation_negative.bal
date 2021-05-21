@@ -13,9 +13,9 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.array;
 
 int[] a = getIntArray();
-
 isolated int[][] b = [a, getIntArray()];
 
 isolated record {
@@ -295,3 +295,22 @@ class NonIsolatedClass {
 }
 
 isolated function getMemberUsingSelf(NonIsolatedClass cl) returns int[] => cl.getMemberInternal();
+
+isolated map<int> isolatedModuleLevelMap = {};
+
+isolated function invalidCopyInInMethodCall1() returns map<int>[] {
+    map<int>[] y = [];
+
+    lock {
+        y[0] = isolatedModuleLevelMap;
+        y.push(isolatedModuleLevelMap);
+        array:push(y, isolatedModuleLevelMap);
+        return y;
+    }
+}
+
+function invalidCopyInInMethodCall2(map<int[]> y) {
+    lock {
+        _ = y.remove(isolatedModuleLevelMap["a"].toString());
+    }
+}

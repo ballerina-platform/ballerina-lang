@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.array;
+
 public isolated class IsolatedClassWithNoMutableFields {
     public final int[] & readonly a;
     final readonly & record {int i;} b;
@@ -661,6 +663,52 @@ public isolated class IsolatedClassWithBoundMethodAccessOutsideLock {
     isolated function baz() {
     }
 }
+
+isolated class IsolatedClassWithInvalidCopyInInMethodCall {
+    private map<int> m = {};
+
+    isolated function baz() returns map<int>[] {
+        map<int>[] y = [];
+
+        lock {
+            map<int>[] y2 = y.cloneReadOnly();
+            y2[0] = self.m.cloneReadOnly();
+            y.clone().push(self.m);
+            array:push(y.clone(), self.m);
+        }
+
+        return y;
+    }
+
+    function qux(map<int[]> y) {
+        lock {
+            _ = y.clone().remove(self.m["a"].toString());
+        }
+    }
+}
+
+var isolatedObjectWithInvalidCopyInInMethodCall = isolated object {
+    private map<int> m = {};
+
+    isolated function baz() returns map<int>[] {
+        map<int>[] y = [];
+
+        lock {
+            map<int>[] y2 = y.clone();
+            y2[0] = self.m.clone();
+            y.clone().push(self.m);
+            array:push(y2, self.m);
+        }
+
+        return y;
+    }
+
+    function qux(map<int[]> y) {
+        lock {
+            _ = y.clone().remove(self.m["a"].toString());
+        }
+    }
+};
 
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
