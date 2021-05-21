@@ -643,19 +643,19 @@ class BIRTestUtils {
 
     private static void assertDistinctTypeIds(BTypeIdSet expTypeIdSet, Bir.TypeId actualTypeIdSet,
                                               Bir.ConstantPoolSet constantPoolSet) {
-        Assert.assertEquals(actualTypeIdSet.primaryTypeIdCount(), expTypeIdSet.primary.size());
-        Assert.assertEquals(actualTypeIdSet.secondaryTypeIdCount(), expTypeIdSet.secondary.size());
+        Assert.assertEquals(actualTypeIdSet.primaryTypeIdCount(), expTypeIdSet.getPrimary().size());
+        Assert.assertEquals(actualTypeIdSet.secondaryTypeIdCount(), expTypeIdSet.getSecondary().size());
 
         ArrayList<Bir.TypeIdSet> primaryTypeId = actualTypeIdSet.primaryTypeId();
         for (int i = 0; i < primaryTypeId.size(); i++) {
             Bir.TypeIdSet typeId = primaryTypeId.get(i);
-            Assert.assertTrue(containsTypeId(typeId, expTypeIdSet.primary, constantPoolSet));
+            Assert.assertTrue(containsTypeId(typeId, expTypeIdSet.getPrimary(), constantPoolSet));
         }
 
         ArrayList<Bir.TypeIdSet> secondaryTypeId = actualTypeIdSet.secondaryTypeId();
         for (int i = 0; i < secondaryTypeId.size(); i++) {
             Bir.TypeIdSet typeId = secondaryTypeId.get(i);
-            Assert.assertTrue(containsTypeId(typeId, expTypeIdSet.secondary, constantPoolSet));
+            Assert.assertTrue(containsTypeId(typeId, expTypeIdSet.getSecondary(), constantPoolSet));
         }
     }
 

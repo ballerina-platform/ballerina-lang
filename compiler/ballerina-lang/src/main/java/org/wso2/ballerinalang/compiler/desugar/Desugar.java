@@ -74,6 +74,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -7010,13 +7011,7 @@ public class Desugar extends BLangNodeVisitor {
         BObjectType objectClassType = new BObjectType(classTSymbol, classTSymbol.flags);
         objectClassType.fields = objectType.fields;
         classTSymbol.type = objectClassType;
-        var typeIdSet = objectType.typeIdSet;
-        if (!typeIdSet.primary.isEmpty()) {
-            objectClassType.typeIdSet.primary.addAll(typeIdSet.primary);
-        }
-        if (!typeIdSet.secondary.isEmpty()) {
-            objectClassType.typeIdSet.secondary.addAll(typeIdSet.secondary);
-        }
+        objectClassType.typeIdSet.add(objectType.typeIdSet);
 
         // Create a new object type node and a type def from the concrete class type
 //        BLangObjectTypeNode objectClassNode = TypeDefBuilderHelper.createObjectTypeNode(objectClassType, pos);
