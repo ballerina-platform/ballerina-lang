@@ -970,7 +970,7 @@ public class CommonUtil {
     }
 
     /**
-     * Check if the provided line range is within the enclosing line range
+     * Check if the provided line range is within the enclosing line range.
      *
      * @param lineRange      Line range to be checked for inclusion
      * @param enclosingRange Enclosing line range in which the #lineRange reside
