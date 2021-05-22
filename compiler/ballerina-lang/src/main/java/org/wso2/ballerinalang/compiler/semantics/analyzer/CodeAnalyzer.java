@@ -4175,6 +4175,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private BType getErrorTypes(BType bType) {
+        if (bType == null) {
+            return symTable.semanticError;
+        }
+
         BType errorType = symTable.semanticError;
 
         int tag = bType.tag;

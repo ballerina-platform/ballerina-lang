@@ -1128,7 +1128,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (varRefExpr.symbol == null) {
             Name varName = names.fromIdNode(varRefExpr.variableName);
             if (varName != Names.IGNORE) {
-                if (varRefExpr.pkgSymbol.tag == SymTag.XMLNS) {
+                // Check xml namespace reference such as ns0:foo, where nso is a xml namespace prefix
+                if (varRefExpr.pkgSymbol != null && varRefExpr.pkgSymbol.tag == SymTag.XMLNS) {
                     getCurrentAnalysisState().taintedStatus = varRefExpr.pkgSymbol.tainted ?
                             TaintedStatus.TAINTED : TaintedStatus.UNTAINTED;
                     return;
@@ -1252,9 +1253,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isExternalLangLibFunction(BLangInvocation invocationExpr) {
-        return invocationExpr.symbol.pkgID.orgName.value.equals("ballerina")
-                && invocationExpr.symbol.pkgID.name.value.startsWith("lang.")
-                && Symbols.isNative(invocationExpr.symbol);
+        BSymbol symbol = invocationExpr.symbol;
+        return symbol != null
+                && symbol.pkgID.orgName.value.equals("ballerina")
+                && symbol.pkgID.name.value.startsWith("lang.")
+                && Symbols.isNative(symbol);
     }
 
     private int receiverIfAttachedFunction(BLangInvocation invocationExpr) {
