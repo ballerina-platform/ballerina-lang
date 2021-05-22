@@ -83,6 +83,10 @@ public class ProjectRenameTest {
                 {"rename_error_config1.json", "Mod2Error"},
                 // TODO type Err error; type symbols cannot be renamed due to #30688
                 // {"rename_error_config2.json", "Mod2Error"},
+                {"rename_package_alias_result1.json", "mod1"},
+                {"rename_package_alias_result2.json", "mod"},
+                {"rename_package_alias_result3.json", "mod"},
+                {"rename_package_alias_result4.json", "mod1"},
         };
     }
 
