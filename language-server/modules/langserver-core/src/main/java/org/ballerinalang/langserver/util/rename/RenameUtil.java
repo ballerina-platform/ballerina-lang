@@ -83,7 +83,7 @@ public class RenameUtil {
         } else if (onImportPrefixNode(context, nodeAtCursor)) {
             return handleImportPrefixRename(context, document.get(), nodeAtCursor, newName);
         } else if (onImportDeclarationNode(context, nodeAtCursor)) {
-            return handleImportDeclarationRename(context, document.get(), 
+            return handleImportDeclarationRename(context, document.get(),
                     (ImportDeclarationNode) nodeAtCursor.parent(), newName);
         }
 
@@ -163,42 +163,13 @@ public class RenameUtil {
         if (importDeclarationNode.isEmpty()) {
             return Collections.emptyMap();
         }
-        
+
         return handleImportDeclarationRename(context, document, importDeclarationNode.get(), newName);
-
-/*        Path projectRoot = context.workspace().projectRoot(context.filePath());
-        Map<String, List<TextEdit>> changes = new HashMap<>();
-
-        // Filter location map for refs in same doc
-        locationMap.entrySet().stream()
-                .filter(moduleListEntry -> moduleListEntry.getKey().moduleId().equals(document.documentId().moduleId()))
-                .forEach(moduleLocations -> {
-                    moduleLocations.getValue().forEach(location -> {
-                        String fileUri = ReferencesUtil.getUriFromLocation(moduleLocations.getKey(), location, projectRoot);
-                        // If within the same file
-                        if (!context.fileUri().equals(fileUri)) {
-                            return;
-                        }
-                        // If location is within import declaration node
-                        if (CommonUtil.isWithinLineRange(location.lineRange(), importDeclarationNode.get().lineRange()) &&
-                                importDeclarationNode.get().prefix().isEmpty()) {
-                            // If there's a prefix, we will be renaming that
-                            LinePosition endPos = importDeclarationNode.get().moduleName().get(importDeclarationNode.get().moduleName().size() - 1).lineRange().endLine();
-                            Range range = new Range(CommonUtil.toPosition(endPos), CommonUtil.toPosition(endPos));
-                            List<TextEdit> textEdits = changes.computeIfAbsent(fileUri, k -> new ArrayList<>());
-                            textEdits.add(new TextEdit(range, " as " + newName));
-                        } else {
-                            List<TextEdit> textEdits = changes.computeIfAbsent(fileUri, k -> new ArrayList<>());
-                            textEdits.add(new TextEdit(ReferencesUtil.getRange(location), newName));
-                        }
-                    });
-                });
-        return changes;*/
     }
 
     private static Map<String, List<TextEdit>> handleImportDeclarationRename(ReferencesContext context,
                                                                              Document document,
-                                                                             ImportDeclarationNode importDeclarationNode,
+                                                                             ImportDeclarationNode importDeclaration,
                                                                              String newName) {
         Map<Module, List<Location>> locationMap = ReferencesUtil.getReferences(context);
         Path projectRoot = context.workspace().projectRoot(context.filePath());
@@ -208,17 +179,20 @@ public class RenameUtil {
         locationMap.entrySet().stream()
                 .filter(moduleListEntry -> moduleListEntry.getKey().moduleId().equals(document.documentId().moduleId()))
                 .forEach(moduleLocations -> {
-                    moduleLocations.getValue().forEach(location -> {
-                        String fileUri = ReferencesUtil.getUriFromLocation(moduleLocations.getKey(), location, projectRoot);
+                    Module module = moduleLocations.getKey();
+                    List<Location> locations = moduleLocations.getValue();
+                    locations.forEach(location -> {
+                        String fileUri = ReferencesUtil.getUriFromLocation(module, location, projectRoot);
                         // If within the same file
                         if (!context.fileUri().equals(fileUri)) {
                             return;
                         }
                         // If location is within import declaration node
-                        if (CommonUtil.isWithinLineRange(location.lineRange(), importDeclarationNode.lineRange()) &&
-                                importDeclarationNode.prefix().isEmpty()) {
-                            // If there's a prefix, we will be renaming that
-                            LinePosition endPos = importDeclarationNode.moduleName().get(importDeclarationNode.moduleName().size() - 1).lineRange().endLine();
+                        if (CommonUtil.isWithinLineRange(location.lineRange(), importDeclaration.lineRange()) &&
+                                importDeclaration.prefix().isEmpty()) {
+                            // If there's no prefix, we have to add " as $newName" to the import
+                            SeparatedNodeList<IdentifierToken> moduleNames = importDeclaration.moduleName();
+                            LinePosition endPos = moduleNames.get(moduleNames.size() - 1).lineRange().endLine();
                             Range range = new Range(CommonUtil.toPosition(endPos), CommonUtil.toPosition(endPos));
                             List<TextEdit> textEdits = changes.computeIfAbsent(fileUri, k -> new ArrayList<>());
                             textEdits.add(new TextEdit(range, " as " + newName));
@@ -230,7 +204,7 @@ public class RenameUtil {
                 });
         return changes;
     }
-    
+
     private static Map<String, List<TextEdit>> handleImportPrefixRename(ReferencesContext context,
                                                                         Document document,
                                                                         NonTerminalNode nodeAtCursor,
@@ -243,8 +217,10 @@ public class RenameUtil {
         locationMap.entrySet().stream()
                 .filter(moduleListEntry -> moduleListEntry.getKey().moduleId().equals(document.documentId().moduleId()))
                 .forEach(moduleLocations -> {
-                    moduleLocations.getValue().forEach(location -> {
-                        String fileUri = ReferencesUtil.getUriFromLocation(moduleLocations.getKey(), location, projectRoot);
+                    Module module = moduleLocations.getKey();
+                    List<Location> locations = moduleLocations.getValue();
+                    locations.forEach(location -> {
+                        String fileUri = ReferencesUtil.getUriFromLocation(module, location, projectRoot);
                         // If within the same file
                         if (!context.fileUri().equals(fileUri)) {
                             return;
