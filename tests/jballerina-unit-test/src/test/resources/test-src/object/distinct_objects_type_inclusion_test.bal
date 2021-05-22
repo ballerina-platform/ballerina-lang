@@ -27,6 +27,11 @@ public type InternalServerErrorStatus object {
     public byte code;
 };
 
+type InternalServerErrorStatusImmut readonly & object {
+    *Status;
+    public byte code;
+};
+
 public type InternalServerError record {|
     *StatusCodeResponse;
     InternalServerErrorStatus status = object {
@@ -49,5 +54,13 @@ public function testDistinctObjectSubtyping() {
 
     if k.status.code != 101 {
         panic error("Expected: 101, found: " + k.status.code.toString());
+    }
+
+    y = object InternalServerErrorStatusImmut {
+        public byte code = 102;
+    };
+
+    if y.code != 102 {
+        panic error("Expected: 102, found: " + y.code.toString());
     }
 }

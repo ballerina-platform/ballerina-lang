@@ -469,20 +469,32 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void populateDistinctTypeIdsFromIncludedTypeReferences(BLangTypeDefinition typeDefinition) {
-        if (typeDefinition.typeNode.getKind() != NodeKind.OBJECT_TYPE) {
-            return;
-        }
-
-        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDefinition.typeNode;
-        BTypeIdSet typeIdSet = ((BObjectType) objectTypeNode.type).typeIdSet;
-
-        for (BLangType typeRef : objectTypeNode.typeRefs) {
-            // todo: Use Maryam's fix to flattern intersection types
-            if (typeRef.type.tag != TypeTags.OBJECT) {
-                continue;
+        if (typeDefinition.typeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
+            BType definingType = types.getTypeWithEffectiveIntersectionTypes(typeDefinition.typeNode.type);
+            if (definingType.tag != TypeTags.OBJECT) {
+                return;
             }
-            BObjectType refType = (BObjectType) typeRef.type;
-            typeIdSet.add(refType.typeIdSet);
+            BObjectType definigObjType = (BObjectType) definingType;
+
+            BLangIntersectionTypeNode typeNode = (BLangIntersectionTypeNode) typeDefinition.typeNode;
+            for (BLangType constituentTypeNode : typeNode.getConstituentTypeNodes()) {
+                if (constituentTypeNode.type.tag != TypeTags.OBJECT) {
+                    continue;
+                }
+                definigObjType.typeIdSet.add(((BObjectType) constituentTypeNode.type).typeIdSet);
+            }
+        } else if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+            BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDefinition.typeNode;
+            BTypeIdSet typeIdSet = ((BObjectType) objectTypeNode.type).typeIdSet;
+
+            for (BLangType typeRef : objectTypeNode.typeRefs) {
+                BType type = types.getTypeWithEffectiveIntersectionTypes(typeRef.type);
+                if (type.tag != TypeTags.OBJECT) {
+                    continue;
+                }
+                BObjectType refType = (BObjectType) type;
+                typeIdSet.add(refType.typeIdSet);
+            }
         }
     }
 
@@ -491,10 +503,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         BTypeIdSet typeIdSet = ((BObjectType) classDefinition.type).typeIdSet;
 
         for (BLangType typeRef : classDefinition.typeRefs) {
-            if (typeRef.type.tag != TypeTags.OBJECT) {
+            BType type = types.getTypeWithEffectiveIntersectionTypes(typeRef.type);
+            if (type.tag != TypeTags.OBJECT) {
                 continue;
             }
-            BObjectType refType = (BObjectType) typeRef.type;
+            BObjectType refType = (BObjectType) type;
             typeIdSet.add(refType.typeIdSet);
         }
     }
