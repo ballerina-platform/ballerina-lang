@@ -142,8 +142,6 @@ public class RenameUtil {
                                                                           Document document,
                                                                           NonTerminalNode nodeAtCursor,
                                                                           String newName) {
-        Map<Module, List<Location>> locationMap = ReferencesUtil.getReferences(context);
-
         QualifiedNameReferenceNode qNameRefNode = (QualifiedNameReferenceNode) nodeAtCursor;
         String moduleOrAlias = qNameRefNode.modulePrefix().text();
 
