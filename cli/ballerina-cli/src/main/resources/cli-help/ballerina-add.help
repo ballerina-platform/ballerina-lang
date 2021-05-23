@@ -21,7 +21,7 @@ OPTIONS
 
 
 EXAMPLES
-       Add a module
+       Add a module.
           $ bal add hello
 
        Add a module with a Ballerina service.
