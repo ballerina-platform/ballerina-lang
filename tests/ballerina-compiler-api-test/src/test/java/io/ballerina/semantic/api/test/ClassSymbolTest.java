@@ -19,6 +19,7 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
@@ -166,5 +167,23 @@ public class ClassSymbolTest {
         assertEquals(clazz.typeKind(), OBJECT);
         assertEquals(clazz.kind(), CLASS);
         assertTrue(clazz.qualifiers().contains(Qualifier.DISTINCT));
+    }
+
+    @DataProvider(name = "hasDefaultTestProvider")
+    public Object[][] hasDefaultTest() {
+        return new Object[][]{
+                {66, 7, true},
+                {67, 7, true},
+                {68, 7, false},
+                {69, 7, false}
+        };
+    }
+
+    @Test(dataProvider = "hasDefaultTestProvider")
+    public void testHasDefaults(int line, int col, boolean hasDefault) {
+        Symbol symbol = model.symbol(srcFile,  LinePosition.from(line, col)).get();
+        ClassFieldSymbol fieldSymbol = (ClassFieldSymbol) symbol;
+        assertEquals(fieldSymbol.hasDefaultValue(), hasDefault);
+
     }
 }
