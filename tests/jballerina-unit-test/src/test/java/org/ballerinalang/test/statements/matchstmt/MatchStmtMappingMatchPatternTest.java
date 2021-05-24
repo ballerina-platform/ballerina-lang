@@ -275,21 +275,21 @@ public class MatchStmtMappingMatchPatternTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<error>', found 'map<int>'",
                 20, 28);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<map<int>>', " +
-                "found 'record {| map<(int|error)>...; |}'", 21, 31);
+                "found 'record {| never x?; map<(int|error)>...; |}'", 21, 31);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'json'", 29, 21);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<boolean>', " +
-                "found 'record {| json...; |}'", 29, 24);
+                "found 'record {| never x?; json...; |}'", 29, 24);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'json'", 32, 21);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'json'", 32, 28);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'", 47, 25);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<boolean>', " +
-                "found 'record {| (string|boolean)...; |}'", 48, 30);
+                "found 'record {| never id?; string name; boolean employed; never...; |}'", 48, 30);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 63, 24);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', " +
-                        "found 'record {| never...; |}'",
+                        "found 'record {| never i?; never...; |}'",
                 64, 25);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', " +
-                "found 'record {| (int|never)...; |}'", 67, 24);
+                "found 'record {| int i?; never...; |}'", 67, 24);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
