@@ -52,6 +52,9 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
     // Parser diagnostic codes
     SYNTAX_WARNING("BCE20200", "syntax.warning"),
 
+    MATCH_STMT_PATTERN_UNREACHABLE("BCE20250", "match.stmt.unreachable.pattern.available"),
+    MATCH_STMT_UNMATCHED_PATTERN("BCE20251", "match.stmt.unmatched.pattern"),
+
     FUNCTION_CAN_BE_MARKED_ISOLATED("BCE20300", "function.can.be.marked.isolated"),
 
     COMPILER_PLUGIN_ERROR("BCE20400", "compiler.plugin.crashed"),

@@ -410,9 +410,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     // match statement related errors
     MATCH_STMT_CANNOT_GUARANTEE_A_MATCHING_PATTERN("BCE2900", "match.stmt.cannot.guarantee.a.matching.pattern"),
     MATCH_STMT_UNREACHABLE_PATTERN("BCE2901", "match.stmt.unreachable.pattern"),
-    MATCH_STMT_UNMATCHED_PATTERN("BCE2902", "match.stmt.unmatched.pattern"),
     MATCH_STMT_PATTERN_ALWAYS_MATCHES("BCE2903", "match.stmt.pattern.always.matches"),
-    MATCH_STMT_PATTERN_UNREACHABLE("BCE2904", "match.stmt.unreachable.pattern.available"),
 
     MATCH_PATTERN_NOT_SUPPORTED("BCE2905", "match.pattern.not.supported"),
     MATCH_PATTERNS_SHOULD_CONTAIN_SAME_SET_OF_VARIABLES(
