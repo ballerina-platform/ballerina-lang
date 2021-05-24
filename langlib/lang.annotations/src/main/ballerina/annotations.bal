@@ -21,10 +21,16 @@ public type 'anydata ()|boolean|int|float|decimal|string|xml|'anydata[]|map<'any
 public type 'json ()|boolean|int|float|decimal|string|'json[]|map<'json>;
 
 # Denote that the return value is tainted.
+# # Deprecated
+# @tainted annotation is deprecated as taint checking phase is disabled in `Swan Lake beta`
+@deprecated
 public const annotation tainted on parameter, return, source listener, source var, source type;
 
 # Denote that the return value is untainted, parameter expect untainted value, type cast mark value untainted,
 # denote a listener as producing untainted arguments to service resource params.
+# # Deprecated
+# @tainted annotation is deprecated as taint checking pahse is disabled in `Swan Lake beta`
+@deprecated
 public const annotation untainted on return, parameter, source type, source listener;
 
 # Denotes annotated type is a parametric type.

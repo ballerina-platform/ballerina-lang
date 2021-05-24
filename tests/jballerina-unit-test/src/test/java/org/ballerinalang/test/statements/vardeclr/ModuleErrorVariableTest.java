@@ -85,7 +85,7 @@ public class ModuleErrorVariableTest {
         assertEquals(compileResultNegetive.getErrorCount(), index);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testTaintAnalysisWithModuleLevelErrorVar() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/vardeclr/module_error_var_decl_taint_analysis_negetive.bal");

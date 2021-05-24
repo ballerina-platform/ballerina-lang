@@ -85,7 +85,7 @@ public class ModuleTupleVariableTest {
         assertEquals(compileResultNegative.getErrorCount(), index);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testTaintAnalysisWithModuleLevelTupleVar() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/vardeclr/module_tuple_var_decl_taint_analysis_negetive.bal");

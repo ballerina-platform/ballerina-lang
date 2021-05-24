@@ -167,9 +167,6 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
     private String cloud;
 
-    @CommandLine.Option(names = "--taint-check", description = "perform taint flow analysis")
-    private Boolean taintCheck;
-
     @CommandLine.Option(names = "--includes", hidden = true,
             description = "hidden option for code coverage to include all classes")
     private String includes;
@@ -314,7 +311,6 @@ public class BuildCommand implements BLauncherCmd {
                 .testReport(testReport)
                 .observabilityIncluded(observabilityIncluded)
                 .cloud(cloud)
-                .taintCheck(taintCheck)
                 .dumpBir(dumpBIR)
                 .dumpBirFile(dumpBIRFile)
                 .listConflictedClasses(listConflictedClasses)
@@ -342,7 +338,7 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal build [-o <output>] [--offline] [--skip-tests] [--taint-check]\\n\" +\n" +
+        out.append("  bal build [-o <output>] [--offline] [--skip-tests]\\n\" +\n" +
                 "            \"                    [<ballerina-file | package-path>]");
     }
 

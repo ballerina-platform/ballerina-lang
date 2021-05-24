@@ -32,7 +32,6 @@ class CompilationOptionsBuilder {
     private Boolean dumpBir;
     private String dumpBirFile;
     private String cloud;
-    private Boolean taintCheck;
     private Boolean listConflictedClasses;
 
     public CompilationOptionsBuilder() {
@@ -73,11 +72,6 @@ class CompilationOptionsBuilder {
         return this;
     }
 
-    public CompilationOptionsBuilder taintCheck(Boolean value) {
-        taintCheck = value;
-        return this;
-    }
-
     public CompilationOptionsBuilder listConflictedClasses(Boolean value) {
         listConflictedClasses = value;
         return this;
@@ -85,6 +79,6 @@ class CompilationOptionsBuilder {
 
     public CompilationOptions build() {
         return new CompilationOptions(skipTests, buildOffline, experimental, observabilityIncluded, dumpBir,
-                dumpBirFile, cloud, taintCheck, listConflictedClasses);
+                dumpBirFile, cloud, listConflictedClasses);
     }
 }

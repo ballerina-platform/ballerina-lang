@@ -113,7 +113,6 @@
 
             <package name="org.ballerinalang.test.strand.*"/>
             <package name="org.ballerinalang.test.structs.*"/>
-            <package name="org.ballerinalang.test.taintchecking.*"/>
             <package name="org.ballerinalang.test.testerina.*"/>
             <package name="org.ballerinalang.test.typedefs.*"/>
 
