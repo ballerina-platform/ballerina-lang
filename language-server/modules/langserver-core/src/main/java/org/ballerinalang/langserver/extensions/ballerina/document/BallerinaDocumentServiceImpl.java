@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.syntaxapicallsgen.SyntaxApiCallsGen;
@@ -371,11 +372,12 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                 if (filePath.isEmpty()) {
                     return response;
                 }
-                Optional<Project> project = this.workspaceManager.project(filePath.get());
-                if (project.isEmpty()) {
+
+                Optional<Module> module = workspaceManager.module(filePath.get());
+                if (module.isEmpty()) {
                     return response;
                 }
-                response.setExecutorPositions(ExecutorPositionsUtil.getExecutorPositions(project.get(),
+                response.setExecutorPositions(ExecutorPositionsUtil.getExecutorPositions(module.get(),
                         filePath.get()));
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaDocument/executorPositions' failed!";

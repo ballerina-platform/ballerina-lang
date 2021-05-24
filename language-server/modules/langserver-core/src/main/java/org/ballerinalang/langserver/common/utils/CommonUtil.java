@@ -46,6 +46,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -80,11 +81,13 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -1216,5 +1219,31 @@ public class CommonUtil {
                 && (node.openParenToken().textRange().endOffset() <= cursorPosition)
                 && (!node.closeParenToken().isMissing())
                 && (cursorPosition <= node.closeParenToken().textRange().startOffset());
+    }
+
+    /**
+     * Checks if the provided location (interpreted relatively to the provided module) is location in the same file
+     * provided.
+     *
+     * @param module   Module where the location resides
+     * @param location Location
+     * @param filePath File path to check against
+     * @return True if the location resides in the provided file path
+     * @throws IOException On IO errors
+     */
+    public static boolean isLocationInFile(Module module, Location location, Path filePath) throws IOException {
+        Path symbolPath;
+        if (module.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            symbolPath = module.project().sourceRoot();
+        } else if (module.isDefaultModule()) {
+            symbolPath = module.project().sourceRoot().resolve(location.lineRange().filePath());
+        } else {
+            symbolPath = module.project().sourceRoot()
+                    .resolve("modules")
+                    .resolve(module.moduleName().moduleNamePart())
+                    .resolve(filePath);
+        }
+
+        return Files.isSameFile(symbolPath, filePath);
     }
 }

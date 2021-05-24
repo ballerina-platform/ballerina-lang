@@ -23,12 +23,10 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,17 +92,16 @@ public class ReferencesUtil {
         return moduleLocationMap;
     }
     
-    public static String getUriFromLocation(Module module, Location location, Path prjRoot) {
-        LineRange lineRange = location.lineRange();
-        String filePath = lineRange.filePath();
+    public static String getUriFromLocation(Module module, Location location) {
+        String filePath = location.lineRange().filePath();
 
         if (module.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            return prjRoot.toUri().toString();
+            return module.project().sourceRoot().toUri().toString();
         } else if (module.isDefaultModule()) {
-            module.project();
-            return prjRoot.resolve(lineRange.filePath()).toUri().toString();
+            return module.project().sourceRoot().resolve(filePath).toUri().toString();
         } else {
-            return prjRoot.resolve("modules")
+            return module.project().sourceRoot()
+                    .resolve("modules")
                     .resolve(module.moduleName().moduleNamePart())
                     .resolve(filePath).toUri().toString();
         }

@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.eclipse.lsp4j.TextEdit;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,12 +52,10 @@ public class RenameUtil {
 
         Map<Module, List<Location>> locationMap = ReferencesUtil.getReferences(context);
 
-        Path projectRoot = context.workspace().projectRoot(context.filePath());
-
         Map<String, List<TextEdit>> changes = new HashMap<>();
         locationMap.forEach((module, locations) ->
                 locations.forEach(location -> {
-                    String uri = ReferencesUtil.getUriFromLocation(module, location, projectRoot);
+                    String uri = ReferencesUtil.getUriFromLocation(module, location);
                     List<TextEdit> textEdits = changes.computeIfAbsent(uri, k -> new ArrayList<>());
                     textEdits.add(new TextEdit(ReferencesUtil.getRange(location), newName));
                 }));
