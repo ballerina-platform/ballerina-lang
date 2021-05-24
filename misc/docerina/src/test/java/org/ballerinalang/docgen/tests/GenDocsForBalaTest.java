@@ -62,6 +62,8 @@ public class GenDocsForBalaTest {
         Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("## Module Overview\\n\\nModule.md content."),
                 "Module.md content is missing");
         Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("Block"), "Block type is missing");
+        Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("\"summary\":\"Module.md content.\""),
+                "Module summary missing");
 
         String sfWorldModuleApiDocsJsonAsString = Files.readString(
                 this.docsPath.resolve("foo").resolve("sf.world").resolve("1.3.5")
