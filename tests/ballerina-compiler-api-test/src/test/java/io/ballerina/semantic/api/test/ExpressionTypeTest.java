@@ -361,6 +361,12 @@ public class ExpressionTypeTest {
         assertEquals(exprType.typeKind(), STRING);
     }
 
+    @Test
+    public void testFuncCallForDependentlyTypedSignatures() {
+        TypeSymbol exprType = getExprType(172, 12, 172, 35);
+        assertEquals(exprType.typeKind(), INT);
+    }
+
     private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
         TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
         assertEquals(type.typeKind(), kind);
