@@ -10,5 +10,5 @@ DESCRIPTION
 
 
 EXAMPLES
-       Print of Ballerina distribution which is currently configured.
+       Print the Ballerina distribution which is currently configured.
           $ bal home
