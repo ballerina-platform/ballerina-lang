@@ -258,7 +258,7 @@ function testGetPet() {
 
 #### Stubbing member functions and variables of an object
 
-The member functions and variables are stubbed to return a specific value or to do nothing when invoked. Using the test module, a default mock object of the specified type. The default action of any member function/variable is to panic upon invocation/retrieval.  Subsequent to mock object creation, the required functions and variables of the default mock object should be stubbed to return a value or to do nothing when called.
+The member functions and variables are stubbed to return a specific value or to do nothing when invoked. Using the test module, a default mock object of the specified type. The default action of any member function/variable is to panic upon invocation/retrieval.  After mock object creation, the required functions and variables of the default mock object should be stubbed to return a value or to do nothing when called.
 
 ##### Samples
 
@@ -277,10 +277,6 @@ function testGetPet2() {
     // stubbing to return different values for each function call 
     test:prepare(mockHttpClient).when("get")
         .thenReturnSequence(new http:Response(), mockResponse);
-    
-    // stubbing to return a value based on input
-    test:prepare(mockHttpClient).when("get").withArguments("/pets?id=D123", test:ANY)
-        .thenReturn(mockResponse);
     
     // stubbing to do nothing when function is called
     smtpClient= test:mock(email:SmtpClient);
