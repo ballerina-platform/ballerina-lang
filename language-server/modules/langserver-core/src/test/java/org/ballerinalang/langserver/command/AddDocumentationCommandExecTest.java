@@ -62,6 +62,10 @@ public class AddDocumentationCommandExecTest extends AbstractCommandExecutionTes
                 {"serviceDocumentationWithAnnotations.json", "serviceDocumentationWithAnnotations.bal"},
                 {"add_single_documentation_with_deprecated1.json", "add_single_documentation_with_deprecated1.bal"},
                 {"add_single_documentation_with_deprecated2.json", "add_single_documentation_with_deprecated2.bal"},
+                // Already documented
+                {"document_already_documented_config1.json", "document_already_documented1.bal"},
+                {"document_already_documented_config2.json", "document_already_documented1.bal"},
+                {"document_already_documented_config3.json", "document_already_documented1.bal"},
         };
     }
 
