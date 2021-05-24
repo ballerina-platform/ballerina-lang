@@ -100,9 +100,9 @@ public class ErrorBindingPatternTest {
     @Test
     public void testErrorBindingPatternNegative() {
         int i = 0;
-        BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 23, 9);
-        BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 28, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 23, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 28, 9);
 
-        Assert.assertEquals(resultNegative.getErrorCount(), i);
+        Assert.assertEquals(resultNegative.getWarnCount(), i);
     }
 }

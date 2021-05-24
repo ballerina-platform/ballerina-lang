@@ -185,21 +185,19 @@ public class MatchStructuredErrorPatternsTest {
         Assert.assertEquals(returns[0].stringValue(), "Msg");
     }
 
-    // https://github.com/ballerina-platform/ballerina-lang/issues/30463
-    @Test(description = "Test pattern will not be matched 2", enabled = false)
+    @Test
     public void testUnreachablePatterns() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 9);
+        Assert.assertEquals(resultNegative.getWarnCount(), 8);
         int i = -1;
-        String unreachablePattern = "pattern will not be matched";
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 29, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 34, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 44, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 50, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 60, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 65, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 80, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 85, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 85, 13);
+        String unreachablePattern = "unreachable pattern";
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 29, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 44, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 49, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 50, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 60, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 65, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 80, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 85, 9);
     }
 
     @Test()

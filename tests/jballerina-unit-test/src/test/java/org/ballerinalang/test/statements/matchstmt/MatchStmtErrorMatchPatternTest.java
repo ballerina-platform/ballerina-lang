@@ -110,21 +110,21 @@ public class MatchStmtErrorMatchPatternTest {
 
     @Test
     public void testErrorMatchPatternNegative() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        //Assert.assertEquals(resultNegative.getWarnCount(), 10);
         int i = 0;
-        BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 23, 9);
-        BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 28, 9);
-        BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 33, 9);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 40, 19);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 41, 28);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 42, 20);
+        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 23, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 28, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 33, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 40, 19);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 41, 28);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 42, 20);
         BAssertUtil.validateError(resultNegative, i++, "all match patterns should contain the same set of variables",
                 43, 9);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 43, 24);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 44, 42);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 45, 49);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 47, 44);
-
-        Assert.assertEquals(resultNegative.getErrorCount(), i);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 43, 24);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 44, 42);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 45, 49);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 47, 44);
     }
 
     @AfterClass
