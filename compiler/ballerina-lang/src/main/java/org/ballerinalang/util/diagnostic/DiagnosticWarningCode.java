@@ -55,6 +55,7 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
     FUNCTION_CAN_BE_MARKED_ISOLATED("BCE20300", "function.can.be.marked.isolated"),
 
     COMPILER_PLUGIN_ERROR("BCE20400", "compiler.plugin.crashed"),
+    COMPILER_PLUGIN_FAILURE("BCE20401", "compiler.plugin.failed"),
     ;
 
     private String diagnosticId;

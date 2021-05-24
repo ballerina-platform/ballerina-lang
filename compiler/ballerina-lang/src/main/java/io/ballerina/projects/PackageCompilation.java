@@ -25,6 +25,9 @@ import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
+import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -188,9 +191,18 @@ public class PackageCompilation {
         if (rootPackageContext.project().kind().equals(ProjectKind.BUILD_PROJECT)) {
             ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
             for (CompilerPlugin plugin : processorServiceLoader) {
-                List<Diagnostic> pluginDiagnostics = plugin.codeAnalyze(rootPackageContext.project());
-                diagnostics.addAll(pluginDiagnostics);
-                this.pluginDiagnostics.addAll(pluginDiagnostics);
+                // TODO: The following try-catch stmt is a temporary fix for
+                //  https://github.com/ballerina-platform/ballerina-lang/issues/29695. Remove this once it is
+                //  properly fixed.
+                try {
+                    List<Diagnostic> pluginDiagnostics = plugin.codeAnalyze(rootPackageContext.project());
+                    diagnostics.addAll(pluginDiagnostics);
+                    this.pluginDiagnostics.addAll(pluginDiagnostics);
+                } catch (Throwable e) {
+                    BLangDiagnosticLog dlog = BLangDiagnosticLog.getInstance(compilerContext);
+                    dlog.warning(new BLangDiagnosticLocation("", -1, -1, -1, -1),
+                                 DiagnosticWarningCode.COMPILER_PLUGIN_FAILURE, plugin.getClass().getName());
+                }
             }
         }
     }
