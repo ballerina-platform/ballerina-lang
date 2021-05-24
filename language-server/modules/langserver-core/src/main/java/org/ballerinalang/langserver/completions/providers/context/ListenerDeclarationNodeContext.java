@@ -42,7 +42,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
@@ -68,7 +67,7 @@ import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortT
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<ListenerDeclarationNode> {
-    
+
     private static final String INIT_METHOD_NAME = "init";
 
     public ListenerDeclarationNodeContext() {
@@ -122,9 +121,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         }
 
         if (scope == ContextScope.INITIALIZER) {
-            ContextTypeResolver typeResolver = new ContextTypeResolver(context);
-            NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-            Optional<TypeSymbol> ctxType = nodeAtCursor.apply(typeResolver);
+            Optional<TypeSymbol> ctxType = context.getContextType();
             for (LSCompletionItem lsItem : cmpItems) {
                 CompletionItem cItem = lsItem.getCompletionItem();
                 int rank = -1;
@@ -162,7 +159,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                     // new keyword completion item
                     rank = 5;
                 }
-                
+
                 rank = rank < 0 ? SortingUtil.toRank(lsItem, 5) : rank;
                 cItem.setSortText(genSortText(rank));
             }
@@ -348,7 +345,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
 
         return completionItems;
     }
-    
+
     private boolean isValidSymbolCompletionItem(LSCompletionItem lsCompletionItem) {
         return lsCompletionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL
                 && ((SymbolCompletionItem) lsCompletionItem).getSymbol().isPresent();

@@ -9,7 +9,7 @@
       "label": "test",
       "kind": "Variable",
       "detail": "mod:Listener",
-      "sortText": "B",
+      "sortText": "A",
       "insertText": "test",
       "insertTextFormat": "Snippet"
     },
