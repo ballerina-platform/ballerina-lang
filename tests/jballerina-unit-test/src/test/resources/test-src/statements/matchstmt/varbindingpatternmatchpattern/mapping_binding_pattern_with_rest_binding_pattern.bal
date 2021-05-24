@@ -333,7 +333,7 @@ function testRestRecordPattern() {
     }
 
     match p1 {
-         var {...rest} => {
+         {...var rest} => {
              assertEquals(true, rest is record{|int id; string name; boolean employed;|});
              assertEquals("Jane Doe", rest.name);
              assertEquals(20, rest.id);
