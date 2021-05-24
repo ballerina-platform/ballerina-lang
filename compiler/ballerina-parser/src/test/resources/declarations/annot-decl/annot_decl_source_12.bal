@@ -1,3 +1,7 @@
+const annotation name on object 
+
+Animal a = new Animal();
+
 const annotation name on s //<cursor>
 
 Animal a = new Animal();
