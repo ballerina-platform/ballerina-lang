@@ -194,6 +194,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.AttachPoints;
@@ -1724,9 +1725,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         BRecordType rhsRecordType = (BRecordType) rhsType;
-        LinkedHashMap<String, BField> unMappedFields = new LinkedHashMap<>() {{
-            putAll(rhsRecordType.fields);
-        }};
+        List<String> mappedFields = new ArrayList<>();
 
         // check if all fields in record var ref are found in rhs record type
         for (BLangRecordVarRefKeyValue lhsField : lhsVarRef.recordRefFields) {
@@ -1734,7 +1733,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(pos, DiagnosticErrorCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
                         lhsField.variableName.value, rhsType);
             }
-            unMappedFields.remove(lhsField.variableName.value);
+            mappedFields.add(lhsField.variableName.value);
         }
 
         for (BField rhsField : rhsRecordType.fields.values()) {
@@ -1782,10 +1781,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 lhsRefType = ((BLangSimpleVarRef) lhsVarRef.restParam).type;
             }
 
-            List<String> varList = lhsVarRef.recordRefFields.stream().map(t -> t.variableName.value)
-                    .collect(Collectors.toList());
             BRecordType rhsResType = symbolEnter.createRecordTypeForRestField(pos, env, rhsRecordType,
-                    varList, rhsRecordType.restFieldType);
+                    mappedFields, rhsRecordType.restFieldType);
 
             types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos,
                     rhsResType, lhsRefType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
@@ -2295,6 +2292,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             restMatchPattern.type = matchPatternRecType;
             analyzeNode(restMatchPattern, env);
             mappingMatchPattern.declaredVars.put(restMatchPattern.variableName.value, restMatchPattern.symbol);
+
+            BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(matchPatternRecType,
+                    env.enclPkg.packageID, symTable, mappingMatchPattern.pos);
+            recordTypeNode.initFunction =
+                    TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
+            TypeDefBuilderHelper.addTypeDefinition(matchPatternRecType, matchPattenRecordSym, recordTypeNode, env);
         }
 
         mappingMatchPattern.type = types.resolvePatternTypeFromMatchExpr(mappingMatchPattern,
@@ -2377,14 +2380,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 BRecordType recordType = (BRecordType) patternType;
-                LinkedHashMap<String, BField> fields = new LinkedHashMap<>() {{
-                    putAll(recordType.fields);
-                }};
+                List<String> boundedFieldNames = new ArrayList<>();
 
                 for (BLangFieldMatchPattern fieldMatchPattern : mappingMatchPattern.fieldMatchPatterns) {
                     assignTypesToMemberPatterns(fieldMatchPattern.matchPattern,
-                            fields.get(fieldMatchPattern.fieldName.value).type);
-                    fields.remove(fieldMatchPattern.fieldName.value);
+                            recordType.fields.get(fieldMatchPattern.fieldName.value).type);
+                    boundedFieldNames.add(fieldMatchPattern.fieldName.value);
                 }
 
                 if (mappingMatchPattern.restMatchPattern == null) {
@@ -2398,7 +2399,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 BRecordType restVarSymbolRecordType = (BRecordType) restVarSymbol.type;
-                setRestMatchPatternConstraintType(recordType, fields, restPatternRecType, restVarSymbolRecordType);
+                setRestMatchPatternConstraintType(recordType, boundedFieldNames, restPatternRecType, restVarSymbolRecordType);
         }
     }
 
@@ -2701,6 +2702,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             restBindingPattern.type = matchPatternRecType;
             restBindingPattern.accept(this);
             mappingBindingPattern.declaredVars.put(restBindingPattern.variableName.value, restBindingPattern.symbol);
+
+            BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(matchPatternRecType,
+                    env.enclPkg.packageID, symTable, restBindingPattern.pos);
+            recordTypeNode.initFunction =
+                    TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
+            TypeDefBuilderHelper.addTypeDefinition(matchPatternRecType, matchPattenRecordSym, recordTypeNode, env);
         }
         mappingBindingPattern.type = recordVarType;
     }
@@ -2848,10 +2855,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 BRecordType recordType = (BRecordType) bindingPatternType;
-                LinkedHashMap<String, BField> fields = new LinkedHashMap<>(recordType.fields);
+                List<String> boundedFields = new ArrayList<>();
                 for (BLangFieldBindingPattern fieldBindingPattern : mappingBindingPattern.fieldBindingPatterns) {
                     assignTypesToMemberPatterns(fieldBindingPattern.bindingPattern,
-                            fields.remove(fieldBindingPattern.fieldName.value).type);
+                            recordType.fields.get(fieldBindingPattern.fieldName.value).type);
+                    boundedFields.add(fieldBindingPattern.fieldName.value);
                 }
 
                 if (mappingBindingPattern.restBindingPattern == null) {
@@ -2862,7 +2870,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BVarSymbol restVarSymbol =
                         restBindingPattern.declaredVars.get(restBindingPattern.getIdentifier().getValue());
                 BRecordType restVarSymbolRecordType = (BRecordType) restVarSymbol.type;
-                setRestMatchPatternConstraintType(recordType, fields, restPatternRecordType, restVarSymbolRecordType);
+                setRestMatchPatternConstraintType(recordType, boundedFields, restPatternRecordType, restVarSymbolRecordType);
                 return;
             default:
         }
@@ -4041,11 +4049,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void setRestMatchPatternConstraintType(BRecordType recordType,
-                                                   LinkedHashMap<String, BField> remainingFields,
+                                                   List<String> boundedFieldNames,
                                                    BRecordType restPatternRecordType,
                                                    BRecordType restVarSymbolRecordType) {
-        BType restConstraintType = symbolEnter.getRestMatchPatternConstraintType(recordType, remainingFields,
+        BType restConstraintType = symbolEnter.getRestMatchPatternConstraintType(recordType, new HashMap<>(),
                 restVarSymbolRecordType.restFieldType);
-        restPatternRecordType.restFieldType = restVarSymbolRecordType.restFieldType = restConstraintType;
+        LinkedHashMap<String, BField> unMappedFields = new LinkedHashMap<>() {{
+            putAll(recordType.fields);
+        }};
+        symbolEnter.setRestRecordFields(recordType.tsymbol.pos, env,
+                unMappedFields, boundedFieldNames, restConstraintType, restVarSymbolRecordType);
+        restPatternRecordType.restFieldType = restVarSymbolRecordType.restFieldType;
     }
 }

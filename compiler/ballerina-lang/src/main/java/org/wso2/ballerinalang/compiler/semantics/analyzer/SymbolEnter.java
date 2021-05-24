@@ -144,6 +144,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -2350,7 +2351,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             intersectionFields.forEach(optionalFields::remove);
             boundedFields.keySet().forEach(unmappedMembers::remove);
 
-            optionalFields.values().forEach(field -> field.symbol.flags = Flags.OPTIONAL);
+            for (BField field : optionalFields.values()) {
+                field.symbol.flags = setSymbolAsOptional(field.symbol.flags);
+            }
             unmappedMembers.putAll(optionalFields);
 
             BRecordType restRecord = new BRecordType(null);
@@ -2613,37 +2616,15 @@ public class SymbolEnter extends BLangNodeVisitor {
                                        List<String> variableList,
                                        BType restConstraint) {
         BRecordTypeSymbol recordSymbol = createAnonRecordSymbol(env, pos);
-        LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
-
+        BRecordType recordVarType = new BRecordType(recordSymbol);
         LinkedHashMap<String, BField> unMappedFields = new LinkedHashMap<>() {{
             putAll(recordType.fields);
+            if(recordType.restFieldType.tag == TypeTags.RECORD) {
+                putAll(((BRecordType) recordType.restFieldType).fields);
+            }
         }};
 
-        for (String fieldName : variableList) {
-            unMappedFields.remove(fieldName);
-            BField newField = new BField(names.fromString(fieldName), pos,
-                    new BVarSymbol(Flags.OPTIONAL, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
-                            symTable.neverType, recordSymbol, pos, VIRTUAL));
-            fields.put(fieldName, newField);
-        }
-
-        BRecordType recordVarType = new BRecordType(recordSymbol);
-        LinkedList<BField> unmapped = new LinkedList<>();
-        if (recordType.restFieldType.tag == TypeTags.RECORD) {
-            unmapped.addAll(((BRecordType) recordType.restFieldType).fields.values());
-        } else {
-            unmapped.addAll(unMappedFields.values());
-        }
-        for (BField field : unmapped) {
-            BField newField = new BField(field.name, pos,
-                    new BVarSymbol(field.symbol.flags, field.name, env.enclPkg.symbol.pkgID,
-                            field.type, recordSymbol, pos, VIRTUAL));
-            fields.put(field.name.value, newField);
-            recordSymbol.scope.define(newField.name, newField.symbol);
-        }
-
-        recordVarType.fields = fields;
-        recordVarType.restFieldType = restConstraint;
+        setRestRecordFields(pos, env, unMappedFields, variableList, restConstraint, recordVarType);
 
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(recordVarType,
                 env.enclPkg.packageID, symTable, pos);
@@ -2652,6 +2633,55 @@ public class SymbolEnter extends BLangNodeVisitor {
         TypeDefBuilderHelper.addTypeDefinition(recordVarType, recordSymbol, recordTypeNode, env);
 
         return recordVarType;
+    }
+
+    void setRestRecordFields(Location pos, SymbolEnv env,
+                             LinkedHashMap<String, BField> unMappedFields,
+                             List<String> variableList, BType restConstraint,
+                             BRecordType targetRestRecType) {
+        LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
+        LinkedHashMap<String, BField> markAsOptional = new LinkedHashMap<>();
+
+        if (!targetRestRecType.fields.isEmpty()) {
+            fields.putAll(targetRestRecType.fields);
+            List<String> intersectionFields = getIntersectionFields(Arrays.asList(targetRestRecType.fields,
+                    unMappedFields));
+            markAsOptional.putAll(unMappedFields);
+            markAsOptional.putAll(targetRestRecType.fields);
+            intersectionFields.forEach(markAsOptional::remove);
+        }
+
+        //adds a never-typed optional field for the mapped bindings
+        for (String fieldName : variableList) {
+            unMappedFields.remove(fieldName);
+            BField newField = new BField(names.fromString(fieldName), pos,
+                    new BVarSymbol(Flags.OPTIONAL, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
+                            symTable.neverType, targetRestRecType.tsymbol, pos, VIRTUAL));
+            fields.put(fieldName, newField);
+        }
+
+        for (BField field : unMappedFields.values()) {
+            BField newField = new BField(field.name, pos,
+                    new BVarSymbol(field.symbol.flags, field.name, env.enclPkg.symbol.pkgID,
+                            field.type, targetRestRecType.tsymbol, pos, VIRTUAL));
+            fields.put(field.name.value, newField);
+            targetRestRecType.tsymbol.scope.define(newField.name, newField.symbol);
+        }
+
+        //marks field as optional if the field is not common for all union members
+        for (BField optionalField : markAsOptional.values()) {
+            optionalField.symbol.flags = setSymbolAsOptional(optionalField.symbol.flags);
+        }
+
+        targetRestRecType.fields = fields;
+        targetRestRecType.restFieldType = restConstraint;
+    }
+
+    private long setSymbolAsOptional(long existingFlags) {
+        Set<Flag> unmaskedFlags = Flags.unMask(existingFlags);
+        unmaskedFlags.remove(Flag.REQUIRED);
+        unmaskedFlags.add(Flag.OPTIONAL);
+        return Flags.asMask(unmaskedFlags);
     }
 
     private boolean hasOnlyAnyDataTypedFields(BRecordType recordType) {
