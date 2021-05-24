@@ -55,7 +55,6 @@ import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.tools.text.LinePosition;
-import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
@@ -70,7 +69,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.ballerina.projects.test.TestUtils.isWindows;
 import static io.ballerina.projects.test.TestUtils.resetPermissions;
@@ -918,10 +916,6 @@ public class TestBuildProject {
     @Test(description = "test editing Ballerina.toml")
     public void testModifyDependenciesToml() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_edit_api_tests/package_test_dependencies_toml");
-
-        BCompileUtil.compileAndCacheBala("projects_for_edit_api_tests/package_dependency_v1");
-        BCompileUtil.compileAndCacheBala("projects_for_edit_api_tests/package_dependency_v2");
-
         BuildProject project = null;
         try {
             project = BuildProject.load(projectPath);

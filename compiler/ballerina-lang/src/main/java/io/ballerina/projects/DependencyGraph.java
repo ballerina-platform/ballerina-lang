@@ -60,6 +60,26 @@ public class DependencyGraph<T> {
     public void findCycles() {
     }
 
+    /**
+     * Compares this instance with a provided {@code DependencyGraph} instance.
+     *
+     * @param other other dependency graph to compare with
+     * @return DependencyGraph.Compatibility.COMPATIBLE if graphs are compatible;
+     *         DependencyGraph.Compatibility.INCOMPATIBLE otherwise
+     */
+    public Compatibility compareTo(DependencyGraph<T> other) {
+        Set<T> diff = new HashSet<>(this.getNodes());
+        diff.removeAll(other.getNodes());
+
+        // if the diff is empty, either the old graph is identical to the new graph
+        // or the old graph is a subset of the new graph.
+        if (diff.isEmpty()) {
+            return Compatibility.COMPATIBLE;
+        } else {
+            return Compatibility.INCOMPATIBLE;
+        }
+    }
+
     public DependencyGraph<T> add(T node) {
         Map<T, Set<T>> newDependencies = new HashMap<>(this.dependencies);
         newDependencies.put(node, new HashSet<>());
@@ -193,5 +213,16 @@ public class DependencyGraph<T> {
             }
             return currentDependencies;
         }
+    }
+
+    /**
+     * Represents the compatibility between two dependency graphs {@code DependencyGrapsh} instances.
+     *
+     * @since 2.0.0
+     */
+    public enum Compatibility {
+        INCOMPATIBLE,
+        COMPATIBLE,
+        ;
     }
 }

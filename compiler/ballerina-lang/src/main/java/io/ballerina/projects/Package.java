@@ -418,18 +418,13 @@ public class Package {
                     this.moduleContextMap, DependencyGraph.emptyGraph());
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
 
-            List<ResolvedPackageDependency> newSortedList = this.project.currentPackage().getResolution()
-                    .dependencyGraph().toTopologicallySortedList();
-            List<ResolvedPackageDependency> oldSortedList = this.dependencyGraph.toTopologicallySortedList();
-
-            for (int i = 0; i < newSortedList.size(); ++i) {
-                if (!newSortedList.get(i).packageId().equals(oldSortedList.get(i).packageId())) {
-                    CompilerContext compilerContext = project.projectEnvironmentContext()
-                            .getService(CompilerContext.class);
-                    PackageCache packageCache = PackageCache.getInstance(compilerContext);
-                    packageCache.flush();
-                    break;
-                }
+            DependencyGraph<ResolvedPackageDependency> newDepGraph = this.project.currentPackage().getResolution()
+                    .dependencyGraph();
+            if (this.dependencyGraph.compareTo(newDepGraph).equals(DependencyGraph.Compatibility.INCOMPATIBLE)) {
+                CompilerContext compilerContext = project.projectEnvironmentContext()
+                        .getService(CompilerContext.class);
+                PackageCache packageCache = PackageCache.getInstance(compilerContext);
+                packageCache.flush();
             }
             return this.project.currentPackage();
         }
