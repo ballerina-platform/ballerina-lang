@@ -3729,6 +3729,14 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockStmt mainBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
         mainBlockStmt.addStatement(resultVarDef);
 
+        if (bindingPatternType == symTable.noType) {
+            BLangStatementExpression statementExpression = ASTBuilderUtil.createStatementExpression(mainBlockStmt,
+                    resultVarRef);
+            statementExpression.type = symTable.booleanType;
+
+            return statementExpression;
+        }
+
         BLangAssignment failureResult =
                 ASTBuilderUtil.createAssignmentStmt(pos, resultVarRef, getBooleanLiteral(false));
         BLangAssignment successResult =
@@ -3795,6 +3803,14 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef resultVarRef = ASTBuilderUtil.createVariableRef(pos, resultVarDef.var.symbol);
         BLangBlockStmt mainBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
         mainBlockStmt.addStatement(resultVarDef);
+
+        if (bindingPatternType == symTable.noType) {
+            BLangStatementExpression statementExpression = ASTBuilderUtil.createStatementExpression(mainBlockStmt,
+                    resultVarRef);
+            statementExpression.type = symTable.booleanType;
+
+            return statementExpression;
+        }
 
         BLangAssignment failureResult =
                 ASTBuilderUtil.createAssignmentStmt(pos, resultVarRef, getBooleanLiteral(false));
@@ -4005,6 +4021,14 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef resultVarRef = ASTBuilderUtil.createVariableRef(pos, resultVarDef.var.symbol);
         BLangBlockStmt mainBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
         mainBlockStmt.addStatement(resultVarDef);
+
+        if (matchPatternType == symTable.noType) {
+            BLangStatementExpression statementExpression = ASTBuilderUtil.createStatementExpression(mainBlockStmt,
+                    resultVarRef);
+            statementExpression.type = symTable.booleanType;
+
+            return statementExpression;
+        }
 
         BLangAssignment failureResult =
                 ASTBuilderUtil.createAssignmentStmt(pos, resultVarRef, getBooleanLiteral(false));
@@ -4585,6 +4609,14 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef resultVarRef = ASTBuilderUtil.createVariableRef(pos, resultVarDef.var.symbol);
         BLangBlockStmt mainBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
         mainBlockStmt.addStatement(resultVarDef);
+
+        if (errorFieldBindingPatterns.namedArgBindingPatterns.isEmpty()) {
+            BLangStatementExpression statementExpression = ASTBuilderUtil.createStatementExpression(mainBlockStmt,
+                    resultVarRef);
+            statementExpression.type = symTable.booleanType;
+
+            return statementExpression;
+        }
 
         BLangAssignment failureResult =
                 ASTBuilderUtil.createAssignmentStmt(pos, resultVarRef, getBooleanLiteral(false));

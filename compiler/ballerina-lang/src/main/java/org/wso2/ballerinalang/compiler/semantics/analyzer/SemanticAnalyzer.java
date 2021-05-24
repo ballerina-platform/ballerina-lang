@@ -35,6 +35,7 @@ import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -2155,7 +2156,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             for (Map.Entry<BVarSymbol, BType.NarrowedTypes> entry :
                     matchClause.matchGuard.expr.narrowedTypeInfo.entrySet()) {
                 if (entry.getValue().trueType == symTable.semanticError) {
-                    dlog.error(matchClause.pos, DiagnosticErrorCode.MATCH_STMT_UNMATCHED_PATTERN);
+                    dlog.warning(matchClause.pos, DiagnosticWarningCode.MATCH_STMT_UNMATCHED_PATTERN);
                 }
             }
 
