@@ -77,17 +77,10 @@ type UserTable table<User> key(id, name);
 UserTable userTab = table [{ id: 13 , name: "Sanjiva", address: "Weerawarana" },
                                                    { id: 45 , name: "James" , address: "Clark" }];
 
-int idValue = 15;
-table<Customer> key(id) cusTable = table [{ id: 13 , firstName: "Sanjiva", lastName: "Weerawarana"},
-                                        {id: idValue, firstName: "James" , lastName: "Clark"}];
-
 table<Customer> keylessCusTab  = table [{ id: 222, firstName: "Sanjiva", lastName: "Weerawarana" },
                                     { id: 111, firstName: "James", lastName: "Clark" }];
 
 Customer customerRecord = keylessCusTab[222];
-
-var invalidCusTable = table key(id) [{ id: 13 , firstName: "Sanjiva", lastName: "Weerawarana"},
-                                {id: idValue, firstName: "James" , lastName: "Clark"}];
 
 table<Customer> key<int> intKeyConstraintTable = table key(id)[{ id: 13 , firstName: "Sanjiva", lastName: "Weerawarana" },
                                                 { id: 23 , firstName: "James" , lastName: "Clark" }];
@@ -160,3 +153,18 @@ type Employee record {
 };
 
 type EmployeeTable table<Employee> key(name);
+
+class A {
+
+}
+
+readonly & A[] a = [];
+
+type Row record {
+    readonly A[] k;
+    int value;
+};
+
+table<Row> key(k) t = table [
+    { k: a, value: 17, "b":12}
+];

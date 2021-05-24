@@ -103,6 +103,10 @@ public class DocAttachmentInfo implements Documentation {
     }
 
     public String getDocumentationString() {
+        return getDocumentationString(true);
+    }
+    
+    public String getDocumentationString(boolean newlineAtEnd) {
         StringBuilder result = new StringBuilder();
         // TODO: Seems like the parser isn't honoring the platform specific line separator. Therefore, splitting with
         //      "/n" for now
@@ -128,6 +132,10 @@ public class DocAttachmentInfo implements Documentation {
             result.append(String.format("%s# %s%n", padding, deprecatedDesc));
         }
 
-        return result.toString().trim() + CommonUtil.MD_LINE_SEPARATOR + padding;
+        if (newlineAtEnd) {
+            return result.toString().trim() + CommonUtil.MD_LINE_SEPARATOR + padding;
+        } else {
+            return result.toString().trim();
+        }
     }
 }

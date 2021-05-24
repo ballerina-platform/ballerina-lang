@@ -1,5 +1,5 @@
 NAME
-       ballerina-bindgen - A CLI tool for generating Ballerina bindings for Java APIs.
+       ballerina-bindgen - A CLI tool for generating Ballerina bindings for Java APIs
 
 SYNOPSIS
        bal bindgen [(-cp|--classpath) <classpath>...]
@@ -48,12 +48,12 @@ OPTIONS
 
 
 EXAMPLES
-       Generating the Ballerina bridge code for a standard Java class.
+       Generate the Ballerina bridge code for a standard Java class.
            $ bal bindgen java.utils.ArrayDeque
 
-       Generating Ballerina bridge code for library Java classes.
+       Generate Ballerina bridge code for library Java classes.
            $ bal bindgen -cp ./libs/snakeyaml-1.25.jar,./libs/pdfbox-1.8.10.jar -o ./src/sample
            org.yaml.snakeyaml.Yaml org.apache.pdfbox.pdmodel.PDDocument java.io.File
 
-       Generating Ballerina bridge code using a Maven dependency.
+       Generate Ballerina bridge code using a Maven dependency.
            $ bal bindgen -mvn org.yaml:snakeyaml:1.25 -o ./src/sample org.yaml.snakeyaml.Yaml

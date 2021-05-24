@@ -44,8 +44,8 @@ BALLERINA COMMANDS
         search          Search Ballerina Central for packages
 
    Other Commands:
-        grpc            Generate Ballerina sources for the given protobuf definition
-        openapi         Generate Ballerina sources for the given OpenAPI definition and vice versa.
-        version         Print Ballerina version
-        bindgen         Generate Ballerina bindings for Java APIs
+        grpc            Generate the Ballerina sources for the given protobuf definition
+        openapi         Generate the Ballerina sources for the given OpenAPI definition and vice versa
+        version         Print the Ballerina version
+        bindgen         Generate the Ballerina bindings for Java APIs
         shell           Run Ballerina interactive REPL [EXPERIMENTAL]
