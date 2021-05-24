@@ -55,7 +55,7 @@ public isolated function prepare(object {} mockObject) returns MockObject {
     return obj;
 }
 
-# Represents a Mock object in which to create stubs for member functions and variables.
+# Represents a Mock object in which stubs for member functions and variables need to be specified.
 public class MockObject {
     object {} mockObject;
     string fieldName = "";
@@ -327,7 +327,7 @@ isolated function validateFunctionNameExt(handle functionName, object{} mockObje
 # Inter-op to validate the field name.
 #
 # + fieldName - Field name provided
-# + mockObject - Obj to validate against
+# + mockObject - Object to validate against
 # + return - Error if field does not exist
 isolated function validateFieldNameExt(handle fieldName, object{} mockObject) returns Error? = @java:Method {
     name: "validateFieldName",
@@ -346,7 +346,7 @@ isolated function validateArgumentsExt(MemberFunctionStub case) returns Error? =
 # Inter-op to register the return value.
 #
 # + case - Case to register
-# + return - Error if case registration failed
+# + return - Error if case registration fails
 isolated function thenReturnExt(MemberFunctionStub|MemberVariableStub case) returns Error? = @java:Method {
     name: "thenReturn",
     'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
@@ -355,7 +355,7 @@ isolated function thenReturnExt(MemberFunctionStub|MemberVariableStub case) retu
 # Inter-op to register the sequence of return values.
 #
 # + case - Case to register
-# + return - Error if case registration failed
+# + return - Error if case registration fails
 isolated function thenReturnSeqExt(MemberFunctionStub case) returns Error? = @java:Method {
     name: "thenReturnSequence",
     'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
