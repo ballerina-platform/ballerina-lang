@@ -178,6 +178,11 @@ public class MappingBindingPatternTest {
     }
 
     @Test
+    public void testRestRecordPattern() {
+        BRunUtil.invoke(restMatchPatternResult, "testRestRecordPattern");
+    }
+
+    @Test
     public void testMappingBindingPatternNegative() {
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 20, 9);
@@ -194,8 +199,9 @@ public class MappingBindingPatternTest {
 
     @Test
     public void testMappingBindingPatternSemanticNegative() {
-        CompileResult negativeResult = BCompileUtil.compile(
-                "test-src/statements/matchstmt/varbindingpatternmatchpattern/mapping_binding_pattern_semantics_negative.bal");
+       CompileResult negativeResult = BCompileUtil.compile(
+                "test-src/statements/matchstmt/varbindingpatternmatchpattern" +
+                        "/mapping_binding_pattern_semantics_negative.bal");;
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<error>', found 'map<int>'",
                 20, 28);

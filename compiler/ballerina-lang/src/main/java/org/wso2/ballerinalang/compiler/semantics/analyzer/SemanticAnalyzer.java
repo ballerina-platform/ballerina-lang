@@ -2399,7 +2399,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 BRecordType restVarSymbolRecordType = (BRecordType) restVarSymbol.type;
-                setRestMatchPatternConstraintType(recordType, boundedFieldNames, restPatternRecType, restVarSymbolRecordType);
+                setRestMatchPatternConstraintType(recordType, boundedFieldNames, restPatternRecType,
+                        restVarSymbolRecordType);
         }
     }
 
@@ -2870,7 +2871,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BVarSymbol restVarSymbol =
                         restBindingPattern.declaredVars.get(restBindingPattern.getIdentifier().getValue());
                 BRecordType restVarSymbolRecordType = (BRecordType) restVarSymbol.type;
-                setRestMatchPatternConstraintType(recordType, boundedFields, restPatternRecordType, restVarSymbolRecordType);
+                setRestMatchPatternConstraintType(recordType, boundedFields, restPatternRecordType,
+                        restVarSymbolRecordType);
                 return;
             default:
         }
