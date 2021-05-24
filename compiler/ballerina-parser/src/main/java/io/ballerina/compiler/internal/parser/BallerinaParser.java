@@ -2858,7 +2858,7 @@ public class BallerinaParser extends AbstractParser {
             case SERVICE_KEYWORD:
                 return isServiceDeclStart(ParserRuleContext.OBJECT_MEMBER, 1);
             case PUBLIC_KEYWORD:
-                return isEndOfModuleLevelNode(peekIndex + 1, isObject);
+                return !isObject && isEndOfModuleLevelNode(peekIndex + 1, false);
             case FUNCTION_KEYWORD:
                 if (isObject) {
                     return false;
