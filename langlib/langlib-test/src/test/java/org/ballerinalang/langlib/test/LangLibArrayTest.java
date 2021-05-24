@@ -147,7 +147,9 @@ public class LangLibArrayTest {
         return new Object[][]{
                 {"testSliceOfReadonlyIntArray"},
                 {"testSliceOfReadonlyStringArray"},
-                {"testSliceOfReadonlyBooleanArray"}
+                {"testSliceOfReadonlyBooleanArray"},
+                {"testSliceOfReadonlyByteArray"},
+                {"testSliceOfReadonlyFloatArray"}
         };
     }
 

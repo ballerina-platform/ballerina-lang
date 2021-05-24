@@ -95,6 +95,20 @@ function testSliceOfReadonlyBooleanArray() {
     assertValueEquality([true, false], b);
 }
 
+function testSliceOfReadonlyByteArray() {
+    readonly & byte[] a = [1, 2, 3];
+    byte[] b = a.slice(1);
+    b[1] = 4;
+    assertValueEquality([2, 4], b);
+}
+
+function testSliceOfReadonlyFloatArray() {
+    readonly & float[] f = [1.2, 3.4, 5, 7.3, 9.47];
+    float[] g = f.slice(2, 4);
+    g[2] = 6.78;
+    assertValueEquality([5.0, 7.3, 6.78], g);
+}
+
 function testPushAfterSlice() returns [int, int, float[]] {
      float[] arr = [12.34, 23.45, 34.56, 45.67, 56.78];
      float[] s = arr.slice(1, 4);
