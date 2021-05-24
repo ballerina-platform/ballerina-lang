@@ -56,6 +56,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT
 import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
 import static org.ballerinalang.central.client.Utils.createBalaInHomeRepo;
 import static org.ballerinalang.central.client.Utils.getAsList;
+import static org.ballerinalang.central.client.Utils.getBearerToken;
 import static org.ballerinalang.central.client.Utils.isApplicationJsonContentType;
 
 /**
@@ -75,12 +76,14 @@ public class CentralAPIClient {
     private static final String ERR_CANNOT_SEARCH = "error: failed to search packages: ";
     private final String baseUrl;
     private final Proxy proxy;
+    private String accessToken;
     protected PrintStream outStream;
 
-    public CentralAPIClient(String baseUrl, Proxy proxy) {
+    public CentralAPIClient(String baseUrl, Proxy proxy, String accessToken) {
         this.outStream = System.out;
         this.baseUrl = baseUrl;
         this.proxy = proxy;
+        this.accessToken = accessToken;
     }
 
     /**
@@ -228,8 +231,8 @@ public class CentralAPIClient {
     /**
      * Pushing a package to registry.
      */
-    public void pushPackage(Path balaPath, String org, String name, String version, String accessToken,
-            String supportedPlatform, String ballerinaVersion) throws CentralClientException {
+    public void pushPackage(Path balaPath, String org, String name, String version, String supportedPlatform,
+                            String ballerinaVersion) throws CentralClientException {
         String packageSignature = org + "/" + name + ":" + version;
         String url = this.baseUrl + "/" + PACKAGES;
         Optional<ResponseBody> body = Optional.empty();
@@ -253,7 +256,6 @@ public class CentralAPIClient {
             Request pushRequest = getNewRequest(supportedPlatform, ballerinaVersion)
                     .post(balaFileReqBodyWithProgressBar)
                     .url(url)
-                    .addHeader(AUTHORIZATION, "Bearer " + accessToken)
                     .build();
 
             Call pushRequestCall = client.newCall(pushRequest);
@@ -517,8 +519,23 @@ public class CentralAPIClient {
      * @return Http request builder
      */
     protected Request.Builder getNewRequest(String supportedPlatform, String ballerinaVersion) {
-        return new Request.Builder()
-                .addHeader(BALLERINA_PLATFORM, supportedPlatform)
-                .addHeader(USER_AGENT, ballerinaVersion);
+        if (this.accessToken.isEmpty()) {
+            return new Request.Builder()
+                    .addHeader(BALLERINA_PLATFORM, supportedPlatform)
+                    .addHeader(USER_AGENT, ballerinaVersion);
+        } else {
+            return new Request.Builder()
+                    .addHeader(BALLERINA_PLATFORM, supportedPlatform)
+                    .addHeader(USER_AGENT, ballerinaVersion)
+                    .addHeader(AUTHORIZATION, getBearerToken(this.accessToken));
+        }
+    }
+
+    public String accessToken() {
+        return this.accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 }

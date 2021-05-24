@@ -38,7 +38,7 @@ public function main(string... args) {
 function executeSingleExecFunction((function(int w, int b) returns int) f,
         string functionName, int warmupCount, int benchmarkCount) {
     int totalTime = f(warmupCount, benchmarkCount);
-    float totalTimeMilli = (totalTime / 1000000.0f);
+    float totalTimeMilli = (<float>totalTime / 1000000.0f);
     float avgLatency = (<float>totalTime / <float>benchmarkCount);
     float tps = (1000000000.0f / avgLatency);
     print(functionName + ",");
@@ -60,7 +60,7 @@ function executeMultiExecFunction(function () f, string functionName,
         f();
     }
     int totalTime = (nanoTime() - startTime);
-    float totalTimeMilli = (totalTime / 1000000.0f);
+    float totalTimeMilli = (<float>totalTime / 1000000.0f);
     float avgLatency = (<float>totalTime / <float>benchmarkCount);
     float tps = (1000000000.0f / avgLatency);
     print(functionName + ",");

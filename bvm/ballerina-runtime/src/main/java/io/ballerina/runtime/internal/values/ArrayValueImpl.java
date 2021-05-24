@@ -346,8 +346,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
         rangeCheckForGet(index, size);
         if (byteValues != null) {
             return byteValues[(int) index];
+        } else if (intValues != null) {
+            return ((Long) intValues[(int) index]).byteValue();
         }
-        return ((Integer) refValues[(int) index]).byteValue();
+        return ((Long) refValues[(int) index]).byteValue();
     }
 
     /**

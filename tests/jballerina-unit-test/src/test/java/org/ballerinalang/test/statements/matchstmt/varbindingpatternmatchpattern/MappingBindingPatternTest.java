@@ -128,6 +128,11 @@ public class MappingBindingPatternTest {
     }
 
     @Test
+    public void testMappingBindingPattern17() {
+        BRunUtil.invoke(result, "testMappingBindingPattern17");
+    }
+
+    @Test
     public void testMappingBindingPatternWithRest1() {
         BRunUtil.invoke(restMatchPatternResult, "testMappingBindingPatternWithRest1");
     }
@@ -148,6 +153,31 @@ public class MappingBindingPatternTest {
     }
 
     @Test
+    public void testMappingBindingPatternWithRest5() {
+        BRunUtil.invoke(restMatchPatternResult, "testMappingBindingPatternWithRest5");
+    }
+
+    @Test
+    public void testMappingBindingPatternWithRest6() {
+        BRunUtil.invoke(restMatchPatternResult, "testMappingBindingPatternWithRest6");
+    }
+
+    @Test
+    public void testMappingBindingPatternWithRest7() {
+        BRunUtil.invoke(restMatchPatternResult, "testMappingBindingPatternWithRest7");
+    }
+
+    @Test
+    public void testMappingBindingPatternWithRest8() {
+        BRunUtil.invoke(restMatchPatternResult, "testMappingBindingPatternWithRest8");
+    }
+
+    @Test
+    public void testRestMappingAtRuntime() {
+        BRunUtil.invoke(restMatchPatternResult, "testRestMappingAtRuntime");
+    }
+
+    @Test
     public void testMappingBindingPatternNegative() {
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 20, 9);
@@ -157,7 +187,37 @@ public class MappingBindingPatternTest {
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 46, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 54, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 61, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 73, 9);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 75, 9);
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
+    }
+
+    @Test
+    public void testMappingBindingPatternSemanticNegative() {
+        CompileResult negativeResult = BCompileUtil.compile(
+                "test-src/statements/matchstmt/varbindingpatternmatchpattern" +
+                        "/mapping_binding_pattern_semantics_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<error>', found 'map<int>'",
+                20, 28);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<map<int>>', found 'map<map<" +
+                "(int|error)>>'", 21, 31);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'json'", 29, 21);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<boolean>', found " +
+                "'map<json>'", 29, 24);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'json'", 32, 21);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'json'", 32, 28);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'map<never>'", 43,
+                21);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'", 57, 25);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<boolean>', found 'map<" +
+                "(string|boolean)>'", 58, 30);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 73, 24);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'map<never>'",
+                74, 25);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', " +
+                "found 'map<(int|never)>'", 77, 24);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @AfterClass

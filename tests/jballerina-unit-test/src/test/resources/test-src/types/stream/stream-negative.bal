@@ -376,3 +376,7 @@ function testAssignabilityOfStreams() {
     emptyStream7 = emptyStream9;
     emptyStream8 = emptyStream9;
 }
+
+function testNonIteratorsInStreamConstructor() {
+    stream<int> intStrm = new("test");
+}

@@ -29,9 +29,6 @@ public class CliConstants {
 
     static final String CLI_ARG_REGEX = "(?<!\\\\)=";
 
-    static final String CONFIGURATION_NOT_SUPPORTED_FOR_CLI = "value for configurable variable '%s' with type " +
-            "'%s' is not supported as a cli arg";
-
     private CliConstants() {
     }
 }

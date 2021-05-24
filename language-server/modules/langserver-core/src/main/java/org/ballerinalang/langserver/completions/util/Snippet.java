@@ -266,15 +266,21 @@ public enum Snippet {
 
     KW_TRANSACTIONAL(SnippetGenerator.getTransactionalKeywordSnippet()),
 
+    KW_WORKER(SnippetGenerator.getKeywordSnippet("worker")),
+
+    KW_FIELD(SnippetGenerator.getKeywordSnippet("field")),
+
     KW_SOURCE(SnippetGenerator.getKeywordSnippet("source")),
 
     KW_OBJ_FUNCTION(SnippetGenerator.getKeywordSnippet("object function")),
 
     KW_SERVICE_REMOTE_FUNCTION(SnippetGenerator.getKeywordSnippet("service remote function")),
 
+    KW_REMOTE_FUNCTION(SnippetGenerator.getKeywordSnippet("remote function")),
+
     KW_PARAMETER(SnippetGenerator.getKeywordSnippet("parameter")),
 
-    KW_RETURN(SnippetGenerator.getKeywordSnippet("parameter")),
+    KW_RETURN(SnippetGenerator.getKeywordSnippet("return")),
 
     KW_OBJECT_FIELD(SnippetGenerator.getKeywordSnippet("object field")),
 
@@ -306,6 +312,8 @@ public enum Snippet {
     STMT_CONTINUE(SnippetGenerator.getContinueStatmentSnippet()),
 
     STMT_FOREACH(SnippetGenerator.getForeachSnippet()),
+
+    STMT_FOREACH_RANGE_EXP(SnippetGenerator.getForeachRangeExpressionSnippet()),
 
     STMT_FORK(SnippetGenerator.getForkStatementSnippet()),
 
@@ -343,13 +351,13 @@ public enum Snippet {
     CLAUSE_DO(SnippetGenerator.getDoClauseSnippet()),
 
     CLAUSE_LET(SnippetGenerator.getLetClauseSnippet()),
-    
+
     CLAUSE_JOIN(SnippetGenerator.getJoinClauseSnippet()),
-    
+
     CLAUSE_ON_FAIL(SnippetGenerator.getOnFailClauseSnippet()),
-    
+
     CLAUSE_ON_CONFLICT(SnippetGenerator.getOnConflictClauseSnippet()),
-    
+
     TYPE_MAP(SnippetGenerator.getMapTypeSnippet());
 
     private final String snippetName;

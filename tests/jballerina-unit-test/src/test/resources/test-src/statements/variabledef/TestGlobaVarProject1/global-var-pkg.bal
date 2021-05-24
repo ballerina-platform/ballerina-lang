@@ -11,7 +11,7 @@ function getGlobalVars() returns [int, string, float, any] {
 }
 
 function changeGlobalVar(int addVal) returns (float) {
-    variable:setGlbVarFloatChange(77 + <float> addVal);
+    variable:setGlbVarFloatChange(77.0 + <float> addVal);
     float value = variable:getGlbVarFloatChange();
     return value;
 }

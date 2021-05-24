@@ -25,6 +25,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
@@ -207,7 +208,15 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         if (isRedeclaredSymbol(symbol, foundSym)) {
-            dlog.error(pos, DiagnosticErrorCode.REDECLARED_SYMBOL, symbol.name);
+
+            Name name = symbol.name;
+            if (Symbols.isRemote(symbol) && !Symbols.isRemote(foundSym)
+                || !Symbols.isRemote(symbol) && Symbols.isRemote(foundSym)) {
+                dlog.error(pos, DiagnosticErrorCode.UNSUPPORTED_REMOTE_METHOD_NAME_IN_SCOPE, name);
+                return false;
+            }
+
+            dlog.error(pos, DiagnosticErrorCode.REDECLARED_SYMBOL, name);
             return false;
         }
 
@@ -393,6 +402,12 @@ public class SymbolResolver extends BLangNodeVisitor {
     BSymbol createBinaryComparisonOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
         List<BType> paramTypes = Lists.of(lhsType, rhsType);
         BInvokableType opType = new BInvokableType(paramTypes, symTable.booleanType, null);
+        return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
+    }
+
+    BSymbol createBinaryOperator(OperatorKind opKind, BType lhsType, BType rhsType, BType retType) {
+        List<BType> paramTypes = Lists.of(lhsType, rhsType);
+        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
     }
 
@@ -1654,6 +1669,71 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
+    public BSymbol getBitwiseShiftOpsForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType) {
+        boolean validIntTypesExists;
+        switch (opKind) {
+            case BITWISE_LEFT_SHIFT:
+            case BITWISE_RIGHT_SHIFT:
+            case BITWISE_UNSIGNED_RIGHT_SHIFT:
+                validIntTypesExists = types.validIntegerTypeExists(lhsType) && types.validIntegerTypeExists(rhsType);
+                break;
+            default:
+                return symTable.notFoundSymbol;
+        }
+
+        if (validIntTypesExists) {
+            switch (opKind) {
+                case BITWISE_LEFT_SHIFT:
+                    return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
+                case BITWISE_RIGHT_SHIFT:
+                case BITWISE_UNSIGNED_RIGHT_SHIFT:
+                    switch (lhsType.tag) {
+                        case TypeTags.UNSIGNED32_INT:
+                        case TypeTags.UNSIGNED16_INT:
+                        case TypeTags.UNSIGNED8_INT:
+                        case TypeTags.BYTE:
+                            return createBinaryOperator(opKind, lhsType, rhsType, lhsType);
+                        default:
+                            return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
+                    }
+            }
+        }
+        return symTable.notFoundSymbol;
+    }
+
+    public BSymbol getArithmeticOpsForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType) {
+        boolean validNumericOrStringTypeExists;
+        switch (opKind) {
+            case ADD:
+                validNumericOrStringTypeExists = (types.validNumericTypeExists(lhsType) &&
+                        types.validNumericTypeExists(rhsType)) || (types.validStringOrXmlTypeExists(lhsType) &&
+                        types.validStringOrXmlTypeExists(rhsType));
+                break;
+            case SUB:
+            case DIV:
+            case MUL:
+            case MOD:
+                validNumericOrStringTypeExists = types.validNumericTypeExists(lhsType) &&
+                        types.validNumericTypeExists(rhsType);
+                break;
+            default:
+                return symTable.notFoundSymbol;
+        }
+
+        if (validNumericOrStringTypeExists) {
+            BType compatibleType1 = types.findCompatibleType(lhsType);
+            BType compatibleType2 = types.findCompatibleType(rhsType);
+            if (types.isBasicNumericType(compatibleType1) && compatibleType1 != compatibleType2) {
+                return symTable.notFoundSymbol;
+            }
+            if (compatibleType1.tag < compatibleType2.tag) {
+                return createBinaryOperator(opKind, lhsType, rhsType, compatibleType2);
+            }
+            return createBinaryOperator(opKind, lhsType, rhsType, compatibleType1);
+        }
+        return symTable.notFoundSymbol;
+    }
+
     /**
      * Define binary comparison operator for valid ordered types.
      *
@@ -1689,6 +1769,24 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
         }
         return symTable.notFoundSymbol;
+    }
+
+    public boolean isBinaryShiftOperator(OperatorKind binaryOpKind) {
+        return binaryOpKind == OperatorKind.BITWISE_LEFT_SHIFT ||
+                binaryOpKind == OperatorKind.BITWISE_RIGHT_SHIFT ||
+                binaryOpKind == OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT;
+    }
+
+    public boolean isArithmeticOperator(OperatorKind binaryOpKind) {
+        return binaryOpKind == OperatorKind.ADD || binaryOpKind == OperatorKind.SUB ||
+                binaryOpKind == OperatorKind.DIV || binaryOpKind == OperatorKind.MUL ||
+                binaryOpKind == OperatorKind.MOD;
+    }
+
+    public boolean isBinaryComparisonOperator(OperatorKind binaryOpKind) {
+        return binaryOpKind == OperatorKind.LESS_THAN ||
+                binaryOpKind == OperatorKind.LESS_EQUAL || binaryOpKind == OperatorKind.GREATER_THAN ||
+                binaryOpKind == OperatorKind.GREATER_EQUAL;
     }
 
     public boolean markParameterizedType(BType type, BType constituentType) {
@@ -1974,14 +2072,13 @@ public class SymbolResolver extends BLangNodeVisitor {
         return detailRecordTypeDefinition;
     }
 
-    private BIntersectionType defineErrorIntersectionType(BErrorType effectiveType,
+    private BIntersectionType defineErrorIntersectionType(IntersectableReferenceType effectiveType,
                                                           LinkedHashSet<BType> constituentBTypes, PackageID pkgId,
                                                           BSymbol owner) {
 
         BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,
                                                                       Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                                                                      null,
-                                                                      pkgId, null, owner,
+                                                                      Names.EMPTY, pkgId, null, owner,
                                                                       symTable.builtinPos, VIRTUAL);
 
         BIntersectionType intersectionType = new BIntersectionType(intersectionTypeSymbol, constituentBTypes,

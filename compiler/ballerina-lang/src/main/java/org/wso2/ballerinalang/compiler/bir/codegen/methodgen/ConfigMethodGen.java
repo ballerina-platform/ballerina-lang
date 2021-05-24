@@ -18,6 +18,9 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
+import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -25,6 +28,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmBStringConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -175,13 +179,14 @@ public class ConfigMethodGen {
                         "L" + MODULE + ";");
                 mv.visitLdcInsn(globalVar.name.value);
                 jvmTypeGen.loadType(mv, globalVar.type);
+                mv.visitLdcInsn(getOneBasedLocationString(module, globalVar.pos));
                 if (Symbols.isFlagOn(globalVarFlags, Flags.REQUIRED)) {
                     mv.visitInsn(ICONST_1);
                 } else {
                     mv.visitInsn(ICONST_0);
                 }
-                mv.visitMethodInsn(INVOKESPECIAL, VARIABLE_KEY, JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;Z)V",
-                        MODULE, STRING_VALUE, TYPE), false);
+                mv.visitMethodInsn(INVOKESPECIAL, VARIABLE_KEY, JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;L%s;Z)V",
+                        MODULE, STRING_VALUE, TYPE,  STRING_VALUE), false);
                 mv.visitVarInsn(ASTORE, varCount + 1);
 
                 mv.visitVarInsn(ALOAD, 0);
@@ -195,6 +200,15 @@ public class ConfigMethodGen {
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    private String getOneBasedLocationString(BIRNode.BIRPackage module, Location location) {
+        LineRange lineRange = location.lineRange();
+        String oneBasedLineTrace = lineRange.filePath() + ":" + (lineRange.startLine().line() + 1);
+        if (module.packageID.equals(JvmConstants.DEFAULT)) {
+            return oneBasedLineTrace;
+        }
+        return IdentifierUtils.decodeIdentifier(module.packageID.toString()) + "(" + oneBasedLineTrace + ")";
     }
 
     private int calculateConfigArraySize(List<BIRNode.BIRGlobalVariableDcl> globalVars) {

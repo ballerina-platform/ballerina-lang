@@ -354,7 +354,7 @@ public class MockDesugar {
 
         bLangFieldBasedAccess.fieldKind = FieldKind.SINGLE;
         bLangFieldBasedAccess.originalType = fieldType;
-        bLangFieldBasedAccess.lhsVar = true;
+        bLangFieldBasedAccess.isLValue = true;
         bLangFieldBasedAccess.expectedType = fieldType;
         bLangFieldBasedAccess.type = fieldType;
 

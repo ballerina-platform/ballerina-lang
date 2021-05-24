@@ -1,6 +1,3 @@
-distinct
-  class
-    Foo
-        {
-    string      name
- ;            }
+distinct  class  Foo{
+    string      name;
+                }

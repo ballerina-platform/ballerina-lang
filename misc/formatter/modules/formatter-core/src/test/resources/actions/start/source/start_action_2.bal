@@ -1,10 +1,3 @@
-function foo()
-{
-future  < int  >
-f1   =
-@  strand
-  {  thread  : "any"
-}   start
- multiply  (  1  ,   2  )
- ;
+function foo(){
+future  < int  >     f1   =@  strand{  thread  : "any"    }   start     multiply  (  1  ,   2  )  ;
  }

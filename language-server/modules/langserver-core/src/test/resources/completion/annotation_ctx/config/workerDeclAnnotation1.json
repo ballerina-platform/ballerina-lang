@@ -106,29 +106,6 @@
       ]
     },
     {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
@@ -286,7 +263,7 @@
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "Q",
-      "insertText": "strand {\n\t${1}\n}",
+      "insertText": "strand",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     }

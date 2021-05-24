@@ -89,6 +89,17 @@ function testAnonRecordAsRestFieldOfAnonRecord() {
     assertEquality((), rec2["c"]?.i);
 }
 
+type Foo record {
+    int x = 1;
+};
+
+public function anonymousRecordWithTypeInclusion() {
+    var rec = <record { *Foo; }>{
+        x: 3
+    };
+    assertEquality(3, rec.x);
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

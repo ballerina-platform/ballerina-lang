@@ -89,6 +89,10 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 
                 {"create_function_which_returns_record1.json", "create_function_which_returns_record1.bal"},
                 {"create_function_which_returns_record2.json", "create_function_which_returns_record2.bal"},
+                {"create_function_with_strands1.json", "create_function_with_strands1.bal"},
+                {"create_function_with_strands2.json", "create_function_with_strands1.bal"},
+                {"create_function_with_strands3.json", "create_function_with_strands1.bal"},
+                {"create_function_with_strands4.json", "create_function_with_strands1.bal"},
         };
     }
 

@@ -30,6 +30,7 @@ public class ProjectConstants {
     public static final String BALLERINA_TOML = "Ballerina.toml";
     public static final String DEPENDENCIES_TOML = "Dependencies.toml";
     public static final String COMPILER_PLUGIN_TOML = "CompilerPlugin.toml";
+    public static final String SETTINGS_TOML = "Settings.toml";
     public static final String CLOUD_TOML = "Cloud.toml";
     public static final String CONFIGURATION_TOML = "Config.toml";
     public static final String SETTINGS_FILE_NAME = "Settings.toml";

@@ -28,7 +28,7 @@
                                         "character": 0
                                     }
                                 },
-                                "newText": "\n\nfunction createClassRoom(Student[] a) returns ClassRoom {\n    \n    return new (\"\", 0, []);\n}\n"
+                                "newText": "\n\nfunction createClassRoom(Student[] a) returns ClassRoom {\n    return new (\"\", 0, []);\n}\n"
                             }
                         ]
                     }

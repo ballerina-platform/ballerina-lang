@@ -480,8 +480,7 @@ public class LangLibArrayTest {
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid member type of the array/tuple to sort: 'map<string>?[]' is not an ordered type", 171, 47);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected '(boolean|int|float|decimal|string|" +
-                        "ballerina/lang.array:1.1.0:OrderedType[])?', found 'any'", 174, 60);
+                "incompatible types: expected 'ballerina/lang.array:1.1.0:OrderedType', found 'any'", 174, 60);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type", 178, 34);
         BAssertUtil.validateError(negativeResult, errorIndex++,

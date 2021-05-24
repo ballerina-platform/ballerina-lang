@@ -20,14 +20,13 @@
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
-
-import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILE_NOT_FOUND;
-import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.EMPTY_CONFIG_FILE;
 
 /**
  * Toml parser that reads from file content for configurable implementation.
@@ -51,14 +50,9 @@ public class TomlFileProvider extends TomlProvider {
 
     private TomlTableNode getConfigTomlData(Path configFilePath) {
         if (!Files.exists(configFilePath)) {
-            throw new TomlConfigException(String.format(CONFIG_FILE_NOT_FOUND, configFilePath));
+            throw new ConfigException(RuntimeErrors.CONFIG_TOML_FILE_NOT_FOUND, configFilePath);
         }
-        ConfigToml configToml = new ConfigToml(configFilePath);
-        TomlTableNode rootNode = configToml.tomlAstNode();
-        if (rootNode.entries().isEmpty()) {
-            throw new TomlConfigException(String.format(EMPTY_CONFIG_FILE, configFilePath));
-        }
-        return rootNode;
+        return new ConfigToml(configFilePath).tomlAstNode();
     }
 
 }

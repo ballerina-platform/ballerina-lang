@@ -79,35 +79,22 @@ public class ServiceTest {
         Assert.assertEquals(result[0].stringValue(), "2_1");
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test
     public void testServiceBasicsNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_basic_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 17);
         int errIdx = 0;
-        validateError(compileResult, errIdx++, "resource function can not be invoked with in a service", 9, 9);
-        validateError(compileResult, errIdx++, "redeclared symbol 'name1'", 19, 9);
+        validateError(compileResult, errIdx++, "invalid remote method call '.bar()': use '->bar()' for remote method " +
+                "calls", 7, 9);
         validateError(compileResult, errIdx++,
-                "incompatible types: expected 'listener', found 'string'", 19, 18);
-        validateError(compileResult, errIdx++, "invalid listener attachment", 19, 18);
-        validateError(compileResult, errIdx++, "redeclared symbol 'MyService$$service$2.foo'", 30, 14);
-        validateError(compileResult, errIdx++, "undefined symbol 'invalidVar'", 58, 12);
-        validateError(compileResult, errIdx++, "service methods cannot have explicit visibility qualifiers", 64, 5);
-        validateError(compileResult, errIdx++, "service methods cannot have explicit visibility qualifiers", 68, 5);
-        validateError(compileResult, errIdx++, "service methods cannot have explicit visibility qualifiers", 72, 5);
-        validateError(compileResult, errIdx++, "service methods cannot have explicit visibility qualifiers", 76, 5);
-        validateError(compileResult, errIdx++, "invalid resource function return type 'string?', expected a subtype " +
-                "of 'error?' containing '()'", 82, 37);
-        validateError(compileResult, errIdx++, "invalid resource function return type 'error', expected a subtype of " +
-                "'error?' containing '()'", 86, 37);
-        validateError(compileResult, errIdx++, "invalid resource function return type '(FooErr|BarErr)', expected a " +
-                "subtype of 'error?' containing '()'", 98, 37);
-        validateError(compileResult, errIdx++, "service method call is allowed only within the type descriptor",
-                120, 9);
-        validateError(compileResult, errIdx++, "service method call is allowed only within the type descriptor",
-                121, 9);
-        validateError(compileResult, errIdx++, "service method call is allowed only within the type descriptor",
-                122, 9);
-        validateError(compileResult, errIdx, "service method call is allowed only within the type descriptor",
-                123, 9);
+                "incompatible types: expected 'listener', found 'string'", 17, 20);
+        validateError(compileResult, errIdx++, "invalid listener attachment", 17, 20);
+        validateError(compileResult, errIdx++, "redeclared symbol '$anonType$_2.foo'", 28, 21);
+        validateError(compileResult, errIdx++, "undefined symbol 'invalidVar'", 54, 12);
+        validateError(compileResult, errIdx++, "'private' qualifier not allowed", 60, 13);
+        validateError(compileResult, errIdx++, "'public' qualifier not allowed", 64, 12);
+        validateError(compileResult, errIdx++, "undefined method 'tuv' in object 'object { function xyz () " +
+                "returns (); }'", 94, 13);
+        validateError(compileResult, errIdx++, "undefined symbol 'kgp'", 96, 9);
+        Assert.assertEquals(compileResult.getErrorCount(), errIdx);
     }
 }

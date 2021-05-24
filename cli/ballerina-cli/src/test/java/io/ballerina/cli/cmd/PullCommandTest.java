@@ -35,7 +35,7 @@ public class PullCommandTest extends BaseCommandTest {
 
     @Test(description = "Pull package without package name")
     public void testPullWithoutPackage() throws IOException {
-        PullCommand pullCommand = new PullCommand(printStream);
+        PullCommand pullCommand = new PullCommand(printStream, false);
         new CommandLine(pullCommand).parse();
         pullCommand.execute();
 
@@ -47,7 +47,7 @@ public class PullCommandTest extends BaseCommandTest {
 
     @Test(description = "Pull package with too many args")
     public void testPullWithTooManyArgs() throws IOException {
-        PullCommand pullCommand = new PullCommand(printStream);
+        PullCommand pullCommand = new PullCommand(printStream, false);
         new CommandLine(pullCommand).parse(TEST_PKG_NAME, "tests");
         pullCommand.execute();
 
@@ -59,7 +59,7 @@ public class PullCommandTest extends BaseCommandTest {
 
     @Test(description = "Pull package with invalid package name")
     public void testPullInvalidPackage() throws IOException {
-        PullCommand pullCommand = new PullCommand(printStream);
+        PullCommand pullCommand = new PullCommand(printStream, false);
         new CommandLine(pullCommand).parse("wso2/winery/1.0.0");
         pullCommand.execute();
 
@@ -73,7 +73,7 @@ public class PullCommandTest extends BaseCommandTest {
 
     @Test(description = "Pull package with invalid org")
     public void testPullPackageWithInvalidOrg() throws IOException {
-        PullCommand pullCommand = new PullCommand(printStream);
+        PullCommand pullCommand = new PullCommand(printStream, false);
         new CommandLine(pullCommand).parse("wso2-dev/winery");
         pullCommand.execute();
 
@@ -87,7 +87,7 @@ public class PullCommandTest extends BaseCommandTest {
 
     @Test(description = "Pull package with invalid name")
     public void testPullPackageWithInvalidName() throws IOException {
-        PullCommand pullCommand = new PullCommand(printStream);
+        PullCommand pullCommand = new PullCommand(printStream, false);
         new CommandLine(pullCommand).parse("wso2/winery$:1.0.0");
         pullCommand.execute();
 
@@ -101,7 +101,7 @@ public class PullCommandTest extends BaseCommandTest {
 
     @Test(description = "Pull package with invalid version")
     public void testPullPackageWithInvalidVersion() throws IOException {
-        PullCommand pullCommand = new PullCommand(printStream);
+        PullCommand pullCommand = new PullCommand(printStream, false);
         new CommandLine(pullCommand).parse("wso2/winery:1.0.0.0");
         pullCommand.execute();
 
@@ -118,7 +118,7 @@ public class PullCommandTest extends BaseCommandTest {
     public void testPullCommandArgAndHelp() throws IOException {
         // Test if no arguments was passed in
         String[] args = { "sample2", "--help" };
-        PullCommand pullCommand = new PullCommand(printStream);
+        PullCommand pullCommand = new PullCommand(printStream, false);
         new CommandLine(pullCommand).parse(args);
         pullCommand.execute();
 
@@ -129,7 +129,7 @@ public class PullCommandTest extends BaseCommandTest {
     public void testPullCommandWithHelp() throws IOException {
         // Test if no arguments was passed in
         String[] args = { "-h" };
-        PullCommand pullCommand = new PullCommand(printStream);
+        PullCommand pullCommand = new PullCommand(printStream, false);
         new CommandLine(pullCommand).parse(args);
         pullCommand.execute();
 

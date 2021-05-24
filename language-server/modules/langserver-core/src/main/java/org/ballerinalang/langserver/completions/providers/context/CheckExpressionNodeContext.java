@@ -50,7 +50,8 @@ public class CheckExpressionNodeContext extends AbstractCompletionProvider<Check
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
         if (node.parent().kind() == SyntaxKind.ASSIGNMENT_STATEMENT
-                || node.parent().kind() == SyntaxKind.LOCAL_VAR_DECL) {
+                || node.parent().kind() == SyntaxKind.LOCAL_VAR_DECL
+                || node.parent().kind() == SyntaxKind.MODULE_VAR_DECL) {
             completionItems.addAll(CompletionUtil.route(ctx, node.parent()));
         } else if (QNameReferenceUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
             QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;

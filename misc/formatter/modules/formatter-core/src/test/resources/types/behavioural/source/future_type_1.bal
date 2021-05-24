@@ -1,8 +1,7 @@
  import ballerina/runtime;
 
 public function foo() {
-      future  <  (  )  >
-               f2   =   start   countInfinity()  ;
+      future  <  (  )  >   f2   =   start   countInfinity()  ;
     f2.  cancel    (  )  ;
 }
 

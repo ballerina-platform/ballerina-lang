@@ -23,9 +23,9 @@ import com.google.gson.reflect.TypeToken;
 import io.ballerina.runtime.observability.metrics.PercentileValue;
 import io.ballerina.runtime.observability.metrics.Snapshot;
 import io.ballerina.runtime.observability.metrics.Tag;
-import org.ballerina.testobserve.metrics.extension.model.Metrics;
-import org.ballerina.testobserve.metrics.extension.model.MockGauge;
-import org.ballerina.testobserve.metrics.extension.model.MockMetric;
+import org.ballerinalang.observe.mockextension.model.Metrics;
+import org.ballerinalang.observe.mockextension.model.MockGauge;
+import org.ballerinalang.observe.mockextension.model.MockMetric;
 import org.ballerinalang.test.observability.ObservabilityBaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
@@ -264,8 +264,8 @@ public class MetricsTestCase extends ObservabilityBaseTest {
      * @param snapshot The snapshot to test
      */
     private void testFunctionResponseTimeGaugeSnapshot(long invocationCount, Snapshot snapshot) {
-        List<Duration> durations = Arrays.asList(Duration.ofMinutes(1), Duration.ofMinutes(5),
-                Duration.ofMinutes(15));
+        List<Duration> durations = Arrays.asList(Duration.ofSeconds(10), Duration.ofMinutes(1),
+                Duration.ofMinutes(5));
         Assert.assertTrue(durations.contains(snapshot.getTimeWindow()), "time window "
                 + snapshot.getTimeWindow() + " of snapshot not equal to either one of "
                 + durations.toString());

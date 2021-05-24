@@ -9,7 +9,7 @@
       "label": "test",
       "kind": "Variable",
       "detail": "mod:Listener",
-      "sortText": "B",
+      "sortText": "A",
       "insertText": "test",
       "insertTextFormat": "Snippet"
     },
@@ -17,16 +17,8 @@
       "label": "mod",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "N",
-      "insertText": "mod",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lang.object",
-      "kind": "Unit",
-      "detail": "type",
       "sortText": "Q",
-      "insertText": "object",
+      "insertText": "mod",
       "insertTextFormat": "Snippet"
     },
     {
@@ -118,29 +110,6 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
         }
       ]
     },
@@ -280,14 +249,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "new",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "new ",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "new(int port)",
       "kind": "Function",
       "detail": "Function",
@@ -297,13 +258,45 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `int` port"
         }
       },
-      "sortText": "C",
+      "sortText": "B",
       "insertText": "new(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "new",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "S",
+      "insertText": "new ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "check",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "S",
+      "insertText": "check ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "checkpanic",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "S",
+      "insertText": "checkpanic ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "trap",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "S",
+      "insertText": "trap",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

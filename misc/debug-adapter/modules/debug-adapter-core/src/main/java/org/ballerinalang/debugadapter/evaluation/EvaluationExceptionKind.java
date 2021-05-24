@@ -30,6 +30,7 @@ public enum EvaluationExceptionKind {
     LANG_LIB_NOT_FOUND("Failed to load lang library: '%s'"),
     FIELD_NOT_FOUND("Undefined field '%s' in `%s`"),
     VARIABLE_NOT_FOUND("Undefined variable '%s'"),
+    HELPER_UTIL_NOT_FOUND("Failed to load the evaluation helper util method: '%s'"),
     FUNCTION_EXECUTION_ERROR("Error occurred when executing method: '%s'"),
     TYPE_RESOLVING_ERROR("Failed to resolve type: '%s'"),
     STRAND_NOT_FOUND("Error occurred when trying to get the current strand instance for executing the method: %s"),

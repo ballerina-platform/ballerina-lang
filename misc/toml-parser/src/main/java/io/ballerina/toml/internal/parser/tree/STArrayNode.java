@@ -32,58 +32,58 @@ import java.util.Collections;
  */
 public class STArrayNode extends STValueNode {
     public final STNode openBracket;
-    public final STNode values;
+    public final STNode value;
     public final STNode closeBracket;
 
     STArrayNode(
             STNode openBracket,
-            STNode values,
+            STNode value,
             STNode closeBracket) {
         this(
                 openBracket,
-                values,
+                value,
                 closeBracket,
                 Collections.emptyList());
     }
 
     STArrayNode(
             STNode openBracket,
-            STNode values,
+            STNode value,
             STNode closeBracket,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.ARRAY, diagnostics);
         this.openBracket = openBracket;
-        this.values = values;
+        this.value = value;
         this.closeBracket = closeBracket;
 
         addChildren(
                 openBracket,
-                values,
+                value,
                 closeBracket);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STArrayNode(
                 this.openBracket,
-                this.values,
+                this.value,
                 this.closeBracket,
                 diagnostics);
     }
 
     public STArrayNode modify(
             STNode openBracket,
-            STNode values,
+            STNode value,
             STNode closeBracket) {
         if (checkForReferenceEquality(
                 openBracket,
-                values,
+                value,
                 closeBracket)) {
             return this;
         }
 
         return new STArrayNode(
                 openBracket,
-                values,
+                value,
                 closeBracket,
                 diagnostics);
     }

@@ -25,7 +25,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
- * Test option CLI arguments.
+ * Test operand CLI arguments.
  */
 public class OperandTest {
     @DataProvider(name = "fileAndParameters")

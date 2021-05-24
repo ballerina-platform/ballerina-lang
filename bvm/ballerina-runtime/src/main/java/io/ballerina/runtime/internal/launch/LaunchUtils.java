@@ -28,7 +28,7 @@ import io.ballerina.runtime.internal.configurable.providers.cli.CliProvider;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlContentProvider;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
-import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
+import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.logging.BLogManager;
@@ -145,7 +145,7 @@ public class LaunchUtils {
                                                  String[] args, Path[] configFilePaths, String secretContent,
                                                  String configContent) {
 
-        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         CliProvider cliConfigProvider = new CliProvider(rootModule, args);
         List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
         Set<Module> moduleSet = configurationData.keySet();
@@ -159,7 +159,7 @@ public class LaunchUtils {
             supportedConfigProviders.add(new TomlContentProvider(rootModule, secretContent, moduleSet));
         }
         supportedConfigProviders.add(cliConfigProvider);
-        ConfigResolver configResolver = new ConfigResolver(rootModule, configurationData,
+        ConfigResolver configResolver = new ConfigResolver(configurationData,
                                                            diagnosticLog, supportedConfigProviders);
         ConfigMap.setConfigurableMap(configResolver.resolveConfigs());
         if (!diagnosticLog.getDiagnosticList().isEmpty()) {
@@ -179,8 +179,7 @@ public class LaunchUtils {
         if (envVars.containsKey(CONFIG_FILES_ENV_VARIABLE)) {
             String[] configPathList = envVars.get(CONFIG_FILES_ENV_VARIABLE).split(File.pathSeparator);
             for (String pathString : configPathList) {
-                Path path = Paths.get(pathString);
-                paths.add(path);
+                paths.add(Paths.get(pathString));
             }
         } else if (envVars.containsKey(CONFIG_DATA_ENV_VARIABLE)) {
             return envVars.get(CONFIG_DATA_ENV_VARIABLE);

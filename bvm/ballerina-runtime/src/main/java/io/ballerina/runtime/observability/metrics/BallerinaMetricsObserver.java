@@ -44,15 +44,15 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
 
     private static final StatisticConfig[] responseTimeStatisticConfigs = new StatisticConfig[]{
             StatisticConfig.builder()
+                    .expiry(Duration.ofSeconds(10))
+                    .percentiles(StatisticConfig.DEFAULT.getPercentiles())
+                    .build(),
+            StatisticConfig.builder()
                     .expiry(Duration.ofMinutes(1))
                     .percentiles(StatisticConfig.DEFAULT.getPercentiles())
                     .build(),
             StatisticConfig.builder()
                     .expiry(Duration.ofMinutes(5))
-                    .percentiles(StatisticConfig.DEFAULT.getPercentiles())
-                    .build(),
-            StatisticConfig.builder()
-                    .expiry(Duration.ofMinutes(15))
                     .percentiles(StatisticConfig.DEFAULT.getPercentiles())
                     .build()
     };

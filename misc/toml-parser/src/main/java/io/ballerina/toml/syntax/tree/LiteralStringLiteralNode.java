@@ -111,7 +111,6 @@ public class LiteralStringLiteralNode extends ValueNode {
 
         public LiteralStringLiteralNodeModifier withContent(
                 Token content) {
-            Objects.requireNonNull(content, "content must not be null");
             this.content = content;
             return this;
         }

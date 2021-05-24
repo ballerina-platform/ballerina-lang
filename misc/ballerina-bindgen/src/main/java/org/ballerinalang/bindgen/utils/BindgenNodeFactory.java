@@ -191,23 +191,19 @@ class BindgenNodeFactory {
 
         Token functionKeyword = AbstractNodeFactory.createToken(SyntaxKind.FUNCTION_KEYWORD, emptyML(), singleWSML());
         NodeList<Node> relativeResourcePath = AbstractNodeFactory.createNodeList();
-        try {
-            FunctionSignatureNode functionSignature = createFunctionSignatureNode(bFunction, isExternal);
+        FunctionSignatureNode functionSignature = createFunctionSignatureNode(bFunction, isExternal);
 
-            IdentifierToken functionName;
-            FunctionBodyNode functionBody;
-            if (isExternal) {
-                functionName = AbstractNodeFactory.createIdentifierToken(bFunction.getExternalFunctionName());
-                functionBody = createExternalFunctionBodyNode(bFunction);
-            } else {
-                functionName = AbstractNodeFactory.createIdentifierToken(bFunction.getFunctionName());
-                functionBody = createFunctionBodyBlockNode(bFunction);
-            }
-            return NodeFactory.createFunctionDefinitionNode(null, metadata, qualifierList, functionKeyword,
-                    functionName, relativeResourcePath, functionSignature, functionBody);
-        } catch (BindgenException e) {
-            throw new BindgenException("error: unable to generate the function definition node", e);
+        IdentifierToken functionName;
+        FunctionBodyNode functionBody;
+        if (isExternal) {
+            functionName = AbstractNodeFactory.createIdentifierToken(bFunction.getExternalFunctionName());
+            functionBody = createExternalFunctionBodyNode(bFunction);
+        } else {
+            functionName = AbstractNodeFactory.createIdentifierToken(bFunction.getFunctionName());
+            functionBody = createFunctionBodyBlockNode(bFunction);
         }
+        return NodeFactory.createFunctionDefinitionNode(null, metadata, qualifierList, functionKeyword,
+                functionName, relativeResourcePath, functionSignature, functionBody);
     }
 
     private static NodeList<Node> getFunctionMarkdownDocumentation(BFunction bFunction) {
@@ -322,7 +318,7 @@ class BindgenNodeFactory {
         }
         for (JParameter jParameter : bFunction.getParameters()) {
             if (jParameter.isArray() && isMultiDimensionalArray(jParameter.getParameterClass().getName())) {
-                throw new BindgenException("multi dimensional arrays are currently not support");
+                throw new BindgenException("multidimensional arrays are currently unsupported");
             }
             if (isExternal) {
                 parameterNodes.add(createRequiredParameterNode(jParameter.getExternalType()
@@ -351,7 +347,8 @@ class BindgenNodeFactory {
     }
 
 
-    private static ReturnTypeDescriptorNode getFunctionSignatureReturnType(BFunction bFunction) {
+    private static ReturnTypeDescriptorNode getFunctionSignatureReturnType(BFunction bFunction)
+            throws BindgenException {
         String returnType = null;
         if (bFunction.getKind() == BFunction.BFunctionKind.METHOD) {
             returnType = ((JMethod) bFunction).getFunctionReturnType();
@@ -362,6 +359,8 @@ class BindgenNodeFactory {
         }
         if (returnType == null || returnType.equals("")) {
             return null;
+        } else if (isMultiDimensionalArray(returnType)) {
+            throw new BindgenException("multidimensional arrays are currently unsupported");
         }
         return createReturnTypeDescriptorNode(createSimpleNameReferenceNode(returnType));
     }
@@ -382,7 +381,7 @@ class BindgenNodeFactory {
     }
 
     private static boolean isMultiDimensionalArray(String className) {
-        return className.lastIndexOf('[') > 0;
+        return className.codePoints().filter(ch -> ch == '[').count() > 1;
     }
 
     /**
@@ -434,7 +433,7 @@ class BindgenNodeFactory {
         }
 
         NodeList<StatementNode> statements = AbstractNodeFactory.createNodeList(statementNodes);
-        Token closeBraceToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN, emptyML(), singleNLML());
+        Token closeBraceToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN, emptyML(), doubleNLML());
 
         return NodeFactory.createFunctionBodyBlockNode(openBraceToken, null, statements, closeBraceToken);
     }
@@ -905,7 +904,7 @@ class BindgenNodeFactory {
      */
     private static MarkdownParameterDocumentationLineNode createMarkdownParameterDocumentationLineNode(
             String paramName, String content) {
-        Token hashToken = AbstractNodeFactory.createToken(SyntaxKind.HASH_TOKEN, singleNLML(), emptyML());
+        Token hashToken = AbstractNodeFactory.createToken(SyntaxKind.HASH_TOKEN, emptyML(), emptyML());
         Token plusToken = AbstractNodeFactory.createToken(SyntaxKind.PLUS_TOKEN);
         Token parameterName = AbstractNodeFactory.createLiteralValueToken(SyntaxKind.PARAMETER_NAME, paramName,
                 singleWSML(), singleWSML());
@@ -921,7 +920,7 @@ class BindgenNodeFactory {
      * Creates a markdown documentation line node using the documentation elements provided.
      */
     private static MarkdownDocumentationLineNode createMarkdownDocumentationLineNode(String content) {
-        Token hashToken = AbstractNodeFactory.createToken(SyntaxKind.HASH_TOKEN, singleNLML(), singleWSML());
+        Token hashToken = AbstractNodeFactory.createToken(SyntaxKind.HASH_TOKEN, emptyML(), singleWSML());
         LiteralValueToken documentElements = AbstractNodeFactory.createLiteralValueToken(
                 SyntaxKind.DOCUMENTATION_DESCRIPTION, content, emptyML(), singleNLML());
 
@@ -1220,7 +1219,7 @@ class BindgenNodeFactory {
      */
     private static MappingConstructorExpressionNode createMappingConstructorExpressionNode(
             Map<String, List<String>> fields) {
-        Token openBraceToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN);
+        Token openBraceToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN, emptyML(), singleNLML());
         Token closeBraceToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
         List<Node> mappingFields = new LinkedList<>();
         for (Map.Entry<String, List<String>> entry : fields.entrySet()) {
@@ -1323,6 +1322,14 @@ class BindgenNodeFactory {
      */
     private static MinutiaeList singleNLML() {
         String newLine = System.getProperty("line.separator");
+        return emptyML().add(AbstractNodeFactory.createEndOfLineMinutiae(newLine));
+    }
+
+    /**
+     * Retrieve two new line minutiaes as a minutiae list.
+     */
+    private static MinutiaeList doubleNLML() {
+        String newLine = System.getProperty("line.separator") + System.getProperty("line.separator");
         return emptyML().add(AbstractNodeFactory.createEndOfLineMinutiae(newLine));
     }
 

@@ -116,7 +116,7 @@ function testRemove() returns [string, string[]] {
 function testReduce() returns float {
     int[] arr = [12, 15, 7, 10, 25];
     float avg = arr.reduce(function (float accum, int val) returns float {
-        return accum + <float>val / arr.length();
+        return accum + <float>val / <float>arr.length();
     }, 0.0);
     return avg;
 }
@@ -131,7 +131,7 @@ function testIterableOpChain() returns float {
      }, 0);
 
     float gpa = grades.'map(gradeToValue).reduce(function (float accum, [float, int] gradePoint) returns float {
-        return accum + (gradePoint[0] * gradePoint[1]) / totalCredits;
+        return accum + (gradePoint[0] * <float>gradePoint[1]) / <float>totalCredits;
     }, 0.0);
 
     return gpa;
@@ -575,7 +575,7 @@ function testShiftOnTupleWithoutValuesForRestParameter() {
     var message = err.detail()["message"];
     string detailMessage = message is error? message.toString() : message.toString();
     assertValueEquality("{ballerina/lang.array}OperationNotSupported", err.message());
-    assertValueEquality("shift() not supported on type 'null'", detailMessage);
+    assertValueEquality("shift() not supported on type '[int,int...]'", detailMessage);
 }
 
 type Student record {|
@@ -1194,18 +1194,18 @@ function testAsyncFpArgsWithArrays() returns [int, int[]] {
     int count = 0;
     int[] filter = numbers.filter(function (int i) returns boolean {
         future<int> f1 = start getRandomNumber(i);
-        int a = wait f1;
+        int a = checkpanic wait f1;
         return a >= 0;
     });
     filter.forEach(function (int i) {
         future<int> f1 = start getRandomNumber(i);
-        int a = wait f1;
+        int a = checkpanic wait f1;
         filter[count] = i + 2;
         count = count + 1;
     });
     int reduce = filter.reduce(function (int total, int i) returns int {
         future<int> f1 = start getRandomNumber(i);
-        int a = wait f1;
+        int a = checkpanic wait f1;
         return total + a;
     }, 0);
     return [reduce, filter];

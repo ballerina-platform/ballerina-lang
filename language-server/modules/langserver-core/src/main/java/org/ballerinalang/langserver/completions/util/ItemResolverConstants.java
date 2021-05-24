@@ -49,6 +49,7 @@ public class ItemResolverConstants {
     public static final String CONTINUE = "continue";
     public static final String BREAK = "break";
     public static final String FOREACH = "foreach";
+    public static final String FOREACH_RANGE_EXP = "foreach i";
     public static final String MATCH = "match";
     public static final String PANIC = "panic";
     public static final String TYPEOF = "typeof";

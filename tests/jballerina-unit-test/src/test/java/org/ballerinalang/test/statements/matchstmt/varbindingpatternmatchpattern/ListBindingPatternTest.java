@@ -31,7 +31,6 @@ import org.testng.annotations.Test;
  *
  * @since 2.0.0
  */
-@Test(groups = { "disableOnOldParser" })
 public class ListBindingPatternTest {
     private CompileResult result, restMatchPatternResult, resultNegative;
     private String patternNotMatched = "pattern will not be matched";
@@ -154,6 +153,11 @@ public class ListBindingPatternTest {
     }
 
     @Test
+    public void testListBindingPattern22() {
+        BRunUtil.invoke(result, "testListBindingPattern22");
+    }
+
+    @Test
     public void testRestBindingPattern1() {
         BRunUtil.invoke(restMatchPatternResult, "testListBindingPatternWithRest1");
     }
@@ -189,6 +193,11 @@ public class ListBindingPatternTest {
     }
 
     @Test
+    public void testRestBindingPattern8() {
+        BRunUtil.invoke(restMatchPatternResult, "testRestBindingPattern8");
+    }
+
+    @Test
     public void testListBindingPatternNegative() {
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 23, 9);
@@ -210,13 +219,11 @@ public class ListBindingPatternTest {
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 65, 35);
         BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 71, 5);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 79, 22);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 79, 22);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 81, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 81, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 83, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 83, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 85, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 85, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 85, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 93, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 100, 9);
@@ -231,6 +238,28 @@ public class ListBindingPatternTest {
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 176, 9);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
+    }
+
+    @Test
+    public void testNegativeSemantics() {
+        CompileResult resultSemanticsNegative = BCompileUtil.compile("test-src/statements/matchstmt/" +
+                "varbindingpatternmatchpattern/list_binding_pattern_semantics_negative.bal");
+        int i = -1;
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "redeclared symbol 'a'", 20, 17);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "redeclared symbol 'a'", 21, 18);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'string[]', found " +
+                "'int[]'", 28, 26);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int[][]', found '" +
+                "(int|error)[][]'", 29, 27);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int', found 'json'",
+                37, 21);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'boolean[]', found " +
+                        "'json[]'", 37, 24);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int', found 'json'",
+                40, 21);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'boolean', found 'json'",
+                40, 25);
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 
     @AfterClass

@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/jballerina.java;
+
 type Annot record {
     string val;
 };
@@ -161,7 +163,9 @@ class Listener {
     }
 }
 
-//function externalFunction(boolean b) returns @v7 string = @v13 { strOne: "one", strTwo: "two" } external;
+function externalFunction(boolean b) returns @v7 string =
+    @v13 { strOne: "one", strTwo: "two" }
+    @java:Method { 'class: "org.ballerinalang.nativeimpl.jvm.tests.Annotations" } external;
 
 // Test compilation for annotations with the worker attach point.
 function funcWithWorker() {

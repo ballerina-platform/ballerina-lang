@@ -186,4 +186,9 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
     public void testLetExprInObject() {
         test("object-type-def/object_type_def_source_44.bal", "object-type-def/object_type_def_assert_44.json");
     }
+
+    @Test
+    public void testObjectTypeDefNegative() {
+        testFile("object-type-def/object_type_def_source_45.bal", "object-type-def/object_type_def_assert_45.json");
+    }
 }

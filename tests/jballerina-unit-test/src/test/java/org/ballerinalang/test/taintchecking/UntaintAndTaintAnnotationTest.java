@@ -46,6 +46,7 @@ public class UntaintAndTaintAnnotationTest {
     @Test
     public void testUntaint() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/expressions/untaint.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test

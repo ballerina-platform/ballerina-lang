@@ -67,13 +67,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -123,7 +121,6 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBinding
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessibleExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -197,6 +194,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangValueExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
@@ -591,6 +589,7 @@ public class Desugar extends BLangNodeVisitor {
         }
         // Since the expression of the requiredParam of both init functions refer to same object,
         // expression should be cloned.
+        expr.cloneAttempt++;
         BLangExpression expression = this.nodeCloner.clone(expr);
         if (expression.getKind() == NodeKind.ARROW_EXPR) {
             BLangIdentifier func = (BLangIdentifier) ((BLangArrowFunction) expression).functionName;
@@ -2430,8 +2429,7 @@ public class Desugar extends BLangNodeVisitor {
                     NodeKind.XML_ATTRIBUTE_ACCESS_EXPR == expression.getKind()) {
                 //if this is simple var, then create a simple var def stmt
                 BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(expression.pos, symTable.intType, (long) index);
-                createAssignmentStmt((BLangAccessExpression) expression, parentBlockStmt, indexExpr,
-                        tupleVarSymbol, parentIndexAccessExpr);
+                createAssignmentStmt(expression, parentBlockStmt, indexExpr, tupleVarSymbol, parentIndexAccessExpr);
                 continue;
             }
 
@@ -2492,7 +2490,7 @@ public class Desugar extends BLangNodeVisitor {
      * This method creates a assignment statement and assigns and array expression based on the given indexExpr.
      *
      */
-    private void createAssignmentStmt(BLangAccessibleExpression accessibleExpression, BLangBlockStmt parentBlockStmt,
+    private void createAssignmentStmt(BLangExpression accessibleExpression, BLangBlockStmt parentBlockStmt,
                                       BLangExpression indexExpr, BVarSymbol tupleVarSymbol,
                                       BLangIndexBasedAccess parentArrayAccessExpr) {
 
@@ -2593,8 +2591,7 @@ public class Desugar extends BLangNodeVisitor {
                     NodeKind.FIELD_BASED_ACCESS_EXPR == expression.getKind() ||
                     NodeKind.INDEX_BASED_ACCESS_EXPR == expression.getKind() ||
                     NodeKind.XML_ATTRIBUTE_ACCESS_EXPR == expression.getKind()) {
-                createAssignmentStmt((BLangAccessExpression) expression, parentBlockStmt,
-                        indexExpr, recordVarSymbol, parentIndexAccessExpr);
+                createAssignmentStmt(expression, parentBlockStmt, indexExpr, recordVarSymbol, parentIndexAccessExpr);
                 continue;
             }
 
@@ -3187,16 +3184,8 @@ public class Desugar extends BLangNodeVisitor {
 
     public void visit(BLangCompoundAssignment compoundAssignment) {
 
-        BLangAccessExpression varRef = compoundAssignment.varRef;
+        BLangValueExpression varRef = compoundAssignment.varRef;
         if (compoundAssignment.varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR) {
-            // Create a new varRef if this is a simpleVarRef. Because this can be a
-            // narrowed type var. In that case, lhs and rhs must be visited in two
-            // different manners.
-            if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                varRef = ASTBuilderUtil.createVariableRef(compoundAssignment.varRef.pos, varRef.symbol);
-                varRef.lhsVar = true;
-            }
-
             result = ASTBuilderUtil.createAssignmentStmt(compoundAssignment.pos, rewriteExpr(varRef),
                     rewriteExpr(compoundAssignment.modifiedExpr));
             return;
@@ -3225,11 +3214,11 @@ public class Desugar extends BLangNodeVisitor {
             varRefs.add(0, tempVarRef);
             types.add(0, varRef.type);
 
-            varRef = (BLangAccessExpression) ((BLangIndexBasedAccess) varRef).expr;
+            varRef = (BLangValueExpression) ((BLangIndexBasedAccess) varRef).expr;
         } while (varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR);
 
         // Create the index access expression. ex: c[$temp3$][$temp2$][$temp1$]
-        BLangAccessibleExpression var = varRef;
+        BLangExpression var = varRef;
         for (int ref = 0; ref < varRefs.size(); ref++) {
             var = ASTBuilderUtil.createIndexAccessExpr(var, varRefs.get(ref));
             var.type = types.get(ref);
@@ -4080,10 +4069,10 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private List<String> getKeysToRemove(BLangMappingBindingPattern mappingBindingPattern) {
-        List<String> allKeys = new ArrayList<>(((BRecordType) mappingBindingPattern.type).fields.keySet());
         List<String> keysToRemove = new ArrayList<>();
-        for (int i = 0; i < mappingBindingPattern.fieldBindingPatterns.size(); i++) {
-            keysToRemove.add(allKeys.get(i));
+        List<BLangFieldBindingPattern> fieldBindingPatterns = mappingBindingPattern.fieldBindingPatterns;
+        for (int i = 0; i < fieldBindingPatterns.size(); i++) {
+            keysToRemove.add(fieldBindingPatterns.get(i).fieldName.value);
         }
         return keysToRemove;
     }
@@ -5663,9 +5652,9 @@ public class Desugar extends BLangNodeVisitor {
         genVarRefExpr.type = varRefExpr.type;
         genVarRefExpr.pos = varRefExpr.pos;
 
-        if ((varRefExpr.lhsVar)
+        if ((varRefExpr.isLValue)
                 || genVarRefExpr.symbol.name.equals(IGNORE)) { //TODO temp fix to get this running in bvm
-            genVarRefExpr.lhsVar = varRefExpr.lhsVar;
+            genVarRefExpr.isLValue = varRefExpr.isLValue;
             genVarRefExpr.type = varRefExpr.symbol.type;
             result = genVarRefExpr;
             return;
@@ -5673,7 +5662,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // If the the variable is not used in lhs, then add a conversion if required.
         // This is done to make the types compatible for narrowed types.
-        genVarRefExpr.lhsVar = varRefExpr.lhsVar;
+        genVarRefExpr.isLValue = varRefExpr.isLValue;
         BType targetType = genVarRefExpr.type;
         genVarRefExpr.type = genVarRefExpr.symbol.type;
         BLangExpression expression = addConversionExprIfRequired(genVarRefExpr, targetType);
@@ -5748,7 +5737,10 @@ public class Desugar extends BLangNodeVisitor {
                 fieldAccessExpr.expr = addConversionExprIfRequired(fieldAccessExpr.expr, symTable.jsonType);
                 targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
             } else {
-                targetVarRef = rewriteXMLAttributeOrElemNameAccess(fieldAccessExpr);
+                BLangInvocation xmlAccessInvocation = rewriteXMLAttributeOrElemNameAccess(fieldAccessExpr);
+                xmlAccessInvocation.type = fieldAccessExpr.type;
+                result = xmlAccessInvocation;
+                return;
             }
         } else if (varRefTypeTag == TypeTags.MAP) {
             // TODO: 7/1/19 remove once foreach field access usage is removed.
@@ -5759,7 +5751,7 @@ public class Desugar extends BLangNodeVisitor {
                     fieldAccessExpr.fieldKind);
         }
 
-        targetVarRef.lhsVar = fieldAccessExpr.lhsVar;
+        targetVarRef.isLValue = fieldAccessExpr.isLValue;
         targetVarRef.type = fieldAccessExpr.type;
         targetVarRef.optionalFieldAccess = fieldAccessExpr.optionalFieldAccess;
         result = targetVarRef;
@@ -5955,7 +5947,7 @@ public class Desugar extends BLangNodeVisitor {
         return statementExpression;
     }
 
-    private BLangAccessExpression rewriteXMLAttributeOrElemNameAccess(BLangFieldBasedAccess fieldAccessExpr) {
+    private BLangInvocation rewriteXMLAttributeOrElemNameAccess(BLangFieldBasedAccess fieldAccessExpr) {
         ArrayList<BLangExpression> args = new ArrayList<>();
 
         String fieldName = fieldAccessExpr.field.value;
@@ -6037,7 +6029,7 @@ public class Desugar extends BLangNodeVisitor {
                     indexAccessExpr.indexExpr);
         }
 
-        targetVarRef.lhsVar = indexAccessExpr.lhsVar;
+        targetVarRef.isLValue = indexAccessExpr.isLValue;
         targetVarRef.type = indexAccessExpr.type;
         result = targetVarRef;
     }
@@ -6498,9 +6490,17 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
+        boolean isBinaryShiftOperator = symResolver.isBinaryShiftOperator(binaryOpKind);
+        boolean isArithmeticOperator = symResolver.isArithmeticOperator(binaryOpKind);
+
         // Check lhs and rhs type compatibility
         if (lhsExprTypeTag == rhsExprTypeTag) {
-            return;
+            if (!isBinaryShiftOperator && !isArithmeticOperator) {
+                return;
+            }
+            if (types.isValueType(binaryExpr.lhsExpr.type)) {
+                return;
+            }
         }
 
         if (TypeTags.isStringTypeTag(lhsExprTypeTag) && binaryExpr.opKind == OperatorKind.ADD) {
@@ -6545,32 +6545,111 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        if (binaryExpr.opKind == OperatorKind.LESS_THAN || binaryExpr.opKind == OperatorKind.LESS_EQUAL ||
-                binaryExpr.opKind == OperatorKind.GREATER_THAN || binaryExpr.opKind == OperatorKind.GREATER_EQUAL) {
-            if (TypeTags.isIntegerTypeTag(lhsExprTypeTag)) {
-                binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+        if (isArithmeticOperator) {
+            createTypeCastExprForArithmeticExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
+            return;
+        }
+
+        if (isBinaryShiftOperator) {
+            createTypeCastExprForBinaryShiftExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
+            return;
+        }
+
+        if (symResolver.isBinaryComparisonOperator(binaryOpKind)) {
+            createTypeCastExprForRelationalExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
+        }
+    }
+
+    private void createTypeCastExprForArithmeticExpr(BLangBinaryExpr binaryExpr, int lhsExprTypeTag,
+                                                     int rhsExprTypeTag) {
+        if ((TypeTags.isIntegerTypeTag(lhsExprTypeTag) && TypeTags.isIntegerTypeTag(rhsExprTypeTag)) ||
+                (TypeTags.isStringTypeTag(lhsExprTypeTag) && TypeTags.isStringTypeTag(rhsExprTypeTag)) ||
+                (TypeTags.isXMLTypeTag(lhsExprTypeTag) && TypeTags.isXMLTypeTag(rhsExprTypeTag))) {
+            return;
+        }
+        if (TypeTags.isXMLTypeTag(lhsExprTypeTag) && !TypeTags.isXMLTypeTag(rhsExprTypeTag)) {
+            if (types.checkTypeContainString(binaryExpr.rhsExpr.type)) {
+                binaryExpr.rhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.rhsExpr,
+                        binaryExpr.rhsExpr.pos, symTable.xmlType);
                 return;
             }
-
-            if (TypeTags.isIntegerTypeTag(rhsExprTypeTag)) {
-                binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.xmlType);
+            return;
+        }
+        if (TypeTags.isXMLTypeTag(rhsExprTypeTag) && !TypeTags.isXMLTypeTag(lhsExprTypeTag)) {
+            if (types.checkTypeContainString(binaryExpr.lhsExpr.type)) {
+                binaryExpr.lhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.lhsExpr,
+                        binaryExpr.rhsExpr.pos, symTable.xmlType);
                 return;
             }
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.xmlType);
+            return;
+        }
+        binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.type);
+        binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.type);
+    }
 
-            if (lhsExprTypeTag == TypeTags.BYTE || rhsExprTypeTag == TypeTags.BYTE) {
-                binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
-                binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+    private void createTypeCastExprForBinaryShiftExpr(BLangBinaryExpr binaryExpr, int lhsExprTypeTag,
+                                                      int rhsExprTypeTag) {
+        boolean isLhsIntegerType = TypeTags.isIntegerTypeTag(lhsExprTypeTag);
+        boolean isRhsIntegerType = TypeTags.isIntegerTypeTag(rhsExprTypeTag);
+        if (isLhsIntegerType || lhsExprTypeTag == TypeTags.BYTE) {
+            if (isRhsIntegerType || rhsExprTypeTag == TypeTags.BYTE) {
                 return;
             }
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+            return;
+        }
 
-            if (TypeTags.isStringTypeTag(lhsExprTypeTag)) {
-                binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.stringType);
-                return;
-            }
+        if (isRhsIntegerType || rhsExprTypeTag == TypeTags.BYTE) {
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+            return;
+        }
 
-            if (TypeTags.isStringTypeTag(rhsExprTypeTag)) {
-                binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.stringType);
-            }
+        binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+        binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+    }
+
+    private void createTypeCastExprForRelationalExpr(BLangBinaryExpr binaryExpr, int lhsExprTypeTag,
+                                                                int rhsExprTypeTag) {
+        boolean isLhsIntegerType = TypeTags.isIntegerTypeTag(lhsExprTypeTag);
+        boolean isRhsIntegerType = TypeTags.isIntegerTypeTag(rhsExprTypeTag);
+
+        if ((isLhsIntegerType && isRhsIntegerType) || (lhsExprTypeTag == TypeTags.BYTE &&
+                rhsExprTypeTag == TypeTags.BYTE)) {
+            return;
+        }
+
+        if (isLhsIntegerType && !isRhsIntegerType) {
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+            return;
+        }
+
+        if (!isLhsIntegerType && isRhsIntegerType) {
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+            return;
+        }
+
+        if (lhsExprTypeTag == TypeTags.BYTE || rhsExprTypeTag == TypeTags.BYTE) {
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+            return;
+        }
+
+        boolean isLhsStringType = TypeTags.isStringTypeTag(lhsExprTypeTag);
+        boolean isRhsStringType = TypeTags.isStringTypeTag(rhsExprTypeTag);
+
+        if (isLhsStringType && isRhsStringType) {
+            return;
+        }
+
+        if (isLhsStringType && !isRhsStringType) {
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.stringType);
+            return;
+        }
+
+        if (!isLhsStringType && isRhsStringType) {
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.stringType);
         }
     }
 
@@ -6693,8 +6772,6 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BType targetType = conversionExpr.targetType;
-        // validateIsNotCastToAnImportedAnonType(targetType == null ? conversionExpr.type : targetType);
-
         conversionExpr.typeNode = rewrite(conversionExpr.typeNode, env);
 
         conversionExpr.expr = rewriteExpr(conversionExpr.expr);
@@ -7073,7 +7150,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // When XmlAttributeAccess expression is not a LHS target of a assignment and not a part of a index access
         // it will be converted to a 'map<string>.convert(xmlRef@)'
-        if (xmlAttributeAccessExpr.lhsVar || xmlAttributeAccessExpr.indexExpr != null) {
+        if (xmlAttributeAccessExpr.isLValue || xmlAttributeAccessExpr.indexExpr != null) {
             result = xmlAttributeAccessExpr;
         } else {
             result = rewriteExpr(xmlAttributeAccessExpr);
@@ -7708,7 +7785,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void visitFunctionPointerInvocation(BLangInvocation iExpr) {
-        BLangAccessExpression expr;
+        BLangValueExpression expr;
         if (iExpr.expr == null) {
             expr = new BLangSimpleVarRef();
         } else {
@@ -7850,6 +7927,10 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangExpression createTypeCastExpr(BLangExpression expr, BType targetType) {
+        if (types.isSameType(expr.type, targetType)) {
+            return expr;
+        }
+
         BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         conversionExpr.pos = expr.pos;
         conversionExpr.expr = expr;
@@ -8185,8 +8266,8 @@ public class Desugar extends BLangNodeVisitor {
                         args.add(ASTBuilderUtil.createDynamicParamExpression(hasKeyInvocation, ternaryExpr));
                     } else {
                         BLangFieldBasedAccess fieldBasedAccessExpression =
-                                ASTBuilderUtil.createFieldAccessExpr((BLangAccessibleExpression) varargRef,
-                                                          ASTBuilderUtil.createIdentifier(param.pos, param.name.value));
+                                ASTBuilderUtil.createFieldAccessExpr(varargRef,
+                                        ASTBuilderUtil.createIdentifier(param.pos, param.name.value));
                         fieldBasedAccessExpression.type = param.type;
                         args.add(fieldBasedAccessExpression);
                     }
@@ -8901,7 +8982,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private boolean safeNavigate(BLangAccessExpression accessExpr) {
-        if (accessExpr.lhsVar || accessExpr.expr == null) {
+        if (accessExpr.isLValue || accessExpr.expr == null) {
             return false;
         }
 
@@ -9341,13 +9422,12 @@ public class Desugar extends BLangNodeVisitor {
         return nillTypeNode;
     }
 
-    private BLangAccessExpression cloneExpression(BLangExpression expr) {
+    private BLangValueExpression cloneExpression(BLangExpression expr) {
         switch (expr.getKind()) {
             case SIMPLE_VARIABLE_REF:
                 return ASTBuilderUtil.createVariableRef(expr.pos, ((BLangSimpleVarRef) expr).symbol);
             case FIELD_BASED_ACCESS_EXPR:
             case INDEX_BASED_ACCESS_EXPR:
-            case INVOCATION:
                 return cloneAccessExpr((BLangAccessExpression) expr);
             default:
                 throw new IllegalStateException();
@@ -9361,8 +9441,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangExpression varRef;
         NodeKind kind = originalAccessExpr.expr.getKind();
-        if (kind == NodeKind.FIELD_BASED_ACCESS_EXPR || kind == NodeKind.INDEX_BASED_ACCESS_EXPR ||
-                kind == NodeKind.INVOCATION) {
+        if (kind == NodeKind.FIELD_BASED_ACCESS_EXPR || kind == NodeKind.INDEX_BASED_ACCESS_EXPR) {
             varRef = cloneAccessExpr((BLangAccessExpression) originalAccessExpr.expr);
         } else {
             varRef = cloneExpression(originalAccessExpr.expr);
@@ -9372,16 +9451,12 @@ public class Desugar extends BLangNodeVisitor {
         BLangAccessExpression accessExpr;
         switch (originalAccessExpr.getKind()) {
             case FIELD_BASED_ACCESS_EXPR:
-                accessExpr = ASTBuilderUtil.createFieldAccessExpr((BLangAccessibleExpression) varRef,
+                accessExpr = ASTBuilderUtil.createFieldAccessExpr(varRef,
                         ((BLangFieldBasedAccess) originalAccessExpr).field);
                 break;
             case INDEX_BASED_ACCESS_EXPR:
-                accessExpr = ASTBuilderUtil.createIndexAccessExpr((BLangAccessibleExpression) varRef,
+                accessExpr = ASTBuilderUtil.createIndexAccessExpr(varRef,
                         ((BLangIndexBasedAccess) originalAccessExpr).indexExpr);
-                break;
-            case INVOCATION:
-                // TODO
-                accessExpr = null;
                 break;
             default:
                 throw new IllegalStateException();
@@ -9389,7 +9464,7 @@ public class Desugar extends BLangNodeVisitor {
 
         accessExpr.originalType = originalAccessExpr.originalType;
         accessExpr.pos = originalAccessExpr.pos;
-        accessExpr.lhsVar = originalAccessExpr.lhsVar;
+        accessExpr.isLValue = originalAccessExpr.isLValue;
         accessExpr.symbol = originalAccessExpr.symbol;
         accessExpr.errorSafeNavigation = false;
         accessExpr.nilSafeNavigation = false;
@@ -9726,96 +9801,6 @@ public class Desugar extends BLangNodeVisitor {
         fields.clear();
         return type.tag == TypeTags.RECORD ? new BLangStructLiteral(pos, type, rewrittenFields) :
                 new BLangMapLiteral(pos, type, rewrittenFields);
-    }
-
-    /**
-     * This in intended to be a temporary validation to avoid casting to anonymous types from imported packages,
-     * because such casts can cause backward compatibility issues since anonymous type names can change per compilation.
-     * The current alternative in such a scenario is to cast to a compatible in-line type. For example, a cast to an
-     * anonymous record type can be replaced with a cast to a map type.
-     * If this is not possible due to some reason, we need to introduce an approach to uniquely identify anonymous
-     * types across compilations.
-     * See https://github.com/ballerina-platform/ballerina-lang/issues/28262.
-     */
-    private void validateIsNotCastToAnImportedAnonType(BType targetType) {
-        validateIsNotCastToAnImportedAnonType(targetType, new HashSet<>());
-    }
-
-    private void validateIsNotCastToAnImportedAnonType(BType targetType, Set<BType> unresolvedTypes) {
-        if (!unresolvedTypes.add(targetType)) {
-            return;
-        }
-
-        switch (targetType.tag) {
-            case TypeTags.TABLE:
-                validateIsNotCastToAnImportedAnonType(((BTableType) targetType).constraint, unresolvedTypes);
-                return;
-            case TypeTags.TYPEDESC:
-                validateIsNotCastToAnImportedAnonType(((BTypedescType) targetType).constraint, unresolvedTypes);
-                return;
-            case TypeTags.STREAM:
-                validateIsNotCastToAnImportedAnonType(((BStreamType) targetType).constraint, unresolvedTypes);
-                return;
-            case TypeTags.MAP:
-                validateIsNotCastToAnImportedAnonType(((BMapType) targetType).constraint, unresolvedTypes);
-                return;
-            case TypeTags.INVOKABLE:
-                BInvokableType invokableType = (BInvokableType) targetType;
-                for (BType paramType : invokableType.paramTypes) {
-                    validateIsNotCastToAnImportedAnonType(paramType, unresolvedTypes);
-                }
-
-                BType restType = invokableType.restType;
-                if (restType != null) {
-                    validateIsNotCastToAnImportedAnonType(restType, unresolvedTypes);
-                }
-
-                BType retType = invokableType.retType;
-                if (retType != null) {
-                    validateIsNotCastToAnImportedAnonType(retType, unresolvedTypes);
-                }
-                return;
-            case TypeTags.ARRAY:
-                validateIsNotCastToAnImportedAnonType(((BArrayType) targetType).eType, unresolvedTypes);
-                return;
-            case TypeTags.UNION:
-                for (BType memberType : ((BUnionType) targetType).getMemberTypes()) {
-                    validateIsNotCastToAnImportedAnonType(memberType, unresolvedTypes);
-                }
-                return;
-            case TypeTags.INTERSECTION:
-                for (BType constituentType : ((BIntersectionType) targetType).getConstituentTypes()) {
-                    validateIsNotCastToAnImportedAnonType(constituentType, unresolvedTypes);
-                }
-                return;
-            case TypeTags.ERROR:
-                validateIsNotCastToAnImportedAnonType(((BErrorType) targetType).detailType, unresolvedTypes);
-                return;
-            case TypeTags.TUPLE:
-                BTupleType tupleType = (BTupleType) targetType;
-                for (BType tupleMemberType : tupleType.tupleTypes) {
-                    validateIsNotCastToAnImportedAnonType(tupleMemberType, unresolvedTypes);
-                }
-
-                BType tupleRestType = tupleType.restType;
-                if (tupleRestType != null) {
-                    validateIsNotCastToAnImportedAnonType(tupleRestType, unresolvedTypes);
-                }
-                return;
-            case TypeTags.FUTURE:
-                BType constraint = ((BFutureType) targetType).constraint;
-                if (constraint != null) {
-                    validateIsNotCastToAnImportedAnonType(constraint, unresolvedTypes);
-                }
-                return;
-            case TypeTags.RECORD:
-            case TypeTags.OBJECT:
-                if (Symbols.isFlagOn(targetType.flags, Flags.ANONYMOUS) &&
-                        !targetType.tsymbol.pkgID.equals(env.enclPkg.packageID)) {
-                    throw new IllegalStateException("Invalid cast to anonymous type imported from '" +
-                                                            targetType.tsymbol.pkgID.toString() + "'");
-                }
-        }
     }
 
     protected void addTransactionInternalModuleImport() {

@@ -108,3 +108,7 @@ const annotation map<string> v5 on source annotation;
 type Annot record {
     string val;
 };
+
+function testIgnoreSym() {
+    _ = 3.14;
+}

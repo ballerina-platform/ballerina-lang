@@ -171,7 +171,6 @@ public class Names {
             new Name(BLangCompilerConstants.TRANSACTION_INTERNAL_VERSION);
     public static final Name OBSERVE_INTERNAL_VERSION = new Name(BLangCompilerConstants.OBSERVE_INTERNAL_VERSION);
     public static final Name OBSERVE_VERSION = new Name(BLangCompilerConstants.OBSERVE_VERSION);
-    public static final Name CODE2CLOUD_VERSION = new Name(BLangCompilerConstants.C2C_VERSION);
 
     public CompilerContext context;
 

@@ -436,16 +436,6 @@ function testErrorBindingPattern() {
     assertEquality(b, false);
 }
 
-type ErrorDataWithErrorField record {
-    error 'error;
-};
-
-function testErrorDataWithErrorField() {
-    error newError = error("bam", message = "new error");
-    ErrorDataWithErrorField ef = {'error: newError};
-    assertEquality(ef.toString(), "{\"error\":error(\"bam\",message=\"new error\")}");
-}
-
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error actual, any|error expected) {
@@ -460,5 +450,5 @@ function assertEquality(any|error actual, any|error expected) {
     string expectedValAsString = expected is error ? expected.toString() : expected.toString();
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+                message = "expected : '" + expectedValAsString + "', found : '" + actualValAsString + "'");
 }

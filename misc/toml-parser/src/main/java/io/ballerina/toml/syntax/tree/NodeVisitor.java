@@ -79,6 +79,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(identifierLiteralNode);
     }
 
+    public void visit(KeyNode keyNode) {
+        visitSyntaxNode(keyNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

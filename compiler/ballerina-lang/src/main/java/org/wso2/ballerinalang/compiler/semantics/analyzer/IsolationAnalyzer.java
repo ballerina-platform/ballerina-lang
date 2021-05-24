@@ -501,6 +501,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVariableDef varDefNode) {
         BLangVariable var = varDefNode.var;
         if (var.expr == null) {
+            if (var.typeNode != null) {
+                analyzeNode(var.typeNode, env);
+            }
             return;
         }
 
@@ -1103,16 +1106,16 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 addToAccessedRestrictedVars(exprInfo.accessedRestrictedVars, varRefExpr);
             }
 
-            if (parent == null && varRefExpr.lhsVar) {
+            if (parent == null && varRefExpr.isLValue) {
                 if (!isSelfOfObject(varRefExpr) && isInvalidCopyIn(varRefExpr, env)) {
                     exprInfo.nonCaptureBindingPatternVarRefsOnLhs.add(varRefExpr);
                 }
-            } else if ((!varRefExpr.lhsVar || parent.getKind() != NodeKind.ASSIGNMENT) &&
+            } else if ((!varRefExpr.isLValue || parent.getKind() != NodeKind.ASSIGNMENT) &&
                     !isIsolated(varRefExpr.symbol.flags) &&
                     !isSelfOfIsolatedObject(varRefExpr) &&
                     isInvalidCopyIn(varRefExpr, env)) {
                 exprInfo.copyInVarRefs.add(varRefExpr);
-            } else if (!varRefExpr.lhsVar && parent != null && isInvalidTransfer(varRefExpr, true)) {
+            } else if (!varRefExpr.isLValue && parent != null && isInvalidTransfer(varRefExpr, true)) {
                 exprInfo.copyOutVarRefs.add(varRefExpr);
             }
         } else if (isMethodCallOnSelfInIsolatedObject(varRefExpr, parent)) {
@@ -1566,6 +1569,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangFunctionTypeNode functionTypeNode) {
         for (BLangVariable param : functionTypeNode.params) {
             analyzeNode(param.typeNode, env);
+        }
+        if (functionTypeNode.restParam != null) {
+            analyzeNode(functionTypeNode.restParam.typeNode, env);
         }
         analyzeNode(functionTypeNode.returnTypeNode, env);
     }

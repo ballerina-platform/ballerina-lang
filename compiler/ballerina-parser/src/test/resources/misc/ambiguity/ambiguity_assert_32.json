@@ -584,15 +584,6 @@
                       "value": " "
                     }
                   ]
-                },
-                {
-                  "kind": "FINAL_KEYWORD",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
                 }
               ]
             },
@@ -729,22 +720,13 @@
               "kind": "LIST",
               "children": [
                 {
-                  "kind": "FINAL_KEYWORD",
+                  "kind": "CONFIGURABLE_KEYWORD",
                   "leadingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
                       "value": "\n"
                     }
                   ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "CONFIGURABLE_KEYWORD",
                   "trailingMinutiae": [
                     {
                       "kind": "WHITESPACE_MINUTIAE",

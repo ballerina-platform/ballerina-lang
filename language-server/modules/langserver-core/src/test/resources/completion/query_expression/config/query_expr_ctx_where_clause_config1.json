@@ -121,29 +121,6 @@
       ]
     },
     {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
@@ -439,11 +416,27 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "customer",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "c2",
       "kind": "Variable",
       "detail": "Customer",
       "sortText": "B",
-      "insertText": "customer",
+      "insertText": "c2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "c3",
+      "kind": "Variable",
+      "detail": "Customer",
+      "sortText": "B",
+      "insertText": "c3",
       "insertTextFormat": "Snippet"
     },
     {
@@ -457,31 +450,8 @@
         }
       },
       "sortText": "C",
+      "filterText": "testIterableOperation",
       "insertText": "testIterableOperation()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "c3",
-      "kind": "Variable",
-      "detail": "Customer",
-      "sortText": "B",
-      "insertText": "c3",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "c1",
-      "kind": "Variable",
-      "detail": "Customer",
-      "sortText": "B",
-      "insertText": "c1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "c2",
-      "kind": "Variable",
-      "detail": "Customer",
-      "sortText": "B",
-      "insertText": "c2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -490,6 +460,22 @@
       "detail": "Record",
       "sortText": "L",
       "insertText": "Customer",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "customer",
+      "kind": "Variable",
+      "detail": "Customer",
+      "sortText": "B",
+      "insertText": "customer",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "customerList",
+      "kind": "Variable",
+      "detail": "Customer[]",
+      "sortText": "B",
+      "insertText": "customerList",
       "insertTextFormat": "Snippet"
     },
     {
@@ -504,19 +490,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "customerList",
+      "label": "c1",
       "kind": "Variable",
-      "detail": "Customer[]",
+      "detail": "Customer",
       "sortText": "B",
-      "insertText": "customerList",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
+      "insertText": "c1",
       "insertTextFormat": "Snippet"
     },
     {

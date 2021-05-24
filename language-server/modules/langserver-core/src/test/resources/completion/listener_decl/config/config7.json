@@ -9,7 +9,7 @@
       "label": "test",
       "kind": "Variable",
       "detail": "none",
-      "sortText": "B",
+      "sortText": "E",
       "insertText": "test",
       "insertTextFormat": "Snippet"
     },
@@ -17,16 +17,8 @@
       "label": "mod",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "N",
-      "insertText": "mod",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lang.object",
-      "kind": "Unit",
-      "detail": "type",
       "sortText": "Q",
-      "insertText": "object",
+      "insertText": "mod",
       "insertTextFormat": "Snippet"
     },
     {
@@ -118,29 +110,6 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
         }
       ]
     },
@@ -283,8 +252,32 @@
       "label": "new",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "S",
       "insertText": "new ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "check",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "S",
+      "insertText": "check ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "checkpanic",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "S",
+      "insertText": "checkpanic ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "trap",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "S",
+      "insertText": "trap",
       "insertTextFormat": "Snippet"
     }
   ]

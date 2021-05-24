@@ -14,22 +14,37 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
-import ballerina/log;
-
 function f1() returns string|error {
     return "test";
 }
 
-service hello1 on new http:MockListener(9090) {
-    resource function sayHello1 (http:Caller caller, http:Request req) returns error? {
-        http:Response res = new;
-        res.setPayload("Hello, World!");
+service /hello on new Listener() {
+    resource function say hello() returns string|error? {
         string abc = check f1();
-        var result = caller->respond(res);
-        if (result is error) {
-            log:printError("Error sending response", result);
+        if abc != "" {
+            return abc;
         }
         return ();
+    }
+}
+
+class Listener {
+
+    public function init() {
+    }
+
+    public function attach(service object {} s, string|string[]? name = ()) returns error? {
+    }
+
+    public function detach(service object {} s) returns error? {
+    }
+
+    public function 'start() returns error? {
+    }
+
+    public function gracefulStop() returns error? {
+    }
+
+    public function immediateStop() returns error? {
     }
 }

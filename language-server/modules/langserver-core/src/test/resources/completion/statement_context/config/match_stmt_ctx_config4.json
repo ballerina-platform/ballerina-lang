@@ -30,34 +30,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "BLUE",
-      "kind": "EnumMember",
-      "detail": "BLUE",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
-      "sortText": "H",
-      "insertText": "BLUE",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "GREEN",
-      "kind": "EnumMember",
-      "detail": "GREEN",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
-      "sortText": "H",
-      "insertText": "GREEN",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "CONST1",
       "kind": "Variable",
       "detail": "Test Const",
@@ -83,6 +55,34 @@
       },
       "sortText": "H",
       "insertText": "RED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "BLUE",
+      "kind": "EnumMember",
+      "detail": "BLUE",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "H",
+      "insertText": "BLUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "GREEN",
+      "kind": "EnumMember",
+      "detail": "GREEN",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "H",
+      "insertText": "GREEN",
       "insertTextFormat": "Snippet"
     },
     {
@@ -182,29 +182,6 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
         }
       ]
     },

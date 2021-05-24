@@ -347,6 +347,24 @@ function testMappingBindingPattern16() {
     assertEquals("Matches", mappingBindingPattern16({i: 2, s: "str"}));
 }
 
+function mappingBindingPattern17(json j) returns json {
+    match j {
+        var {x: x} => {
+            return x;
+        }
+    }
+    return ();
+}
+
+function testMappingBindingPattern17() {
+    assertEquals("hello", mappingBindingPattern17({x: "hello"}));
+    assertEquals(1, mappingBindingPattern17({y: "hello world", x: 1}));
+    assertEquals((), mappingBindingPattern17({y: "hello world", x: ()}));
+    assertEquals((), mappingBindingPattern17({a: "hello world", x1: 1}));
+    assertEquals((), mappingBindingPattern17({}));
+    assertEquals((), mappingBindingPattern17(1));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

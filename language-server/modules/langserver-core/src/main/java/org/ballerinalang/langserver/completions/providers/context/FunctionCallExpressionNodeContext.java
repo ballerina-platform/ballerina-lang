@@ -15,17 +15,28 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
+import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
+import org.eclipse.lsp4j.CompletionItemKind;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion Provider for {@link FunctionCallExpressionNode} context.
@@ -34,6 +45,7 @@ import java.util.List;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class FunctionCallExpressionNodeContext extends BlockNodeContextProvider<FunctionCallExpressionNode> {
+
     public FunctionCallExpressionNodeContext() {
         super(FunctionCallExpressionNode.class);
     }
@@ -50,7 +62,7 @@ public class FunctionCallExpressionNodeContext extends BlockNodeContextProvider<
         completionItems.addAll(this.expressionCompletions(ctx));
         // TODO: implement the following
 //        completionItems.addAll(this.getNewExprCompletionItems(ctx, node));
-
+        this.sort(ctx, node, completionItems);
         return completionItems;
     }
 
@@ -61,5 +73,52 @@ public class FunctionCallExpressionNodeContext extends BlockNodeContextProvider<
         Token closeParen = node.closeParenToken();
 
         return cursor > openParen.textRange().startOffset() && cursor < closeParen.textRange().endOffset();
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context,
+                     FunctionCallExpressionNode node,
+                     List<LSCompletionItem> completionItems) {
+
+        ContextTypeResolver contextTypeResolver = new ContextTypeResolver(context);
+        Optional<TypeSymbol> parameterSymbol = node.apply(contextTypeResolver);
+
+        if (parameterSymbol.isEmpty() || !CommonUtil.isInFunctionCallParameterContext(context, node)) {
+            super.sort(context, node, completionItems);
+            return;
+        }
+
+        completionItems.forEach(lsCompletionItem -> {
+
+            int rank = SortingUtil.toRank(lsCompletionItem, 2);
+            CompletionItemKind completionItemKind = lsCompletionItem.getCompletionItem().getKind();
+            if (lsCompletionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+
+                Optional<Symbol> symbol = ((SymbolCompletionItem) lsCompletionItem).getSymbol();
+                Optional<TypeSymbol> symbolType = SymbolUtil.getTypeDescriptor(symbol.orElse(null));
+
+                if (symbolType.isPresent()) {
+                    switch (completionItemKind) {
+                        case Variable:
+                            if (symbolType.get().assignableTo(parameterSymbol.get())) {
+                                rank = 1;
+                            }
+                            break;
+                        case Method:
+                        case Function:
+                            if (symbolType.get() instanceof FunctionTypeSymbol) {
+                                Optional<TypeSymbol> returnType =
+                                        ((FunctionSymbol) symbol.get()).typeDescriptor().returnTypeDescriptor();
+                                if (returnType.isPresent() && returnType.get().assignableTo(parameterSymbol.get())) {
+                                    rank = 2;
+                                }
+                            }
+                            break;
+                    }
+                }
+
+            }
+            lsCompletionItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
+        });
     }
 }

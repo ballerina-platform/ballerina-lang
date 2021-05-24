@@ -474,3 +474,13 @@ function testRecordIntersectionWithDefaultValues() {
         record {| byte i; |} rec2 = e;
     }
 }
+
+function jsonIntersectionNegative(json j) {
+    if j is map<int|stream<int>> {
+        map<stream<int>> m = j;
+    }
+
+    if j is (string|stream<int>|boolean)[] {
+        boolean[] a = j;
+    }
+}

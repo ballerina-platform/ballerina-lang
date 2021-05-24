@@ -21,6 +21,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
@@ -541,14 +542,13 @@ public class ImmutableTypeCloner {
 
     private static String getPackageAlias(SymbolEnv env, String compUnitName, PackageID typePkgId) {
         for (BLangImportPackage importStmt : env.enclPkg.imports) {
-            if (!typePkgId.equals(importStmt.symbol.pkgID)) {
+            if (!importStmt.compUnit.value.equals(compUnitName)) {
                 continue;
             }
 
-            if (importStmt.compUnit.value.equals(compUnitName)) {
+            if (importStmt.symbol != null && typePkgId.equals(importStmt.symbol.pkgID)) {
                 return importStmt.alias.value;
             }
-
         }
 
         return ""; // current module
@@ -828,7 +828,8 @@ public class ImmutableTypeCloner {
         }};
 
         BIntersectionType intersectionType = new BIntersectionType(intersectionTypeSymbol, constituentTypes,
-                                                                   effectiveType, Flags.READONLY);
+                                                                   (IntersectableReferenceType) effectiveType,
+                                                                   Flags.READONLY);
         intersectionTypeSymbol.type = intersectionType;
         return intersectionType;
     }

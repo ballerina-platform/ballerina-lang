@@ -76,14 +76,10 @@ public class ObjectTypeReferenceTest {
                                   "invalid cyclic type reference in '[C, D, A, B, C]'", 74, 1);
         BAssertUtil.validateError(negativeResult, i++,
                                   "invalid cyclic type reference in '[E, C, E]'", 74, 1);
-        // Disable as new class definition will replace objects that can have method implementations.
-//        BAssertUtil.validateError(negativeResult, i++,
-//                                  "no implementation found for the function 'getName' of non-abstract object " +
-//                                          "'Manager2'", 96, 5);
-        i++;
-//        BAssertUtil.validateError(negativeResult, i++,
-//                "no implementation found for the function 'getSalary' of non-abstract object 'Manager2'", 96, 5);
-        i++;
+        BAssertUtil.validateError(negativeResult, i++,
+                "no implementation found for the method 'getName' of class 'Manager2'", 95, 1);
+        BAssertUtil.validateError(negativeResult, i++,
+                "no implementation found for the method 'getSalary' of class 'Manager2'", 95, 1);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Q' is not an object", 101, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared type reference 'Person1'", 111, 6);
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'Baz'", 119, 6);
@@ -360,7 +356,6 @@ public class ObjectTypeReferenceTest {
 
     @Test
     public void testInvalidTypeReferenceAcrossModules() {
-//        CompileResult result = BCompileUtil.compile("test-src/object/ObjectProject", "object_reference_negative");
         CompileResult result = BCompileUtil.compile("test-src/object/ObjectRefNegativeProject");
         int index = 0;
 

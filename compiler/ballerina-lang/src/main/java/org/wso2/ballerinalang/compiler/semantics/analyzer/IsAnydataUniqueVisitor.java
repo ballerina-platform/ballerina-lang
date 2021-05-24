@@ -71,6 +71,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             case TypeTags.XML:
             case TypeTags.TABLE:
             case TypeTags.NIL:
+            case TypeTags.NEVER:
             case TypeTags.ANYDATA:
             case TypeTags.SIGNED8_INT:
             case TypeTags.SIGNED16_INT:
@@ -278,6 +279,11 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
                 return false;
             }
         }
+
+        if (!type.sealed && (type.restFieldType == null)) {
+            return false;
+        }
+
         type.isAnyData = type.sealed || isPureTypeUniqueVisitor.visit(type.restFieldType);
         return type.isAnyData;
     }

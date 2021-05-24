@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
  *
  * @since 2.0.0
  */
-@Test(groups = {"disableOnOldParser"})
 public class MatchStmtListMatchPatternTest {
 
     private CompileResult result, resultNegative, resultSemanticsNegative, restMatchPatternResult;
@@ -194,6 +193,16 @@ public class MatchStmtListMatchPatternTest {
     }
 
     @Test
+    public void testListMatchPattern29() {
+        BRunUtil.invoke(result, "testListMatchPattern29");
+    }
+
+    @Test
+    public void testListMatchPattern30() {
+        BRunUtil.invoke(result, "testListMatchPattern30");
+    }
+
+    @Test
     public void testRestMatchPattern1() {
         BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest1");
     }
@@ -226,6 +235,11 @@ public class MatchStmtListMatchPatternTest {
     @Test
     public void testListMatchPatternWithClosedArray() {
         BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithClosedArray");
+    }
+
+    @Test
+    public void testListMatchPatternWithRestPattern11() {
+        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRestPattern11");
     }
 
     @Test(description = "invalid match patterns")
@@ -282,6 +296,14 @@ public class MatchStmtListMatchPatternTest {
                 "'int[]'", 28, 26);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int[][]', found '" +
                 "(int|error)[][]'", 29, 27);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int', found 'json'",
+                37, 21);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'boolean[]', found " +
+                        "'json[]'", 37, 24);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int', found 'json'",
+                40, 21);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'boolean', found 'json'",
+                40, 25);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 

@@ -20,12 +20,14 @@ package io.ballerina.runtime.internal.configurable;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
-import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
-import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
+import io.ballerina.runtime.internal.types.BUnionType;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,9 +37,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.ORG_NAME_SEPARATOR;
-import static io.ballerina.runtime.internal.configurable.ConfigConstants.CONFIGURATION_NOT_SUPPORTED;
-import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.VALUE_NOT_PROVIDED;
+import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TYPE_NOT_SUPPORTED;
 
 /**
  * Class that resolve the configurations on given providers.
@@ -52,13 +52,10 @@ public class ConfigResolver {
 
     private final List<ConfigProvider> runtimeConfigProviders;
 
-    private final Module rootModule;
+    private final RuntimeDiagnosticLog diagnosticLog;
 
-    private final DiagnosticLog diagnosticLog;
-
-    public ConfigResolver(Module rootModule, Map<Module, VariableKey[]> configVarMap,
-                          DiagnosticLog diagnosticLog, List<ConfigProvider> supportedConfigProviders) {
-        this.rootModule = rootModule;
+    public ConfigResolver(Map<Module, VariableKey[]> configVarMap, RuntimeDiagnosticLog diagnosticLog,
+                          List<ConfigProvider> supportedConfigProviders) {
         this.configVarMap = configVarMap;
         this.supportedConfigProviders = supportedConfigProviders;
         this.runtimeConfigProviders = new LinkedList<>();
@@ -77,7 +74,7 @@ public class ConfigResolver {
                     runtimeConfigProviders.add(provider);
                 }
             } catch (ConfigException e) {
-                diagnosticLog.warn(e.getMessage());
+                diagnosticLog.warn(e.getErrorCode(), null, e.getArgs());
             }
         }
         for (Map.Entry<Module, VariableKey[]> entry : configVarMap.entrySet()) {
@@ -88,6 +85,9 @@ public class ConfigResolver {
                 configValue.ifPresent(o -> configValueMap.put(varKey, o));
             }
         }
+        for (ConfigProvider provider : runtimeConfigProviders) {
+            provider.complete(diagnosticLog);
+        }
         return configValueMap;
     }
 
@@ -95,59 +95,72 @@ public class ConfigResolver {
         Type type = key.type;
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
-                return getConfigValue(module, key, configProvider -> configProvider
+                return getConfigValue(key, configProvider -> configProvider
                         .getAsIntAndMark(module, key));
             case TypeTags.BYTE_TAG:
-                return getConfigValue(module, key, configProvider -> configProvider
+                return getConfigValue(key, configProvider -> configProvider
                         .getAsByteAndMark(module, key));
             case TypeTags.BOOLEAN_TAG:
-                return getConfigValue(module, key, configProvider -> configProvider
+                return getConfigValue(key, configProvider -> configProvider
                         .getAsBooleanAndMark(module, key));
             case TypeTags.FLOAT_TAG:
-                return getConfigValue(module, key, configProvider -> configProvider
+                return getConfigValue(key, configProvider -> configProvider
                         .getAsFloatAndMark(module, key));
             case TypeTags.DECIMAL_TAG:
-                return getConfigValue(module, key, configProvider -> configProvider
+                return getConfigValue(key, configProvider -> configProvider
                         .getAsDecimalAndMark(module, key));
             case TypeTags.STRING_TAG:
-                return getConfigValue(module, key, configProvider -> configProvider
+                return getConfigValue(key, configProvider -> configProvider
                         .getAsStringAndMark(module, key));
             case TypeTags.RECORD_TYPE_TAG:
-                return getConfigValue(module, key, configProvider -> configProvider
+                return getConfigValue(key, configProvider -> configProvider
                         .getAsRecordAndMark(module, key));
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((IntersectionType) type).getEffectiveType();
                 switch (effectiveType.getTag()) {
                     case TypeTags.ARRAY_TAG:
-                        return getConfigValue(module, key, configProvider -> configProvider
+                        return getConfigValue(key, configProvider -> configProvider
                                 .getAsArrayAndMark(module, key));
                     case TypeTags.RECORD_TYPE_TAG:
-                        return getConfigValue(module, key, configProvider -> configProvider
+                        return getConfigValue(key, configProvider -> configProvider
                                 .getAsRecordAndMark(module, key));
+                    case TypeTags.MAP_TAG:
+                        return getConfigValue(key, configProvider -> configProvider
+                                .getAsMapAndMark(module, key));
                     case TypeTags.TABLE_TAG:
-                        return getConfigValue(module, key, configProvider -> configProvider
+                        return getConfigValue(key, configProvider -> configProvider
                                 .getAsTableAndMark(module, key));
                     case TypeTags.XML_TAG:
                     case TypeTags.XML_ELEMENT_TAG:
                     case TypeTags.XML_COMMENT_TAG:
                     case TypeTags.XML_PI_TAG:
                     case TypeTags.XML_TEXT_TAG:
-                        return getConfigValue(module, key, configProvider -> configProvider
+                        return getConfigValue(key, configProvider -> configProvider
                                 .getAsXmlAndMark(module, key));
+                    case TypeTags.UNION_TAG:
+                        BUnionType unionType = (BUnionType) effectiveType;
+                        //Todo : Move the enum check to provider impl, once runtime support configuring union types.
+                        // Issue : https://github.com/ballerina-platform/ballerina-lang/issues/30390
+                        if (SymbolFlags.isFlagOn(unionType.getFlags(), SymbolFlags.ENUM)) {
+                            return getConfigValue(key, configProvider -> configProvider
+                                    .getAsUnionAndMark(module, key));
+                        }
+                        diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
+                                            IdentifierUtils.decodeIdentifier(effectiveType.toString()));
+                        break;
                     default:
-                        throw new ErrorValue(StringUtils.fromString(
-                                String.format(CONFIGURATION_NOT_SUPPORTED, key.module.getName() + ":" + key.variable,
-                                              effectiveType.toString())));
+                        diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
+                                            IdentifierUtils.decodeIdentifier(effectiveType.toString()));
                 }
+                break;
             default:
-                diagnosticLog.error(String.format(CONFIGURATION_NOT_SUPPORTED,
-                                                  key.module.getName() + ":" + key.variable, type.toString()));
+                diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
+                                    IdentifierUtils.decodeIdentifier(type.toString()));;
         }
         return Optional.empty();
     }
 
-    private Optional<?> getConfigValue(Module module, VariableKey key,
-                                       Function<ConfigProvider, Optional<?>> getConfigFunc) {
+    private Optional<?> getConfigValue(VariableKey key, Function<ConfigProvider, Optional<?>> getConfigFunc) {
         Optional<?> configValue = Optional.empty();
         List<ConfigException> exceptionList = new ArrayList<>(runtimeConfigProviders.size());
         for (ConfigProvider configProvider : runtimeConfigProviders) {
@@ -163,22 +176,14 @@ public class ConfigResolver {
 
         // Handle errors while getting config values.
         if (configValue.isPresent()) {
-            exceptionList.forEach(e -> diagnosticLog.warn(e.getMessage()));
+            exceptionList.forEach(e -> diagnosticLog.warn(e.getErrorCode(), key.location, e.getArgs()));
             return configValue;
         }
         if (exceptionList.isEmpty() && key.isRequired) {
-            String displayName;
-            if (module.equals(rootModule)) {
-                displayName = key.variable;
-            } else if (module.getOrg().equals(rootModule.getOrg())) {
-                displayName = module.getName() + ":" + key.variable;
-            } else {
-                displayName = module.getOrg() + ORG_NAME_SEPARATOR + module.getName() + ":" + key.variable;
-            }
-            diagnosticLog.error(String.format(VALUE_NOT_PROVIDED, displayName));
+            diagnosticLog.error(RuntimeErrors.CONFIG_VALUE_NOT_PROVIDED, key.location, key.variable);
             return configValue;
         }
-        exceptionList.forEach(e -> diagnosticLog.error(e.getMessage()));
+        exceptionList.forEach(e -> diagnosticLog.error(e.getErrorCode(), key.location, e.getArgs()));
         return configValue;
     }
 }

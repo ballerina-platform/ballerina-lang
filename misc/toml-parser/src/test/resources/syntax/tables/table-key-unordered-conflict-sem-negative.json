@@ -145,26 +145,31 @@
               ]
             },
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "table"
-                    }
-                  ]
-                },
-                {
-                  "kind": "DOT_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "table"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "key1"
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "key1"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -186,18 +191,23 @@
                   "kind": "KEY_VALUE",
                   "children": [
                     {
-                      "kind": "LIST",
+                      "kind": "KEY",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_LITERAL",
+                          "kind": "LIST",
                           "children": [
                             {
                               "kind": "IDENTIFIER_LITERAL",
-                              "value": "key2",
-                              "trailingMinutiae": [
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "key2",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -254,14 +264,19 @@
               ]
             },
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "table"
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "table"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -283,18 +298,23 @@
                   "kind": "KEY_VALUE",
                   "children": [
                     {
-                      "kind": "LIST",
+                      "kind": "KEY",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_LITERAL",
+                          "kind": "LIST",
                           "children": [
                             {
                               "kind": "IDENTIFIER_LITERAL",
-                              "value": "key",
-                              "trailingMinutiae": [
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "key",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -338,18 +358,23 @@
                   "kind": "KEY_VALUE",
                   "children": [
                     {
-                      "kind": "LIST",
+                      "kind": "KEY",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_LITERAL",
+                          "kind": "LIST",
                           "children": [
                             {
                               "kind": "IDENTIFIER_LITERAL",
-                              "value": "key1",
-                              "trailingMinutiae": [
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "key1",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }

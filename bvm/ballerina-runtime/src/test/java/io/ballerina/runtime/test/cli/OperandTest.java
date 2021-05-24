@@ -184,6 +184,19 @@ public class OperandTest {
     }
 
     @Test
+    public void testStringFollowingIntsArray() {
+        Operand[] operands = {new Operand(false, "intArr", TypeCreator.createArrayType(PredefinedTypes.TYPE_INT)),
+                new Operand(false, "opString", PredefinedTypes.TYPE_STRING)};
+        Object[] args = new CliSpec(null, operands, "1", "2").getMainArgs();
+        Assert.assertTrue(args[1] instanceof BArray);
+        BArray arr = ((BArray) args[1]);
+        Assert.assertEquals(arr.size(), 1);
+        Assert.assertEquals(arr.get(0).toString(), "1");
+        Assert.assertTrue(args[3] instanceof BString);
+        Assert.assertEquals(((BString) args[3]).getValue(), "2");
+    }
+
+    @Test
     public void testStringIntArray() {
         Operand[] operands = {new Operand(false, "opString", PredefinedTypes.TYPE_STRING),
                 new Operand(false, "arrInt", TypeCreator.createArrayType(PredefinedTypes.TYPE_INT))};

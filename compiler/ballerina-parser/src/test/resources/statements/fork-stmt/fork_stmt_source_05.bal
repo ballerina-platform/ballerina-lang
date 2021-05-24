@@ -13,4 +13,3 @@ public function foo() {
             return f;
         }
     
-

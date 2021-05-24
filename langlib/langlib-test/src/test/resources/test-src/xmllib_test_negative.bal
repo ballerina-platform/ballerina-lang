@@ -69,3 +69,8 @@ function testGetDescendantsFromSeq() returns xml {
    xml x4 = compositeXml.getDescendants();
    return x4;
 }
+
+function tesXMLStrip() returns xml {
+   xml<'xml:Element> x21 = xml `<foo><bar/><?foo?>text1 text2<!--Com1--> <bar/></foo><foo><?foo?>text1<!--Com2--></foo>`;
+   xml<'xml:Element> x22 = x21.strip();
+}

@@ -1,4 +1,3 @@
-
 Compiling source
 	john/validProjectWithEmptyBallerinaToml:0.1.0
 

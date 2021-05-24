@@ -106,29 +106,6 @@
       ]
     },
     {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
@@ -264,15 +241,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "display",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "Q",
-      "insertText": "display {\n\tlabel: \"${1}\"\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
       "label": "resourceAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
@@ -282,11 +250,20 @@
       "additionalTextEdits": []
     },
     {
-      "label": "deprecated",
+      "label": "display",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "Q",
-      "insertText": "deprecated",
+      "insertText": "display {\n\tlabel: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "resourceAnnotation3",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "resourceAnnotation3",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
@@ -300,11 +277,11 @@
       "additionalTextEdits": []
     },
     {
-      "label": "resourceAnnotation3",
+      "label": "deprecated",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "Q",
-      "insertText": "resourceAnnotation3",
+      "insertText": "deprecated",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     }

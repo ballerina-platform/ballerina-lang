@@ -25,6 +25,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.Optional;
+
 /**
  * @since 0.94
  */
@@ -32,6 +34,8 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
 
     public BType constraint;
     public BIntersectionType immutableType;
+
+    private BIntersectionType intersectionType = null;
 
     public BMapType(int tag, BType constraint, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
@@ -74,5 +78,15 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
     @Override
     public BIntersectionType getImmutableType() {
         return this.immutableType;
+    }
+
+    @Override
+    public Optional<BIntersectionType> getIntersectionType() {
+        return Optional.ofNullable(this.intersectionType);
+    }
+
+    @Override
+    public void setIntersectionType(BIntersectionType intersectionType) {
+        this.intersectionType = intersectionType;
     }
 }

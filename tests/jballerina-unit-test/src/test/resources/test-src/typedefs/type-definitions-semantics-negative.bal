@@ -16,3 +16,5 @@ type T8 [int[], A[], [B, C], map<string>, map<D>, E, int, record { F f; }, objec
 
 type PersonOrInt int|Person;
 type PersonOrNil Person?;
+
+type InvalidIntersectionType int & string;

@@ -4,7 +4,7 @@ public function main() {
     R|error b = a;
 
     json j = from var r in reportStream
-             select r.toJson()
+        select r.toJson()
     io:println(j.toJsonString());
 
     // Missing binary operator

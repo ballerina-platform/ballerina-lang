@@ -88,8 +88,7 @@ public class ArrayUtils {
     public static BError createOpNotSupportedError(Type type, String op) {
         return ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
                                                                 OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                                        StringUtils.fromString(format("%s not supported on type '%s'", op,
-                                                                      type.getQualifiedName())));
+                                        StringUtils.fromString(format("%s not supported on type '%s'", op, type)));
     }
 
     public static BArray createEmptyArrayFromTuple(BArray arr) {

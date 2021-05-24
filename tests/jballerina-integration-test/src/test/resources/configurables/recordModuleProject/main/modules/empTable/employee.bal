@@ -17,5 +17,5 @@
 int epfRate = 10;
 
 public function calculateGrossSalary(float salary) returns float {
-    return salary - (salary*epfRate)/100.0;
+    return salary - (salary*<float>epfRate)/100.0;
 }

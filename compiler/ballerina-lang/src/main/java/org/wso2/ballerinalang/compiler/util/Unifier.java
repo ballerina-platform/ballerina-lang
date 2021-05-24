@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -472,7 +473,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         }
 
         BIntersectionType type = new BIntersectionType(null, (LinkedHashSet<BType>) originalType.getConstituentTypes(),
-                                                       newEffectiveType);
+                                                       (IntersectableReferenceType) newEffectiveType);
         setFlags(type, originalType.flags);
         return originalType;
     }

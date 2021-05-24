@@ -82,9 +82,9 @@ public class NativeConversionTest {
         BValue marks = map.get("marks");
         Assert.assertTrue(marks instanceof BValueArray);
         BValueArray marksArray = (BValueArray) marks;
-        Assert.assertEquals(marksArray.getInt(0), 67);
-        Assert.assertEquals(marksArray.getInt(1), 38);
-        Assert.assertEquals(marksArray.getInt(2), 91);
+        Assert.assertEquals(((BInteger) marksArray.getRefValue(0)).intValue(), 67);
+        Assert.assertEquals(((BInteger) marksArray.getRefValue(1)).intValue(), 38);
+        Assert.assertEquals(((BInteger) marksArray.getRefValue(2)).intValue(), 91);
     }
 
     @Test
@@ -440,9 +440,9 @@ public class NativeConversionTest {
         BValue marks = map.get("genre");
         Assert.assertTrue(marks instanceof BValueArray);
         BValueArray genreArray = (BValueArray) marks;
-        Assert.assertEquals(genreArray.getString(0), "Adventure");
-        Assert.assertEquals(genreArray.getString(1), "Drama");
-        Assert.assertEquals(genreArray.getString(2), "Thriller");
+        Assert.assertEquals(genreArray.getRefValue(0).stringValue(), "Adventure");
+        Assert.assertEquals(genreArray.getRefValue(1).stringValue(), "Drama");
+        Assert.assertEquals(genreArray.getRefValue(2).stringValue(), "Thriller");
 
         BValue actors = map.get("actors");
         Assert.assertTrue(actors instanceof BValueArray);
@@ -575,13 +575,6 @@ public class NativeConversionTest {
         BMap<String, BValue> struct = (BMap<String, BValue>) returns[0];
         Assert.assertEquals(((BInteger) struct.get("z")).intValue(), 2);
     }
-
-//    @Test(description = "Test performing an invalid object to record conversion",
-//            expectedExceptions = { BLangRuntimeException.class },
-//            expectedExceptionsMessageRegExp = ".*'T3' cannot be cast to 'O2'.*")
-//    public void testObjectRecordConversionFail() {
-//        BRunUtil.invoke(compileResult, "testObjectRecordConversionFail");
-//    }
 
     @Test
     public void testTupleConversion1() {

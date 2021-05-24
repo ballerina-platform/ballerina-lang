@@ -160,7 +160,7 @@ public class Class {
     boolean y;
 
     public function foo(float ratio, int months) returns float {
-        return 1000.00 * ratio * months;
+        return 1000.00 * ratio * <float>months;
     }
 }
 
@@ -187,7 +187,7 @@ public class Class2 {
     float m;
     public boolean n;
 
-    public function foo(float ratio, int months) returns float => 3000.00 * ratio * months;
+    public function foo(float ratio, int months) returns float => 3000.00 * ratio * <float>months;
 }
 
 public class Class3 {
@@ -197,7 +197,7 @@ public class Class3 {
     boolean n;
 
     private function foo(float ratio, int months) returns float {
-        return 1000.00 * ratio * months;
+        return 1000.00 * ratio * <float>months;
     }
 }
 

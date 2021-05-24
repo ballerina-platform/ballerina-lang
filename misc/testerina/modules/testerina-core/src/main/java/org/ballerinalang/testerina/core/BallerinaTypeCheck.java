@@ -45,6 +45,11 @@ public class BallerinaTypeCheck {
         if (typeName == null) {
             typeName = "";
         }
+
+        if (typeName.isEmpty()) {
+            typeName = bType.toString();
+        }
+
         return StringUtils.fromString(typeName);
     }
 }

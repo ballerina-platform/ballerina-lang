@@ -164,9 +164,10 @@ public class TestDAPClientConnector {
         }
     }
 
-    public void launchServer(DebugUtils.DebuggeeExecutionKind launchKind) throws BallerinaTestException {
+    public void launchServer(DebugUtils.DebuggeeExecutionKind launchKind, Map<String, Object> args)
+            throws BallerinaTestException {
         try {
-            Map<String, Object> requestArgs = new HashMap<>();
+            Map<String, Object> requestArgs = new HashMap<>(args);
             requestArgs.put(CONFIG_SOURCE, entryFilePath);
             requestArgs.put(CONFIG_DEBUGEE_HOST, host);
             requestArgs.put(CONFIG_DEBUGEE_PORT, Integer.toString(port));

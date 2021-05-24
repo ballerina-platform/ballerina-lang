@@ -4,5 +4,3 @@ public function testFunction(){
 }
 
 type myErr1 error;
-
-

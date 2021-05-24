@@ -362,7 +362,7 @@ public class VariableReturnType {
         return true;
     }
 
-    public static Object clientPost(BObject client, MapValue options, BTypedesc targetType) {
+    public static Object clientPost(BObject client, BTypedesc targetType, MapValue options) {
         BString mediaType =
                 Optional.ofNullable(options.getStringValue(StringUtils.fromString("mediaType")))
                         .orElse(StringUtils.fromString(""));
@@ -377,7 +377,7 @@ public class VariableReturnType {
         return mediaType.length() + header.length();
     }
 
-    public static Object calculate(BObject client, long i, MapValue options, BTypedesc targetType) {
+    public static Object calculate(BObject client, long i, BTypedesc targetType, MapValue options) {
         BString mediaType =
                 Optional.ofNullable(options.getStringValue(StringUtils.fromString("mediaType")))
                         .orElse(StringUtils.fromString(""));

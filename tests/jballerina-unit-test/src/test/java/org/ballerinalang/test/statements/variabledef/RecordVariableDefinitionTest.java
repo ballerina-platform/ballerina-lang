@@ -278,7 +278,7 @@ public class RecordVariableDefinitionTest {
                 "{\"name\":\"John\", \"age\":{age:30, format:\"YY\", year:1990}, \"married\":true, \"work\":\"SE\"}");
     }
 
-    @Test(description = "Test record variables rest param types", enabled = false)
+    @Test(description = "Test record variables rest param types")
     public void testRestParameterType() {
         BValue[] returns = BRunUtil.invoke(result, "testRestParameterType");
         Assert.assertEquals(returns.length, 5);
@@ -286,7 +286,8 @@ public class RecordVariableDefinitionTest {
         Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
+        // https://github.com/ballerina-platform/ballerina-lang/issues/29953
+        // Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
     }
 
     @Test
@@ -315,8 +316,6 @@ public class RecordVariableDefinitionTest {
                 "incompatible types: expected 'string', found 'anydata'", 152, 13);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 152, 31);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "underscore is not allowed here", 157, 19);
         BAssertUtil.validateError(resultNegative, ++i,
                 "underscore is not allowed here", 157, 19);
         BAssertUtil.validateError(resultNegative, ++i,

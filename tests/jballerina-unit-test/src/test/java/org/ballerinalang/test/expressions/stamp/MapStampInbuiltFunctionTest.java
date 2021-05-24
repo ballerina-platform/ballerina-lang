@@ -82,7 +82,7 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.size(), 2);
 
         Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getTag(), TypeTags.JSON_TAG);
 
         Assert.assertEquals(mapValue.get("a").getType().getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(mapValue.get("a").stringValue(), "1");
@@ -101,7 +101,7 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.size(), 2);
 
         Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getTag(), TypeTags.ANYDATA_TAG);
     }
 
 

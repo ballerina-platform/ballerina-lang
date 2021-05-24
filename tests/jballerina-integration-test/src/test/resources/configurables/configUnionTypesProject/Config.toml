@@ -1,0 +1,7 @@
+[configUnionTypes]
+httpVersion = "HTTP_1_1"
+countryCode = "Sri Lanka"
+
+[configUnionTypes.mod2]
+httpVersion = "HTTP_2"
+countryCode = "United States"

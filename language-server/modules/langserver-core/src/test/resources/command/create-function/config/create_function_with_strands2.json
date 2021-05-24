@@ -1,0 +1,40 @@
+{
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 7,
+        "character": 48
+      },
+      "end": {
+        "line": 7,
+        "character": 66
+      }
+    }
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 12,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 12,
+                    "character": 0
+                  }
+                },
+                "newText": "\n\nfunction createVal(int a) returns (Foo & readonly)|int {\n    return {};\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

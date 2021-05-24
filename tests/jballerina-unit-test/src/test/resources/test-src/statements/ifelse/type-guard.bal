@@ -419,14 +419,14 @@ function testTypeGuardsWithError() returns string {
     }
 }
 
-// function testTypeGuardsWithErrorInmatch() returns string {
-//     error e = error("some error");
-//     any|error x = e;
-//     match x {
-//         var p if p is error => {return string `${p.message()}`;}
-//         var p => {return "Internal server error";}
-//     }
-// }
+function testTypeGuardsWithErrorInmatch() returns string {
+    error e = error("some error");
+    any|error x = e;
+    match x {
+        var p if p is error => {return string `${p.message()}`;}
+        var p => {return "Internal server error";}
+    }
+}
 
 function testTypeNarrowingWithClosures() returns string {
     int|string x = 8;
@@ -435,7 +435,7 @@ function testTypeNarrowingWithClosures() returns string {
     } else {
         var y = function() returns int {
                     if (x is int) {
-                        return x;
+                        return <int>x;
                     } else {
                         return -1;
                     }
@@ -1002,27 +1002,27 @@ function recordReturningFunc(int? i) returns record {string s; int? i;} {
     return {s: "hello", i: i, "f": 1.0};
 }
 
-// function testTypeGuardForErrorDestructuringAssignmentPositive() returns boolean {
-//     var error(s, message = message, code = code) = errorReturningFunc(1);
-//     if (code is int) {
-//         int intVal = code;
-//         error(s, message = message, code = code) = errorReturningFunc(());
-//         return code is ();
-//     }
-// 
-//     return false;
-// }
+function testTypeGuardForErrorDestructuringAssignmentPositive() returns boolean {
+    var error(s, message = message, code = code) = errorReturningFunc(1);
+    if (code is int) {
+        int intVal = code;
+        error(s, message = message, code = code) = errorReturningFunc(());
+        return code is ();
+    }
 
-// function testTypeGuardForErrorDestructuringAssignmentNegative() returns boolean {
-//     error<Detail> error(s, message = message, code = code) = errorReturningFunc(1);
-//     if (code is int) {
-//         int intVal = code;
-//         error(s, message = message, code = code) = errorReturningFunc(3);
-//         return code is ();
-//     }
-// 
-//     return true;
-// }
+    return false;
+}
+
+function testTypeGuardForErrorDestructuringAssignmentNegative() returns boolean {
+    error<Detail> error(s, message = message, code = code) = errorReturningFunc(1);
+    if (code is int) {
+        int intVal = code;
+        error(s, message = message, code = code) = errorReturningFunc(3);
+        return code is ();
+    }
+
+    return true;
+}
 
 type Detail record {
     string message?;
@@ -1485,6 +1485,28 @@ function testMapIntersection() {
         assertEquality(2, m4["b"]);
         assertEquality((), m4["c"]);
     }
+}
+
+function jsonIntersection(json j) returns int {
+    if j is map<int|stream<int>> {
+        map<int> m = j;
+        return m.length();
+    }
+
+    if j is (int|stream<int>|boolean)[] {
+        (int|boolean)[] a = j;
+        return a.length();
+    }
+
+    return -1;
+}
+
+function testJsonIntersection() {
+    assertEquality(-1, jsonIntersection({a: 1, b: 2}));
+    assertEquality(2, jsonIntersection(<map<byte>> {a: 1, b: 2}));
+    assertEquality(-1, jsonIntersection(1));
+    assertEquality(-1, jsonIntersection([1, 2, 3]));
+    assertEquality(4, jsonIntersection(<int[]> [1, 2, 3, 4]));
 }
 
 function assertEquality(anydata expected, anydata actual) {

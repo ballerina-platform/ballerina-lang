@@ -100,7 +100,7 @@ dependencies {
         implementation 'org.slf4j:slf4j-jdk14:1.7.26'
         implementation 'org.testng:testng:6.14.3'
         implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
-        implementation 'org.wso2.orbit.org.yaml:snakeyaml:1.16.0.wso2v1'
+        implementation 'org.yaml:snakeyaml:1.24'
         implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.3.11'
         implementation 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
         implementation 'org.wso2.staxon:staxon-core:1.2.0.wso2v2'

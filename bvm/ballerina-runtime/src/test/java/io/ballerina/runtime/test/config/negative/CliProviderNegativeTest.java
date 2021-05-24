@@ -20,11 +20,14 @@ package io.ballerina.runtime.test.config.negative;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.providers.cli.CliProvider;
-import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
+import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
+import io.ballerina.runtime.internal.types.BIntersectionType;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -32,6 +35,8 @@ import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static io.ballerina.runtime.test.config.ConfigTest.COLOR_ENUM;
 
 /**
  * Test cases specific for configuration provided via cli.
@@ -48,13 +53,13 @@ public class CliProviderNegativeTest {
                                  Type type,
                                  String[] expectedErrorMessages) {
         Module module = new Module(orgName, moduleName, "1.0.0");
-        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
         VariableKey[] keys = {
-                new VariableKey(module, variableName, type, true),
+                new VariableKey(module, variableName, type, null, true),
         };
         configVarMap.put(module, keys);
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap,
+        ConfigResolver configResolver = new ConfigResolver(configVarMap,
                                                            diagnosticLog,
                                                            List.of(new CliProvider(ROOT_MODULE, args)));
         configResolver.resolveConfigs();
@@ -90,7 +95,104 @@ public class CliProviderNegativeTest {
                 // Config byte value with invalid byte range
                 {new String[]{"-Cmyorg.mod.x=345"}, "myorg", "mod", "x", PredefinedTypes.TYPE_BYTE,
                         "error: [myorg.mod.x=345] value provided for byte variable 'x' is out of range. Expected " +
-                                "range is (0-255), found '345'"}
+                                "range is (0-255), found '345'"},
+                // Config array value which is not supported as cli arg
+                {new String[]{"-Cmyorg.mod.x=345"}, "myorg", "mod", "x",
+                        new BIntersectionType(ROOT_MODULE, new Type[]{},
+                                              TypeCreator.createArrayType(PredefinedTypes.TYPE_INT), 0, true),
+                        "error: value for configurable variable 'x' with type 'int[]' is not supported as a command " +
+                                "line argument"},
+                // Config record value which is not supported as cli arg
+                {new String[]{"-Cmyorg.mod.x=345"}, "myorg", "mod", "x",
+                        new BIntersectionType(ROOT_MODULE, new Type[]{},
+                                              TypeCreator.createRecordType("customType", ROOT_MODULE, 0, false, 0), 0,
+                                              true),
+                        "error: value for configurable variable 'x' with type 'rootMod:customType' is not supported " +
+                                "as a command line argument"},
+                // Config table value which is not supported as cli arg
+                {new String[]{"-Cmyorg.mod.x=345"}, "myorg", "mod", "x",
+                        new BIntersectionType(ROOT_MODULE, new Type[]{},
+                                              TypeCreator.createTableType(PredefinedTypes.TYPE_STRING, false), 0, true),
+                        "error: value for configurable variable 'x' with type 'table<string>' is not supported as a " +
+                                "command line argument"},
+                {new String[]{"-CxmlVar=<book"}, "rootOrg", "rootMod", "xmlVar",
+                        new BIntersectionType(ROOT_MODULE, new Type[]{}, PredefinedTypes.TYPE_XML, 0, true),
+                        "error: [xmlVar=<book] configurable variable 'xmlVar' is expected to be of type 'xml<(lang" +
+                                ".xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>', but " +
+                                "found '<book'"},
+                // Invalid config enum value
+                {new String[]{"-Ccolor=red"}, "rootOrg", "rootMod", "color", COLOR_ENUM,
+                        "error: [color=red] configurable variable 'color' is expected to be of type 'Colors', but " +
+                                "found 'red'"}
         };
+    }
+
+    @Test
+    public void testUnusedCliArgs() {
+        Module module = new Module("myorg", "mod", "1.0.0");
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
+        VariableKey[] keys = {
+                new VariableKey(module, "x", PredefinedTypes.TYPE_INT, true),
+        };
+        configVarMap.put(module, keys);
+        String[] args = {"-Cmyorg.mod.x=123", "-Cmyorg.mod.y=apple", "-Cmyorg.mod.z=27.5"};
+        ConfigResolver configResolver = new ConfigResolver(configVarMap,
+                                                           diagnosticLog,
+                                                           List.of(new CliProvider(ROOT_MODULE, args)));
+        Map<VariableKey, Object> varKeyValueMap =  configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 2);
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(),
+                            "warning: [myorg.mod.z=27.5] unused command line argument");
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(1).toString(),
+                            "warning: [myorg.mod.y=apple] unused command line argument");
+        Assert.assertEquals(varKeyValueMap.get(new VariableKey(module, "x")), 123L);
+    }
+
+    @Test
+    public void testAmbiguityWithModuleImportsCliArgs() {
+        Module importedModule = new Module("a", "b", "1.0.0");
+        Module rootModule = new Module("testOrg", "a.b", "1.0.0");
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
+        VariableKey[] keys = {
+                new VariableKey(importedModule, "c", PredefinedTypes.TYPE_INT, true),
+                new VariableKey(rootModule, "c", PredefinedTypes.TYPE_INT, true),
+                new VariableKey(rootModule, "y", PredefinedTypes.TYPE_STRING, true),
+        };
+        configVarMap.put(rootModule, keys);
+        String[] args = {"-Ca.b.c=123", "-Ca.b.y=apple"};
+        ConfigResolver configResolver = new ConfigResolver(configVarMap,
+                                                           diagnosticLog,
+                                                           List.of(new CliProvider(rootModule, args)));
+        Map<VariableKey, Object> varKeyValueMap = configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: configurable value for " +
+                "variable 'testOrg/a.b:c' clashes with variable 'a/b:c'. Please provide the command line argument as " +
+                "'[-CtestOrg.a.b.c=<value>]'");
+        Assert.assertEquals(varKeyValueMap.get(new VariableKey(rootModule, "y")), StringUtils.fromString("apple"));
+    }
+
+
+    @Test
+    public void testAmbiguityWithRootModuleCliArgs() {
+
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
+        VariableKey[] keys = {
+                new VariableKey(ROOT_MODULE, "intVar", PredefinedTypes.TYPE_INT, true)
+        };
+        configVarMap.put(ROOT_MODULE, keys);
+        String[] args = {"-CrootMod.intVar=123", "-CintVar=321"};
+        ConfigResolver configResolver = new ConfigResolver(configVarMap,
+                                                           diagnosticLog,
+                                                           List.of(new CliProvider(ROOT_MODULE, args)));
+        configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: configurable value for " +
+                "variable 'intVar' clashes with multiple command line arguments [intVar=321, rootMod.intVar=123]");
     }
 }

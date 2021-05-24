@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Name;
+import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
@@ -680,25 +681,53 @@ public class TypeParamAnalyzer {
         switch (expType.tag) {
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) expType).eType;
-                return new BArrayType(getMatchingBoundType(elementType, env, resolvedTypes));
+                BType matchingBoundElementType = getMatchingBoundType(elementType, env, resolvedTypes);
+                if (matchingBoundElementType == elementType) {
+                    return expType;
+                }
+                return new BArrayType(matchingBoundElementType);
             case TypeTags.MAP:
                 BType constraint = ((BMapType) expType).constraint;
-                return new BMapType(TypeTags.MAP, getMatchingBoundType(constraint, env, resolvedTypes),
-                        symTable.mapType.tsymbol);
+                BType matchingBoundMapConstraintType = getMatchingBoundType(constraint, env, resolvedTypes);
+                if (matchingBoundMapConstraintType == constraint) {
+                    return expType;
+                }
+                return new BMapType(TypeTags.MAP, matchingBoundMapConstraintType, symTable.mapType.tsymbol);
             case TypeTags.STREAM:
-                BType constraintType = getMatchingBoundType(((BStreamType) expType).constraint, env, resolvedTypes);
-                BType completionType = getMatchingBoundType(((BStreamType) expType).completionType, env, resolvedTypes);
+                BStreamType expStreamType = (BStreamType) expType;
+                BType expStreamConstraint = expStreamType.constraint;
+                BType expStreamCompletionType = expStreamType.completionType;
+                BType constraintType = getMatchingBoundType(expStreamConstraint, env, resolvedTypes);
+                BType completionType = getMatchingBoundType(expStreamCompletionType, env, resolvedTypes);
                 if (completionType.tag == TypeTags.NONE) {
                     //setting nil type the completion type if not resolved
                     completionType = symTable.nilType;
                 }
+
+                if (expStreamConstraint == constraintType && expStreamCompletionType == completionType) {
+                    return expStreamType;
+                }
+
                 return new BStreamType(TypeTags.STREAM, constraintType, completionType, symTable.streamType.tsymbol);
             case TypeTags.TABLE:
-                BType tableConstraint = getMatchingBoundType(((BTableType) expType).constraint, env, resolvedTypes);
+                BTableType expTableType = (BTableType) expType;
+                BType expTableConstraint = expTableType.constraint;
+                BType tableConstraint = getMatchingBoundType(expTableConstraint, env, resolvedTypes);
+                boolean differentTypes = expTableConstraint != tableConstraint;
+
+                BType expTableKeyTypeConstraint = expTableType.keyTypeConstraint;
+                BType keyTypeConstraint = null;
+                if (expTableKeyTypeConstraint != null) {
+                    keyTypeConstraint = getMatchingBoundType(expTableKeyTypeConstraint, env, resolvedTypes);
+                    differentTypes = differentTypes || expTableKeyTypeConstraint != keyTypeConstraint;
+                }
+
+                if (!differentTypes) {
+                    return expTableType;
+                }
+
                 BTableType tableType = new BTableType(TypeTags.TABLE, tableConstraint, symTable.tableType.tsymbol);
-                if (((BTableType) expType).keyTypeConstraint != null) {
-                    BType keyTypeConstraint = getMatchingBoundType(((BTableType) expType).keyTypeConstraint, env,
-                            resolvedTypes);
+                if (expTableKeyTypeConstraint != null) {
                     tableType.keyTypeConstraint = keyTypeConstraint;
                 }
                 return tableType;
@@ -716,8 +745,12 @@ public class TypeParamAnalyzer {
                 return getMatchingErrorBoundType((BErrorType) expType, env, resolvedTypes);
             case TypeTags.TYPEDESC:
                 constraint = ((BTypedescType) expType).constraint;
-                return new BTypedescType(getMatchingBoundType(constraint, env, resolvedTypes),
-                        symTable.typeDesc.tsymbol);
+                BType matchingBoundType = getMatchingBoundType(constraint, env, resolvedTypes);
+                if (matchingBoundType == constraint) {
+                    return expType;
+                }
+
+                return new BTypedescType(matchingBoundType, symTable.typeDesc.tsymbol);
             case TypeTags.INTERSECTION:
                 return getMatchingReadonlyIntersectionBoundType((BIntersectionType) expType, env, resolvedTypes);
             default:
@@ -727,35 +760,73 @@ public class TypeParamAnalyzer {
 
     private BType getMatchingReadonlyIntersectionBoundType(BIntersectionType intersectionType, SymbolEnv env,
                                                            HashSet<BType> resolvedTypes) {
-
+        boolean hasDifferentType = false;
         Set<BType> constituentTypes = intersectionType.getConstituentTypes();
 
-        LinkedHashSet<BType> boundTypes = new LinkedHashSet<>(constituentTypes.size());
+        BType matchingBoundNonReadOnlyType = symTable.semanticError;
+
         for (BType type : constituentTypes) {
             if (type == symTable.readonlyType) {
                 continue;
             }
-            boundTypes.add(getMatchingBoundType(type, env, resolvedTypes));
+
+            matchingBoundNonReadOnlyType = getMatchingBoundType(type, env, resolvedTypes);
+
+            if (!hasDifferentType && type != matchingBoundNonReadOnlyType) {
+                hasDifferentType = true;
+            }
         }
 
-        BUnionType boundUnion = BUnionType.create(null, boundTypes);
+        if (!hasDifferentType) {
+            return intersectionType;
+        }
+
+        if (types.isInherentlyImmutableType(matchingBoundNonReadOnlyType) ||
+                Symbols.isFlagOn(matchingBoundNonReadOnlyType.flags, Flags.READONLY)) {
+            return matchingBoundNonReadOnlyType;
+        }
+
+        if (!types.isSelectivelyImmutableType(matchingBoundNonReadOnlyType)) {
+            return symTable.semanticError;
+        }
+
         BIntersectionType boundIntersectionType =
                 ImmutableTypeCloner.getImmutableIntersectionType(intersectionType.tsymbol.pos, types,
-                        boundUnion, env, symTable, anonymousModelHelper, names,
-                        new HashSet<>());
+                        (SelectivelyImmutableReferenceType) matchingBoundNonReadOnlyType, env, symTable,
+                        anonymousModelHelper, names, new HashSet<>());
 
         return boundIntersectionType.effectiveType;
     }
 
     private BTupleType getMatchingTupleBoundType(BTupleType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
-
+        boolean hasDifferentType = false;
         List<BType> tupleTypes = new ArrayList<>();
-        expType.tupleTypes.forEach(type -> tupleTypes.add(getMatchingBoundType(type, env, resolvedTypes)));
+        for (BType type : expType.tupleTypes) {
+            BType matchingBoundType = getMatchingBoundType(type, env, resolvedTypes);
+            if (!hasDifferentType && type != matchingBoundType) {
+                hasDifferentType = true;
+            }
+
+            tupleTypes.add(matchingBoundType);
+        }
+
+        BType restType = expType.restType;
+        if (restType != null) {
+            BType matchingBoundRestType = getMatchingBoundType(restType, env, resolvedTypes);
+            if (!hasDifferentType && restType != matchingBoundRestType) {
+                hasDifferentType = true;
+            }
+        }
+
+        if (!hasDifferentType) {
+            return expType;
+        }
+
         return new BTupleType(tupleTypes);
     }
 
     private BRecordType getMatchingRecordBoundType(BRecordType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
-
+        boolean hasDifferentType = false;
         BRecordTypeSymbol expTSymbol = (BRecordTypeSymbol) expType.tsymbol;
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(expTSymbol.flags, expTSymbol.name,
                                                                     expTSymbol.pkgID, null,
@@ -768,10 +839,14 @@ public class TypeParamAnalyzer {
 
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
         for (BField expField : expType.fields.values()) {
+            BType type = expField.type;
+            BType matchingBoundType = getMatchingBoundType(type, env, resolvedTypes);
+            if (!hasDifferentType && type != matchingBoundType) {
+                hasDifferentType = true;
+            }
             BField field = new BField(expField.name, expField.pos,
                                       new BVarSymbol(0, expField.name, env.enclPkg.packageID,
-                                                     getMatchingBoundType(expField.type, env, resolvedTypes),
-                                                     env.scope.owner, expField.pos, VIRTUAL));
+                                              matchingBoundType, env.scope.owner, expField.pos, VIRTUAL));
             fields.put(field.name.value, field);
             recordSymbol.scope.define(expField.name, field.symbol);
         }
@@ -779,28 +854,53 @@ public class TypeParamAnalyzer {
         BRecordType bRecordType = new BRecordType(recordSymbol);
         bRecordType.fields = fields;
         recordSymbol.type = bRecordType;
+        bRecordType.flags = expType.flags;
 
         if (expType.sealed) {
             bRecordType.sealed = true;
         }
-        bRecordType.restFieldType = getMatchingBoundType(expType.restFieldType, env, resolvedTypes);
+        BType restFieldType = expType.restFieldType;
+        bRecordType.restFieldType = getMatchingBoundType(restFieldType, env, resolvedTypes);
+        if (!hasDifferentType && restFieldType != bRecordType.restFieldType) {
+            hasDifferentType = true;
+        }
+
+        if (!hasDifferentType) {
+            return expType;
+        }
 
         return bRecordType;
     }
 
     private BInvokableType getMatchingFunctionBoundType(BInvokableType expType, SymbolEnv env,
                                                         HashSet<BType> resolvedTypes) {
+        boolean hasDifferentType = false;
+        List<BType> paramTypes = new ArrayList<>();
+        for (BType type : expType.paramTypes) {
+            BType matchingBoundType = getMatchingBoundType(type, env, resolvedTypes);
+            if (!hasDifferentType && type != matchingBoundType) {
+                hasDifferentType = true;
+            }
+            paramTypes.add(matchingBoundType);
+        }
 
-        List<BType> paramTypes = expType.paramTypes.stream()
-                .map(type -> getMatchingBoundType(type, env, resolvedTypes))
-                .collect(Collectors.toList());
         BType restType = expType.restType;
         var flags = expType.flags;
         BInvokableTypeSymbol invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
                 env.enclPkg.symbol.pkgID, expType, env.scope.owner, expType.tsymbol.pos, VIRTUAL);
 
+        BType retType = expType.retType;
+        BType matchingBoundType = getMatchingBoundType(retType, env, resolvedTypes);
+        if (!hasDifferentType && retType != matchingBoundType) {
+            hasDifferentType = true;
+        }
+
+        if (!hasDifferentType) {
+            return expType;
+        }
+
         BInvokableType invokableType = new BInvokableType(paramTypes, restType,
-                getMatchingBoundType(expType.retType, env, resolvedTypes), invokableTypeSymbol);
+                matchingBoundType, invokableTypeSymbol);
 
         invokableTypeSymbol.returnType = invokableType.retType;
 
@@ -814,7 +914,7 @@ public class TypeParamAnalyzer {
     }
 
     private BType getMatchingObjectBoundType(BObjectType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
-
+        boolean hasDifferentType = false;
         BObjectTypeSymbol actObjectSymbol = Symbols.createObjectSymbol(expType.tsymbol.flags,
                                                                        expType.tsymbol.name, expType.tsymbol.pkgID,
                                                                        null, expType.tsymbol.scope.owner,
@@ -827,16 +927,26 @@ public class TypeParamAnalyzer {
         actObjectSymbol.scope = new Scope(actObjectSymbol);
 
         for (BField expField : expType.fields.values()) {
+            BType type = expField.type;
+            BType matchingBoundType = getMatchingBoundType(type, env, resolvedTypes);
+            if (!hasDifferentType && matchingBoundType != type) {
+                hasDifferentType = true;
+            }
+
             BField field = new BField(expField.name, expField.pos,
                                       new BVarSymbol(expField.symbol.flags, expField.name, env.enclPkg.packageID,
-                                                     getMatchingBoundType(expField.type, env, resolvedTypes),
-                                                     env.scope.owner, expField.pos, VIRTUAL));
+                                              matchingBoundType, env.scope.owner, expField.pos, VIRTUAL));
             objectType.fields.put(field.name.value, field);
             objectType.tsymbol.scope.define(expField.name, field.symbol);
         }
 
         for (BAttachedFunction expFunc : ((BObjectTypeSymbol) expType.tsymbol).attachedFuncs) {
-            BInvokableType matchType = getMatchingFunctionBoundType(expFunc.type, env, resolvedTypes);
+            BInvokableType type = expFunc.type;
+            BInvokableType matchType = getMatchingFunctionBoundType(type, env, resolvedTypes);
+            if (!hasDifferentType && type != matchType) {
+                hasDifferentType = true;
+            }
+
             BInvokableSymbol invokableSymbol = new BInvokableSymbol(expFunc.symbol.tag, expFunc.symbol.flags,
                                                                     expFunc.symbol.name, env.enclPkg.packageID,
                                                                     matchType, env.scope.owner, expFunc.pos, VIRTUAL);
@@ -848,6 +958,10 @@ public class TypeParamAnalyzer {
             String funcName = Symbols.getAttachedFuncSymbolName(actObjectSymbol.type.tsymbol.name.value,
                     expFunc.funcName.value);
             actObjectSymbol.scope.define(names.fromString(funcName), invokableSymbol);
+        }
+
+        if (!hasDifferentType) {
+            return expType;
         }
 
         return objectType;
@@ -865,14 +979,23 @@ public class TypeParamAnalyzer {
     }
 
     private BType getMatchingOptionalBoundType(BUnionType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
+        boolean hasDifferentType = false;
         LinkedHashSet<BType> members = new LinkedHashSet<>();
-        expType.getMemberTypes()
-                .forEach(type -> {
-                    final BType boundType = getMatchingBoundType(type, env, resolvedTypes);
-                    if (boundType != symTable.noType) {
-                        members.add(boundType);
-                    }
-                });
+        for (BType type : expType.getMemberTypes()) {
+            final BType boundType = getMatchingBoundType(type, env, resolvedTypes);
+            if (boundType != symTable.noType) {
+                members.add(boundType);
+            }
+
+            if (!hasDifferentType && type != boundType) {
+                hasDifferentType = true;
+            }
+        }
+
+        if (!hasDifferentType) {
+            return expType;
+        }
+
         return BUnionType.create(null, members);
     }
 
@@ -881,7 +1004,13 @@ public class TypeParamAnalyzer {
         if (expType == symTable.errorType) {
             return expType;
         }
-        BType detailType = getMatchingBoundType(expType.detailType, env, resolvedTypes);
+        BType expDetailType = expType.detailType;
+        BType detailType = getMatchingBoundType(expDetailType, env, resolvedTypes);
+
+        if (expDetailType == detailType) {
+            return expType;
+        }
+
         BErrorTypeSymbol typeSymbol = new BErrorTypeSymbol(SymTag.ERROR,
                                                            symTable.errorType.tsymbol.flags,
                                                            symTable.errorType.tsymbol.name,

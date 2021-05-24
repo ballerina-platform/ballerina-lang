@@ -34,12 +34,17 @@ public class ExecutionContext {
     private IDebugProtocolClient client;
     private final JBallerinaDebugServer adapter;
     private VirtualMachineProxyImpl debuggeeVM;
+    private DebugMode debugMode;
     private Project sourceProject;
+    private String sourceProjectRoot;
+    private final DebugProjectCache projectCache;
     private Process launchedProcess;
     private DebugInstruction lastInstruction;
+    private boolean terminateRequestReceived;
 
     ExecutionContext(JBallerinaDebugServer adapter) {
         this.adapter = adapter;
+        this.projectCache = new DebugProjectCache();
     }
 
     public Optional<Process> getLaunchedProcess() {
@@ -70,14 +75,6 @@ public class ExecutionContext {
         this.debuggeeVM = debuggeeVM;
     }
 
-    public Project getSourceProject() {
-        return sourceProject;
-    }
-
-    public void setSourceProject(Project sourceProject) {
-        this.sourceProject = sourceProject;
-    }
-
     public EventRequestManager getEventManager() {
         if (debuggeeVM == null) {
             return null;
@@ -105,5 +102,55 @@ public class ExecutionContext {
 
     public void setLastInstruction(DebugInstruction lastInstruction) {
         this.lastInstruction = lastInstruction;
+    }
+
+    public DebugMode getDebugMode() {
+        return debugMode;
+    }
+
+    public void setDebugMode(DebugMode debugMode) {
+        this.debugMode = debugMode;
+    }
+
+    public boolean isTerminateRequestReceived() {
+        return terminateRequestReceived;
+    }
+
+    public void setTerminateRequestReceived(boolean terminationRequestReceived) {
+        this.terminateRequestReceived = terminationRequestReceived;
+    }
+
+    public Project getSourceProject() {
+        return sourceProject;
+    }
+
+    public void setSourceProject(Project sourceProject) {
+        this.sourceProject = sourceProject;
+        this.setSourceProjectRoot(sourceProject.sourceRoot().toAbsolutePath().toString());
+        updateProjectCache(sourceProject);
+    }
+
+    public DebugProjectCache getProjectCache() {
+        return projectCache;
+    }
+
+    public void updateProjectCache(Project project) {
+        this.projectCache.addProject(project);
+    }
+
+    public String getSourceProjectRoot() {
+        return sourceProjectRoot;
+    }
+
+    public void setSourceProjectRoot(String sourceProjectRoot) {
+        this.sourceProjectRoot = sourceProjectRoot;
+    }
+
+    /**
+     * Currently supported debug configuration modes.
+     */
+    public enum DebugMode {
+        LAUNCH,
+        ATTACH
     }
 }

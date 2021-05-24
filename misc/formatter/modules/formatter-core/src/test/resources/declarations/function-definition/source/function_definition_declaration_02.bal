@@ -1,12 +1,3 @@
-public
-     function
-
-  main()
-         {      (
- int
-
-   |
-                   string     )
-                   x
-       ;
+public   function  main()   {
+(  int    |  string     )   x  ;
 }

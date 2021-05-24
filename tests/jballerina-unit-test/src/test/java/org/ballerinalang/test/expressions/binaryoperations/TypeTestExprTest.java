@@ -692,7 +692,7 @@ public class TypeTestExprTest {
         Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test
     public void testError_1() {
         BValue[] returns = BRunUtil.invoke(result, "testError_1");
         Assert.assertEquals(returns.length, 4);

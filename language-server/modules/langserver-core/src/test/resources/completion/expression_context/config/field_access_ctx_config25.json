@@ -16,6 +16,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "publicFunction1",
       "insertText": "publicFunction1()",
       "insertTextFormat": "Snippet"
     }

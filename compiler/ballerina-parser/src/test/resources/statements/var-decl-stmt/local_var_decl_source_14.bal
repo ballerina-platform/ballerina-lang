@@ -1,5 +1,4 @@
 public function main() {
     @untainted
-     
-
+    
 }

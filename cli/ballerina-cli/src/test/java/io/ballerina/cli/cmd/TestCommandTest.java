@@ -180,4 +180,17 @@ public class TestCommandTest extends BaseCommandTest {
             return FileVisitResult.CONTINUE;
         }
     }
+
+    @Test
+    public void testUnsupportedCoverageFormat() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithTests");
+        // Build project
+        BuildCommand buildCommand = new BuildCommand(
+                projectPath, printStream, printStream, false, true, null, null, true, false, "html");
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("unsupported coverage report format 'html' found. Only 'xml' format is " +
+                "supported."));
+    }
 }

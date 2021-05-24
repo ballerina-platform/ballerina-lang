@@ -28,7 +28,7 @@
                                         "character": 0
                                     }
                                 },
-                                "newText": "\n\nfunction getAge(module1:Student a) returns int {\n    \n    return 0;\n}\n"
+                                "newText": "\n\nfunction getAge(module1:Student a) returns int {\n    return 0;\n}\n"
                             }
                         ]
                     }

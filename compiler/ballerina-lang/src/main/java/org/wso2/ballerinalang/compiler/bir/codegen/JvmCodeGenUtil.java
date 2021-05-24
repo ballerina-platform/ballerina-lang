@@ -577,6 +577,20 @@ public class JvmCodeGenUtil {
                 "$" + JVM_RESERVED_CHAR_SET.matcher(functionName).replaceAll("_") : functionName;
     }
 
+    public static boolean isSimpleBasicType(BType bType) {
+        switch (bType.tag) {
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.BOOLEAN:
+            case TypeTags.DECIMAL:
+            case TypeTags.NIL:
+            case TypeTags.NEVER:
+                return true;
+            default:
+                return (TypeTags.isIntegerTypeTag(bType.tag)) || (TypeTags.isStringTypeTag(bType.tag));
+        }
+    }
+
     public static void loadConstantValue(BType bType, Object constVal, MethodVisitor mv,
                                          JvmBStringConstantsGen stringConstantsGen) {
 

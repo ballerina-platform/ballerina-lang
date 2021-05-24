@@ -20,7 +20,7 @@ function sub(int x, int y) {
     return c;
 }
 
-type Calculator object {
+class Calculator {
     function add(int x, int y) {
          int a;
          int b;
@@ -38,4 +38,4 @@ type Calculator object {
          b = y;
          c = a + b;
     }
-};
+}

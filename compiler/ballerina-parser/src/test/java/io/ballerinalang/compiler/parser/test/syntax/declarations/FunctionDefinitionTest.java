@@ -137,6 +137,7 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
     public void testIncompleteFunctionBodyStatement() {
         testFile("func-definition/func_def_source_20.bal", "func-definition/func_def_assert_20.json");
     }
+    
     @Test
     public void testOnlyPublicKeyword() {
         testFile("func-definition/func_def_source_21.bal", "func-definition/func_def_assert_21.json");
@@ -181,5 +182,10 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
     @Test
     public void testReturnTypeDescRecoveryInFunDef() {
         testFile("func-definition/func_def_source_31.bal", "func-definition/func_def_assert_31.json");
+    }
+
+    @Test
+    public void testErrorsBeforeFunDef() {
+        testFile("func-definition/func_def_source_32.bal", "func-definition/func_def_assert_32.json");
     }
 }

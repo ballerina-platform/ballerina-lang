@@ -106,29 +106,6 @@
       ]
     },
     {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
@@ -264,15 +241,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fieldAnnotation2",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "Q",
-      "insertText": "fieldAnnotation2",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
       "label": "display",
       "kind": "Property",
       "detail": "Annotation",
@@ -282,11 +250,11 @@
       "additionalTextEdits": []
     },
     {
-      "label": "fieldAnnotation1",
+      "label": "recordFieldAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "Q",
-      "insertText": "fieldAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertText": "recordFieldAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
@@ -300,11 +268,20 @@
       "additionalTextEdits": []
     },
     {
-      "label": "recordFieldAnnotation2",
+      "label": "fieldAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "Q",
-      "insertText": "recordFieldAnnotation2",
+      "insertText": "fieldAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "fieldAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "fieldAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     }

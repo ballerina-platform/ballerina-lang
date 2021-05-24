@@ -23,13 +23,14 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 
 import java.util.Collections;
 
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_STRING_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.FROM_STRING_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.XML_FROM_STRING_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CONVERTER_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRING_TO_XML_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
 
 /**
@@ -53,12 +54,11 @@ public class XMLTemplateEvaluator extends Evaluator {
             for (Node memberNode : syntaxNode.content()) {
                 xmlStrBuilder.append(memberNode.toSourceCode());
             }
-            Value xmlStrValue = VMUtils.make(context, xmlStrBuilder.toString()).getJdiValue();
-
-            RuntimeStaticMethod fromStringMethod = getRuntimeMethod(context, FROM_STRING_CLASS, XML_FROM_STRING_METHOD,
-                    Collections.singletonList(B_STRING_CLASS));
-            fromStringMethod.setArgValues(Collections.singletonList(xmlStrValue));
-            Value result = fromStringMethod.invoke();
+            Value xmlStrValue = EvaluationUtils.getAsJString(context, xmlStrBuilder.toString());
+            RuntimeStaticMethod strToXmlMethod = getRuntimeMethod(context, B_TYPE_CONVERTER_CLASS,
+                    STRING_TO_XML_METHOD, Collections.singletonList(JAVA_STRING_CLASS));
+            strToXmlMethod.setArgValues(Collections.singletonList(xmlStrValue));
+            Value result = strToXmlMethod.invokeSafely();
             return new BExpressionValue(context, result);
         } catch (EvaluationException e) {
             throw e;

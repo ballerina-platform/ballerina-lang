@@ -48,6 +48,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "getModel",
       "insertText": "getModel()",
       "insertTextFormat": "Snippet"
     }

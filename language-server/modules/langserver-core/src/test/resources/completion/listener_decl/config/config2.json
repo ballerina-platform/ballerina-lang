@@ -9,23 +9,15 @@
       "label": "mod",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "N",
+      "sortText": "BB",
       "insertText": "mod",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lang.object",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "object",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "Q",
+      "sortText": "BE",
       "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -48,7 +40,7 @@
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "Q",
+      "sortText": "BE",
       "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -71,7 +63,7 @@
       "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "Q",
+      "sortText": "BF",
       "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -94,7 +86,7 @@
       "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "Q",
+      "sortText": "BE",
       "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -114,33 +106,10 @@
       ]
     },
     {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "Q",
+      "sortText": "BE",
       "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -163,7 +132,7 @@
       "label": "boolean",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "C",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
@@ -171,7 +140,7 @@
       "label": "decimal",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "C",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
@@ -179,7 +148,7 @@
       "label": "error",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "C",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -187,7 +156,7 @@
       "label": "float",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "C",
       "insertText": "float",
       "insertTextFormat": "Snippet"
     },
@@ -195,7 +164,7 @@
       "label": "future",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "C",
       "insertText": "future",
       "insertTextFormat": "Snippet"
     },
@@ -203,7 +172,7 @@
       "label": "int",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "C",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
@@ -211,7 +180,7 @@
       "label": "map",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "C",
       "insertText": "map",
       "insertTextFormat": "Snippet"
     },
@@ -219,7 +188,7 @@
       "label": "object",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "C",
       "insertText": "object",
       "insertTextFormat": "Snippet"
     },
@@ -227,7 +196,7 @@
       "label": "stream",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "C",
       "insertText": "stream",
       "insertTextFormat": "Snippet"
     },
@@ -235,7 +204,7 @@
       "label": "string",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "C",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
@@ -243,7 +212,7 @@
       "label": "table",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "C",
       "insertText": "table",
       "insertTextFormat": "Snippet"
     },
@@ -251,7 +220,7 @@
       "label": "transaction",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "C",
       "insertText": "transaction",
       "insertTextFormat": "Snippet"
     },
@@ -259,7 +228,7 @@
       "label": "typedesc",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "C",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     },
@@ -267,7 +236,7 @@
       "label": "xml",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "C",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
@@ -275,7 +244,7 @@
       "label": "Listener",
       "kind": "Interface",
       "detail": "Class",
-      "sortText": "K",
+      "sortText": "A",
       "insertText": "Listener",
       "insertTextFormat": "Snippet"
     }

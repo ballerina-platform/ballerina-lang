@@ -99,19 +99,25 @@ public class RunTestsTask implements Task {
     private List<String> disableGroupList;
     private boolean report;
     private boolean coverage;
+    private boolean enableJacocoXML;
+    private String coverageReportFormat;
     private boolean isSingleTestExecution;
     private boolean isRerunTestExecution;
     private List<String> singleExecTests;
     TestReport testReport;
 
-    public RunTestsTask(PrintStream out, PrintStream err, String includes) {
+    public RunTestsTask(PrintStream out, PrintStream err, String includes, boolean enableJacocoXML,
+                        String coverageFormat) {
         this.out = out;
         this.err = err;
         this.includesInCoverage = includes;
+        this.enableJacocoXML = enableJacocoXML;
+        this.coverageReportFormat = coverageFormat;
     }
 
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, List<String> groupList,
-                        List<String> disableGroupList, List<String> testList, String includes) {
+                        List<String> disableGroupList, List<String> testList, String includes, boolean enableJacocoXML,
+                        String coverageFormat) {
         this.out = out;
         this.err = err;
         this.isSingleTestExecution = false;
@@ -133,6 +139,8 @@ public class RunTestsTask implements Task {
             singleExecTests = testList;
         }
         this.includesInCoverage = includes;
+        this.enableJacocoXML = enableJacocoXML;
+        this.coverageReportFormat = coverageFormat;
     }
 
     @Override
@@ -180,7 +188,7 @@ public class RunTestsTask implements Task {
         // as "." are ignored. This is to be consistent with the "bal test" command which only executes tests
         // in packages.
 
-        for (ModuleId moduleId :  project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
+        for (ModuleId moduleId : project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
             Module module = project.currentPackage().module(moduleId);
             ModuleName moduleName = module.moduleName();
 
@@ -232,7 +240,7 @@ public class RunTestsTask implements Task {
                     }
                     try {
                         generateCoverage(project, jBallerinaBackend);
-                        generateHtmlReport(project, this.out, testReport, target);
+                        generateTesterinaReports(project, this.out, testReport, target);
                     } catch (IOException e) {
                         cleanTempCache(project, cachesRoot);
                         throw createLauncherException("error occurred while generating test report :", e);
@@ -274,7 +282,8 @@ public class RunTestsTask implements Task {
             CoverageReport coverageReport = new CoverageReport(module, moduleCoverageMap,
                     packageNativeClassCoverageList, packageBalClassCoverageList, packageSourceCoverageList,
                     packageExecData, packageSessionInfo);
-            coverageReport.generateReport(jBallerinaBackend, this.includesInCoverage);
+            coverageReport.generateReport(jBallerinaBackend, this.includesInCoverage, this.enableJacocoXML,
+                    this.coverageReportFormat);
         }
         // Traverse coverage map and add module wise coverage to test report
         for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
@@ -282,10 +291,14 @@ public class RunTestsTask implements Task {
             ModuleCoverage moduleCoverage = (ModuleCoverage) mapElement.getValue();
             testReport.addCoverage(moduleName, moduleCoverage);
         }
-        // Generate coverage XML report
-        CodeCoverageUtils.createXMLReport(project, packageExecData, packageNativeClassCoverageList,
-                packageBalClassCoverageList, packageSourceCoverageList, packageSessionInfo);
+        if (CodeCoverageUtils.isRequestedReportFormat(this.coverageReportFormat,
+                TesterinaConstants.JACOCO_XML_FORMAT) || enableJacocoXML) {
+            // Generate coverage XML report
+            CodeCoverageUtils.createXMLReport(project, packageExecData, packageNativeClassCoverageList,
+                    packageBalClassCoverageList, packageSourceCoverageList, packageSessionInfo);
+        }
     }
+
 
     private void filterTestGroups() {
         TesterinaRegistry testerinaRegistry = TesterinaRegistry.getInstance();
@@ -299,12 +312,12 @@ public class RunTestsTask implements Task {
     }
 
     /**
-     * Write the test report content into a json file.
+     * Write the test report content into testerina report formats(json and html).
      *
      * @param out        PrintStream object to print messages to console
      * @param testReport Data that are parsed to the json
      */
-    private void generateHtmlReport(Project project, PrintStream out, TestReport testReport, Target target)
+    private void generateTesterinaReports(Project project, PrintStream out, TestReport testReport, Target target)
             throws IOException {
         if (!report && !coverage) {
             return;
@@ -343,32 +356,35 @@ public class RunTestsTask implements Task {
         Path reportZipPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_LIB).
                 resolve(TesterinaConstants.TOOLS_DIR_NAME).resolve(TesterinaConstants.COVERAGE_DIR).
                 resolve(REPORT_ZIP_NAME);
-        if (Files.exists(reportZipPath)) {
-            String content;
-            try {
-                try (FileInputStream fileInputStream = new FileInputStream(reportZipPath.toFile())) {
-                    CodeCoverageUtils.unzipReportResources(fileInputStream,
-                            reportDir.toFile());
+        // Dump the Testerina html report only if '--test-report' flag is provided
+        if (report) {
+            if (Files.exists(reportZipPath)) {
+                String content;
+                try {
+                    try (FileInputStream fileInputStream = new FileInputStream(reportZipPath.toFile())) {
+                        CodeCoverageUtils.unzipReportResources(fileInputStream,
+                                reportDir.toFile());
+                    }
+                    content = Files.readString(reportDir.resolve(RESULTS_HTML_FILE));
+                    content = content.replace(REPORT_DATA_PLACEHOLDER, json);
+                } catch (IOException e) {
+                    throw createLauncherException("error occurred while preparing test report: " + e.toString());
                 }
-                content = Files.readString(reportDir.resolve(RESULTS_HTML_FILE));
-                content = content.replace(REPORT_DATA_PLACEHOLDER, json);
-            } catch (IOException e) {
-                throw createLauncherException("error occurred while preparing test report: " + e.toString());
-            }
-            File htmlFile = new File(reportDir.resolve(RESULTS_HTML_FILE).toString());
-            try (FileOutputStream fileOutputStream = new FileOutputStream(htmlFile)) {
-                try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
-                    writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-                    out.println("\tView the test report at: " +
-                            FILE_PROTOCOL + Paths.get(htmlFile.getPath()).toAbsolutePath().normalize().toString());
+                File htmlFile = new File(reportDir.resolve(RESULTS_HTML_FILE).toString());
+                try (FileOutputStream fileOutputStream = new FileOutputStream(htmlFile)) {
+                    try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
+                        writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+                        out.println("\tView the test report at: " +
+                                FILE_PROTOCOL + Paths.get(htmlFile.getPath()).toAbsolutePath().normalize().toString());
+                    }
                 }
+            } else {
+                String reportToolsPath = "<" + BALLERINA_HOME + ">" + File.separator + BALLERINA_HOME_LIB +
+                        File.separator + TOOLS_DIR_NAME + File.separator + COVERAGE_DIR + File.separator +
+                        REPORT_ZIP_NAME;
+                out.println("warning: Could not find the required HTML report tools for code coverage at "
+                        + reportToolsPath);
             }
-        } else {
-            String reportToolsPath = "<" + BALLERINA_HOME + ">" + File.separator + BALLERINA_HOME_LIB +
-                    File.separator + TOOLS_DIR_NAME + File.separator + COVERAGE_DIR + File.separator +
-                    REPORT_ZIP_NAME;
-            out.println("warning: Could not find the required HTML report tools for code coverage at "
-                    + reportToolsPath);
         }
     }
 

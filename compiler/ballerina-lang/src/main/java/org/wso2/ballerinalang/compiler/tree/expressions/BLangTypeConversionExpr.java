@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 /**
  * @since 0.94
  */
-public class BLangTypeConversionExpr extends BLangAccessibleExpression implements TypeConversionNode {
+public class BLangTypeConversionExpr extends BLangExpression implements TypeConversionNode {
 
     public BLangExpression expr;
     public BLangType typeNode;

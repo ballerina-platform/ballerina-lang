@@ -230,4 +230,10 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
         test("from int a in b outer join int c in d select g", "query-expr/query_expr_assert_62.json");
         test("from int a in b equals select g", "query-expr/query_expr_assert_64.json");
     }
+
+    @Test
+    public void testIncompleteClauses() {
+        testFile("query-expr/query_expr_source_65.bal", "query-expr/query_expr_assert_65.json");
+        testFile("query-expr/query_expr_source_66.bal", "query-expr/query_expr_assert_66.json");
+    }
 }

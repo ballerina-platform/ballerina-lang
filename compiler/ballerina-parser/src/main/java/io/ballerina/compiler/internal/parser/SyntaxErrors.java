@@ -173,6 +173,7 @@ public class SyntaxErrors {
             case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:
             case PATH_SEGMENT_IDENT:
             case BINDING_PATTERN_OR_EXPR_RHS:
+            case NAMED_ARG_BINDING_PATTERN:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
@@ -244,6 +245,7 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_PAREN_TOKEN;
             case COMMA:
             case ERROR_MESSAGE_BINDING_PATTERN_END_COMMA:
+            case ERROR_MESSAGE_MATCH_PATTERN_END_COMMA:
                 return DiagnosticErrorCode.ERROR_MISSING_COMMA_TOKEN;
             case OPEN_BRACE:
             case TRANSACTION_STMT_RHS_OR_TYPE_REF:
@@ -251,6 +253,7 @@ public class SyntaxErrors {
             case OPEN_PARENTHESIS:
             case ARG_LIST_OPEN_PAREN:
             case PARENTHESISED_TYPE_DESC_START:
+            case ERROR_CONSTRUCTOR_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_PAREN_TOKEN;
             case SEMICOLON:
             case OBJECT_FIELD_RHS:
@@ -366,6 +369,7 @@ public class SyntaxErrors {
             case LISTENER_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_LISTENER_KEYWORD;
             case SERVICE_KEYWORD:
+            case SERVICE_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_SERVICE_KEYWORD;
             case XMLNS_KEYWORD:
             case XML_NAMESPACE_DECLARATION:
@@ -497,6 +501,8 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_PIPE_TOKEN;
             case EQUALS_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_EQUALS_KEYWORD;
+            case REMOTE_IDENT:
+                return DiagnosticErrorCode.ERROR_MISSING_REMOTE_KEYWORD;
 
             // Type keywords
             case STRING_KEYWORD:
@@ -523,6 +529,7 @@ public class SyntaxErrors {
             case DISTINCT_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_DISTINCT_KEYWORD;
             default:
+                assert false : "Error code not defined";
                 return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
         }
     }

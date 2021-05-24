@@ -23,4 +23,5 @@ class Foo {
 
 const x = 5;
 
-listener T y = 6;
+listener T y = 
+6;

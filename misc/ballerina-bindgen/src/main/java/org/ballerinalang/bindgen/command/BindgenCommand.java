@@ -18,6 +18,8 @@
 package org.ballerinalang.bindgen.command;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.ProjectLoader;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.bindgen.utils.BindgenUtils;
@@ -44,15 +46,25 @@ public class BindgenCommand implements BLauncherCmd {
 
     private PrintStream outStream;
     private PrintStream outError;
+    private boolean exitWhenFinish;
     private Path targetOutputPath = Paths.get(System.getProperty(USER_DIR));
 
     public BindgenCommand() {
         this(System.out, System.err);
     }
 
+    public BindgenCommand(PrintStream out, PrintStream err, boolean exitWhenFinish) {
+        this.outStream = out;
+        this.outError = err;
+        this.exitWhenFinish = exitWhenFinish;
+        BindgenUtils.setOutStream(out);
+        BindgenUtils.setErrStream(err);
+    }
+
     public BindgenCommand(PrintStream out, PrintStream err) {
         this.outStream = out;
         this.outError = err;
+        this.exitWhenFinish = true;
         BindgenUtils.setOutStream(out);
         BindgenUtils.setErrStream(err);
     }
@@ -100,19 +112,19 @@ public class BindgenCommand implements BLauncherCmd {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());
             outStream.println(commandUsageInfo);
-            exitWithCode(0);
+            exitWithCode(0, this.exitWhenFinish);
             return;
         }
 
         if (classNames == null) {
-            setOutError("One or more class names should be specified to generate the Ballerina bindings.");
-            exitWithCode(1);
+            setOutError("one or more class names are required");
+            exitWithCode(1, this.exitWhenFinish);
             return;
         }
 
         if (this.outputPath != null && modulesFlag) {
-            setOutError("Output path cannot be provided with the modules flag.");
-            exitWithCode(1);
+            setOutError("output path is not supported together with the modules flag");
+            exitWithCode(1, this.exitWhenFinish);
             return;
         }
 
@@ -126,8 +138,8 @@ public class BindgenCommand implements BLauncherCmd {
             bindingsGenerator.setOutputPath(targetOutputPath.toString());
         } else if (modulesFlag) {
             if (ProjectDirs.findProjectRoot(targetOutputPath) == null) {
-                setOutError("Ballerina project not detected to generate Java package to Ballerina module mappings.");
-                exitWithCode(1);
+                setOutError("module level mappings can only be generated inside a ballerina project");
+                exitWithCode(1, this.exitWhenFinish);
                 return;
             }
             bindingsGenerator.setModulesFlag(modulesFlag);
@@ -140,16 +152,29 @@ public class BindgenCommand implements BLauncherCmd {
 
         if (!ProjectDirs.isProject(targetOutputPath)) {
             Path projectDir = ProjectDirs.findProjectRoot(targetOutputPath);
-            if (projectDir != null && projectDir.getParent() != null) {
-                Path parentRoot = projectDir.getParent();
-                if (parentRoot != null) {
-                    outStream.println("\nBallerina project detected at: " + parentRoot.toString());
-                    bindingsGenerator.setProject(ProjectLoader.loadProject(parentRoot));
+            if (projectDir != null) {
+                Project project;
+                try {
+                    project = ProjectLoader.loadProject(projectDir);
+                } catch (ProjectException e) {
+                    setOutError("unable to load the project [" + projectDir + "]: " + e.getMessage());
+                    exitWithCode(1, this.exitWhenFinish);
+                    return;
                 }
+                outStream.println("\nBallerina project detected at: " + projectDir.toString());
+                bindingsGenerator.setProject(project);
             }
         } else {
+            Project project;
+            try {
+                project = ProjectLoader.loadProject(targetOutputPath);
+            } catch (ProjectException e) {
+                setOutError("unable to load the project [" + targetOutputPath + "]: " + e.getMessage());
+                exitWithCode(1, this.exitWhenFinish);
+                return;
+            }
             outStream.println("\nBallerina project detected at: " + targetOutputPath.toString());
-            bindingsGenerator.setProject(ProjectLoader.loadProject(targetOutputPath));
+            bindingsGenerator.setProject(project);
         }
 
         String splitCommaRegex = "\\s*,\\s*";
@@ -162,8 +187,8 @@ public class BindgenCommand implements BLauncherCmd {
         if (this.mavenDependency != null) {
             String[] mvnDependency = this.mavenDependency.split(splitColonRegex);
             if (mvnDependency.length != 3) {
-                setOutError("Error in the maven dependency provided.");
-                exitWithCode(1);
+                setOutError("invalid maven dependency provided");
+                exitWithCode(1, this.exitWhenFinish);
                 return;
             }
             bindingsGenerator.setMvnGroupId(mvnDependency[0]);
@@ -174,21 +199,23 @@ public class BindgenCommand implements BLauncherCmd {
         bindingsGenerator.setClassNames(this.classNames);
         try {
             bindingsGenerator.generateJavaBindings();
-            exitWithCode(0);
+            exitWithCode(0, this.exitWhenFinish);
         } catch (BindgenException e) {
-            outError.println("\nError while generating Ballerina bindings:\n" + e.getMessage());
-            exitWithCode(1);
+            outError.println("\nFailed to generate the Ballerina bindings.\n" + e.getMessage());
+            exitWithCode(1, this.exitWhenFinish);
         }
     }
 
     private void setOutError(String errorValue) {
-        outError.println("\n" + errorValue + "\n");
+        outError.println("\nerror: " + errorValue + "\n");
         outStream.println(BINDGEN_CMD);
         outStream.println("\nUse 'bal bindgen --help' for more information on the command.");
     }
 
-    public void exitWithCode(int exit) {
-        Runtime.getRuntime().exit(exit);
+    public void exitWithCode(int exit, boolean exitWhenFinish) {
+        if (exitWhenFinish) {
+            Runtime.getRuntime().exit(exit);
+        }
     }
 
     @Override

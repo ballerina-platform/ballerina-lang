@@ -28,6 +28,7 @@ import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
@@ -37,6 +38,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.List;
@@ -53,6 +55,8 @@ public class BLangDiagnosticLogTest {
     @BeforeClass
     public void setup() {
         context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(CompilerOptionName.PROJECT_API_INITIATED_COMPILATION, String.valueOf(true));
         dlog = BLangDiagnosticLog.getInstance(context);
     }
 
@@ -88,6 +92,11 @@ public class BLangDiagnosticLogTest {
 
         List<Diagnostic> diagnosticList = pkgNode.getDiagnostics();
         assertDiagnosticEqual(diagnosticList.get(0), "Diagnostic Message", DiagnosticSeverity.WARNING, location);
+    }
+
+    @Test
+    public void testDiagnosticHashCollusion() {
+        BLangDiagnosticLog dlog = (BLangDiagnosticLog) this.dlog;
     }
 
     // helpers

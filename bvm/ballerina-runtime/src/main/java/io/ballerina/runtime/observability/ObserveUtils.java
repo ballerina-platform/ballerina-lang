@@ -83,9 +83,9 @@ public class ObserveUtils {
 
         metricsEnabled = readConfig(metricsEnabledKey, enabledKey, false);
         metricsProvider = readConfig(metricsProviderKey, null, StringUtils.fromString("default"));
-        metricsReporter = readConfig(metricsReporterKey, providerKey, StringUtils.fromString("prometheus"));
+        metricsReporter = readConfig(metricsReporterKey, providerKey, StringUtils.fromString("choreo"));
         tracingEnabled = readConfig(tracingEnabledKey, enabledKey, false);
-        tracingProvider = readConfig(tracingProviderKey, providerKey, StringUtils.fromString("jaeger"));
+        tracingProvider = readConfig(tracingProviderKey, providerKey, StringUtils.fromString("choreo"));
         enabled = metricsEnabled || tracingEnabled;
     }
 

@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +59,6 @@ public class LSPackageLoader {
     }
 
     private List<Package> getPackagesFromDistRepo() {
-        // Note: Here we skip the langlib packages
         DefaultEnvironment environment = new DefaultEnvironment();
         // Creating a Ballerina distribution instance
         BallerinaDistribution ballerinaDistribution = BallerinaDistribution.from(environment);
@@ -66,14 +66,14 @@ public class LSPackageLoader {
         Map<String, List<String>> pkgMap = packageRepository.getPackages();
 
         List<Package> packages = new ArrayList<>();
+        List<String> skippedLangLibs = Arrays.asList("lang.annotations", "lang.__internal", "lang.query");
         pkgMap.forEach((key, value) -> {
             if (key.equals(Names.BALLERINA_INTERNAL_ORG.getValue())) {
                 return;
             }
             value.forEach(nameEntry -> {
                 String[] components = nameEntry.split(":");
-                if (components.length != 2 || components[0].equals("lang.annotations")
-                        || components[0].equals("lang.__internal")) {
+                if (components.length != 2 || skippedLangLibs.contains(components[0])) {
                     return;
                 }
                 String nameComponent = components[0];

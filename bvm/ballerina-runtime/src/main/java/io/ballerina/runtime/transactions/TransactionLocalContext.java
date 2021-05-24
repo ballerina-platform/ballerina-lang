@@ -80,6 +80,11 @@ public class TransactionLocalContext {
         return new TransactionLocalContext(globalTransactionId, url, protocol, null);
     }
 
+    public static TransactionLocalContext create(String globalTransactionId, String url, String protocol,
+                                                 Object infoRecord) {
+        return new TransactionLocalContext(globalTransactionId, url, protocol, infoRecord);
+    }
+
     public String getGlobalTransactionId() {
         return this.globalTransactionId;
     }

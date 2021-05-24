@@ -62,5 +62,12 @@ public class TransactionConstants {
     public static final BString CORDINATION_TYPE = StringUtils.fromString("coordinationType");
     public static final BString REGISTER_AT_URL = StringUtils.fromString("registerAtURL");
 
+    // Transaction Info record field names
+    public static final BString GLOBAL_TRX_ID = StringUtils.fromString("xid");
+    public static final BString RETRY_NUMBER = StringUtils.fromString("retryNumber");
+    public static final BString START_TIME = StringUtils.fromString("startTime");
+    public static final BString PREVIOUS_ATTEMPT = StringUtils.fromString("prevAttempt");
+
     public static final String ANN_NAME_TRX_PARTICIPANT_CONFIG = "Participant";
+    public static final String TIMESTAMP_OBJECT_VALUE_FIELD = "timeValue";
 }

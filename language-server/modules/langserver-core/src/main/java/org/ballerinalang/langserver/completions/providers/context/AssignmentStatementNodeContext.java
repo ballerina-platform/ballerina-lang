@@ -61,7 +61,7 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
         }
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (this.onQualifiedNameIdentifier(context, node.expression())) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, node.expression())) {
             /*
             Captures the following cases
             (1) [module:]TypeName c = module:<cursor>
@@ -93,7 +93,7 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
     }
 
     @Override
-    public void sort(BallerinaCompletionContext context, AssignmentStatementNode node, 
+    public void sort(BallerinaCompletionContext context, AssignmentStatementNode node,
                      List<LSCompletionItem> completionItems) {
         Optional<TypeSymbol> typeSymbolAtCursor = context.currentSemanticModel()
                 .flatMap(semanticModel -> semanticModel.symbol(node.varRef()))
@@ -113,8 +113,8 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
             if (completionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
                 SymbolCompletionItem symbolCompletionItem = (SymbolCompletionItem) completionItem;
 
-                Optional<TypeSymbol> completionItemType =
-                        SymbolUtil.getTypeDescriptor(symbolCompletionItem.getSymbol());
+                Optional<TypeSymbol> completionItemType = symbolCompletionItem.getSymbol().isEmpty() ? Optional.empty()
+                        : SymbolUtil.getTypeDescriptor(symbolCompletionItem.getSymbol().get());
                 if (completionItemType.isPresent() && completionItemType.get() instanceof FunctionTypeSymbol) {
                     completionItemType = ((FunctionTypeSymbol) completionItemType.get()).returnTypeDescriptor();
                 }

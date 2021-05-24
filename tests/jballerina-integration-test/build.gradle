@@ -78,7 +78,7 @@ dependencies {
     testCompile 'io.netty:netty-codec-http'
     testCompile 'io.netty:netty-codec-http2'
     testCompile 'io.netty:netty-handler'
-    testCompile 'org.wso2.orbit.org.yaml:snakeyaml'
+    testCompile 'org.yaml:snakeyaml'
     testCompile 'org.awaitility:awaitility'
     testCompile 'org.hsqldb:hsqldb'
     testCompile 'com.h2database:h2'

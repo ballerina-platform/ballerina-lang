@@ -1,8 +1,2 @@
-    readonly
-                 class
-          Foo
-                      {
-       string             name
-     ;        }
-
-
+    readonly    class    Foo            {
+       string             name;        }

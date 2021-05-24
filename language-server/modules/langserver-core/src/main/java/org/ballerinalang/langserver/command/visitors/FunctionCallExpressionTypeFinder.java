@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.command.visitors;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -30,6 +31,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
+import io.ballerina.compiler.syntax.tree.StartActionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 
@@ -110,6 +112,16 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     public void visit(LetVariableDeclarationNode letVariableDeclarationNode) {
         TypeSymbol typeSymbol = semanticModel.type(letVariableDeclarationNode).orElse(null);
         checkAndSetTypeResult(typeSymbol);
+    }
+
+    @Override
+    public void visit(StartActionNode startActionNode) {
+        startActionNode.parent().accept(this);
+        if (resultFound && result.typeKind() == TypeDescKind.FUTURE) {
+            FutureTypeSymbol futureTypeSymbol = (FutureTypeSymbol) result;
+            TypeSymbol typeSymbol = futureTypeSymbol.typeParameter().orElse(null);
+            checkAndSetTypeResult(typeSymbol);
+        }
     }
 
     @Override

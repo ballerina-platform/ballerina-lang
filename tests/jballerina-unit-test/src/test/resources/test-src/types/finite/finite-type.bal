@@ -533,6 +533,16 @@ public function testRecordStringEquality() {
     assertEquality(a, mah);
 }
 
+public const '\- = "-";
+public const d = "d";
+public const s = "s";
+public type FT '\-|s|d;
+
+function testEscapedTypeName() returns FT {
+   FT f = '\-;
+   return f;
+}
+
 const ASSERTION_ERROR_REASON = "TypeAssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

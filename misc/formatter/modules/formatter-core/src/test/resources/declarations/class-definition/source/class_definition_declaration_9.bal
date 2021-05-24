@@ -1,8 +1,3 @@
 
-     client
-                  class
-               Foo
-           {
-                string
-                   name
-                          ;       }
+     client  class  Foo  {
+                string  name  ;       }

@@ -54,7 +54,7 @@ function testBasicArray2(string[] values) returns string {
     string str1 = "";
     int index = 0;
     values.'map(function (string s) returns string {
-                    var value = index.toString() + s;
+                    string value = index.toString() + s;
                     index += 1;
                     return value;
                })

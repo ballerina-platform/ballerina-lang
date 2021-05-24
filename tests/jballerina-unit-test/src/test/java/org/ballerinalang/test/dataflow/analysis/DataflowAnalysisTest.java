@@ -31,17 +31,17 @@ import org.testng.annotations.Test;
 @Test
 public class DataflowAnalysisTest {
 
-    @Test(description = "Test uninitialized variables", enabled = false)
+    @Test(description = "Test uninitialized variables")
     public void testSemanticsOfUninitializedVariables() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/dataflow/analysis/dataflow-analysis-semantics-negative.bal");
         int i = 0;
-        BAssertUtil.validateError(result, i++, "undefined field 'f' in object 'Foo'", 308, 13);
+        BAssertUtil.validateError(result, i++, "undefined field 'f' in object 'Foo'", 308, 14);
         BAssertUtil.validateError(result, i++, "missing non-defaultable required record field 'extra'", 548, 12);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
-    @Test(description = "Test uninitialized variables", enabled = false)
+    @Test(description = "Test uninitialized variables")
     public void testUninitializedVariables() {
         CompileResult result = BCompileUtil.compile("test-src/dataflow/analysis/dataflow-analysis-negative.bal");
         int i = 0;
@@ -79,7 +79,7 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 521, 5);
         BAssertUtil.validateError(result, i++, "uninitialized field 'b'", 573, 5);
         BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 574, 5);
-        BAssertUtil.validateError(result, i++, "uninitialized field 's'", 582, 14);
+        BAssertUtil.validateError(result, i++, "uninitialized field 's'", 582, 22);
         BAssertUtil.validateError(result, i++, "variable 'k' may not have been initialized", 592, 12);
         BAssertUtil.validateError(result, i++, "variable 'k' may not have been initialized", 614, 12);
         BAssertUtil.validateError(result, i++, "variable 'k' may not have been initialized", 624, 12);

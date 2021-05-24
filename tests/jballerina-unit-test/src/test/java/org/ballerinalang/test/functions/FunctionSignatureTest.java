@@ -46,7 +46,6 @@ public class FunctionSignatureTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/functions/different-function-signatures.bal");
-//        pkgResult = BCompileUtil.compile("test-src/functions/TestProj", "a.b");
         pkgResult = BCompileUtil.compile("test-src/functions/testproj");
     }
 
@@ -383,7 +382,6 @@ public class FunctionSignatureTest {
 
     @Test()
     public void testOptionalArgsInNativeFunc() {
-//        CompileResult result = BCompileUtil.compile("test-src/functions/TestProj", "foo.bar");
         CompileResult result = BCompileUtil.compile("test-src/functions/testproj");
         BValue[] returns = BRunUtil.invoke(result, "testOptionalArgsInNativeFunc");
 

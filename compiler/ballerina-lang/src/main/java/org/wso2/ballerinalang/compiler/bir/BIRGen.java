@@ -1815,7 +1815,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         setScopeAndEmit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos, InstructionKind.MAP_LOAD, tempVarRef,
                 keyRegIndex, varRefRegIndex, astMapAccessExpr.optionalFieldAccess,
-                                              astMapAccessExpr.lhsVar && !astMapAccessExpr.leafNode));
+                                              astMapAccessExpr.isLValue && !astMapAccessExpr.leafNode));
         this.env.targetOperand = tempVarRef;
         this.varAssignment = variableStore;
     }
@@ -2606,7 +2606,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         setScopeAndEmit(new BIRNonTerminator.FieldAccess(astArrayAccessExpr.pos, InstructionKind.ARRAY_LOAD, tempVarRef,
                                               keyRegIndex, varRefRegIndex, false,
-                                              astArrayAccessExpr.lhsVar && !astArrayAccessExpr.leafNode));
+                                              astArrayAccessExpr.isLValue && !astArrayAccessExpr.leafNode));
         this.env.targetOperand = tempVarRef;
 
         this.varAssignment = variableStore;
@@ -2671,7 +2671,7 @@ public class BIRGen extends BLangNodeVisitor {
             setScopeAndEmit(
                     new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, insKind, tempVarRef, keyRegIndex,
                             varRefRegIndex, except,
-                            astIndexBasedAccessExpr.lhsVar && !astIndexBasedAccessExpr.leafNode));
+                            astIndexBasedAccessExpr.isLValue && !astIndexBasedAccessExpr.leafNode));
             this.env.targetOperand = tempVarRef;
         }
         this.varAssignment = variableStore;
@@ -2833,7 +2833,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         setScopeAndEmit(
                 new BIRNonTerminator.FPLoad(fpVarRef.pos, funcSymbol.pkgID, funcName, lhsOp, params, new ArrayList<>(),
-                        funcSymbol.retType, funcSymbol.strandName, funcSymbol.schedulerPolicy));
+                        funcSymbol.type, funcSymbol.strandName, funcSymbol.schedulerPolicy));
         this.env.targetOperand = lhsOp;
     }
 

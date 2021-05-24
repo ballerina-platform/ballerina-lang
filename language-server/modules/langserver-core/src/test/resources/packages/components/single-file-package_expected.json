@@ -1,0 +1,38 @@
+{
+  "result": [
+    {
+      "filePath": "file:///",
+      "name": ".",
+      "modules": [
+        {
+          "functions": [
+            {
+              "name": "main",
+              "filePath": "main.bal",
+              "startLine": 3,
+              "startColumn": 16,
+              "endLine": 3,
+              "endColumn": 20
+            }
+          ],
+          "services": [
+            {
+              "name": "hey",
+              "filePath": "main.bal",
+              "resources": [
+                {
+                  "name": "get satyHello",
+                  "filePath": "main.bal",
+                  "startLine": 9,
+                  "startColumn": 22,
+                  "endLine": 9,
+                  "endColumn": 25
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

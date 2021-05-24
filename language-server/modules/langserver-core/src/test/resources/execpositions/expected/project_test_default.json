@@ -1,0 +1,20 @@
+{
+  "executorPositions": [
+    {
+      "kind": "test",
+      "name": "testAssertTrue",
+      "range": {
+        "filePath": "tests/test.bal",
+        "startLine": {
+          "line": 2,
+          "offset": 0
+        },
+        "endLine": {
+          "line": 5,
+          "offset": 1
+        }
+      },
+      "filePath": ""
+    }
+  ]
+}
