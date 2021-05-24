@@ -226,21 +226,29 @@ A custom mock object can be defined in place of the real object which should con
 
 _main.bal_
 ```ballerina
+import ballerina/http;
+
 http:Client clientEndpoint = check new ("http://petstore.com");
 
-function getPet(string petId) returns Pet | error {
-  http:Response|error result = check clientEndpoint->get("/pets?id="+petId);
-  Pet pet = constructPetObj(result); 
-  return pet;
+function getPet(string petId) returns http:Response | error {
+  http:Response result = check clientEndpoint->get("/pets?id="+petId);
+  return result;
+}
+
+function deletePet(string petId) returns error? {
+    http:Response res = check clientEndpoint->delete("/pets/delete?id="+petId);
 }
 ```
 
 _test.bal_
 ```ballerina
+import ballerina/test;
+import ballerina/http;
+
 // Mock object definition for http:Client object
 public client class MockHttpClient {
     remote isolated function get(@untainted string path, map<string|string[]>? headers = (),
-    http:TargetType targetType = http:Response) returns http:Response | http:ClientError {
+    http:TargetType targetType = http:Response) returns http:Response | http:PayloadType | http:ClientError {
         http:Response response = new;
         response.statusCode = 500;
         return response;
@@ -248,10 +256,10 @@ public client class MockHttpClient {
 }
 
 @test:Config {}
-function testGetPet() {
+function testTestDouble() returns error? {
     //mock object that would act as the test double to the clientEndpoint
     clientEndpoint = test:mock(http:Client, new MockHttpClient());
-    http:Response res = getPet("D123");
+    http:Response res = check getPet("D123");
     test:assertEquals(res.statusCode, 500);
 }
 ```
@@ -264,29 +272,63 @@ The member functions and variables are stubbed to return a specific value or to 
 
 Example
 
-Following example shows different ways of stubbing an object member functions.
+Following example demonstrates how to stub a member function to return a specific value.
 ```ballerina
 
 @test:Config {}
-function testGetPet2() {
-    clientEndpoint = test:mock(http:Client);
+function testThenReturn() returns error? {
+   clientEndpoint = test:mock(http:Client);
+
+    http:Response mockResponse = new;
+    mockResponse.statusCode = 300;
 
     // stubbing to return the specified value 
-    test:prepare(clientEndpoint).when(“get”).thenReturn(new http:Response());
-    
-    // stubbing to return different values for each function call 
-    test:prepare(mockHttpClient).when("get")
-        .thenReturnSequence(new http:Response(), mockResponse);
-    
-    // stubbing to do nothing when function is called
-    smtpClient= test:mock(email:SmtpClient);
-    test:prepare(mockSmtpCl).when(“send”).doNothing();
+    test:prepare(clientEndpoint).when("get").thenReturn(mockResponse);
 
-    // add assertions
+    http:Response res = check getPet("D123");
+    test:assertEquals(res.statusCode, 300);
 }
 ```
 
-The following example shows how to return a value when a member variable is accessed
+Following example demonstrates how to stub a member function to return different values on subsequent calls.
+
+```ballerina
+@test:Config {}
+function testThenReturnSequence() returns error? {
+     clientEndpoint = test:mock(http:Client);
+
+    http:Response mockResponse1 = new;
+    mockResponse1.statusCode = 400;
+
+    http:Response mockResponse2 = new;
+    mockResponse2.statusCode = 401;
+    
+    // stubbing to return different values for each function call
+    test:prepare(clientEndpoint).when("get").thenReturnSequence(mockResponse1, mockResponse2);
+
+    http:Response res = check getPet("D123");
+    test:assertEquals(res.statusCode, 400);
+    res = check getPet("D123");
+    test:assertEquals(res.statusCode, 401);
+}
+```
+
+Following example demonstrates how to stub a member function to do nothing when called.
+
+```ballerina
+@test:Config {}
+function testDoNothing() returns error? {
+    clientEndpoint = test:mock(http:Client);
+    
+    // stubbing to return different values for each function call
+    test:prepare(clientEndpoint).when("delete").doNothing();
+
+    error? err = deletePet("D123");
+    test:assertEquals(err, ());
+}
+```
+
+The following example shows how to return a value when a member variable is accessed.
 ```ballerina
 @test:Config {}
 function testMemberVariable() {
