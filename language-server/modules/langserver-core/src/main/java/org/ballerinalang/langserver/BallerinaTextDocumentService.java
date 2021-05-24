@@ -279,12 +279,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                 Map<Module, List<io.ballerina.tools.diagnostics.Location>> referencesMap = 
                         ReferencesUtil.getReferences(context);
-                Path projectRoot = context.workspace().projectRoot(context.filePath());
 
                 List<Location> references = new ArrayList<>();
                 referencesMap.forEach((module, locations) ->
                         locations.forEach(location -> {
-                            String uri = ReferencesUtil.getUriFromLocation(module, location, projectRoot);
+                            String uri = ReferencesUtil.getUriFromLocation(module, location);
                             references.add(new Location(uri, ReferencesUtil.getRange(location)));
                         }));
                 
