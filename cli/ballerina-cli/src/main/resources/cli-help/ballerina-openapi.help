@@ -70,8 +70,8 @@ EXAMPLES
        Generate both the Ballerina client and service file.
           $ bal openapi --input petstore.yaml -o ./example
 
-       Generate services for given tags
+       Generate services for the given tags.
           $ bal openapi -i hello.yaml --mode service --tags pets
 
-       Generate services for given operations
+       Generate services for the given operations.
           $ bal openapi -i hello.yaml --mode service --operations listPets
