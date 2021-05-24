@@ -39,6 +39,7 @@ public class FooListener {
 }
 
 public class BarListener {
+    *Listener;
 
     public function 'start() returns error? {
     }
@@ -47,6 +48,44 @@ public class BarListener {
     }
 
     public function immediateStop() returns error? {
+    }
+
+    public function detach(service object {} s) returns error? {
+    }
+
+    public function attach(service object {} s, string[]? name = ()) returns error? {
+    }
+}
+
+public type Listener object {
+    public function 'start() returns error?;
+
+    public function gracefulStop() returns error?;
+
+    public function immediateStop() returns error?;
+
+    public function detach(service object {} s) returns error?;
+
+    public function attach(service object {} s, string[]? name = ()) returns error?;
+};
+
+public type IncompatibleListener object {
+    public function 'start() returns error?;
+
+    public function immediateStop() returns error?;
+
+    public function detach(service object {} s) returns error?;
+
+    public function attach(service object {} s, string[]? name = ()) returns error?;
+};
+
+
+public class IncompatibleListenerClass {
+
+    public function 'start() returns error? {
+    }
+
+    public function gracefulStop() returns error? {
     }
 
     public function detach(service object {} s) returns error? {

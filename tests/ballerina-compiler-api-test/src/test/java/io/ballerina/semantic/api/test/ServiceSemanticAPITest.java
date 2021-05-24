@@ -24,12 +24,15 @@ import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.LiteralAttachPoint;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.ServiceAttachPoint;
 import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -59,7 +62,9 @@ import static io.ballerina.compiler.api.symbols.Qualifier.PUBLIC;
 import static io.ballerina.compiler.api.symbols.Qualifier.RESOURCE;
 import static io.ballerina.compiler.api.symbols.ServiceAttachPointKind.ABSOLUTE_RESOURCE_PATH;
 import static io.ballerina.compiler.api.symbols.ServiceAttachPointKind.STRING_LITERAL;
+import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
 import static io.ballerina.compiler.api.symbols.SymbolKind.SERVICE_DECLARATION;
+import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
@@ -283,6 +288,35 @@ public class ServiceSemanticAPITest {
     public void testServiceDeclNegative() {
         Optional<Symbol> symbol = model.symbol(srcFile, from(66, 34));
         assertTrue(symbol.isEmpty());
+    }
+
+    @Test(dataProvider = "ListenerPosProvider")
+    public void testListenerCompatibility(int line, int col, SymbolKind kind, boolean isCompatible) {
+        Project project = BCompileUtil.loadProject("test-src/service_with_multiple_listeners.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+        Optional<Symbol> symbol = model.symbol(srcFile, from(line, col));
+
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), kind);
+
+        if (symbol.get().kind() == TYPE_DEFINITION) {
+            assertEquals(((ObjectTypeSymbol) ((TypeDefinitionSymbol) symbol.get()).typeDescriptor())
+                                 .isCompatibleListenerType(), isCompatible);
+        } else {
+            assertEquals(((ClassSymbol) symbol.get()).isCompatibleListenerType(), isCompatible);
+        }
+    }
+
+    @DataProvider(name = "ListenerPosProvider")
+    public Object[][] getListenerPos() {
+        return new Object[][]{
+                {22, 13, CLASS, true},
+                {40, 13, CLASS, true},
+                {59, 12, TYPE_DEFINITION, true},
+                {71, 12, TYPE_DEFINITION, false},
+                {82, 13, CLASS, false},
+        };
     }
 
     private Object[][] getExpValues() {
