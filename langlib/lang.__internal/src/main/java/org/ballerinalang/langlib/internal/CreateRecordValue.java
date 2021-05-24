@@ -38,7 +38,7 @@ import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CONVERSION_ERROR;
 
 /**
- * Native implementation of lang.internal:configurable.
+ * Create a record value from the provided value map.
  *
  * @since 2.0
  */
