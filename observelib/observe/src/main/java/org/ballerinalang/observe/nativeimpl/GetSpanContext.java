@@ -37,8 +37,8 @@ import io.ballerina.runtime.observability.tracer.BSpan;
 
 public class GetSpanContext {
 
-    private static final BMap<BString, Object> emptyBSpanContext = ValueCreator.createMapValue(
-            TypeCreator.createMapType(PredefinedTypes.TYPE_STRING));
+    private static final BMap<BString, Object> EMPTY_BSPAN_CONTEXT = ValueCreator.createMapValue(
+            TypeCreator.createMapType(PredefinedTypes.TYPE_STRING, true));
 
     public static BMap<BString, Object> getSpanContext(Environment env) {
 
@@ -49,7 +49,7 @@ public class GetSpanContext {
                 return bSpan.getBSpanContext();
             }
         }
-        return emptyBSpanContext;
+        return EMPTY_BSPAN_CONTEXT;
     }
 
 }

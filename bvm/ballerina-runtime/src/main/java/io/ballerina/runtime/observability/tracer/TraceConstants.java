@@ -17,6 +17,9 @@
  */
 package io.ballerina.runtime.observability.tracer;
 
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BString;
+
 /**
  * {@code TraceConstants} define tracer constants.
  *
@@ -36,6 +39,6 @@ public class TraceConstants {
     public static final String TAG_SPAN_KIND_SERVER = "server";
     public static final String TAG_SPAN_KIND_CLIENT = "client";
 
-    public static final String TRACE_ID = "traceId";
-    public static final String SPAN_ID = "spanId";
+    public static final BString SPAN_CONTEXT_MAP_KEY_TRACE_ID = StringUtils.fromString("traceId");
+    public static final BString SPAN_CONTEXT_MAP_KEY_SPAN_ID = StringUtils.fromString("spanId");
 }
