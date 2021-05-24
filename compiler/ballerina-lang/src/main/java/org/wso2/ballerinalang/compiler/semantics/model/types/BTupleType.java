@@ -37,6 +37,7 @@ public class BTupleType extends BType implements TupleType {
     public List<BType> tupleTypes;
     public BType restType;
     public Boolean isAnyData = null;
+    public boolean resolvingToString = false;
 
     public BIntersectionType immutableType;
 
@@ -85,9 +86,19 @@ public class BTupleType extends BType implements TupleType {
 
     @Override
     public String toString() {
+        // This logic is added to prevent duplicate recursive calls to toString
+        if (this.resolvingToString) {
+            if (tsymbol != null && !tsymbol.getName().getValue().isEmpty()) {
+                return this.tsymbol.toString();
+            }
+            return "...";
+        }
+        this.resolvingToString = true;
+
         String stringRep = "[" + tupleTypes.stream().map(BType::toString).collect(Collectors.joining(","))
                 + ((restType != null) ? (tupleTypes.size() > 0 ? "," : "") + restType.toString() + "...]" : "]");
 
+        this.resolvingToString = false;
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
     }
 
@@ -98,7 +109,12 @@ public class BTupleType extends BType implements TupleType {
 
     // In the case of a reference based cyclic tuple, this aids in
     //adding resolved members to a previously defined empty tuple shell in main scope
-    public void addMembers(List<BType> tupleTypes) {
-        this.tupleTypes = tupleTypes;
+    public boolean addMembers(BType memberType) {
+        // Prevent cyclic types of same type ex: type Foo [int, Foo];
+        if (memberType.isCyclic && memberType.getQualifiedTypeName().equals(this.getQualifiedTypeName())) {
+            return false;
+        }
+        this.tupleTypes.add(memberType);
+        return true;
     }
 }

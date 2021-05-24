@@ -1495,7 +1495,12 @@ public class JvmTypeGen {
                     mv.visitInsn(ACONST_NULL);
                     return;
                 case TypeTags.TUPLE:
-                    loadTupleType(mv, (BTupleType) bType);
+                    BTupleType tupleType = (BTupleType) bType;
+                    if (tupleType.isCyclic) {
+                        loadUserDefinedType(mv, bType);
+                    } else {
+                        loadTupleType(mv, (BTupleType) bType);
+                    }
                     return;
                 case TypeTags.FINITE:
                     loadFiniteType(mv, (BFiniteType) bType);

@@ -1660,7 +1660,18 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         switch (resolvedTypeNodes.tag) {
             case TypeTags.TUPLE:
-                ((BTupleType) newTypeNode).addMembers(((BTupleType) resolvedTypeNodes).getTupleTypes());
+                BTupleType definedTupleType = (BTupleType) resolvedTypeNodes;
+                boolean status;
+                for (BType member : definedTupleType.getTupleTypes()) {
+                    status = ((BTupleType) newTypeNode).addMembers(member);
+                    if (!status) {
+                        List<String> dependencyList = new ArrayList<>();
+                        dependencyList.add(getTypeOrClassName(typeDef));
+                        dependencyList.add(member.tsymbol.name.value);
+                        dlog.error(typeDef.getPosition(), DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, dependencyList);
+                        break;
+                    }
+                }
                 break;
             default:
                 BUnionType definedUnionType = (BUnionType) resolvedTypeNodes;
@@ -1669,7 +1680,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
                 break;
         }
-
         typeDef.typeNode.type = newTypeNode;
         typeDef.typeNode.type.tsymbol.type = newTypeNode;
         typeDef.symbol.type = newTypeNode;
