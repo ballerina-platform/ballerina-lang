@@ -1,6 +1,8 @@
 ## Module Overview
 
-This module provides the API for Java interoperability in Ballerina. It includes a set of Ballerina annotations with which Java constructors, methods, and fields can provide implementations of Ballerina functions with external function bodies.  
+This module provides library operations required for Java interoperability in Ballerina. It includes a set of
+ Ballerina annotations with which Java constructors, methods, and fields can provide implementations of Ballerina
+  functions with external function bodies.
 
 For information on the operations, which you can perform with the Java module, see the below **Functions**. For examples on the usage of the operations, see the following.
 - [Create Java Objects Example](https://ballerina.io/swan-lake/learn/by-example/create-java-objects.html)
