@@ -80,7 +80,7 @@ public function getAllMetrics() returns Metric[] = @java:Method {
     name: "getAllMetrics"
 } external;
 
-# Retrieves the specific metric that is described by the given name and tags.
+# Retrieve the specific metric that is described by the given name and tags.
 #
 # + name - Name of the metric to lookup.
 # + tags - The key/value pair tags that associated with the metric that should be looked up.

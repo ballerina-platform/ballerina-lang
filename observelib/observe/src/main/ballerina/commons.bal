@@ -28,31 +28,43 @@ function init() {
     externInitializeModule();
 }
 
+# Check whether observability is enabled.
+#
 public isolated function isObservabilityEnabled() returns boolean = @java:Method {
     name: "isObservabilityEnabled",
     'class: "io.ballerina.runtime.observability.ObserveUtils"
 } external;
 
+# Check whether metrics is enabled.
+#
 public isolated function isMetricsEnabled() returns boolean = @java:Method {
     name: "isMetricsEnabled",
     'class: "io.ballerina.runtime.observability.ObserveUtils"
 } external;
 
+# Retrieve metrics provider.
+#
 public isolated function getMetricsProvider() returns string = @java:Method {
     name: "getMetricsProvider",
     'class: "io.ballerina.runtime.observability.ObserveUtils"
 } external;
 
+# Retrieve metrics reporter.
+#
 public isolated function getMetricsReporter() returns string = @java:Method {
     name: "getMetricsReporter",
     'class: "io.ballerina.runtime.observability.ObserveUtils"
 } external;
 
+# Check whether tracing is enabled.
+#
 public isolated function isTracingEnabled() returns boolean = @java:Method {
     name: "isTracingEnabled",
     'class: "io.ballerina.runtime.observability.ObserveUtils"
 } external;
 
+# Retrieve tracer provider.
+#
 public isolated function getTracingProvider() returns string = @java:Method {
     name: "getTracingProvider",
     'class: "io.ballerina.runtime.observability.ObserveUtils"

@@ -1,7 +1,7 @@
 ## Module Overview
 
-This module provides apis for observing Ballerina services.
-Ballerina supports Observability out of the box. This module provides user api's to make Ballerina Observability more flexible for the user.
+This module provides an API for observing Ballerina services.
+Ballerina supports Observability out of the box. This module provides a user API to make Ballerina Observability more flexible for the user.
 
 To observe Ballerina code, the '--b7a.observability.enabled=true' property should be given when starting the service
 (i.e. `ballerina run hello_world.bal --b7a.observability.enabled=true').
@@ -15,7 +15,7 @@ tracing information, introduce new spans, and add additional information to exis
 
 #### Start a root span & attach a child span
 
-The following code snippet show an example of how start a root span with no parent and start another span as a child of the first span.
+The following code snippet shows an example of starting a root span with no parent and starting another span as a child of the first span.
 Note: Make sure that all started spans are closed properly to ensure that all spans are reported properly.
 
 ```ballerina
@@ -48,7 +48,7 @@ var ret = observe:finishSpan(spanId);
 
 #### Attach a tag to a span
 
-It is possible to add tags to span by using the `observe:addTagToSpan()` api by providing the span id and relevant tag key and tag value.
+It is possible to add tags to span by using the `observe:addTagToSpan()` function by providing the span id and relevant tag key and tag value.
 
 ```ballerina
 _ = observe:addTagToSpan(spanId = spanId, "Tag Key", "Tag Value");
@@ -86,7 +86,7 @@ observe:Counter counterWithTags = new("CounterWithTags", desc = "Some descriptio
 ```
 
 #### Register
-The counter can registered with the global metrics registry, therefore it can be looked up later without having the 
+The counter can be registered with the global metrics registry, therefore it can be looked up later without having the 
 reference of the counter that was created. Also, only the registered counters will be reported to the Metrics reporter 
 such as Prometheus. In case, if there is already another non counter metric registered, 
 then there will be an error returned. But if it's another counter instance, then the registered counter instance will 
@@ -102,7 +102,7 @@ if anyError is error {
 ```
 
 #### Unregister
-The counter can unregistered with the global metrics registry if it is already registered. If a metrics is unregistered,
+The counter can be unregistered with the global metrics registry if it is already registered. If a metrics is unregistered,
 then further it'll not be included in metrics reporting.
 
 ```ballerina
@@ -180,7 +180,7 @@ observe:Gauge gaugeWithStats = new("GaugeWithTags", desc = "Some description",
 ```
 
 #### Register
-The gauge can registered with the global metrics registry, therefore it can be looked up later without having the 
+The gauge can be registered with the global metrics registry, therefore it can be looked up later without having the 
 reference of the gauge that was created. Also, only the registered counters will be reported to the Metrics reporter 
 such as Prometheus. In case, if there is already another non gauge metric registered, 
 then there will be an error returned. But if it's another gauge instance, then the registered gauge instance will 
@@ -196,8 +196,8 @@ if anyError is error {
 ```
 
 #### Unregister
-The gauge can unregistered with the global metrics registry if it is already registered. If a metrics is unregistered,
-then further it'll not be included in metrics reporting.
+The gauge can be unregistered with the global metrics registry if it is already registered. 
+If a metrics is unregistered, then further it'll not be included in metrics reporting.
 
 ```ballerina
 map<string> gaugeTags = { "method": "GET" };
@@ -242,7 +242,7 @@ observe:Gauge gaugeWithTags = new("GaugeWithTags", desc = "Some description", ta
 gaugeWithTags.setValue(100.0);
 ```
 
-#### Get Value.
+#### Get Value
 The current value can be retrieved by this operation. 
 
 ```ballerina
@@ -251,7 +251,7 @@ observe:Gauge gaugeWithTags = new("GaugeWithTags", desc = "Some description", ta
 float currentValue = gaugeWithTags.getValue(); 
 ```
 
-#### Get Snapshot.
+#### Get Snapshot
 This method retrieves current snapshot of the statistics calculation based on the configurations passed to the gauge. 
 If the statistics are disabled, then it'll be returning nil ().
 

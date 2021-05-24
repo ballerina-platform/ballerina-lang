@@ -14,4 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# This is used for making a function observable.
+# Can be applied to functions which are not observable by default to make them observable.
+#
 public const annotation Observable on source function;

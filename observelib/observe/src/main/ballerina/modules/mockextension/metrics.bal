@@ -16,27 +16,37 @@
 
 import ballerina/jballerina.java;
 
+# Holds the key and value of tag.
+#
 public type Tag record {
   string key;
   string value;
 };
 
+# Holds parameters required to id a metric.
+#
 public type MetricId record {
   string name;
   string description;
   Tag[] tags;
 };
 
+# Holds percentile and value.
+#
 public type PercentileValue record {
   float percentile;
   float value;
 };
 
+# Holds a time duration.
+#
 public type TimeWindow record {
     int seconds;
     int nanos;
 };
 
+# Holds a snapshot of statistics.
+#
 public type Snapshot record {
   TimeWindow timeWindow;
   float min;
@@ -46,11 +56,15 @@ public type Snapshot record {
   PercentileValue[] percentileValues;
 };
 
+# Holds counter related metrics data.
+#
 public type Counter record {
   MetricId id;
   int value;
 };
 
+# Holds gauge related metrics data.
+#
 public type Gauge record {
   MetricId id;
   float value;
@@ -59,18 +73,22 @@ public type Gauge record {
   Snapshot[] snapshots;
 };
 
+# Holds polled gauge related metrics data.
+#
 public type PolledGauge record {
   MetricId id;
   float value;
 };
 
+# Holds metrics data.
+#
 public type Metrics record {
   Counter[] counters;
   Gauge[] gauges;
   PolledGauge[] polledGauges;
 };
 
-# Get all the current metrics
+# Get all the current metrics.
 #
 # + return - Current metrics
 public isolated function getMetrics() returns Metrics {
@@ -83,7 +101,7 @@ public isolated function getMetrics() returns Metrics {
     }
 }
 
-# Get all the current metrics
+# Get all the current metrics.
 #
 # + return - The metrics currently in the metrics registry as a json
 isolated function externGetMetrics() returns json = @java:Method {
