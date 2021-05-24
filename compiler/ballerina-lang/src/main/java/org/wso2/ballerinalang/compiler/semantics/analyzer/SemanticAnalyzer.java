@@ -836,7 +836,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     varNode.symbol.type = lhsType;
                 }
                 // TODO: remove this check once runtime support all configurable types
-                checkSupportedConfigType(lhsType, varNode.pos);
+                checkSupportedConfigType(lhsType, varNode.pos, varNode.name.value);
             }
         }
 
@@ -873,9 +873,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         transferForkFlag(varNode);
     }
 
-    private void checkSupportedConfigType(BType type, Location location) {
+    private void checkSupportedConfigType(BType type, Location location, String varName) {
         List<String> errors = new ArrayList<>();
-        if (!isSupportedConfigType(type, errors) || !errors.isEmpty()) {
+        if (!isSupportedConfigType(type, errors, varName) || !errors.isEmpty()) {
             StringBuilder errorMsg = new StringBuilder();
             for (String error : errors) {
                 errorMsg.append("\n\t").append(error);
@@ -884,7 +884,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean isSupportedConfigType(BType type, List<String> errors) {
+    private boolean isSupportedConfigType(BType type, List<String> errors, String varName) {
         switch (type.getKind()) {
             case FINITE:
                 return false;
@@ -893,7 +893,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (elementType.tag == TypeTags.INTERSECTION) {
                     elementType = ((BIntersectionType) elementType).getEffectiveType();
                 }
-                if (elementType.tag == TypeTags.TABLE || !isSupportedConfigType(elementType, errors)) {
+                if (elementType.tag == TypeTags.TABLE || !isSupportedConfigType(elementType, errors, varName)) {
                     errors.add("array element type '" + elementType + "' is not supported");
                 }
                 return true;
@@ -901,26 +901,27 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BRecordType recordType = (BRecordType) type;
                 for (Field field : recordType.getFields().values()) {
                     Type fieldType = field.getType();
-                    if (!isSupportedConfigType((BType) fieldType, errors)) {
-                        errors.add("record field type '" + fieldType + "' of field '" + field.getName() + "' is not" +
+                    String fieldName = varName + "." + field.getName();
+                    if (!isSupportedConfigType((BType) fieldType, errors, fieldName)) {
+                        errors.add("record field type '" + fieldType + "' of field '" + fieldName + "' is not" +
                                 " supported");
                     }
                 }
                 return true;
             case MAP:
                 BMapType mapType = (BMapType) type;
-                if (!isSupportedConfigType(mapType.constraint, errors)) {
+                if (!isSupportedConfigType(mapType.constraint, errors, varName)) {
                     errors.add("map constraint type '" + mapType.constraint + "' is not supported");
                 }
                 return true;
             case TABLE:
                 BTableType tableType = (BTableType) type;
-                if (!isSupportedConfigType(tableType.constraint, errors)) {
+                if (!isSupportedConfigType(tableType.constraint, errors, varName)) {
                     errors.add("table constraint type '" + tableType.constraint + "' is not supported");
                 }
                 return true;
             case INTERSECTION:
-                return isSupportedConfigType(((BIntersectionType) type).effectiveType, errors);
+                return isSupportedConfigType(((BIntersectionType) type).effectiveType, errors, varName);
             case UNION:
                 return Symbols.isFlagOn(type.flags, Flags.ENUM);
             default:

@@ -55,6 +55,11 @@ type Person3 record {|
     (1|2)[] finiteArr;
 |};
 
+type Person4 record {|
+    string name;
+    Person1 person;
+|};
+
 type Colors "Red" | "Green";
 
 // Unsupported array of table
@@ -65,6 +70,7 @@ configurable (table<Person> key(name) & readonly)[] tableArr2 = ?;
 configurable Person1 person1 = ?;
 configurable Person2 person2 = ?;
 configurable Person3 person3 = ?;
+configurable Person4 person4 = ?;
 
 // Unsupported table constraint
 configurable table<map<anydata>> tableVar1 = ?;

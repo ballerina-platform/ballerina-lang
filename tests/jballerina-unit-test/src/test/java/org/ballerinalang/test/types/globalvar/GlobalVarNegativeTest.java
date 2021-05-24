@@ -92,42 +92,46 @@ public class GlobalVarNegativeTest {
                 "implicitly final", 37, 7);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(table<Person> key" +
                 "(name)[] & readonly)'\n\t" +
-                "array element type 'table<Person> key(name) & readonly' is not supported", 61, 1);
+                "array element type 'table<Person> key(name) & readonly' is not supported", 66, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '((table<Person> " +
                         "key(name) & readonly)[] & readonly)'\n\t" +
-                "array element type 'table<Person> key(name) & readonly' is not supported", 62, 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(Person1" +
-                " & readonly)'\n\t" +
-                "record field type '(anydata & readonly)' of field 'anydataField' is not supported", 65, 1);
+                "array element type 'table<Person> key(name) & readonly' is not supported", 67, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(Person1 & " +
+                "readonly)'\n\t" +
+                "record field type '(anydata & readonly)' of field 'person1.anydataField' is not supported", 70, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(Person2 & " +
                 "readonly)'\n\t" +
-                "record field type '(int|string)' of field 'unionField' is not supported\n\t" +
-                "record field type '(anydata & readonly)' of field 'anydataField' is not supported", 66, 1);
+                "record field type '(int|string)' of field 'person2.unionField' is not supported\n\t" +
+                "record field type '(anydata & readonly)' of field 'person2.anydataField' is not supported", 71, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(Person3 & " +
                 "readonly)'\n\t" +
-                "array element type '1|2' is not supported", 67, 1);
+                "array element type '1|2' is not supported", 72, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(Person4 & " +
+                "readonly)'\n\t" +
+                "record field type '(anydata & readonly)' of field 'person4.person.anydataField' is not supported", 73
+                , 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '" +
                 "(table<map<anydata>> & readonly)'\n\t" +
-                "map constraint type '(anydata & readonly)' is not supported", 70, 1);
+                "map constraint type '(anydata & readonly)' is not supported", 76, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(table<Person1> & " +
                 "readonly)'\n\t" +
-                "record field type '(anydata & readonly)' of field 'anydataField' is not supported", 71, 1);
+                "record field type '(anydata & readonly)' of field 'tableVar2.anydataField' is not supported", 77, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(anydata[] & " +
                 "readonly)'\n\t" +
-                "array element type 'anydata & readonly' is not supported", 74, 1);
+                "array element type 'anydata & readonly' is not supported", 80, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(map<anydata> & " +
                 "readonly)'\n\t" +
-                "map constraint type '(anydata & readonly)' is not supported", 77, 1);
+                "map constraint type '(anydata & readonly)' is not supported", 83, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '((string|int) & " +
-                "readonly)'", 80, 1);
+                "readonly)'", 86, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(anydata & " +
-                "readonly)'", 81, 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for 'Red|Green'", 84, 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '1|0'", 85, 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '2|1.7f|test'", 86,
+                "readonly)'", 87, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for 'Red|Green'", 90, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '1|0'", 91, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '2|1.7f|test'", 92,
                 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '([int,string] & " +
-                        "readonly)'", 89, 1);
+                        "readonly)'", 95, 1);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
