@@ -966,11 +966,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean checkKeySpecifier(BLangTableConstructorExpr tableConstructorExpr, BTableType tableType) {
         if (tableConstructorExpr.tableKeySpecifier != null) {
-            if (!(validateTableConstructorRecordLiterals(getTableKeyNameList(tableConstructorExpr.
-                    tableKeySpecifier), tableConstructorExpr.recordLiteralList))) {
-                resultType = symTable.semanticError;
-                return true;
-            }
             tableType.fieldNameList = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
         }
         return false;
@@ -1102,47 +1097,10 @@ public class TypeChecker extends BLangNodeVisitor {
                             ((BIntersectionType) constraint).effectiveType,
                     tableType.keyPos);
 
-            return (isKeySpecifierValidated && validateTableConstructorRecordLiterals(fieldNameList, recordLiterals));
+            return (isKeySpecifierValidated);
         }
 
         return true;
-    }
-
-    private boolean validateTableConstructorRecordLiterals(List<String> keySpecifierFieldNames,
-                                                           List<BLangRecordLiteral> recordLiterals) {
-        for (String fieldName : keySpecifierFieldNames) {
-            for (BLangRecordLiteral recordLiteral : recordLiterals) {
-                BLangRecordKeyValueField recordKeyValueField = getRecordKeyValueField(recordLiteral, fieldName);
-                if (recordKeyValueField.getValue().getKind() == NodeKind.LITERAL ||
-                        recordKeyValueField.getValue().getKind() == NodeKind.NUMERIC_LITERAL ||
-                        recordKeyValueField.getValue().getKind() == NodeKind.RECORD_LITERAL_EXPR ||
-                        recordKeyValueField.getValue().getKind() == NodeKind.ARRAY_LITERAL_EXPR ||
-                        recordKeyValueField.getValue().getKind() == NodeKind.TUPLE_LITERAL_EXPR ||
-                        recordKeyValueField.getValue().getKind() == NodeKind.XML_ELEMENT_LITERAL ||
-                        recordKeyValueField.getValue().getKind() == NodeKind.XML_TEXT_LITERAL) {
-                    continue;
-                }
-
-                dlog.error(recordLiteral.pos,
-                        DiagnosticErrorCode.KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT, fieldName);
-                resultType = symTable.semanticError;
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private BLangRecordKeyValueField getRecordKeyValueField(BLangRecordLiteral recordLiteral,
-                                                            String fieldName) {
-        for (RecordLiteralNode.RecordField recordField : recordLiteral.fields) {
-            BLangRecordKeyValueField recordKeyValueField = (BLangRecordKeyValueField) recordField;
-            if (fieldName.equals(recordKeyValueField.key.toString())) {
-                return recordKeyValueField;
-            }
-        }
-
-        return null;
     }
 
     public boolean validateKeySpecifier(List<String> fieldNameList, BType constraint,
@@ -4192,37 +4150,66 @@ public class TypeChecker extends BLangNodeVisitor {
         // Annotation such as <@untainted [T]>, where T is not provided,
         // it's merely a annotation on contextually expected type.
         BLangExpression expr = conversionExpr.expr;
-        if (conversionExpr.typeNode == null && !conversionExpr.annAttachments.isEmpty()) {
-            resultType = checkExpr(expr, env, this.expType);
+        if (conversionExpr.typeNode == null) {
+            if (!conversionExpr.annAttachments.isEmpty()) {
+                resultType = checkExpr(expr, env, this.expType);
+            }
             return;
         }
 
-        BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
-
-        boolean requiresTypeInference = requireTypeInference(expr, false);
-        if (requiresTypeInference) {
-            targetType = getEffectiveReadOnlyType(conversionExpr.typeNode.pos, targetType);
-        }
+        BType targetType = getEffectiveReadOnlyType(conversionExpr.typeNode.pos,
+                                                    symResolver.resolveTypeNode(conversionExpr.typeNode, env));
 
         conversionExpr.targetType = targetType;
-        BType expType = requiresTypeInference ? targetType : symTable.noType;
-        BType sourceType = checkExpr(expr, env, expType);
 
-        if (types.isTypeCastable(expr, sourceType, targetType, this.env)) {
+        boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
+        this.nonErrorLoggingCheck = true;
+        int prevErrorCount = this.dlog.errorCount();
+        this.dlog.resetErrorCount();
+        this.dlog.mute();
+
+        BLangExpression exprToCheck = expr;
+
+        if (!prevNonErrorLoggingCheck) {
+            expr.cloneAttempt++;
+            exprToCheck = nodeCloner.clone(expr);
+        }
+
+        BType exprCompatibleType = checkExpr(exprToCheck, env, targetType);
+
+        this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+        int errorCount = this.dlog.errorCount();
+        this.dlog.setErrorCount(prevErrorCount);
+        if (!prevNonErrorLoggingCheck) {
+            this.dlog.unmute();
+        }
+
+        if ((errorCount == 0 && exprCompatibleType != symTable.semanticError) || requireTypeInference(expr, false)) {
+            checkExpr(expr, env, targetType);
+        } else {
+            checkExpr(expr, env, symTable.noType);
+        }
+
+        BType exprType = expr.type;
+        if (types.isTypeCastable(expr, exprType, targetType, this.env)) {
             // We reach this block only if the cast is valid, so we set the target type as the actual type.
             actualType = targetType;
-        } else {
-            dlog.error(conversionExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
+        } else if (exprType != symTable.semanticError && exprType != symTable.noType) {
+            dlog.error(conversionExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES_CAST, exprType, targetType);
         }
         resultType = types.checkType(conversionExpr, actualType, this.expType);
     }
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        bLangLambdaFunction.type = bLangLambdaFunction.function.symbol.type;
+        bLangLambdaFunction.type = bLangLambdaFunction.function.type;
         // creating a copy of the env to visit the lambda function later
         bLangLambdaFunction.capturedClosureEnv = env.createClone();
-        env.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
+
+        if (!this.nonErrorLoggingCheck) {
+            env.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
+        }
+
         resultType = types.checkType(bLangLambdaFunction, bLangLambdaFunction.type, expType);
     }
 

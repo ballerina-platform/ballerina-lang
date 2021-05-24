@@ -14,14 +14,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lang.object",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "object",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",

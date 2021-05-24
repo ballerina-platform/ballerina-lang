@@ -33,6 +33,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -299,5 +300,21 @@ public class AnydataTest {
     @Test
     public void testRuntimeIsAnydata() {
         BRunUtil.invokeFunction(result, "testRuntimeIsAnydata");
+    }
+
+    @Test(dataProvider = "subtypeOfBasicTypesIsAnydata")
+    public void testSubtypeOfBasicTypesIsAnydata(String function) {
+        BRunUtil.invokeFunction(result, function);
+    }
+
+    @DataProvider(name = "subtypeOfBasicTypesIsAnydata")
+    public Object[][] subtypeOfBasicTypesIsAnydata() {
+        return new Object[][]{
+                {"testMapOfCharIsAnydata"},
+                {"testCharArrayIsAnydata"},
+                {"testMapOfIntSubtypeIsAnydata"},
+                {"testArrayOfIntSubtypeIsAnydata"},
+                {"testMapOfNeverTypeIsAnydata"}
+        };
     }
 }

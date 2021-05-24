@@ -84,6 +84,28 @@ public final class FunctionCompletionItemBuilder {
         return item;
     }
 
+    /**
+     * Creates and returns a completion item.
+     *
+     * @param functionSymbol BSymbol
+     * @param context        LS context
+     * @return {@link CompletionItem}
+     */
+    public static CompletionItem buildFunctionPointer(FunctionSymbol functionSymbol,
+                                                      BallerinaCompletionContext context) {
+        CompletionItem item = new CompletionItem();
+        setMeta(item, functionSymbol, context);
+        if (functionSymbol != null) {
+            // Override function signature
+            String funcName = functionSymbol.getName().get();
+            item.setInsertText(funcName);
+            item.setLabel(funcName);
+            item.setFilterText(funcName);
+            item.setKind(CompletionItemKind.Variable);
+        }
+        return item;
+    }
+
     public static CompletionItem build(ClassSymbol typeDesc, InitializerBuildMode mode,
                                        BallerinaCompletionContext ctx) {
         MethodSymbol initMethod = null;

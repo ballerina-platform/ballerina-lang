@@ -32,7 +32,7 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
  *
  * @since 2.0.0
  */
-public class InferredDependentlyTypeFuncSignatureTest {
+public class InferredDependentlyTypeFunctionTest {
 
     private CompileResult result;
     private static final String INVALID_RETURN_TYPE_ERROR = "invalid return type: members of a dependently-typed " +
@@ -71,7 +71,8 @@ public class InferredDependentlyTypeFuncSignatureTest {
                 {"testBuiltInRefType"},
                 {"testParameterizedTypeInUnionWithNonParameterizedTypes"},
                 {"testUsageWithVarWithUserSpecifiedArg"},
-                {"testFunctionWithAnyFunctionParamType"}
+                {"testFunctionWithAnyFunctionParamType"},
+                {"testUsageWithCasts"}
         };
     }
 
@@ -184,6 +185,8 @@ public class InferredDependentlyTypeFuncSignatureTest {
                 "typedesc default", 180, 1);
         validateError(negativeResult, index++, "unknown type 't'", 180, 63);
         validateError(negativeResult, index++, "unknown type 'td'", 180, 65);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 185, 44);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 186, 52);
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 }

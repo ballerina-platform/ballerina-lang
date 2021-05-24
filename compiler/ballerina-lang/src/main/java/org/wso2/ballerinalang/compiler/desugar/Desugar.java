@@ -589,6 +589,7 @@ public class Desugar extends BLangNodeVisitor {
         }
         // Since the expression of the requiredParam of both init functions refer to same object,
         // expression should be cloned.
+        expr.cloneAttempt++;
         BLangExpression expression = this.nodeCloner.clone(expr);
         if (expression.getKind() == NodeKind.ARROW_EXPR) {
             BLangIdentifier func = (BLangIdentifier) ((BLangArrowFunction) expression).functionName;

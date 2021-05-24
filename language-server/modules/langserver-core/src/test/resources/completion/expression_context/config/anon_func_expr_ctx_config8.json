@@ -457,6 +457,25 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "doTask",
+      "kind": "Variable",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` c"
+        }
+      },
+      "sortText": "B",
+      "filterText": "doTask",
+      "insertText": "doTask",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "doTask(int a, int c)",
       "kind": "Function",
       "detail": "Function",
@@ -476,6 +495,21 @@
       }
     },
     {
+      "label": "testFunction",
+      "kind": "Variable",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "B",
+      "filterText": "testFunction",
+      "insertText": "testFunction",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testFunction()",
       "kind": "Function",
       "detail": "Function",
@@ -489,6 +523,25 @@
       "filterText": "testFunction",
       "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lambda",
+      "kind": "Variable",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` b  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "sortText": "B",
+      "filterText": "lambda",
+      "insertText": "lambda",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "lambda(int a, int b)(int)",

@@ -424,10 +424,7 @@ public class LambdaGen {
         if (lambdaDetails.lhsType.tag == TypeTags.FUTURE) {
             lambdaDetails.returnType = ((BFutureType) lambdaDetails.lhsType).constraint;
         } else if (ins instanceof BIRNonTerminator.FPLoad) {
-            lambdaDetails.returnType = ((BIRNonTerminator.FPLoad) ins).retType;
-            if (lambdaDetails.returnType.tag == TypeTags.INVOKABLE) {
-                lambdaDetails.returnType = ((BInvokableType) lambdaDetails.returnType).retType;
-            }
+            lambdaDetails.returnType = ((BInvokableType) ((BIRNonTerminator.FPLoad) ins).type).retType;
         } else {
             throw new BLangCompilerException("JVM generation is not supported for async return type " +
                                                      String.format("%s", lambdaDetails.lhsType));

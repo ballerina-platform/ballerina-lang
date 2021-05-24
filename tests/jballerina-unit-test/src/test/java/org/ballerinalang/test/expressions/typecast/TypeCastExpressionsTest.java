@@ -132,8 +132,8 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-        expectedExceptionsMessageRegExp = ".*'function \\(string,int\\) returns \\(string\\)' cannot be cast to " +
-                "'function \\(string\\) returns \\(string\\)'.*")
+        expectedExceptionsMessageRegExp = ".*'isolated function \\(string,int\\) returns \\(string\\)' cannot be cast" +
+                " to 'function \\(string\\) returns \\(string\\)'.*")
     public void testFunctionCastNegative() {
         BRunUtil.invoke(result, "testFunctionCastNegative");
     }
@@ -200,7 +200,7 @@ public class TypeCastExpressionsTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "incompatible types: 'function (string,int) returns (string)' cannot be cast to " +
+                            "incompatible types: 'isolated function (string,int) returns (string)' cannot be cast to " +
                                     "'function (string) returns (string)'");
     }
 

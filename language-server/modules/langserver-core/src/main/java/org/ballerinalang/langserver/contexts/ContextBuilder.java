@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.contexts;
 
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSContextOperation;
+import org.ballerinalang.langserver.commons.BallerinaDefinitionContext;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
@@ -203,6 +204,26 @@ public class ContextBuilder {
         return new FoldingRangeContextImpl.FoldingRangeContextBuilder(lineFoldingOnly, serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
+                .build();
+    }
+
+    /**
+     * Build the goto definition context.
+     * 
+     * @param uri file URI
+     * @param workspaceManager workspace manager instance
+     * @param serverContext language server context
+     * @param position position where the definition operation invoked
+     * @return {@link BallerinaDefinitionContext}
+     */
+    public static BallerinaDefinitionContext buildDefinitionContext(String uri,
+                                                                    WorkspaceManager workspaceManager,
+                                                                    LanguageServerContext serverContext,
+                                                                    Position position) {
+        return new BallerinaDefinitionContextImpl.DefinitionContextBuilder(serverContext)
+                .withFileUri(uri)
+                .withWorkspaceManager(workspaceManager)
+                .withCursorPosition(position)
                 .build();
     }
 }
