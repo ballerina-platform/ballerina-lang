@@ -50,4 +50,12 @@ public interface ObjectTypeSymbol extends TypeSymbol, Qualifiable {
      * @return The list of included object types
      */
     List<TypeSymbol> typeInclusions();
+
+    /**
+     * Checks whether this object type can be used in a listener declaraion. i.e., whether this object type is a subtype
+     * of the builtin `Listener` type.
+     *
+     * @return Returns true if this type is a subtype of `Listener`
+     */
+    boolean isCompatibleListenerType();
 }

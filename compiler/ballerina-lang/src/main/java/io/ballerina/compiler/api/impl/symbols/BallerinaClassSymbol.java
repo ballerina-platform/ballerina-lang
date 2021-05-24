@@ -62,6 +62,7 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     private final Documentation docAttachment;
     private MethodSymbol initMethod;
     private Map<String, ClassFieldSymbol> classFields;
+    private Boolean isListenerCompatible;
 
     protected BallerinaClassSymbol(CompilerContext context, String name, List<Qualifier> qualifiers,
                                    List<AnnotationSymbol> annots, ObjectTypeSymbol typeDescriptor,
@@ -127,6 +128,17 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     @Override
     public TypeDescKind typeKind() {
         return TypeDescKind.OBJECT;
+    }
+
+    @Override
+    public boolean isCompatibleListenerType() {
+        if (this.isListenerCompatible != null) {
+            return this.isListenerCompatible;
+        }
+
+        Types types = Types.getInstance(this.context);
+        this.isListenerCompatible = types.checkListenerCompatibility(this.getBType());
+        return this.isListenerCompatible;
     }
 
     @Override

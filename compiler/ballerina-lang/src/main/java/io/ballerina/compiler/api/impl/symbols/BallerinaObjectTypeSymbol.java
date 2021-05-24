@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
@@ -57,6 +58,7 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
     private Map<String, ObjectFieldSymbol> objectFields;
     private Map<String, MethodSymbol> methods;
     private List<TypeSymbol> typeInclusions;
+    private Boolean isListenerCompatible;
 
     public BallerinaObjectTypeSymbol(CompilerContext context, ModuleID moduleID, BObjectType objectType) {
         super(context, TypeDescKind.OBJECT, objectType);
@@ -145,6 +147,17 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         }
 
         return this.typeInclusions;
+    }
+
+    @Override
+    public boolean isCompatibleListenerType() {
+        if (this.isListenerCompatible != null) {
+            return this.isListenerCompatible;
+        }
+
+        Types types = Types.getInstance(this.context);
+        this.isListenerCompatible = types.checkListenerCompatibility(this.getBType());
+        return this.isListenerCompatible;
     }
 
     @Override
