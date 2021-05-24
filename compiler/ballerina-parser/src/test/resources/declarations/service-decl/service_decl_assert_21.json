@@ -1,0 +1,161 @@
+{
+  "kind": "MODULE_PART",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "LIST",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "SERVICE_DECLARATION",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "SERVICE_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "ON_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "QUALIFIED_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "module1"
+                    },
+                    {
+                      "kind": "COLON_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "listener1",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "OPEN_BRACE_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "OBJECT_FIELD",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "PUBLIC_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "hasDiagnostics": true,
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_TYPE_DESC"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_IDENTIFIER"
+                      ]
+                    },
+                    {
+                      "kind": "SEMICOLON_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_SEMICOLON_TOKEN"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACE_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "EOF_TOKEN"
+    }
+  ]
+}
