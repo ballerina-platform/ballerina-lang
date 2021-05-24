@@ -933,6 +933,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         stackFramesMap.clear();
         loadedVariables.clear();
         variableToStackFrameMap.clear();
+        scopeIdToFrameIdMap.clear();
         loadedThreadFrames.clear();
         nextVarReference.set(1);
     }
