@@ -49,6 +49,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider;
+import org.ballerinalang.langserver.completions.FunctionPointerCompletionItem;
 import org.ballerinalang.langserver.completions.ObjectFieldCompletionItem;
 import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -393,8 +394,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         if (contextType.isPresent() && contextType.get().typeKind() == TypeDescKind.FUNCTION) {
                 CompletionItem pointerCompletionItem =
                         FunctionCompletionItemBuilder.buildFunctionPointer((FunctionSymbol) symbol, context);
-                completionItems.add(new SymbolCompletionItem(context, symbol, pointerCompletionItem));
-
+                completionItems.add(new FunctionPointerCompletionItem(context, symbol, pointerCompletionItem));
         }
         CompletionItem completionItem = FunctionCompletionItemBuilder.build((FunctionSymbol) symbol, context);
         completionItems.add(new SymbolCompletionItem(context, symbol, completionItem));

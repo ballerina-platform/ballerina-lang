@@ -41,6 +41,7 @@ public interface LSCompletionItem {
         SNIPPET,
         STATIC,
         SYMBOL,
-        TYPE
+        TYPE,
+        FUNCTION_POINTER,
     }
 }
