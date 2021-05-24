@@ -32,6 +32,7 @@ public type TestConfig record {
 };
 
 # Configuration of the function to be mocked.
+#
 # + moduleName - Name of the module of the function to be mocked
 # + functionName - Name of the function to be mocked
 public type MockConfig record {
