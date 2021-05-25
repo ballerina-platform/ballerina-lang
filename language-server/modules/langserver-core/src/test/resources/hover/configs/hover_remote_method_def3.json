@@ -10,7 +10,7 @@
     "result": {
       "contents": {
         "kind": "markdown",
-        "value": "Test Description for testRemoteMethodDef\n  \n  \n---  \n  \n### Parameters  \n  \n`int` ***b*** : b Parameter Description1  \n  \n---  \n  \n### Returns  \nintReturn Value Description1"
+        "value": "Test Description for testRemoteMethodDef\n  \n  \n---  \n  \n### Parameters  \n  \n`int` ***b*** : b Parameter Description1  \n  \n---  \n  \n### Returns  \n`int` Return Value Description1"
       }
     },
     "id": {

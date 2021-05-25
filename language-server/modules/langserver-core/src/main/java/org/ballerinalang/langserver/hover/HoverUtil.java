@@ -309,9 +309,10 @@ public class HoverUtil {
             hoverContent.add(String.join(CommonUtil.MD_LINE_SEPARATOR, params));
         }
         if (documentation.get().returnDescription().isPresent()) {
-            String returnDoc = header(3, ContextConstants.RETURN_TITLE) + CommonUtil.MD_LINE_SEPARATOR +
-                    CommonUtil.getModifiedTypeName(ctx, symbol.typeDescriptor().returnTypeDescriptor().orElseThrow())
-                    + documentation.get().returnDescription().get();
+            String returnDoc = header(3, ContextConstants.RETURN_TITLE) + CommonUtil.MD_LINE_SEPARATOR
+                    + quotedString(CommonUtil.getModifiedTypeName(ctx,
+                    symbol.typeDescriptor().returnTypeDescriptor().orElseThrow()))
+                    + " " + documentation.get().returnDescription().get();
             hoverContent.add(returnDoc);
         }
 

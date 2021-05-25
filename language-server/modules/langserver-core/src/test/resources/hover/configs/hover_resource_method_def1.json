@@ -10,7 +10,7 @@
     "result": {
       "contents": {
         "kind": "markdown",
-        "value": "Test Description2 for testResource1\n  \n  \n---  \n  \n### Parameters  \n  \n`int` ***param1*** : a Parameter Description2  \n  \n---  \n  \n### Returns  \nintReturn Value Description2"
+        "value": "Test Description2 for testResource1\n  \n  \n---  \n  \n### Parameters  \n  \n`int` ***param1*** : a Parameter Description2  \n  \n---  \n  \n### Returns  \n`int` Return Value Description2"
       }
     },
     "id": {
