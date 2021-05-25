@@ -119,7 +119,7 @@ const int CUI2 = (-(+(5+10)));
 const int CUI3 = ~2;
 const int CUI4 = ~(-36);
 const float CUF = -(10.0 * 2.0);
-const decimal CUD = +(11.5 + 4);
+const decimal CUD = -(11.5 + 4);
 const boolean CUB = !(true);
 
 function testConstUnaryExpressions() {
@@ -128,7 +128,7 @@ function testConstUnaryExpressions() {
     assertEqual(CUI3, -3);
     assertEqual(CUI4, 35);
     assertEqual(CUF, -20.0);
-    assertEqual(CUD, 15.5d);
+    assertEqual(CUD, -15.5d);
     assertEqual(CUB, false);
 }
 
