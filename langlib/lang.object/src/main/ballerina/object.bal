@@ -15,6 +15,7 @@
 // under the License.
 
 # Distinct Iterable type.
+#
 # An object can make itself iterable by using `*object:Iterable;`,
 # and then defining an `iterator` method.
 public type Iterable distinct object {

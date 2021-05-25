@@ -46,19 +46,24 @@ public type Timestamp readonly & object {
 };
 
 # Returns information about the current transaction
+#
+# + return - information about the current transaction
 public transactional isolated function info() returns Info = @java:Method {
     'class: "org.ballerinalang.langlib.transaction.Info",
     name: "info"
 } external;
 
-# Returns information about the transaction with
-# the specified xid.
+# Returns information about the transaction with the specified xid.
+#
+# + xid - transaction id
+# + return - information about the transaction
 public isolated function getInfo(byte[] xid) returns Info? = @java:Method {
     'class: "org.ballerinalang.langlib.transaction.GetInfo",
     name: "getInfo"
 } external;
 
 # Prevents the global transaction from committing successfully.
+#
 # This ask the transaction manager that when it makes the decision
 # whether to commit or rollback, it should decide to rollback.
 #
@@ -71,6 +76,7 @@ public transactional isolated function setRollbackOnly(error? e) {
 }
 
 # Tells whether it is known that the transaction will be rolled back.
+#
 # + return - true if it is known that the transaction manager will,
 # when it makes the decision whether to commit or rollback, decide
 # to rollback
@@ -86,7 +92,9 @@ public transactional isolated function setData((any|error) & readonly e) = @java
 } external;
 
 # Retrieves data associated with the current transaction branch.
+#
 # The data is set using `setData`.
+#
 # + return - the data, or `()` if no data has been set.
 public transactional isolated function getData() returns (any|error) & readonly = @java:Method {
     'class: "org.ballerinalang.langlib.transaction.GetData",
@@ -94,10 +102,12 @@ public transactional isolated function getData() returns (any|error) & readonly 
 } external;
 
 # Type of a commit handler function.
+#
 # + info - information about the transaction being committed
 public type CommitHandler isolated function(Info info);
 
 # Type of a rollback handler function.
+#
 # + info - information about the transaction being committed
 # + cause - an error describing the cause of the rollback, if there is
 # + willRetry - true if the transaction will be retried, false otherwise
