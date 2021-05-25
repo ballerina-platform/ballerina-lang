@@ -32,6 +32,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -77,6 +78,8 @@ public class OpenRecordTypeInclusionTest {
         BAssertUtil.validateError(negative, index++, "invalid cyclic type reference in '[Employee, PersonTwo, " +
                 "Employee]'", 94, 1);
         BAssertUtil.validateError(negative, index++, "redeclared symbol 'body'", 105, 6);
+        BAssertUtil.validateError(negative, index++, "incompatible subtype: 'float' type field 'body' cannot " +
+                "override included field type 'Baz'", 106, 5);
         assertEquals(negative.getErrorCount(), index);
     }
 
@@ -175,19 +178,18 @@ public class OpenRecordTypeInclusionTest {
         assertEquals(manager.get("dept").stringValue(), "");
     }
 
-    @Test()
-    public void testCreatingRecordWithOverriddenFields() {
-        BRunUtil.invoke(compileResult, "testCreatingRecordWithOverriddenFields");
+    @Test(dataProvider = "FunctionList")
+    public void testSimpleSyncSendFunctions(String funcName) {
+        BRunUtil.invoke(compileResult, funcName);
     }
 
-    @Test(enabled = false)
-    public void testOutOfOrderFieldOverridingFieldFromTypeInclusion() {
-        BRunUtil.invoke(compileResult, "testOutOfOrderFieldOverridingFieldFromTypeInclusion");
-    }
-
-    @Test()
-    public void testCyclicRecord() {
-        BRunUtil.invoke(compileResult, "testCyclicRecord");
+    @DataProvider(name = "FunctionList")
+    public Object[] testFunctions() {
+        return new Object[]{
+                "testCyclicRecord",
+                "testOutOfOrderFieldOverridingFieldFromTypeInclusion",
+                "testCreatingRecordWithOverriddenFields",
+        };
     }
 
     @AfterClass
