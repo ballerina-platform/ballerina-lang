@@ -5,23 +5,29 @@ This module facilitates developers to write automation tests for Ballerina code 
 ## Annotations
 A Ballerina testsuite can be implemented using a set of annotations. The available annotations enable executing instructions before and after the testsuite or a single test, organize a set of tests into a group, define data-driven tests, specify an order of execution, disable tests and mocking.
 
+### Test Config 
+
 The following example shows a simple testsuite.
+```ballerina
+import ballerina/test;
+
+// Test function
+@test:Config {}
+function testFunction() {
+    test:assertTrue(true, msg = "Failed!");
+}
+```
+
+The `before` and `after` attributes can be used to set the execution order by specifying the functions to run before and/or after the test.
+
 ```ballerina
 import ballerina/io;
 import ballerina/test;
 
-// Before Suite Function
-@test:BeforeSuite
-function beforeSuiteFunc() {
-    io:println("I'm the before suite function!");
-}
-
-// Before test function
 function beforeFunc() {
     io:println("I'm the before function!");
 }
 
-// Test function
 @test:Config {
     before: beforeFunc,
     after: afterFunc
@@ -31,24 +37,35 @@ function testFunction() {
     test:assertTrue(true, msg = "Failed!");
 }
 
-// After test function
 function afterFunc() {
     io:println("I'm the after function!");
 }
+```
 
-// After Suite Function
-@test:AfterSuite {}
-function afterSuiteFunc() {
-    io:println("I'm the after suite function!");
+The `dependsOn` attribute can also be used to set the test execution order by specifying the list of functions that the test function dependsOn.
+
+```ballerina
+import ballerina/io;
+import ballerina/test;
+
+@test:Config { 
+    dependsOn: [testFunction2] }
+function testFunction1() {
+    io:println("I'm in test function 1!");
+    test:assertTrue(true, msg = "Failed!");
+}
+
+@test:Config {}
+function testFunction2() {
+    io:println("I'm in test function 2!");
+    test:assertTrue(true, msg = "Failed!");
 }
 ```
-The following example shows how an individual test can be configured.
+
+The `dataProvider` attribute can be used to assign a function to act as a data provider for a test.
+
 ```ballerina
 @test:Config{  
-    enable: false, // default is true
-    before: init,
-    after: cleanup,
-    dependsOn: [test1],
     dataProvider: dataGen
 }
 function dataProviderTest (int value) returns error? {
@@ -60,9 +77,69 @@ function dataGen() returns (int[][]) {
 }
 ```
 
+### Before and After Suite
+
+The `BeforeSuite` annotation is used to execute a particular function before the test suite is executed. This can be used to setup prerequisites before executing the test suite. 
+
+```ballerina
+@test:BeforeSuite
+function beforeSuit() {
+    // initialize or execute pre-requisites
+}
+
+```
+
+The `AfterSuite` annotation is used to execute a particular function after the test suite is executed. This is used to tear-down prerequisites or execute post actions after executing the test suite.
+
+```ballerina
+@test:AfterSuite
+function afterSuit() {
+    // tear-down
+}
+
+```
+
+### Before and After Groups
+
+The `BeforeGroups` and annotation can be used to execute the function before the first test function belonging the specified groups.
+
+```ballerina
+import ballerina/io;
+import ballerina/test;
+
+@test:BeforeGroups { value:["g1"] }
+function beforeGroupsFunc() {
+    io:println("I'm the before groups function!");
+}
+
+@test:Config { groups: ["g1"]}
+function testFunction1() {
+    io:println("I'm in test function 1!");
+    test:assertTrue(true, msg = "Failed!");
+}
+```
+
+The `AfterGroups` and annotation can be used to execute the function after the last test function belonging the specified groups.
+
+```ballerina
+import ballerina/io;
+import ballerina/test;
+
+@test:AfterGroups { value:["g1"] }
+function afterGroupsFunc() {
+    io:println("I'm the after groups function!");
+}
+
+@test:Config { groups: ["g1"]}
+function testFunction1() {
+    io:println("I'm in test function 1!");
+    test:assertTrue(true, msg = "Failed!");
+}
+```
+
+
 ## Assertions
-This module provides a number of assertions in order to verify the expected behaviour of a piece of code. 
-These assertions can be used to decide if the test is passing or failing based on the condition.
+This module provides a number of assertions in order to verify the expected behaviour of a piece of code. These assertions can be used to decide if the test is passing or failing based on the condition.
 
 Following sample shows how to use assertions in Testerina.
 ```ballerina
@@ -269,8 +346,6 @@ function testTestDouble() returns error? {
 The member functions and variables are stubbed to return a specific value or to do nothing when invoked. Using the test module, a default mock object of the specified type. The default action of any member function/variable is to panic upon invocation/retrieval.  After mock object creation, the required functions and variables of the default mock object should be stubbed to return a value or to do nothing when called.
 
 ##### Samples
-
-Example
 
 Following example demonstrates how to stub a member function to return a specific value.
 ```ballerina
