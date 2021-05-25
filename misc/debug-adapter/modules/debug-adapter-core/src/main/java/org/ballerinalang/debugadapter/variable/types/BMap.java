@@ -22,8 +22,10 @@ import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
+import org.ballerinalang.debugadapter.variable.VariableFactory;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
@@ -32,6 +34,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CHECKER_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.GET_TYPEDESC_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
 
 /**
  * Ballerina map variable type.
@@ -56,7 +64,17 @@ public class BMap extends IndexedCompoundVariable {
 
     @Override
     public String computeValue() {
-        return VariableUtils.getBType(jvmValue);
+        try {
+            Value valueAsObject = getValueAsObject(context, jvmValue);
+            List<String> methodArgTypeNames = Collections.singletonList(JAVA_OBJECT_CLASS);
+            RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, GET_TYPEDESC_METHOD,
+                    methodArgTypeNames);
+            method.setArgValues(Collections.singletonList(valueAsObject));
+            Value value = method.invokeSafely();
+            return VariableFactory.getVariable(context, value).computeValue();
+        } catch (Exception e) {
+            return VariableUtils.getBType(jvmValue);
+        }
     }
 
     @Override
