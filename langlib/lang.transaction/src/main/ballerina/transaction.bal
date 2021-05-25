@@ -47,7 +47,7 @@ public type Timestamp readonly & object {
 
 # Returns information about the current transaction
 #
-# + return - information about the transaction
+# + return - information about the current transaction
 public transactional isolated function info() returns Info = @java:Method {
     'class: "org.ballerinalang.langlib.transaction.Info",
     name: "info"
@@ -77,10 +77,9 @@ public transactional isolated function setRollbackOnly(error? e) {
 
 # Tells whether it is known that the transaction will be rolled back.
 #
+# + return - true if it is known that the transaction manager will,
 # when it makes the decision whether to commit or rollback, decide
 # to rollback
-#
-# + return - true if it is known that the transaction manager will,
 public transactional isolated function getRollbackOnly() returns boolean = @java:Method {
     'class: "org.ballerinalang.langlib.transaction.GetRollbackOnly",
     name: "getRollbackOnly"

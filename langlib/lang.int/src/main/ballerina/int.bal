@@ -91,7 +91,7 @@ public isolated function abs(int n) returns int = @java:Method {
 # Returns sum of zero or more int values.
 #
 # + ns - int values to sum
-# + return - sum of all of  parameter `ns`; 0 if parameter `ns` is empty
+# + return - sum of all of parameter `ns`; 0 if parameter `ns` is empty
 public isolated function sum(int... ns) returns int = @java:Method {
     'class: "org.ballerinalang.langlib.integer.Sum",
     name: "sum"
@@ -101,7 +101,7 @@ public isolated function sum(int... ns) returns int = @java:Method {
 #
 # + n - first int value
 # + ns - other int values
-# + return - maximum value of value of parameter `x` and all of parameter`xs`
+# + return - maximum value of value of parameter `x` and all of parameter `xs`
 public isolated function max(int n, int... ns) returns int = @java:Method {
     'class: "org.ballerinalang.langlib.integer.Max",
     name: "max"
@@ -143,7 +143,7 @@ public isolated function toHexString(int n) returns string = @java:Method {
     name: "toHexString"
 } external;
 
-# Returns the integer of a string that represents in hexadecimal.
+# Returns the integer that a string value represents in hexadecimal.
 #
 # Both uppercase A-F and lowercase a-f are allowed.
 # It may start with an optional `+` or `-` sign.

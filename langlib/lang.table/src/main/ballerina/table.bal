@@ -60,7 +60,7 @@ public isolated function iterator(table<Type> t) returns object {
     return tableIterator;
    }
 
-# Returns the member of an table with a key.
+# Returns the member of an table with a particular key.
 #
 # This for use in a case where it is known that the table has a specific key,
 # and accordingly panics if parameter `t` does not have a member with key parameter `k`.
@@ -188,7 +188,7 @@ public isolated function removeAll(table<any|error> t) returns () = @java:Method
     name: "removeAll"
 } external;
 
-# Tests whether a table has a member with a key.
+# Tests whether a table has a member with a particular key.
 #
 # + t - the table
 # + k - the key
