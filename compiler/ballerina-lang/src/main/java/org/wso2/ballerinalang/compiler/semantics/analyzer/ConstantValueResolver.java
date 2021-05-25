@@ -230,11 +230,13 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                     return new BLangConstantValue(value.value, currentConstSymbol.type);
                 case SUB:
                     return calculateNegation(value);
+                case BITWISE_COMPLEMENT:
+                    return calculateBitWiseComplement(value);
+                case NOT:
+                    return calculateBooleanComplement(value);
             }
-        } catch (NumberFormatException nfe) {
+        } catch (ClassCastException ce) {
             // Ignore. This will be handled as a compiler error.
-        } catch (ArithmeticException ae) {
-            dlog.error(currentPos, DiagnosticErrorCode.INVALID_CONST_EXPRESSION, ae.getMessage());
         }
         // This is a compilation error already logged.
         // This is to avoid NPE exceptions in sub-sequent validations.
@@ -384,6 +386,29 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 BigDecimal negDecimal = new BigDecimal(String.valueOf(-1), MathContext.DECIMAL128);
                 BigDecimal resultDecimal = valDecimal.multiply(negDecimal, MathContext.DECIMAL128);
                 result = resultDecimal.toPlainString();
+                break;
+        }
+        return new BLangConstantValue(result, currentConstSymbol.type);
+    }
+
+    private BLangConstantValue calculateBitWiseComplement(BLangConstantValue value) {
+
+        Object result = null;
+        switch (this.currentConstSymbol.type.tag) {
+            case TypeTags.INT:
+            case TypeTags.BYTE: // Byte will be a compiler error.
+                result = ~((Long) (value.value));
+                break;
+        }
+        return new BLangConstantValue(result, currentConstSymbol.type);
+    }
+
+    private BLangConstantValue calculateBooleanComplement(BLangConstantValue value) {
+
+        Object result = null;
+        switch (this.currentConstSymbol.type.tag) {
+            case TypeTags.BOOLEAN:
+                result = !((Boolean) (value.value));
                 break;
         }
         return new BLangConstantValue(result, currentConstSymbol.type);

@@ -55,6 +55,7 @@ public class ConstantExpressionTest {
         BAssertUtil.validateError(compileResult1, i++, "expression is not a constant expression", 27, 18);
         BAssertUtil.validateError(compileResult1, i++, "missing identifier", 27, 18);
         BAssertUtil.validateError(compileResult1, i++, "operator '+' not defined for 'string'", 29, 20);
+        BAssertUtil.validateError(compileResult1, i++, "operator '!' not defined for 'int'", 31, 21);
         Assert.assertEquals(compileResult1.getErrorCount(), i);
     }
 

@@ -133,10 +133,11 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
         switch (unaryExpr.operator) {
             case ADD:
             case SUB:
+            case BITWISE_COMPLEMENT:
+            case NOT:
                 analyzeExpr(unaryExpr.expr);
                 return;
         }
-        dlog.error(unaryExpr.pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
     }
 
     void analyzeExpr(BLangExpression expr) {
