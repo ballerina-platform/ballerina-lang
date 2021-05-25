@@ -162,11 +162,11 @@ public isolated function removeAll(map<any|error> m) returns () = @java:Method {
     name: "removeAll"
 } external;
 
-# Tests whether m has a member with a given key.
+# Tests whether a map value has a member with a given key.
 #
 # + m - the map
 # + k - the key
-# + return - true if m has a member with key parameter `k`
+# + return - true if parameter `m` has a member with key parameter `k`
 public isolated function hasKey(map<Type> m, string k) returns boolean = @java:Method {
     'class: "org.ballerinalang.langlib.map.HasKey",
     name: "hasKey"
