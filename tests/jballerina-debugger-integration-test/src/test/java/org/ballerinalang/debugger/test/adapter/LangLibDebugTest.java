@@ -70,7 +70,7 @@ public class LangLibDebugTest {
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         Assert.assertTrue(debugHitInfo.getLeft().getSource().getPath().endsWith("ballerina/lang.float/1.0.0/any/" +
                 "modules/lang.float/float.bal"));
-        Assert.assertEquals(debugHitInfo.getLeft().getDAPBreakPoint().getLine(), 123);
+        Assert.assertEquals(debugHitInfo.getLeft().getDAPBreakPoint().getLine(), 130);
     }
 
     @AfterMethod(alwaysRun = true)
