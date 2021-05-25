@@ -346,7 +346,7 @@ isolated function validateArgumentsExt(MemberFunctionStub case) returns Error? =
 # Inter-op to register the return value.
 #
 # + case - Case to register
-# + return - Error if case registration fails
+# + return - Error if the case registration fails
 isolated function thenReturnExt(MemberFunctionStub|MemberVariableStub case) returns Error? = @java:Method {
     name: "thenReturn",
     'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
@@ -355,7 +355,7 @@ isolated function thenReturnExt(MemberFunctionStub|MemberVariableStub case) retu
 # Inter-op to register the sequence of return values.
 #
 # + case - Case to register
-# + return - Error if case registration fails
+# + return - Error if the case registration fails
 isolated function thenReturnSeqExt(MemberFunctionStub case) returns Error? = @java:Method {
     name: "thenReturnSequence",
     'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
@@ -364,7 +364,7 @@ isolated function thenReturnSeqExt(MemberFunctionStub case) returns Error? = @ja
 # Inter-op to register return value.
 #
 # + case - Case to register
-# + return - Error if case registration failed
+# + return - Error if the case registration fails
 isolated function thenReturnFuncExt(FunctionStub case) returns Error? = @java:Method {
     name: "thenReturn",
     'class: "org.ballerinalang.testerina.natives.mock.FunctionMock"
@@ -372,9 +372,9 @@ isolated function thenReturnFuncExt(FunctionStub case) returns Error? = @java:Me
 
 # Inter-op to handle function mocking.
 #
-# + mockFunction - `mockFunction` object
+# + mockFunction - The `mockFunction` object
 # + args - Function arguments
-# + return - Function return value or error if case registration failed
+# + return - Function return value or an error if the case registration fails
 isolated function mockHandler(MockFunction mockFunction, (any|error)... args) returns any|Error = @java:Method {
     name: "mockHandler",
     'class: "org.ballerinalang.testerina.natives.mock.FunctionMock"

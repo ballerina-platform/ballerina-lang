@@ -33,9 +33,9 @@ type AssertError record {
     string category = "";
 };
 
-# Creates an AssertError with custom message and category.
+# Creates an `AssertError` with the custom message and category.
 #
-# + errorMessage - Custom message for the ballerina error
+# + errorMessage - Custom message for the Ballerina error
 # + category - Error category
 #
 # + return - An AssertError with custom message and category

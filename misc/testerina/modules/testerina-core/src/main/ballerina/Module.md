@@ -1,6 +1,6 @@
 ## Module overview
 
-This module facilitates developers to write automation tests for Ballerina code in a simple manner. It provides a number of capabilities such as configuring setup and cleanup steps in different levels, ordering and grouping of tests, providing value-sets to tests and independence from external functions and endpoints via mocking capabilities.
+This module facilitates developers to write automation tests for Ballerina code in a simple manner. It provides a number of capabilities such as configuring the setup and cleanup steps at different levels, ordering and grouping of tests, providing value-sets to tests, and independence from external functions and endpoints via mocking capabilities.
 
 ## Annotations
 A Ballerina testsuite can be implemented using a set of annotations. The available annotations enable executing instructions before and after the testsuite or a single test, organize a set of tests into a group, define data-driven tests, specify an order of execution, disable tests and mocking.
@@ -42,7 +42,7 @@ function afterFunc() {
 }
 ```
 
-The `dependsOn` attribute can also be used to set the test execution order by specifying the list of functions that the test function dependsOn.
+The `dependsOn` attribute can also be used to set the test execution order by specifying the list of functions that the test function depends on.
 
 ```ballerina
 import ballerina/io;
@@ -79,7 +79,7 @@ function dataGen() returns (int[][]) {
 
 ### Before and After Suite
 
-The `BeforeSuite` annotation is used to execute a particular function before the test suite is executed. This can be used to setup prerequisites before executing the test suite. 
+The `BeforeSuite` annotation is used to execute a particular function before the test suite is executed. This can be used to setup the prerequisites before executing the test suite. 
 
 ```ballerina
 @test:BeforeSuite
@@ -89,7 +89,7 @@ function beforeSuit() {
 
 ```
 
-The `AfterSuite` annotation is used to execute a particular function after the test suite is executed. This is used to tear-down prerequisites or execute post actions after executing the test suite.
+The `AfterSuite` annotation is used to execute a particular function after the test suite is executed. This is used to tear-down the prerequisites or execute post actions after executing the test suite.
 
 ```ballerina
 @test:AfterSuite
@@ -347,7 +347,7 @@ The member functions and variables are stubbed to return a specific value or to 
 
 ##### Samples
 
-Following example demonstrates how to stub a member function to return a specific value.
+The following example demonstrates how to stub a member function to return a specific value.
 ```ballerina
 
 @test:Config {}
@@ -365,7 +365,7 @@ function testThenReturn() returns error? {
 }
 ```
 
-Following example demonstrates how to stub a member function to return different values on subsequent calls.
+The following example demonstrates how to stub a member function to return different values on subsequent calls.
 
 ```ballerina
 @test:Config {}
@@ -378,7 +378,7 @@ function testThenReturnSequence() returns error? {
     http:Response mockResponse2 = new;
     mockResponse2.statusCode = 401;
     
-    // stubbing to return different values for each function call
+    // Stubbing to return different values for each function call.
     test:prepare(clientEndpoint).when("get").thenReturnSequence(mockResponse1, mockResponse2);
 
     http:Response res = check getPet("D123");
@@ -388,14 +388,14 @@ function testThenReturnSequence() returns error? {
 }
 ```
 
-Following example demonstrates how to stub a member function to do nothing when called.
+The following example demonstrates how to stub a member function to do nothing when called.
 
 ```ballerina
 @test:Config {}
 function testDoNothing() returns error? {
     clientEndpoint = test:mock(http:Client);
     
-    // stubbing to return different values for each function call
+    // Stubbing to return different values for each function call.
     test:prepare(clientEndpoint).when("delete").doNothing();
 
     error? err = deletePet("D123");
