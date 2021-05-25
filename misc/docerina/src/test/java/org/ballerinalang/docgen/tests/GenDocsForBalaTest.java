@@ -53,15 +53,19 @@ public class GenDocsForBalaTest {
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
         BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
-    
+
         BallerinaDocGenerator.generateAPIDocs(balaProject, this.docsPath.toString(), true);
     
         String sfModuleApiDocsJsonAsString = Files.readString(
                 this.docsPath.resolve("foo").resolve("sf").resolve("1.3.5")
                         .resolve(BallerinaDocGenerator.API_DOCS_JSON));
-        Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("## Module Overview\\n\\nModule.md content."),
+        Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("## Module Overview\\n\\n" +
+                        "Module.md content [Ballerina](https://ballerina.io)."),
                 "Module.md content is missing");
         Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("Block"), "Block type is missing");
+        Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("\"summary\":" +
+                        "\"Module.md content [Ballerina](https://ballerina.io).\""),
+                "Module summary missing");
 
         String sfWorldModuleApiDocsJsonAsString = Files.readString(
                 this.docsPath.resolve("foo").resolve("sf.world").resolve("1.3.5")
