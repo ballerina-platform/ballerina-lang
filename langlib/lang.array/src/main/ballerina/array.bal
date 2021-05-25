@@ -132,7 +132,7 @@ public isolated function slice(Type[] arr, int startIndex, int endIndex = arr.le
 
 # Removes a member of an array.
 #
-# This removes the member of parameter `arr` with parameter `index` and returns it.
+# This removes the member of parameter `arr` with index parameter `index` and returns it.
 # It panics if there is no such member.
 #
 # + arr - the array
@@ -176,7 +176,7 @@ public isolated function indexOf(AnydataType[] arr, AnydataType val, int startIn
     name: "indexOf"
 } external;
 
-# Returns the index of last member of an array that is equal to a given if there is one.
+# Returns the index of last member of an array that is equal to a given value if there is one.
 # Returns `()` if not found.
 # Equality is tested using `==`.
 #
@@ -209,7 +209,7 @@ public type OrderedType ()|boolean|int|float|decimal|string|OrderedType[];
 
 # Sorts an array.
 #
-# If the member type of the array is not sorted, then the parameter `key` function
+# If the member type of the array is not ordered, then the parameter `key` function
 # must be specified.
 # Sorting works the same as with the parameter `sort` clause of query expressions.
 #
