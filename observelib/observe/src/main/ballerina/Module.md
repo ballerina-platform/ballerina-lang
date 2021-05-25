@@ -1,10 +1,10 @@
 ## Module Overview
 
 This module provides an API for observing Ballerina services.
-Ballerina supports Observability out of the box. This module provides a user API to make Ballerina Observability more flexible for the user.
+Ballerina supports Observability out of the box. This module provides an API to make observability more flexible for the Ballerina users.
 
-To observe Ballerina code, the '--b7a.observability.enabled=true' property should be given when starting the service
-(i.e. `ballerina run hello_world.bal --b7a.observability.enabled=true').
+To observe the Ballerina code, the '--b7a.observability.enabled=true' property should be given when starting the service
+(i.e., `ballerina run hello_world.bal --b7a.observability.enabled=true').
 
 ## Tracing
 Tracing provides information regarding the roundtrip of a service invocation based on the concept of spans, which are 
@@ -48,7 +48,7 @@ var ret = observe:finishSpan(spanId);
 
 #### Attach a tag to a span
 
-It is possible to add tags to span by using the `observe:addTagToSpan()` function by providing the span id and relevant tag key and tag value.
+It is possible to add tags to the span by using the `observe:addTagToSpan()` function by providing the span id and relevant tag key and tag value.
 
 ```ballerina
 _ = observe:addTagToSpan(spanId = spanId, "Tag Key", "Tag Value");
@@ -86,7 +86,7 @@ observe:Counter counterWithTags = new("CounterWithTags", desc = "Some descriptio
 ```
 
 #### Register
-The counter can be registered with the global metrics registry, therefore it can be looked up later without having the 
+The counter can be registered with the global metrics registry. Therefore, it can be looked up later without having the 
 reference of the counter that was created. Also, only the registered counters will be reported to the Metrics reporter 
 such as Prometheus. In case, if there is already another non counter metric registered, 
 then there will be an error returned. But if it's another counter instance, then the registered counter instance will 

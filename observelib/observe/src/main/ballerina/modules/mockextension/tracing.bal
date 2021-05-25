@@ -16,7 +16,7 @@
 
 import ballerina/jballerina.java;
 
-# Holds event data.
+# Holds the event data.
 #
 public type Event record {
     string name;
@@ -24,7 +24,7 @@ public type Event record {
     map<string> tags;
 };
 
-# Holds span data.
+# Holds the span data.
 #
 public type Span record {
   string operationName;
