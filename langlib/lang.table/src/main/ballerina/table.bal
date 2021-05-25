@@ -37,19 +37,20 @@ type KeyType anydata;
 # Returns number of members of a table.
 #
 # + t - the table
-# + return - number of members in `t`
+# + return - number of members in parameter `t`
 public isolated function length(table<any|error> t) returns int = @java:Method {
     'class: "org.ballerinalang.langlib.table.Length",
     name: "length"
 } external;
 
 # Returns an iterator over a table.
+#
 # The iterator will iterate over the members of the table not the keys.
 # The `entries` function can be used to iterate over the keys and members together.
 # The `keys` function can be used to iterator over just the keys.
 #
 # + t - the table
-# + return - a new iterator object that will iterate over the members of `t`
+# + return - a new iterator object that will iterate over the members of parameter `t`
 public isolated function iterator(table<Type> t) returns object {
     public isolated function next() returns record {|
         Type value;
@@ -59,23 +60,25 @@ public isolated function iterator(table<Type> t) returns object {
     return tableIterator;
    }
 
-# Returns the member of table `t` with key `k`.
+# Returns the member of an table with a key.
+#
 # This for use in a case where it is known that the table has a specific key,
-# and accordingly panics if `t` does not have a member with key `k`.
+# and accordingly panics if parameter `t` does not have a member with key parameter `k`.
 #
 # + t - the table
 # + k - the key
-# + return - member with key `k`
+# + return - member with key parameter `k`
 public isolated function get(table<Type> key<KeyType> t, KeyType k) returns Type = @java:Method {
     'class: "org.ballerinalang.langlib.table.Get",
     name: "get"
 } external;
 
-# Adds a member `val` to table `t`, replacing any member with the same key value.
-# If `val` replaces an existing member, it will have the same position
+# Adds a member to a table value, replacing any member with the same key value.
+#
+# If parameter `val` replaces an existing member, it will have the same position
 # in the order of the members as the existing member;
 # otherwise, it will be added as the last member.
-# It panics if `val` is inconsistent with the inherent type of `t`.
+# It panics if parameter `val` is inconsistent with the inherent type of parameter `t`.
 #
 # + t - the table
 # + val - the member
@@ -84,10 +87,11 @@ public isolated function put(table<Type> t, Type val) = @java:Method {
     name: "put"
 } external;
 
-# Adds a member `val` to table `t`.
+# Adds a member to a table.
+#
 # It will be added as the last member.
-# It panics if `val` has the same key as an existing member of `t`,
-# or if `val` is inconsistent with the inherent type of `t`.
+# It panics if parameter `val` has the same key as an existing member of parameter `t`,
+# or if parameter `val` is inconsistent with the inherent type of `t`.
 #
 # + t - the table
 # + val - the member
@@ -110,7 +114,8 @@ public isolated function 'map(table<Type> t, @isolatedParam function(Type val) r
 } external;
 
 # Applies a function to each member of a table.
-# The function `func` is applied to each member of `t`.
+#
+# The function `func` is applied to each member of parameter `t`.
 #
 # + t - the table
 # + func - a function to apply to each member
@@ -120,11 +125,12 @@ public isolated function forEach(table<Type> t, @isolatedParam function(Type val
 } external;
 
 # Selects the members from a table for which a function returns true.
+#
 # The resulting table will have the same keys as the argument table.
 #
 # + t - the table
 # + func - a predicate to apply to each member to test whether it should be included
-# + return - new table containing members for which `func` evaluates to true
+# + return - new table containing members for which function `func` evaluates to true
 public isolated function filter(table<Type> key<KeyType> t, @isolatedParam function(Type val) returns boolean func)
    returns table<Type> key<KeyType> = @java:Method {
     'class: "org.ballerinalang.langlib.table.Filter",
@@ -132,13 +138,14 @@ public isolated function filter(table<Type> key<KeyType> t, @isolatedParam funct
 } external;
 
 # Combines the members of a table using a combining function.
+#
 # The combining function takes the combined value so far and a member of the table,
 # and returns a new combined value.
 #
 # + t - the table
 # + func - combining function
 # + initial - initial value for the first argument of combining function `func`
-# + return - result of combining the members of `t` using `func`
+# + return - result of combining the members of parameter `t` using function `func`
 public isolated function reduce(table<Type> t, @isolatedParam function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 =
 @java:Method {
     'class: "org.ballerinalang.langlib.table.Reduce",
@@ -147,11 +154,12 @@ public isolated function reduce(table<Type> t, @isolatedParam function(Type1 acc
 
 # Removes a member of a table.
 #
+# This removed the member of parameter `t` with key parameter `k` and returns it.
+# It panics if there is no such member.
+#
 # + t - the table
 # + k - the key
-# + return - the member of `t` that had key `k`
-# This removed the member of `t` with key `k` and returns it.
-# It panics if there is no such member.
+# + return - the member of parameter `t` that had key parameter `k`
 public isolated function remove(table<Type> key<KeyType> t, KeyType k) returns Type = @java:Method {
     'class: "org.ballerinalang.langlib.table.Remove",
     name: "remove"
@@ -159,17 +167,19 @@ public isolated function remove(table<Type> key<KeyType> t, KeyType k) returns T
 
 # Removes a member of a table with a given key, if the table has member with the key.
 #
+# If parameter `t` has a member with key parameter `k`, it removes and returns it;
+# otherwise it returns `()`.
+#
 # + t - the table
 # + k - the key
-# + return - the member of `t` that had key `k`, or `()` if `t` does not have a key `k`
-# If `t` has a member with key `k`, it removes and returns it;
-# otherwise it returns `()`.
+# + return - the member of parameter `t` that had key parameter `k`, or `()` if parameter `t` does not have a key parameter `k`
 public isolated function removeIfHasKey(table<Type> key<KeyType> t, KeyType k) returns Type? = @java:Method {
     'class: "org.ballerinalang.langlib.table.RemoveIfHasKey",
     name: "removeIfHasKey"
 } external;
 
 # Removes all members of a table.
+#
 # This panics if any member cannot be removed.
 #
 # + t - the table
@@ -178,17 +188,17 @@ public isolated function removeAll(table<any|error> t) returns () = @java:Method
     name: "removeAll"
 } external;
 
-# Tests whether `t` has a member with key `k`.
+# Tests whether a table has a member with a key.
 #
 # + t - the table
 # + k - the key
-# + return - true if `t` has a member with key `k`
+# + return - true if parameter `t` has a member with key parameter `k`
 public isolated function hasKey(table<Type> key<KeyType> t, KeyType k) returns boolean = @java:Method {
     'class: "org.ballerinalang.langlib.table.HasKey",
     name: "hasKey"
 } external;
 
-# Returns a list of all the keys of table `t`.
+# Returns a list of all the keys of a table.
 #
 # + t - the table
 # + return - a new list of all keys
@@ -200,18 +210,20 @@ public isolated function keys(table<any|error> key<KeyType> t) returns KeyType[]
 # Returns a list of all the members of a table.
 #
 # + t - the table
-# + return - an array whose members are the members of `t`
+# + return - an array whose members are the members of parameter `t`
 public isolated function toArray(table<Type> t) returns Type[] = @java:Method {
     'class: "org.ballerinalang.langlib.table.ToArray",
     name: "toArray"
 } external;
 
 # Returns the next available integer key.
-# + t - the table with a key of type int
-# + return - an integer not yet used as a key
+#
 # This is maximum used key value + 1, or 0 if no key used
 # XXX should it be 0, if the maximum used key value is < 0?
 # Provides similar functionality to auto-increment
+#
+# + t - the table with a key of type int
+# + return - an integer not yet used as a key
 public isolated function nextKey(table<any|error> key<int> t) returns int = @java:Method {
     'class: "org.ballerinalang.langlib.table.NextKey",
     name: "nextKey"

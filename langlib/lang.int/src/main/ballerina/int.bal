@@ -82,7 +82,7 @@ public const int UNSIGNED8_MAX_VALUE = 255;
 # Returns absolute value of an int.
 #
 # + n - int value to be operated on
-# + return - absolute value of `n`
+# + return - absolute value of parameter `n`
 public isolated function abs(int n) returns int = @java:Method {
     'class: "org.ballerinalang.langlib.integer.Abs",
     name: "abs"
@@ -91,7 +91,7 @@ public isolated function abs(int n) returns int = @java:Method {
 # Returns sum of zero or more int values.
 #
 # + ns - int values to sum
-# + return - sum of all the `ns`; 0 is `ns` is empty
+# + return - sum of all of  parameter `ns`; 0 if parameter `ns` is empty
 public isolated function sum(int... ns) returns int = @java:Method {
     'class: "org.ballerinalang.langlib.integer.Sum",
     name: "sum"
@@ -101,7 +101,7 @@ public isolated function sum(int... ns) returns int = @java:Method {
 #
 # + n - first int value
 # + ns - other int values
-# + return - maximum value of value of `x` and all the `xs`
+# + return - maximum value of value of parameter `x` and all of parameter`xs`
 public isolated function max(int n, int... ns) returns int = @java:Method {
     'class: "org.ballerinalang.langlib.integer.Max",
     name: "max"
@@ -111,16 +111,17 @@ public isolated function max(int n, int... ns) returns int = @java:Method {
 #
 # + n - first int value
 # + ns - other int values
-# + return - minimum value of `n` and all the `ns`
+# + return - minimum value of parameter `n` and all of parameter `ns`
 public isolated function min(int n, int... ns) returns int = @java:Method {
     'class: "org.ballerinalang.langlib.integer.Min",
     name: "min"
 } external;
 
-# Returns the integer that `s` represents in decimal.
-# Returns error if `s` is not the decimal representation of an integer.
+# Returns the integer of a string that represents in decimal.
+#
+# Returns error if parameter `s` is not the decimal representation of an integer.
 # The first character may be `+` or `-`.
-# This is the inverse of `value:toString` applied to an `int`.
+# This is the inverse of function `value:toString` applied to an `int`.
 #
 # + s - string representation of a integer value
 # + return - int representation of the argument or error
@@ -129,7 +130,8 @@ public isolated function fromString(string s) returns int|error = @java:Method {
     name: "fromString"
 } external;
 
-# Returns representation of `n` as hexdecimal string.
+# Returns representation of an integer as hexdecimal string.
+#
 # There is no `0x` prefix. Lowercase letters a-f are used.
 # Negative numbers will have a `-` prefix. No sign for
 # non-negative numbers.
@@ -141,11 +143,12 @@ public isolated function toHexString(int n) returns string = @java:Method {
     name: "toHexString"
 } external;
 
-# Returns the integer that `s` represents in hexadecimal.
+# Returns the integer of a string that represents in hexadecimal.
+#
 # Both uppercase A-F and lowercase a-f are allowed.
 # It may start with an optional `+` or `-` sign.
 # No `0x` or `0X` prefix is allowed.
-# Returns an error if the `s` is not in an allowed format.
+# Returns an error if the parameter `s` is not in an allowed format.
 #
 # + s - hexadecimal string representation of int value
 # + return - int value or error
