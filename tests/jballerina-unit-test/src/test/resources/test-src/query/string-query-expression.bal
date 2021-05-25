@@ -336,3 +336,17 @@ function testQueryExprWithLimitForStringResultV2() returns string {
 
    return outputNameString;
 }
+
+function testQueryInTypeNarrowedEnv() returns string {
+    return merge(["h", "e", "l", "l", "o"]);
+}
+
+function merge(string[]? tokens) returns string {
+    if !(tokens is ()) {
+        string s = from var t in tokens
+            join var t1 in tokens
+            on t equals t1 select t;
+        return s;
+    }
+    return "";
+}
