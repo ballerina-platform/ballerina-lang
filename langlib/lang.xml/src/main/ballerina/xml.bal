@@ -216,8 +216,8 @@ public isolated function getContent(ProcessingInstruction|Comment x) returns str
 #
 # + name - the name of the new element
 # + children - the children of the new element
-# + return - an xml sequence consisting of only a new xml element with name of parameter `name`,
-#   no attributes, and children of parameter `children`
+# + return - an xml sequence consisting of only a new xml element with parameter `name` as the name,
+#   no attributes, and parameter `children` as the children
 public isolated function createElement(string name, xml children = concat())
     returns Element = @java:Method {
         'class: "org.ballerinalang.langlib.xml.CreateElement",
@@ -228,8 +228,8 @@ public isolated function createElement(string name, xml children = concat())
 #
 # + target - the target part of the processing instruction to be constructed
 # + content - the content part of the processing instruction to be constructed
-# + return - an xml sequence consisting of a processing instruction with target of parameter `target`
-#     and content of parameter `content`
+# + return - an xml sequence consisting of a processing instruction with parameter `target` as the target 
+#     and parameter `content` as the content
 public isolated function createProcessingInstruction(string target, string content)
     returns ProcessingInstruction = @java:Method {
         'class: "org.ballerinalang.langlib.xml.CreateProcessingInstruction",
@@ -239,7 +239,7 @@ public isolated function createProcessingInstruction(string target, string conte
 # Creates a new xml comment item.
 #
 # + content - the content of the comment to be constructed.
-# + return - an xml sequence consisting of a comment with content of parameter  `content`
+# + return - an xml sequence consisting of a comment with parameter  `content` as the content
 public isolated function createComment(string content) returns Comment = @java:Method {
     'class: "org.ballerinalang.langlib.xml.CreateComment",
     name: "createComment"
@@ -247,7 +247,7 @@ public isolated function createComment(string content) returns Comment = @java:M
 
 # Constructs an xml value of type Text.
 #
-# The constructed sequence will be empty when the length of parameter `chars` is zero.
+# The constructed sequence will be empty when the length of parameter `data` is zero.
 #
 # + data - the character data of the Text item
 # + return - an xml sequence that is either empty or consists of one text item
@@ -298,7 +298,7 @@ public isolated function elements(xml x, string? nm = ()) returns xml<Element> =
 
 # Returns the children of elements in an xml value.
 #
-# When parameter `x` is of type Element, it is equivalent to function `getChildren`.
+# When parameter `x` is of type `Element`, it is equivalent to function `getChildren`.
 # This is equivalent to `elements(x).map(getChildren)`.
 #
 # + x - xml value
