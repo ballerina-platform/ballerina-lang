@@ -366,7 +366,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         Object result = null;
         switch (this.currentConstSymbol.type.tag) {
             case TypeTags.INT:
-            case TypeTags.BYTE: // Byte will be a compiler error.
                 result = -1 * ((Long) (value.value));
                 break;
             case TypeTags.FLOAT:
@@ -386,7 +385,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         Object result = null;
         switch (this.currentConstSymbol.type.tag) {
             case TypeTags.INT:
-            case TypeTags.BYTE: // Byte will be a compiler error.
                 result = ~((Long) (value.value));
                 break;
         }
