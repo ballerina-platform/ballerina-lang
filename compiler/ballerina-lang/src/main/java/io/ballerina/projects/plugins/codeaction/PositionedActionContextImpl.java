@@ -22,11 +22,11 @@ import io.ballerina.tools.text.LinePosition;
 import java.nio.file.Path;
 
 /**
- * Implementation of code action plugin context.
+ * Abstract implementation of {@link PositionedActionContext}.
  *
  * @since 2.0.0
  */
-public class CodeActionPluginContextImpl implements CodeActionPluginContext {
+public abstract class PositionedActionContextImpl implements PositionedActionContext {
 
     private String fileUri;
     private Path filePath;
@@ -34,7 +34,7 @@ public class CodeActionPluginContextImpl implements CodeActionPluginContext {
     private Document document;
     private SemanticModel semanticModel;
 
-    private CodeActionPluginContextImpl(String fileUri, Path filePath, LinePosition cursorPosition,
+    protected PositionedActionContextImpl(String fileUri, Path filePath, LinePosition cursorPosition,
                                         Document document, SemanticModel semanticModel) {
         this.fileUri = fileUri;
         this.filePath = filePath;
@@ -66,10 +66,5 @@ public class CodeActionPluginContextImpl implements CodeActionPluginContext {
     @Override
     public SemanticModel currentSemanticModel() {
         return semanticModel;
-    }
-
-    public static CodeActionPluginContextImpl from(String fileUri, Path filePath, LinePosition cursorPosition,
-                                                   Document document, SemanticModel semanticModel) {
-        return new CodeActionPluginContextImpl(fileUri, filePath, cursorPosition, document, semanticModel);
     }
 }

@@ -25,9 +25,11 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
+import io.ballerina.projects.plugins.codeaction.CodeActionContext;
+import io.ballerina.projects.plugins.codeaction.CodeActionContextImpl;
+import io.ballerina.projects.plugins.codeaction.CodeActionExecutionContext;
+import io.ballerina.projects.plugins.codeaction.CodeActionExecutionContextImpl;
 import io.ballerina.projects.plugins.codeaction.CodeActionInfo;
-import io.ballerina.projects.plugins.codeaction.CodeActionPluginContext;
-import io.ballerina.projects.plugins.codeaction.CodeActionPluginContextImpl;
 import io.ballerina.projects.plugins.codeaction.DocumentEdit;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -81,9 +83,6 @@ public class LanguageServerExtensionTests {
         CodeActionManager codeActionManager = packageCompilation.getCodeActionManager();
 
         // Get code actions
-        CodeActionPluginContext codeActionPluginContext = CodeActionPluginContextImpl.from(filePath.toUri().toString(),
-                filePath, LinePosition.from(6, 5), document, module.getCompilation().getSemanticModel());
-
         Location location = new BLangDiagnosticLocation(filePath.toUri().toString(), 6, 6, 3, 14);
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo("BCE2526", "ignored", DiagnosticSeverity.ERROR);
 
@@ -91,7 +90,11 @@ public class LanguageServerExtensionTests {
         Mockito.when(typeSymbol.signature()).thenReturn("int");
         Diagnostic diagnostic = new BLangDiagnostic(location, "variable assignment is required", diagnosticInfo,
                 DiagnosticErrorCode.ASSIGNMENT_REQUIRED, List.of(new BSymbolicProperty(typeSymbol)));
-        List<CodeActionInfo> codeActionInfos = codeActionManager.codeActions(codeActionPluginContext, diagnostic);
+
+        CodeActionContext codeActionContext = CodeActionContextImpl.from(filePath.toUri().toString(),
+                filePath, LinePosition.from(6, 5), document, module.getCompilation().getSemanticModel(), diagnostic);
+
+        List<CodeActionInfo> codeActionInfos = codeActionManager.codeActions(codeActionContext);
 
         Assert.assertFalse(codeActionInfos.isEmpty());
         Optional<CodeActionInfo> info = codeActionInfos.stream()
@@ -116,8 +119,11 @@ public class LanguageServerExtensionTests {
                 argument.valueAs(String.class).equals("int")));
 
         // Execute code action
+        CodeActionExecutionContext executionContext = CodeActionExecutionContextImpl.from(filePath.toUri().toString(),
+                filePath, LinePosition.from(6, 5), document, module.getCompilation().getSemanticModel(), arguments);
+
         List<DocumentEdit> documentEdits = codeActionManager.executeCodeAction(info.get().getProviderName(),
-                codeActionPluginContext, arguments);
+                executionContext);
         Assert.assertFalse(documentEdits.isEmpty());
 
         Assert.assertTrue(documentEdits.stream().anyMatch(documentEdit -> {

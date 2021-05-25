@@ -15,8 +15,6 @@
  */
 package io.ballerina.projects.plugins.codeaction;
 
-import io.ballerina.tools.diagnostics.Diagnostic;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -42,23 +40,20 @@ public interface CodeAction {
      * Returns the details of the code action depending on the current context (cursor position, surrounding syntax tree
      * nodes, etc) and diagnostic information.
      *
-     * @param context    Context representing the document, syntax tree, cursor position and etc
-     * @param diagnostic Diagnostic for which code action details to be supplied
+     * @param context Context representing the document, syntax tree, cursor position and etc
      * @return Optional code action details. Optional can be empty if the code action doesn't apply to the context
      */
-    Optional<CodeActionInfo> codeActionInfo(CodeActionPluginContext context, Diagnostic diagnostic);
+    Optional<CodeActionInfo> codeActionInfo(CodeActionContext context);
 
     /**
      * Once the user accepts the quickfix (code action), this method is invoked to perform the required changes to the
      * document(s).
      *
-     * @param context   Code action context
-     * @param arguments Arguments supplied by {@link #codeActionInfo(CodeActionPluginContext, Diagnostic)} when
-     *                  returning this code action
+     * @param context Code action context
+     *                returning this code action
      * @return A list of document edits to be applied to the ballerina files in the project
      */
-    // TODO Return a list SyntaxTree. Check if syntaxTree
-    List<DocumentEdit> execute(CodeActionPluginContext context, List<CodeActionArgument> arguments);
+    List<DocumentEdit> execute(CodeActionExecutionContext context);
 
     /**
      * A unique name (within the compiler plugin) representing this code action. It will be used to uniquely identify

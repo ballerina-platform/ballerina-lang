@@ -22,11 +22,11 @@ import io.ballerina.tools.text.LinePosition;
 import java.nio.file.Path;
 
 /**
- * Code action context.
+ * A parent context to hold information related to an operation performed against a position.
  *
  * @since 2.0.0
  */
-public interface CodeActionPluginContext {
+public interface PositionedActionContext {
 
     /**
      * Get the file uri.

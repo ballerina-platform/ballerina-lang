@@ -19,10 +19,10 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.plugins.codeaction.CodeAction;
 import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
+import io.ballerina.projects.plugins.codeaction.CodeActionContext;
+import io.ballerina.projects.plugins.codeaction.CodeActionExecutionContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionInfo;
-import io.ballerina.projects.plugins.codeaction.CodeActionPluginContext;
 import io.ballerina.projects.plugins.codeaction.DocumentEdit;
-import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
@@ -49,32 +49,32 @@ public class CreateVarCodeAction implements CodeAction {
     }
 
     @Override
-    public Optional<CodeActionInfo> codeActionInfo(CodeActionPluginContext context, Diagnostic diagnostic) {
-        if (!(diagnostic.message().startsWith(VAR_ASSIGNMENT_REQUIRED))) {
+    public Optional<CodeActionInfo> codeActionInfo(CodeActionContext context) {
+        if (!(context.diagnostic().message().startsWith(VAR_ASSIGNMENT_REQUIRED))) {
             return Optional.empty();
         }
 
-        if (diagnostic.properties().isEmpty()) {
+        if (context.diagnostic().properties().isEmpty()) {
             return Optional.empty();
         }
 
-        TypeSymbol typeSymbol = ((DiagnosticProperty<TypeSymbol>) diagnostic.properties().get(0)).value();
+        TypeSymbol typeSymbol = ((DiagnosticProperty<TypeSymbol>) context.diagnostic().properties().get(0)).value();
         if (typeSymbol == null) {
             return Optional.empty();
         }
 
         List<CodeActionArgument> args = List.of(
-                CodeActionArgument.from(ARG_NODE_RANGE, diagnostic.location().lineRange()),
+                CodeActionArgument.from(ARG_NODE_RANGE, context.diagnostic().location().lineRange()),
                 CodeActionArgument.from(ARG_VAR_TYPE, typeSymbol.signature())
         );
         return Optional.of(CodeActionInfo.from("Introduce Variable", args));
     }
 
     @Override
-    public List<DocumentEdit> execute(CodeActionPluginContext context, List<CodeActionArgument> arguments) {
+    public List<DocumentEdit> execute(CodeActionExecutionContext context) {
         LineRange lineRange = null;
         String type = null;
-        for (CodeActionArgument argument : arguments) {
+        for (CodeActionArgument argument : context.arguments()) {
             switch (argument.key()) {
                 case ARG_NODE_RANGE:
                     lineRange = argument.valueAs(LineRange.class);

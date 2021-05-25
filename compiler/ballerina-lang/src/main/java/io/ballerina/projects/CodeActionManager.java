@@ -16,11 +16,10 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.plugins.codeaction.CodeAction;
-import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
+import io.ballerina.projects.plugins.codeaction.CodeActionContext;
+import io.ballerina.projects.plugins.codeaction.CodeActionExecutionContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionInfo;
-import io.ballerina.projects.plugins.codeaction.CodeActionPluginContext;
 import io.ballerina.projects.plugins.codeaction.DocumentEdit;
-import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,19 +55,18 @@ public class CodeActionManager {
     /**
      * Get all available code actions for the provided diagnostic from all available compiler plugins.
      *
-     * @param context    Code action context
-     * @param diagnostic Diagnostic for which code actions are to be shown
+     * @param context Code action context
      * @return List of available code actions
      */
-    public List<CodeActionInfo> codeActions(CodeActionPluginContext context, Diagnostic diagnostic) {
+    public List<CodeActionInfo> codeActions(CodeActionContext context) {
         List<CodeActionInfo> commands = new LinkedList<>();
-        codeActionsMap.getOrDefault(diagnostic.diagnosticInfo().code(), Collections.emptyList())
+        codeActionsMap.getOrDefault(context.diagnostic().diagnosticInfo().code(), Collections.emptyList())
                 .forEach(codeActionDescriptor ->
-                        codeActionDescriptor.codeAction().codeActionInfo(context, diagnostic).stream()
+                        codeActionDescriptor.codeAction().codeActionInfo(context).stream()
                                 .peek(codeActionInfo -> {
                                     // We change the provider name with package prefix
                                     codeActionInfo.setProviderName(getModifiedCodeActionName(
-                                            diagnostic.diagnosticInfo().code(),
+                                            context.diagnostic().diagnosticInfo().code(),
                                             codeActionDescriptor.compilerPluginInfo(),
                                             codeActionDescriptor.codeAction().name()));
                                     codeActionInfo.setArguments(codeActionInfo.getArguments());
@@ -83,11 +81,9 @@ public class CodeActionManager {
      *
      * @param codeActionName Name of the code action. Will be prefixed with the package name
      * @param context        Code action context
-     * @param arguments      Arguments for the code action to execute
      * @return List of edits to be applied
      */
-    public List<DocumentEdit> executeCodeAction(String codeActionName, CodeActionPluginContext context,
-                                                List<CodeActionArgument> arguments) {
+    public List<DocumentEdit> executeCodeAction(String codeActionName, CodeActionExecutionContext context) {
         String[] parts = codeActionName.split("/");
 
         String diagnosticCode;
@@ -125,7 +121,7 @@ public class CodeActionManager {
             return Collections.emptyList();
         }
 
-        return codeAction.execute(context, arguments);
+        return codeAction.execute(context);
     }
 
     static CodeActionManager from(List<CompilerPluginContextIml> compilerPluginContexts) {

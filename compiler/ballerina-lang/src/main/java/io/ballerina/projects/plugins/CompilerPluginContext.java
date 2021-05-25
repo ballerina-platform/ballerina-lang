@@ -43,7 +43,7 @@ public interface CompilerPluginContext {
     /**
      * Add a {@link CodeAction} to the current compilation.
      *
-     * @param provider the {@link CodeAction} instance
+     * @param codeAction the {@link CodeAction} instance
      */
-    void addCodeAction(CodeAction provider);
+    void addCodeAction(CodeAction codeAction);
 }
