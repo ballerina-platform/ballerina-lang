@@ -88,7 +88,7 @@ public class BuildCommand implements BLauncherCmd {
 
     public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                         boolean skipCopyLibsFromDist, Boolean skipTests, Boolean testReport, Boolean coverage,
-                        boolean enableJacocoXML, String coverageFormat) {
+                        String coverageFormat) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -97,7 +97,6 @@ public class BuildCommand implements BLauncherCmd {
         this.skipTests = skipTests;
         this.testReport = testReport;
         this.coverage = coverage;
-        this.enableJacocoXML = enableJacocoXML;
         this.coverageFormat = coverageFormat;
     }
 
@@ -153,9 +152,6 @@ public class BuildCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
     private Boolean coverage;
-
-    @CommandLine.Option(names = "--jacoco-xml", description = "enable Jacoco XML generation")
-    private boolean enableJacocoXML;
 
     @CommandLine.Option(names = "--coverage-format", description = "list of supported coverage report formats")
     private String coverageFormat;
@@ -267,10 +263,6 @@ public class BuildCommand implements BLauncherCmd {
                 this.outStream.println("warning: ignoring --coverage-format flag since code coverage is not " +
                         "enabled");
             }
-            // Skip --jacoco-xml flag if it is set without code coverage
-            if (enableJacocoXML) {
-                this.outStream.println("warning: ignoring --jacoco-xml flag since code coverage is not enabled");
-            }
         }
         // Validate Settings.toml file
         try {
@@ -288,7 +280,7 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CompileTask(outStream, errStream))
 //                .addTask(new CopyResourcesTask()) // merged with CreateJarTask
                 // run tests (projects only)
-                .addTask(new RunTestsTask(outStream, errStream, includes, enableJacocoXML, coverageFormat),
+                .addTask(new RunTestsTask(outStream, errStream, includes, coverageFormat),
                         project.buildOptions().skipTests() || isSingleFileBuild)
                 // create the BALA if -c provided (build projects only)
                 .addTask(new CreateBalaTask(outStream), isSingleFileBuild || !this.compile)

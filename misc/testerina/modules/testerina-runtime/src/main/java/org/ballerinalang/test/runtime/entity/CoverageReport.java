@@ -108,7 +108,7 @@ public class CoverageReport {
      * @param includesInCoverage boolean
      * @throws IOException
      */
-    public void generateReport(JBallerinaBackend jBallerinaBackend, String includesInCoverage, boolean enableJacocoXML,
+    public void generateReport(JBallerinaBackend jBallerinaBackend, String includesInCoverage,
                                String reportFormat)
             throws IOException {
         String orgName = this.module.packageInstance().packageOrg().toString();
@@ -126,8 +126,7 @@ public class CoverageReport {
         }
         if (!filteredPathList.isEmpty()) {
             CoverageBuilder coverageBuilder = generateTesterinaCoverageReport(orgName, packageName, filteredPathList);
-            if (CodeCoverageUtils.isRequestedReportFormat(reportFormat, TesterinaConstants.JACOCO_XML_FORMAT) ||
-                    enableJacocoXML) {
+            if (CodeCoverageUtils.isRequestedReportFormat(reportFormat, TesterinaConstants.JACOCO_XML_FORMAT)) {
                 // Add additional dependency jars for Jacoco Coverage XML if included
                 if (includesInCoverage != null) {
                     List<Path> dependencyPathList = getDependenciesForJacocoXML(jBallerinaBackend);
