@@ -41,6 +41,7 @@ import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -124,7 +125,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                                 .contains(Qualifier.CLIENT);
                         if (isEndpoint) {
                             symbolJson.addProperty("isEndpoint", true);
-                            JsonObject ep = visibleEP(node, typeSymbol.get());
+                            JsonObject ep = visibleEP(node, typeSymbol.get(), false);
                             if (ep.size() > 0) {
                                 this.visibleEpsForEachBlock.add(ep);
                             }
@@ -176,6 +177,15 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 // Ignore as semantic API calls cannot break the ST JSON creation.
             }
 
+            if (node.kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION) {
+                RemoteMethodCallActionNode remoteMethodCallActionNode = (RemoteMethodCallActionNode) node;
+                Optional<Symbol> expressionSymbol = this.semanticModel.symbol(remoteMethodCallActionNode.expression());
+                if (expressionSymbol.isPresent()) {
+                    VariableSymbol variableSymbol = (VariableSymbol) expressionSymbol.get();
+                    markVisibleEp(variableSymbol, symbolJson, remoteMethodCallActionNode.expression(), true);
+                }
+            }
+
             nodeJson.add("typeData", symbolJson);
             if (node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK && this.visibleEpsForEachBlock.size() > 0
                     && nodeJson.get("typeData") != null) {
@@ -198,7 +208,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                     .contains(Qualifier.CLIENT);
             if (isEndpoint) {
                 symbolJson.addProperty("isEndpoint", true);
-                JsonObject ep = visibleEP(node, rawType);
+                JsonObject ep = visibleEP(node, rawType, false);
                 if (ep.size() > 0) {
                     this.visibleEpsForEachBlock.add(ep);
                 }
@@ -206,7 +216,24 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         }
     }
 
-    private JsonObject visibleEP(Node node, TypeSymbol typeSymbol) {
+    private void markVisibleEp(VariableSymbol variableSymbol, JsonObject symbolJson, Node node,
+                               boolean isRemoteAction) {
+        TypeSymbol rawType = getRawType(variableSymbol.typeDescriptor());
+        if (rawType.typeKind() == TypeDescKind.OBJECT) {
+            ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
+            boolean isEndpoint = objectTypeSymbol.qualifiers()
+                    .contains(Qualifier.CLIENT);
+            if (isEndpoint) {
+                symbolJson.addProperty("isEndpoint", true);
+                JsonObject ep = visibleEP(node, rawType, isRemoteAction);
+                if (ep.size() > 0) {
+                    this.visibleEpsForEachBlock.add(ep);
+                }
+            }
+        }
+    }
+
+    private JsonObject visibleEP(Node node, TypeSymbol typeSymbol, boolean isRemoteAction) {
         JsonObject symbolMetaInfo = new JsonObject();
         ModuleID moduleID = typeSymbol.getModule().isPresent() ? typeSymbol.getModule().get().id() : null;
         String orgName = moduleID != null ? moduleID.orgName() : "";
@@ -237,7 +264,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 SimpleNameReferenceNode simpleNameReferenceNode =
                         (SimpleNameReferenceNode) assignmentStatementNode.varRef();
                 symbolMetaInfo.addProperty("name", simpleNameReferenceNode.name().text());
-                symbolMetaInfo.addProperty("isCaller", "Caller".equals(typeSymbol.getName().orElse(null)));
+                symbolMetaInfo.addProperty("isCaller", "Caller".equals(typeSymbol.getName()
+                        .orElse(null)));
                 symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
                 symbolMetaInfo.addProperty("orgName", orgName);
                 symbolMetaInfo.addProperty("moduleName", moduleName);
@@ -255,11 +283,50 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             metaInfoForModuleVar.addProperty("orgName", orgName);
             metaInfoForModuleVar.addProperty("moduleName", moduleName);
             metaInfoForModuleVar.addProperty("isModuleVar", true);
+            metaInfoForModuleVar.addProperty("isExternal", true);
 
             this.visibleEpsForModule.add(metaInfoForModuleVar);
+        } else if (node.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE && isRemoteAction) {
+            String name = ((SimpleNameReferenceNode) node).name().text();
+            JsonObject metaInfoForModuleVar = new JsonObject();
+            metaInfoForModuleVar.addProperty("name", name);
+            boolean isAvailable = isAvailableAsEndpoint(name);
+
+            if (!isAvailable) {
+                metaInfoForModuleVar.addProperty("isCaller", "Caller".equals(typeSymbol.getName()
+                        .orElse(null)));
+                metaInfoForModuleVar.addProperty("typeName", typeSymbol.getName().orElse(""));
+                metaInfoForModuleVar.addProperty("orgName", orgName);
+                metaInfoForModuleVar.addProperty("moduleName", moduleName);
+                metaInfoForModuleVar.addProperty("isExternal", true);
+
+                this.visibleEpsForModule.add(metaInfoForModuleVar);
+            }
         }
 
         return symbolMetaInfo;
+    }
+
+    private boolean isAvailableAsEndpoint(String name) {
+        boolean isAvailable = false;
+
+        for (JsonObject ep : this.visibleEpsForEachBlock) {
+            isAvailable = ep.get("name").getAsString().equals(name);
+            if (isAvailable) {
+                break;
+            }
+        }
+
+        if (!isAvailable) {
+            for (JsonObject ep : this.visibleEpsForModule) {
+                isAvailable = ep.get("name").getAsString().equals(name);
+                if (isAvailable) {
+                    break;
+                }
+            }
+        }
+
+        return isAvailable;
     }
 
     private TypeSymbol getRawType(TypeSymbol typeDescriptor) {
