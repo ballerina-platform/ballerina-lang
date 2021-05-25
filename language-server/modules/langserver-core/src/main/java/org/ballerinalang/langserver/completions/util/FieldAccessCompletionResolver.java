@@ -84,7 +84,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
     @Override
     public Optional<TypeSymbol> transform(SimpleNameReferenceNode node) {
         Optional<Symbol> symbol = this.getSymbolByName(context.visibleSymbols(context.getCursorPosition()),
-                node.name().text());
+                unescape(node.name().text()));
 
         if (symbol.isEmpty()) {
             return Optional.empty();
@@ -102,7 +102,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         if (fieldName.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
             return Optional.empty();
         }
-        String name = ((SimpleNameReferenceNode) fieldName).name().text();
+        String name = unescape(((SimpleNameReferenceNode) fieldName).name().text());
         List<Symbol> visibleEntries = this.getVisibleEntries(typeSymbol.orElseThrow(), node.expression());
         Optional<Symbol> filteredSymbol = this.getSymbolByName(visibleEntries, name);
 
@@ -122,10 +122,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         }
         Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.METHOD
                 || symbol.kind() == SymbolKind.FUNCTION;
-        String methodName = ((SimpleNameReferenceNode) nameRef).name().text();
-        if (methodName.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
-            methodName = IdentifierUtils.unescapeUnicodeCodepoints(methodName.substring(1));
-        }
+        String methodName = unescape(((SimpleNameReferenceNode) nameRef).name().text());
         List<Symbol> visibleEntries = this.getVisibleEntries(exprTypeSymbol.orElseThrow(), node.expression());
 
         FunctionSymbol symbol = (FunctionSymbol) this.getSymbolByName(visibleEntries, methodName, predicate);
@@ -146,7 +143,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
             visibleEntries = QNameReferenceUtil.getModuleContent(this.context, qNameRef, predicate);
             functionName = qNameRef.identifier().text();
         } else if (nameRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            functionName = ((SimpleNameReferenceNode) nameRef).name().text();
+            functionName = unescape(((SimpleNameReferenceNode) nameRef).name().text());
             visibleEntries = context.visibleSymbols(context.getCursorPosition()).stream()
                     .filter(predicate)
                     .collect(Collectors.toList());
@@ -284,7 +281,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         boolean isPublic = methodSymbol.qualifiers().contains(Qualifier.PUBLIC);
 
         if (exprNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
-                && ((SimpleNameReferenceNode) exprNode).name().text().equals(Names.SELF.getValue())
+                && unescape(((SimpleNameReferenceNode) exprNode).name().text()).equals(Names.SELF.getValue())
                 && !isResource) {
             return true;
         }
@@ -292,5 +289,12 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
 
         return isPublic || (!isPrivate && objModuleId.moduleName().equals(currentModule.moduleName())
                 && objModuleId.orgName().equals(currentPackage.packageOrg().value()));
+    }
+
+    private String unescape(String name) {
+        if (name.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
+            return IdentifierUtils.unescapeUnicodeCodepoints(name.substring(1));
+        }
+        return name;
     }
 }
