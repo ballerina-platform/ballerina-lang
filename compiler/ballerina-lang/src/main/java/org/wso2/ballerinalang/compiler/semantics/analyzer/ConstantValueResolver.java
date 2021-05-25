@@ -162,25 +162,21 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
-
         BLangConstantValue lhs = visitExpr(binaryExpr.lhsExpr);
         BLangConstantValue rhs = visitExpr(binaryExpr.rhsExpr);
         this.result = calculateConstValue(lhs, rhs, binaryExpr.opKind);
     }
 
     public void visit(BLangGroupExpr groupExpr) {
-
         this.result = visitExpr(groupExpr.expression);
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {
-
         BLangConstantValue value = visitExpr(unaryExpr.expr);
         this.result = calculateConstValue(value, unaryExpr.operator);
     }
 
     private BLangConstantValue calculateConstValue(BLangConstantValue lhs, BLangConstantValue rhs, OperatorKind kind) {
-
         if (lhs == null || rhs == null || lhs.value == null || rhs.value == null) {
             // This is a compilation error.
             // This is to avoid NPE exceptions in sub-sequent validations.
@@ -223,7 +219,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BLangConstantValue calculateConstValue(BLangConstantValue value, OperatorKind kind) {
-
         try {
             switch (kind) {
                 case ADD:
@@ -282,7 +277,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BLangConstantValue calculateSubtract(BLangConstantValue lhs, BLangConstantValue rhs) {
-
         Object result = null;
         switch (this.currentConstSymbol.type.tag) {
             case TypeTags.INT:
@@ -326,7 +320,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BLangConstantValue calculateDivision(BLangConstantValue lhs, BLangConstantValue rhs) {
-
         Object result = null;
         switch (this.currentConstSymbol.type.tag) {
             case TypeTags.INT:
@@ -349,7 +342,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     // TODO : Not working at the moment.
     private BLangConstantValue calculateMod(BLangConstantValue lhs, BLangConstantValue rhs) {
-
         Object result = null;
         switch (this.currentConstSymbol.type.tag) {
             case TypeTags.INT:
@@ -371,7 +363,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BLangConstantValue calculateNegation(BLangConstantValue value) {
-
         Object result = null;
         switch (this.currentConstSymbol.type.tag) {
             case TypeTags.INT:
@@ -392,7 +383,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BLangConstantValue calculateBitWiseComplement(BLangConstantValue value) {
-
         Object result = null;
         switch (this.currentConstSymbol.type.tag) {
             case TypeTags.INT:
@@ -404,7 +394,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BLangConstantValue calculateBooleanComplement(BLangConstantValue value) {
-
         Object result = null;
         switch (this.currentConstSymbol.type.tag) {
             case TypeTags.BOOLEAN:
@@ -415,7 +404,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BLangConstantValue visitExpr(BLangExpression node) {
-
         if (!node.typeChecked) {
             return null;
         }

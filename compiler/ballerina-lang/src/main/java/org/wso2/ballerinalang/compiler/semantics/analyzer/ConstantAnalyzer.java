@@ -66,7 +66,6 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-
         analyzeExpr(constant.expr);
     }
 
@@ -82,7 +81,6 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRef) {
-
         BSymbol symbol = varRef.symbol;
         // Symbol can be null in some invalid scenarios. Eg - const string m = { name: "Ballerina" };
         if (symbol != null && (symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
@@ -92,7 +90,6 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
-
         for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
             if (field.isKeyValueField()) {
                 BLangRecordLiteral.BLangRecordKeyValueField keyValuePair =
@@ -109,7 +106,6 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
-
         for (int i = expressions.size() - 1; i >= 0; i--) {
             NodeKind kind = expressions.get(i).getKind();
             if (kind == NodeKind.GROUP_EXPR || kind == NodeKind.UNARY_EXPR) {
@@ -124,7 +120,6 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangGroupExpr expr) {
-
         analyzeExpr(expr.expression);
     }
 
@@ -141,7 +136,6 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
     }
 
     void analyzeExpr(BLangExpression expr) {
-
         switch (expr.getKind()) {
             case LITERAL:
             case NUMERIC_LITERAL:
@@ -165,7 +159,6 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
      * @return {@code true} if the given expression is allowed, {@code false} otherwise.
      */
     static boolean isValidConstantExpressionNode(BLangExpression expression) {
-
         switch (expression.getKind()) {
             case LITERAL:
             case NUMERIC_LITERAL:
