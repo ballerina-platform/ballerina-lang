@@ -173,6 +173,13 @@ public class StringQueryExpressionTest {
         Assert.assertEquals(returnValues[0].stringValue(), "Ranjan John ");
     }
 
+    @Test(description = "Test query in a type narrowed environment")
+    public void testQueryInTypeNarrowedEnv() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryInTypeNarrowedEnv");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues[0].stringValue(), "hellllo");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
