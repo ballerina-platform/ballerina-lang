@@ -78,11 +78,13 @@ will simply create an instance based on the params passed.
 observe:Counter simpleCounter = new("SimpleCounter"); 
 
 // Create counter with description.
-observe:Counter counterWithDesc = new("CounterWithDesc", desc = "This is a sample counter description");
+observe:Counter counterWithDesc = new("CounterWithDesc", 
+        desc = "This is a sample counter description");
 
 // Create counter with tags.
 map<string> counterTags = { "method": "GET" };
-observe:Counter counterWithTags = new("CounterWithTags", desc = "Some description", tags = counterTags);
+observe:Counter counterWithTags = new("CounterWithTags", 
+        desc = "Some description", tags = counterTags);
 ```
 
 #### Register
@@ -94,7 +96,8 @@ be returned.
 
 ```ballerina
 map<string> counterTags = { "method": "GET" };
-observe:Counter counterWithTags = new("CounterWithTags", desc = "Some description", tags = counterTags);
+observe:Counter counterWithTags = new("CounterWithTags", 
+        desc = "Some description", tags = counterTags);
 var anyError = counterWithTags.register();
 if anyError is error {
     log:printError("Cannot register the counter", err = anyError);
@@ -107,7 +110,8 @@ then further it'll not be included in metrics reporting.
 
 ```ballerina
 map<string> counterTags = { "method": "GET" };
-observe:Counter counterWithTags = new("CounterWithTags", desc = "Some description", tags = counterTags);
+observe:Counter counterWithTags = new("CounterWithTags", 
+        desc = "Some description", tags = counterTags);
 var anyError = counterWithTags.register();
 if anyError is error {
     log:printError("Cannot register the counter", err = anyError);
@@ -121,7 +125,8 @@ The counter can be incremented without passing any params (defaulted to 1), or b
 
 ```ballerina
 map<string> counterTags = { "method": "GET" };
-observe:Counter counterWithTags = new("CounterWithTags", desc = "Some description", tags = counterTags);
+observe:Counter counterWithTags = new("CounterWithTags", 
+        desc = "Some description", tags = counterTags);
 // Increment by 1.
 counterWithTags.increment(); 
 // Increment by amount 10.
@@ -133,7 +138,8 @@ The counter can be resetted to default amount = 0.
 
 ```ballerina
 map<string> counterTags = { "method": "GET" };
-observe:Counter counterWithTags = new("CounterWithTags", desc = "Some description", tags = counterTags);
+observe:Counter counterWithTags = new("CounterWithTags", 
+        desc = "Some description", tags = counterTags);
 counterWithTags.reset();
 ```
 
@@ -142,7 +148,8 @@ The current value can be retrieved by this operation.
 
 ```ballerina
 map<string> counterTags = { "method": "GET" };
-observe:Counter counterWithTags = new("CounterWithTags", desc = "Some description", tags = counterTags);
+observe:Counter counterWithTags = new("CounterWithTags", 
+        desc = "Some description", tags = counterTags);
 int currentValue = counterWithTags.getValue();
 ```
 
@@ -159,24 +166,27 @@ observe:Gauge simpleGauge = new("SimpleGauge");
 
 // Create gauge with description.
 // Uses the default statistics configuration. 
-observe:Gauge gaugeWithDesc = new("GaugeWithDesc", desc = "This is a sample gauge description");
+observe:Gauge gaugeWithDesc = new("GaugeWithDesc", 
+        desc = "This is a sample gauge description");
 
 // Create gauge with tags.
 // Uses the default statistics configuration. 
 map<string> gaugeTags = { "method": "GET" };
-observe:Counter gaugeWithTags = new("GaugeWithTags", desc = "Some description", tags = gaugeTags);
+observe:Counter gaugeWithTags = new("GaugeWithTags", 
+        desc = "Some description", tags = gaugeTags);
 
 // Create gauge with disabled statistics. 
 observe:StatisticConfig[] statsConfigs = [];
-observe:Gauge gaugeWithNoStats = new("GaugeWithTags", desc = "Some description", 
-                                    tags = gaugeTags, statisticConfig = statsConfigs);
+observe:Gauge gaugeWithNoStats = new("GaugeWithTags", 
+        desc = "Some description", tags = gaugeTags, statisticConfig = statsConfigs);
 
 // Create gauge with statistics config. 
-observe:StatisticConfig config = { timeWindow: 30000, percentiles: [0.33, 0.5, 0.9, 0.99], buckets: 3 };
+observe:StatisticConfig config = { timeWindow: 30000, 
+        percentiles: [0.33, 0.5, 0.9, 0.99], buckets: 3 };
 statsConfigs[0]=config; 
 
-observe:Gauge gaugeWithStats = new("GaugeWithTags", desc = "Some description", 
-                                   tags = gaugeTags, statisticConfig = statsConfigs);
+observe:Gauge gaugeWithStats = new("GaugeWithTags", 
+        desc = "Some description", tags = gaugeTags, statisticConfig = statsConfigs);
 ```
 
 #### Register
@@ -188,7 +198,8 @@ be returned.
 
 ```ballerina
 map<string> gaugeTags = { "method": "GET" };
-observe:Gauge gaugeWithTags = new("GaugeWithTags", desc = "Some description", tags = gaugeTags);
+observe:Gauge gaugeWithTags = new("GaugeWithTags", 
+        desc = "Some description", tags = gaugeTags);
 var anyError = gaugeWithTags.register();
 if anyError is error {
     log:printError("Cannot register the gauge", err = anyError);
@@ -201,7 +212,8 @@ If a metrics is unregistered, then further it'll not be included in metrics repo
 
 ```ballerina
 map<string> gaugeTags = { "method": "GET" };
-observe:Gauge gaugeWithTags = new("GaugeWithTags", desc = "Some description", tags = gaugeTags);
+observe:Gauge gaugeWithTags = new("GaugeWithTags", 
+        desc = "Some description", tags = gaugeTags);
 var anyError = gaugeWithTags.register();
 if anyError is error {
     log:printError("Cannot register the gauge", err = anyError);
@@ -214,7 +226,8 @@ The gauge can be incremented without passing any params (defaulted to 1.0), or b
 
 ```ballerina
 map<string> gaugeTags = { "method": "GET" };
-observe:Gauge gaugeWithTags = new("GaugeWithTags", desc = "Some description", tags = gaugeTags);
+observe:Gauge gaugeWithTags = new("GaugeWithTags", 
+        desc = "Some description", tags = gaugeTags);
 // Increment by 1.
 gaugeWithTags.increment(); 
 // Increment by amount 10.
@@ -226,7 +239,8 @@ The gauge can be decremented without passing any params (defaulted to 1.0), or b
 
 ```ballerina
 map<string> gaugeTags = { "method": "GET" };
-observe:Gauge gaugeWithTags = new("GaugeWithTags", desc = "Some description", tags = gaugeTags);
+observe:Gauge gaugeWithTags = new("GaugeWithTags", 
+        desc = "Some description", tags = gaugeTags);
 // Increment by 1.
 gaugeWithTags.decrement(); 
 // Increment by amount 10.
@@ -238,7 +252,8 @@ This method sets the gauge's value with specific amount.
 
 ```ballerina
 map<string> gaugeTags = { "method": "GET" };
-observe:Gauge gaugeWithTags = new("GaugeWithTags", desc = "Some description", tags = gaugeTags);
+observe:Gauge gaugeWithTags = new("GaugeWithTags", 
+        desc = "Some description", tags = gaugeTags);
 gaugeWithTags.setValue(100.0);
 ```
 
@@ -247,7 +262,8 @@ The current value can be retrieved by this operation.
 
 ```ballerina
 map<string> gaugeTags = { "method": "GET" };
-observe:Gauge gaugeWithTags = new("GaugeWithTags", desc = "Some description", tags = gaugeTags);
+observe:Gauge gaugeWithTags = new("GaugeWithTags", 
+        desc = "Some description", tags = gaugeTags);
 float currentValue = gaugeWithTags.getValue(); 
 ```
 
@@ -257,7 +273,8 @@ If the statistics are disabled, then it'll be returning nil ().
 
 ```ballerina
 map<string> gaugeTags = { "method": "GET" };
-observe:Gauge gaugeWithTags = new("GaugeWithTags", desc = "Some description", tags = gaugeTags);
+observe:Gauge gaugeWithTags = new("GaugeWithTags", 
+        desc = "Some description", tags = gaugeTags);
 gaugeWithTags.setValue(1.0);
 gaugeWithTags.setValue(2.0);
 gaugeWithTags.setValue(3.0);
@@ -288,7 +305,8 @@ This method will lookup for the metric from the global metric registry and retur
 
 ```ballerina
 map<string> tags = { "method": "GET" };
-observe:Counter|observe:Gauge|() metric = observe:lookupMetric("MetricName", tags = tags);
+observe:Counter|observe:Gauge|() metric = observe:lookupMetric("MetricName", 
+        tags = tags);
 if metric is observe:Counter {
     metric.increment(amount = 10);
 } else if metric is observe:Gauge {
