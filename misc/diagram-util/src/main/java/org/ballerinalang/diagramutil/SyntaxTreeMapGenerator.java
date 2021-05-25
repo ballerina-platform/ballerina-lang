@@ -308,25 +308,19 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
     }
 
     private boolean isAvailableAsEndpoint(String name) {
-        boolean isAvailable = false;
-
         for (JsonObject ep : this.visibleEpsForEachBlock) {
-            isAvailable = ep.get("name").getAsString().equals(name);
-            if (isAvailable) {
-                break;
+            if (ep.get("name").getAsString().equals(name)) {
+                return true;
             }
         }
 
-        if (!isAvailable) {
-            for (JsonObject ep : this.visibleEpsForModule) {
-                isAvailable = ep.get("name").getAsString().equals(name);
-                if (isAvailable) {
-                    break;
-                }
+        for (JsonObject ep : this.visibleEpsForModule) {
+            if (ep.get("name").getAsString().equals(name)) {
+                return true;
             }
         }
 
-        return isAvailable;
+        return false;
     }
 
     private TypeSymbol getRawType(TypeSymbol typeDescriptor) {
