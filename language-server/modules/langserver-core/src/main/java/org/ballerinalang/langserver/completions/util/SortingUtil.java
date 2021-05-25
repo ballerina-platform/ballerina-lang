@@ -310,6 +310,7 @@ public class SortingUtil {
         int rank = -1;
         CompletionItemKind completionItemKind = completionItem.getCompletionItem().getKind();
         switch (completionItem.getType()) {
+            case FUNCTION_POINTER:
             case SYMBOL:
                 if (completionItemKind != null) {
                     switch (completionItemKind) {
