@@ -49,6 +49,7 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
@@ -71,6 +72,7 @@ import javax.annotation.Nonnull;
  * @since 2.0.0
  */
 public class FieldAccessCompletionResolver extends NodeTransformer<Optional<TypeSymbol>> {
+    private static final String IDENTIFIER_LITERAL_PREFIX = "'";
     private final PositionedOperationContext context;
     private final boolean optionalFieldAccess;
 
@@ -121,6 +123,9 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.METHOD
                 || symbol.kind() == SymbolKind.FUNCTION;
         String methodName = ((SimpleNameReferenceNode) nameRef).name().text();
+        if (methodName.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
+            methodName = IdentifierUtils.unescapeUnicodeCodepoints(methodName.substring(1));
+        }
         List<Symbol> visibleEntries = this.getVisibleEntries(exprTypeSymbol.orElseThrow(), node.expression());
 
         FunctionSymbol symbol = (FunctionSymbol) this.getSymbolByName(visibleEntries, methodName, predicate);
