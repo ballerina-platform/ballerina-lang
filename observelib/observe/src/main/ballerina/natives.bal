@@ -72,6 +72,14 @@ public function finishSpan(int spanId) returns error? = @java:Method {
     name: "finishSpan"
 } external;
 
+# Retrieve a map of span context data.
+#
+# + return - Map of span context data (traceId and spanId).
+public function getSpanContext() returns map<string> = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.GetSpanContext",
+    name: "getSpanContext"
+} external;
+
 # Retrieve all registered metrics including default metrics from the ballerina runtime, and user defined metrics.
 #
 # + return - Array of all registered metrics.
