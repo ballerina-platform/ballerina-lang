@@ -19,7 +19,6 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -32,7 +31,6 @@ import io.ballerina.projects.Project;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
@@ -144,55 +142,6 @@ public class SortingUtil {
         rank = rank < 0 ? 7 : rank;
 
         return genSortText(rank);
-    }
-
-    /**
-     * Get the sort text for the initializer context items.
-     *
-     * @param context        language server completion context
-     * @param item           Completion Item to evaluate
-     * @param assignableType assignable type (derived from the LHS)
-     * @return {@link String} generated sort text
-     */
-    public static String genSortTextForInitContextItem(DocumentServiceContext context, LSCompletionItem item,
-                                                       TypeDescKind assignableType) {
-        // TODO: Revamp should carry out after fixing the type reference issue in semantic model is fixed 
-        /*
-        Sorting order is as follows,
-        (1) new Keyword and the new(...) snippet
-        (2) Variable symbols with the valid assignable type
-        (3) Function invocations with the return type mapping the assignable type
-        (4) Other Variables
-        (5) Other Function Invocations
-        (6) Modules
-         */
-//        String label = item.getCompletionItem().getLabel();
-//        if (label.equals("new") || label.startsWith("new(")) {
-//            return genSortText(1);
-//        }
-//        if (item instanceof SymbolCompletionItem) {
-//            Symbol symbol = ((SymbolCompletionItem) item).getSymbol();
-//            if (symbol instanceof BInvokableSymbol) {
-//                BType retType = ((BInvokableSymbol) symbol).retType;
-//                if (retType != null && retType.tsymbol == assignableType) {
-//                    return genSortText(3);
-//                }
-//                return genSortText(5);
-//            }
-//            if (symbol instanceof VariableSymbol) {
-//                if (symbol.type.tsymbol == assignableType) {
-//                    return genSortText(2);
-//                }
-//                return genSortText(4);
-//            }
-//            // TODO: Check whether we come to this point
-//            return genSortText(6);
-//        }
-//        if (isModuleCompletionItem(item)) {
-//            return genSortText(7) + genSortTextForModule(context, item);
-//        }
-//
-        return genSortText(8);
     }
 
     /**

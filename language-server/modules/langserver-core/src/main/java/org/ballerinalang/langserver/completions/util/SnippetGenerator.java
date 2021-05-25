@@ -15,13 +15,12 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver;
+package org.ballerinalang.langserver.completions.util;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.langserver.SnippetBlock.Kind;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.SnippetBlock.Kind;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -468,7 +467,7 @@ public class SnippetGenerator {
     public static SnippetBlock getResourceFunctionSignatureSnippet() {
         String snippet = "resource function ${1:name} ${2:.} (${3})${4} {" + CommonUtil.LINE_SEPARATOR + "\t${5}"
                 + CommonUtil.LINE_SEPARATOR + "}";
-        return new SnippetBlock(ItemResolverConstants.RESOURCE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+        return new SnippetBlock(ItemResolverConstants.RESOURCE_FUNC_DEF, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
     }
 

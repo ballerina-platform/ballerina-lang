@@ -28,8 +28,6 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.providers.context.util.ObjectConstructorBodyContextUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -45,7 +43,7 @@ import java.util.stream.Collectors;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ObjectConstructorExpressionNodeContext
-        extends AbstractCompletionProvider<ObjectConstructorExpressionNode> {
+        extends ObjectBodiedNodeContextProvider<ObjectConstructorExpressionNode> {
 
     public ObjectConstructorExpressionNodeContext() {
         super(ObjectConstructorExpressionNode.class);
@@ -63,7 +61,7 @@ public class ObjectConstructorExpressionNodeContext
         } else if (this.onSuggestTypeReferences(ctx, node)) {
             completionItems.addAll(this.getTypeReferenceCompletions(ctx));
         } else {
-            completionItems.addAll(this.getConstructorBodyCompletions(node, ctx));
+            completionItems.addAll(this.getBodyContextItems(ctx, node));
         }
         this.sort(ctx, node, completionItems);
 
@@ -84,16 +82,6 @@ public class ObjectConstructorExpressionNodeContext
 
         List<LSCompletionItem> completionItems = this.getCompletionItemList(objectEntries, ctx);
         completionItems.addAll(this.getModuleCompletionItems(ctx));
-
-        return completionItems;
-    }
-
-    private List<LSCompletionItem> getConstructorBodyCompletions(ObjectConstructorExpressionNode node,
-                                                                 BallerinaCompletionContext context) {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(this.getTypeItems(context));
-        completionItems.addAll(this.getModuleCompletionItems(context));
-        completionItems.addAll(ObjectConstructorBodyContextUtil.getBodyContextSnippets(node, context));
 
         return completionItems;
     }
