@@ -289,6 +289,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         analyzeNode(pkgNode, pkgEnv);
         inferFunctionIsolation();
+        logServiceIsolationWarnings(pkgNode.classDefinitions);
         return pkgNode;
     }
 
@@ -3012,6 +3013,47 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
         isolationInferenceInfo.inferredIsolated = true;
         return true;
+    }
+
+    private void logServiceIsolationWarnings(List<BLangClassDefinition> classDefinitions) {
+        for (BLangClassDefinition classDefinition : classDefinitions) {
+            if (classDefinition.flagSet.contains(Flag.SERVICE)) {
+                logServiceIsolationWarnings(classDefinition);
+            }
+        }
+    }
+
+    private void logServiceIsolationWarnings(BLangClassDefinition classDefinition) {
+        boolean isolatedService = isIsolated(classDefinition.type.flags);
+
+        for (BLangFunction function : classDefinition.functions) {
+            Set<Flag> flagSet = function.flagSet;
+
+            if (!flagSet.contains(Flag.RESOURCE) && !flagSet.contains(Flag.REMOTE)) {
+                continue;
+            }
+
+            boolean isolatedMethod = isIsolated(function.type.flags);
+
+            if (isolatedService && isolatedMethod) {
+                continue;
+            }
+
+            dlog.warning(function.pos, getWarningCode(isolatedService, isolatedMethod));
+        }
+    }
+
+    private DiagnosticWarningCode getWarningCode(boolean isolatedService, boolean isolatedMethod) {
+        if (!isolatedService && !isolatedMethod) {
+            return DiagnosticWarningCode
+                    .CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_METHOD_IN_NON_ISOLATED_SERVICE;
+        }
+
+        if (isolatedService) {
+            return DiagnosticWarningCode.CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_METHOD;
+        }
+
+        return DiagnosticWarningCode.CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_SERVICE;
     }
 
     /**
