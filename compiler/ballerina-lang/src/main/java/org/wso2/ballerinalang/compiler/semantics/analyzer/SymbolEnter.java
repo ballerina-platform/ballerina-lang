@@ -1437,23 +1437,31 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             typeDefSymbol = definedType.tsymbol;
         }
+
+        boolean isIntersectionType = definedType.tag == TypeTags.INTERSECTION;
+        BType effectiveDefinedType = isIntersectionType ? ((BIntersectionType) definedType).effectiveType :
+                definedType;
+
         typeDefSymbol.markdownDocumentation = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
         typeDefSymbol.name = names.fromIdNode(typeDefinition.getName());
         typeDefSymbol.pkgID = env.enclPkg.packageID;
         typeDefSymbol.pos = typeDefinition.name.pos;
         typeDefSymbol.origin = getOrigin(typeDefSymbol.name);
 
-        boolean distinctFlagPresent = isDistinctFlagPresent(typeDefinition);
+        if (isIntersectionType) {
+            BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
+            effectiveTypeSymbol.name = typeDefSymbol.name;
+            effectiveTypeSymbol.pkgID = typeDefSymbol.pkgID;
+        }
 
-        if (distinctFlagPresent) {
+        if (isDistinctFlagPresent(typeDefinition)) {
             if (definedType.getKind() == TypeKind.ERROR) {
                 BErrorType distinctType = getDistinctErrorType(typeDefinition, (BErrorType) definedType, typeDefSymbol);
                 typeDefinition.typeNode.type = distinctType;
                 definedType = distinctType;
-            } else if (definedType.getKind() == TypeKind.INTERSECTION
-                    && ((BIntersectionType) definedType).effectiveType.getKind() == TypeKind.ERROR) {
-                populateTypeIds((BErrorType) ((BIntersectionType) definedType).effectiveType,
-                                (BLangIntersectionTypeNode) typeDefinition.typeNode, typeDefinition.name.value);
+            } else if (isIntersectionType && effectiveDefinedType.getKind() == TypeKind.ERROR) {
+                populateTypeIds((BErrorType) effectiveDefinedType, (BLangIntersectionTypeNode) typeDefinition.typeNode,
+                                typeDefinition.name.value);
             } else if (definedType.getKind() == TypeKind.OBJECT) {
                 BObjectType distinctType = getDistinctObjectType(typeDefinition, (BObjectType) definedType,
                                                                  typeDefSymbol);
@@ -1493,6 +1501,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
         definedType.flags |= typeDefSymbol.flags;
+
+        if (isIntersectionType) {
+            BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
+            effectiveTypeSymbol.flags |= typeDefSymbol.flags;
+            effectiveTypeSymbol.origin = VIRTUAL;
+
+            ((BIntersectionType) definedType).effectiveType.flags |= definedType.flags;
+        }
 
         typeDefinition.symbol = typeDefSymbol;
         if (typeDefinition.hasCyclicReference) {
@@ -3441,7 +3457,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             if (!types.isSelectivelyImmutableType(mutableType, true)) {
-                dlog.error(typeDefNode.typeNode.pos, DiagnosticErrorCode.INVALID_INTERSECTION_TYPE, immutableType);
+                dlog.error(typeDefNode.typeNode.pos, DiagnosticErrorCode.INVALID_INTERSECTION_TYPE, typeDefNode.name);
                 typeNode.type = symTable.semanticError;
             }
         }
