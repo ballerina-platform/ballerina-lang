@@ -907,8 +907,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 dlog.error(varRef.pos, DiagnosticErrorCode.INVALID_TRANSFER_INTO_LOCK_WITH_RESTRICTED_VAR_USAGE);
             }
 
-            for (BLangSimpleVarRef varRef : copyInLockInfo.copyOutVarRefs) {
-                dlog.error(varRef.pos, DiagnosticErrorCode.INVALID_TRANSFER_OUT_OF_LOCK_WITH_RESTRICTED_VAR_USAGE);
+            for (Location location : copyInLockInfo.nonIsolatedCopyOutLocations) {
+                dlog.error(location, DiagnosticErrorCode.INVALID_TRANSFER_OUT_OF_LOCK_WITH_RESTRICTED_VAR_USAGE);
             }
 
             for (BLangInvocation invocation : copyInLockInfo.nonIsolatedInvocations) {
@@ -955,7 +955,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             prevCopyInLockInfo.nonCaptureBindingPatternVarRefsOnLhs.addAll(
                     copyInLockInfo.nonCaptureBindingPatternVarRefsOnLhs);
             prevCopyInLockInfo.copyInVarRefs.addAll(copyInLockInfo.copyInVarRefs);
-            prevCopyInLockInfo.copyOutVarRefs.addAll(copyInLockInfo.copyOutVarRefs);
+            prevCopyInLockInfo.nonIsolatedCopyOutLocations.addAll(copyInLockInfo.nonIsolatedCopyOutLocations);
             prevCopyInLockInfo.nonIsolatedInvocations.addAll(copyInLockInfo.nonIsolatedInvocations);
         }
     }
@@ -1115,8 +1115,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     !isSelfOfIsolatedObject(varRefExpr) &&
                     isInvalidCopyIn(varRefExpr, env)) {
                 exprInfo.copyInVarRefs.add(varRefExpr);
-            } else if (!varRefExpr.isLValue && parent != null && isInvalidTransfer(varRefExpr, true)) {
-                exprInfo.copyOutVarRefs.add(varRefExpr);
+            } else if (!varRefExpr.isLValue && parent != null) {
+                validateValidTransferOut(varRefExpr, exprInfo.nonIsolatedCopyOutLocations);
             }
         }
 
@@ -2529,6 +2529,31 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return false;
     }
 
+    private boolean isDependentlyIsolatedExpressionKind(BLangExpression expression) {
+        switch (expression.getKind()) {
+            case LIST_CONSTRUCTOR_EXPR:
+            case TABLE_CONSTRUCTOR_EXPR:
+            case RECORD_LITERAL_EXPR:
+            case XML_COMMENT_LITERAL:
+            case XML_TEXT_LITERAL:
+            case XML_PI_LITERAL:
+            case XML_ELEMENT_LITERAL:
+            case XML_SEQUENCE_LITERAL:
+            case STRING_TEMPLATE_LITERAL:
+//            case RAW_TEMPLATE_LITERAL:
+            case TYPE_CONVERSION_EXPR:
+            case CHECK_EXPR:
+            case CHECK_PANIC_EXPR:
+            case TRAP_EXPR:
+            case TERNARY_EXPR:
+            case ELVIS_EXPR:
+                return true;
+            case GROUP_EXPR:
+                return isDependentlyIsolatedExpressionKind(((BLangGroupExpr) expression).expression);
+        }
+        return false;
+    }
+
     private boolean isCloneOrCloneReadOnlyInvocation(BLangInvocation invocation) {
         if (!invocation.langLibInvocation) {
             return false;
@@ -2540,11 +2565,16 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 (methodName.equals(CLONE_LANG_LIB_METHOD) || methodName.equals(CLONE_READONLY_LANG_LIB_METHOD));
     }
 
-    private boolean isInvalidTransfer(BLangSimpleVarRef expression, boolean transferOut) {
-        return isInvalidTransfer(expression, transferOut, isSelfOfObject(expression));
+    private boolean isInvalidTransferIn(BLangSimpleVarRef expression) {
+        return isInvalidTransfer(expression, false, isSelfOfObject(expression), null);
     }
 
-    private boolean isInvalidTransfer(BLangExpression expression, boolean transferOut, boolean invokedOnSelf) {
+    private void validateValidTransferOut(BLangSimpleVarRef expression, List<Location> nonIsolatedCopyOutLocations) {
+        isInvalidTransfer(expression, true, isSelfOfObject(expression), nonIsolatedCopyOutLocations);
+    }
+
+    private boolean isInvalidTransfer(BLangExpression expression, boolean transferOut, boolean invokedOnSelf,
+                                      List<Location> nonIsolatedCopyOutLocations) {
         BLangNode parent = expression.parent;
 
         NodeKind parentExprKind = parent.getKind();
@@ -2566,21 +2596,21 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
                     if (isDefinedOutsideLock(names.fromIdNode(simpleVarRef.variableName), simpleVarRef.symbol.tag,
                                              env)) {
-                        return !isIsolatedExpression(expression, false);
+                        return markNonIsolatedExprForTransferOut(expression, nonIsolatedCopyOutLocations);
                     }
 
                     return false;
                 case RECORD_DESTRUCTURE:
-                    return !isIsolatedExpression(expression, false) &&
-                            hasRefDefinedOutsideLock(((BLangRecordDestructure) parent).varRef);
+                    return markNonIsolatedExprForTransferOut(expression, nonIsolatedCopyOutLocations,
+                            ((BLangRecordDestructure) parent).varRef);
                 case TUPLE_DESTRUCTURE:
-                    return !isIsolatedExpression(expression, false) &&
-                            hasRefDefinedOutsideLock(((BLangTupleDestructure) parent).varRef);
+                    return markNonIsolatedExprForTransferOut(expression, nonIsolatedCopyOutLocations,
+                            ((BLangTupleDestructure) parent).varRef);
                 case ERROR_DESTRUCTURE:
-                    return !isIsolatedExpression(expression, false) &&
-                            hasRefDefinedOutsideLock(((BLangErrorDestructure) parent).varRef);
+                    return markNonIsolatedExprForTransferOut(expression, nonIsolatedCopyOutLocations,
+                            ((BLangErrorDestructure) parent).varRef);
                 case RETURN:
-                    return !isIsolatedExpression(expression, false);
+                    return markNonIsolatedExprForTransferOut(expression, nonIsolatedCopyOutLocations);
             }
             return false;
         }
@@ -2592,7 +2622,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return false;
             }
 
-            return isInvalidTransfer(parentExpression, transferOut, invokedOnSelf);
+            return populatePosAndReturnIsInvalidTransfer(expression, parentExpression, transferOut, invokedOnSelf,
+                                                         nonIsolatedCopyOutLocations);
         }
 
         BLangInvocation invocation = (BLangInvocation) parentExpression;
@@ -2611,16 +2642,61 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return !transferOut;
             }
 
-            return isInvalidTransfer(parentExpression, transferOut, invokedOnSelf);
+            return populatePosAndReturnIsInvalidTransfer(expression, parentExpression, transferOut, invokedOnSelf,
+                    nonIsolatedCopyOutLocations);
         }
 
         // `expression` is an argument to a function
         if (transferOut) {
-            return isInvalidTransfer(parentExpression, transferOut, invokedOnSelf);
+            return populatePosAndReturnIsInvalidTransfer(expression, parentExpression, transferOut, invokedOnSelf,
+                                                         nonIsolatedCopyOutLocations);
         }
 
         return !isIsolatedExpression(expression, false);
     }
+
+    private boolean markNonIsolatedExprForTransferOut(BLangExpression expression,
+                                                      List<Location> nonIsolatedCopyOutLocations) {
+        boolean nonIsolatedExpr = !isIsolatedExpression(expression, false);
+        if (nonIsolatedExpr && !isDependentlyIsolatedExpressionKind(expression)) {
+            nonIsolatedCopyOutLocations.add(expression.pos);
+        }
+        return nonIsolatedExpr;
+    }
+
+    private boolean markNonIsolatedExprForTransferOut(BLangExpression expression,
+                                                      List<Location> nonIsolatedCopyOutLocations,
+                                                      BLangExpression varRef) {
+        boolean invalidTransferOut = !isIsolatedExpression(expression, false) && hasRefDefinedOutsideLock(varRef);
+        if (invalidTransferOut && !isDependentlyIsolatedExpressionKind(expression)) {
+            nonIsolatedCopyOutLocations.add(expression.pos);
+        }
+        return invalidTransferOut;
+    }
+
+    private boolean populatePosAndReturnIsInvalidTransfer(BLangExpression expression, BLangExpression parentExpression,
+                                                          boolean transferOut, boolean invokedOnSelf,
+                                                          List<Location> nonIsolatedCopyOutLocations) {
+        ArrayList<Location> list = new ArrayList<>();
+
+        boolean invalidTransfer = isInvalidTransfer(parentExpression, transferOut, invokedOnSelf, list);
+        if (!invalidTransfer) {
+            return false;
+        }
+
+        if (!transferOut) {
+            return true;
+        }
+
+        if (list.isEmpty()) {
+            nonIsolatedCopyOutLocations.add(expression.pos);
+        } else {
+            nonIsolatedCopyOutLocations.addAll(list);
+        }
+
+        return true;
+    }
+
 
     private boolean isSelfReference(BLangExpression expression) {
         return expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
@@ -2751,7 +2827,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return true;
             }
 
-            return isInvalidTransfer(varRefExpr, false);
+            return isInvalidTransferIn(varRefExpr);
         }
 
         return isInvalidCopyIn(varRefExpr, name, symTag, currentEnv.enclEnv);
@@ -2949,7 +3025,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         Map<BSymbol, List<BLangSimpleVarRef>> accessedRestrictedVars = new HashMap<>();
         List<BLangSimpleVarRef> nonCaptureBindingPatternVarRefsOnLhs = new ArrayList<>();
         List<BLangSimpleVarRef> copyInVarRefs = new ArrayList<>();
-        List<BLangSimpleVarRef> copyOutVarRefs = new ArrayList<>();
+        List<Location> nonIsolatedCopyOutLocations = new ArrayList<>();
         List<BLangInvocation> nonIsolatedInvocations = new ArrayList<>();
 
         private PotentiallyInvalidExpressionInfo(BLangLock lockNode) {
