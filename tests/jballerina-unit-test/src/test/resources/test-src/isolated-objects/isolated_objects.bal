@@ -731,6 +731,34 @@ isolated class IsolatedClassAssigningProtectedFieldsToLocalVars {
     }
 }
 
+
+const fromMobile = "";
+configurable string toMobile = "";
+
+isolated NonIsolatedClient cl = new;
+
+service / on new Listener() {
+   isolated resource function post foo() returns error? {
+      Response resp;
+      lock {
+         Response val = check cl->sendMessage(fromMobile, toMobile, "Hi!");
+         resp = val.clone();
+      }
+   }
+}
+
+type Response record {|
+   string message;
+   int id;
+|};
+
+public client class NonIsolatedClient {
+   int i = 1;
+
+   isolated remote function sendMessage(string x, string y, string z)
+      returns Response|error => {message: "Hello", id: 0};
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }

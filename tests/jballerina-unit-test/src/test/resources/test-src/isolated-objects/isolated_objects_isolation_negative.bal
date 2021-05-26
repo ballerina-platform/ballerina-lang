@@ -689,3 +689,29 @@ isolated class IsolatedClassWithInvalidCopyOut2 {
         }
     }
 }
+
+const fromMobile = "";
+configurable string toMobile = ?;
+
+isolated NonIsolatedClient cl = new;
+
+service / on new Listener() {
+   isolated resource function post foo() returns error? {
+      Response resp;
+      lock {
+         resp = check cl->sendMessage(fromMobile, toMobile, "Hi!");
+      }
+   }
+}
+
+type Response record {|
+   string message;
+   int id;
+|};
+
+public client class NonIsolatedClient {
+   int i = 1;
+
+   isolated remote function sendMessage(string x, string y, string z)
+      returns Response|error => {message: "Hello", id: 0};
+}
