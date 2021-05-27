@@ -2438,6 +2438,16 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     return false;
                 }
                 return true;
+            case RAW_TEMPLATE_LITERAL:
+                for (BLangExpression insertion : ((BLangRawTemplateLiteral) expression).insertions) {
+                    if (isIsolatedExpression(insertion, logErrors, visitRestOnError, nonIsolatedLocations) ||
+                            logErrors || visitRestOnError) {
+                        continue;
+                    }
+
+                    return false;
+                }
+                return true;
             case STRING_TEMPLATE_LITERAL:
                 for (BLangExpression expr : ((BLangStringTemplateLiteral) expression).exprs) {
                     if (isIsolatedExpression(expr, logErrors, visitRestOnError, nonIsolatedLocations) || logErrors ||
@@ -2592,8 +2602,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             case XML_PI_LITERAL:
             case XML_ELEMENT_LITERAL:
             case XML_SEQUENCE_LITERAL:
+            case RAW_TEMPLATE_LITERAL:
             case STRING_TEMPLATE_LITERAL:
-//            case RAW_TEMPLATE_LITERAL:
             case TYPE_CONVERSION_EXPR:
             case CHECK_EXPR:
             case CHECK_PANIC_EXPR:
