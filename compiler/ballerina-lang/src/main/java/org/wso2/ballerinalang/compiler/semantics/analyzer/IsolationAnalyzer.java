@@ -2937,7 +2937,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
-        return owner instanceof BClassSymbol && ((BClassSymbol) owner).isServiceDecl;
+        if (!(owner instanceof BClassSymbol)) {
+            return false;
+        }
+
+        BClassSymbol ownerClassSymbol = (BClassSymbol) owner;
+        return ownerClassSymbol.isServiceDecl || Symbols.isFlagOn(ownerClassSymbol.flags, Flags.OBJECT_CTOR);
     }
 
     private void markDependsOnIsolationNonInferableConstructs() {
