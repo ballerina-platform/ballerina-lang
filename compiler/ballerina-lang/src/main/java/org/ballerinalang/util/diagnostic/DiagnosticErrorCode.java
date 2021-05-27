@@ -478,7 +478,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     KEY_SPECIFIER_FIELD_MUST_BE_READONLY("BCE3308", "key.specifier.field.must.be.readonly"),
     KEY_SPECIFIER_FIELD_MUST_BE_REQUIRED("BCE3309", "key.specifier.field.must.be.required"),
     KEY_SPECIFIER_FIELD_MUST_BE_ANYDATA("BCE3310", "key.specifier.field.must.be.anydata"),
-    KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT("BCE3311", "key.specifier.field.value.must.be.constant"),
+    KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT_EXPR("BCE3311", "key.specifier.field.value.must.be.constant.expr"),
     KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT(
             "BCE3312", "key.constraint.not.supported.for.table.with.map.constraint"),
     CANNOT_INFER_MEMBER_TYPE_FOR_TABLE_DUE_AMBIGUITY("BCE3313", "cannot.infer.member.type.for.table.due.ambiguity"),
