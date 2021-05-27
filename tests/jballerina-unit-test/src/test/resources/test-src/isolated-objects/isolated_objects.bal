@@ -759,6 +759,29 @@ public client class NonIsolatedClient {
       returns Response|error => {message: "Hello", id: 0};
 }
 
+isolated class IsolatedClassWithRawTemplateTransfer {
+    private int[] arr = [];
+    private isolated object {}[] arr2 = [];
+
+    function getArrOne() returns any {
+        lock {
+            return `values: ${self.arr.clone()}`;
+        }
+    }
+
+    function getArrTwo() returns any {
+        lock {
+            return `values: ${self.arr2.pop()}`;
+        }
+    }
+
+    function getArrs(int[] intArr) returns any {
+        lock {
+            return `values: ${self.arr2[0]}, ${self.arr.clone()}, ${intArr.clone()}`;
+        }
+    }
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }

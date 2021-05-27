@@ -725,3 +725,27 @@ isolated class IsolatedClassWithQueryExprAsTransferOut {
         }
     }
 }
+
+isolated class IsolatedClassWithInvalidRawTemplateTransfer {
+    private int[] arr = [];
+    private isolated object {}[] arr2 = [];
+
+    function getArrOne() returns any {
+        lock {
+            return `values: ${self.arr}`;
+        }
+    }
+
+    function getArrTwo() returns any {
+        lock {
+            return `values: OK ${self.arr.clone()} invalid ${self.arr2}`;
+        }
+    }
+
+    function getArrs(int[] intArr) returns any {
+        lock {
+            any val = `arr: ${intArr}`;
+            return `values: ${self.arr2}, ${"Hello"}, ${self.arr}, ${val}, ${self.arr.clone()}`;
+        }
+    }
+}
