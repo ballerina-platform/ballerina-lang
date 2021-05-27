@@ -715,3 +715,13 @@ public client class NonIsolatedClient {
    isolated remote function sendMessage(string x, string y, string z)
       returns Response|error => {message: "Hello", id: 0};
 }
+
+isolated class IsolatedClassWithQueryExprAsTransferOut {
+    private isolated object {}[] arr = [];
+
+    function getArr() returns isolated object {}[] {
+        lock {
+            return from var ob in self.arr select ob;
+        }
+    }
+}

@@ -325,3 +325,11 @@ function invalidCopyOutAccessingIsolatedVar() returns map<int>[] {
         return y2;
     }
 }
+
+isolated isolated object {}[] isolatedIsolatedObjArr = [];
+
+isolated function getArr() returns isolated object {}[] {
+    lock {
+        return from var ob in isolatedIsolatedObjArr select ob;
+    }
+}
