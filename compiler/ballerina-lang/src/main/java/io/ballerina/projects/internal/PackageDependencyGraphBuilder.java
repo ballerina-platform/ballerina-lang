@@ -22,6 +22,7 @@ import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
 import io.ballerina.projects.DependencyResolutionType;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
@@ -144,11 +145,12 @@ public class PackageDependencyGraphBuilder {
         return graphBuilder.build();
     }
 
-    public DependencyGraph<ResolvedPackageDependency> buildPackageDependencyGraph(PackageDescriptor rootPkgDesc,
+    public DependencyGraph<ResolvedPackageDependency> buildPackageDependencyGraph(PackageManifest rootPkgManifest,
                                                                                   PackageResolver packageResolver,
                                                                                   PackageCache packageCache,
                                                                                   Project currentProject) {
         // TODO The following algorithm can be improved a lot.
+        PackageDescriptor rootPkgDesc = rootPkgManifest.descriptor();
         Map<PackageDescriptor, ResolvedPackageDependency> packageDependencyMap = new HashMap<>();
         // Add the root package to the map.
         packageDependencyMap.put(rootPkgDesc, new ResolvedPackageDependency(currentProject.currentPackage(),
@@ -185,7 +187,25 @@ public class PackageDependencyGraphBuilder {
         List<ResolutionRequest> resolutionRequests = new ArrayList<>();
         for (Vertex transitiveDependencyNode : transitiveDependencyNodes) {
             StaticPackageDependency transitivePkgDep = vertices.get(transitiveDependencyNode);
-            resolutionRequests.add(ResolutionRequest.from(transitivePkgDep.pkgDesc, transitivePkgDep.scope));
+            // Check local repository if it is set in the Dependencies.toml of BuildProject
+            PackageDescriptor newPkgDesc = null;
+            for (PackageManifest.Dependency dependency : rootPkgManifest.dependencies()) {
+                if (dependency.org().equals(transitivePkgDep.pkgDesc.org())
+                        && dependency.name().equals(transitivePkgDep.pkgDesc.name())
+                        && dependency.version().equals(transitivePkgDep.pkgDesc.version())
+                        && dependency.repository() != null) {
+                    newPkgDesc = PackageDescriptor.from(
+                            dependency.org(),
+                            transitivePkgDep.pkgDesc.name(),
+                            transitivePkgDep.pkgDesc.version(),
+                            dependency.repository());
+                    break;
+                }
+            }
+            if (newPkgDesc == null) {
+                newPkgDesc = transitivePkgDep.pkgDesc;
+            }
+            resolutionRequests.add(ResolutionRequest.from(newPkgDesc, transitivePkgDep.scope));
         }
 
         List<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
