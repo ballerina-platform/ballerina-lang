@@ -914,6 +914,39 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         } else if (node.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) node;
             result = simpleVarRef.variableName.hashCode();
+        } else if (node.getKind() == NodeKind.STRING_TEMPLATE_LITERAL) {
+            BLangStringTemplateLiteral stringTemplateLiteral = (BLangStringTemplateLiteral) node;
+            for (BLangExpression expr : stringTemplateLiteral.exprs) {
+                result = result * 31 + hash(expr);
+            }
+        } else if (node.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+            BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr) node;
+            for (BLangExpression expr : listConstructorExpr.exprs) {
+                result = result * 31 + hash(expr);
+            }
+        } else if (node.getKind() == NodeKind.TABLE_CONSTRUCTOR_EXPR) {
+            BLangTableConstructorExpr tableConstructorExpr = (BLangTableConstructorExpr) node;
+            for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
+                result = result * 31 + hash(recordLiteral);
+            }
+        } else if (node.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
+            BLangTypeConversionExpr typeConversionExpr = (BLangTypeConversionExpr) node;
+            result = 31 * result + hash(typeConversionExpr.expr);
+        } else if (node.getKind() == NodeKind.BINARY_EXPR) {
+            BLangBinaryExpr binaryExpr = (BLangBinaryExpr) node;
+            result = 31 * result + hash(binaryExpr.lhsExpr) + hash(binaryExpr.rhsExpr);
+        } else if (node.getKind() == NodeKind.UNARY_EXPR) {
+            BLangUnaryExpr unaryExpr = (BLangUnaryExpr) node;
+            result = 31 * result + hash(unaryExpr.expr);
+        } else if (node.getKind() == NodeKind.TYPE_TEST_EXPR) {
+            BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) node;
+            result = 31 * result + hash(typeTestExpr.expr);
+        } else if (node.getKind() == NodeKind.TERNARY_EXPR) {
+            BLangTernaryExpr ternaryExpr = (BLangTernaryExpr) node;
+            result = 31 * result + hash(ternaryExpr.expr) + hash(ternaryExpr.thenExpr) + hash(ternaryExpr.elseExpr);
+        } else if (node.getKind() == NodeKind.GROUP_EXPR) {
+            BLangGroupExpr groupExpr = (BLangGroupExpr) node;
+            result = 31 * result + hash(groupExpr.expression);
         } else {
             dlog.error(((BLangExpression) node).pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
         }
