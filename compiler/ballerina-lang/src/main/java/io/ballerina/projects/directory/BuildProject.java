@@ -136,7 +136,9 @@ public class BuildProject extends Project {
             Path parent = Optional.of(file.toAbsolutePath().getParent()).get();
             for (ModuleId moduleId : this.currentPackage().moduleIds()) {
                 String moduleDirName;
-                if (moduleId.moduleName().contains(DOT)) {
+                // Check for the module name contains a dot and not being the default module
+                if (moduleId.moduleName().contains(DOT)
+                        && !this.currentPackage().getDefaultModule().moduleId().equals(moduleId)) {
                     moduleDirName = moduleId.moduleName()
                             .split(this.currentPackage().packageName().toString() + "\\.")[1];
                 } else {
