@@ -172,11 +172,11 @@ var s1 = service object {
     private int i = 0;
     int j = 0;
 
-    // Not inferred isolated.
+    // Inferred isolated.
     resource function get . () {
     }
 
-    // Not inferred isolated.
+    // Inferred isolated.
     remote function foo() {
         lock {
             self.i += 1 + self.j;

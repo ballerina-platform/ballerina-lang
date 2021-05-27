@@ -139,7 +139,7 @@ function testNonIsolatedMethodAsIsolatedMethodRuntimeNegative() {
         }
 
         function qux() returns int {
-            return self.i;
+            return self.i + globInt;
         }
     };
 

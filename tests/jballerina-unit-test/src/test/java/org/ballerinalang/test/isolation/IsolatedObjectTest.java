@@ -197,12 +197,8 @@ public class IsolatedObjectTest {
         validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
                 "'lock' statement", 523, 13);
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 529, 5);
-        validateWarning(result, i++, "concurrent calls will not be made to this method since the method is not an " +
-                "'isolated' method", 531, 5);
         validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
                 "statement", 532, 9);
-        validateWarning(result, i++, "concurrent calls will not be made to this method since the method is not an " +
-                "'isolated' method", 535, 5);
         validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
                 "statement", 536, 9);
         validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
@@ -249,8 +245,8 @@ public class IsolatedObjectTest {
         validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 687, 17);
         validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 688, 20);
         validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 702, 23);
-        Assert.assertEquals(result.getErrorCount(), i - 5);
-        Assert.assertEquals(result.getWarnCount(), 5);
+        Assert.assertEquals(result.getErrorCount(), i - 3);
+        Assert.assertEquals(result.getWarnCount(), 3);
     }
 
     @Test
@@ -259,10 +255,6 @@ public class IsolatedObjectTest {
         Assert.assertEquals(compileResult.getErrorCount(), 0);
 
         int i = 0;
-        validateWarning(compileResult, i++, "concurrent calls will not be made to this method since the method is not" +
-                " an 'isolated' method", 528, 5);
-        validateWarning(compileResult, i++, "concurrent calls will not be made to this method since the method is not" +
-                " an 'isolated' method", 534, 5);
         validateWarning(compileResult, i++, "concurrent calls will not be made to this method since the method is not" +
                 " an 'isolated' method", 546, 5);
         validateWarning(compileResult, i++, "concurrent calls will not be made to this method since the method is not" +
