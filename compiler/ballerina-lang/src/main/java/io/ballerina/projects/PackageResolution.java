@@ -150,7 +150,7 @@ public class PackageResolution {
         // Once we reach this section, all the direct dependencies have been resolved
         // Here we resolve all transitive dependencies
         // TODO Check for cycles
-        return depGraphBuilder.buildPackageDependencyGraph(rootPackageContext.descriptor(), packageResolver,
+        return depGraphBuilder.buildPackageDependencyGraph(rootPackageContext.manifest(), packageResolver,
                 packageCache, rootPackageContext.project());
     }
 
@@ -196,7 +196,8 @@ public class PackageResolution {
         return allModuleLoadRequests;
     }
 
-    PackageManifest.Dependency getVersionFromPackageManifest(PackageOrg requestedPkgOrg, PackageName requestedPkgName) {
+    PackageManifest.Dependency getDependencyFromPackageManifest(
+            PackageOrg requestedPkgOrg, PackageName requestedPkgName) {
         for (PackageManifest.Dependency dependency : rootPackageContext.manifest().dependencies()) {
             if (dependency.org().equals(requestedPkgOrg) && dependency.name().equals(requestedPkgName)) {
                 return dependency;
@@ -426,7 +427,7 @@ public class PackageResolution {
                     }
                 } else {
                     // Check whether this package is already defined in the package manifest, if so get the version
-                    PackageManifest.Dependency dependency = PackageResolution.this.getVersionFromPackageManifest(
+                    PackageManifest.Dependency dependency = PackageResolution.this.getDependencyFromPackageManifest(
                             packageOrg, possiblePkgName);
                     PackageVersion packageVersion = dependency != null ? dependency.version() : null;
                     String repository = dependency != null ? dependency.repository() : null;
