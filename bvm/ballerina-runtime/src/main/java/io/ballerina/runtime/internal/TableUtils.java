@@ -86,6 +86,13 @@ public class TableUtils {
                     refType.getTag() == TypeTags.XML_COMMENT_TAG || refType.getTag() == TypeTags.XML_PI_TAG ||
                     refType.getTag() == TypeTags.XMLNS_TAG) {
                 return (long) refValue.toString().hashCode();
+            } else if (refType.getTag() == TypeTags.TABLE_TAG) {
+                TableValue tableValue = (TableValue) refValue;
+                IteratorValue tableIterator = tableValue.getIterator();
+                while (tableIterator.hasNext()) {
+                    result = 31 * result + hash(tableIterator.next(), node);
+                }
+                return result;
             } else {
                 return (long) obj.hashCode();
             }
