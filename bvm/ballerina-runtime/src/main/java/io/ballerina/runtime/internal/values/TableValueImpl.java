@@ -612,6 +612,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     @Override
+    public String toString() {
+        return stringValue(null);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
