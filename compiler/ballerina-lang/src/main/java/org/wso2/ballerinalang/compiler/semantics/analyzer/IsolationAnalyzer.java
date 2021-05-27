@@ -459,7 +459,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         analyzeNode(expr, env);
 
         BSymbol owner = symbol.owner;
-        if (owner != null && ((owner.tag & SymTag.LET) == SymTag.LET) && isIsolatedExpression(expr, false)) {
+        if (owner != null && ((owner.tag & SymTag.LET) == SymTag.LET) && isIsolatedExpression(expr)) {
             isolatedLetVarStack.peek().add(symbol);
         }
 
@@ -529,6 +529,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                         ((BObjectType) enclInvokable.symbol.owner.type).fields.get(fieldAccess.field.value).type, expr);
             }
         }
+
+        validateTransferOut(varRef, expr);
     }
 
     @Override
@@ -566,7 +568,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReturn returnNode) {
-        analyzeNode(returnNode.expr, env);
+        BLangExpression expr = returnNode.expr;
+        analyzeNode(expr, env);
+
+        if (!this.inLockStatement) {
+            return;
+        }
+
+        validateTransferOut(expr, this.copyInLockInfoStack.peek().nonIsolatedCopyOutLocations);
     }
 
     @Override
@@ -967,20 +976,35 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleDestructure stmt) {
-        analyzeNode(stmt.varRef, env);
-        analyzeNode(stmt.expr, env);
+        BLangTupleVarRef varRef = stmt.varRef;
+        BLangExpression expr = stmt.expr;
+
+        analyzeNode(varRef, env);
+        analyzeNode(expr, env);
+
+        validateTransferOut(varRef, expr);
     }
 
     @Override
     public void visit(BLangRecordDestructure stmt) {
-        analyzeNode(stmt.varRef, env);
-        analyzeNode(stmt.expr, env);
+        BLangRecordVarRef varRef = stmt.varRef;
+        BLangExpression expr = stmt.expr;
+
+        analyzeNode(varRef, env);
+        analyzeNode(expr, env);
+
+        validateTransferOut(varRef, expr);
     }
 
     @Override
     public void visit(BLangErrorDestructure stmt) {
-        analyzeNode(stmt.varRef, env);
-        analyzeNode(stmt.expr, env);
+        BLangErrorVarRef varRef = stmt.varRef;
+        BLangExpression expr = stmt.expr;
+
+        analyzeNode(varRef, env);
+        analyzeNode(expr, env);
+
+        validateTransferOut(varRef, expr);
     }
 
     @Override
@@ -1115,8 +1139,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     !isSelfOfIsolatedObject(varRefExpr) &&
                     isInvalidCopyIn(varRefExpr, env)) {
                 exprInfo.copyInVarRefs.add(varRefExpr);
-            } else if (!varRefExpr.isLValue && parent != null) {
-                validateValidTransferOut(varRefExpr, exprInfo.nonIsolatedCopyOutLocations);
             }
         }
 
@@ -2263,10 +2285,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateIsolatedExpression(BLangExpression expression) {
-        isIsolatedExpression(expression, true);
+        isIsolatedExpression(expression, true, true, new ArrayList<>());
     }
 
-    private boolean isIsolatedExpression(BLangExpression expression, boolean logErrors) {
+    private boolean isIsolatedExpression(BLangExpression expression) {
+        return isIsolatedExpression(expression, false, false, new ArrayList<>());
+    }
+
+    private boolean isIsolatedExpression(BLangExpression expression, boolean logErrors, boolean visitRestOnError,
+                                         List<Location> nonIsolatedLocations) {
         BType type = expression.type;
         if (type != null && types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(type)) {
             return true;
@@ -2283,7 +2310,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return true;
             case LIST_CONSTRUCTOR_EXPR:
                 for (BLangExpression expr : ((BLangListConstructorExpr) expression).exprs) {
-                    if (isIsolatedExpression(expr, logErrors) || logErrors) {
+                    if (isIsolatedExpression(expr, logErrors, visitRestOnError, nonIsolatedLocations) || logErrors ||
+                            visitRestOnError) {
                         continue;
                     }
 
@@ -2292,7 +2320,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return true;
             case TABLE_CONSTRUCTOR_EXPR:
                 for (BLangRecordLiteral mappingConstr : ((BLangTableConstructorExpr) expression).recordLiteralList) {
-                    if (isIsolatedExpression(mappingConstr, logErrors) || logErrors) {
+                    if (isIsolatedExpression(mappingConstr, logErrors, visitRestOnError, nonIsolatedLocations) ||
+                            logErrors || visitRestOnError) {
                         continue;
                     }
 
@@ -2307,29 +2336,30 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
                         BLangRecordLiteral.BLangRecordKey key = keyValueField.key;
                         if (key.computedKey) {
-                            if (!isIsolatedExpression(key.expr, logErrors) && !logErrors) {
+                            if (!isIsolatedExpression(key.expr, logErrors, visitRestOnError, nonIsolatedLocations) &&
+                                    !logErrors && !visitRestOnError) {
                                 return false;
                             }
                         }
 
-                        if (isIsolatedExpression(keyValueField.valueExpr, logErrors) ||
-                                logErrors) {
+                        if (isIsolatedExpression(keyValueField.valueExpr, logErrors, visitRestOnError,
+                                                 nonIsolatedLocations) || logErrors || visitRestOnError) {
                             continue;
                         }
                         return false;
                     }
 
                     if (field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
-                        if (isIsolatedExpression(
-                                ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr, logErrors) ||
-                                logErrors) {
+                        if (isIsolatedExpression(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr,
+                                                 logErrors, visitRestOnError, nonIsolatedLocations) ||
+                                logErrors || visitRestOnError) {
                             continue;
                         }
                         return false;
                     }
 
-                    if (isIsolatedExpression((BLangRecordLiteral.BLangRecordVarNameField) field,
-                                             logErrors) || logErrors) {
+                    if (isIsolatedExpression((BLangRecordLiteral.BLangRecordVarNameField) field, logErrors,
+                                             visitRestOnError, nonIsolatedLocations) || logErrors || visitRestOnError) {
                         continue;
                     }
                     return false;
@@ -2339,7 +2369,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 BLangXMLCommentLiteral commentLiteral = (BLangXMLCommentLiteral) expression;
 
                 for (BLangExpression textFragment : commentLiteral.textFragments) {
-                    if (isIsolatedExpression(textFragment, logErrors) || logErrors) {
+                    if (isIsolatedExpression(textFragment, logErrors, visitRestOnError, nonIsolatedLocations) ||
+                            logErrors || visitRestOnError) {
                         continue;
                     }
 
@@ -2350,12 +2381,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 if (commentLiteralConcatExpr == null) {
                     return true;
                 }
-                return isIsolatedExpression(commentLiteralConcatExpr, logErrors);
+                return isIsolatedExpression(commentLiteralConcatExpr, logErrors, visitRestOnError,
+                                            nonIsolatedLocations);
             case XML_TEXT_LITERAL:
                 BLangXMLTextLiteral textLiteral = (BLangXMLTextLiteral) expression;
 
                 for (BLangExpression textFragment : textLiteral.textFragments) {
-                    if (isIsolatedExpression(textFragment, logErrors) || logErrors) {
+                    if (isIsolatedExpression(textFragment, logErrors, visitRestOnError, nonIsolatedLocations) ||
+                            logErrors || visitRestOnError) {
                         continue;
                     }
 
@@ -2366,12 +2399,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 if (textLiteralConcatExpr == null) {
                     return true;
                 }
-                return isIsolatedExpression(textLiteralConcatExpr, logErrors);
+                return isIsolatedExpression(textLiteralConcatExpr, logErrors, visitRestOnError, nonIsolatedLocations);
             case XML_PI_LITERAL:
                 BLangXMLProcInsLiteral procInsLiteral = (BLangXMLProcInsLiteral) expression;
 
                 for (BLangExpression dataFragment : procInsLiteral.dataFragments) {
-                    if (isIsolatedExpression(dataFragment, logErrors) || logErrors) {
+                    if (isIsolatedExpression(dataFragment, logErrors, visitRestOnError, nonIsolatedLocations) ||
+                            logErrors || visitRestOnError) {
                         continue;
                     }
 
@@ -2382,10 +2416,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 if (procInsLiteralConcatExpr == null) {
                     return true;
                 }
-                return isIsolatedExpression(procInsLiteralConcatExpr, logErrors);
+                return isIsolatedExpression(procInsLiteralConcatExpr, logErrors, visitRestOnError,
+                                            nonIsolatedLocations);
             case XML_ELEMENT_LITERAL:
                 for (BLangExpression child : ((BLangXMLElementLiteral) expression).children) {
-                    if (isIsolatedExpression(child, logErrors) || logErrors) {
+                    if (isIsolatedExpression(child, logErrors, visitRestOnError, nonIsolatedLocations) || logErrors ||
+                            visitRestOnError) {
                         continue;
                     }
 
@@ -2394,7 +2430,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return true;
             case XML_SEQUENCE_LITERAL:
                 for (BLangExpression xmlItem : ((BLangXMLSequenceLiteral) expression).xmlItems) {
-                    if (isIsolatedExpression(xmlItem, logErrors) || logErrors) {
+                    if (isIsolatedExpression(xmlItem, logErrors, visitRestOnError, nonIsolatedLocations) || logErrors ||
+                            visitRestOnError) {
                         continue;
                     }
 
@@ -2403,7 +2440,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return true;
             case STRING_TEMPLATE_LITERAL:
                 for (BLangExpression expr : ((BLangStringTemplateLiteral) expression).exprs) {
-                    if (isIsolatedExpression(expr, logErrors) || logErrors) {
+                    if (isIsolatedExpression(expr, logErrors, visitRestOnError, nonIsolatedLocations) || logErrors ||
+                            visitRestOnError) {
                         continue;
                     }
 
@@ -2411,36 +2449,44 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 }
                 return true;
             case TYPE_CONVERSION_EXPR:
-                return isIsolatedExpression(((BLangTypeConversionExpr) expression).expr, logErrors);
+                return isIsolatedExpression(((BLangTypeConversionExpr) expression).expr, logErrors, visitRestOnError,
+                                            nonIsolatedLocations);
             case CHECK_EXPR:
             case CHECK_PANIC_EXPR:
-                return isIsolatedExpression(((BLangCheckedExpr) expression).expr, logErrors);
+                return isIsolatedExpression(((BLangCheckedExpr) expression).expr, logErrors, visitRestOnError,
+                                            nonIsolatedLocations);
             case TRAP_EXPR:
-                return isIsolatedExpression(((BLangTrapExpr) expression).expr, logErrors);
+                return isIsolatedExpression(((BLangTrapExpr) expression).expr, logErrors, visitRestOnError,
+                                            nonIsolatedLocations);
             case TERNARY_EXPR:
                 BLangTernaryExpr ternaryExpr = (BLangTernaryExpr) expression;
 
-                if (!isIsolatedExpression(ternaryExpr.expr, logErrors) && !logErrors) {
+                if (!isIsolatedExpression(ternaryExpr.expr, logErrors, visitRestOnError, nonIsolatedLocations) &&
+                        !logErrors && !visitRestOnError) {
                     return false;
                 }
 
-                if (!isIsolatedExpression(ternaryExpr.thenExpr, logErrors) && !logErrors) {
+                if (!isIsolatedExpression(ternaryExpr.thenExpr, logErrors, visitRestOnError, nonIsolatedLocations) &&
+                        !logErrors && !visitRestOnError) {
                     return false;
                 }
 
-                return isIsolatedExpression(ternaryExpr.elseExpr, logErrors);
+                return isIsolatedExpression(ternaryExpr.elseExpr, logErrors, visitRestOnError, nonIsolatedLocations);
             case ELVIS_EXPR:
                 BLangElvisExpr elvisExpr = (BLangElvisExpr) expression;
 
-                if (!isIsolatedExpression(elvisExpr.lhsExpr, logErrors) && !logErrors) {
+                if (!isIsolatedExpression(elvisExpr.lhsExpr, logErrors, visitRestOnError, nonIsolatedLocations) &&
+                        !logErrors && !visitRestOnError) {
                     return false;
                 }
 
-                return isIsolatedExpression(elvisExpr.rhsExpr, logErrors);
+                return isIsolatedExpression(elvisExpr.rhsExpr, logErrors, visitRestOnError, nonIsolatedLocations);
             case LET_EXPR:
-                return isIsolatedExpression(((BLangLetExpression) expression).expr, logErrors);
+                return isIsolatedExpression(((BLangLetExpression) expression).expr, logErrors, visitRestOnError,
+                                            nonIsolatedLocations);
             case GROUP_EXPR:
-                return isIsolatedExpression(((BLangGroupExpr) expression).expression, logErrors);
+                return isIsolatedExpression(((BLangGroupExpr) expression).expression, logErrors, visitRestOnError,
+                                            nonIsolatedLocations);
             case TYPE_INIT_EXPR:
                 BLangTypeInit typeInitExpr = (BLangTypeInit) expression;
 
@@ -2477,7 +2523,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     return true;
                 }
 
-                return isIsolatedExpression(argExprs.get(0), logErrors);
+                return isIsolatedExpression(argExprs.get(0), logErrors, visitRestOnError, nonIsolatedLocations);
             } else if (isIsolated(invocationSymbol.type.flags)) {
                 List<BLangExpression> requiredArgs = invocation.requiredArgs;
 
@@ -2485,20 +2531,22 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
                 if (calledOnExpr != null &&
                         (requiredArgs.isEmpty() || calledOnExpr != requiredArgs.get(0)) &&
-                        (!isIsolatedExpression(calledOnExpr, logErrors) && !logErrors)) {
+                        (!isIsolatedExpression(calledOnExpr, logErrors, visitRestOnError, nonIsolatedLocations) &&
+                                !logErrors && !visitRestOnError)) {
                     return false;
                 }
 
                 for (BLangExpression requiredArg : requiredArgs) {
                     if (requiredArg.getKind() == NodeKind.NAMED_ARGS_EXPR) {
-                        if (isIsolatedExpression(((BLangNamedArgsExpression) requiredArg).expr,
-                                                 logErrors) || logErrors) {
+                        if (isIsolatedExpression(((BLangNamedArgsExpression) requiredArg).expr, logErrors,
+                                visitRestOnError, nonIsolatedLocations) || logErrors || visitRestOnError) {
                             continue;
                         }
                         return false;
                     }
 
-                    if (isIsolatedExpression(requiredArg, logErrors) || logErrors) {
+                    if (isIsolatedExpression(requiredArg, logErrors, visitRestOnError, nonIsolatedLocations) ||
+                            logErrors || visitRestOnError) {
                         continue;
                     }
                     return false;
@@ -2506,13 +2554,16 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
                 for (BLangExpression restArg : invocation.restArgs) {
                     if (restArg.getKind() == NodeKind.REST_ARGS_EXPR) {
-                        if (isIsolatedExpression(((BLangRestArgsExpression) restArg).expr, logErrors) || logErrors) {
+                        if (isIsolatedExpression(((BLangRestArgsExpression) restArg).expr, logErrors, visitRestOnError,
+                                                 nonIsolatedLocations)
+                                || logErrors || visitRestOnError) {
                             continue;
                         }
                         return false;
                     }
 
-                    if (isIsolatedExpression(restArg, logErrors) || logErrors) {
+                    if (isIsolatedExpression(restArg, logErrors, visitRestOnError, nonIsolatedLocations) || logErrors ||
+                            visitRestOnError) {
                         continue;
                     }
                     return false;
@@ -2524,6 +2575,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (logErrors) {
             dlog.error(expression.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_EXPRESSION_AS_INITIAL_VALUE);
+        } else {
+            nonIsolatedLocations.add(expression.pos);
         }
 
         return false;
@@ -2566,71 +2619,32 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isInvalidTransferIn(BLangSimpleVarRef expression) {
-        return isInvalidTransfer(expression, false, isSelfOfObject(expression), null);
+        return isInvalidTransferIn(expression, isSelfOfObject(expression));
     }
 
-    private void validateValidTransferOut(BLangSimpleVarRef expression, List<Location> nonIsolatedCopyOutLocations) {
-        isInvalidTransfer(expression, true, isSelfOfObject(expression), nonIsolatedCopyOutLocations);
-    }
-
-    private boolean isInvalidTransfer(BLangExpression expression, boolean transferOut, boolean invokedOnSelf,
-                                      List<Location> nonIsolatedCopyOutLocations) {
+    private boolean isInvalidTransferIn(BLangExpression expression, boolean invokedOnSelf) {
         BLangNode parent = expression.parent;
 
         NodeKind parentExprKind = parent.getKind();
         if (!(parent instanceof BLangExpression)) {
-            if (!transferOut) {
-                return !isIsolatedExpression(expression, false);
-            }
-
-            switch (parentExprKind) {
-                case ASSIGNMENT:
-                    BLangExpression varRef = ((BLangAssignment) parent).varRef;
-
-                    if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-                        // Will be validated for that expression.
-                        return false;
-                    }
-
-                    BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
-
-                    if (isDefinedOutsideLock(names.fromIdNode(simpleVarRef.variableName), simpleVarRef.symbol.tag,
-                                             env)) {
-                        return markNonIsolatedExprForTransferOut(expression, nonIsolatedCopyOutLocations);
-                    }
-
-                    return false;
-                case RECORD_DESTRUCTURE:
-                    return markNonIsolatedExprForTransferOut(expression, nonIsolatedCopyOutLocations,
-                            ((BLangRecordDestructure) parent).varRef);
-                case TUPLE_DESTRUCTURE:
-                    return markNonIsolatedExprForTransferOut(expression, nonIsolatedCopyOutLocations,
-                            ((BLangTupleDestructure) parent).varRef);
-                case ERROR_DESTRUCTURE:
-                    return markNonIsolatedExprForTransferOut(expression, nonIsolatedCopyOutLocations,
-                            ((BLangErrorDestructure) parent).varRef);
-                case RETURN:
-                    return markNonIsolatedExprForTransferOut(expression, nonIsolatedCopyOutLocations);
-            }
-            return false;
+            return !isIsolatedExpression(expression);
         }
 
         BLangExpression parentExpression = (BLangExpression) parent;
 
         if (parentExprKind != NodeKind.INVOCATION) {
-            if (!isSelfReference(expression) && isIsolatedExpression(expression, false)) {
+            if (!isSelfReference(expression) && isIsolatedExpression(expression)) {
                 return false;
             }
 
-            return populatePosAndReturnIsInvalidTransfer(expression, parentExpression, transferOut, invokedOnSelf,
-                                                         nonIsolatedCopyOutLocations);
+            return isInvalidTransferIn(parentExpression, invokedOnSelf);
         }
 
         BLangInvocation invocation = (BLangInvocation) parentExpression;
         BLangExpression calledOnExpr = invocation.expr;
 
         if (calledOnExpr == expression) {
-            if (isIsolatedExpression(expression, false)) {
+            if (isIsolatedExpression(expression)) {
                 return false;
             }
 
@@ -2639,64 +2653,42 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             }
 
             if (!invokedOnSelf && invocation.type.tag == TypeTags.NIL) {
-                return !transferOut;
+                return true;
             }
 
-            return populatePosAndReturnIsInvalidTransfer(expression, parentExpression, transferOut, invokedOnSelf,
-                    nonIsolatedCopyOutLocations);
+            return isInvalidTransferIn(parentExpression, invokedOnSelf);
         }
 
-        // `expression` is an argument to a function
-        if (transferOut) {
-            return populatePosAndReturnIsInvalidTransfer(expression, parentExpression, transferOut, invokedOnSelf,
-                                                         nonIsolatedCopyOutLocations);
-        }
-
-        return !isIsolatedExpression(expression, false);
+        return !isIsolatedExpression(expression);
     }
 
-    private boolean markNonIsolatedExprForTransferOut(BLangExpression expression,
-                                                      List<Location> nonIsolatedCopyOutLocations) {
-        boolean nonIsolatedExpr = !isIsolatedExpression(expression, false);
-        if (nonIsolatedExpr && !isDependentlyIsolatedExpressionKind(expression)) {
-            nonIsolatedCopyOutLocations.add(expression.pos);
+    private void validateTransferOut(BLangExpression expression, List<Location> nonIsolatedCopyOutLocations) {
+        if (!isDependentlyIsolatedExpressionKind(expression)) {
+            if (!isIsolatedExpression(expression)) {
+                nonIsolatedCopyOutLocations.add(expression.pos);
+            }
+            return;
         }
-        return nonIsolatedExpr;
+
+        isIsolatedExpression(expression, false, true, nonIsolatedCopyOutLocations);
     }
 
-    private boolean markNonIsolatedExprForTransferOut(BLangExpression expression,
-                                                      List<Location> nonIsolatedCopyOutLocations,
-                                                      BLangExpression varRef) {
-        boolean invalidTransferOut = !isIsolatedExpression(expression, false) && hasRefDefinedOutsideLock(varRef);
-        if (invalidTransferOut && !isDependentlyIsolatedExpressionKind(expression)) {
-            nonIsolatedCopyOutLocations.add(expression.pos);
+    private void validateTransferOutViaAssignment(BLangExpression expression, BLangExpression varRef,
+                                                  List<Location> nonIsolatedCopyOutLocations) {
+        if (!hasRefDefinedOutsideLock(varRef)) {
+            return;
         }
-        return invalidTransferOut;
+
+        validateTransferOut(expression, nonIsolatedCopyOutLocations);
     }
 
-    private boolean populatePosAndReturnIsInvalidTransfer(BLangExpression expression, BLangExpression parentExpression,
-                                                          boolean transferOut, boolean invokedOnSelf,
-                                                          List<Location> nonIsolatedCopyOutLocations) {
-        ArrayList<Location> list = new ArrayList<>();
-
-        boolean invalidTransfer = isInvalidTransfer(parentExpression, transferOut, invokedOnSelf, list);
-        if (!invalidTransfer) {
-            return false;
+    private void validateTransferOut(BLangExpression varRef, BLangExpression expr) {
+        if (!this.inLockStatement) {
+            return;
         }
 
-        if (!transferOut) {
-            return true;
-        }
-
-        if (list.isEmpty()) {
-            nonIsolatedCopyOutLocations.add(expression.pos);
-        } else {
-            nonIsolatedCopyOutLocations.addAll(list);
-        }
-
-        return true;
+        validateTransferOutViaAssignment(expr, varRef, this.copyInLockInfoStack.peek().nonIsolatedCopyOutLocations);
     }
-
 
     private boolean isSelfReference(BLangExpression expression) {
         return expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
