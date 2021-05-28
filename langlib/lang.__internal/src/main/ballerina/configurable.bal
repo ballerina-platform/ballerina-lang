@@ -16,7 +16,7 @@
 
 import ballerina/jballerina.java;
 
-# Check whether a given key has a configuard value.
+# Check whether there is a configurable variable with the given name.
 #
 # + orgName - Organization name
 # + moduleName - module name
