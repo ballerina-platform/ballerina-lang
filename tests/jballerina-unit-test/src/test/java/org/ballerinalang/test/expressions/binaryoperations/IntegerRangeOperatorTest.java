@@ -34,11 +34,14 @@ import org.testng.annotations.Test;
 public class IntegerRangeOperatorTest {
 
     private CompileResult result;
+    private CompileResult runtimeResult;
     private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/binaryoperations/integer_range_operators.bal");
+        runtimeResult = BCompileUtil.
+                compile("test-src/expressions/binaryoperations/integer-range-operators-runtime.bal");
         negativeResult = BCompileUtil.
                 compile("test-src/expressions/binaryoperations/integer_range_operators_negative.bal");
     }
@@ -165,6 +168,23 @@ public class IntegerRangeOperatorTest {
         int expectedSize = endValue - startValue;
         Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Half "
                 + "Open Integer Range " + startValue + " ..< " + endValue + " accessed as an array");
+        for (int i = 0; i < expectedSize; i++) {
+            Assert.assertEquals(returnArray.getInt(i), startValue + i, "Incorrect value found at index: " + i);
+        }
+    }
+
+    @Test(description = "Test runtime anon type generation of int ranges")
+    public void testIntRangeRuntime() {
+        int startValue = 12;
+        int endValue = 15;
+        BValue[] args = {new BInteger(startValue), new BInteger(endValue)};
+        BValue[] returns = BRunUtil.invoke(runtimeResult, "testClosedIntRange", args);
+        Assert.assertEquals(returns.length, 1);
+
+        BValueArray returnArray = (BValueArray) returns[0];
+        int expectedSize = endValue - startValue + 1;
+        Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Closed "
+                + "Integer Range " + startValue + " ... " + endValue);
         for (int i = 0; i < expectedSize; i++) {
             Assert.assertEquals(returnArray.getInt(i), startValue + i, "Incorrect value found at index: " + i);
         }
