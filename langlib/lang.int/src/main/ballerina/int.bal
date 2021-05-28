@@ -17,19 +17,19 @@
 import ballerina/jballerina.java;
 
 # Built-in subtype that allows signed integers that can be represented in 32 bits using two's complement.
-# This allows an int between -2^31 and 2^31 - 1 inclusive.
+# This allows an int between -2^31 and 2^31 - 1 inclusive,
 # i.e. between -2,147,483,648 and 2,147,483,647 inclusive.
 @builtinSubtype
 public type Signed32 int;
 
 # Built-in subtype that allows non-negative integers that can be represented in 16 bits using two's complement.
-# This allows an int between -2^15 and 2^15 - 1 inclusive.
+# This allows an int between -2^15 and 2^15 - 1 inclusive,
 # i.e. between -32,768 and 32,767 inclusive.
 @builtinSubtype
 public type Signed16 int;
 
 # Built-in subtype that allows non-negative integers that can be represented in 8 bits using two's complement.
-# This allows an int between -2^7 and 2^7 - 1 inclusive.
+# This allows an int between -2^7 and 2^7 - 1 inclusive,
 # i.e. between -128 and 127 inclusive.
 @builtinSubtype
 public type Signed8 int;
@@ -107,7 +107,7 @@ public isolated function max(int n, int... ns) returns int = @java:Method {
     name: "max"
 } external;
 
-# Minimum of one or more int values
+# Minimum of one or more int values.
 #
 # + n - first int value
 # + ns - other int values

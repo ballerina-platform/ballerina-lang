@@ -16,15 +16,15 @@
 
 import ballerina/jballerina.java;
 
-# Config to enable transaction manager
+# Config to enable transaction manager.
 configurable boolean managerEnabled = false;
-# Config to specify transaction log directory
+# Config to specify transaction log directory.
 configurable string logBase = "transaction_log_dir";
 
 public type InfoInternal record {|
-   # Unique identifier for the transaction branch
+   # Unique identifier for the transaction branch.
    byte[] xid;
-   # The number of previous attempts in a sequence of retries
+   # The number of previous attempts in a sequence of retries.
    int retryNumber;
    # Information about the previous attempt in a sequence of retries.
    # This will be `()` if the `retryNumber` is 0.
@@ -45,7 +45,7 @@ public type Timestamp readonly & object {
     public function toString() returns string;
 };
 
-# Returns information about the current transaction
+# Returns information about the current transaction.
 #
 # + return - information about the current transaction
 public transactional isolated function info() returns Info = @java:Method {

@@ -308,7 +308,7 @@ public isolated function children(xml x) returns xml = @java:Method {
     name: "children"
 } external;
 
-# Selects element children of an xml value
+# Selects element children of an xml value.
 #
 # This is equivalent to `children(x).elements(nm)`.
 #
@@ -373,7 +373,7 @@ public isolated function fromString(string s) returns xml|error = @java:Method {
     name: "fromString"
 } external;
 
-# Selects all the items in a sequence that are of type xml:Text
+# Selects all the items in a sequence that are of type xml:Text.
 #
 # + x - the xml value
 # + return - an xml sequence consisting of selected text items
