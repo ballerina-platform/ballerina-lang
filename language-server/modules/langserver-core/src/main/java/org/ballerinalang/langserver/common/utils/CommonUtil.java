@@ -1146,6 +1146,10 @@ public class CommonUtil {
         return symbolName;
     }
 
+    public static boolean isKeyword(String token) {
+        return CommonUtil.BALLERINA_KEYWORDS.contains(token);
+    }
+
     /**
      * Escape a given value.
      *
@@ -1153,7 +1157,7 @@ public class CommonUtil {
      * @return {@link String}
      */
     public static String escapeReservedKeyword(String value) {
-        if (CommonUtil.BALLERINA_KEYWORDS.contains(value)) {
+        if (isKeyword(value)) {
             return "'" + value;
         }
 

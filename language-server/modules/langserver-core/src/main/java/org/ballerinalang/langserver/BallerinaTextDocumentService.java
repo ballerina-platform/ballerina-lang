@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver;
 
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -75,6 +76,8 @@ import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.PrepareRenameParams;
+import org.eclipse.lsp4j.PrepareRenameResult;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
@@ -473,6 +476,33 @@ class BallerinaTextDocumentService implements TextDocumentService {
                                            (Position) null);
                 return Collections.singletonList(textEdit);
             }
+        });
+    }
+
+    /**
+     * TODO Not used because we cannot say don't rename as per the current lsp4j implementation
+     */
+    @Override
+    public CompletableFuture<Either<Range, PrepareRenameResult>> prepareRename(PrepareRenameParams params) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                ReferencesContext context = ContextBuilder.buildReferencesContext(params.getTextDocument().getUri(),
+                        this.workspaceManager,
+                        this.serverContext,
+                        params.getPosition());
+                Optional<Range> range = RenameUtil.prepareRename(context);
+                if (range.isPresent()) {
+                    return Either.forLeft(range.get());
+                }
+            } catch (UserErrorException e) {
+                this.clientLogger.notifyUser("Rename", e);
+            } catch (Throwable t) {
+                String msg = "Operation 'text/prepareRename' failed!";
+                this.clientLogger.logError(LSContextOperation.TXT_RENAME, msg, t, params.getTextDocument(),
+                        params.getPosition());
+            }
+            
+            return null;
         });
     }
 

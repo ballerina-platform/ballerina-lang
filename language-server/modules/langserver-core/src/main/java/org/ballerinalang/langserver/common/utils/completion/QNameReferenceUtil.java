@@ -114,7 +114,7 @@ public class QNameReferenceUtil {
      * @param node    node to be evaluated
      * @return {@link Boolean}
      */
-    public static boolean onQualifiedNameIdentifier(BallerinaCompletionContext context, Node node) {
+    public static boolean onQualifiedNameIdentifier(PositionedOperationContext context, Node node) {
         if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             return false;
         }

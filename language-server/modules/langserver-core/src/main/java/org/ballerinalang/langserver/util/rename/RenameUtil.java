@@ -23,6 +23,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.tools.diagnostics.Location;
@@ -31,9 +32,12 @@ import io.ballerina.tools.text.TextDocument;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.ReferencesContext;
 import org.ballerinalang.langserver.exception.UserErrorException;
+import org.ballerinalang.langserver.util.TokensUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
+import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -57,6 +61,41 @@ public class RenameUtil {
     }
 
     /**
+     * Check if the provided position is valid for renaming. If valid, returns a valid range. Empty otherwise.
+     * TODO this method is not used due to a limitation in lsp4j version.
+     *
+     * @param context Reference context
+     * @return A range if position is valid for rename
+     */
+    public static Optional<Range> prepareRename(ReferencesContext context) {
+        fillTokenInfoAtCursor(context);
+        Token tokenAtCursor;
+        try {
+            tokenAtCursor = TokensUtil.findTokenAtPosition(context, context.getCursorPosition());
+        } catch (TokenOrSymbolNotFoundException e) {
+            return Optional.empty();
+        }
+
+        if (!(tokenAtCursor instanceof IdentifierToken) || CommonUtil.isKeyword(tokenAtCursor.text())) {
+            return Optional.empty();
+        }
+
+        Optional<Document> document = context.currentDocument();
+        if (document.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Range cursorPosRange = new Range(context.getCursorPosition(), context.getCursorPosition());
+        NonTerminalNode nodeAtCursor = CommonUtil.findNode(cursorPosRange, document.get().syntaxTree());
+
+        if (onImportDeclarationNode(context, nodeAtCursor)) {
+            return Optional.empty();
+        }
+
+        return Optional.of(CommonUtil.toRange(tokenAtCursor.lineRange()));
+    }
+    
+    /**
      * Process a rename request and returns the text edits required to be made to complete the rename.
      *
      * @param context Context
@@ -64,11 +103,23 @@ public class RenameUtil {
      * @return Text edits for that rename operation
      */
     public static Map<String, List<TextEdit>> rename(ReferencesContext context, String newName) {
+        fillTokenInfoAtCursor(context);
+
         if (!CommonUtil.isValidIdentifier(newName)) {
             throw new UserErrorException("Invalid identifier provided");
         }
+        
+        // Check if token at cursor is an identifier
+        Token tokenAtCursor;
+        try {
+            tokenAtCursor = TokensUtil.findTokenAtPosition(context, context.getCursorPosition());
+        } catch (TokenOrSymbolNotFoundException e) {
+            return Collections.emptyMap();
+        }
 
-        fillTokenInfoAtCursor(context);
+        if (!(tokenAtCursor instanceof IdentifierToken) || CommonUtil.isKeyword(tokenAtCursor.text())) {
+            return Collections.emptyMap();
+        }
 
         Optional<Document> document = context.currentDocument();
         if (document.isEmpty()) {
@@ -78,15 +129,17 @@ public class RenameUtil {
         Range cursorPosRange = new Range(context.getCursorPosition(), context.getCursorPosition());
         NonTerminalNode nodeAtCursor = CommonUtil.findNode(cursorPosRange, document.get().syntaxTree());
 
-        if (onQNameReferenceNode(context, nodeAtCursor)) {
-            return handleQNameReferenceRename(context, document.get(), nodeAtCursor, newName);
-        } else if (onImportPrefixNode(context, nodeAtCursor)) {
-            return handleImportPrefixRename(context, document.get(), nodeAtCursor, newName);
-        } else if (onImportDeclarationNode(context, nodeAtCursor)) {
-            return handleImportDeclarationRename(context, document.get(),
-                    (ImportDeclarationNode) nodeAtCursor.parent(), newName);
+        // Check if the rename is performed on import node, which is not allowed
+        if (onImportDeclarationNode(context, nodeAtCursor)) {
+            return Collections.emptyMap();
         }
-
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            return handleQNameReferenceRename(context, document.get(), nodeAtCursor, newName);
+        }
+        if (onImportPrefixNode(context, nodeAtCursor)) {
+            return handleImportPrefixRename(context, document.get(), nodeAtCursor, newName);
+        }
+        
         Map<Module, List<Location>> locationMap = ReferencesUtil.getReferences(context);
         Path projectRoot = context.workspace().projectRoot(context.filePath());
 
@@ -98,17 +151,6 @@ public class RenameUtil {
                     textEdits.add(new TextEdit(ReferencesUtil.getRange(location), newName));
                 }));
         return changes;
-    }
-
-    private static boolean onQNameReferenceNode(ReferencesContext context, NonTerminalNode node) {
-        if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            return false;
-        }
-
-        QualifiedNameReferenceNode qNameRefNode = (QualifiedNameReferenceNode) node;
-        int cursor = context.getCursorPositionInTree();
-        return qNameRefNode.modulePrefix().textRange().startOffset() <= cursor &&
-                cursor <= qNameRefNode.modulePrefix().textRange().endOffset();
     }
 
     private static boolean onImportPrefixNode(ReferencesContext context, NonTerminalNode node) {
@@ -123,18 +165,27 @@ public class RenameUtil {
     }
 
     private static boolean onImportDeclarationNode(ReferencesContext context, NonTerminalNode node) {
-        if (node.kind() != SyntaxKind.LIST || node.parent().kind() != SyntaxKind.IMPORT_DECLARATION) {
+        while (node != null && node.kind() != SyntaxKind.IMPORT_DECLARATION) {
+            node = node.parent();
+        }
+
+        if (node == null) {
             return false;
         }
 
-        ImportDeclarationNode importDeclarationNode = (ImportDeclarationNode) node.parent();
+        ImportDeclarationNode importDeclarationNode = (ImportDeclarationNode) node;
         int cursor = context.getCursorPositionInTree();
         SeparatedNodeList<IdentifierToken> moduleNames = importDeclarationNode.moduleName();
-        if (moduleNames.isEmpty()) {
+        int startOffset;
+        if (importDeclarationNode.orgName().isPresent()) {
+            startOffset = importDeclarationNode.orgName().get().textRange().startOffset();
+        } else if (!moduleNames.isEmpty()) {
+            startOffset = moduleNames.get(0).textRange().startOffset();
+        } else {
             return false;
         }
 
-        return moduleNames.get(0).textRange().startOffset() <= cursor &&
+        return !moduleNames.isEmpty() && startOffset <= cursor &&
                 cursor <= moduleNames.get(moduleNames.size() - 1).textRange().endOffset();
     }
 
