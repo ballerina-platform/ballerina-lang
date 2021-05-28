@@ -42,7 +42,6 @@ java-nats-streaming-2.2.1.jar                                                   
 javax.mail-1.6.2.jar                                                                                bundle         cddl1 + gpl2
 ballerina-jsonutils-0.5.0.jar                                                                       jar            apache2
 geronimo-activation_1.1_spec-1.1.jar                                                                bundle         apache2
-libthrift-0.10.0.jar                                                                                bundle         apache2
 ballerina-lang.string-1.1.0.jar                                                                     jar            apache2
 ballerina-lang.transaction-0.0.1.jar                                                                jar            apache2
 proto-google-common-protos-1.17.0.jar                                                               jar            apache2

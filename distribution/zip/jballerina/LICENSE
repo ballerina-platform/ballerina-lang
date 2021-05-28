@@ -47,7 +47,6 @@ java-nats-streaming-2.2.1.jar                                                   
 ballerina-istio-1.1.0.jar                                                                           jar            apache2
 log.jar                                                                                             jar            apache2
 geronimo-activation_1.1_spec-1.1.jar                                                                bundle         apache2
-libthrift-0.10.0.jar                                                                                bundle         apache2
 ballerina-rabbitmq-1.1.0.jar                                                                        jar            apache2
 ballerina-socket-1.1.0.jar                                                                          jar            apache2
 typedesc-1.1.0.jar                                                                                  jar            apache2
