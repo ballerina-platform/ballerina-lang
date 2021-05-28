@@ -38,6 +38,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringVal
  */
 public class BXmlSequence extends IndexedCompoundVariable {
 
+    private int elementsCount = -1;
     private static final String FIELD_CHILDREN = "children";
     private static final String FIELD_ELEMENT_DATA = "elementData";
 
@@ -48,7 +49,7 @@ public class BXmlSequence extends IndexedCompoundVariable {
     @Override
     public String computeValue() {
         try {
-            return getStringValue(context, jvmValue);
+            return String.format("XMLSequence (children = %d)", getChildrenCount());
         } catch (Exception ignored) {
             return UNKNOWN_VALUE;
         }
@@ -82,18 +83,25 @@ public class BXmlSequence extends IndexedCompoundVariable {
 
     @Override
     public int getChildrenCount() {
+        if (elementsCount < 0) {
+            populateElementCount();
+        }
+        return elementsCount;
+    }
+
+    private void populateElementCount() {
         try {
             Optional<Value> children = getFieldValue(jvmValue, FIELD_CHILDREN);
             if (children.isEmpty()) {
-                return 0;
+                elementsCount = 0;
             }
             Optional<Value> childArray = VariableUtils.getFieldValue(children.get(), FIELD_ELEMENT_DATA);
             if (childArray.isEmpty()) {
-                return 0;
+                elementsCount = 0;
             }
-            return ((ArrayReference) childArray.get()).length();
+            elementsCount = ((ArrayReference) childArray.get()).length();
         } catch (Exception e) {
-            return 0;
+            elementsCount = 0;
         }
     }
 }
