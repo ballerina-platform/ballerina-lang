@@ -98,7 +98,22 @@ public class SemanticVersionComparisonTests {
 
         v1 = SemanticVersion.from("1.1.1-alpha");
         v2 = SemanticVersion.from("1.1.1-beta");
+        Assert.assertEquals(v1.compareTo(v2), VersionCompatibilityResult.LESS_THAN);
+
+        v1 = SemanticVersion.from("1.1.1-alpha");
+        v2 = SemanticVersion.from("2.0.0-alpha");
         Assert.assertEquals(v1.compareTo(v2), VersionCompatibilityResult.INCOMPATIBLE);
+    }
+
+    @Test
+    public void testPreReleaseNumericVersions() {
+        SemanticVersion v1 = SemanticVersion.from("1.1.1-alpha.1");
+        SemanticVersion v2 = SemanticVersion.from("1.1.1-alpha.2");
+        Assert.assertEquals(v1.compareTo(v2), VersionCompatibilityResult.LESS_THAN);
+
+        v1 = SemanticVersion.from("1.1.1-alpha.1");
+        v2 = SemanticVersion.from("1.1.1-beta");
+        Assert.assertEquals(v1.compareTo(v2), VersionCompatibilityResult.LESS_THAN);
     }
 
     @Test
