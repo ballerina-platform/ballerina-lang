@@ -224,7 +224,6 @@ lang.value.jar                                                                  
 ballerina-cli-utils-1.1.0.jar                                                                       jar            apache2
 lang.annotations.jar                                                                                jar            apache2
 netty-handler-proxy-4.1.39.Final.jar                                                                bundle         apache2
-guava-19.0.jar                                                                                      bundle         apache2
 lang.__internal.jar                                                                                 jar            apache2
 jvm.jar                                                                                             jar            apache2
 org.wso2.transport.http.netty-6.2.34.jar                                                            bundle         apache2

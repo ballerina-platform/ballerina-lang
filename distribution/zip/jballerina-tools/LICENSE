@@ -226,7 +226,6 @@ ballerina-nats-1.0.0-java.jar                                                   
 ballerina-websub-1.0.0-java.jar                                                                     jar            apache2
 ballerina-lang.error-1.0.0.jar                                                                      jar            apache2
 netty-handler-proxy-4.1.39.Final.jar                                                                bundle         apache2
-guava-19.0.jar                                                                                      bundle         apache2
 ballerina-lang.stream-0.4.0-java.jar                                                                jar            apache2
 ballerina-task-1.1.0-java.jar                                                                       jar            apache2
 ballerina-jwt-1.0.0-java.jar                                                                        jar            apache2
