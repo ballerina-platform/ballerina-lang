@@ -43,7 +43,6 @@ import java.util.Collections;
 import java.util.Optional;
 
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
-import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectUtils.getDependenciesTomlContent;
 
 /**
