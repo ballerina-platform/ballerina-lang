@@ -4,5 +4,5 @@ function testFunction() {
     int counter;
     int[] numberList = [10,21,223,14,55, 12];
 
-    counter =
+    counter = m
 }

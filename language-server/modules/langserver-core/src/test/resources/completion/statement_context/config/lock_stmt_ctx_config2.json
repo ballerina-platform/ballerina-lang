@@ -1,7 +1,7 @@
 {
   "position": {
     "line": 6,
-    "character": 13
+    "character": 15
   },
   "source": "statement_context/source/lock_stmt_ctx_source2.bal",
   "items": [
@@ -9,7 +9,7 @@
       "label": "start",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "start ",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +17,7 @@
       "label": "wait",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "wait ",
       "insertTextFormat": "Snippet"
     },
@@ -25,7 +25,7 @@
       "label": "flush",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "flush ",
       "insertTextFormat": "Snippet"
     },
@@ -33,7 +33,7 @@
       "label": "from clause",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "Q",
       "insertText": "from ${1:var} ${2:item} in ${3}",
       "insertTextFormat": "Snippet"
     },
@@ -291,7 +291,7 @@
       "label": "service",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "service",
       "insertTextFormat": "Snippet"
     },
@@ -299,7 +299,7 @@
       "label": "new",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "new ",
       "insertTextFormat": "Snippet"
     },
@@ -307,7 +307,7 @@
       "label": "isolated",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "isolated ",
       "insertTextFormat": "Snippet"
     },
@@ -315,7 +315,7 @@
       "label": "transactional",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "transactional",
       "insertTextFormat": "Snippet"
     },
@@ -323,7 +323,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
@@ -331,7 +331,7 @@
       "label": "let",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "let",
       "insertTextFormat": "Snippet"
     },
@@ -339,7 +339,7 @@
       "label": "typeof",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "typeof ",
       "insertTextFormat": "Snippet"
     },
@@ -347,7 +347,7 @@
       "label": "trap",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "trap",
       "insertTextFormat": "Snippet"
     },
@@ -355,7 +355,7 @@
       "label": "error",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -363,7 +363,7 @@
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "client ",
       "insertTextFormat": "Snippet"
     },
@@ -371,7 +371,7 @@
       "label": "object",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
@@ -379,7 +379,7 @@
       "label": "true",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "true",
       "insertTextFormat": "Snippet"
     },
@@ -387,7 +387,7 @@
       "label": "false",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "false",
       "insertTextFormat": "Snippet"
     },
@@ -395,7 +395,7 @@
       "label": "check",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "check ",
       "insertTextFormat": "Snippet"
     },
@@ -403,7 +403,7 @@
       "label": "checkpanic",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "checkpanic ",
       "insertTextFormat": "Snippet"
     },
@@ -411,7 +411,7 @@
       "label": "is",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "is",
       "insertTextFormat": "Snippet"
     },
@@ -419,7 +419,7 @@
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "Q",
       "insertText": "error(\"${1}\")",
       "insertTextFormat": "Snippet"
     },
@@ -427,7 +427,7 @@
       "label": "object constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "Q",
       "insertText": "object {${1}};",
       "insertTextFormat": "Snippet"
     },
@@ -435,7 +435,7 @@
       "label": "base16",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "Q",
       "insertText": "base16 `${1}`",
       "insertTextFormat": "Snippet"
     },
@@ -443,16 +443,8 @@
       "label": "base64",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "Q",
       "insertText": "base64 `${1}`",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -462,16 +454,8 @@
       "documentation": {
         "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "M",
+      "sortText": "N",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "numberList",
-      "kind": "Variable",
-      "detail": "int[]",
-      "sortText": "C",
-      "insertText": "numberList",
       "insertTextFormat": "Snippet"
     },
     {
@@ -484,9 +468,25 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "testFunction",
       "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "O",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "breakValue",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "A",
+      "insertText": "breakValue",
       "insertTextFormat": "Snippet"
     },
     {
@@ -498,11 +498,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "breakValue",
+      "label": "numberList",
       "kind": "Variable",
-      "detail": "int",
-      "sortText": "A",
-      "insertText": "breakValue",
+      "detail": "int[]",
+      "sortText": "D",
+      "insertText": "numberList",
       "insertTextFormat": "Snippet"
     },
     {
