@@ -1,4 +1,4 @@
-## Module overview
+## Module Overview
 
 This module facilitates developers to write automation tests for Ballerina code in a simple manner. It provides a number of capabilities such as configuring the setup and cleanup steps at different levels, ordering and grouping of tests, providing value-sets to tests, and independence from external functions and endpoints via mocking capabilities.
 
