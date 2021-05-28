@@ -309,12 +309,11 @@ public class SymbolBIRTest {
 
     @Test(dataProvider = "hasDefaultTestProvider")
     public void testHasDefaultValue(int line, int col, Object hasDefault) {
-
         Project projectDefaultValue = BCompileUtil.loadProject("test-src/symbol_lookup_with_class_field_test.bal");
         SemanticModel modelDefaultValue = getDefaultModulesSemanticModel(projectDefaultValue);
         Document srcFileDefaultValue = getDocumentForSingleSource(projectDefaultValue);
-
         Optional<Symbol> symbol = modelDefaultValue.symbol(srcFileDefaultValue, from(line, col));
+
         if (symbol.isEmpty()) {
             assertNull(hasDefault);
         } else {

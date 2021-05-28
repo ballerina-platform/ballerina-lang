@@ -184,6 +184,5 @@ public class ClassSymbolTest {
         Symbol symbol = model.symbol(srcFile,  LinePosition.from(line, col)).get();
         ClassFieldSymbol fieldSymbol = (ClassFieldSymbol) symbol;
         assertEquals(fieldSymbol.hasDefaultValue(), hasDefault);
-
     }
 }
