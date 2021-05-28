@@ -60,8 +60,7 @@ public class ResolveMavenDependenciesTask implements Task {
             return;
         }
 
-        String targetRepo = project.sourceRoot().toString() + File.separator + "target" + File.separator
-                + "platform-libs";
+        String targetRepo = project.sourceRoot().resolve("target").resolve("platform-libs").toAbsolutePath().toString();
         MavenResolver resolver = new MavenResolver(targetRepo);
 
         for (Map<String, Object> repository : platformRepositories) {
