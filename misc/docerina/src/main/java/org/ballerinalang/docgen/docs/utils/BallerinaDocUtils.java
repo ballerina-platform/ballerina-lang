@@ -63,7 +63,7 @@ public class BallerinaDocUtils {
     }
 
     public static String getSummary(String description) {
-        Pattern pattern = Pattern.compile("(^#+.*Overview\\n+)([^\\n]*)");
+        Pattern pattern = Pattern.compile("(^#+.*[Oo]verview\\n+)([^\\n]*)");
         Matcher matcher = pattern.matcher(description);
         if (matcher.find()) {
             return matcher.group(2);
