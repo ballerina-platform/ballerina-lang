@@ -175,19 +175,7 @@ public class IntegerRangeOperatorTest {
 
     @Test(description = "Test runtime anon type generation of int ranges")
     public void testIntRangeRuntime() {
-        int startValue = 12;
-        int endValue = 15;
-        BValue[] args = {new BInteger(startValue), new BInteger(endValue)};
-        BValue[] returns = BRunUtil.invoke(runtimeResult, "testClosedIntRange", args);
-        Assert.assertEquals(returns.length, 1);
-
-        BValueArray returnArray = (BValueArray) returns[0];
-        int expectedSize = endValue - startValue + 1;
-        Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Closed "
-                + "Integer Range " + startValue + " ... " + endValue);
-        for (int i = 0; i < expectedSize; i++) {
-            Assert.assertEquals(returnArray.getInt(i), startValue + i, "Incorrect value found at index: " + i);
-        }
+        BRunUtil.invoke(runtimeResult, "testClosedIntRange");
     }
 
     @Test(description = "Test closed int range operator on int sub types")
