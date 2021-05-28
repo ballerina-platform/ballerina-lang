@@ -536,7 +536,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
     }
 
     private Integer baseHash(BType type) {
-        return hash(type.tag, type.flags);
+        return hash(type.tag);
     }
 
     private List<Integer> getTypesHashes(Collection<BType> types) {

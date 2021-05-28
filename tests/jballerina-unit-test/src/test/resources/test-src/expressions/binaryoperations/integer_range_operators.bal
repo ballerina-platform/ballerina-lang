@@ -1,3 +1,5 @@
+public type Label int; // If the TypeHashVisitor takes in type.flags of `Lable` type, int range tests will fail.
+
 function testClosedIntRange(int startValue, int endValue) returns int[] {
     int[] returnArray = [];
     int returnArrayIndex = 0;
