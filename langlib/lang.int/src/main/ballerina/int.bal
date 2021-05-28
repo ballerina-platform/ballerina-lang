@@ -107,7 +107,7 @@ public isolated function max(int n, int... ns) returns int = @java:Method {
     name: "max"
 } external;
 
-# Minimum of one or more int values
+# Minimum of one or more int values.
 #
 # + n - first int value
 # + ns - other int values
