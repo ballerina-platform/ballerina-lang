@@ -67,4 +67,21 @@ public class FieldCompletionItemBuilder {
     public static CompletionItem build(ObjectFieldSymbol symbol) {
         return getCompletionItem(symbol);
     }
+
+    /**
+     * Build the constant {@link CompletionItem}.
+     *
+     * @param objectFieldSymbol {@link ObjectFieldSymbol}
+     * @param symbolName  Name of the symbol
+     * @return {@link CompletionItem} generated completion item
+     */
+    public static CompletionItem buildField(ObjectFieldSymbol objectFieldSymbol, String symbolName) {
+        String label = symbolName + "." + objectFieldSymbol.getName().get();
+
+        CompletionItem item = new CompletionItem();
+        item.setLabel(label);
+        item.setInsertText(label);
+        item.setKind(CompletionItemKind.Field);
+        return item;
+    }
 }

@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -175,6 +176,24 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, varSymbol.getName().get(),
                         typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
+
+                TypeSymbol rawType = CommonUtil.getRawType(varSymbol.typeDescriptor());
+
+                if (CommonUtil.isSelfClassSymbol(symbol, ctx, ctx.enclosedModuleMember().get())) {
+                    ObjectTypeSymbol objectTypeDesc = (ObjectTypeSymbol) rawType;
+
+                    objectTypeDesc.fieldDescriptors().values().forEach(classFieldSymbol -> {
+                        CompletionItem classFieldCItem = FieldCompletionItemBuilder.buildField(classFieldSymbol,
+                                varSymbol.getName().get());
+                        completionItems.add(new ObjectFieldCompletionItem(ctx, classFieldSymbol,
+                                        classFieldCItem));
+                            });
+                    objectTypeDesc.methods().values().forEach(methodSymbol -> {
+                        CompletionItem methodCItem = FunctionCompletionItemBuilder.buildMethod(methodSymbol, ctx,
+                                varSymbol.getName().get());
+                        completionItems.add(new SymbolCompletionItem(ctx, methodSymbol, methodCItem));
+                            });
+                }
             } else if (symbol.kind() == PARAMETER) {
                 ParameterSymbol paramSymbol = (ParameterSymbol) symbol;
                 TypeSymbol typeDesc = paramSymbol.typeDescriptor();

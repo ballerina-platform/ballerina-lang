@@ -17,13 +17,9 @@ package org.ballerinalang.langserver.util.definition;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -54,8 +50,6 @@ import java.util.Optional;
  * @since 1.2.0
  */
 public class DefinitionUtil {
-    private static final String SELF_KW = "self";
-
     /**
      * Get the definition.
      *
@@ -80,7 +74,7 @@ public class DefinitionUtil {
         }
 
         Optional<Location> location;
-        if (isSelfClassSymbol(symbol.get(), context)) {
+        if (CommonUtil.isSelfClassSymbol(symbol.get(), context, context.enclosedModuleMember().get())) {
             // Within the #isSelfClassSymbol we do the instance check against the symbol. Hence casting is safe 
             // If the self variable is referring to the class instance, navigate to class definition
             TypeSymbol rawType = CommonUtil.getRawType(((VariableSymbol) symbol.get()).typeDescriptor());
@@ -170,26 +164,6 @@ public class DefinitionUtil {
         }
 
         return filepath;
-    }
-
-    private static boolean isSelfClassSymbol(Symbol symbol, BallerinaDefinitionContext context) {
-        Optional<ModuleMemberDeclarationNode> enclosedModuleMember = context.enclosedModuleMember();
-        Optional<String> name = symbol.getName();
-        if (enclosedModuleMember.isEmpty() || enclosedModuleMember.get().kind() != SyntaxKind.CLASS_DEFINITION
-                || symbol.kind() != SymbolKind.VARIABLE || name.isEmpty() || !name.get().equals(SELF_KW)) {
-            return false;
-        }
-        Optional<Symbol> memberSymbol = context.workspace().semanticModel(context.filePath())
-                .get().symbol(enclosedModuleMember.get());
-
-        if (memberSymbol.isEmpty() || memberSymbol.get().kind() != SymbolKind.CLASS) {
-            return false;
-        }
-        ClassSymbol classSymbol = (ClassSymbol) memberSymbol.get();
-        VariableSymbol selfSymbol = (VariableSymbol) symbol;
-        TypeSymbol varTypeSymbol = CommonUtil.getRawType(selfSymbol.typeDescriptor());
-
-        return classSymbol.equals(varTypeSymbol);
     }
 
     private static void fillTokenInfoAtCursor(BallerinaDefinitionContext context) {

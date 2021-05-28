@@ -33,14 +33,17 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
@@ -143,6 +146,8 @@ public class CommonUtil {
             "lang.string", "lang.table", "lang.transaction", "lang.typedesc", "lang.xml");
 
     public static final List<String> BALLERINA_KEYWORDS;
+
+    private static final String SELF_KW = "self";
 
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
@@ -1217,4 +1222,38 @@ public class CommonUtil {
                 && (!node.closeParenToken().isMissing())
                 && (cursorPosition <= node.closeParenToken().textRange().startOffset());
     }
+
+    /**
+     * Check if the symbol is a class symbol with self as the name.
+     *
+     * @param symbol  Symbol
+     * @param context PositionedOperationContext
+     * @param enclosedModuleMember ModuleMemberDeclarationNode
+     * @return {@link Boolean} whether the symbol is a self class symbol.
+     */
+    public static boolean isSelfClassSymbol(Symbol symbol, PositionedOperationContext context,
+                                            ModuleMemberDeclarationNode enclosedModuleMember) {
+
+        Optional<String> name = symbol.getName();
+
+        if (enclosedModuleMember != null) {
+            if (enclosedModuleMember.kind() != SyntaxKind.CLASS_DEFINITION || symbol.kind() != SymbolKind.VARIABLE
+                    || name.isEmpty() || !name.get().equals(SELF_KW)) {
+                return false;
+            }
+        }
+
+        Optional<Symbol> memberSymbol = context.workspace().semanticModel(context.filePath())
+                .get().symbol(enclosedModuleMember);
+
+        if (memberSymbol.isEmpty() || memberSymbol.get().kind() != SymbolKind.CLASS) {
+            return false;
+        }
+        ClassSymbol classSymbol = (ClassSymbol) memberSymbol.get();
+        VariableSymbol selfSymbol = (VariableSymbol) symbol;
+        TypeSymbol varTypeSymbol = CommonUtil.getRawType(selfSymbol.typeDescriptor());
+
+        return classSymbol.equals(varTypeSymbol);
+    }
+
 }
