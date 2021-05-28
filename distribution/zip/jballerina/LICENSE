@@ -106,7 +106,7 @@ ballerina-grpc-1.1.0.jar                                                        
 mimepull-1.9.7.jar                                                                                  bundle         cddl1
 annotations-1.1.0.jar                                                                               jar            apache2
 compiler_backend_jvm.jar                                                                            jar            apache2
-netty-handler-4.1.39.Final.jar                                                                      bundle         apache2
+netty-handler-4.1.46.Final.jar                                                                      bundle         apache2
 stringutils.jar                                                                                     jar            apache2
 internal-1.1.0.jar                                                                                  jar            apache2
 table-1.1.0.jar                                                                                     jar            apache2
@@ -223,7 +223,7 @@ protobuf-ballerina-1.1.0.jar                                                    
 lang.value.jar                                                                                      jar            apache2
 ballerina-cli-utils-1.1.0.jar                                                                       jar            apache2
 lang.annotations.jar                                                                                jar            apache2
-netty-handler-proxy-4.1.39.Final.jar                                                                bundle         apache2
+netty-handler-proxy-4.1.46.Final.jar                                                                bundle         apache2
 lang.__internal.jar                                                                                 jar            apache2
 jvm.jar                                                                                             jar            apache2
 org.wso2.transport.http.netty-6.2.34.jar                                                            bundle         apache2

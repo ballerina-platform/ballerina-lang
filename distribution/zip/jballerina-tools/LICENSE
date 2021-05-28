@@ -100,7 +100,7 @@ ballerina-log-1.0.0.jar                                                         
 broker-core-0.970.5.jar                                                                             bundle         apache2
 mimepull-1.9.7.jar                                                                                  bundle         cddl1
 testerina-core-2.0.0-Preview1.jar                                                                   jar            apache2
-netty-handler-4.1.39.Final.jar                                                                      bundle         apache2
+netty-handler-4.1.46.Final.jar                                                                      bundle         apache2
 ballerina-java-0.9.0-java.jar                                                                       jar            apache2
 ballerina-email-0.6.0.jar                                                                           jar            apache2
 ballerina-math-1.0.0-java.jar                                                                       jar            apache2
@@ -225,7 +225,7 @@ ballerina-lang.object-1.0.0-java.jar                                            
 ballerina-nats-1.0.0-java.jar                                                                       jar            apache2
 ballerina-websub-1.0.0-java.jar                                                                     jar            apache2
 ballerina-lang.error-1.0.0.jar                                                                      jar            apache2
-netty-handler-proxy-4.1.39.Final.jar                                                                bundle         apache2
+netty-handler-proxy-4.1.46.Final.jar                                                                bundle         apache2
 ballerina-lang.stream-0.4.0-java.jar                                                                jar            apache2
 ballerina-task-1.1.0-java.jar                                                                       jar            apache2
 ballerina-jwt-1.0.0-java.jar                                                                        jar            apache2
