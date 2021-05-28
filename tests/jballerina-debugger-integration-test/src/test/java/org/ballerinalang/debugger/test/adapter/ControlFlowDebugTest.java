@@ -164,7 +164,7 @@ public class ControlFlowDebugTest extends BaseTestCase {
         // Variable visibility test inside 'match' statement
         debugTestRunner.assertVariable(variables, "v07_intVar", "7", "int");
         // Variable visibility test for lambda - iterable arrow operation
-        debugTestRunner.assertVariable(variables, "v09_animals", "map", "map");
+        debugTestRunner.assertVariable(variables, "v09_animals", "map<string>", "map");
 
         // Variable visibility test for lambda child variables
         Map<String, Variable> lamdaChildVariables = debugTestRunner.fetchChildVariables(variables.get("v09_animals"));

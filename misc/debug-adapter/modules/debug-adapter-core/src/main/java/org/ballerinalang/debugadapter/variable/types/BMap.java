@@ -53,6 +53,7 @@ public class BMap extends IndexedCompoundVariable {
     private static final String FIELD_SIZE = "size";
     private static final String METHOD_GET_KEYS = "getKeys";
     private static final String METHOD_GET = "get";
+    private static final String MAP_TYPEDESC_SEPARATOR = " & ";
 
     public BMap(SuspendedContext context, String name, Value value) {
         this(context, name, BVariableType.MAP, value);
@@ -71,7 +72,8 @@ public class BMap extends IndexedCompoundVariable {
                     methodArgTypeNames);
             method.setArgValues(Collections.singletonList(valueAsObject));
             Value value = method.invokeSafely();
-            return VariableFactory.getVariable(context, value).computeValue();
+            String typeDescValue = VariableFactory.getVariable(context, value).computeValue();
+            return typeDescValue.split(MAP_TYPEDESC_SEPARATOR)[0].trim();
         } catch (Exception e) {
             return VariableUtils.getBType(jvmValue);
         }
