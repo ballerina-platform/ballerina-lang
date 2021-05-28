@@ -71,9 +71,9 @@ public class XMLTemplateEvaluator extends Evaluator {
                 BXmlSequence xmlSequence = (BXmlSequence) xmlVar;
                 if (xmlSequence.getChildrenCount() == 0) {
                     // If the element count is 0, returns an empty XML item.
-                    RuntimeStaticMethod creteXmlMethod = getRuntimeMethod(context, B_TYPE_CREATOR_CLASS,
+                    RuntimeStaticMethod createXmlMethod = getRuntimeMethod(context, B_TYPE_CREATOR_CLASS,
                             CREATE_XML_ITEM, Collections.emptyList());
-                    creteXmlMethod.setArgValues(Collections.singletonList(xmlStrValue));
+                    createXmlMethod.setArgValues(Collections.singletonList(xmlStrValue));
                     result = strToXmlMethod.invokeSafely();
                 } else if (xmlSequence.getChildrenCount() == 1) {
                     // If the sequence contain only one element, returns it as a single XMLItem.
