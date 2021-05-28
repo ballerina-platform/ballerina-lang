@@ -64,6 +64,7 @@ rem ----- update classpath -----------------------------------------------------
 setlocal EnableDelayedExpansion
 set BALLERINA_CLASSPATH=
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\bre\lib\*"
+set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\repo\bala\cloud\*\any\compiler-plugin\libs\*"
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\lib\tools\lang-server\lib\*"
 
 set ALLOW_EXPERIMENTAL=false

@@ -152,6 +152,8 @@ CLASSPATHS="$CLASSPATHS":"$CUSTOM_CLASSPATH"
 
 CLASSPATHS="$CLASSPATHS":"$BALLERINA_HOME"/bre/lib/*
 
+CLASSPATHS="$CLASSPATHS":"$BALLERINA_HOME"/repo/bala/cloud/*/any/compiler-plugin/libs/*
+
 CLASSPATHS="$CLASSPATHS":"$BALLERINA_HOME"/lib/tools/lang-server/lib/*
 
 # ------------------------- Execute Command ---------------------------------

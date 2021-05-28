@@ -195,6 +195,11 @@ do
     BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":$j
 done
 
+for j in "$BALLERINA_HOME"/repo/bala/ballerina/cloud/*/any/compiler-plugin/libs/*.jar
+do
+    BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":$j
+done
+
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
   JAVA_HOME=`cygpath --absolute --windows "$JAVA_HOME"`
