@@ -38,7 +38,6 @@ okio-1.13.0.jar                                                                 
 ballerina-task-1.1.0.jar                                                                            jar            apache2
 kafka.jar                                                                                           jar            apache2
 ballerina-auth-1.1.0.jar                                                                            jar            apache2
-commons-beanutils-1.9.3.jar                                                                         bundle         apache2
 nats.jar                                                                                            jar            apache2
 ballerina-jsonutils-1.1.0.jar                                                                       jar            apache2
 lang.decimal.jar                                                                                    jar            apache2

@@ -33,7 +33,6 @@ org.wso2.carbon.metrics.core-2.3.7.jar                                          
 ballerina-ldap-1.0.0.jar                                                                            jar            apache2
 okio-1.13.0.jar                                                                                     jar            apache2
 ballerina-task-1.1.0.jar                                                                            jar            apache2
-commons-beanutils-1.9.3.jar                                                                         bundle         apache2
 ballerina-reflect-0.5.0-java.jar                                                                    jar            apache2
 broker-auth-0.970.0.jar                                                                             bundle         apache2
 staxon-core-1.2.0.wso2v2.jar                                                                        bundle         apache2

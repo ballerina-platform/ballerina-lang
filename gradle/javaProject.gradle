@@ -32,7 +32,6 @@ dependencies {
     implementation 'org.slf4j:slf4j-api:1.7.26'
 
     constraints {
-        implementation 'commons-beanutils:commons-beanutils:1.9.3'
         implementation 'commons-codec:commons-codec:1.14'
         implementation 'commons-io:commons-io:2.7'
         implementation 'commons-logging:commons-logging:1.1.1'
