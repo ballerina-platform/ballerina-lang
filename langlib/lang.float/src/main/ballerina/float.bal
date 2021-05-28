@@ -34,7 +34,7 @@ public const float Infinity = 1.0/0.0;
 # Exactly one of isFinite, isInfinite and IsNaN will be true for any float value
 #
 # + x - the float to be tested
-# + return - true if parameter `x` is finite, i.e. neither NaN nor +∞ nor -∞
+# + return - true if parameter `x` is finite, i.e., neither NaN nor +∞ nor -∞
 public isolated function isFinite(float x) returns boolean = @java:Method {
      'class: "org.ballerinalang.langlib.floatingpoint.IsFinite",
      name: "isFinite"
