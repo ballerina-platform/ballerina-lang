@@ -35,7 +35,7 @@ public isolated function max(decimal x, decimal... xs) returns decimal = @java:M
     name: "max"
 } external;
 
-# Minimum of one or more decimal values
+# Minimum of one or more decimal values.
 #
 # + x - first decimal value
 # + xs - other decimal values

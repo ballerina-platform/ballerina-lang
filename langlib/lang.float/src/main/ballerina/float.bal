@@ -19,14 +19,14 @@ import ballerina/jballerina.java;
 // IEEE refers to IEEE 754
 // Constants
 
-# The number π
+# The number π.
 public const float PI = 3.141592653589793;
-# Euler's number
+# Euler's number.
 public const float E =  2.718281828459045;
-# IEEE not-a-number value
+# IEEE not-a-number value.
 public const float NaN = 0.0/0.0;
 
-# IEEE positive infinity
+# IEEE positive infinity.
 public const float Infinity = 1.0/0.0;
 
 # Tests whether a float is finite.
@@ -34,7 +34,7 @@ public const float Infinity = 1.0/0.0;
 # Exactly one of isFinite, isInfinite and IsNaN will be true for any float value
 #
 # + x - the float to be tested
-# + return - true if parameter `x` is finite, i.e. neither NaN nor +∞ nor -∞
+# + return - true if parameter `x` is finite, i.e., neither NaN nor +∞ nor -∞
 public isolated function isFinite(float x) returns boolean = @java:Method {
      'class: "org.ballerinalang.langlib.floatingpoint.IsFinite",
      name: "isFinite"
@@ -175,7 +175,7 @@ public isolated function pow(float x, float y) returns float = @java:Method {
     name: "pow"
 } external;
 
-# Returns the natural logarithm of a float value
+# Returns the natural logarithm of a float value.
 #
 # Corresponds to IEEE log operation.
 #
@@ -243,7 +243,7 @@ public isolated function tan(float x) returns float = @java:Method {
 
 # Returns the arccosine of a float value.
 #
-# Corresponds to IEEE acos operation
+# Corresponds to IEEE acos operation.
 #
 # + x - float value to operate on
 # + return - the arccosine of parameter `x` in radians
