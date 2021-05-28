@@ -60,7 +60,7 @@ public isolated function detail(error<DetailType> e) returns DetailType = @java:
     name: "detail"
 } external;
 
-# Representation of `CallStackElement`
+# Representation of `CallStackElement`.
 #
 # + callableName - Callable name
 # + moduleName - Module name

@@ -45,7 +45,7 @@ public isolated function clone(CloneableType v) returns CloneableType = @java:Me
     name: "clone"
 } external;
 
-# Returns a clone of a value that is read-only, i.e. immutable.
+# Returns a clone of a value that is read-only, i.e., immutable.
 #
 # It corresponds to the ImmutableClone(v) abstract operation,
 # defined in the Ballerina Language Specification.
@@ -102,7 +102,7 @@ public isolated function ensureType(any|error v, typedesc<any> t = <>) returns t
     name: "ensureType"
 } external;
 
-# Tests whether a value is read-only, i.e. immutable
+# Tests whether a value is read-only, i.e., immutable.
 #
 # Returns true if read-only, false otherwise.
 #

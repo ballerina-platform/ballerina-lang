@@ -272,7 +272,7 @@ public isolated function slice(xml<ItemType> x, int startIndex, int endIndex = x
 #
 # Comment items, processing instruction items are considered insignificant.
 # After removal of comments and processing instructions, the text is grouped into
-# the biggest possible chunks (i.e. only elements cause division into multiple chunks)
+# the biggest possible chunks (i.e., only elements cause division into multiple chunks)
 # and a chunk is considered insignificant if the entire chunk is whitespace.
 #
 # + x - the xml value
@@ -308,7 +308,7 @@ public isolated function children(xml x) returns xml = @java:Method {
     name: "children"
 } external;
 
-# Selects element children of an xml value
+# Selects element children of an xml value.
 #
 # This is equivalent to `children(x).elements(nm)`.
 #
@@ -373,7 +373,7 @@ public isolated function fromString(string s) returns xml|error = @java:Method {
     name: "fromString"
 } external;
 
-# Selects all the items in a sequence that are of type xml:Text
+# Selects all the items in a sequence that are of type xml:Text.
 #
 # + x - the xml value
 # + return - an xml sequence consisting of selected text items
