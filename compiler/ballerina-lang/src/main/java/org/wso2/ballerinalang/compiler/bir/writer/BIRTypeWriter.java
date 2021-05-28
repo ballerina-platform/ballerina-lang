@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.writer;
 
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
@@ -507,7 +508,9 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     private int addStringCPEntry(String value) {
-        return cp.addCPEntry(new StringCPEntry(value));
+        // We ideally shouldn't have to decode the value here. This change is introduced as a workaround until we fix
+        // https://github.com/ballerina-platform/ballerina-lang/issues/30818.
+        return cp.addCPEntry(new StringCPEntry(IdentifierUtils.decodeIdentifier(value)));
     }
 
     private int addIntCPEntry(long value) {
