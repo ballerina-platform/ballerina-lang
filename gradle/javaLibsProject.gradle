@@ -32,7 +32,7 @@ dependencies {
     dist 'io.dropwizard.metrics:metrics-core:3.1.0'
     dist 'javax.transaction:javax.transaction-api:1.2'
     dist 'org.quartz-scheduler:quartz-jobs:2.3.0'
-    dist 'org.quartz-scheduler:quartz:2.3.0'
+    dist 'org.quartz-scheduler:quartz:2.3.2'
     dist 'org.wso2.carbon:org.wso2.carbon.core:5.1.0'
     dist 'org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2'
     dist 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
