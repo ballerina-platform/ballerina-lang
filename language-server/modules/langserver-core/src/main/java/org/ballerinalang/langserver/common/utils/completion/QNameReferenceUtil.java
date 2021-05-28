@@ -110,7 +110,7 @@ public class QNameReferenceUtil {
     /**
      * Check whether the current cursor is positioned in the qualified name identifier.
      *
-     * @param context completion context
+     * @param context Positioned operation context
      * @param node    node to be evaluated
      * @return {@link Boolean}
      */
@@ -122,5 +122,22 @@ public class QNameReferenceUtil {
         int cursor = context.getCursorPositionInTree();
 
         return colonPos < cursor;
+    }
+
+    /**
+     * If the cursor is on the module prefix part of a qualified name reference node.
+     *
+     * @param context Positioned operation context
+     * @param node    Node to check
+     * @return True if cursor is on the module prefix part
+     */
+    public static boolean onModulePrefix(PositionedOperationContext context, Node node) {
+        if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            return false;
+        }
+        int colonPos = ((QualifiedNameReferenceNode) node).colon().textRange().startOffset();
+        int cursor = context.getCursorPositionInTree();
+
+        return cursor < colonPos;
     }
 }

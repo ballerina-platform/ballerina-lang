@@ -59,41 +59,6 @@ public class RenameUtil {
 
     private RenameUtil() {
     }
-
-    /**
-     * Check if the provided position is valid for renaming. If valid, returns a valid range. Empty otherwise.
-     * TODO this method is not used due to a limitation in lsp4j version.
-     *
-     * @param context Reference context
-     * @return A range if position is valid for rename
-     */
-    public static Optional<Range> prepareRename(ReferencesContext context) {
-        fillTokenInfoAtCursor(context);
-        Token tokenAtCursor;
-        try {
-            tokenAtCursor = TokensUtil.findTokenAtPosition(context, context.getCursorPosition());
-        } catch (TokenOrSymbolNotFoundException e) {
-            return Optional.empty();
-        }
-
-        if (!(tokenAtCursor instanceof IdentifierToken) || CommonUtil.isKeyword(tokenAtCursor.text())) {
-            return Optional.empty();
-        }
-
-        Optional<Document> document = context.currentDocument();
-        if (document.isEmpty()) {
-            return Optional.empty();
-        }
-
-        Range cursorPosRange = new Range(context.getCursorPosition(), context.getCursorPosition());
-        NonTerminalNode nodeAtCursor = CommonUtil.findNode(cursorPosRange, document.get().syntaxTree());
-
-        if (onImportDeclarationNode(context, nodeAtCursor)) {
-            return Optional.empty();
-        }
-
-        return Optional.of(CommonUtil.toRange(tokenAtCursor.lineRange()));
-    }
     
     /**
      * Process a rename request and returns the text edits required to be made to complete the rename.
@@ -108,18 +73,6 @@ public class RenameUtil {
         if (!CommonUtil.isValidIdentifier(newName)) {
             throw new UserErrorException("Invalid identifier provided");
         }
-        
-        // Check if token at cursor is an identifier
-        Token tokenAtCursor;
-        try {
-            tokenAtCursor = TokensUtil.findTokenAtPosition(context, context.getCursorPosition());
-        } catch (TokenOrSymbolNotFoundException e) {
-            return Collections.emptyMap();
-        }
-
-        if (!(tokenAtCursor instanceof IdentifierToken) || CommonUtil.isKeyword(tokenAtCursor.text())) {
-            return Collections.emptyMap();
-        }
 
         Optional<Document> document = context.currentDocument();
         if (document.isEmpty()) {
@@ -128,12 +81,17 @@ public class RenameUtil {
 
         Range cursorPosRange = new Range(context.getCursorPosition(), context.getCursorPosition());
         NonTerminalNode nodeAtCursor = CommonUtil.findNode(cursorPosRange, document.get().syntaxTree());
-
+        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, context.getCursorPosition()).orElse(null);
+        // Check if token at cursor is an identifier
+        if (!(tokenAtCursor instanceof IdentifierToken) || CommonUtil.isKeyword(tokenAtCursor.text())) {
+            return Collections.emptyMap();
+        }
+        
         // Check if the rename is performed on import node, which is not allowed
         if (onImportDeclarationNode(context, nodeAtCursor)) {
             return Collections.emptyMap();
         }
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameReferenceUtil.onModulePrefix(context, nodeAtCursor)) {
             return handleQNameReferenceRename(context, document.get(), nodeAtCursor, newName);
         }
         if (onImportPrefixNode(context, nodeAtCursor)) {
