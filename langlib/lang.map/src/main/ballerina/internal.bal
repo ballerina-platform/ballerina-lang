@@ -25,7 +25,7 @@ class MapIterator {
         self.m = m;
     }
 
-    # Return the next member in map iterator, nil if end of iterator is reached.
+    # Returns the next member in map iterator, nil if end of iterator is reached.
     # + return - iterator result
     public isolated function next() returns record {| Type value; |}? {
         return externNext(self);

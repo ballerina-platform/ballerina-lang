@@ -86,6 +86,8 @@ public transactional isolated function getRollbackOnly() returns boolean = @java
 } external;
 
 # Associates some data with the current transaction branch.
+#
+# + e - Data to be set
 public transactional isolated function setData((any|error) & readonly e) = @java:Method {
     'class: "org.ballerinalang.langlib.transaction.SetData",
     name: "setData"

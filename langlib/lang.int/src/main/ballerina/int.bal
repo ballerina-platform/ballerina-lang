@@ -97,7 +97,7 @@ public isolated function sum(int... ns) returns int = @java:Method {
     name: "sum"
 } external;
 
-# Maximum of one or more int values.
+# Returns the maximum of one or more int values.
 #
 # + n - first int value
 # + ns - other int values
@@ -107,7 +107,7 @@ public isolated function max(int n, int... ns) returns int = @java:Method {
     name: "max"
 } external;
 
-# Minimum of one or more int values.
+# Returns the minimum of one or more int values.
 #
 # + n - first int value
 # + ns - other int values

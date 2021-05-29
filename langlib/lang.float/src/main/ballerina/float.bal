@@ -62,7 +62,7 @@ public isolated function isNaN(float x) returns boolean = @java:Method {
     name: "isNaN"
 } external;
 
-# Sum of zero or more float values.
+# Returns the sum of zero or more float values.
 #
 # Result is NaN if any arg is NaN
 #
@@ -73,7 +73,7 @@ public isolated function sum(float... xs) returns float = @java:Method {
     name: "sum"
 } external;
 
-# Maximum of zero or more float values.
+# Returns the maximum of zero or more float values.
 #
 # Result is -∞ if no args
 # NaN if any arg is NaN
@@ -85,7 +85,7 @@ public isolated function max(float... xs) returns float = @java:Method {
     name: "max"
 } external;
 
-# Minimum of zero or more float values.
+# Returns the minimum of zero or more float values.
 #
 # Result is +∞ if no args
 # Result is NaN if any arg is NaN
@@ -97,7 +97,7 @@ public isolated function min(float... xs) returns float = @java:Method {
     name: "min"
 } external;
 
-# IEEE abs operation.
+# Performs the IEEE abs operation.
 #
 # + x - float value to operate on
 # + return - absolute value of parameter `x`
@@ -106,7 +106,7 @@ public isolated function abs(float x) returns float = @java:Method {
     name: "abs"
 } external;
 
-# Round a float value to the closest integral value.
+# Rounds a float value to the closest integral value.
 #
 # Returns the float value that is a mathematical integer and closest to parameter `x`.
 # If there are two such values, choose the one that is even
@@ -126,7 +126,7 @@ public isolated function round(float x) returns float = @java:Method {
 # Rounds a float down to the closest integral value.
 #
 # + x - float value to operate on
-# + return - largest (closest to +∞) float value not greater than parameter `x` that is a mathematical integer.
+# + return - largest (closest to +∞) float value not greater than parameter `x` that is a mathematical integer
 public isolated function floor(float x) returns float = @java:Method {
     'class: "org.ballerinalang.langlib.floatingpoint.Floor",
     name: "floor"
@@ -320,7 +320,7 @@ public isolated function tanh(float x) returns float = @java:Method {
     name: "tanh"
 } external;
 
-# Return the float value represented by a string.
+# Returns the float value represented by a string.
 #
 # parameter `s` must follow the syntax of DecimalFloatingPointNumber as defined by the Ballerina specification
 # with the following modifications

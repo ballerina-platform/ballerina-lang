@@ -266,7 +266,7 @@ public isolated function fromJsonStringWithType(string str, typedesc<anydata> t 
     name: "fromJsonStringWithType"
 } external;
 
-# Merges two json values.
+# Merges two `json` values.
 #
 # The merge of parameter `j1` with parameter `j2` is defined as follows:
 # - if parameter `j1` is `()`, then the result is parameter `j2`

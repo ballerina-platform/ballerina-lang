@@ -116,7 +116,7 @@ public isolated function getName(Element elem) returns string = @java:Method {
     name: "getName"
 } external;
 
-# Change the name of an xml element.
+# Changes the name of an xml element.
 #
 # + elem - xml element
 # + xName - new expanded name
@@ -373,7 +373,7 @@ public isolated function fromString(string s) returns xml|error = @java:Method {
     name: "fromString"
 } external;
 
-# Selects all the items in a sequence that are of type xml:Text.
+# Selects all the items in a sequence that are of type `xml:Text`.
 #
 # + x - the xml value
 # + return - an xml sequence consisting of selected text items

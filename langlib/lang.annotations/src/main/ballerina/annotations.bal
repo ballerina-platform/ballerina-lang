@@ -20,11 +20,11 @@ public type 'anydata ()|boolean|int|float|decimal|string|xml|'anydata[]|map<'any
 # Denotes json type.
 public type 'json ()|boolean|int|float|decimal|string|'json[]|map<'json>;
 
-# Denote that the return value is tainted.
+# Denotes that the return value is tainted.
 public const annotation tainted on parameter, return, source listener, source var, source type;
 
-# Denote that the return value is untainted, parameter expect untainted value, type cast mark value untainted,
-# denote a listener as producing untainted arguments to service resource params.
+# Denots that the return value is untainted, parameter expect untainted value, type cast mark value untainted,
+# denotes a listener as producing untainted arguments to service resource params.
 public const annotation untainted on return, parameter, source type, source listener;
 
 # Denotes annotated type is a parametric type.

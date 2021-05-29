@@ -73,7 +73,7 @@ public type CallStackElement record {|
     int lineNumber;
 |};
 
-# Represent error call stack.
+# Representation of error call stack.
 #
 # + callStack - call stack
 public class CallStack {
