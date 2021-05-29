@@ -209,7 +209,7 @@ public isolated function toBytes(string str) returns byte[] = @java:Method {
     name: "toBytes"
 } external;
 
-# Constructs a string from its UTF-8 representation in `bytes`.
+# Constructs a string from its UTF-8 representation.
 #
 # + bytes - UTF-8 byte array
 # + return - `bytes` converted to string or error
