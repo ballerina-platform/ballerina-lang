@@ -24,7 +24,7 @@ public type 'json ()|boolean|int|float|decimal|string|'json[]|map<'json>;
 public const annotation tainted on parameter, return, source listener, source var, source type;
 
 # Denotes that the return value is untainted, the parameter expects an untainted value, and the typecast mark value is untainted.
-# denotes a listener as producing untainted arguments to service resource params.
+# Denotes a listener as producing untainted arguments to service resource params.
 public const annotation untainted on return, parameter, source type, source listener;
 
 # Denotes annotated type is a parametric type.
