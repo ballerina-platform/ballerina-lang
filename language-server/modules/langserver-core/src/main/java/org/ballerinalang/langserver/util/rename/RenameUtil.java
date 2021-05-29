@@ -58,7 +58,7 @@ public class RenameUtil {
 
     private RenameUtil() {
     }
-    
+
     /**
      * Process a rename request and returns the text edits required to be made to complete the rename.
      *
@@ -80,12 +80,22 @@ public class RenameUtil {
 
         Range cursorPosRange = new Range(context.getCursorPosition(), context.getCursorPosition());
         NonTerminalNode nodeAtCursor = CommonUtil.findNode(cursorPosRange, document.get().syntaxTree());
-        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, context.getCursorPosition()).orElse(null);
+        // Token at cursor is checked at cursor position and cursor position - 1 column due to left associativity.
+        //      Ex: int val<cursor>;
+        // Here, the token at cursor will be ";", but user expects "val". To achieve this, we try col-1.
+        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, context.getCursorPosition())
+                .filter(token -> token instanceof IdentifierToken)
+                .or(() -> {
+                    Position originalPos = context.getCursorPosition();
+                    Position newPos = new Position(originalPos.getLine(), originalPos.getCharacter() - 1);
+                    return TokensUtil.findTokenAtPosition(context, newPos);
+                })
+                .orElse(null);
         // Check if token at cursor is an identifier
         if (!(tokenAtCursor instanceof IdentifierToken) || CommonUtil.isKeyword(tokenAtCursor.text())) {
             return Collections.emptyMap();
         }
-        
+
         // Check if the rename is performed on import node, which is not allowed
         if (onImportDeclarationNode(context, nodeAtCursor)) {
             return Collections.emptyMap();
@@ -96,7 +106,7 @@ public class RenameUtil {
         if (onImportPrefixNode(context, nodeAtCursor)) {
             return handleImportPrefixRename(context, document.get(), nodeAtCursor, newName);
         }
-        
+
         Map<Module, List<Location>> locationMap = ReferencesUtil.getReferences(context);
         Path projectRoot = context.workspace().projectRoot(context.filePath());
 
