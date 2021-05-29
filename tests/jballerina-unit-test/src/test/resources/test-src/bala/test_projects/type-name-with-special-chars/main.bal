@@ -20,3 +20,7 @@ public type BddMemo record {|
     readonly mod:Bdd bdd;
     boolean? isEmpty = ();
 |};
+
+public type Foo record {|
+    mod:Bar bar;
+|};
