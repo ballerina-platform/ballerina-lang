@@ -116,7 +116,7 @@ public isolated function getName(Element elem) returns string = @java:Method {
     name: "getName"
 } external;
 
-# Changes the name of an xml element.
+# Changes the name of an XML element.
 #
 # + elem - xml element
 # + xName - new expanded name
