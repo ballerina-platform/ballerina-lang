@@ -87,6 +87,10 @@ public class CodeGenerator {
 
         // TODO Get-rid of the following assignment
         packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true);
+
+        //Rewrite identifier names with decoding special characters
+        JvmDesugarPhase.decodeModuleIdentifiers(packageSymbol.bir, Names.getInstance(this.compilerContext));
+
         return packageSymbol.compiledJarFile;
     }
 

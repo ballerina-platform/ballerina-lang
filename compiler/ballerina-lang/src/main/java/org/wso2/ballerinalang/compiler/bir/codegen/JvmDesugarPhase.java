@@ -329,4 +329,89 @@ public class JvmDesugarPhase {
             globalVar.name = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(globalVar.name.value));
         }
     }
+
+    // Decode identifiers
+    static void decodeModuleIdentifiers(BIRNode.BIRPackage module, Names names) {
+        decodePackageIdentifiers(module.packageID, names);
+        decodeGlobalVariableIdentifiers(module.globalVars, names);
+        decodeFunctionIdentifiers(module.functions, names);
+        decodeTypeDefIdentifiers(module.typeDefs, names);
+    }
+
+    private static void decodePackageIdentifiers(PackageID packageID, Names names) {
+        packageID.orgName = names.fromString(IdentifierUtils.decodeIdentifier(packageID.orgName.value));
+        packageID.name = names.fromString(IdentifierUtils.decodeIdentifier(packageID.name.value));
+    }
+
+    private static void decodeTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs, Names names) {
+        for (BIRTypeDefinition typeDefinition : typeDefs) {
+            typeDefinition.type.tsymbol.name =
+                    names.fromString(
+                            IdentifierUtils.decodeIdentifier(typeDefinition.type.tsymbol.name.value));
+            typeDefinition.internalName =
+                    names.fromString(IdentifierUtils.decodeIdentifier(typeDefinition.internalName.value));
+
+            decodeFunctionIdentifiers(typeDefinition.attachedFuncs, names);
+            BType bType = typeDefinition.type;
+            if (bType.tag == TypeTags.OBJECT) {
+                BObjectType objectType = (BObjectType) bType;
+                BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bType.tsymbol;
+                if (objectTypeSymbol.attachedFuncs != null) {
+                    decodeAttachedFunctionIdentifiers(objectTypeSymbol.attachedFuncs, names);
+                }
+                for (BField field : objectType.fields.values()) {
+                    field.name = names.fromString(IdentifierUtils.decodeIdentifier(field.name.value));
+                }
+            }
+            if (bType.tag == TypeTags.RECORD) {
+                BRecordType recordType = (BRecordType) bType;
+                for (BField field : recordType.fields.values()) {
+                    field.name = names.fromString(IdentifierUtils.decodeIdentifier(field.name.value));
+                }
+            }
+        }
+    }
+
+    private static void decodeFunctionIdentifiers(List<BIRFunction> functions, Names names) {
+        for (BIRFunction function : functions) {
+            function.name = names.fromString(IdentifierUtils.decodeIdentifier(function.name.value));
+            for (BIRNode.BIRVariableDcl localVar : function.localVars) {
+                if (localVar.metaVarName == null) {
+                    continue;
+                }
+                localVar.metaVarName = IdentifierUtils.decodeIdentifier(localVar.metaVarName);
+            }
+            for (BIRNode.BIRParameter parameter : function.requiredParams) {
+                if (parameter.name == null) {
+                    continue;
+                }
+                parameter.name = names.fromString(IdentifierUtils.decodeIdentifier(parameter.name.value));
+            }
+            decodeWorkerName(function, names);
+        }
+    }
+
+    private static void decodeWorkerName(BIRFunction function, Names names) {
+        if (function.workerName != null) {
+            function.workerName =
+                    names.fromString(IdentifierUtils.decodeIdentifier(function.workerName.value));
+        }
+    }
+
+    private static void decodeAttachedFunctionIdentifiers(List<BAttachedFunction> functions, Names names) {
+        for (BAttachedFunction function : functions) {
+            function.funcName = names.fromString(IdentifierUtils.decodeIdentifier(function.funcName.value));
+        }
+    }
+
+    private static void decodeGlobalVariableIdentifiers(List<BIRNode.BIRGlobalVariableDcl> globalVars,
+                                                        Names names) {
+        for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
+            if (globalVar == null) {
+                continue;
+            }
+            globalVar.name = names.fromString(IdentifierUtils.decodeIdentifier(globalVar.name.value));
+        }
+    }
+
 }
