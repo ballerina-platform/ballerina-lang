@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
@@ -822,6 +823,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 System.arraycopy(bStringValues, (int) startIndex, slicedArray.bStringValues, 0, slicedSize);
                 break;
             default:
+                if (this.elementType.getTag() == TypeTags.INTERSECTION_TAG) {
+                    Type slicedArrayElementType = ((BIntersectionType) this.elementType).getConstituentTypes().get(0);
+                    slicedArray = new ArrayValueImpl(new Object[slicedSize], new BArrayType(slicedArrayElementType));
+                    System.arraycopy(refValues, (int) startIndex, slicedArray.refValues, 0, slicedSize);
+                    break;
+                }
                 slicedArray = new ArrayValueImpl(new Object[slicedSize], new BArrayType(this.elementType));
                 System.arraycopy(refValues, (int) startIndex, slicedArray.refValues, 0, slicedSize);
                 break;

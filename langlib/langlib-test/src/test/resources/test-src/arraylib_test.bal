@@ -74,39 +74,46 @@ function testSlice() returns [float[], int, float[], int, float[], int] {
     return [r1, r1.length(), r2, r2.length(), r3, r3.length()];
 }
 
-function testSliceOfReadonlyIntArray() {
+function testModificationAfterSliceOfReadonlyIntArray() {
     readonly & int[] a = [1, 2, 3, 4, 5];
     int[] b = a.slice(2, 4);
     b[0] = 7;
     assertValueEquality([7, 4], b);
 }
 
-function testSliceOfReadonlyStringArray() {
+function testModificationAfterSliceOfReadonlyStringArray() {
     readonly & string[] roNames = ["x"];
     string[] rwNames = roNames.slice(0);
     rwNames[0] = "y";
     assertValueEquality(["y"], rwNames);
 }
 
-function testSliceOfReadonlyBooleanArray() {
+function testModificationAfterSliceOfReadonlyBooleanArray() {
     readonly & boolean[] a = [true, false, true, true];
     boolean[] b = a.slice(2);
     b[1] = false;
     assertValueEquality([true, false], b);
 }
 
-function testSliceOfReadonlyByteArray() {
+function testModificationAfterSliceOfReadonlyByteArray() {
     readonly & byte[] a = [1, 2, 3];
     byte[] b = a.slice(1);
     b[1] = 4;
     assertValueEquality([2, 4], b);
 }
 
-function testSliceOfReadonlyFloatArray() {
+function testModificationAfterSliceOfReadonlyFloatArray() {
     readonly & float[] f = [1.2, 3.4, 5, 7.3, 9.47];
     float[] g = f.slice(2, 4);
     g[2] = 6.78;
     assertValueEquality([5.0, 7.3, 6.78], g);
+}
+
+function testModificationAfterSliceOfReadonlyRecordArray() {
+    readonly & Employee[] arr = [{name: "John Doe", age: 25, designation: "Software Engineer"}];
+    Employee[] s = arr.slice(0);
+    s[0] = {name: "Jane Doe", age: 27, designation: "UX Engineer"};
+    assertValueEquality([{name: "Jane Doe", age: 27, designation: "UX Engineer"}], s);
 }
 
 function testPushAfterSlice() returns [int, int, float[]] {
@@ -125,6 +132,13 @@ function testPushAfterSliceFixed() returns [int, int, int[]] {
      s.push(88);
      int slp = s.length();
      return [sl, slp, s];
+}
+
+function testPushAfterSliceOfReadonlyMapArray() {
+    readonly & map<string>[] arr = [{x: "a"}, {y: "b"}];
+    map<string>[] r = arr.slice(1);
+    r.push({z: "c"});
+    assertValueEquality([{y: "b"}, {z: "c"}], r);
 }
 
 function testSliceOnTupleWithRestDesc() {

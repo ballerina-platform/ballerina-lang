@@ -145,11 +145,13 @@ public class LangLibArrayTest {
     @DataProvider(name = "testSliceOfReadonlyArrays")
     public Object[] testSliceOfReadonlyArrays() {
         return new Object[][]{
-                {"testSliceOfReadonlyIntArray"},
-                {"testSliceOfReadonlyStringArray"},
-                {"testSliceOfReadonlyBooleanArray"},
-                {"testSliceOfReadonlyByteArray"},
-                {"testSliceOfReadonlyFloatArray"}
+                {"testModificationAfterSliceOfReadonlyIntArray"},
+                {"testModificationAfterSliceOfReadonlyStringArray"},
+                {"testModificationAfterSliceOfReadonlyBooleanArray"},
+                {"testModificationAfterSliceOfReadonlyByteArray"},
+                {"testModificationAfterSliceOfReadonlyFloatArray"},
+                {"testModificationAfterSliceOfReadonlyRecordArray"},
+                {"testPushAfterSliceOfReadonlyMapArray"}
         };
     }
 
