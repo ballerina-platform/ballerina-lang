@@ -115,9 +115,9 @@ public class RecordConstraintTableTest {
         BRunUtil.invoke(result, "testTableEquality", new BValue[]{});
     }
 
-    @Test(description = "Test member access in table having members with nilable/optional fields")
-    public void testMemberAccessHavingNilableFields() {
-        BRunUtil.invoke(result, "testMemberAccessHavingNilableFields");
+    @Test(description = "Test table iteration with a union constrained table")
+    public void testUnionConstrainedTableIteration() {
+        BRunUtil.invoke(result, "testUnionConstrainedTableIteration");
     }
 
     @AfterClass
