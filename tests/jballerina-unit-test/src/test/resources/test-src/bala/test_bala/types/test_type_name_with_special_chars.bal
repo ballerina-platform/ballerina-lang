@@ -35,8 +35,10 @@ function testTypeNameWithSpecialChars() {
 
     mod:Bdd[] e = [a, c];
     any f = e;
+    pkg:Foo x = {bar: {i: 0, j: true}};
     assertEquality(false, f is record {| int atom; mod:Bdd left; mod:Bdd middle; mod:Bdd right; |}[]);
     assertEquality(true, f is (record {| int atom; mod:Bdd left; mod:Bdd middle; mod:Bdd right; |}|boolean)[]);
+    assertEquality(true, x is (record {|  mod:Bar bar;|}));
 }
 
 function assertEquality(anydata expected, anydata actual) {

@@ -22,3 +22,10 @@ public type Node readonly & record {|
     Bdd middle;
     Bdd right;
 |};
+
+public type Bar 'Will\.be\&encoded|boolean;
+
+public type 'Will\.be\&encoded record {|
+    int i;
+    Bar j;
+|};
