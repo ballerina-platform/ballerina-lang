@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
@@ -247,86 +248,204 @@ public class JvmDesugarPhase {
     private JvmDesugarPhase() {
     }
 
-    static void encodeModuleIdentifiers(BIRNode.BIRPackage module, Names names) {
-        encodePackageIdentifiers(module.packageID, names);
-        encodeGlobalVariableIdentifiers(module.globalVars, names);
-        encodeFunctionIdentifiers(module.functions, names);
-        encodeTypeDefIdentifiers(module.typeDefs, names);
+    static HashMap<String, String> encodeModuleIdentifiers(BIRNode.BIRPackage module, Names names) {
+        HashMap<String, String> originalIdentifierMap = new HashMap<>();
+        encodePackageIdentifiers(module.packageID, names, originalIdentifierMap);
+        encodeGlobalVariableIdentifiers(module.globalVars, names, originalIdentifierMap);
+        encodeFunctionIdentifiers(module.functions, names, originalIdentifierMap);
+        encodeTypeDefIdentifiers(module.typeDefs, names, originalIdentifierMap);
+        return originalIdentifierMap;
     }
 
-    private static void encodePackageIdentifiers(PackageID packageID, Names names) {
-        packageID.orgName = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(packageID.orgName.value));
-        packageID.name = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(packageID.name.value));
+    private static void encodePackageIdentifiers(PackageID packageID, Names names,
+                                                 HashMap<String, String> originalIdentifierMap) {
+        packageID.orgName = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(packageID.orgName.value,
+                                                                                         originalIdentifierMap));
+        packageID.name = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(packageID.name.value,
+                                                                                      originalIdentifierMap));
     }
 
-    private static void encodeTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs, Names names) {
+    private static void encodeTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs, Names names,
+                                                 HashMap<String, String> originalIdentifierMap) {
         for (BIRTypeDefinition typeDefinition : typeDefs) {
             typeDefinition.type.tsymbol.name =
                     names.fromString(
-                            IdentifierUtils.encodeNonFunctionIdentifier(typeDefinition.type.tsymbol.name.value));
+                            IdentifierUtils.encodeNonFunctionIdentifier(typeDefinition.type.tsymbol.name.value,
+                                                                        originalIdentifierMap));
             typeDefinition.internalName =
-                    names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(typeDefinition.internalName.value));
+                    names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(typeDefinition.internalName.value,
+                                                                                 originalIdentifierMap));
 
-            encodeFunctionIdentifiers(typeDefinition.attachedFuncs, names);
+            encodeFunctionIdentifiers(typeDefinition.attachedFuncs, names, originalIdentifierMap);
             BType bType = typeDefinition.type;
             if (bType.tag == TypeTags.OBJECT) {
                 BObjectType objectType = (BObjectType) bType;
                 BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bType.tsymbol;
                 if (objectTypeSymbol.attachedFuncs != null) {
-                    encodeAttachedFunctionIdentifiers(objectTypeSymbol.attachedFuncs, names);
+                    encodeAttachedFunctionIdentifiers(objectTypeSymbol.attachedFuncs, names, originalIdentifierMap);
                 }
                 for (BField field : objectType.fields.values()) {
-                    field.name = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(field.name.value));
+                    field.name = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(field.name.value,
+                                                                                              originalIdentifierMap));
                 }
             }
             if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
                 for (BField field : recordType.fields.values()) {
-                    field.name = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(field.name.value));
+                    field.name = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(field.name.value,
+                                                                                              originalIdentifierMap));
                 }
             }
         }
     }
 
-    private static void encodeFunctionIdentifiers(List<BIRFunction> functions, Names names) {
+    private static void encodeFunctionIdentifiers(List<BIRFunction> functions, Names names,
+                                                  HashMap<String, String> originalIdentifierMap) {
         for (BIRFunction function : functions) {
-            function.name = names.fromString(IdentifierUtils.encodeFunctionIdentifier(function.name.value));
+            function.name = names.fromString(IdentifierUtils.encodeFunctionIdentifier(function.name.value,
+                                                                                      originalIdentifierMap));
             for (BIRNode.BIRVariableDcl localVar : function.localVars) {
                 if (localVar.metaVarName == null) {
                     continue;
                 }
-                localVar.metaVarName = IdentifierUtils.encodeNonFunctionIdentifier(localVar.metaVarName);
+                localVar.metaVarName = IdentifierUtils.encodeNonFunctionIdentifier(localVar.metaVarName,
+                                                                                   originalIdentifierMap);
             }
             for (BIRNode.BIRParameter parameter : function.requiredParams) {
                 if (parameter.name == null) {
                     continue;
                 }
-                parameter.name = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(parameter.name.value));
+                parameter.name = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(parameter.name.value,
+                                                                                              originalIdentifierMap));
             }
-            encodeWorkerName(function, names);
+            encodeWorkerName(function, names, originalIdentifierMap);
         }
     }
 
-    private static void encodeWorkerName(BIRFunction function, Names names) {
+    private static void encodeWorkerName(BIRFunction function, Names names,
+                                         HashMap<String, String> originalIdentifierMap) {
         if (function.workerName != null) {
             function.workerName =
-                    names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(function.workerName.value));
+                    names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(function.workerName.value,
+                                                                                 originalIdentifierMap));
         }
     }
 
-    private static void encodeAttachedFunctionIdentifiers(List<BAttachedFunction> functions, Names names) {
+    private static void encodeAttachedFunctionIdentifiers(List<BAttachedFunction> functions, Names names,
+                                                          HashMap<String, String> originalIdentifierMap) {
         for (BAttachedFunction function : functions) {
-            function.funcName = names.fromString(IdentifierUtils.encodeFunctionIdentifier(function.funcName.value));
+            function.funcName = names.fromString(IdentifierUtils.encodeFunctionIdentifier(function.funcName.value,
+                                                                                          originalIdentifierMap));
         }
     }
 
     private static void encodeGlobalVariableIdentifiers(List<BIRNode.BIRGlobalVariableDcl> globalVars,
-                                                        Names names) {
+                                                        Names names,
+                                                        HashMap<String, String> originalIdentifierMap) {
         for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
             if (globalVar == null) {
                 continue;
             }
-            globalVar.name = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(globalVar.name.value));
+            globalVar.name = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(globalVar.name.value, 
+                                                                                          originalIdentifierMap));
+        }
+    }
+
+    // Revert encoding identifiers
+    static void revertEncodingModuleIdentifiers(BIRNode.BIRPackage module, Names names,
+                                                HashMap<String, String> originalIdentifierMap) {
+        revertEncodingPackageIdentifiers(module.packageID, names, originalIdentifierMap);
+        revertEncodingGlobalVariableIdentifiers(module.globalVars, names, originalIdentifierMap);
+        revertEncodingFunctionIdentifiers(module.functions, names, originalIdentifierMap);
+        revertEncodingTypeDefIdentifiers(module.typeDefs, names, originalIdentifierMap);
+    }
+
+    private static void revertEncodingPackageIdentifiers(PackageID packageID, Names names,
+                                                         HashMap<String, String> originalIdentifierMap) {
+        packageID.orgName = names.fromString(originalIdentifierMap.get(packageID.orgName.value));
+        packageID.name = names.fromString(originalIdentifierMap.get(packageID.name.value));
+    }
+
+    private static void revertEncodingTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs, Names names,
+                                                         HashMap<String, String> originalIdentifierMap) {
+        for (BIRTypeDefinition typeDefinition : typeDefs) {
+            typeDefinition.type.tsymbol.name =
+                    names.fromString(
+                            originalIdentifierMap.get(typeDefinition.type.tsymbol.name.value));
+            typeDefinition.internalName =
+                    names.fromString(originalIdentifierMap.get(typeDefinition.internalName.value));
+
+            revertEncodingFunctionIdentifiers(typeDefinition.attachedFuncs, names, originalIdentifierMap);
+            BType bType = typeDefinition.type;
+            if (bType.tag == TypeTags.OBJECT) {
+                BObjectType objectType = (BObjectType) bType;
+                BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bType.tsymbol;
+                if (objectTypeSymbol.attachedFuncs != null) {
+                    revertEncodingAttachedFunctionIdentifiers(objectTypeSymbol.attachedFuncs, names,
+                                                              originalIdentifierMap);
+                }
+                for (BField field : objectType.fields.values()) {
+                    field.name = names.fromString(originalIdentifierMap.get(field.name.value));
+                }
+            }
+            if (bType.tag == TypeTags.RECORD) {
+                BRecordType recordType = (BRecordType) bType;
+                for (BField field : recordType.fields.values()) {
+                    field.name = names.fromString(originalIdentifierMap.get(field.name.value));
+                }
+            }
+        }
+    }
+
+    private static void revertEncodingFunctionIdentifiers(List<BIRFunction> functions, Names names,
+                                                          HashMap<String, String> originalIdentifierMap) {
+        for (BIRFunction function : functions) {
+            String originalFuncName = originalIdentifierMap.get(function.name.value);
+            // This can be null if function is added using codegen.
+            if (originalFuncName != null) {
+                function.name = names.fromString(originalFuncName);
+            }
+            for (BIRNode.BIRVariableDcl localVar : function.localVars) {
+                if (localVar.metaVarName == null) {
+                    continue;
+                }
+                localVar.metaVarName = originalIdentifierMap.get(localVar.metaVarName);
+            }
+            for (BIRNode.BIRParameter parameter : function.requiredParams) {
+                if (parameter.name == null) {
+                    continue;
+                }
+                parameter.name = names.fromString(originalIdentifierMap.get(parameter.name.value));
+            }
+            revertEncodingWorkerName(function, names, originalIdentifierMap);
+        }
+    }
+
+    private static void revertEncodingWorkerName(BIRFunction function, Names names,
+                                                 HashMap<String, String> originalIdentifierMap) {
+        if (function.workerName != null) {
+            function.workerName = names.fromString(originalIdentifierMap.get(function.workerName.value));
+        }
+    }
+
+    private static void revertEncodingAttachedFunctionIdentifiers(List<BAttachedFunction> functions, Names names,
+                                                                  HashMap<String, String> originalIdentifierMap) {
+        for (BAttachedFunction function : functions) {
+            function.funcName = names.fromString(originalIdentifierMap.get(function.funcName.value));
+        }
+    }
+
+    private static void revertEncodingGlobalVariableIdentifiers(List<BIRNode.BIRGlobalVariableDcl> globalVars,
+                                                                Names names,
+                                                                HashMap<String, String> originalIdentifierMap) {
+        for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
+            if (globalVar == null) {
+                continue;
+            }
+            String originalGlobalVarName = originalIdentifierMap.get(globalVar.name.value);
+            if (originalGlobalVarName != null) {
+                globalVar.name = names.fromString(originalGlobalVarName);
+            }
         }
     }
 }

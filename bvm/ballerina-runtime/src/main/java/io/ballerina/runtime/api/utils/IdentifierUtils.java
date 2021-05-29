@@ -20,6 +20,7 @@ package io.ballerina.runtime.api.utils;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -180,6 +181,21 @@ public class IdentifierUtils {
     }
 
     /**
+     * Encode the function identifiers to avoid using jvm reserved characters.
+     *
+     * @param functionName function identifier string
+     * @param originalIdentifierMap map to keep the encoded functionName vs original functionName
+     * @return encoded identifier
+     */
+    public static String encodeFunctionIdentifier(String functionName, HashMap<String, String> originalIdentifierMap) {
+        String encodedFunctionName = encodeIdentifier(functionName);
+        Identifier encodedName = encodeGeneratedName(encodedFunctionName);
+        String encodedString = encodedName.isEncoded ? GENERATED_METHOD_PREFIX + encodedName.name : encodedFunctionName;
+        originalIdentifierMap.putIfAbsent(encodedString, functionName);
+        return encodedString;
+    }
+
+    /**
      * Encode the non-function identifiers to avoid using jvm reserved characters.
      *
      * @param pkgName  non-function identifier string
@@ -189,6 +205,21 @@ public class IdentifierUtils {
         pkgName = encodeIdentifier(pkgName);
         Identifier encodedName = encodeGeneratedName(pkgName);
         return encodedName.name;
+    }
+
+    /**
+     * Encode the non-function identifiers to avoid using jvm reserved characters.
+     *
+     * @param pkgName non-function identifier string
+     * @param originalIdentifierMap map to keep the encoded pkgName vs original pkgName
+     * @return encoded identifier
+     */
+    public static String encodeNonFunctionIdentifier(String pkgName, HashMap<String, String> originalIdentifierMap) {
+        String encodedPkgName = encodeIdentifier(pkgName);
+        Identifier encodedName = encodeGeneratedName(encodedPkgName);
+        String encodedString = encodedName.name;
+        originalIdentifierMap.putIfAbsent(encodedString, pkgName);
+        return encodedString;
     }
 
     private static class Identifier {
