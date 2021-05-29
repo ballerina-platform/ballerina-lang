@@ -37,7 +37,6 @@ import org.ballerinalang.langserver.commons.ReferencesContext;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.util.TokensUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
-import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
