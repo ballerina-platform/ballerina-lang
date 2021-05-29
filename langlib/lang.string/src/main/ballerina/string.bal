@@ -65,7 +65,7 @@ public isolated function getCodePoint(string str, int index) returns int = @java
 # + str - source string.
 # + startIndex - the starting index, inclusive
 # + endIndex - the ending index, exclusive
-# + return - substring consisting of characters with index >= startIndex and < endIndex
+# + return - substring consisting of characters with index >= `startIndex` and < `endIndex`
 public isolated function substring(string str, int startIndex, int endIndex = str.length()) returns string =
 @java:Method {
     'class: "org.ballerinalang.langlib.string.Substring",
