@@ -79,7 +79,7 @@ public const int UNSIGNED8_MAX_VALUE = 255;
 // XXX this will panic for the most negative value (-2^63 is an int but +2^63 isn't)
 // consistent with policy on integer overflow
 
-# Returns absolute value of an int.
+# Returns absolute value of an `int` value.
 #
 # + n - int value to be operated on
 # + return - absolute value of parameter `n`
