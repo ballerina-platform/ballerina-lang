@@ -352,21 +352,21 @@ public class JvmDesugarPhase {
     }
 
     // Revert encoding identifiers
-    static void revertEncodingModuleIdentifiers(BIRNode.BIRPackage module, Names names,
+    static void replaceEncodedModuleIdentifiers(BIRNode.BIRPackage module, Names names,
                                                 HashMap<String, String> originalIdentifierMap) {
-        revertEncodingPackageIdentifiers(module.packageID, names, originalIdentifierMap);
-        revertEncodingGlobalVariableIdentifiers(module.globalVars, names, originalIdentifierMap);
-        revertEncodingFunctionIdentifiers(module.functions, names, originalIdentifierMap);
-        revertEncodingTypeDefIdentifiers(module.typeDefs, names, originalIdentifierMap);
+        replaceEncodedPackageIdentifiers(module.packageID, names, originalIdentifierMap);
+        replaceEncodedGlobalVariableIdentifiers(module.globalVars, names, originalIdentifierMap);
+        replaceEncodedFunctionIdentifiers(module.functions, names, originalIdentifierMap);
+        replaceEncodedTypeDefIdentifiers(module.typeDefs, names, originalIdentifierMap);
     }
 
-    private static void revertEncodingPackageIdentifiers(PackageID packageID, Names names,
+    private static void replaceEncodedPackageIdentifiers(PackageID packageID, Names names,
                                                          HashMap<String, String> originalIdentifierMap) {
         packageID.orgName = names.fromString(originalIdentifierMap.get(packageID.orgName.value));
         packageID.name = names.fromString(originalIdentifierMap.get(packageID.name.value));
     }
 
-    private static void revertEncodingTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs, Names names,
+    private static void replaceEncodedTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs, Names names,
                                                          HashMap<String, String> originalIdentifierMap) {
         for (BIRTypeDefinition typeDefinition : typeDefs) {
             typeDefinition.type.tsymbol.name =
@@ -375,13 +375,13 @@ public class JvmDesugarPhase {
             typeDefinition.internalName =
                     names.fromString(originalIdentifierMap.get(typeDefinition.internalName.value));
 
-            revertEncodingFunctionIdentifiers(typeDefinition.attachedFuncs, names, originalIdentifierMap);
+            replaceEncodedFunctionIdentifiers(typeDefinition.attachedFuncs, names, originalIdentifierMap);
             BType bType = typeDefinition.type;
             if (bType.tag == TypeTags.OBJECT) {
                 BObjectType objectType = (BObjectType) bType;
                 BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bType.tsymbol;
                 if (objectTypeSymbol.attachedFuncs != null) {
-                    revertEncodingAttachedFunctionIdentifiers(objectTypeSymbol.attachedFuncs, names,
+                    replaceEncodedAttachedFunctionIdentifiers(objectTypeSymbol.attachedFuncs, names,
                                                               originalIdentifierMap);
                 }
                 for (BField field : objectType.fields.values()) {
@@ -397,7 +397,7 @@ public class JvmDesugarPhase {
         }
     }
 
-    private static void revertEncodingFunctionIdentifiers(List<BIRFunction> functions, Names names,
+    private static void replaceEncodedFunctionIdentifiers(List<BIRFunction> functions, Names names,
                                                           HashMap<String, String> originalIdentifierMap) {
         for (BIRFunction function : functions) {
             String originalFuncName = originalIdentifierMap.get(function.name.value);
@@ -417,25 +417,25 @@ public class JvmDesugarPhase {
                 }
                 parameter.name = names.fromString(originalIdentifierMap.get(parameter.name.value));
             }
-            revertEncodingWorkerName(function, names, originalIdentifierMap);
+            replaceEncodedWorkerName(function, names, originalIdentifierMap);
         }
     }
 
-    private static void revertEncodingWorkerName(BIRFunction function, Names names,
+    private static void replaceEncodedWorkerName(BIRFunction function, Names names,
                                                  HashMap<String, String> originalIdentifierMap) {
         if (function.workerName != null) {
             function.workerName = names.fromString(originalIdentifierMap.get(function.workerName.value));
         }
     }
 
-    private static void revertEncodingAttachedFunctionIdentifiers(List<BAttachedFunction> functions, Names names,
+    private static void replaceEncodedAttachedFunctionIdentifiers(List<BAttachedFunction> functions, Names names,
                                                                   HashMap<String, String> originalIdentifierMap) {
         for (BAttachedFunction function : functions) {
             function.funcName = names.fromString(originalIdentifierMap.get(function.funcName.value));
         }
     }
 
-    private static void revertEncodingGlobalVariableIdentifiers(List<BIRNode.BIRGlobalVariableDcl> globalVars,
+    private static void replaceEncodedGlobalVariableIdentifiers(List<BIRNode.BIRGlobalVariableDcl> globalVars,
                                                                 Names names,
                                                                 HashMap<String, String> originalIdentifierMap) {
         for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {

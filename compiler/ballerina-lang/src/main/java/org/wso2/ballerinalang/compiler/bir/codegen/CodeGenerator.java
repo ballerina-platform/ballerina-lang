@@ -92,7 +92,7 @@ public class CodeGenerator {
         packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true);
 
         //Revert encoding identifier names
-        JvmDesugarPhase.revertEncodingModuleIdentifiers(packageSymbol.bir, Names.getInstance(this.compilerContext),
+        JvmDesugarPhase.replaceEncodedModuleIdentifiers(packageSymbol.bir, Names.getInstance(this.compilerContext),
                                                         originalIdentifierMap);
         return packageSymbol.compiledJarFile;
     }
