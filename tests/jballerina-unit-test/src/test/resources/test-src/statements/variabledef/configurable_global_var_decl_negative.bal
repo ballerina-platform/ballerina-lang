@@ -47,12 +47,12 @@ type Person1 record {|
 |};
 
 type Person2 record {|
-    int|string unionField;
+    int|anydata unionField;
     anydata anydataField;
 |};
 
 type Person3 record {|
-    (1|2)[] finiteArr;
+    anydata[] anyArr;
 |};
 
 type Person4 record {|
@@ -75,6 +75,7 @@ configurable Person4 person4 = ?;
 // Unsupported table constraint
 configurable table<map<anydata>> tableVar1 = ?;
 configurable table<Person1> tableVar2 = ?;
+configurable table<anydata> tableVar3 = ?;
 
 // Unsupported array constraint
 configurable anydata[] arrayVar = ?;
@@ -83,13 +84,8 @@ configurable anydata[] arrayVar = ?;
 configurable map<anydata> & readonly mapVar = ?;
 
 // Unsupported union types
-configurable string|int unionVar1 = ?;
+configurable string|anydata unionVar1 = ?;
 configurable anydata unionVar2 = ?;
-
-// Unsupported finite types
-configurable Colors finiteVar1 = ?;
-configurable 1|0 finiteVar2 = ?;
-configurable 2|1.7|"test" finiteVar3 = ?;
 
 // Unsupported tuple type
 configurable [int, string] tupleVar = ?;

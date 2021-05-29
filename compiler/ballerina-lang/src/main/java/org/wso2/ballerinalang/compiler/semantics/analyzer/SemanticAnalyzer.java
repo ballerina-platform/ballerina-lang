@@ -887,12 +887,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private boolean isSupportedConfigType(BType type, List<String> errors, String varName) {
         switch (type.getKind()) {
             case FINITE:
-                return false;
+                return true;
             case ARRAY:
                 BType elementType = ((BArrayType) type).eType;
                 if (elementType.tag == TypeTags.INTERSECTION) {
                     elementType = ((BIntersectionType) elementType).getEffectiveType();
                 }
+
                 if (elementType.tag == TypeTags.TABLE || !isSupportedConfigType(elementType, errors, varName)) {
                     errors.add("array element type '" + elementType + "' is not supported");
                 }
@@ -923,14 +924,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case INTERSECTION:
                 return isSupportedConfigType(((BIntersectionType) type).effectiveType, errors, varName);
             case UNION:
-                return Symbols.isFlagOn(type.flags, Flags.ENUM);
+                BUnionType unionType = (BUnionType) type;
+                for (BType memberType : unionType.getMemberTypes()) {
+                    if (!isSupportedConfigType(memberType, errors, varName)) {
+                        errors.add("union member type '" + memberType + "' is not supported");
+                    }
+                }
+                return true;
             default:
-                return  (types.isAssignable(type, symTable.intType) ||
+                return  types.isAssignable(type, symTable.intType) ||
                         types.isAssignable(type, symTable.floatType) ||
                         types.isAssignable(type, symTable.stringType) ||
                         types.isAssignable(type, symTable.booleanType) ||
                         types.isAssignable(type, symTable.decimalType) ||
-                        types.isAssignable(type, symTable.xmlType));
+                        types.isAssignable(type, symTable.xmlType);
         }
     }
 
