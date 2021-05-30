@@ -227,12 +227,16 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         completionItems.add(getImportCompletion(ctx, currentPackageName, currentPackageName + "."));
         Optional<Module> currentModule = ctx.currentModule();
         for (Module module : currentPackage.modules()) {
-            String moduleNamePart = CommonUtil.escapeReservedKeyword(module.moduleName().moduleNamePart());
+            if (module.isDefaultModule()
+                    || (currentModule.isPresent() && module.moduleId().equals(currentModule.get().moduleId()))) {
+                continue;
+            }
+            String moduleNamePart = Arrays.stream(module.moduleName().moduleNamePart().split("\\."))
+                    .map(CommonUtil::escapeReservedKeyword)
+                    .collect(Collectors.joining("."));
             String qualifiedModuleName = module.moduleName().packageName().value()
                     + Names.DOT + moduleNamePart;
-            if (module.isDefaultModule()
-                    || (currentModule.isPresent() && module.moduleId().equals(currentModule.get().moduleId()))
-                    || CommonUtil.matchingImportedModule(ctx, "", qualifiedModuleName).isPresent()) {
+            if (CommonUtil.matchingImportedModule(ctx, "", qualifiedModuleName).isPresent()) {
                 continue;
             }
             String label = currentPackageName + "." + moduleNamePart;

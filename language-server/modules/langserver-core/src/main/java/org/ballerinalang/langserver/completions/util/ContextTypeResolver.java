@@ -41,6 +41,7 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
@@ -56,6 +57,7 @@ import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
@@ -102,6 +104,16 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     public ContextTypeResolver(PositionedOperationContext context) {
         this.context = context;
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(ListenerDeclarationNode node) {
+        Optional<TypeDescriptorNode> typeDesc = node.typeDescriptor();
+        if (typeDesc.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        return typeDesc.get().apply(this);
     }
 
     @Override
@@ -169,7 +181,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(IndexedExpressionNode node) {
-        Optional<TypeSymbol> containerType = this.visit(node.containerExpression());
+        Optional<TypeSymbol> containerType =
+                context.currentSemanticModel().flatMap(semanticModel -> semanticModel.type(node));
         if (containerType.isEmpty()) {
             return Optional.empty();
         }

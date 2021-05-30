@@ -93,7 +93,11 @@ public class HoverUtil {
             case VARIABLE:
                 return getDescriptionOnlyHoverObject(symbol);
             case TYPE:
-                return getHoverForSymbol(((TypeReferenceTypeSymbol) symbol).definition(), context);
+                if (symbol instanceof TypeReferenceTypeSymbol) {
+                    return getHoverForSymbol(((TypeReferenceTypeSymbol) symbol).definition(), context);
+                } else {
+                    return HoverUtil.getDefaultHoverObject();
+                }
             default:
                 return HoverUtil.getDefaultHoverObject();
         }

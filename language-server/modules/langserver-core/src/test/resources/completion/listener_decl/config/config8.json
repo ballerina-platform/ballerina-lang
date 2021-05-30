@@ -17,16 +17,8 @@
       "label": "mod",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "N",
+      "sortText": "S",
       "insertText": "mod",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lang.object",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "object",
       "insertTextFormat": "Snippet"
     },
     {
@@ -260,8 +252,32 @@
       "label": "new",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "E",
       "insertText": "new ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "check",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "insertText": "check ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "checkpanic",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "insertText": "checkpanic ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "trap",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "insertText": "trap",
       "insertTextFormat": "Snippet"
     }
   ]

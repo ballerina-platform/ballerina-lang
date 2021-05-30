@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.common;
 
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.diagnostics.Location;
@@ -27,6 +28,7 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -38,7 +40,7 @@ import java.util.stream.Collectors;
  */
 public class ImportsAcceptor {
     private final Set<String> newImports;
-    private final List<ImportDeclarationNode> currentModuleImports;
+    private final Map<ImportDeclarationNode, ModuleSymbol> currentModuleImportsMap;
     private final BiConsumer<String, String> onExistCallback;
 
     public ImportsAcceptor(DocumentServiceContext context) {
@@ -47,7 +49,7 @@ public class ImportsAcceptor {
 
     public ImportsAcceptor(DocumentServiceContext context, BiConsumer<String, String> onExistCallback) {
         this.newImports = new HashSet<>();
-        this.currentModuleImports = context.currentDocImports();
+        this.currentModuleImportsMap = context.currentDocImportsMap();
         this.onExistCallback = onExistCallback;
     }
 
@@ -58,7 +60,7 @@ public class ImportsAcceptor {
      */
     public BiConsumer<String, String> getAcceptor() {
         return (orgName, alias) -> {
-            boolean notFound = currentModuleImports.stream().noneMatch(
+            boolean notFound = currentModuleImportsMap.keySet().stream().noneMatch(
                     pkg -> {
                         String importAlias = pkg.moduleName().stream()
                                 .map(Token::text)
@@ -104,8 +106,9 @@ public class ImportsAcceptor {
     private TextEdit createImportTextEdit(String pkgName) {
         Location pos = null;
 
-        if (!currentModuleImports.isEmpty()) {
-            ImportDeclarationNode lastImport = CommonUtil.getLastItem(currentModuleImports);
+        if (!currentModuleImportsMap.isEmpty()) {
+            ImportDeclarationNode lastImport =
+                    CommonUtil.getLastItem(new ArrayList<>(currentModuleImportsMap.keySet()));
             pos = lastImport.location();
         }
 
