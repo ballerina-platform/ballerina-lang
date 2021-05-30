@@ -464,6 +464,29 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "'service.'transaction.'join",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "'join",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import 'service.'transaction.'join;\n"
+        }
+      ]
+    },
+    {
       "label": "'service.'client",
       "kind": "Module",
       "detail": "Module",
@@ -487,14 +510,6 @@
       ]
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -503,6 +518,14 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {

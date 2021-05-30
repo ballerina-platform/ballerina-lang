@@ -118,6 +118,12 @@ public class LangLibTableTest {
         assertEquals(returns.getString(1), "Mohan");
         assertEquals(returns.getString(2), "Gima");
         assertEquals(returns.getString(3), "Granier");
+
+        BValue[] unionReturns = BRunUtil.invoke(compileResult, "testGetKeysFromUnionConstrained");
+        BValueArray unionResult = (BValueArray) unionReturns[0];
+        assertEquals(unionResult.size(), 2);
+        assertEquals(unionResult.getString(0), "Adam");
+        assertEquals(unionResult.getString(1), "Mark");
     }
 
     @Test
