@@ -259,10 +259,9 @@ public class JvmDesugarPhase {
 
     private static void encodePackageIdentifiers(PackageID packageID, Names names,
                                                  HashMap<String, String> originalIdentifierMap) {
-        packageID.orgName = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(packageID.orgName.value,
-                                                                                         originalIdentifierMap));
-        packageID.name = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(packageID.name.value,
-                                                                                      originalIdentifierMap));
+        packageID.orgName = names.fromString(encodeNonFunctionIdentifier(packageID.orgName.value,
+                                                                         originalIdentifierMap));
+        packageID.name = names.fromString(encodeNonFunctionIdentifier(packageID.name.value, originalIdentifierMap));
     }
 
     private static void encodeTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs, Names names,
@@ -270,11 +269,10 @@ public class JvmDesugarPhase {
         for (BIRTypeDefinition typeDefinition : typeDefs) {
             typeDefinition.type.tsymbol.name =
                     names.fromString(
-                            IdentifierUtils.encodeNonFunctionIdentifier(typeDefinition.type.tsymbol.name.value,
-                                                                        originalIdentifierMap));
+                            encodeNonFunctionIdentifier(typeDefinition.type.tsymbol.name.value, originalIdentifierMap));
             typeDefinition.internalName =
-                    names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(typeDefinition.internalName.value,
-                                                                                 originalIdentifierMap));
+                    names.fromString(encodeNonFunctionIdentifier(typeDefinition.internalName.value,
+                                                                 originalIdentifierMap));
 
             encodeFunctionIdentifiers(typeDefinition.attachedFuncs, names, originalIdentifierMap);
             BType bType = typeDefinition.type;
@@ -285,15 +283,13 @@ public class JvmDesugarPhase {
                     encodeAttachedFunctionIdentifiers(objectTypeSymbol.attachedFuncs, names, originalIdentifierMap);
                 }
                 for (BField field : objectType.fields.values()) {
-                    field.name = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(field.name.value,
-                                                                                              originalIdentifierMap));
+                    field.name = names.fromString(encodeNonFunctionIdentifier(field.name.value, originalIdentifierMap));
                 }
             }
             if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
                 for (BField field : recordType.fields.values()) {
-                    field.name = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(field.name.value,
-                                                                                              originalIdentifierMap));
+                    field.name = names.fromString(encodeNonFunctionIdentifier(field.name.value, originalIdentifierMap));
                 }
             }
         }
@@ -302,21 +298,19 @@ public class JvmDesugarPhase {
     private static void encodeFunctionIdentifiers(List<BIRFunction> functions, Names names,
                                                   HashMap<String, String> originalIdentifierMap) {
         for (BIRFunction function : functions) {
-            function.name = names.fromString(IdentifierUtils.encodeFunctionIdentifier(function.name.value,
-                                                                                      originalIdentifierMap));
+            function.name = names.fromString(encodeFunctionIdentifier(function.name.value, originalIdentifierMap));
             for (BIRNode.BIRVariableDcl localVar : function.localVars) {
                 if (localVar.metaVarName == null) {
                     continue;
                 }
-                localVar.metaVarName = IdentifierUtils.encodeNonFunctionIdentifier(localVar.metaVarName,
-                                                                                   originalIdentifierMap);
+                localVar.metaVarName = encodeNonFunctionIdentifier(localVar.metaVarName, originalIdentifierMap);
             }
             for (BIRNode.BIRParameter parameter : function.requiredParams) {
                 if (parameter.name == null) {
                     continue;
                 }
-                parameter.name = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(parameter.name.value,
-                                                                                              originalIdentifierMap));
+                parameter.name = names.fromString(encodeNonFunctionIdentifier(parameter.name.value,
+                                                                              originalIdentifierMap));
             }
             encodeWorkerName(function, names, originalIdentifierMap);
         }
@@ -326,16 +320,15 @@ public class JvmDesugarPhase {
                                          HashMap<String, String> originalIdentifierMap) {
         if (function.workerName != null) {
             function.workerName =
-                    names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(function.workerName.value,
-                                                                                 originalIdentifierMap));
+                    names.fromString(encodeNonFunctionIdentifier(function.workerName.value, originalIdentifierMap));
         }
     }
 
     private static void encodeAttachedFunctionIdentifiers(List<BAttachedFunction> functions, Names names,
                                                           HashMap<String, String> originalIdentifierMap) {
         for (BAttachedFunction function : functions) {
-            function.funcName = names.fromString(IdentifierUtils.encodeFunctionIdentifier(function.funcName.value,
-                                                                                          originalIdentifierMap));
+            function.funcName = names.fromString(encodeFunctionIdentifier(function.funcName.value,
+                                                                          originalIdentifierMap));
         }
     }
 
@@ -346,12 +339,12 @@ public class JvmDesugarPhase {
             if (globalVar == null) {
                 continue;
             }
-            globalVar.name = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(globalVar.name.value, 
-                                                                                          originalIdentifierMap));
+            globalVar.name = names.fromString(encodeNonFunctionIdentifier(globalVar.name.value,
+                                                                          originalIdentifierMap));
         }
     }
 
-    // Revert encoding identifiers
+    // Replace encoding identifiers
     static void replaceEncodedModuleIdentifiers(BIRNode.BIRPackage module, Names names,
                                                 HashMap<String, String> originalIdentifierMap) {
         replaceEncodedPackageIdentifiers(module.packageID, names, originalIdentifierMap);
@@ -447,5 +440,17 @@ public class JvmDesugarPhase {
                 globalVar.name = names.fromString(originalGlobalVarName);
             }
         }
+    }
+
+    private static String encodeFunctionIdentifier(String functionName, HashMap<String, String> originalIdentifierMap) {
+        String encodedString = IdentifierUtils.encodeFunctionIdentifier(functionName);
+        originalIdentifierMap.putIfAbsent(encodedString, functionName);
+        return encodedString;
+    }
+
+    private static String encodeNonFunctionIdentifier(String pkgName, HashMap<String, String> originalIdentifierMap) {
+        String encodedString = IdentifierUtils.encodeNonFunctionIdentifier(pkgName);
+        originalIdentifierMap.putIfAbsent(encodedString, pkgName);
+        return encodedString;
     }
 }
