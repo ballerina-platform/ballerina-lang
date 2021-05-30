@@ -21,6 +21,8 @@ configurable boolean managerEnabled = false;
 # Config to specify transaction log directory.
 configurable string logBase = "transaction_log_dir";
 
+//TODO: remove this in Beta2 and use an anonymous record instead
+# Internally used record to hold informations about a transaction.
 public type InfoInternal record {|
    # Unique identifier for the transaction branch.
    byte[] xid;
