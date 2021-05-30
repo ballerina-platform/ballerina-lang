@@ -22,7 +22,7 @@ configurable boolean managerEnabled = false;
 configurable string logBase = "transaction_log_dir";
 
 //TODO: remove this in Beta2 and use an anonymous record instead
-# Internally used record to hold informations about a transaction.
+# Internally used record to hold information about a transaction.
 public type InfoInternal record {|
    # Unique identifier for the transaction branch.
    byte[] xid;
