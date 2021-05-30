@@ -28,7 +28,7 @@ public const annotation tainted on parameter, return, source listener, source va
 # When used on a return type descriptor, denotes that the return value is untainted.
 # When used on a parameter, denotes that the parameter expects an untainted value as the argument.
 # When used in a type cast, denotes that the resultant value is untainted.
-# When used on a listener declaration, denotes that the listener produces untainted values as argument to the resource and remote methods.
+# When used on a listener declaration, denotes that the listener produces untainted values as arguments to the resource and remote methods.
 public const annotation untainted on return, parameter, source type, source listener;
 
 # Denotes that the annotated type is a parametric type.
