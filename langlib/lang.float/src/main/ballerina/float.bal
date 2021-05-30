@@ -97,7 +97,7 @@ public isolated function min(float... xs) returns float = @java:Method {
     name: "min"
 } external;
 
-# Returns the absolute value of a `float` value.
+# Returns the IEEE absolute value of a float value.
 #
 # + x - float value to operate on
 # + return - absolute value of parameter `x`

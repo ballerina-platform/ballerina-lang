@@ -45,7 +45,7 @@ public isolated function min(decimal x, decimal... xs) returns decimal = @java:M
     name: "min"
 } external;
 
-# Returns the absolute value of a `decimal` value.
+# Returns the IEEE absolute value of a decimal value.
 #
 # + x - decimal value to operate on
 # + return - absolute value of parameter `x`
