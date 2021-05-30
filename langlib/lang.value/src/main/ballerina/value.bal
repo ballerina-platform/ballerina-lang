@@ -271,8 +271,7 @@ public isolated function fromJsonStringWithType(string str, typedesc<anydata> t 
 # The merge of parameter `j1` with parameter `j2` is defined as follows:
 # - if parameter `j1` is `()`, then the result is parameter `j2`
 # - if parameter `j2` is `()`, then the result is parameter `j1`
-# - if parameter `j1` is a mapping and parameter `j2` is a mapping, then for each entry [k, j] in parameter `j2`,
-#   set `j1[k]` to the merge of `j1[k]` with `j`
+# - if parameter `j1` is a mapping and parameter `j2` is a mapping, then for each entry [k, j] in parameter `j2`, set `j1[k]` to the merge of `j1[k]` with `j`
 #     - if `j1[k]` is undefined, then set `j1[k]` to `j`
 #     - if any merge fails, then the merge of parameter `j1` with parameter `j2` fails
 #     - otherwise, the result is parameter `j1`.
