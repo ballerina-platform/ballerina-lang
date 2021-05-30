@@ -16,7 +16,7 @@
 
 import ballerina/jballerina.java;
 
-# Sum of zero or more decimal values.
+# Returns the sum of zero or more decimal values.
 #
 # + xs - decimal values to sum
 # + return - sum of all the parameter `xs`; 0 if parameter `xs` is empty
@@ -25,7 +25,7 @@ public isolated function sum(decimal... xs) returns decimal = @java:Method {
     name: "sum"
 } external;
 
-# Maximum of one or more decimal values.
+# Returns the maximum of one or more decimal values.
 #
 # + x - first decimal value
 # + xs - other decimal values
@@ -35,7 +35,7 @@ public isolated function max(decimal x, decimal... xs) returns decimal = @java:M
     name: "max"
 } external;
 
-# Minimum of one or more decimal values.
+# Returns the minimum of one or more decimal values.
 #
 # + x - first decimal value
 # + xs - other decimal values
@@ -45,7 +45,7 @@ public isolated function min(decimal x, decimal... xs) returns decimal = @java:M
     name: "min"
 } external;
 
-# IEEE abs operation.
+# Returns the IEEE absolute value of a decimal value.
 #
 # + x - decimal value to operate on
 # + return - absolute value of parameter `x`
@@ -54,7 +54,7 @@ public isolated function abs(decimal x) returns decimal = @java:Method {
     name: "abs"
 } external;
 
-# Round a decimal to the closest integral value.
+# Rounds a decimal to the closest integral value.
 #
 # Returns the decimal value that is a mathematical integer and closest to parameter `x`.
 # If there are two such values, choose the one that is even
@@ -90,7 +90,7 @@ public isolated function ceiling(decimal x) returns decimal = @java:Method {
     name: "ceiling"
 } external;
 
-# Return the decimal value represented by a string.
+# Returns the decimal value represented by a string.
 #
 # `s` must follow the syntax of DecimalFloatingPointNumber as defined by the Ballerina specification
 # with the following modifications

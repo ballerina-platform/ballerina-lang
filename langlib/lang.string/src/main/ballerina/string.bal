@@ -66,7 +66,7 @@ public isolated function getCodePoint(string str, int index) returns int = @java
 # + str - source string.
 # + startIndex - the starting index, inclusive
 # + endIndex - the ending index, exclusive
-# + return - substring consisting of characters with index >= startIndex and < endIndex
+# + return - substring consisting of characters with index >= `startIndex` and < `endIndex`
 public isolated function substring(string str, int startIndex, int endIndex = str.length()) returns string =
 @java:Method {
     'class: "org.ballerinalang.langlib.string.Substring",
@@ -215,7 +215,7 @@ public isolated function toBytes(string str) returns byte[] = @java:Method {
     name: "toBytes"
 } external;
 
-# Constructs a string from its UTF-8 representation in `bytes`.
+# Constructs a string from its UTF-8 representation in bytes.
 #
 # + bytes - UTF-8 byte array
 # + return - parameter `bytes` converted to string or error

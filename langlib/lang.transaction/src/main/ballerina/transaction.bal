@@ -21,6 +21,8 @@ configurable boolean managerEnabled = false;
 # Config to specify transaction log directory.
 configurable string logBase = "transaction_log_dir";
 
+//TODO: remove this in Beta2 and use an anonymous record instead
+# Internally used record to hold information about a transaction.
 public type InfoInternal record {|
    # Unique identifier for the transaction branch.
    byte[] xid;
@@ -86,6 +88,8 @@ public transactional isolated function getRollbackOnly() returns boolean = @java
 } external;
 
 # Associates some data with the current transaction branch.
+#
+# + e - Data to be set
 public transactional isolated function setData((any|error) & readonly e) = @java:Method {
     'class: "org.ballerinalang.langlib.transaction.SetData",
     name: "setData"
