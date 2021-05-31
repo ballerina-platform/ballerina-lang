@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.isolation;
 
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.Test;
@@ -68,5 +69,12 @@ public class IsolationWarningTest {
         validateWarning(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_WARNING, 228, 5);
         validateWarning(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_WARNING, 232, 5);
         assertEquals(result.getWarnCount(), i);
+
+        LineRange lineRange = result.getDiagnostics()[0].location().lineRange();
+        assertEquals(lineRange.filePath(), "isolation_warnings_for_service_methods.bal");
+        assertEquals(lineRange.startLine().line(), 25);
+        assertEquals(lineRange.startLine().offset(), 4);
+        assertEquals(lineRange.endLine().line(), 25);
+        assertEquals(lineRange.endLine().offset(), 4);
     }
 }
