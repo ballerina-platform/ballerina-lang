@@ -173,16 +173,15 @@ public class VariableVisibilityTest extends BaseTestCase {
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), VariableScope.LOCAL);
         Assert.assertEquals(globalVariables.size(), 14);
 
-        // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/26139
         // global constants
-        // debugTestRunner.assertVariable(globalVariables, "nameWithoutType", "Ballerina", "string");
-        // debugTestRunner.assertVariable(globalVariables, "nameWithType", "Ballerina", "string");
+        debugTestRunner.assertVariable(globalVariables, "nameWithoutType", "Ballerina", "string");
+        debugTestRunner.assertVariable(globalVariables, "nameWithType", "Ballerina", "string");
         debugTestRunner.assertVariable(globalVariables, "nameMap", "map<string>", "map");
+
         debugTestRunner.assertVariable(globalVariables, "nilWithoutType", "()", "nil");
         debugTestRunner.assertVariable(globalVariables, "nilWithType", "()", "nil");
-        // TODO - Enable test
-        // debugTestRunner.assertVariable(globalVariables, "RED", "RED", "string");
-        // debugTestRunner.assertVariable(globalVariables, "BLUE", "Blue", "string");
+        debugTestRunner.assertVariable(globalVariables, "RED", "RED", "string");
+        debugTestRunner.assertVariable(globalVariables, "BLUE", "Blue", "string");
 
         // global variables
         debugTestRunner.assertVariable(globalVariables, "stringValue", "Ballerina", "string");
