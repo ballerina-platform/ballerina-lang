@@ -24,24 +24,24 @@ public type Address object {
 
 function foo() {
     Address adr = object {
-                      public string city;
-                      public string country;
-                  };
+        public string city;
+        public string country;
+    };
 
     Address adr = object {public string city; public string country;};
 
     Address adr = object {
-                      public string city;
-                      public string country;
-                  };
+        public string city;
+        public string country;
+    };
 
     Address adr = object {
-                      public string city;
-                      public string country;
-                  };
+        public string city;
+        public string country;
+    };
 
     Address adr = object {
-                      public string city;
-                      public string country;
-                  };
+        public string city;
+        public string country;
+    };
 }
