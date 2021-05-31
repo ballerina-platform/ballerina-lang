@@ -96,7 +96,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, "xml `<?target data?>`", "<?target data?>", "xml");
         // concatenated XML
         debugTestRunner.assertExpression(context, "xml `<book>The Lost World</book>Hello, world!" +
-                "<!--I am a comment--><?target data?>`", "XMLSequence (children = 4)", "xml");
+                "<!--I am a comment--><?target data?>`", "XMLSequence (size = 4)", "xml");
     }
 
     @Override
@@ -160,7 +160,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // stream variable test
         debugTestRunner.assertExpression(context, STREAM_VAR, "stream<int, error>", "stream");
         // never variable test
-        debugTestRunner.assertExpression(context, NEVER_VAR, "XMLSequence (children = 0)", "xml");
+        debugTestRunner.assertExpression(context, NEVER_VAR, "XMLSequence (size = 0)", "xml");
         // json variable test
         debugTestRunner.assertExpression(context, JSON_VAR, "map<json> (size = 2)", "json");
         // anonymous object variable test (AnonPerson object)
@@ -348,7 +348,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         // xml
         debugTestRunner.assertExpression(context, XML_VAR + ".getName()", "person", "string");
-        debugTestRunner.assertExpression(context, XML_VAR + ".children()", "XMLSequence (children = 2)",
+        debugTestRunner.assertExpression(context, XML_VAR + ".children()", "XMLSequence (size = 2)",
                 "xml");
     }
 
@@ -474,7 +474,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         // xml + xml
         debugTestRunner.assertExpression(context, String.format("%s + %s", XML_VAR, XML_VAR),
-                "XMLSequence (children = 10)", "xml");
+                "XMLSequence (size = 10)", "xml");
 
         //////////////////////////////-------------subtraction------------------//////////////////////////////////////
         // int - int

@@ -27,7 +27,6 @@ import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticM
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
-import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.ballerinalang.debugadapter.variable.types.BXmlSequence;
 
 import java.util.Collections;

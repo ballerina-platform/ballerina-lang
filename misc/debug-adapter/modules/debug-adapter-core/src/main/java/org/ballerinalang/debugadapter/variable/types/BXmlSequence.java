@@ -31,7 +31,6 @@ import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getFieldValue;
-import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringValue;
 
 /**
  * Ballerina xml variable type.
@@ -49,7 +48,7 @@ public class BXmlSequence extends IndexedCompoundVariable {
     @Override
     public String computeValue() {
         try {
-            return String.format("XMLSequence (children = %d)", getChildrenCount());
+            return String.format("XMLSequence (size = %d)", getChildrenCount());
         } catch (Exception ignored) {
             return UNKNOWN_VALUE;
         }

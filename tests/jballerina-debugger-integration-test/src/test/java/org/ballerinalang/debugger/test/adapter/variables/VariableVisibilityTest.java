@@ -288,7 +288,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         // xml child variable visibility test
         Map<String, Variable> xmlChildVariables = debugTestRunner.fetchChildVariables(localVariables.get("xmlVar"));
         debugTestRunner.assertVariable(xmlChildVariables, "attributes", "map", "map");
-        debugTestRunner.assertVariable(xmlChildVariables, "children", "XMLSequence (children = 2)", "xml");
+        debugTestRunner.assertVariable(xmlChildVariables, "children", "XMLSequence (size = 2)", "xml");
 
         // xml attributes child variable visibility test
         Map<String, Variable> xmlAttributesChildVariables =
@@ -304,7 +304,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         // xml grand children variable visibility test
         Map<String, Variable> xmlGrandChildrenVariables =
             debugTestRunner.fetchChildVariables(xmlChildrenVariables.get("[0]"));
-        debugTestRunner.assertVariable(xmlGrandChildrenVariables, "children", "XMLSequence (children = 1)", "xml");
+        debugTestRunner.assertVariable(xmlGrandChildrenVariables, "children", "XMLSequence (size = 1)", "xml");
 
         // array child variable visibility test
         Map<String, Variable> arrayChildVariables = debugTestRunner.fetchChildVariables(localVariables.get("arrayVar"));
