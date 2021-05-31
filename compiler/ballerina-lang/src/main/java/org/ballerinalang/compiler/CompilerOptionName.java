@@ -56,6 +56,8 @@ public enum CompilerOptionName {
 
     DUMP_BIR_FILE("dumpBIRFile"),
 
+    NBAL("nBallerina"),
+
     CLOUD("cloud"),
 
     LOCK_ENABLED("lockEnabled"),

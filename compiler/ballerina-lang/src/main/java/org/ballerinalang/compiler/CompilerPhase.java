@@ -46,6 +46,8 @@ public enum CompilerPhase {
 
     DESUGAR("desugar"),
 
+    NBALLERINA("nBallerina"),
+
     BIR_GEN("birGen"),
 
     BIR_EMIT("birEmit"),

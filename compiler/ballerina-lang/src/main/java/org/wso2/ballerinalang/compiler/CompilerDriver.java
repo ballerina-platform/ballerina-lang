@@ -317,6 +317,11 @@ public class CompilerDriver {
         }
 
         desugar(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.NBALLERINA)) {
+            return;
+        }
+
+        nBallerinaGen(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.BIR_GEN)) {
             return;
         }
@@ -332,6 +337,10 @@ public class CompilerDriver {
         }
 
         codeGen(pkgNode);
+    }
+
+    private void nBallerinaGen(BLangPackage pkgNode) {
+        return;
     }
 
     private BLangPackage codeGen(BLangPackage pkgNode) {
