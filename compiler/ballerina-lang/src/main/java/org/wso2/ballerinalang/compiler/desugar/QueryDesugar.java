@@ -1462,7 +1462,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             // So, we have to mark that as a closure as well.
             BSymbol enclSymbol = symResolver.lookupClosureVarSymbol(env.enclEnv,
                     names.fromString(identifier), SymTag.VARIABLE);
-            if (enclSymbol != null) {
+            if (enclSymbol != null && enclSymbol != symTable.notFoundSymbol) {
                 enclSymbol.closure = true;
             }
         }
