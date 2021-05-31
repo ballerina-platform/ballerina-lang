@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.debugadapter.evaluation.engine;
+package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
@@ -24,14 +24,17 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.projects.Package;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedInstanceMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
 import org.ballerinalang.debugadapter.variable.BVariable;
@@ -43,8 +46,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.ballerinalang.debugadapter.evaluation.engine.FunctionInvocationExpressionEvaluator.modifyName;
 import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
+import static org.ballerinalang.debugadapter.evaluation.engine.expression.FunctionInvocationExpressionEvaluator.modifyName;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_PACKAGE_PREFIX;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_VALUE;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.getAssociatedLangLibName;
@@ -52,6 +55,7 @@ import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.getLa
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.getLangLibPackage;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.getQualifiedLangLibClassName;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.loadLangLibMethod;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 
 /**
  * Evaluator implementation for method call invocation expressions.
@@ -60,18 +64,24 @@ import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.loadL
  */
 public class MethodCallExpressionEvaluator extends Evaluator {
 
-    private final MethodCallExpressionNode syntaxNode;
+    private final ExpressionNode syntaxNode;
     private final String methodName;
     private final Evaluator objectExpressionEvaluator;
     private final List<Map.Entry<String, Evaluator>> argEvaluators;
 
-    public MethodCallExpressionEvaluator(SuspendedContext context, MethodCallExpressionNode methodCallExpressionNode,
+    public MethodCallExpressionEvaluator(SuspendedContext context, ExpressionNode methodCallExpressionNode,
                                          Evaluator expression, List<Map.Entry<String, Evaluator>> argEvaluators) {
         super(context);
         this.syntaxNode = methodCallExpressionNode;
         this.objectExpressionEvaluator = expression;
         this.argEvaluators = argEvaluators;
-        this.methodName = syntaxNode.methodName().toSourceCode().trim();
+        if (syntaxNode instanceof MethodCallExpressionNode) {
+            this.methodName = ((MethodCallExpressionNode) syntaxNode).methodName().toSourceCode().trim();
+        } else if (syntaxNode instanceof RemoteMethodCallActionNode) {
+            this.methodName = ((RemoteMethodCallActionNode) syntaxNode).methodName().toSourceCode().trim();
+        } else {
+            methodName = UNKNOWN_VALUE;
+        }
     }
 
     @Override
@@ -128,7 +138,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
             if (objectMethodDef.isEmpty()) {
                 throw new EvaluationException(
                         String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(),
-                                syntaxNode.methodName().toString().trim(), className));
+                                methodName.trim(), className));
             }
 
             isFoundObjectMethod = true;
@@ -189,7 +199,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
         return langLibMethod.invokeSafely();
     }
 
-    private Optional<ClassSymbol> findClassDefWithinModule(String className) {
+    protected Optional<ClassSymbol> findClassDefWithinModule(String className) {
         SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();
         return semanticContext.moduleSymbols()
                 .stream()
@@ -199,7 +209,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
                 .map(symbol -> (ClassSymbol) symbol);
     }
 
-    private Optional<MethodSymbol> findObjectMethodInClass(ClassSymbol classDef, String methodName) {
+    protected Optional<MethodSymbol> findObjectMethodInClass(ClassSymbol classDef, String methodName) {
         return classDef.methods().values()
                 .stream()
                 .filter(methodSymbol -> modifyName(methodSymbol.getName().get()).equals(methodName))
@@ -213,7 +223,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
         List<Method> methods = objectRef.methodsByName(methodName);
         if (methods == null || methods.size() != 1) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(),
-                    syntaxNode.methodName().toString().trim(), objectVar.computeValue()));
+                    methodName.trim(), objectVar.computeValue()));
         }
         return new GeneratedInstanceMethod(context, objectVar.getJvmValue(), methods.get(0));
     }
