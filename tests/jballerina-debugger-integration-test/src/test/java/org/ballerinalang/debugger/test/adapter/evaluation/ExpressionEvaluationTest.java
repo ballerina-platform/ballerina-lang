@@ -129,7 +129,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // tuple variable test
         debugTestRunner.assertExpression(context, TUPLE_VAR, "tuple[int,string]", "tuple");
         // map variable test
-        debugTestRunner.assertExpression(context, MAP_VAR, "map", "map");
+        debugTestRunner.assertExpression(context, MAP_VAR, "map<string>", "map");
         // record variable test (Student record)
         debugTestRunner.assertExpression(context, RECORD_VAR, " /:@[`{~π_123_ƮέŞŢ_Student", "record");
         // anonymous record variable test
@@ -141,7 +141,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, ANON_FUNCTION_VAR, "isolated function (string,string) " +
                 "returns (string)", "function");
         // future variable test
-        debugTestRunner.assertExpression(context, FUTURE_VAR, "future", "future");
+        debugTestRunner.assertExpression(context, FUTURE_VAR, "future<int>", "future");
         // object variable test (Person object)
         debugTestRunner.assertExpression(context, OBJECT_VAR, "Person_\\ /<>:@[`{~π_ƮέŞŢ", "object");
         // type descriptor variable test
@@ -170,7 +170,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/26139
         // debugTestRunner.assertExpression(context, GL, "Ballerina", "string");
         // debugTestRunner.assertExpression(context, "gv02_nameWithType", "Ballerina", "string");
-        debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "map", "map");
+        debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "map<string>", "map");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_04, "()", "nil");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_05, "()", "nil");
         // global variables

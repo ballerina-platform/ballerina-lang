@@ -176,7 +176,8 @@ public class VariableVisibilityTest extends BaseTestCase {
         // global constants
         debugTestRunner.assertVariable(globalVariables, "nameWithoutType", "Ballerina", "string");
         debugTestRunner.assertVariable(globalVariables, "nameWithType", "Ballerina", "string");
-        debugTestRunner.assertVariable(globalVariables, "nameMap", "map", "map");
+        debugTestRunner.assertVariable(globalVariables, "nameMap", "map<string>", "map");
+
         debugTestRunner.assertVariable(globalVariables, "nilWithoutType", "()", "nil");
         debugTestRunner.assertVariable(globalVariables, "nilWithType", "()", "nil");
         debugTestRunner.assertVariable(globalVariables, "RED", "RED", "string");
@@ -225,7 +226,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(localVariables, "tupleVar", "tuple[int,string]", "tuple");
 
         // map variable visibility test
-        debugTestRunner.assertVariable(localVariables, "mapVar", "map", "map");
+        debugTestRunner.assertVariable(localVariables, "mapVar", "map<string>", "map");
 
         // record variable visibility test (Student record)
         debugTestRunner.assertVariable(localVariables, "recordVar", " /:@[`{~π_123_ƮέŞŢ_Student", "record");
@@ -242,7 +243,7 @@ public class VariableVisibilityTest extends BaseTestCase {
                 "isolated function (string,string) returns (string)", "function");
 
         // future variable visibility test
-        debugTestRunner.assertVariable(localVariables, "futureVar", "future", "future");
+        debugTestRunner.assertVariable(localVariables, "futureVar", "future<int>", "future");
 
         // object variable visibility test (Person object)
         debugTestRunner.assertVariable(localVariables, "objectVar", "Person_\\ /<>:@[`{~π_ƮέŞŢ", "object");
@@ -355,7 +356,8 @@ public class VariableVisibilityTest extends BaseTestCase {
 
         // error child variable visibility test
         Map<String, Variable> errorChildVariables = debugTestRunner.fetchChildVariables(localVariables.get("errorVar"));
-        debugTestRunner.assertVariable(errorChildVariables, "details", "map", "map");
+        debugTestRunner.assertVariable(errorChildVariables, "details", "map<(ballerina/lang.value:1.0.0:Cloneable",
+                "map");
         debugTestRunner.assertVariable(errorChildVariables, "message", "SimpleErrorType", "string");
 
         // error details child variable visibility test
