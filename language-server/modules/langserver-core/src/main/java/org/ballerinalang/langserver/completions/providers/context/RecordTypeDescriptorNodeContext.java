@@ -64,7 +64,8 @@ public class RecordTypeDescriptorNodeContext extends AbstractCompletionProvider<
 
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             Predicate<Symbol> predicate =
-                    symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS;
+                    symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS
+                            || symbol.kind() == SymbolKind.ENUM;
             List<Symbol> types = QNameReferenceUtil.getModuleContent(context,
                     (QualifiedNameReferenceNode) nodeAtCursor, predicate);
             completionItems.addAll(this.getCompletionItemList(types, context));
