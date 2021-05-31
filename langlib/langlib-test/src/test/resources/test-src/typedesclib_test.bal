@@ -1,18 +1,3 @@
-// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-//
-// WSO2 Inc. licenses this file to you under the Apache License,
-// Version 2.0 (the "License"); you may not use this file except
-// in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
 
 import ballerina/lang.'typedesc;
 
@@ -20,41 +5,64 @@ type Error distinct error;
 
 type MyError distinct error;
 
-type MyOtherError distinct (Error & error<record { string msg; }>);
+type MyOtherError distinct (Error & error<record {string msg;}>);
+
+type ErrorAndMyOtherError Error & MyOtherError;
+
+type ErrorAndMyOtherErrorD distinct (Error & MyOtherError);
 
 public function testGeTypeIds() {
     var tids = MyError.typeIds();
-    assertSingleTypeId(tids, "MyError");
+    assertSingleTypeId(tids, ["MyError"]);
     assertReadonlyness(tids);
 
     var eTids = Error.typeIds();
-    assertSingleTypeId(eTids, "Error");
+    assertSingleTypeId(eTids, ["Error"]);
     assertReadonlyness(eTids);
 
     error e = error MyError("MyError");
     typedesc<error> tdesc = typeof e;
     typedesc:TypeId[]? ids = tdesc.typeIds();
-    assertSingleTypeId(ids, "MyError");
+    assertSingleTypeId(ids, ["MyError"]);
     assertReadonlyness(ids);
 
     MyOtherError oe = error("Hello", msg = "msg");
     tids = (typeof oe).typeIds();
     var k = MyOtherError.typeIds();
 
-    assertReadonlyness(tids);
+    assertSingleTypeId(tids, ["Error", "MyOtherError"]);
+    assertSingleTypeId(k, ["Error", "MyOtherError"]);
+
+    k = ErrorAndMyOtherError.typeIds();
+    assertSingleTypeId(k, ["Error", "MyOtherError", "Error"]);
+
+    k = ErrorAndMyOtherError.typeIds(true);
+    assertSingleTypeId(k, ["Error", "MyOtherError"]);
+
+    k = ErrorAndMyOtherErrorD.typeIds();
+    assertSingleTypeId(k, ["Error", "MyOtherError", "ErrorAndMyOtherErrorD", "Error"]);
+
+    k = ErrorAndMyOtherErrorD.typeIds(true);
+    assertSingleTypeId(k, ["Error", "MyOtherError", "ErrorAndMyOtherErrorD"]);
+
 }
 
-function assertSingleTypeId(typedesc:TypeId[]? tids, string localId) {
+function assertSingleTypeId(typedesc:TypeId[]? tids, string[] localIds) {
     if (tids is typedesc:TypeId[]) {
-        if (tids.length() != 1) {
-            panic error("Assertion error: Expected length of one, found: " + tids.length().toString());
+        if (tids.length() != localIds.length()) {
+            panic error("Assertion error: Expected length of "
+            + localIds.length().toString() + ", found: " + tids.length().toString());
         }
 
-        typedesc:TypeId tid = tids[0];
-        if (tid.localId != localId) {
-            panic error("Assertion error: Expected localId: MyError, found: " + tid.localId.toString());
+        var tempTids = tids; // type of `tids` is not narrowed within query expression.
+        foreach var i in 0 ..< localIds.length() {
+            var localId = localIds[i];
+            string[] k = from var id in tempTids where id.localId == localId select localId;
+            if (k.length() == 0) {
+                panic error("Assertion error: Expected localId: "
+                + localId + " not found in " + tids.toString());
+            }
         }
-        assertReadonlyness(tid);
     } else {
         panic error("Assertion error: expected array of: " + typedesc:TypeId.toString() + "found: " + (typeof tids).toString());
     }
