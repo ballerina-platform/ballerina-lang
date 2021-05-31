@@ -18,6 +18,8 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
@@ -27,6 +29,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -3046,8 +3049,16 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 continue;
             }
 
-            dlog.warning(function.pos, getWarningCode(isolatedService, isolatedMethod));
+            dlog.warning(getStartLocation(function.pos), getWarningCode(isolatedService, isolatedMethod));
         }
+    }
+
+    private Location getStartLocation(Location location) {
+        LineRange lineRange = location.lineRange();
+        LinePosition linePosition = lineRange.startLine();
+        int startLine = linePosition.line();
+        int startColumn = linePosition.offset();
+        return new BLangDiagnosticLocation(lineRange.filePath(), startLine, startLine, startColumn, startColumn);
     }
 
     private DiagnosticWarningCode getWarningCode(boolean isolatedService, boolean isolatedMethod) {
