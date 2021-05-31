@@ -61,7 +61,6 @@ dependencies {
     implementation ('org.eclipse.lsp4j:org.eclipse.lsp4j') {
         exclude group: 'com.google.guava', module: 'guava'
     }
-    implementation 'com.h2database:h2'
     implementation ('org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc') {
         exclude group: 'com.google.guava', module: 'guava'
     }
@@ -72,7 +71,6 @@ dependencies {
 
     distributionBala project(path: ':language-server:language-server-stdlib', configuration: 'distributionBala')
 
-    dependency 'com.h2database:h2:1.4.199'
     dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.10.0'
     dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.10.0'
     dependency 'commons-io:commons-io:2.6'
