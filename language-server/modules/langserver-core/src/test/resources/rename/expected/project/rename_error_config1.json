@@ -6,6 +6,9 @@
     "line": 0,
     "character": 15
   },
+  "prepareRename": {
+    "valid": true
+  },
   "result": {
     "changes": {
       "modules/module2/types.bal": [

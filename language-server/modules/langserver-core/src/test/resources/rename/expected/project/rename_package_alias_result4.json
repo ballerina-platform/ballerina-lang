@@ -6,8 +6,10 @@
     "line": 0,
     "character": 19
   },
+  "prepareRename": {
+    "valid": false
+  },
   "result": {
-    "changes": {
-    }
+    "changes": {}
   }
 }

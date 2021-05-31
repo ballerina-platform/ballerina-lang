@@ -52,9 +52,11 @@ import org.eclipse.lsp4j.FoldingRangeRequestParams;
 import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.PrepareRenameParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.ReferenceParams;
+import org.eclipse.lsp4j.RenameCapabilities;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
 import org.eclipse.lsp4j.SignatureHelpParams;
@@ -98,6 +100,8 @@ public class TestUtil {
 
     private static final String REFERENCES = "textDocument/references";
 
+    private static final String PREPARE_RENAME = "textDocument/prepareRename";
+    
     private static final String RENAME = "textDocument/rename";
 
     private static final String EXECUTE_COMMAND = "workspace/executeCommand";
@@ -215,6 +219,24 @@ public class TestUtil {
         return getResponseString(result);
     }
 
+    /**
+     * Get the textDocument/prepareRename response.
+     *
+     * @param filePath        Path of the Bal file
+     * @param position        Cursor Position
+     * @param serviceEndpoint Service Endpoint to Language Server
+     * @return {@link String}   Response as String
+     */
+    public static String getPrepareRenameResponse(String filePath, Position position, Endpoint serviceEndpoint) {
+        PrepareRenameParams renameParams = new PrepareRenameParams();
+
+        renameParams.setTextDocument(getTextDocumentIdentifier(filePath));
+        renameParams.setPosition(new Position(position.getLine(), position.getCharacter()));
+
+        CompletableFuture result = serviceEndpoint.request(PREPARE_RENAME, renameParams);
+        return getResponseString(result);
+    } 
+    
     /**
      * Get the textDocument/rename response.
      *
@@ -527,6 +549,9 @@ public class TestUtil {
         FoldingRangeCapabilities foldingRangeCapabilities = new FoldingRangeCapabilities();
         foldingRangeCapabilities.setLineFoldingOnly(true);
         textDocumentClientCapabilities.setFoldingRange(foldingRangeCapabilities);
+        RenameCapabilities renameCapabilities = new RenameCapabilities();
+        renameCapabilities.setPrepareSupport(true);
+        textDocumentClientCapabilities.setRename(renameCapabilities);
 
         capabilities.setTextDocument(textDocumentClientCapabilities);
         params.setCapabilities(capabilities);

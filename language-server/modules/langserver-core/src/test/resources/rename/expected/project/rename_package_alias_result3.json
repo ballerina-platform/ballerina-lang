@@ -6,6 +6,9 @@
     "line": 0,
     "character": 28
   },
+  "prepareRename": {
+    "valid": true
+  },
   "result": {
     "changes": {
       "mod_alias.bal": [

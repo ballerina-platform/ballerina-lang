@@ -60,6 +60,45 @@ public class RenameUtil {
     }
 
     /**
+     * Check if the provided position is valid for renaming. If valid, returns a valid range. Empty otherwise.
+     *
+     * @param context Reference context
+     * @return A range if position is valid for rename
+     */
+    public static Optional<Range> prepareRename(ReferencesContext context) {
+        fillTokenInfoAtCursor(context);
+
+        // Token at cursor is checked at cursor position and cursor position - 1 column due to left associativity.
+        //      Ex: int val<cursor>;
+        // Here, the token at cursor will be ";", but user expects "val". To achieve this, we try col-1.
+        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, context.getCursorPosition())
+                .filter(token -> token instanceof IdentifierToken)
+                .or(() -> {
+                    Position originalPos = context.getCursorPosition();
+                    Position newPos = new Position(originalPos.getLine(), originalPos.getCharacter() - 1);
+                    return TokensUtil.findTokenAtPosition(context, newPos);
+                })
+                .orElse(null);
+        // Check if token at cursor is an identifier
+        if (!(tokenAtCursor instanceof IdentifierToken) || CommonUtil.isKeyword(tokenAtCursor.text())) {
+            return Optional.empty();
+        }
+        Optional<Document> document = context.currentDocument();
+        if (document.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Range cursorPosRange = new Range(context.getCursorPosition(), context.getCursorPosition());
+        NonTerminalNode nodeAtCursor = CommonUtil.findNode(cursorPosRange, document.get().syntaxTree());
+
+        if (onImportDeclarationNode(context, nodeAtCursor)) {
+            return Optional.empty();
+        }
+
+        return Optional.of(CommonUtil.toRange(tokenAtCursor.lineRange()));
+    }
+    
+    /**
      * Process a rename request and returns the text edits required to be made to complete the rename.
      *
      * @param context Context
@@ -80,23 +119,8 @@ public class RenameUtil {
 
         Range cursorPosRange = new Range(context.getCursorPosition(), context.getCursorPosition());
         NonTerminalNode nodeAtCursor = CommonUtil.findNode(cursorPosRange, document.get().syntaxTree());
-        // Token at cursor is checked at cursor position and cursor position - 1 column due to left associativity.
-        //      Ex: int val<cursor>;
-        // Here, the token at cursor will be ";", but user expects "val". To achieve this, we try col-1.
-        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, context.getCursorPosition())
-                .filter(token -> token instanceof IdentifierToken)
-                .or(() -> {
-                    Position originalPos = context.getCursorPosition();
-                    Position newPos = new Position(originalPos.getLine(), originalPos.getCharacter() - 1);
-                    return TokensUtil.findTokenAtPosition(context, newPos);
-                })
-                .orElse(null);
-        // Check if token at cursor is an identifier
-        if (!(tokenAtCursor instanceof IdentifierToken) || CommonUtil.isKeyword(tokenAtCursor.text())) {
-            return Collections.emptyMap();
-        }
 
-        // Check if the rename is performed on import node, which is not allowed
+        // For clients that doesn't support prepare rename, we do this check here as well
         if (onImportDeclarationNode(context, nodeAtCursor)) {
             return Collections.emptyMap();
         }
