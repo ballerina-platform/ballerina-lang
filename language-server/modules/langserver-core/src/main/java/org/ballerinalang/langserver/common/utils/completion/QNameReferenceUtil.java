@@ -138,6 +138,6 @@ public class QNameReferenceUtil {
         int colonPos = ((QualifiedNameReferenceNode) node).colon().textRange().startOffset();
         int cursor = context.getCursorPositionInTree();
 
-        return cursor < colonPos;
+        return cursor <= colonPos;
     }
 }

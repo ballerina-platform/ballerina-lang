@@ -60,7 +60,8 @@ public abstract class AbstractRenameTest {
         String prepareResponse = TestUtil.getPrepareRenameResponse(sourcePath.toString(), position, serviceEndpoint);
 
         // For invalid positions, response result=null, and is removed by GSON.
-        Assert.assertEquals(parser.parse(prepareResponse).getAsJsonObject().has("result"), isValidRename);
+        Assert.assertEquals(parser.parse(prepareResponse).getAsJsonObject().has("result"), isValidRename,
+                "Expected valid rename position: " + String.valueOf(isValidRename));
 
         String actualStr = TestUtil.getRenameResponse(sourcePath.toString(), position, varName, serviceEndpoint);
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
