@@ -470,6 +470,10 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void populateDistinctTypeIdsFromIncludedTypeReferences(BLangTypeDefinition typeDefinition) {
         if (typeDefinition.typeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
+            if (typeDefinition.typeNode.type == null) {
+                return;
+            }
+
             BType definingType = types.getTypeWithEffectiveIntersectionTypes(typeDefinition.typeNode.type);
             if (definingType.tag != TypeTags.OBJECT) {
                 return;
@@ -1448,7 +1452,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 definedType = distinctType;
             } else if (definedType.getKind() == TypeKind.INTERSECTION
                     && ((BIntersectionType) definedType).effectiveType.getKind() == TypeKind.ERROR) {
-                populateTypeIds((BErrorType) ((BIntersectionType) definedType).effectiveType,
+                populateErrorTypeIds((BErrorType) ((BIntersectionType) definedType).effectiveType,
                                 (BLangIntersectionTypeNode) typeDefinition.typeNode, typeDefinition.name.value);
             } else if (definedType.getKind() == TypeKind.OBJECT) {
                 BObjectType distinctType = getDistinctObjectType(typeDefinition, (BObjectType) definedType,
@@ -1515,12 +1519,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void populateTypeIds(BErrorType effectiveType, BLangIntersectionTypeNode typeNode, String name) {
+    private void populateErrorTypeIds(BErrorType effectiveType, BLangIntersectionTypeNode typeNode, String name) {
         BTypeIdSet typeIdSet = BTypeIdSet.emptySet();
         for (BLangType constituentType : typeNode.constituentTypeNodes) {
             BType type = symResolver.resolveTypeNode(constituentType, env);
 
-            // todo: get Maryam's fix from beta-rc3 staging branch and flattern the intersection type.
             if (type.getKind() == TypeKind.ERROR) {
                 typeIdSet = BTypeIdSet.getIntersection(typeIdSet, ((BErrorType) type).typeIdSet);
             }
@@ -1537,6 +1540,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                                   names.fromString(typeDefinition.name.value));
         BErrorType alreadyDefinedErrorType = (BErrorType) alreadyDefinedErrorTypeSymbol.type;
         BErrorType errorType = (BErrorType) intersectionType.effectiveType;
+
+        if (typeDefinition.typeNode.flagSet.contains(Flag.DISTINCT)) {
+            errorType.typeIdSet.add(
+                    BTypeIdSet.from(env.enclPkg.packageID, typeDefinition.name.value,
+                            typeDefinition.flagSet.contains(Flag.PUBLIC)));
+        }
 
         alreadyDefinedErrorType.typeIdSet = errorType.typeIdSet;
         alreadyDefinedErrorType.detailType = errorType.detailType;
