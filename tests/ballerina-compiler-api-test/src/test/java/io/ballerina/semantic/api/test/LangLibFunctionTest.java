@@ -267,7 +267,8 @@ public class LangLibFunctionTest {
         TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), TYPEDESC);
 
-        List<String> expFunctions = List.of("toString", "toBalString", "ensureType", "clone", "cloneReadOnly");
+        List<String> expFunctions =
+                List.of("toString", "toBalString", "ensureType", "clone", "cloneReadOnly", "typeIds");
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
 

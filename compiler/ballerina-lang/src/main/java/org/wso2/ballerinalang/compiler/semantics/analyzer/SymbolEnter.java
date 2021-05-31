@@ -394,6 +394,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.typeDefinitions.sort(getTypePrecedenceComparator());
         typeAndClassDefs.sort(getTypePrecedenceComparator());
 
+        // Add distinct type information
+        defineDistinctClassAndObjectDefinitions(typeAndClassDefs);
+
         // Define type def fields (if any)
         defineFields(typeAndClassDefs, pkgEnv);
 
@@ -402,9 +405,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define error details.
         defineErrorDetails(pkgNode.typeDefinitions, pkgEnv);
-
-        // Add distinct type information
-        defineDistinctClassAndObjectDefinitions(typeAndClassDefs);
 
         // Define type def members (if any)
         defineMembers(typeAndClassDefs, pkgEnv);
@@ -447,12 +447,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.intersectionTypes.clear();
     }
 
-
-    private void populateSecondaryTypeIdSet(Set<BTypeIdSet.BTypeId> secondaryTypeIds, BErrorType typeOne) {
-        secondaryTypeIds.addAll(typeOne.typeIdSet.primary);
-        secondaryTypeIds.addAll(typeOne.typeIdSet.secondary);
-    }
-
     private void defineErrorType(BErrorType errorType, SymbolEnv env) {
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
         BTypeSymbol errorTSymbol = errorType.tsymbol;
@@ -475,24 +469,35 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void populateDistinctTypeIdsFromIncludedTypeReferences(BLangTypeDefinition typeDefinition) {
-        if (typeDefinition.typeNode.getKind() != NodeKind.OBJECT_TYPE) {
-            return;
-        }
-
-        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDefinition.typeNode;
-        BTypeIdSet typeIdSet = ((BObjectType) objectTypeNode.type).typeIdSet;
-
-        for (BLangType typeRef : objectTypeNode.typeRefs) {
-            if (typeRef.type.tag != TypeTags.OBJECT) {
-                continue;
+        if (typeDefinition.typeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
+            if (typeDefinition.typeNode.type == null) {
+                return;
             }
-            BObjectType refType = (BObjectType) typeRef.type;
 
-            if (!refType.typeIdSet.primary.isEmpty()) {
-                typeIdSet.primary.addAll(refType.typeIdSet.primary);
+            BType definingType = types.getTypeWithEffectiveIntersectionTypes(typeDefinition.typeNode.type);
+            if (definingType.tag != TypeTags.OBJECT) {
+                return;
             }
-            if (!refType.typeIdSet.secondary.isEmpty()) {
-                typeIdSet.secondary.addAll(refType.typeIdSet.secondary);
+            BObjectType definigObjType = (BObjectType) definingType;
+
+            BLangIntersectionTypeNode typeNode = (BLangIntersectionTypeNode) typeDefinition.typeNode;
+            for (BLangType constituentTypeNode : typeNode.getConstituentTypeNodes()) {
+                if (constituentTypeNode.type.tag != TypeTags.OBJECT) {
+                    continue;
+                }
+                definigObjType.typeIdSet.add(((BObjectType) constituentTypeNode.type).typeIdSet);
+            }
+        } else if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+            BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDefinition.typeNode;
+            BTypeIdSet typeIdSet = ((BObjectType) objectTypeNode.type).typeIdSet;
+
+            for (BLangType typeRef : objectTypeNode.typeRefs) {
+                BType type = types.getTypeWithEffectiveIntersectionTypes(typeRef.type);
+                if (type.tag != TypeTags.OBJECT) {
+                    continue;
+                }
+                BObjectType refType = (BObjectType) type;
+                typeIdSet.add(refType.typeIdSet);
             }
         }
     }
@@ -502,17 +507,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         BTypeIdSet typeIdSet = ((BObjectType) classDefinition.type).typeIdSet;
 
         for (BLangType typeRef : classDefinition.typeRefs) {
-            if (typeRef.type.tag != TypeTags.OBJECT) {
+            BType type = types.getTypeWithEffectiveIntersectionTypes(typeRef.type);
+            if (type.tag != TypeTags.OBJECT) {
                 continue;
             }
-            BObjectType refType = (BObjectType) typeRef.type;
-
-            if (!refType.typeIdSet.primary.isEmpty()) {
-                typeIdSet.primary.addAll(refType.typeIdSet.primary);
-            }
-            if (!refType.typeIdSet.secondary.isEmpty()) {
-                typeIdSet.secondary.addAll(refType.typeIdSet.secondary);
-            }
+            BObjectType refType = (BObjectType) type;
+            typeIdSet.add(refType.typeIdSet);
         }
     }
 
@@ -1452,7 +1452,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 definedType = distinctType;
             } else if (definedType.getKind() == TypeKind.INTERSECTION
                     && ((BIntersectionType) definedType).effectiveType.getKind() == TypeKind.ERROR) {
-                populateTypeIds((BErrorType) ((BIntersectionType) definedType).effectiveType,
+                populateErrorTypeIds((BErrorType) ((BIntersectionType) definedType).effectiveType,
                                 (BLangIntersectionTypeNode) typeDefinition.typeNode, typeDefinition.name.value);
             } else if (definedType.getKind() == TypeKind.OBJECT) {
                 BObjectType distinctType = getDistinctObjectType(typeDefinition, (BObjectType) definedType,
@@ -1519,15 +1519,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void populateTypeIds(BErrorType effectiveType, BLangIntersectionTypeNode typeNode, String name) {
-        Set<BTypeIdSet.BTypeId> secondaryTypeIds = new HashSet<>();
+    private void populateErrorTypeIds(BErrorType effectiveType, BLangIntersectionTypeNode typeNode, String name) {
+        BTypeIdSet typeIdSet = BTypeIdSet.emptySet();
         for (BLangType constituentType : typeNode.constituentTypeNodes) {
             BType type = symResolver.resolveTypeNode(constituentType, env);
+
             if (type.getKind() == TypeKind.ERROR) {
-                populateSecondaryTypeIdSet(secondaryTypeIds, (BErrorType) type);
+                typeIdSet = BTypeIdSet.getIntersection(typeIdSet, ((BErrorType) type).typeIdSet);
             }
         }
-        effectiveType.typeIdSet = BTypeIdSet.from(env.enclPkg.packageID, name, true, secondaryTypeIds);
+        effectiveType.typeIdSet = BTypeIdSet.from(env.enclPkg.packageID, name, true, typeIdSet);
     }
 
     private void populateUndefinedErrorIntersection(BType definedType, BLangTypeDefinition typeDefinition,
@@ -1539,6 +1540,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                                   names.fromString(typeDefinition.name.value));
         BErrorType alreadyDefinedErrorType = (BErrorType) alreadyDefinedErrorTypeSymbol.type;
         BErrorType errorType = (BErrorType) intersectionType.effectiveType;
+
+        if (typeDefinition.typeNode.flagSet.contains(Flag.DISTINCT)) {
+            errorType.typeIdSet.add(
+                    BTypeIdSet.from(env.enclPkg.packageID, typeDefinition.name.value,
+                            typeDefinition.flagSet.contains(Flag.PUBLIC)));
+        }
 
         alreadyDefinedErrorType.typeIdSet = errorType.typeIdSet;
         alreadyDefinedErrorType.detailType = errorType.detailType;
