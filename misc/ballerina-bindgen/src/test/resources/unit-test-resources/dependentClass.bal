@@ -2,9 +2,9 @@
 //
 // If you need the implementation of this class generated, please use the following command.
 //
-// $ ballerina bindgen [(-cp|--classpath) <classpath>...] [(-o|--output) <output>] (<class-name>...)
+// $ bal bindgen [(-cp|--classpath) <classpath>...] [(-o|--output) <output>] (<class-name>...)
 //
-// E.g. $ ballerina bindgen java.lang.String
+// E.g. $ bal bindgen java.lang.String
 
 import ballerina/jballerina.java;
 
