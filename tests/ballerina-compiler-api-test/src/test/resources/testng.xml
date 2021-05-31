@@ -86,6 +86,9 @@
 
             <class name="io.ballerina.semantic.api.test.incompletesource.InvalidFieldTypeTest" />
 
+            <!--Query-expressions-->
+            <class name="io.ballerina.semantic.api.test.queryexpressions.QueryExpressionTest" />
+
             <!--Statements-->
             <class name="io.ballerina.semantic.api.test.statements.SymbolsInMatchStmtTest" />
 
