@@ -41,13 +41,13 @@ OPTIONS
            Enable experimental language features.
 
        --code-coverage
-           Enables code coverage. This will analyze the line coverage of
-           source .bal files in the Ballerina package and add a section
-           to the testerina report with code coverage details.
+           Enable code coverage. This will analyze the line coverage of the
+           source `.bal` files in the Ballerina package and add a section
+           to the testerina report with the code coverage details.
            This feature is not supported with single file executions.
 
        --test-report
-           Generates an HTML report containing test results. Defaults to 'true'
+           Generate an HTML report containing the test results. Defaults to 'true'
            if code coverage is enabled.
 
        --debug

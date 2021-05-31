@@ -2858,7 +2858,7 @@ public class BallerinaParser extends AbstractParser {
             case SERVICE_KEYWORD:
                 return isServiceDeclStart(ParserRuleContext.OBJECT_MEMBER, 1);
             case PUBLIC_KEYWORD:
-                return isEndOfModuleLevelNode(peekIndex + 1, isObject);
+                return !isObject && isEndOfModuleLevelNode(peekIndex + 1, false);
             case FUNCTION_KEYWORD:
                 if (isObject) {
                     return false;
@@ -3566,8 +3566,7 @@ public class BallerinaParser extends AbstractParser {
                         break;
                     }
                     recordRestDescriptor = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(recordRestDescriptor,
-                            invalidField,
-                            DiagnosticErrorCode.ERROR_MORE_RECORD_FIELDS_AFTER_REST_FIELD);
+                            invalidField, DiagnosticErrorCode.ERROR_MORE_RECORD_FIELDS_AFTER_REST_FIELD);
                     token = peek();
                 }
                 break;
@@ -8812,7 +8811,10 @@ public class BallerinaParser extends AbstractParser {
             // Parse attach point. Null represents the end of attach-points.
             attachPoint = parseAnnotationAttachPoint();
             if (attachPoint == null) {
-                attachPoint = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                STToken missingAttachPointIdent = SyntaxErrors.createMissingToken(SyntaxKind.TYPE_KEYWORD);
+                STNode identList = STNodeFactory.createNodeList(missingAttachPointIdent);
+                attachPoint = STNodeFactory.createAnnotationAttachPointNode(STNodeFactory.createEmptyNode(), identList);
+                attachPoint = SyntaxErrors.addDiagnostic(attachPoint,
                         DiagnosticErrorCode.ERROR_MISSING_ANNOTATION_ATTACH_POINT);
                 attachPoints.add(attachPoint);
                 break;
@@ -8820,6 +8822,15 @@ public class BallerinaParser extends AbstractParser {
 
             attachPoints.add(attachPoint);
             nextToken = peek();
+        }
+        
+        if (attachPoint.lastToken().isMissing() && this.tokenReader.peek().kind == SyntaxKind.IDENTIFIER_TOKEN &&
+                !this.tokenReader.head().hasTrailingNewline()) {
+            // Special case, when annotation-decl is in typing state.
+            // e.g. annotation name on source object f<cursor>
+            STToken nextNonVirtualToken = this.tokenReader.read();
+            updateLastNodeInListWithInvalidNode(attachPoints, nextNonVirtualToken,
+                    DiagnosticErrorCode.ERROR_INVALID_TOKEN);
         }
 
         endContext();

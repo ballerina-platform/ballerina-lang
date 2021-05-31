@@ -33,12 +33,12 @@ type AssertError record {
     string category = "";
 };
 
-# Creates an AssertError with custom message and category.
+# Creates an `AssertError` with the custom message and category.
 #
-# + errorMessage - Custom message for the ballerina error
-# + category - error category
+# + errorMessage - Custom message for the Ballerina error
+# + category - Error category
 #
-# + return - an AssertError with custom message and category
+# + return - An AssertError with custom message and category
 public isolated function createBallerinaError(string errorMessage, string category) returns error {
     error e = error(errorMessage);
     return e;
@@ -118,19 +118,18 @@ public isolated function assertNotExactEquals(any|error actual, any|error expect
     }
 }
 
-# Assert failure is triggered based on user discretion. AssertError is thrown with the given errorMessage.
+# Assert failure is triggered based on your discretion. AssertError is thrown with the given errorMessage.
 #
 # + msg - Assertion error message
 public isolated function assertFail(string msg = "Test Failed!") {
     panic createBallerinaError(msg, assertFailureErrorCategory);
 }
 
-# Get the error message to be shown when there is an inequaklity while asserting two values.
+# Gets the error message to be shown when there is an inequality while asserting two values.
 #
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-#
 # + return - Error message constructed based on the compared values
 isolated function getInequalityErrorMsg(any|error actual, any|error expected, string msg = "\nAssertion Failed!") returns @tainted string {
         string expectedType = getBallerinaType(expected);

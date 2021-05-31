@@ -74,6 +74,25 @@
       }
     },
     {
+      "label": "sum(int... ns)(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns sum of zero or more int values.\n  \n  \n  \n**Returns** `int`   \n- sum of all the `ns`; 0 is `ns` is empty  \n  \n"
+        }
+      },
+      "sortText": "D",
+      "filterText": "sum",
+      "insertText": "sum(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "cloneWithType(typedesc<anydata> t)(t|error)",
       "kind": "Function",
       "detail": "Function",

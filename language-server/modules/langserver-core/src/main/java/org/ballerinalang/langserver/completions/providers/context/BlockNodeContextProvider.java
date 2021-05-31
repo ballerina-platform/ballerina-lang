@@ -35,7 +35,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
@@ -289,14 +288,14 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
             return;
         }
 
-        for (LSCompletionItem lsCompletionItem : completionItems) {
-            if (lsCompletionItem.getCompletionItem().getLabel().equals(ItemResolverConstants.RETURN)) {
-                lsCompletionItem.getCompletionItem().setSortText(SortingUtil.genSortText(1));
+        for (LSCompletionItem lsCItem : completionItems) {
+            if (Snippet.KW_RETURN.equals(lsCItem)) {
+                lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(1));
                 continue;
             }
 
-            int rank = SortingUtil.toRank(lsCompletionItem, 1);
-            lsCompletionItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
+            int rank = SortingUtil.toRank(lsCItem, 1);
+            lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
         }
     }
 }
