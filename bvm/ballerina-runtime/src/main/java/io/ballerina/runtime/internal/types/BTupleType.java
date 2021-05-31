@@ -17,6 +17,7 @@
 
 package io.ballerina.runtime.internal.types;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -26,6 +27,7 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -37,11 +39,14 @@ import java.util.stream.Collectors;
  */
 public class BTupleType extends BType implements TupleType {
 
-    private final List<Type> tupleTypes;
-    private final Type restType;
+    private List<Type> tupleTypes;
+    private Type restType;
     private int typeFlags;
-    private final boolean readonly;
+    private boolean readonly;
     private IntersectionType immutableType;
+    public boolean isCyclic = false;
+    private boolean resolving = false;
+    public boolean resolvingReadonly = false;
 
     /**
      * Create a {@code BTupleType} which represents the tuple type.
@@ -52,21 +57,7 @@ public class BTupleType extends BType implements TupleType {
         super(null, null, Object.class);
         this.tupleTypes = typeList;
         this.restType = null;
-
-        boolean isAllMembersPure = true;
-        boolean isAllMembersAnydata = true;
-        for (Type memberType : tupleTypes) {
-            isAllMembersPure &= memberType.isPureType();
-            isAllMembersAnydata &= memberType.isAnydata();
-        }
-
-        if (isAllMembersPure) {
-            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.PURETYPE);
-        }
-        if (isAllMembersAnydata) {
-            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.ANYDATA, TypeFlags.PURETYPE);
-        }
-        this.readonly = false;
+        checkAllMembers();
     }
 
     public BTupleType(List<Type> typeList, int typeFlags) {
@@ -94,6 +85,40 @@ public class BTupleType extends BType implements TupleType {
         this.readonly = readonly;
     }
 
+    public BTupleType(String name, Module pkg, int typeFlags, boolean isCyclic, boolean readonly) {
+        super(name, pkg, Object.class);
+        this.typeFlags = typeFlags;
+        this.tupleTypes = new ArrayList<>(0);
+        this.restType = null;
+        this.isCyclic = isCyclic;
+        this.readonly = readonly;
+    }
+
+    private void checkAllMembers() {
+        if (this.resolving) {
+            return;
+        }
+        this.resolving = true;
+        this.resolvingReadonly = true;
+        boolean isAllMembersPure = true;
+        boolean isAllMembersAnydata = true;
+        boolean readonly = true;
+        for (Type memberType : tupleTypes) {
+            isAllMembersPure &= memberType.isPureType();
+            isAllMembersAnydata &= memberType.isAnydata();
+            readonly &= memberType.isReadOnly();
+        }
+        this.resolvingReadonly = false;
+        this.resolving = false;
+        if (isAllMembersPure) {
+            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.PURETYPE);
+        }
+        if (isAllMembersAnydata) {
+            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.ANYDATA, TypeFlags.PURETYPE);
+        }
+        this.readonly = readonly;
+    }
+
     private List<Type> getReadOnlyTypes(List<Type> typeList) {
         List<Type> readOnlyTypes = new ArrayList<>();
         for (Type type : typeList) {
@@ -108,6 +133,24 @@ public class BTupleType extends BType implements TupleType {
 
     public Type getRestType() {
         return restType;
+    }
+
+    public void setCyclic(boolean isCyclic) {
+        this.isCyclic = isCyclic;
+    }
+
+    public void setMemberTypes(List<Type> members, Type restType) {
+        if (members == null) {
+            return;
+        }
+        if (readonly) {
+            this.tupleTypes = getReadOnlyTypes(members);
+            this.restType = restType != null ? ReadOnlyUtils.getReadOnlyType(restType) : null;
+        } else {
+            this.tupleTypes = members;
+            this.restType = restType;
+        }
+        checkAllMembers();
     }
 
     @Override
@@ -125,14 +168,32 @@ public class BTupleType extends BType implements TupleType {
         return TypeTags.TUPLE_TAG;
     }
 
+    private String getQualifiedName(String name) {
+        return (pkg == null || pkg.getName() == null || pkg.getName().equals(".")) ? name :
+                pkg.toString() + ":" + name;
+    }
+
     @Override
     public String toString() {
-        List<String> list = tupleTypes.stream().map(Type::toString).collect(Collectors.toList());
+        // This logic is added to prevent duplicate recursive calls to toString
+        if (this.resolving) {
+            if (this.typeName != null) {
+                return getQualifiedName(this.typeName);
+            }
+            return "...";
+        }
+        this.resolving = true;
 
-        String toString = "[" + String.join(",", list) +
-                ((restType != null) ? (tupleTypes.size() > 0 ? "," : "") + restType.toString() + "...]" : "]");
+        String stringRep = "[" + tupleTypes.stream().map(Type::toString).collect(Collectors.joining(","))
+                + ((restType != null) ? (tupleTypes.size() > 0 ? "," : "") + restType.toString() + "...]" : "]");
 
-        return readonly ? toString + " & readonly" : toString;
+        this.resolving = false;
+        return readonly ? stringRep + " & readonly" : stringRep;
+    }
+
+    @Override
+    public boolean isCyclic() {
+        return isCyclic;
     }
 
     @Override
@@ -145,19 +206,22 @@ public class BTupleType extends BType implements TupleType {
         }
         BTupleType that = (BTupleType) o;
 
+        if (this.isCyclic || that.isCyclic) {
+            if (this.isCyclic != that.isCyclic) {
+                return false;
+            }
+            return super.equals(that);
+        }
         if (this.readonly != that.readonly) {
             return false;
         }
-
         if ((this.restType == null || that.restType == null) && this.restType != that.restType) {
             // If the rest type is null in only one tuple type.
             return false;
         }
-
         if (this.restType == null) {
             return Objects.equals(tupleTypes, that.tupleTypes);
         }
-
         return Objects.equals(tupleTypes, that.tupleTypes) && this.restType.equals(that.restType);
     }
 
