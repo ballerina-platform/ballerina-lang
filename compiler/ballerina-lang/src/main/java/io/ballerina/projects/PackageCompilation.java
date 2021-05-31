@@ -37,14 +37,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.function.Function;
 
-import static org.ballerinalang.compiler.CompilerOptionName.CLOUD;
-import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
-import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR_FILE;
-import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.OBSERVABILITY_INCLUDED;
-import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
-import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
-import static org.ballerinalang.compiler.CompilerOptionName.TAINT_CHECK;
+import static org.ballerinalang.compiler.CompilerOptionName.*;
 
 /**
  * Compilation at package level by resolving all the dependencies.
@@ -86,6 +79,7 @@ public class PackageCompilation {
         options.put(OBSERVABILITY_INCLUDED, Boolean.toString(compilationOptions.observabilityIncluded()));
         options.put(DUMP_BIR, Boolean.toString(compilationOptions.dumpBir()));
         options.put(DUMP_BIR_FILE, compilationOptions.getBirDumpFile());
+        options.put(NBAL, Boolean.toString(compilationOptions.getnBal()));
         options.put(CLOUD, compilationOptions.getCloud());
         options.put(TAINT_CHECK, Boolean.toString(compilationOptions.getTaintCheck()));
     }

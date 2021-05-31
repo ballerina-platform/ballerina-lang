@@ -92,4 +92,9 @@ public class BuildOptionsBuilder {
         CompilationOptions compilationOptions = compilationOptionsBuilder.build();
         return new BuildOptions(testReport, codeCoverage, compilationOptions);
     }
+
+    public BuildOptionsBuilder nBal(boolean value) {
+        compilationOptionsBuilder.nBal(value);
+        return this;
+    }
 }
