@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.statements.StatementNode;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.util.BreakableMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,8 @@ public class BLangBlockStmt extends BLangStatement implements BlockStatementNode
 
     public BVarSymbol mapSymbol;
 
-    public boolean isBreakable;
+    public BreakableMode breakableMode = BreakableMode.NOT_BREAKABLE;
+
     /**
      * We need to keep a reference to the block statements scope here.
      * This is the only place where we have a link from the node to a scope
