@@ -181,7 +181,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(IndexedExpressionNode node) {
-        Optional<TypeSymbol> containerType = this.visit(node.containerExpression());
+        Optional<TypeSymbol> containerType =
+                context.currentSemanticModel().flatMap(semanticModel -> semanticModel.type(node));
         if (containerType.isEmpty()) {
             return Optional.empty();
         }

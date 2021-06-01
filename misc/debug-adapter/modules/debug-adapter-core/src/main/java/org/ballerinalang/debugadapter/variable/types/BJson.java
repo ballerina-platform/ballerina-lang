@@ -31,6 +31,6 @@ public class BJson extends BMap {
 
     @Override
     public String computeValue() {
-        return "map<json>";
+        return String.format("map<json> (size = %d)", getChildrenCount());
     }
 }

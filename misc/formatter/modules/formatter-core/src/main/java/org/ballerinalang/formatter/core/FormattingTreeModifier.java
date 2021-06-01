@@ -1793,7 +1793,7 @@ public class FormattingTreeModifier extends TreeModifier {
         ExpressionNode expression = formatNode(typeTestExpressionNode.expression(), 1, 0);
         Token isToken = formatToken(typeTestExpressionNode.isKeyword(), 1, 0);
         Node typeDescriptor = formatNode(typeTestExpressionNode.typeDescriptor(),
-                env.trailingWS, env.leadingNL);
+                env.trailingWS, env.trailingNL);
         return typeTestExpressionNode.modify()
                 .withExpression(expression)
                 .withIsKeyword(isToken)
@@ -2328,12 +2328,6 @@ public class FormattingTreeModifier extends TreeModifier {
             fieldTrailingWS++;
         }
 
-        int prevIndentation = env.currentIndentation;
-
-        // Set indentation for braces.
-        int fieldIndentation = env.lineLength - objectKeyword.text().length() - 1;
-        setIndentation(fieldIndentation);
-
         TypeDescriptorNode typeReference = formatNode(objectConstructorExpressionNode.typeReference().orElse(null),
                 1, 0);
         Token openBraceToken = formatToken(objectConstructorExpressionNode.openBraceToken(), 0, fieldTrailingNL);
@@ -2343,7 +2337,6 @@ public class FormattingTreeModifier extends TreeModifier {
         unindent();
         Token closeBraceToken = formatToken(objectConstructorExpressionNode.closeBraceToken(),
                 env.trailingWS, env.trailingNL);
-        setIndentation(prevIndentation);  // Revert indentation for braces
 
         return objectConstructorExpressionNode.modify()
                 .withAnnotations(annotations)
