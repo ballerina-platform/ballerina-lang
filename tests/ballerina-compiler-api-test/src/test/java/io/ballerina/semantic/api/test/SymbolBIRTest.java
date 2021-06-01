@@ -308,7 +308,7 @@ public class SymbolBIRTest {
     }
 
     @Test(dataProvider = "hasDefaultTestProvider")
-    public void testHasDefaultValue(int line, int col, Object hasDefault) {
+    public void testHasDefaultValue(int line, int col, Boolean hasDefault) {
         Project projectDefaultValue = BCompileUtil.loadProject("test-src/symbol_lookup_with_class_field_test.bal");
         SemanticModel modelDefaultValue = getDefaultModulesSemanticModel(projectDefaultValue);
         Document srcFileDefaultValue = getDocumentForSingleSource(projectDefaultValue);
@@ -318,7 +318,7 @@ public class SymbolBIRTest {
             assertNull(hasDefault);
         } else {
             ClassFieldSymbol fieldSymbol = (ClassFieldSymbol) symbol.get();
-            assertEquals(fieldSymbol.hasDefaultValue(), hasDefault);
+            assertEquals((Boolean) fieldSymbol.hasDefaultValue(), hasDefault);
         }
     }
 }
