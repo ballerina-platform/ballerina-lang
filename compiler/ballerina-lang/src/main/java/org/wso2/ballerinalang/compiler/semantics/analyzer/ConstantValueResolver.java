@@ -173,7 +173,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     public void visit(BLangUnaryExpr unaryExpr) {
         BLangConstantValue value = visitExpr(unaryExpr.expr);
-        this.result = calculateConstValue(value, unaryExpr.operator);
+        this.result = evaluateUnaryOperator(value, unaryExpr.operator);
     }
 
     private BLangConstantValue calculateConstValue(BLangConstantValue lhs, BLangConstantValue rhs, OperatorKind kind) {
@@ -218,7 +218,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return new BLangConstantValue(null, this.currentConstSymbol.type);
     }
 
-    private BLangConstantValue calculateConstValue(BLangConstantValue value, OperatorKind kind) {
+    private BLangConstantValue evaluateUnaryOperator(BLangConstantValue value, OperatorKind kind) {
         try {
             switch (kind) {
                 case ADD:
@@ -383,20 +383,16 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangConstantValue calculateBitWiseComplement(BLangConstantValue value) {
         Object result = null;
-        switch (this.currentConstSymbol.type.tag) {
-            case TypeTags.INT:
-                result = ~((Long) (value.value));
-                break;
+        if (this.currentConstSymbol.type.tag == TypeTags.INT) {
+            result = ~((Long) (value.value));
         }
         return new BLangConstantValue(result, currentConstSymbol.type);
     }
 
     private BLangConstantValue calculateBooleanComplement(BLangConstantValue value) {
         Object result = null;
-        switch (this.currentConstSymbol.type.tag) {
-            case TypeTags.BOOLEAN:
-                result = !((Boolean) (value.value));
-                break;
+        if (this.currentConstSymbol.type.tag == TypeTags.BOOLEAN) {
+            result = !((Boolean) (value.value));
         }
         return new BLangConstantValue(result, currentConstSymbol.type);
     }
