@@ -19,6 +19,7 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
+import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
@@ -155,9 +156,9 @@ public class SymbolBIRTest {
         fooTypeDefs.remove("PersonObj");
         fooTypeDefs.remove("Colour");
         fooTypeDefs.remove("Dog");
+        fooTypeDefs.remove("EmployeeObj");
         SemanticAPITestUtils.assertList(fooModule.typeDefinitions(), fooTypeDefs);
-
-        SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj", "Dog"));
+        SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj", "Dog", "EmployeeObj"));
         SemanticAPITestUtils.assertList(fooModule.enums(), List.of("Colour"));
 
         List<String> allSymbols = getSymbolNames(fooPkgSymbol, 0);
@@ -294,6 +295,30 @@ public class SymbolBIRTest {
         @Override
         public int hashCode() {
             return Objects.hash(this.name, this.kind);
+        }
+    }
+
+    @DataProvider(name = "hasDefaultTestProvider")
+    public Object[][] hasDefaultTest() {
+        return new Object[][]{
+                {21, 6, null},
+                {22, 6, true},
+                {23, 6, false}
+        };
+    }
+
+    @Test(dataProvider = "hasDefaultTestProvider")
+    public void testHasDefaultValue(int line, int col, Boolean hasDefault) {
+        Project projectDefaultValue = BCompileUtil.loadProject("test-src/symbol_lookup_with_class_field_test.bal");
+        SemanticModel modelDefaultValue = getDefaultModulesSemanticModel(projectDefaultValue);
+        Document srcFileDefaultValue = getDocumentForSingleSource(projectDefaultValue);
+        Optional<Symbol> symbol = modelDefaultValue.symbol(srcFileDefaultValue, from(line, col));
+
+        if (symbol.isEmpty()) {
+            assertNull(hasDefault);
+        } else {
+            ClassFieldSymbol fieldSymbol = (ClassFieldSymbol) symbol.get();
+            assertEquals((Boolean) fieldSymbol.hasDefaultValue(), hasDefault);
         }
     }
 }
