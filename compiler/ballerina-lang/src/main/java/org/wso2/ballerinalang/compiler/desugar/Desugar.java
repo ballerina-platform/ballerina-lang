@@ -4691,48 +4691,54 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForeach foreach) {
-        BLangOnFailClause currentOnFailClause = this.onFailClause;
-        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
-        analyzeOnFailClause(foreach.onFailClause, foreach.body);
-        BLangBlockStmt blockNode;
-        // We need to create a new variable for the expression as well. This is needed because integer ranges can be
-        // added as the expression so we cannot get the symbol in such cases.
-        BVarSymbol dataSymbol = new BVarSymbol(0, names.fromString("$data$"), this.env.scope.owner.pkgID,
-                                               foreach.collection.type, this.env.scope.owner, foreach.pos, VIRTUAL);
-        BLangSimpleVariable dataVariable = ASTBuilderUtil.createVariable(foreach.pos, "$data$",
-                                                                         foreach.collection.type, foreach.collection,
-                                                                         dataSymbol);
-        BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(foreach.pos, dataVariable);
+        if (foreach.onFailClause != null) {
+            BLangOnFailClause onFailClause = foreach.onFailClause;
+            foreach.onFailClause = null;
+            foreach.body.breakableMode = BreakableMode.NOT_BREAKABLE;
+            BLangDo doStmt = wrapStatementWithinDo(foreach.pos, foreach, onFailClause);
+            result = rewrite(doStmt, env);
+        } else {
+            BLangBlockStmt blockNode;
+            // We need to create a new variable for the expression as well. This is needed because integer ranges can be
+            // added as the expression so we cannot get the symbol in such cases.
+            BVarSymbol dataSymbol = new BVarSymbol(0, names.fromString("$data$"),
+                    this.env.scope.owner.pkgID, foreach.collection.type, this.env.scope.owner, foreach.pos, VIRTUAL);
+            BLangSimpleVariable dataVariable = ASTBuilderUtil.createVariable(foreach.pos, "$data$",
+                    foreach.collection.type, foreach.collection,
+                    dataSymbol);
+            BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(foreach.pos, dataVariable);
 
-        // Get the symbol of the variable (collection).
-        BVarSymbol collectionSymbol = dataVariable.symbol;
-        switch (foreach.collection.type.tag) {
-            case TypeTags.STRING:
-            case TypeTags.ARRAY:
-            case TypeTags.TUPLE:
-            case TypeTags.XML:
-            case TypeTags.XML_TEXT:
-            case TypeTags.MAP:
-            case TypeTags.TABLE:
-            case TypeTags.STREAM:
-            case TypeTags.RECORD:
-                BInvokableSymbol iteratorSymbol = getLangLibIteratorInvokableSymbol(collectionSymbol);
-                blockNode = desugarForeachWithIteratorDef(foreach, dataVarDef, collectionSymbol, iteratorSymbol, true);
-                break;
-            case TypeTags.OBJECT: //We know for sure, the object is an iterable from TypeChecker phase.
-                iteratorSymbol = getIterableObjectIteratorInvokableSymbol(collectionSymbol);
-                blockNode = desugarForeachWithIteratorDef(foreach, dataVarDef, collectionSymbol, iteratorSymbol, false);
-                break;
-            default:
-                blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
-                blockNode.stmts.add(0, dataVarDef);
-                break;
+            // Get the symbol of the variable (collection).
+            BVarSymbol collectionSymbol = dataVariable.symbol;
+            switch (foreach.collection.type.tag) {
+                case TypeTags.STRING:
+                case TypeTags.ARRAY:
+                case TypeTags.TUPLE:
+                case TypeTags.XML:
+                case TypeTags.XML_TEXT:
+                case TypeTags.MAP:
+                case TypeTags.TABLE:
+                case TypeTags.STREAM:
+                case TypeTags.RECORD:
+                    BInvokableSymbol iteratorSymbol = getLangLibIteratorInvokableSymbol(collectionSymbol);
+                    blockNode = desugarForeachWithIteratorDef(foreach, dataVarDef, collectionSymbol,
+                            iteratorSymbol, true);
+                    break;
+                case TypeTags.OBJECT: //We know for sure, the object is an iterable from TypeChecker phase.
+                    iteratorSymbol = getIterableObjectIteratorInvokableSymbol(collectionSymbol);
+                    blockNode = desugarForeachWithIteratorDef(foreach, dataVarDef, collectionSymbol,
+                            iteratorSymbol, false);
+                    break;
+                default:
+                    blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
+                    blockNode.stmts.add(0, dataVarDef);
+                    break;
+            }
+
+            // Rewrite the block.
+            rewrite(blockNode, this.env);
+            result = blockNode;
         }
-
-        // Rewrite the block.
-        rewrite(blockNode, this.env);
-        swapAndResetEnclosingOnFail(currentOnFailClause, currentOnFailCallDef);
-        result = blockNode;
     }
 
     @Override
