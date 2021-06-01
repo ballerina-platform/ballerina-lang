@@ -1793,7 +1793,7 @@ public class FormattingTreeModifier extends TreeModifier {
         ExpressionNode expression = formatNode(typeTestExpressionNode.expression(), 1, 0);
         Token isToken = formatToken(typeTestExpressionNode.isKeyword(), 1, 0);
         Node typeDescriptor = formatNode(typeTestExpressionNode.typeDescriptor(),
-                env.trailingWS, env.leadingNL);
+                env.trailingWS, env.trailingNL);
         return typeTestExpressionNode.modify()
                 .withExpression(expression)
                 .withIsKeyword(isToken)
