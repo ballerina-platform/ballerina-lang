@@ -90,6 +90,7 @@ public class HoverUtil {
             case ANNOTATION:
             case ENUM:
             case ENUM_MEMBER:
+            case CLASS_FIELD:
             case VARIABLE:
                 return getDescriptionOnlyHoverObject(symbol);
             case TYPE:

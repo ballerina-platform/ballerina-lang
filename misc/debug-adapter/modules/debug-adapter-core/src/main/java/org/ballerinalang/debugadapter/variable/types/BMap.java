@@ -73,7 +73,8 @@ public class BMap extends IndexedCompoundVariable {
             method.setArgValues(Collections.singletonList(valueAsObject));
             Value value = method.invokeSafely();
             String typeDescValue = VariableFactory.getVariable(context, value).computeValue();
-            return typeDescValue.split(MAP_TYPEDESC_SEPARATOR)[0].trim();
+            typeDescValue = typeDescValue.split(MAP_TYPEDESC_SEPARATOR)[0].trim();
+            return String.format("%s (size = %d)", typeDescValue, getChildrenCount());
         } catch (Exception e) {
             return VariableUtils.getBType(jvmValue);
         }
