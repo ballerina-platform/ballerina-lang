@@ -20,7 +20,6 @@ import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocum
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleService;
 import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageService;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolService;
-import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceService;
 import org.eclipse.lsp4j.jsonrpc.services.JsonDelegate;
 import org.eclipse.lsp4j.services.LanguageServer;
 
@@ -36,8 +35,6 @@ public interface ExtendedLanguageServer extends LanguageServer {
     BallerinaConnectorService getBallerinaConnectorService();
     @JsonDelegate
     BallerinaExampleService getBallerinaExampleService();
-    @JsonDelegate
-    BallerinaTraceService getBallerinaTraceService();
     @JsonDelegate
     BallerinaSymbolService getBallerinaSymbolService();
     @JsonDelegate
