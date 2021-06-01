@@ -25,6 +25,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.BCompileUtil;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -38,6 +39,8 @@ import java.util.Optional;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -123,11 +126,18 @@ public abstract class FindAllReferencesTest {
     private void assertLocations(List<Location> locations, List<Location> expLocations) {
         assertEquals(locations.size(), expLocations.size());
 
-        for (int i = 0; i < expLocations.size(); i++) {
-            Location expLocation = expLocations.get(i);
-            Location location = locations.get(i);
+        for (Location expLocation : expLocations) {
+            boolean matched = false;
+            for (Location location : locations) {
+                if (location.lineRange().equals(expLocation.lineRange())) {
+                    matched = true;
+                    break;
+                }
+            }
 
-            assertEquals(location.lineRange(), expLocation.lineRange());
+            if (!matched) {
+                Assert.fail("No matching reference found for: " + expLocation);
+            }
         }
     }
 }
