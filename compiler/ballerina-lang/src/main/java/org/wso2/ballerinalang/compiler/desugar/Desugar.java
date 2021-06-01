@@ -4755,8 +4755,13 @@ public class Desugar extends BLangNodeVisitor {
             this.enclosingOnFailCallFunc.add(this.onFailCallFuncDef);
             this.onFailClause = onFailClause;
             if (onFailClause.bodyContainsFail) {
-                blockStmt.isBreakable = false;
+                if (onFailClause.isInternal) {
+                    blockStmt.breakableMode = BreakableMode.NOT_BREAKABLE;
+                } else {
+                    blockStmt.breakableMode = BreakableMode.BREAK_WITHIN_BLOCK;
+                }
             } else {
+                onFailClause.possibleClosureSymbols.forEach(symbol -> symbol.closure = true);
                 rewrite(onFailClause, env);
             }
         }
