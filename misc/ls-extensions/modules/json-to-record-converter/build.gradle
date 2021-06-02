@@ -1,0 +1,51 @@
+apply from: "$rootDir/gradle/javaProject.gradle"
+
+configurations {
+    compile.transitive = false
+    compileClasspath.extendsFrom(compileOnly)
+}
+
+dependencies {
+    compileOnly project(':ballerina-parser')
+    compileOnly project(':ballerina-lang')
+    compileOnly project(':language-server:language-server-commons')
+    compileOnly "com.fasterxml.jackson.core:jackson-databind"
+    implementation "io.swagger.core.v3:swagger-models"
+    implementation ("io.swagger.parser.v3:swagger-parser-v2-converter") {
+        exclude group: "io.swagger", module: "swagger-compat-spec-parser"
+        exclude group: "org.slf4j", module: "slf4j-ext"
+        exclude group: "javax.validation", module: "validation-api"
+    }
+    compileOnly(group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
+    testCompile 'org.testng:testng'
+    testCompile project(':ballerina-parser')
+}
+
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}
+
+description = 'LS extension for converting JSON to Ballerina Record'
+
+ext.moduleName = 'json-to-record-converter'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}
+
+jar {
+    manifest {
+        attributes "Main-Class": "io.ballerina.converters.JsonToRecordConverterService"
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}

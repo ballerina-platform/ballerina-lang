@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": {},
+  "examples": [
+    {
+      "checked": false,
+      "dimensions": {
+        "width": 5,
+        "height": 10
+      },
+      "id": 1,
+      "name": "A green door"
+    }
+  ],
+  "required": [
+    "checked",
+    "dimensions",
+    "id",
+    "name"
+  ],
+  "properties": {
+    "checked": {
+      "$id": "#/properties/checked",
+      "type": "boolean",
+      "title": "The checked schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": false,
+      "examples": [
+        false
+      ]
+    },
+    "dimensions": {
+      "$id": "#/properties/dimensions",
+      "type": "object",
+      "title": "The dimensions schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": {},
+      "examples": [
+        {
+          "width": 5,
+          "height": 10
+        }
+      ],
+      "required": [
+        "width",
+        "height"
+      ],
+      "properties": {
+        "width": {
+          "$id": "#/properties/dimensions/properties/width",
+          "type": "integer",
+          "title": "The width schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": 0,
+          "examples": [
+            5
+          ]
+        },
+        "height": {
+          "$id": "#/properties/dimensions/properties/height",
+          "type": "integer",
+          "title": "The height schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": 0,
+          "examples": [
+            10
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "id": {
+      "$id": "#/properties/id",
+      "type": "integer",
+      "title": "The id schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": 0,
+      "examples": [
+        1
+      ]
+    },
+    "name": {
+      "$id": "#/properties/name",
+      "type": "string",
+      "title": "The name schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "A green door"
+      ]
+    }
+  },
+  "additionalProperties": true
+}
