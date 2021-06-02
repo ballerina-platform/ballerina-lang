@@ -109,7 +109,6 @@ import static org.ballerinalang.debugadapter.DebugExecutionManager.LOCAL_HOST;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GENERATED_VAR_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.closeQuietly;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.loadProject;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDERR;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
@@ -494,8 +493,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             if (context.getDebuggeeVM().process() != null) {
                 exitCode = killProcessWithDescendants(context.getDebuggeeVM().process());
             }
-            context.getDebuggeeVM().exit(exitCode);
+            try {
+                context.getDebuggeeVM().exit(exitCode);
+            } catch (Exception ignored) {
+                // It is okay to ignore the VM exit Exceptions, in-case the remote debuggee is already terminated.
+            }
         }
+
         // If 'terminationRequestReceived' is false, debug server termination should have been triggered from the
         // JDI event processor, after receiving a 'VMDisconnected'/'VMExited' event.
         if (!context.isTerminateRequestReceived()) {
@@ -522,28 +526,26 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     private static int killProcessWithDescendants(Process parent) {
-        // Closes I/O streams.
-        closeQuietly(parent.getInputStream());
-        closeQuietly(parent.getOutputStream());
-        closeQuietly(parent.getErrorStream());
-
-        // Kills the descendants of the process. The descendants of a process are the children
-        // of the process and the descendants of those children, recursively.
-        parent.descendants().forEach(processHandle -> {
-            boolean successful = processHandle.destroy();
-            if (!successful) {
-                processHandle.destroyForcibly();
-            }
-        });
-
-        // Kills the parent process. Whether the process represented by this Process object will be normally
-        // terminated or not, is implementation dependent.
-        parent.destroy();
         try {
+            // Kills the descendants of the process. The descendants of a process are the children
+            // of the process and the descendants of those children, recursively.
+            parent.descendants().forEach(processHandle -> {
+                boolean successful = processHandle.destroy();
+                if (!successful) {
+                    processHandle.destroyForcibly();
+                }
+            });
+
+            // Kills the parent process. Whether the process represented by this Process object will be normally
+            // terminated or not, is implementation dependent.
+            parent.destroyForcibly();
             parent.waitFor();
+            return parent.exitValue();
         } catch (InterruptedException ignored) {
+            return 0;
+        } catch (Exception e) {
+            return 1;
         }
-        return parent.exitValue();
     }
 
     public void connect(IDebugProtocolClient client) {
@@ -848,9 +850,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 return;
             }
 
-            BufferedReader errorStream = context.getErrorStream();
-            String line;
-            try {
+            try (BufferedReader errorStream = context.getErrorStream()) {
+                String line;
                 while ((line = errorStream.readLine()) != null) {
                     // Todo - Redirect back to error stream, once the ballerina program output is fixed to use
                     //  the STDOUT stream.
@@ -868,9 +869,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 return;
             }
 
-            BufferedReader inputStream = context.getInputStream();
-            String line;
-            try {
+            try (BufferedReader inputStream = context.getInputStream()) {
+                String line;
                 sendOutput("Waiting for debug process to start...", STDOUT);
                 while ((line = inputStream.readLine()) != null) {
                     if (line.contains("Listening for transport dt_socket")) {
