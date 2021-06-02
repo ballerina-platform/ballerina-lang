@@ -27,7 +27,6 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -61,7 +60,7 @@ public class BTupleType extends BType implements TupleType {
     }
 
     public BTupleType(List<Type> typeList, int typeFlags) {
-        this(typeList, null, typeFlags, false);
+        this(typeList, null, typeFlags, false, false);
     }
 
     /**
@@ -72,7 +71,7 @@ public class BTupleType extends BType implements TupleType {
      * @param typeFlags flags associated with the type
      * @param readonly whether immutable
      */
-    public BTupleType(List<Type> typeList, Type restType, int typeFlags, boolean readonly) {
+    public BTupleType(List<Type> typeList, Type restType, int typeFlags, boolean isCyclic, boolean readonly) {
         super(null, null, Object.class);
         if (readonly) {
             this.tupleTypes = getReadOnlyTypes(typeList);
@@ -82,6 +81,7 @@ public class BTupleType extends BType implements TupleType {
             this.restType = restType;
         }
         this.typeFlags = typeFlags;
+        this.isCyclic = isCyclic;
         this.readonly = readonly;
     }
 

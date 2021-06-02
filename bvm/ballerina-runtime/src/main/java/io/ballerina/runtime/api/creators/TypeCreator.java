@@ -129,19 +129,36 @@ public class TypeCreator {
      * @param typeList  of the tuple type
      * @param restType  of the tuple type
      * @param typeFlags flags associated with the type
+     * @param isCyclic  whether cyclic
      * @param readonly  whether immutable
      * @return the new tuple type
      */
-    public static TupleType createTupleType(List<Type> typeList, Type restType, int typeFlags, boolean readonly) {
-        return new BTupleType(typeList, restType, typeFlags, readonly);
+    public static TupleType createTupleType(List<Type> typeList, Type restType,
+                  int typeFlags, boolean isCyclic, boolean readonly) {
+        return new BTupleType(typeList, restType, typeFlags, isCyclic, readonly);
     }
 
     /**
-     * Create a {@code MapType} which represents the map type.
+     * Create a {@code TupleType} which represents the tuple type.
      *
-     * @param constraint constraint type which particular map is bound to.
-     * @return the new map type
+     * @param name  of the tuple type
+     * @param pkg  of the tuple type
+     * @param typeFlags flags associated with the type
+     * @param isCyclic  whether cyclic
+     * @param readonly  whether immutable
+     * @return the new tuple type
      */
+    public static TupleType createTupleType(String name, Module pkg,
+                  int typeFlags, boolean isCyclic, boolean readonly) {
+        return new BTupleType(name, pkg, typeFlags, isCyclic, readonly);
+    }
+
+    /**
+    * Create a {@code MapType} which represents the map type.
+    *
+    * @param constraint constraint type which particular map is bound to.
+    * @return the new map type
+    */
     public static MapType createMapType(Type constraint) {
         return new BMapType(constraint);
     }
