@@ -2260,19 +2260,29 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isSafeMissingReturnsParse() {
-        // Contexts that expects an identifier after function type is not safe to parse as a missing return
-        ParserRuleContext[] missingReturnsUnsafeArray = {ParserRuleContext.TYPE_DESC_IN_ANNOTATION_DECL,
-                ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER, ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD,
-                ParserRuleContext.TYPE_DESC_IN_PARAM, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN,
-                ParserRuleContext.VAR_DECL_STARTED_WITH_DENTIFIER, ParserRuleContext.TYPE_DESC_IN_PATH_PARAM,
-                ParserRuleContext.AMBIGUOUS_STMT};
-
-        for (ParserRuleContext ctx : missingReturnsUnsafeArray) {
-            if (this.errorHandler.hasAncestorContext(ctx)) {
+        for (ParserRuleContext context : this.errorHandler.getContextStack()) {
+            if (!isSafeMissingReturnsParseCtx(context)) {
                 return false;
             }
         }
         return true;
+    }
+
+    private boolean isSafeMissingReturnsParseCtx(ParserRuleContext ctx) {
+        switch (ctx) {
+            case TYPE_DESC_IN_ANNOTATION_DECL:
+            case TYPE_DESC_BEFORE_IDENTIFIER:
+            case TYPE_DESC_IN_RECORD_FIELD:
+            case TYPE_DESC_IN_PARAM:
+            case TYPE_DESC_IN_TYPE_BINDING_PATTERN:
+            case VAR_DECL_STARTED_WITH_DENTIFIER:
+            case TYPE_DESC_IN_PATH_PARAM:
+            case AMBIGUOUS_STMT:
+                // Contexts that expect an identifier after function type are not safe to parse as a missing return type
+                return false;
+            default:
+                return true;
+        }
     }
 
     /**
