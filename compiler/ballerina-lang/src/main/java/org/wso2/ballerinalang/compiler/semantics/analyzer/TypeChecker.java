@@ -4168,14 +4168,8 @@ public class TypeChecker extends BLangNodeVisitor {
         this.dlog.resetErrorCount();
         this.dlog.mute();
 
-        BLangExpression exprToCheck = expr;
-
-        if (!prevNonErrorLoggingCheck) {
-            expr.cloneAttempt++;
-            exprToCheck = nodeCloner.clone(expr);
-        }
-
-        BType exprCompatibleType = checkExpr(exprToCheck, env, targetType);
+        expr.cloneAttempt++;
+        BType exprCompatibleType = checkExpr(nodeCloner.clone(expr), env, targetType);
 
         this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
         int errorCount = this.dlog.errorCount();
