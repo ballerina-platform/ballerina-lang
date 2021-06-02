@@ -140,7 +140,7 @@ public class TypeCastExpressionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*error: \\{ballerina}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'future' cannot be cast to 'future'\"}.*")
+                    "types: 'future<int>' cannot be cast to 'future<int\\[]>'\"}.*")
     public void testFutureCastNegative() {
         BRunUtil.invoke(result, "testFutureCastNegative");
     }

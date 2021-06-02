@@ -381,6 +381,19 @@ function testFutureCastNegative() {
     future<int[]> s2 = <future<int[]>> a;
 }
 
+function testCastOfIntArrayFutureNegative() {
+    future<int[]> f1 = start futureFunc();
+    any a = f1;
+    future<int[5]>|error f2 = trap <future<int[5]>> a;
+
+    assertEquality(true, f2 is error);
+    error err = <error> f2;
+    assertEquality("{ballerina}TypeCastError", err.message());
+    assertEquality("incompatible types: 'future<int[]>' cannot be cast to 'future<int[5]>'", <string> checkpanic err.detail()["message"]);
+}
+
+function futureFunc() returns int[] => [1, 2, 3, 4];
+
 function testObjectCastPositive() returns boolean {
     EmployeeObject e = new("Em Zee");
     PersonObject p = e;
