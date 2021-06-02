@@ -18,15 +18,28 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.util.ProjectUtils;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
+import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
+import java.util.jar.Attributes;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 
 import static io.ballerina.projects.util.ProjectConstants.ANON_ORG;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
@@ -45,6 +58,7 @@ public class JarResolver {
     private final JBallerinaBackend jBalBackend;
     private final PackageResolution pkgResolution;
     private final PackageContext rootPackageContext;
+    private final PrintStream err = System.err;
 
     private ClassLoader classLoaderWithAllJars;
 
@@ -79,6 +93,33 @@ public class JarResolver {
         jarFiles.add(new JarLibrary(jBalBackend.runtimeLibrary().path(),
                                     PlatformLibraryScope.DEFAULT,
                                     getPackageName(rootPackageContext)));
+
+        // TODO: Move to a compiler extension once Compiler revamp is complete
+        // 4) Add the Observability Symbols Jar
+        if (rootPackageContext.compilationOptions().observabilityIncluded()) {
+            Manifest manifest = new Manifest();
+            manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+
+            try {
+                String packageName = getPackageName(rootPackageContext);
+                Path jarPath = Path.of(System.getProperty("java.io.tmpdir"),
+                        packageName.replaceAll(File.separatorChar == '\\' ? "\\\\" : File.separator, "-")
+                                + "-" + UUID.randomUUID() + ".jar");
+                JarOutputStream jarOutputStream = new JarOutputStream(new BufferedOutputStream(
+                        new FileOutputStream(jarPath.toFile())), manifest);
+                jarOutputStream.close();
+
+                CompilerContext compilerContext = rootPackageContext.project().projectEnvironmentContext()
+                        .getService(CompilerContext.class);
+                ObservabilitySymbolCollector observabilitySymbolCollector
+                        = ObservabilitySymbolCollectorRunner.getInstance(compilerContext);
+                observabilitySymbolCollector.writeToExecutable(jarPath);
+
+                jarFiles.add(new JarLibrary(jarPath, PlatformLibraryScope.DEFAULT, packageName));
+            } catch (IOException e) {
+                err.println("\twarning: Failed to add Observability information to Jar due to: " + e.getMessage());
+            }
+        }
 
         // TODO Filter out duplicate jar entries
         return jarFiles;
