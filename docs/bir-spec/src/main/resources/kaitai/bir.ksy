@@ -269,6 +269,8 @@ types:
         type: s4
       - id: flags
         type: s8
+      - id: is_defaultable
+        type: u1
       - id: doc
         type: markdown
       - id: type_cp_index

@@ -19,8 +19,10 @@ import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -40,7 +42,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
@@ -66,7 +67,7 @@ import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortT
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<ListenerDeclarationNode> {
-    
+
     private static final String INIT_METHOD_NAME = "init";
 
     public ListenerDeclarationNodeContext() {
@@ -120,10 +121,9 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         }
 
         if (scope == ContextScope.INITIALIZER) {
-            ContextTypeResolver typeResolver = new ContextTypeResolver(context);
-            NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-            Optional<TypeSymbol> ctxType = nodeAtCursor.apply(typeResolver);
+            Optional<TypeSymbol> ctxType = context.getContextType();
             for (LSCompletionItem lsItem : cmpItems) {
+                CompletionItem cItem = lsItem.getCompletionItem();
                 int rank = -1;
                 if (this.isValidSymbolCompletionItem(lsItem)) {
                     SymbolCompletionItem symbolCItem = (SymbolCompletionItem) lsItem;
@@ -133,21 +133,34 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                     Symbol symbol = symbolCItem.getSymbol().get();
                     if (symbol.kind() == VARIABLE && ctxType.isPresent() &&
                             SymbolUtil.getTypeDescriptor(symbol).get().assignableTo(ctxType.get())) {
+                        /*
+                        When there is an explicitly defined type descriptor
+                        Eg: public listener mod:Listener l = ...
+                         */
                         rank = 1;
+                    } else if (symbol.kind() == VARIABLE
+                            && ((VariableSymbol) symbol).qualifiers().contains(Qualifier.LISTENER)) {
+                        /*
+                        When there is no explicitly defined type descriptor
+                        Eg: public listener l = ...
+                         */
+                        rank = 2;
                     } else if (symbol.kind() == METHOD && symbol.getName().get().equals(INIT_METHOD_NAME)) {
                         // new() snippet is generated
-                        rank = 2;
+                        rank = 3;
                     } else if (symbol.kind() == FUNCTION && ctxType.isPresent()) {
                         FunctionTypeSymbol functionTypeSymbol = ((FunctionSymbol) symbol).typeDescriptor();
                         Optional<TypeSymbol> typeSymbol = functionTypeSymbol.returnTypeDescriptor();
                         if (typeSymbol.isPresent() && typeSymbol.get().assignableTo(ctxType.get())) {
-                            rank = 3;
+                            rank = 4;
                         }
                     }
+                } else if (Snippet.KW_NEW.equals(lsItem)) {
+                    // new keyword completion item
+                    rank = 5;
                 }
-                
-                CompletionItem cItem = lsItem.getCompletionItem();
-                rank = rank < 0 ? SortingUtil.toRank(lsItem, 3) : rank;
+
+                rank = rank < 0 ? SortingUtil.toRank(lsItem, 5) : rank;
                 cItem.setSortText(genSortText(rank));
             }
         }
@@ -332,7 +345,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
 
         return completionItems;
     }
-    
+
     private boolean isValidSymbolCompletionItem(LSCompletionItem lsCompletionItem) {
         return lsCompletionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL
                 && ((SymbolCompletionItem) lsCompletionItem).getSymbol().isPresent();

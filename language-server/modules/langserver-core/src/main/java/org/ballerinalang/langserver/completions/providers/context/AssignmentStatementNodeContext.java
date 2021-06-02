@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ClassSymbol;
-import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -30,6 +30,7 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.FunctionPointerCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
@@ -95,9 +96,8 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
     @Override
     public void sort(BallerinaCompletionContext context, AssignmentStatementNode node,
                      List<LSCompletionItem> completionItems) {
-        Optional<TypeSymbol> typeSymbolAtCursor = context.currentSemanticModel()
-                .flatMap(semanticModel -> semanticModel.symbol(node.varRef()))
-                .flatMap(SymbolUtil::getTypeDescriptor);
+
+        Optional<TypeSymbol> typeSymbolAtCursor = context.getContextType();
 
         if (typeSymbolAtCursor.isEmpty()) {
             super.sort(context, node, completionItems);
@@ -106,24 +106,45 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
 
         TypeSymbol symbol = typeSymbolAtCursor.get();
         completionItems.forEach(completionItem -> {
-            int rank = SortingUtil.toRank(completionItem, 1);
+            int rank = SortingUtil.toRank(completionItem, 2);
 
-            // If a completion item is a symbol and is assignable to the variable at left hand side, 
-            // this assigns the highest rank to such variables and methods.
+            // If a completion item is a symbol and is assignable to the variable at left hand side,
+            // this assigns the highest rank to such variables and then the next highest to functions.
             if (completionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
-                SymbolCompletionItem symbolCompletionItem = (SymbolCompletionItem) completionItem;
-
-                Optional<TypeSymbol> completionItemType = symbolCompletionItem.getSymbol().isEmpty() ? Optional.empty()
-                        : SymbolUtil.getTypeDescriptor(symbolCompletionItem.getSymbol().get());
-                if (completionItemType.isPresent() && completionItemType.get() instanceof FunctionTypeSymbol) {
-                    completionItemType = ((FunctionTypeSymbol) completionItemType.get()).returnTypeDescriptor();
+                Optional<Symbol> completionSymbol = ((SymbolCompletionItem) completionItem).getSymbol();
+                if (completionSymbol.isEmpty()) {
+                    completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
+                    return;
                 }
-
-                if (completionItemType.isPresent() && completionItemType.get().assignableTo(symbol)) {
-                    rank = 1;
+                Optional<TypeSymbol> evalTypeSymbol = SymbolUtil.getTypeDescriptor(completionSymbol.get());
+                if (evalTypeSymbol.isPresent()) {
+                    switch (completionItem.getCompletionItem().getKind()) {
+                        case Variable:
+                            if (evalTypeSymbol.get().assignableTo(symbol)) {
+                                rank = 1;
+                            }
+                            break;
+                        case Method:
+                        case Function:
+                            Optional<TypeSymbol> returnType = ((FunctionSymbol) completionSymbol.get())
+                                    .typeDescriptor().returnTypeDescriptor();
+                            if (returnType.isPresent() && returnType.get().assignableTo(symbol)) {
+                                rank = 2;
+                            }
+                            break;
+                        default:
+                            rank = SortingUtil.toRank(completionItem, 2);
+                    }
+                }
+            } else if (completionItem.getType() == LSCompletionItem.CompletionItemType.FUNCTION_POINTER) {
+                Optional<Symbol> cSymbol = ((FunctionPointerCompletionItem) completionItem).getSymbol();
+                if (cSymbol.isPresent()) {
+                    Optional<TypeSymbol> evalTypeSymbol = SymbolUtil.getTypeDescriptor(cSymbol.get());
+                    if (evalTypeSymbol.isPresent() && evalTypeSymbol.get().assignableTo(symbol)) {
+                        rank = 1;
+                    }
                 }
             }
-
             completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
         });
     }

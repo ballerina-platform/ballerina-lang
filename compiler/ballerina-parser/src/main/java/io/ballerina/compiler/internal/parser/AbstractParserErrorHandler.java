@@ -277,7 +277,7 @@ public abstract class AbstractParserErrorHandler {
     }
 
     /**
-     * Returns the context stack
+     * Returns the context stack.
      *
      * @return context stack
      */
