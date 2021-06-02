@@ -68,8 +68,8 @@ public class LangLibDebugTest {
         // Steps into `float` language library.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_IN);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        Assert.assertTrue(debugHitInfo.getLeft().getSource().getPath().replaceAll("\\\\", "/")
-                .endsWith("ballerina/lang.float/1.0.0/any/modules/lang.float/float.bal"));
+        Assert.assertTrue(debugHitInfo.getLeft().getSource().getPath().endsWith("ballerina/lang.float/1.0.0/any/" +
+                "modules/lang.float/float.bal"));
         Assert.assertEquals(debugHitInfo.getLeft().getDAPBreakPoint().getLine(), 123);
     }
 
