@@ -25,7 +25,6 @@ import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.BCompileUtil;
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -125,17 +124,7 @@ public abstract class FindAllReferencesTest {
         assertEquals(locations.size(), expLocations.size());
 
         for (Location expLocation : expLocations) {
-            boolean matched = false;
-            for (Location location : locations) {
-                if (location.lineRange().equals(expLocation.lineRange())) {
-                    matched = true;
-                    break;
-                }
-            }
-
-            if (!matched) {
-                Assert.fail("No matching reference found for: " + expLocation);
-            }
+            assertTrue(locations.contains(expLocation));
         }
     }
 }
