@@ -1,55 +1,72 @@
-## Module overview
+## Module Overview
 
-This module facilitates developers to write automation tests for ballerina code in a simple manner. It provides a number of capabilities such as configuring setup and cleanup steps in different levels, ordering and grouping of tests, providing value-sets to tests and independence from external functions and endpoints via mocking capabilities.
+This module facilitates developers to write automation tests for Ballerina code in a simple manner. It provides a number of capabilities such as configuring the setup and cleanup steps at different levels, ordering and grouping of tests, providing value-sets to tests, and independence from external functions and endpoints via mocking capabilities.
 
 ## Annotations
-A ballerina testsuite can be implemented using a set of annotations. The available annotations enable executing instructions before and after the testsuite or a single test, organize a set of tests into a group, define data-driven tests, specify an order of execution, disable tests and mocking.
+A Ballerina testsuite can be implemented using a set of annotations. The available annotations enable executing instructions before and after the testsuite or a single test, organize a set of tests into a group, define data-driven tests, specify an order of execution, disable tests and mocking.
+
+### Test Config 
 
 The following example shows a simple testsuite.
+```ballerina
+import ballerina/test;
+
+// Test function
+@test:Config {}
+function testFunction() {
+    test:assertTrue(true, msg = "Failed!");
+}
+```
+
+The `before` and `after` attributes can be used to set the execution order by specifying the functions to run before and/or after the test.
+
 ```ballerina
 import ballerina/io;
 import ballerina/test;
 
-// Before Suite Function
-@test:BeforeSuite
-function beforeSuiteFunc() {
-    io:println("I'm the before suite function!");
-}
-
-// Before test function
 function beforeFunc() {
     io:println("I'm the before function!");
 }
 
-// Test function
 @test:Config {
-    before: "beforeFunc",
-    after: "afterFunc"
+    before: beforeFunc,
+    after: afterFunc
 }
 function testFunction() {
     io:println("I'm in test function!");
     test:assertTrue(true, msg = "Failed!");
 }
 
-// After test function
 function afterFunc() {
     io:println("I'm the after function!");
 }
+```
 
-// After Suite Function
-@test:AfterSuite {}
-function afterSuiteFunc() {
-    io:println("I'm the after suite function!");
+The `dependsOn` attribute can also be used to set the test execution order by specifying the list of functions that the test function depends on.
+
+```ballerina
+import ballerina/io;
+import ballerina/test;
+
+@test:Config { 
+    dependsOn: [testFunction2] }
+function testFunction1() {
+    io:println("I'm in test function 1!");
+    test:assertTrue(true, msg = "Failed!");
+}
+
+@test:Config {}
+function testFunction2() {
+    io:println("I'm in test function 2!");
+    test:assertTrue(true, msg = "Failed!");
 }
 ```
-The following example shows how an individual test can be configured.
+
+The `dataProvider` attribute can be used to assign a function to act as a data provider for a test.
+
 ```ballerina
 @test:Config{  
-    enable: false, // default is true
-    before: "init",
-    after: "cleanup",
-    dependsOn: ["test1"],
-    dataProvider:"dataGen"
+    dataProvider: dataGen
 }
 function dataProviderTest (int value) returns error? {
     test:assertEquals(value, 1, msg = "value is not correct");
@@ -60,22 +77,81 @@ function dataGen() returns (int[][]) {
 }
 ```
 
+### Before and After Suite
+
+The `BeforeSuite` annotation is used to execute a particular function before the test suite is executed. This can be used to setup the prerequisites before executing the test suite. 
+
+```ballerina
+@test:BeforeSuite
+function beforeSuit() {
+    // initialize or execute pre-requisites
+}
+
+```
+
+The `AfterSuite` annotation is used to execute a particular function after the test suite is executed. This is used to tear-down the prerequisites or execute post actions after executing the test suite.
+
+```ballerina
+@test:AfterSuite
+function afterSuit() {
+    // tear-down
+}
+
+```
+
+### Before and After Groups
+
+The `BeforeGroups` and annotation can be used to execute the function before the first test function belonging the specified groups.
+
+```ballerina
+import ballerina/io;
+import ballerina/test;
+
+@test:BeforeGroups { value:["g1"] }
+function beforeGroupsFunc() {
+    io:println("I'm the before groups function!");
+}
+
+@test:Config { groups: ["g1"]}
+function testFunction1() {
+    io:println("I'm in test function 1!");
+    test:assertTrue(true, msg = "Failed!");
+}
+```
+
+The `AfterGroups` and annotation can be used to execute the function after the last test function belonging the specified groups.
+
+```ballerina
+import ballerina/io;
+import ballerina/test;
+
+@test:AfterGroups { value:["g1"] }
+function afterGroupsFunc() {
+    io:println("I'm the after groups function!");
+}
+
+@test:Config { groups: ["g1"]}
+function testFunction1() {
+    io:println("I'm in test function 1!");
+    test:assertTrue(true, msg = "Failed!");
+}
+```
+
+
 ## Assertions
-This module provides a number of assertions in order to verify the expected behaviour of a piece of code. 
-These assertions can be used to decide if the test is passing or failing based on the condition.
+This module provides a number of assertions in order to verify the expected behaviour of a piece of code. These assertions can be used to decide if the test is passing or failing based on the condition.
 
 Following sample shows how to use assertions in Testerina.
 ```ballerina
-
 import ballerina/test;
 
-type Person object {
+class Person {
      public string name = "";
      public int age = 0;
      public Person? parent = ();
      private string email = "default@abc.com";
      string address = "No 20, Palm grove";
- };
+}
 
 @test:Config{}
 function testAssertIntEquals() {
@@ -142,19 +218,28 @@ Function mocking allows to control the behavior of a function in the module bein
 The annotation `@test:Mock {}` is used to declare a `MockFunction` object, with details of the name of the function to be mocked, as well as the module name if an import function is being mocked. The module name value of the annotation is optional if the function being mocked is not an import function.
 
 ```ballerina
-import ballerina/math;
+import ballerina/io;
 import ballerina/test;
 
 @test:Mock {
-    moduleName : "ballerina/math",
-    functionName : "absInt"
+    moduleName: "ballerina/io",
+    functionName: "println"
 }
-test:MockFunction mock_absInt = new();
+test:MockFunction printlnMockFn = new();
+
+int tally = 0;
+public function mockPrint(any|error... val) {
+    tally = tally + 1;
+}
 
 @test:Config {}
-public function testFunction() {
-    test:when(mock_absInt).thenReturn(100);
-    test:assertEquals(math:absInt(-5), 100);
+function testCall() {
+    test:when(printlnMockFn).call("mockPrint");
+
+    io:println("Testing 1");
+    io:println("Testing 2");
+    io:println("Testing 3");
+    test:assertEquals(tally, 3);
 }
 ```
 
@@ -174,7 +259,11 @@ _test.bal_
 The following example shows different ways of stubbing a function call.
 
 ```ballerina
-@test:Mock { functionName: "intAdd" }
+import ballerina/test;
+
+@test:Mock { 
+    functionName: "intAdd"
+}
 test:MockFunction intAddMockFn = new();
 
 public function mockIntAdd(int x, int y) returns int {
@@ -214,79 +303,111 @@ A custom mock object can be defined in place of the real object which should con
 
 _main.bal_
 ```ballerina
-http:Client clientEndpoint = new("http://petstore.com");
+import ballerina/http;
 
-function getPet(string petId) returns Pet | error {
-  http:Response|error result = clientEndpoint->get("/pets?id="+petId);
-  if(result is error) {
-    return result;
-  } else {
-      Pet pet = constructPetObj(result); 
-    return pet;
-  }
+http:Client clientEndpoint = check new ("http://petstore.com");
+
+function getPet(string petId) returns http:Response | error {
+  http:Response result = check clientEndpoint->get("/pets?id="+petId);
+  return result;
+}
+
+function deletePet(string petId) returns error? {
+    http:Response res = check clientEndpoint->delete("/pets/delete?id="+petId);
 }
 ```
 
 _test.bal_
 ```ballerina
+import ballerina/test;
+import ballerina/http;
+
 // Mock object definition for http:Client object
-public type MockHttpClient client object {
-    public remote function get(@untainted string path, public 
-        http:RequestMessage message = ()) returns http:Response|http:ClientError {
-        http:Response res = new;
-        res.statusCode = 500;
-        return res;
+public client class MockHttpClient {
+    remote isolated function get(@untainted string path, map<string|string[]>? headers = (),
+    http:TargetType targetType = http:Response) returns http:Response | http:PayloadType | http:ClientError {
+        http:Response response = new;
+        response.statusCode = 500;
+        return response;
     }
-};
+}
 
 @test:Config {}
-function testGetPet() {
+function testTestDouble() returns error? {
     //mock object that would act as the test double to the clientEndpoint
-    clientEndpoint = <http:Client>mock(http:Client, new MockHttpClient());
-    http:Response res = getPet("D123");
+    clientEndpoint = test:mock(http:Client, new MockHttpClient());
+    http:Response res = check getPet("D123");
     test:assertEquals(res.statusCode, 500);
 }
 ```
 
 #### Stubbing member functions and variables of an object
 
-The member functions and variables are stubbed to return a specific value or to do nothing when invoked. Using the test module, a default mock object of the specified type. The default action of any member function/variable is to panic upon invocation/retrieval.  Subsequent to mock object creation, the required functions and variables of the default mock object should be stubbed to return a value or to do nothing when called.
+The member functions and variables are stubbed to return a specific value or to do nothing when invoked. Using the test module, a default mock object of the specified type. The default action of any member function/variable is to panic upon invocation/retrieval.  After mock object creation, the required functions and variables of the default mock object should be stubbed to return a value or to do nothing when called.
 
 ##### Samples
 
-Example
-
-Following example shows different ways of stubbing an object member functions.
+The following example demonstrates how to stub a member function to return a specific value.
 ```ballerina
 
 @test:Config {}
-function testGetPet2() {
-    clientEndpoint = <http:Client>mock(http:Client);
+function testThenReturn() returns error? {
+   clientEndpoint = test:mock(http:Client);
+
+    http:Response mockResponse = new;
+    mockResponse.statusCode = 300;
 
     // stubbing to return the specified value 
-    test:prepare(clientEndpoint).when(“get”).thenReturn(new http:Response());
-    
-    // stubbing to return different values for each function call 
-    test:prepare(mockHttpClient).when("get")
-        .thenReturnSequence(new http:Response(), mockResponse);
-    
-    // stubbing to return a value based on input
-    test:prepare(mockHttpClient).when("get").withArguments("/pets?id=D123", test:ANY)
-        .thenReturn(mockResponse);
-    
-    // stubbing to do nothing when function is called
-    smtpClient=<email:SmtpClient>mock(email:SmtpClient);
-    test:prepare(mockSmtpCl).when(“send”).doNothing();
+    test:prepare(clientEndpoint).when("get").thenReturn(mockResponse);
 
-    // add assertions
+    http:Response res = check getPet("D123");
+    test:assertEquals(res.statusCode, 300);
 }
 ```
 
-The following example shows how to return a value when a member variable is accessed
+The following example demonstrates how to stub a member function to return different values on subsequent calls.
+
+```ballerina
+@test:Config {}
+function testThenReturnSequence() returns error? {
+     clientEndpoint = test:mock(http:Client);
+
+    http:Response mockResponse1 = new;
+    mockResponse1.statusCode = 400;
+
+    http:Response mockResponse2 = new;
+    mockResponse2.statusCode = 401;
+    
+    // Stubbing to return different values for each function call.
+    test:prepare(clientEndpoint).when("get").thenReturnSequence(mockResponse1, mockResponse2);
+
+    http:Response res = check getPet("D123");
+    test:assertEquals(res.statusCode, 400);
+    res = check getPet("D123");
+    test:assertEquals(res.statusCode, 401);
+}
+```
+
+The following example demonstrates how to stub a member function to do nothing when called.
+
+```ballerina
+@test:Config {}
+function testDoNothing() returns error? {
+    clientEndpoint = test:mock(http:Client);
+    
+    // Stubbing to return different values for each function call.
+    test:prepare(clientEndpoint).when("delete").doNothing();
+
+    error? err = deletePet("D123");
+    test:assertEquals(err, ());
+}
+```
+
+The following example shows how to return a value when a member variable is accessed.
 ```ballerina
 @test:Config {}
 function testMemberVariable() {
-  clientEndpoint = <http:Client>test:mock(http:Client);
+  clientEndpoint = test:mock(http:Client);
   test:prepare(clientEndpoint).getMember("url").thenReturn("https://foo.com/");
   test:assertEquals(clientEndpoint.url, "https://foo.com/");
 }

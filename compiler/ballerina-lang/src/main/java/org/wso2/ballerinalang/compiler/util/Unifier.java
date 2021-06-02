@@ -651,7 +651,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     private BLangNamedArgsExpression createTypedescExprNamedArg(BType expType, String name) {
         BLangTypedescExpr typedescExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
-        typedescExpr.pos = this.invocation.pos;
+        typedescExpr.pos = this.symbolTable.builtinPos;
         typedescExpr.resolvedType = expType;
         typedescExpr.type = new BTypedescType(expType, null);
 
@@ -660,6 +660,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         identifierNode.value = name;
         namedArgsExpression.name = identifierNode;
         namedArgsExpression.expr = typedescExpr;
+        namedArgsExpression.pos = this.symbolTable.builtinPos;
         return namedArgsExpression;
     }
 

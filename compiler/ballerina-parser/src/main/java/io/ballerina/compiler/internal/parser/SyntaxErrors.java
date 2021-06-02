@@ -112,6 +112,9 @@ public class SyntaxErrors {
             case IMPORT_SUB_VERSION:
             case FUNC_DEF_OR_TYPE_DESC_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
+            case ATTACH_POINT_IDENT:
+            case SINGLE_KEYWORD_ATTACH_POINT_IDENT:
+                return DiagnosticErrorCode.ERROR_MISSING_ATTACH_POINT_NAME;
             case SIMPLE_TYPE_DESCRIPTOR:
                 return DiagnosticErrorCode.ERROR_MISSING_BUILTIN_TYPE;
             case REQUIRED_PARAM:
@@ -377,8 +380,6 @@ public class SyntaxErrors {
             case ANNOTATION_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_ANNOTATION_KEYWORD;
             case TYPE_KEYWORD:
-            case ATTACH_POINT_IDENT:
-            case SINGLE_KEYWORD_ATTACH_POINT_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_TYPE_KEYWORD;
             case RECORD_KEYWORD:
             case RECORD_FIELD:
@@ -665,9 +666,13 @@ public class SyntaxErrors {
      * Converts the invalid node into a list of {@code STMinutiae} nodes.
      * <p>
      * Here are the steps:
+     * <br/>
      * 1) Iterates through all the tokens in the invalid node. For each token:
+     * <br/>
      * 2) Add the leading minutiae to the list
+     * <br/>
      * 3) Create a new token without leading or trailing minutiae and add it to the list
+     * <br/>
      * 4) Add the trailing minutiae to the list
      *
      * @param invalidNode the invalid node to be converted

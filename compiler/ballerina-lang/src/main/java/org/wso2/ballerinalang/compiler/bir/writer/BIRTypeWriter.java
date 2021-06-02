@@ -403,6 +403,7 @@ public class BIRTypeWriter implements TypeVisitor {
             buff.writeInt(addStringCPEntry(field.name.value));
             // TODO add position
             buff.writeLong(field.symbol.flags);
+            buff.writeBoolean(field.symbol.isDefaultable);
             writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
         }
