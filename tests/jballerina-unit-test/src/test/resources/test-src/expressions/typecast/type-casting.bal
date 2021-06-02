@@ -677,6 +677,19 @@ function testCastOfTwoDimensionalIntArrayToByteArray() {
     assertEquality("[[1,2,3],[4,5,6]]", c.toString());
 }
 
+function testCastOfIntFutureToIntArrayFuture() {
+    future<int> f1 = start testFutureFunc();
+    any a = f1;
+    future<int[]>|error f2 = trap <future<int[]>> a;
+
+    assertEquality(true, f2 is error);
+    error err = <error> f2;
+    assertEquality("{ballerina}TypeCastError", err.message());
+    assertEquality("incompatible types: 'future<int>' cannot be cast to 'future<int[]>'", <string> checkpanic err.detail()["message"]);
+}
+
+function testFutureFunc() returns int => 1;
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

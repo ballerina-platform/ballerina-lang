@@ -650,6 +650,11 @@ public class TypeCastExprTest {
         };
     }
 
+    @Test
+    public void testCastOfIntFutureToIntArrayFuture() {
+        BRunUtil.invoke(result, "testCastOfIntFutureToIntArrayFuture");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
