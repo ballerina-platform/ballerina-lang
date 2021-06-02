@@ -218,6 +218,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "abs",
       "insertText": "abs(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -236,6 +237,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "sum",
       "insertText": "sum(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -254,6 +256,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "max",
       "insertText": "max(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -272,6 +275,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "min",
       "insertText": "min(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -290,6 +294,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "fromString",
       "insertText": "fromString(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -308,6 +313,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "toHexString",
       "insertText": "toHexString(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -326,6 +332,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "fromHexString",
       "insertText": "fromHexString(${1})",
       "insertTextFormat": "Snippet",
       "command": {

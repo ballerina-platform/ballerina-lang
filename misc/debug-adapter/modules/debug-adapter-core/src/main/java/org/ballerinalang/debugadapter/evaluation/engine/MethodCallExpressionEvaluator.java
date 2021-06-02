@@ -32,6 +32,8 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedInstanceMethod;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
@@ -133,7 +135,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
             GeneratedInstanceMethod objectMethod = getObjectMethodByName(resultVar, methodName);
             objectMethod.setNamedArgValues(generateNamedArgs(context, methodName, objectMethodDef.get().
                     typeDescriptor(), argEvaluators));
-            return objectMethod.invoke();
+            return objectMethod.invokeSafely();
         } catch (EvaluationException e) {
             // If the object method is not found, we have to ignore the Evaluation Exception and try find any
             // matching lang library functions.
@@ -184,7 +186,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
         FunctionSignatureNode functionSignature = langLibFunctionDef.functionSignature();
         Map<String, Value> argValueMap = generateNamedArgs(context, methodName, functionSignature, argEvaluators);
         langLibMethod.setNamedArgValues(argValueMap);
-        return langLibMethod.invoke();
+        return langLibMethod.invokeSafely();
     }
 
     private Optional<ClassSymbol> findClassDefWithinModule(String className) {

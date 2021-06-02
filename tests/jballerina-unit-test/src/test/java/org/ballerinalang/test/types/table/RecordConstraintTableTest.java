@@ -120,6 +120,11 @@ public class RecordConstraintTableTest {
         BRunUtil.invoke(result, "testMemberAccessHavingNilableFields");
     }
 
+    @Test(description = "Test table iteration with a union constrained table")
+    public void testUnionConstrainedTableIteration() {
+        BRunUtil.invoke(result, "testUnionConstrainedTableIteration");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

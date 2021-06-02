@@ -20,10 +20,13 @@ package io.ballerina.runtime.internal.configurable;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
+import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.ArrayList;
@@ -49,13 +52,10 @@ public class ConfigResolver {
 
     private final List<ConfigProvider> runtimeConfigProviders;
 
-    private final Module rootModule;
+    private final RuntimeDiagnosticLog diagnosticLog;
 
-    private RuntimeDiagnosticLog diagnosticLog;
-
-    public ConfigResolver(Module rootModule, Map<Module, VariableKey[]> configVarMap,
-                          RuntimeDiagnosticLog diagnosticLog, List<ConfigProvider> supportedConfigProviders) {
-        this.rootModule = rootModule;
+    public ConfigResolver(Map<Module, VariableKey[]> configVarMap, RuntimeDiagnosticLog diagnosticLog,
+                          List<ConfigProvider> supportedConfigProviders) {
         this.configVarMap = configVarMap;
         this.supportedConfigProviders = supportedConfigProviders;
         this.runtimeConfigProviders = new LinkedList<>();
@@ -84,6 +84,9 @@ public class ConfigResolver {
                 Optional<?> configValue = getConfigValue(module, varKey);
                 configValue.ifPresent(o -> configValueMap.put(varKey, o));
             }
+        }
+        for (ConfigProvider provider : runtimeConfigProviders) {
+            provider.complete(diagnosticLog);
         }
         return configValueMap;
     }
@@ -121,6 +124,9 @@ public class ConfigResolver {
                     case TypeTags.RECORD_TYPE_TAG:
                         return getConfigValue(key, configProvider -> configProvider
                                 .getAsRecordAndMark(module, key));
+                    case TypeTags.MAP_TAG:
+                        return getConfigValue(key, configProvider -> configProvider
+                                .getAsMapAndMark(module, key));
                     case TypeTags.TABLE_TAG:
                         return getConfigValue(key, configProvider -> configProvider
                                 .getAsTableAndMark(module, key));
@@ -131,13 +137,25 @@ public class ConfigResolver {
                     case TypeTags.XML_TEXT_TAG:
                         return getConfigValue(key, configProvider -> configProvider
                                 .getAsXmlAndMark(module, key));
+                    case TypeTags.UNION_TAG:
+                        BUnionType unionType = (BUnionType) effectiveType;
+                        //Todo : Move the enum check to provider impl, once runtime support configuring union types.
+                        // Issue : https://github.com/ballerina-platform/ballerina-lang/issues/30390
+                        if (SymbolFlags.isFlagOn(unionType.getFlags(), SymbolFlags.ENUM)) {
+                            return getConfigValue(key, configProvider -> configProvider
+                                    .getAsUnionAndMark(module, key));
+                        }
+                        diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
+                                            IdentifierUtils.decodeIdentifier(effectiveType.toString()));
+                        break;
                     default:
                         diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
-                                            effectiveType.toString());
+                                            IdentifierUtils.decodeIdentifier(effectiveType.toString()));
                 }
                 break;
             default:
-                diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable, type.toString());
+                diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
+                                    IdentifierUtils.decodeIdentifier(type.toString()));;
         }
         return Optional.empty();
     }

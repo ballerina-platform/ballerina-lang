@@ -76,6 +76,13 @@ public class MethodsTestResource extends RestrictedTestResource implements Inter
     public void interfaceParam(Map x, Object[] y, Object[] z) {
     }
 
+    public void unsupportedParam(Object[][] y) {
+    }
+
+    public Object[][] unsupportedReturnType() {
+        return new Object[1][];
+    }
+
     public Set<String> genericObjectParam(Set<String> x, int y, String[] z) {
         return x;
     }

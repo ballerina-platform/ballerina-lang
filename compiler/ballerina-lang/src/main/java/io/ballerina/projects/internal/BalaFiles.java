@@ -65,6 +65,7 @@ import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_DIR;
 import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_JSON;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
+import static io.ballerina.projects.util.ProjectConstants.MODULE_NAME_SEPARATOR;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
 
 /**
@@ -421,7 +422,14 @@ public class BalaFiles {
         PackageDescriptor pkgDesc = PackageDescriptor.from(PackageOrg.from(modDepEntry.getOrg()),
                 PackageName.from(modDepEntry.getPackageName()),
                 PackageVersion.from(modDepEntry.getVersion()));
-        final ModuleName moduleName = ModuleName.from(modDepEntry.getModuleName(), pkgDesc.org());
+        final ModuleName moduleName;
+        if (modDepEntry.getModuleName().equals(pkgDesc.name().toString())) {
+            moduleName = ModuleName.from(pkgDesc.name());
+        } else {
+            String moduleNamePart = modDepEntry.getModuleName()
+                    .split(modDepEntry.getPackageName() + MODULE_NAME_SEPARATOR)[1];
+            moduleName = ModuleName.from(pkgDesc.name(), moduleNamePart);
+        }
         return ModuleDescriptor.from(moduleName, pkgDesc);
     }
 

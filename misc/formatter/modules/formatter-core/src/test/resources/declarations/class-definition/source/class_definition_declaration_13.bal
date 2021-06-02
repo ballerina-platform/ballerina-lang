@@ -1,11 +1,6 @@
-readonly
- distinct
-    class
-        Foo
-      {
+readonly   distinct  class   Foo{
     string  name ;
 }
 
-distinct           readonly
-         class           Foo          {
+distinct           readonly  class           Foo          {
     string      name   ;     }

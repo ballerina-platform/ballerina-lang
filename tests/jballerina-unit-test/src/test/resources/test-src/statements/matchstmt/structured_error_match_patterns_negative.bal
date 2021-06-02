@@ -37,7 +37,7 @@ function testErrorPattern1() returns string {
 }
 
 function testErrorPattern2() returns string {
-    error <string, ClosedFoo> err = error("Err Code 1", s = "error");
+    error <ClosedFoo> err = error("Err Code 1", s = "error");
 
     match err {
         var error (reason, ...rest) => {return "A";}
@@ -53,7 +53,7 @@ function testErrorPattern2() returns string {
 }
 
 function testErrorPattern3() returns string {
-    error <string, ClosedFoo> err = error("Err Code 1", s = "error");
+    error <ClosedFoo> err = error("Err Code 1", s = "error");
 
     match err {
         var error (reason, ...rest) => {return "A";}
@@ -73,7 +73,7 @@ type OpenedFoo record {
 };
 
 function testErrorPattern5() returns string {
-    error <string, OpenedFoo> err = error("Err Code 1", message = "error");
+    error <OpenedFoo> err = error("Err Code 1", message = "error");
     any|error a = err;
     match a {
         var error (reason, message = message, ...rest) => {return "A";}

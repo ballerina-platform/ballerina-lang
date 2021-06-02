@@ -41,6 +41,7 @@ import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.JACOCO_XML_FORMAT;
 
 /**
  * This class represents the "bal test" command.
@@ -105,6 +106,12 @@ public class TestCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
     private Boolean coverage;
+
+    @CommandLine.Option(names = "--jacoco-xml", description = "enable Jacoco XML generation")
+    private boolean enableJacocoXML;
+
+    @CommandLine.Option(names = "--coverage-format", description = "list of supported coverage report formats")
+    private String coverageFormat;
 
     @CommandLine.Option(names = "--observability-included", description = "package observability in the executable.")
     private Boolean observabilityIncluded;
@@ -171,9 +178,30 @@ public class TestCommand implements BLauncherCmd {
             displayWarning = true;
         }
 
-        // Skip --includes flag if it is set without code coverage
-        if (!project.buildOptions().codeCoverage() && includes != null) {
-            this.outStream.println("warning: ignoring --includes flag since code coverage is not enabled");
+        if (project.buildOptions().codeCoverage()) {
+            if (coverageFormat != null) {
+                if (!coverageFormat.equals(JACOCO_XML_FORMAT)) {
+                    String errMsg = "unsupported coverage report format '" + coverageFormat + "' found. Only '" +
+                            JACOCO_XML_FORMAT + "' format is supported.";
+                    CommandUtil.printError(this.errStream, errMsg, null, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                }
+            }
+        } else {
+            // Skip --includes flag if it is set without code coverage
+            if (includes != null) {
+                this.outStream.println("warning: ignoring --includes flag since code coverage is not enabled");
+            }
+            // Skip --coverage-format flag if it is set without code coverage
+            if (coverageFormat != null) {
+                this.outStream.println("warning: ignoring --coverage-format flag since code coverage is not " +
+                        "enabled");
+            }
+            // Skip --jacoco-xml flag if it is set without code coverage
+            if (enableJacocoXML) {
+                this.outStream.println("warning: ignoring --jacoco-xml flag since code coverage is not enabled");
+            }
         }
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
@@ -183,7 +211,7 @@ public class TestCommand implements BLauncherCmd {
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new ListTestGroupsTask(outStream, displayWarning), !listGroups) // list available test groups
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
-                        testList, includes), listGroups)
+                        testList, includes, enableJacocoXML, coverageFormat), listGroups)
                 .build();
 
         taskExecutor.executeTasks(project);

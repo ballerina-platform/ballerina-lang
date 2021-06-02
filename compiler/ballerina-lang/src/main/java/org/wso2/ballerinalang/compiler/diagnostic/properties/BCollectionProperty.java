@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.diagnostic.properties;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.DiagnosticPropertyKind;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 /**
@@ -44,5 +45,19 @@ public class BCollectionProperty implements DiagnosticProperty {
     @Override
     public Collection<DiagnosticProperty<?>> value() {
         return values;
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(new int[]{kind.hashCode(), values.hashCode()});
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof BCollectionProperty) {
+            BCollectionProperty that = (BCollectionProperty) obj;
+            return this.kind.equals(that.kind) && this.values.equals(that.values);
+        }
+        return false;
     }
 }

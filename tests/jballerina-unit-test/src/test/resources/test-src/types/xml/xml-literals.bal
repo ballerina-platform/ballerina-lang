@@ -203,6 +203,33 @@ function testDollarSignOnXMLLiteralTemplate() returns [xml, xml, xml] {
     return [x1, x2, x3];
 }
 
+function testXMLWithLeadingWhiteSpace() {
+    string title = "title";
+    string author = "author";
+
+    xml temp1 = xml `
+    <books>
+        <book>
+            <title>${title}</title>
+            <author>${author}</author>
+        </book>
+    </books>`;
+
+   assert(temp1[0] is 'xml:Text, true);
+
+   xml temp2 = xml `
+
+
+       <books>
+           <book>
+               <title>${title}</title>
+               <author>${author}</author>
+           </book>
+       </books>`;
+
+   assert(temp2[1] is 'xml:Text, false);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;

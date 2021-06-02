@@ -119,11 +119,6 @@ public class BIntersectionType extends BType implements IntersectionType {
     }
 
     @Override
-    public String getName() {
-        return toString();
-    }
-
-    @Override
     public int hashCode() {
 
         return Objects.hash(super.hashCode(), constituentTypes);

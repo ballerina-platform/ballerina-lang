@@ -35,6 +35,8 @@ public abstract class ProgramLauncher {
 
     private static final String BAL_RUN_CMD = "run";
     private static final String BAL_TEST_CMD = "test";
+    private static final String CMD_OPTION_DEBUG = "--debug";
+    private static final String CMD_OPTION_TESTS = "--tests";
 
     protected ProgramLauncher(ClientLaunchConfigHolder configHolder, String projectRoot) {
         this.configHolder = configHolder;
@@ -70,10 +72,16 @@ public abstract class ProgramLauncher {
         command.add(isTestDebugMode ? BAL_TEST_CMD : BAL_RUN_CMD);
 
         // Adds debug args.
-        command.add("--debug");
+        command.add(CMD_OPTION_DEBUG);
         command.add(Integer.toString(configHolder.getDebuggePort()));
         // Adds command options.
         command.addAll(configHolder.getCommandOptions());
+
+        // Adds test arguments, which is required to run individual tests.
+        if (isTestDebugMode && !configHolder.getTestArgs().isEmpty()) {
+            command.add(CMD_OPTION_TESTS);
+            command.add(String.join(",", configHolder.getTestArgs()));
+        }
 
         // Adds file name, only if the debug source is a single bal file.
         if (balFile != null) {
@@ -88,9 +96,9 @@ public abstract class ProgramLauncher {
         }
 
         // Adds program arguments.
-        if (!configHolder.getProgramArguments().isEmpty()) {
+        if (!configHolder.getProgramArgs().isEmpty()) {
             command.add("--");
-            command.addAll(configHolder.getProgramArguments());
+            command.addAll(configHolder.getProgramArgs());
         }
         return command;
     }

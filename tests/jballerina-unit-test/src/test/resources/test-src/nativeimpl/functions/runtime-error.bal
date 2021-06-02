@@ -1,21 +1,21 @@
-import ballerina/runtime;
+import ballerina/lang.runtime;
 
-function testGetCallStack () returns (runtime:CallStackElement[]) {
+function testGetCallStack () returns (runtime:StackFrame[]) {
     return level1Function();
 }
 
-function level1Function () returns (runtime:CallStackElement[]) {
+function level1Function () returns (runtime:StackFrame[]) {
     return level2Function();
 }
 
-function level2Function () returns (runtime:CallStackElement[]) {
-    return runtime:getCallStack();
+function level2Function () returns (runtime:StackFrame[]) {
+    return runtime:getStackTrace();
 }
 
-function testErrorStackFrame () returns (runtime:CallStackElement[]|()) {
+function testErrorCallStack() returns error:CallStackElement[]? {
     var e = trap level1Error(-10);
     if (e is error) {
-        return runtime:getErrorCallStackFrame(e);
+        return e.stackTrace().callStack;
     } else {
         return ();
     }

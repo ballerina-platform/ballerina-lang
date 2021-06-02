@@ -27,11 +27,21 @@ import java.util.Objects;
  * @since 2.0.0
  */
 public class QuotedIdentifier {
+    private static final int ASCII_VALUE = 128;
     private final String name;
 
     public QuotedIdentifier(String name) {
         Objects.requireNonNull(name);
-        this.name = StringUtils.quoted(name);
+        StringBuilder convertedName = new StringBuilder();
+        for (char character : name.toCharArray()) {
+            if (character >= ASCII_VALUE) {
+                String replacement = StringUtils.convertUnicode(character);
+                convertedName.append(replacement);
+            } else {
+                convertedName.append(character);
+            }
+        }
+        this.name = StringUtils.quoted(convertedName.toString());
     }
 
     @Override

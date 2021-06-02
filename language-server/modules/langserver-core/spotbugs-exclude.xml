@@ -160,4 +160,10 @@
     <Match>
         <Class name="org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager"/>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.completions.util.Snippet" />
+        <OR>
+            <Bug pattern="BC_UNCONFIRMED_CAST" />
+        </OR>
+    </Match>
 </FindBugsFilter>

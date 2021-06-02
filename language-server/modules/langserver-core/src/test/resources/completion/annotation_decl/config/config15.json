@@ -1,0 +1,25 @@
+{
+  "position": {
+    "line": 3,
+    "character": 69
+  },
+  "source": "annotation_decl/source/source15.bal",
+  "items": [
+    {
+      "label": "remote",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "remote",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "remote function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "remote function",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

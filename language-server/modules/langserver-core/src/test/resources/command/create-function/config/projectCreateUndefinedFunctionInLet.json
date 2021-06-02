@@ -28,7 +28,7 @@
                                         "character": 0
                                     }
                                 },
-                                "newText": "\n\nfunction createSchool([Grade] a) returns School {\n    \n    return {students: []};\n}\n"
+                                "newText": "\n\nfunction createSchool([Grade] a) returns School {\n    return {students: []};\n}\n"
                             }
                         ]
                     }

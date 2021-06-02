@@ -72,6 +72,11 @@ public class AnonymousClosedRecordTest {
         Assert.assertEquals(returns[0].stringValue(), "JAN:12 Gemba St APT 134:CA:sam");
     }
 
+    @Test(description = "Test Anonymous record with referenced type")
+    public void anonymousRecordWithTypeInclusion() {
+        BRunUtil.invoke(compileResult, "anonymousRecordWithTypeInclusion");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

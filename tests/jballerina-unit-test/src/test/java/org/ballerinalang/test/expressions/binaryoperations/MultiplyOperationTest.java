@@ -25,6 +25,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -67,42 +68,34 @@ public class MultiplyOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test int float multiply expression")
-    public void testIntFloatMultiplyExpr() {
-        int a = 10;
-        float b = 1.5f;
-        BValue[] args = { new BInteger(a), new BFloat(b) };
-        BValue[] returns = BRunUtil.invoke(result, "intFloatMultiply", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-
-        double actual = ((BFloat) returns[0]).floatValue();
-        double expected = a * b;
-        Assert.assertEquals(actual, expected);
+    @Test(dataProvider = "dataToTestDivisionWithTypes", description = "Test multiplication with types")
+    public void testDivisionWithTypes(String functionName) {
+        BRunUtil.invoke(result, functionName);
     }
 
-    @Test(description = "Test float int multiply expression")
-    public void testFloatIntMultiplyExpr() {
-        float a = 1.5f;
-        int b = 10;
-        BValue[] args = { new BFloat(a), new BInteger(b) };
-        BValue[] returns = BRunUtil.invoke(result, "floatIntMultiply", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-
-        double actual = ((BFloat) returns[0]).floatValue();
-        double expected = b * a;
-        Assert.assertEquals(actual, expected);
+    @DataProvider
+    public Object[] dataToTestDivisionWithTypes() {
+        return new Object[]{
+                "testMultiplicationWithTypes",
+                "testMultiplySingleton"
+        };
     }
-
-
 
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        Assert.assertEquals(resultNegative.getErrorCount(), 12);
         BAssertUtil.validateError(resultNegative, 0, "operator '*' not defined for 'json' and 'json'", 8, 10);
         BAssertUtil.validateError(resultNegative, 1, "operator '*' not defined for 'float' and 'string'", 14, 9);
+        BAssertUtil.validateError(resultNegative, 2, "operator '*' not defined for 'C' and 'string'", 28, 14);
+        BAssertUtil.validateError(resultNegative, 3, "operator '*' not defined for 'C' and '(float|int)'", 29, 14);
+        BAssertUtil.validateError(resultNegative, 4, "operator '*' not defined for 'string' and " +
+                "'(string|string:Char)'", 30, 17);
+        BAssertUtil.validateError(resultNegative, 5, "operator '*' not defined for 'float' and 'decimal'", 37, 14);
+        BAssertUtil.validateError(resultNegative, 6, "operator '*' not defined for 'float' and 'decimal'", 38, 14);
+        BAssertUtil.validateError(resultNegative, 7, "operator '*' not defined for 'float' and 'int'", 39, 14);
+        BAssertUtil.validateError(resultNegative, 8, "operator '*' not defined for 'decimal' and 'int'", 40, 14);
+        BAssertUtil.validateError(resultNegative, 9, "operator '*' not defined for 'int' and 'float'", 41, 18);
+        BAssertUtil.validateError(resultNegative, 10, "operator '*' not defined for 'C' and 'float'", 45, 14);
+        BAssertUtil.validateError(resultNegative, 11, "operator '*' not defined for 'C' and 'float'", 46, 14);
     }
 }

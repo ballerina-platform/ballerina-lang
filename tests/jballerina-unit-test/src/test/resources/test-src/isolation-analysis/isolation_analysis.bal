@@ -166,24 +166,40 @@ function (int, map<int>) returns int fn2 = function (int j, map<int> m) returns 
     return rec.i + j + <int> m["first"] + i;
 };
 
+function (int, map<int>) returns int fn3 = isolated function (int j, map<int> m) returns int {
+    record {
+        int i;
+    } rec = {
+        i: 1,
+        "str": "val"
+    };
+    return rec.i + j + <int> m["first"] + i;
+};
+
 isolated function testIsolatedFunctionPointerInvocation() {
-    int sum = fn1(100, {first: 123, second: 234}) + fn3();
+    int sum = fn1(100, {first: 123, second: 234}) + fn4();
     assertEquality(sum, 240);
     assertEquality(fn1(101, {first: 123, second: 234}), 226);
 }
 
-IsolatedFunction fn3 = isolated function () returns int {
+IsolatedFunction fn4 = isolated function () returns int {
     return 15;
 };
 
 function testIsolatedFunctionAsIsolatedFunctionRuntime() {
     assertEquality(true, <any> fn1 is isolated function (int, map<int>) returns int);
+    assertEquality(true, <any> fn2 is isolated function (int, map<int>) returns int);
+    assertEquality(true, <any> fn3 is isolated function (int, map<int>) returns int);
 }
+int k = 8;
+function (int, map<int>) returns int fn5 = function (int j, map<int> m) returns int {
+    return j + <int> m["first"] + i + k;
+};
 
 function testIsolatedFunctionAsIsolatedFunctionRuntimeNegative() {
-    assertEquality(false, <any> fn2 is isolated function (int, map<int>) returns int);
+    assertEquality(false, <any> fn5 is isolated function (int, map<int>) returns int);
 
-    var res = trap <isolated function (int, map<int>) returns int> fn2;
+    var res = trap <isolated function (int, map<int>) returns int> fn5;
     assertEquality(true, res is error);
 
     error err = <error> res;

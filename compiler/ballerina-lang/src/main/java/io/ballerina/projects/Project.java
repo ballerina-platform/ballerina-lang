@@ -34,7 +34,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 public abstract class Project {
     protected final Path sourceRoot;
     private Package currentPackage;
-    private final BuildOptions buildOptions;
+    private BuildOptions buildOptions;
     private final ProjectEnvironment projectEnvironment;
     private final ProjectKind projectKind;
 
@@ -54,6 +54,10 @@ public abstract class Project {
         this.sourceRoot = projectPath;
         this.projectEnvironment = projectEnvironmentBuilder.build(this);
         this.buildOptions = new BuildOptionsBuilder().build();
+    }
+
+    void setBuildOptions(BuildOptions buildOptions) {
+        this.buildOptions = buildOptions;
     }
 
     public ProjectKind kind() {

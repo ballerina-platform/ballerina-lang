@@ -88,17 +88,15 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // XML element
         debugTestRunner.assertExpression(context, "xml `<book>The Lost World</book>`", "<book>The Lost World</book>",
                 "xml");
-        // Todo - enable after https://github.com/ballerina-platform/ballerina-lang/issues/26589 is fixed from the
-        //  runtime.
         // XML text
-        // debugTestRunner.assertExpression(context, "xml `Hello, world!`", "Hello, world!", "xml");
+        debugTestRunner.assertExpression(context, "xml `Hello, world!`", "Hello, world!", "xml");
         // XML comment
-        // debugTestRunner.assertExpression(context, "xml `<!--I am a comment-->`", "<!--I am a comment", "xml");
+        debugTestRunner.assertExpression(context, "xml `<!--I am a comment-->`", "<!--I am a comment-->", "xml");
         // XML processing instruction
-        // debugTestRunner.assertExpression(context, "xml `<?target data?>`", "<?target data?>", "xml");
+        debugTestRunner.assertExpression(context, "xml `<?target data?>`", "<?target data?>", "xml");
         // concatenated XML
-        // assertExpression(context, "xml `<book>The Lost World</book>Hello, world!<!--I am a comment--><?target
-        // data?>`", "<?target data?>", "xml");
+        debugTestRunner.assertExpression(context, "xml `<book>The Lost World</book>Hello, world!" +
+                "<!--I am a comment--><?target data?>`", "XMLSequence (size = 4)", "xml");
     }
 
     @Override
@@ -128,9 +126,9 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // array variable test
         debugTestRunner.assertExpression(context, ARRAY_VAR, "any[4]", "array");
         // tuple variable test
-        debugTestRunner.assertExpression(context, TUPLE_VAR, "tuple[int,string]", "tuple");
+        debugTestRunner.assertExpression(context, TUPLE_VAR, "tuple[int,string] (size = 2)", "tuple");
         // map variable test
-        debugTestRunner.assertExpression(context, MAP_VAR, "map", "map");
+        debugTestRunner.assertExpression(context, MAP_VAR, "map<string> (size = 4)", "map");
         // record variable test (Student record)
         debugTestRunner.assertExpression(context, RECORD_VAR, " /:@[`{~π_123_ƮέŞŢ_Student", "record");
         // anonymous record variable test
@@ -139,10 +137,10 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // error variable test
         debugTestRunner.assertExpression(context, ERROR_VAR, "SimpleErrorType", "error");
         // anonymous function variable test
-        debugTestRunner.assertExpression(context, ANON_FUNCTION_VAR, "function (string,string) returns (string)",
-                "function");
+        debugTestRunner.assertExpression(context, ANON_FUNCTION_VAR, "isolated function (string,string) " +
+                "returns (string)", "function");
         // future variable test
-        debugTestRunner.assertExpression(context, FUTURE_VAR, "future", "future");
+        debugTestRunner.assertExpression(context, FUTURE_VAR, "future<int>", "future");
         // object variable test (Person object)
         debugTestRunner.assertExpression(context, OBJECT_VAR, "Person_\\ /<>:@[`{~π_ƮέŞŢ", "object");
         // type descriptor variable test
@@ -158,20 +156,20 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // byte variable test
         debugTestRunner.assertExpression(context, BYTE_VAR, "128", "int");
         // table variable test
-        debugTestRunner.assertExpression(context, TABLE_VAR, "table<Employee>[3]", "table");
+        debugTestRunner.assertExpression(context, TABLE_VAR, "table<Employee> (entries = 3)", "table");
         // stream variable test
-        debugTestRunner.assertExpression(context, STREAM_VAR, "stream<int>", "stream");
+        debugTestRunner.assertExpression(context, STREAM_VAR, "stream<int, error>", "stream");
         // never variable test
-        debugTestRunner.assertExpression(context, NEVER_VAR, "", "xml");
+        debugTestRunner.assertExpression(context, NEVER_VAR, "XMLSequence (size = 0)", "xml");
         // json variable test
-        debugTestRunner.assertExpression(context, JSON_VAR, "map<json>", "json");
+        debugTestRunner.assertExpression(context, JSON_VAR, "map<json> (size = 2)", "json");
         // anonymous object variable test (AnonPerson object)
         debugTestRunner.assertExpression(context, ANON_OBJECT_VAR, "Person_\\ /<>:@[`{~π_ƮέŞŢ", "object");
 
         // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/26139
         // debugTestRunner.assertExpression(context, GL, "Ballerina", "string");
         // debugTestRunner.assertExpression(context, "gv02_nameWithType", "Ballerina", "string");
-        debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "map", "map");
+        debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "map<string> (size = 1)", "map");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_04, "()", "nil");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_05, "()", "nil");
         // global variables
@@ -179,7 +177,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, GLOBAL_VAR_07, "100.0", "decimal");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_08, "2", "int");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_09, "2.0", "float");
-        debugTestRunner.assertExpression(context, GLOBAL_VAR_10, "map<json>", "json");
+        debugTestRunner.assertExpression(context, GLOBAL_VAR_10, "map<json> (size = 2)", "json");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_11, "IL with global var", "string");
 
         // Todo - add test for qualified name references, after adding support
@@ -309,7 +307,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test(enabled = false)
+    @Test
     public void methodCallEvaluationTest() throws BallerinaTestException {
 
         // 1. object methods
@@ -350,8 +348,8 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         // xml
         debugTestRunner.assertExpression(context, XML_VAR + ".getName()", "person", "string");
-        debugTestRunner.assertExpression(context, XML_VAR + ".children()",
-                "<firstname>Praveen</firstname><lastname>Nada</lastname>", "xml");
+        debugTestRunner.assertExpression(context, XML_VAR + ".children()", "XMLSequence (size = 2)",
+                "xml");
     }
 
     @Override
@@ -429,62 +427,28 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         ///////////////////////////////-----------multiplication----------------//////////////////////////////////////
         // int * int
         debugTestRunner.assertExpression(context, String.format("%s * %s", INT_VAR, INT_VAR), "400", "int");
-        // float * int
-        debugTestRunner.assertExpression(context, String.format("%s * %s", FLOAT_VAR, INT_VAR), "-200.0", "float");
-        // int * float
-        debugTestRunner.assertExpression(context, String.format("%s * %s", INT_VAR, FLOAT_VAR), "-200.0", "float");
         // float * float
         debugTestRunner.assertExpression(context, String.format("%s * %s", FLOAT_VAR, FLOAT_VAR), "100.0", "float");
         // decimal * decimal
         debugTestRunner.assertExpression(context, String.format("%s * %s", DECIMAL_VAR, DECIMAL_VAR), "12.25",
                 "decimal");
-        // int * decimal
-        debugTestRunner.assertExpression(context, String.format("%s * %s", INT_VAR, DECIMAL_VAR), "70.00", "decimal");
-        // decimal * int
-        debugTestRunner.assertExpression(context, String.format("%s * %s", DECIMAL_VAR, INT_VAR), "70.00", "decimal");
-        // float * decimal
-        debugTestRunner.assertExpression(context, String.format("%s * %s", FLOAT_VAR, DECIMAL_VAR), "-35.0", "decimal");
-        // decimal * float
-        debugTestRunner.assertExpression(context, String.format("%s * %s", DECIMAL_VAR, FLOAT_VAR), "-35.0", "decimal");
 
         ///////////////////////////////-------------division--------------------//////////////////////////////////////
         // int / int
         debugTestRunner.assertExpression(context, String.format("%s / %s", INT_VAR, INT_VAR), "1", "int");
-        // float / int
-        debugTestRunner.assertExpression(context, String.format("%s / %s", FLOAT_VAR, INT_VAR), "-0.5", "float");
-        // int / float
-        debugTestRunner.assertExpression(context, String.format("%s / %s", INT_VAR, FLOAT_VAR), "-2.0", "float");
         // float / float
         debugTestRunner.assertExpression(context, String.format("%s / %s", FLOAT_VAR, FLOAT_VAR), "1.0", "float");
         // decimal / decimal
         debugTestRunner.assertExpression(context, String.format("%s / %s", DECIMAL_VAR, DECIMAL_VAR), "1", "decimal");
-        // int / decimal
-        debugTestRunner.assertExpression(context, String.format("%s / %s", INT_VAR, DECIMAL_VAR),
-                "5.714285714285714285714285714285714", "decimal");
-        // decimal / int
-        debugTestRunner.assertExpression(context, String.format("%s / %s", DECIMAL_VAR, INT_VAR), "0.175", "decimal");
-        // float / decimal
-        debugTestRunner.assertExpression(context, String.format("%s / %s", FLOAT_VAR, DECIMAL_VAR),
-                "-2.857142857142857142857142857142857", "decimal");
-        // decimal / float
-        debugTestRunner.assertExpression(context, String.format("%s / %s", DECIMAL_VAR, FLOAT_VAR), "-0.35", "decimal");
 
         /////////////////////////////////-----------modulus----------------///////////////////////////////////////////
         // int % int
         debugTestRunner.assertExpression(context, String.format("%s %% %s", INT_VAR, INT_VAR), "0", "int");
-        // float % int
-        debugTestRunner.assertExpression(context, String.format("%s %% %s", FLOAT_VAR, INT_VAR), "-10.0", "float");
-        // int % float
-        debugTestRunner.assertExpression(context, String.format("%s %% %s", INT_VAR, FLOAT_VAR), "0.0", "float");
         // float % float
         debugTestRunner.assertExpression(context, String.format("%s %% %s", FLOAT_VAR, FLOAT_VAR), "-0.0", "float");
         // decimal % decimal
         debugTestRunner.assertExpression(context, String.format("%s %% %s", DECIMAL_VAR, DECIMAL_VAR), "0",
                 "decimal");
-        // int % decimal
-        debugTestRunner.assertExpression(context, String.format("%s %% %s", INT_VAR, DECIMAL_VAR), "2.5", "decimal");
-        // decimal % int
-        debugTestRunner.assertExpression(context, String.format("%s %% %s", DECIMAL_VAR, INT_VAR), "3.5", "decimal");
     }
 
     @Override
@@ -493,22 +457,10 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         //////////////////////////////-------------addition------------------/////////////////////////////////////////
         // int + int
         debugTestRunner.assertExpression(context, String.format("%s + %s", INT_VAR, INT_VAR), "40", "int");
-        // float + int
-        debugTestRunner.assertExpression(context, String.format("%s + %s", FLOAT_VAR, INT_VAR), "10.0", "float");
-        // int + float
-        debugTestRunner.assertExpression(context, String.format("%s + %s", INT_VAR, FLOAT_VAR), "10.0", "float");
         // float + float
         debugTestRunner.assertExpression(context, String.format("%s + %s", FLOAT_VAR, FLOAT_VAR), "-20.0", "float");
         // decimal + decimal
         debugTestRunner.assertExpression(context, String.format("%s + %s", DECIMAL_VAR, DECIMAL_VAR), "7.0", "decimal");
-        // int + decimal
-        debugTestRunner.assertExpression(context, String.format("%s + %s", INT_VAR, DECIMAL_VAR), "23.5", "decimal");
-        // decimal + int
-        debugTestRunner.assertExpression(context, String.format("%s + %s", DECIMAL_VAR, INT_VAR), "23.5", "decimal");
-        // float + decimal
-        debugTestRunner.assertExpression(context, String.format("%s + %s", FLOAT_VAR, DECIMAL_VAR), "-6.5", "decimal");
-        // decimal + float
-        debugTestRunner.assertExpression(context, String.format("%s + %s", DECIMAL_VAR, FLOAT_VAR), "-6.5", "decimal");
 
         // string + string
         debugTestRunner.assertExpression(context, String.format("%s + %s", STRING_VAR, STRING_VAR), "foofoo", "string");
@@ -522,29 +474,15 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         // xml + xml
         debugTestRunner.assertExpression(context, String.format("%s + %s", XML_VAR, XML_VAR),
-                "<person gender=\"male\">" +
-                        "<firstname>Praveen</firstname><lastname>Nada</lastname></person><person gender=\"male\">" +
-                        "<firstname>Praveen</firstname><lastname>Nada</lastname></person>", "xml");
+                "XMLSequence (size = 10)", "xml");
 
         //////////////////////////////-------------subtraction------------------//////////////////////////////////////
         // int - int
         debugTestRunner.assertExpression(context, String.format("%s - %s", INT_VAR, INT_VAR), "0", "int");
-        // float - int
-        debugTestRunner.assertExpression(context, String.format("%s - %s", FLOAT_VAR, INT_VAR), "-30.0", "float");
-        // int - float
-        debugTestRunner.assertExpression(context, String.format("%s - %s", INT_VAR, FLOAT_VAR), "30.0", "float");
         // float - float
         debugTestRunner.assertExpression(context, String.format("%s - %s", FLOAT_VAR, FLOAT_VAR), "0.0", "float");
         // decimal - decimal
         debugTestRunner.assertExpression(context, String.format("%s - %s", DECIMAL_VAR, DECIMAL_VAR), "0", "decimal");
-        // int - decimal
-        debugTestRunner.assertExpression(context, String.format("%s - %s", INT_VAR, DECIMAL_VAR), "16.5", "decimal");
-        // decimal - int
-        debugTestRunner.assertExpression(context, String.format("%s - %s", DECIMAL_VAR, INT_VAR), "-16.5", "decimal");
-        // float - decimal
-        debugTestRunner.assertExpression(context, String.format("%s - %s", FLOAT_VAR, DECIMAL_VAR), "-13.5", "decimal");
-        // decimal - float
-        debugTestRunner.assertExpression(context, String.format("%s - %s", DECIMAL_VAR, FLOAT_VAR), "13.5", "decimal");
     }
 
     @Override

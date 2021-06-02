@@ -119,7 +119,7 @@ public class MapUtils {
         return ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
                                                                 OPERATION_NOT_SUPPORTED_IDENTIFIER),
                                         StringUtils.fromString(String.format("%s not supported on type '%s'", op,
-                                                                              type.getQualifiedName())));
+                                                                             type)));
     }
 
     public static void checkIsMapOnlyOperation(Type mapType, String op) {

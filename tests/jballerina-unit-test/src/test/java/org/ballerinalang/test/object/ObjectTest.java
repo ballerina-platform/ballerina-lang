@@ -71,8 +71,6 @@ public class ObjectTest {
         Assert.assertEquals(returns[1].stringValue(), "sample name");
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 50);
         Assert.assertEquals(returns[3].stringValue(), "february");
-
-        BRunUtil.invoke(compileResult, "testErrorAsObjectField");
     }
 
     @Test(description = "Test Basic object as struct with just new")
@@ -438,6 +436,7 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 0, "uninitialized field 'foo'", 18, 5);
     }
 
+    // https://github.com/ballerina-platform/ballerina-lang/issues/14633
     @Test(description = "Negative test to test self reference types", enabled = false)
     public void testSelfReferenceType() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_cyclic_self_reference.bal");
@@ -718,7 +717,7 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) result[1]).intValue(), 1);
     }
 
-    @Test(description = "Negative test for object union type inference", groups = { "brokenOnNewParser" })
+    @Test(description = "Negative test for object union type inference")
     public void testNegativeUnionTypeInit() {
         CompileResult resultNegative = BCompileUtil.compile("test-src/object/object_type_union_negative.bal");
         int i = 0;
@@ -729,9 +728,9 @@ public class ObjectTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected '(PersonRec|EmployeeRec)', found 'string'", 71, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "missing required parameter 'i' in call to 'new()'", 114, 38);
+                "cannot infer type of the object from '(InitObjOne|InitObjTwo|float)'", 114, 38);
         BAssertUtil.validateError(resultNegative, i++,
-                "positional argument not allowed after named arguments", 114, 53);
+                "named arg followed by positional arg", 114, 42);
         BAssertUtil.validateError(resultNegative, i++,
                 "cannot infer type of the object from '(InitObjOne|InitObjTwo|int)'", 119, 36);
         BAssertUtil.validateError(resultNegative, i++,
@@ -742,10 +741,10 @@ public class ObjectTest {
                 "incompatible types: expected 'int', found 'string'", 126, 51);
         BAssertUtil.validateError(resultNegative, i++,
                 "cannot infer type of the object from '(InitObjOne|InitObjThree|boolean|string)'", 127, 50);
-        BAssertUtil.validateError(resultNegative, i++,
-                "positional argument not allowed after named arguments", 128, 59);
-        BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type of the object from '(InitObjThree|InitObjOne|boolean|string)'", 129, 50);
+        BAssertUtil.validateError(resultNegative, i++, "named arg followed by positional arg", 128, 51);
+        BAssertUtil.validateError(resultNegative, i++, "named arg followed by positional arg", 129  , 62);
+        BAssertUtil.validateError(resultNegative, i++, "named arg followed by positional arg", 129  , 62);
+        BAssertUtil.validateError(resultNegative, i++, "named arg followed by positional arg", 129  , 62);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
@@ -777,8 +776,7 @@ public class ObjectTest {
     @Test(description = "Negative test to test duplicate fields")
     public void testDuplicateFields() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_field_negative.bal");
-        BAssertUtil.validateError(result, 0, "redeclared symbol 'error'",
-                20, 18);
+        BAssertUtil.validateError(result, 0, "redeclared symbol 'error'", 20, 18);
         Assert.assertEquals(result.getErrorCount(), 1);
     }
 

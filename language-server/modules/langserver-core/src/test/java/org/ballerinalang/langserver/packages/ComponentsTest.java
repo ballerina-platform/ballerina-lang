@@ -89,11 +89,11 @@ public class ComponentsTest {
                         .filter(jsonObject -> jsonObject.get(NAME).getAsString().equals(name.getAsString()))
                         .forEach(packageObjects::add);
                 Assert.assertEquals(packageObjects.size(), 1,
-                        "Package ComponentsTest's object size assert fails with " + expected + "test case.");
+                        "Package ComponentsTest's object size assert fails with " + expected + " test case.");
                 Assert.assertEquals(name, packageObjects.get(0).getAsJsonPrimitive(NAME), "Package ComponentsTest's " +
-                        "packageName assert fails with " + expected + "test case.");
+                        "packageName assert fails with " + expected + " test case.");
                 Assert.assertNotNull(jsonPackage.getAsJsonObject().getAsJsonPrimitive("filePath"), "Package " +
-                        "ComponentsTest's filePath assert fails with " + expected + "test case.");
+                        "ComponentsTest's filePath assert fails with " + expected + " test case.");
                 compareJsonArrays(jsonPackage.getAsJsonObject().getAsJsonArray(MODULES),
                         packageObjects.get(0).getAsJsonArray(MODULES),
                         expected);
@@ -114,7 +114,7 @@ public class ComponentsTest {
     private void compareJsonArrays(JsonArray responseJsonArray, JsonArray expectedJsonArray, String testReference) {
         Assert.assertEqualsNoOrder(GSON.fromJson(responseJsonArray, Object[].class),
                 GSON.fromJson(expectedJsonArray, Object[].class),
-                "Package ComponentsTest fails with " + testReference + "test case.");
+                "Package ComponentsTest fails with " + testReference + " test case.");
     }
 
     @AfterClass
@@ -128,7 +128,7 @@ public class ComponentsTest {
                 {new String[]{"project"}, "single-package_expected.json"},
                 {new String[]{"project", "project-functions", "project-services", "single-file"},
                         "multiple-packages_expected.json"},
-                {new String[]{"single-file"}, "no-package_expected.json"}
+                {new String[]{"single-file"}, "single-file-package_expected.json"}
         };
     }
 }

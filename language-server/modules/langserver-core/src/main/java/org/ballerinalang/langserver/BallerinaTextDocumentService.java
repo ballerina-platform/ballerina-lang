@@ -29,6 +29,7 @@ import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderHolder;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.BallerinaDefinitionContext;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
@@ -251,10 +252,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
             (DefinitionParams params) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                DocumentServiceContext defContext = ContextBuilder.buildBaseContext(params.getTextDocument().getUri(),
+                BallerinaDefinitionContext defContext = ContextBuilder.buildDefinitionContext(
+                        params.getTextDocument().getUri(),
                         this.workspaceManager,
-                        LSContextOperation.TXT_DEFINITION,
-                        this.serverContext);
+                        this.serverContext,
+                        params.getPosition());
                 return Either.forLeft(DefinitionUtil.getDefinition(defContext, params.getPosition()));
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Goto Definition", e);
@@ -372,7 +374,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     LSContextOperation.TXT_CODE_LENS, this.serverContext);
 
             try {
-                lenses = CodeLensUtil.getCodeLenses(codeLensContext);
+                lenses = CodeLensUtil.getCodeLenses(codeLensContext, params.getTextDocument());
                 return lenses;
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Code Lens", e);

@@ -267,6 +267,11 @@ public class QueryExpressionWithVarTypeTest {
         Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
+    @Test(description = "Test simple select clause - with table")
+    public void testSimpleSelectQueryWithTable() {
+        BRunUtil.invoke(result, "testSimpleSelectQueryWithTable");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

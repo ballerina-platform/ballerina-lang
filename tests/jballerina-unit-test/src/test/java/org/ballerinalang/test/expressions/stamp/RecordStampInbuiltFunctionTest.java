@@ -539,8 +539,8 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(((BMapType) employee0.getType()).getConstrainedType().getClass(), BAnydataType.class);
 
         Assert.assertEquals((employee0.get("marks").getType().getClass()), BArrayType.class);
-        Assert.assertEquals(((BArrayType) ((BArrayType) (employee0).get("marks").getType()).getElementType()).
-                getElementType().getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(((BArrayType) (employee0).get("marks").getType()).getElementType().getTag(),
+                            TypeTags.ANYDATA_TAG);
 
         Assert.assertEquals(employee0.get("info").getType().getClass(), BMapType.class);
         Assert.assertEquals(((BMapType) employee0.get("info").getType()).getConstrainedType().getClass(),

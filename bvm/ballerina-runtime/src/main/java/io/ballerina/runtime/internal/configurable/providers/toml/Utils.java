@@ -67,31 +67,25 @@ public class Utils {
     }
 
     static TomlType getEffectiveTomlType(Type expectedType, String variableName) {
-        TomlType tomlType;
         switch (expectedType.getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.BYTE_TAG:
-                tomlType = TomlType.INTEGER;
-                break;
+                return TomlType.INTEGER;
             case TypeTags.BOOLEAN_TAG:
-                tomlType = TomlType.BOOLEAN;
-                break;
+                return TomlType.BOOLEAN;
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
-                tomlType = TomlType.DOUBLE;
-                break;
+                return TomlType.DOUBLE;
             case TypeTags.STRING_TAG:
-                tomlType = TomlType.STRING;
-                break;
+            case TypeTags.UNION_TAG:
+                return TomlType.STRING;
             case TypeTags.ARRAY_TAG:
-                tomlType = TomlType.ARRAY;
-                break;
+                return TomlType.ARRAY;
+            case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                tomlType = TomlType.TABLE;
-                break;
+                return TomlType.TABLE;
             case TypeTags.TABLE_TAG:
-                tomlType = TomlType.TABLE_ARRAY;
-                break;
+                return TomlType.TABLE_ARRAY;
             case TypeTags.XML_ATTRIBUTES_TAG:
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_ELEMENT_TAG:
@@ -105,27 +99,28 @@ public class Utils {
             default:
                 throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, expectedType.toString());
         }
-        return tomlType;
     }
 
     static boolean isPrimitiveType(int typeTag) {
         return typeTag <= TypeTags.BOOLEAN_TAG;
     }
 
+    static String getModuleKey(Module module) {
+        return module.getOrg() + "." + module.getName();
+    }
+
     static String getLineRange(TomlNode node) {
         if (node.location() == null) {
             return CONFIG_FILE_NAME;
         }
-        LineRange lineRange = node.location().lineRange();
-        LineRange oneBasedLineRange = LineRange.from(
+        LineRange oneBasedLineRange = getOneBasedLineRange(node.location().lineRange());
+        return oneBasedLineRange.filePath() + ":" + oneBasedLineRange;
+    }
+
+    static LineRange getOneBasedLineRange(LineRange lineRange) {
+        return LineRange.from(
                 lineRange.filePath(),
                 LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
                 LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
-        return oneBasedLineRange.filePath() + ":" + oneBasedLineRange.toString();
-
-    }
-
-    static String getModuleKey(Module module) {
-        return module.getOrg() + "." + module.getName();
     }
 }

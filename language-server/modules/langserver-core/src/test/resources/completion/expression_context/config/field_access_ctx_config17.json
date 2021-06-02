@@ -16,6 +16,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "next",
       "insertText": "next()",
       "insertTextFormat": "Snippet"
     }

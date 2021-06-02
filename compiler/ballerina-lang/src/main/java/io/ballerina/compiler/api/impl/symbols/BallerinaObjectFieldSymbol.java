@@ -53,6 +53,7 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
     private List<AnnotationSymbol> annots;
     private String signature;
     private boolean deprecated;
+    private String escapedName;
 
     public BallerinaObjectFieldSymbol(CompilerContext context, BField bField, SymbolKind kind) {
         super(bField.name.value, kind, bField.symbol, context);
@@ -67,7 +68,11 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
 
     @Override
     public Optional<String> getName() {
-        return Optional.of(this.bField.getName().getValue());
+        if (this.escapedName != null) {
+            return Optional.of(this.escapedName);
+        }
+        this.escapedName = escapeReservedKeyword(this.bField.getName().getValue());
+        return Optional.ofNullable(this.escapedName);
     }
 
     @Override

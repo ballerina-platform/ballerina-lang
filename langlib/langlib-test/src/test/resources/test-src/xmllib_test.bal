@@ -203,6 +203,160 @@ function testSlice() returns [xml, xml, xml] {
     return [elem.slice(0, 2), elem.slice(1), 'xml:slice(elem, 1)];
 }
 
+function testXMLStrip() {
+    xml<'xml:Element> x1 = xml `<foo><bar/><?foo?>text1 <!--Com1--> <bar/></foo><foo><?foo?>text1<!--Com2--></foo>`;
+    xml x2 = x1.strip();
+    assertEquals(x2.toString(), "<foo><bar/><?foo?>text1 <!--Com1--> <bar/></foo><foo><?foo?>text1<!--Com2--></foo>");
+    xml x21 = x1.cloneReadOnly();
+    x2 = x21.strip();
+    assertEquals(x2.toString(), "<foo><bar/><?foo?>text1 <!--Com1--> <bar/></foo><foo><?foo?>text1<!--Com2--></foo>");
+    x2 = (x1.cloneReadOnly()).strip();
+    assertEquals(x2.toString(), "<foo><bar/><?foo?>text1 <!--Com1--> <bar/></foo><foo><?foo?>text1<!--Com2--></foo>");
+
+    'xml:Element x7 = xml `<foo><bar/><?foo?>text1 text2<!--Comment--><bar/>  </foo>`;
+    x2 = x7.strip();
+    assertEquals(x2.toString(), "<foo><bar/><?foo?>text1 text2<!--Comment--><bar/>  </foo>");
+    x21 = x7.cloneReadOnly();
+    x2 = x21.strip();
+    assertEquals(x2.toString(), "<foo><bar/><?foo?>text1 text2<!--Comment--><bar/>  </foo>");
+    x2 = (x7.cloneReadOnly()).strip();
+    assertEquals(x2.toString(), "<foo><bar/><?foo?>text1 text2<!--Comment--><bar/>  </foo>");
+    x21 = x7.cloneReadOnly();
+    'xml:Element x6 = <'xml:Element> x21.strip();
+    assertEquals(x6.toString(), "<foo><bar/><?foo?>text1 text2<!--Comment--><bar/>  </foo>");
+
+    string a = "interpolation";
+    xml<'xml:Text> x10 = xml `text1 text2 ${a}`;
+    x2 = x10.strip();
+    assertEquals(x2.toString(), "text1 text2 interpolation");
+    x21 = x10.cloneReadOnly();
+    x2 = x21.strip();
+    assertEquals(x2.toString(), "text1 text2 interpolation");
+    x2 = (x10.cloneReadOnly()).strip();
+    assertEquals(x2.toString(), "text1 text2 interpolation");
+
+    'xml:Text x11 = xml `text1 text2`;
+    x2 = x11.strip();
+    assertEquals(x2.toString(), "text1 text2");
+    x21 = x11.cloneReadOnly();
+    x2 = x21.strip();
+    assertEquals(x2.toString(), "text1 text2");
+    x2 = (x11.cloneReadOnly()).strip();
+    assertEquals(x2.toString(), "text1 text2");
+
+    xml<'xml:Comment> x3 = xml `<!--Comment1--><!--Comment2-->`;
+    x2 = x3.strip();
+    assertEquals(x2.toString(), "");
+    x21 = x3.cloneReadOnly();
+    x2 = x21.strip();
+    assertEquals(x2.toString(), "");
+    x2 = (x3.cloneReadOnly()).strip();
+    assertEquals(x2.toString(), "");
+
+    'xml:Comment x8 = xml `<!--Comment1-->`;
+    x2 = x8.strip();
+    assertEquals(x2.toString(), "");
+    x21 = x8.cloneReadOnly();
+    x2 = x21.strip();
+    assertEquals(x2.toString(), "");
+    x2 = (x8.cloneReadOnly()).strip();
+    assertEquals(x2.toString(), "");
+
+    xml<'xml:ProcessingInstruction> x4 = xml `<?foo?><?fu?>`;
+    x2 = x4.strip();
+    assertEquals(x2.toString(), "");
+    x21 = x4.cloneReadOnly();
+    x2 = x21.strip();
+    assertEquals(x2.toString(), "");
+    x2 = (x4.cloneReadOnly()).strip();
+    assertEquals(x2.toString(), "");
+
+    'xml:ProcessingInstruction x9 = xml `<?foo?>`;
+    x2 = x9.strip();
+    assertEquals(x2.toString(), "");
+    x21 = x9.cloneReadOnly();
+    x2 = x21.strip();
+    assertEquals(x2.toString(), "");
+    x2 = (x9.cloneReadOnly()).strip();
+    assertEquals(x2.toString(), "");
+
+    xml x5 = xml `<foo><bar/><?foo?></foo><?foo?>text1 text2<!--Com1--> <foo><bar/></foo>`;
+    x2 = x5.strip();
+    assertEquals(x2.toString(), "<foo><bar/><?foo?></foo>text1 text2 <foo><bar/></foo>");
+    x21 = x5.cloneReadOnly();
+    x2 = x21.strip();
+    assertEquals(x2.toString(), "<foo><bar/><?foo?></foo>text1 text2 <foo><bar/></foo>");
+    x2 = (x5.cloneReadOnly()).strip();
+    assertEquals(x2.toString(), "<foo><bar/><?foo?></foo>text1 text2 <foo><bar/></foo>");
+
+    readonly & xml x22 = xml `<foo><bar/><?foo?></foo><?foo?>text1 text2<!--Com1--> <foo><bar/></foo>`;
+    x21 = x22;
+    x2 = x21.strip();
+    assertEquals(x2.toString(), "<foo><bar/><?foo?></foo>text1 text2 <foo><bar/></foo>");
+    x2 = x22.strip();
+    assertEquals(x2.toString(), "<foo><bar/><?foo?></foo>text1 text2 <foo><bar/></foo>");
+
+    readonly & xml<'xml:Element> x12 = xml `<foo>fa<?foo?>text1 <!--Com1--> <bar/></foo><foo>text1<!--Com2--></foo>`;
+    x21 = x12;
+    x2 = x21.strip();
+    assertEquals(x2.toString(), "<foo>fa<?foo?>text1 <!--Com1--> <bar/></foo><foo>text1<!--Com2--></foo>");
+    x2 = x12.strip();
+    assertEquals(x2.toString(), "<foo>fa<?foo?>text1 <!--Com1--> <bar/></foo><foo>text1<!--Com2--></foo>");
+
+    readonly & 'xml:Element x13 = xml `<foo><bar/><?foo?>text1 text2<!--Comment--><bar/>  </foo>`;
+    x21 = x13;
+    x2 = x21.strip();
+    assertEquals(x2.toString(), "<foo><bar/><?foo?>text1 text2<!--Comment--><bar/>  </foo>");
+    x2 = x13.strip();
+    assertEquals(x2.toString(), "<foo><bar/><?foo?>text1 text2<!--Comment--><bar/>  </foo>");
+
+    x21 = x13;
+    'xml:Element x14 = <'xml:Element> x21.strip();
+    assertEquals(x14.toString(), "<foo><bar/><?foo?>text1 text2<!--Comment--><bar/>  </foo>");
+
+    readonly & xml<'xml:Text> x15 = xml `text1 text2 ${a}`;
+    x21 = x15;
+    x2 = x21.strip();
+    assertEquals(x2.toString(), "text1 text2 interpolation");
+    x2 = x15.strip();
+    assertEquals(x2.toString(), "text1 text2 interpolation");
+
+    readonly & 'xml:Text x16 = xml `text1 text2`;
+    x21 = x16;
+    x2 = x21.strip();
+    assertEquals(x2.toString(), "text1 text2");
+    x2 = x16.strip();
+    assertEquals(x2.toString(), "text1 text2");
+
+    readonly & xml<'xml:Comment> x17 = xml `<!--Comment1--><!--Comment2-->`;
+    x21 = x17;
+    x2 = x21.strip();
+    assertEquals(x2.toString(), "");
+    x2 = x17.strip();
+    assertEquals(x2.toString(), "");
+
+    readonly & 'xml:Comment x18 = xml `<!--Comment1-->`;
+    x21 = x18;
+    x2 = x21.strip();
+    assertEquals(x2.toString(), "");
+    x2 = x18.strip();
+    assertEquals(x2.toString(), "");
+
+    readonly & xml<'xml:ProcessingInstruction> x19 = xml `<?foo?><?fu?>`;
+    x21 = x19;
+    x2 = x21.strip();
+    assertEquals(x2.toString(), "");
+    x2 = x19.strip();
+    assertEquals(x2.toString(), "");
+
+    readonly & 'xml:ProcessingInstruction x20 = xml `<?foo?>`;
+    x21 = x20;
+    x2 = x21.strip();
+    assertEquals(x2.toString(), "");
+    x2 = x20.strip();
+    assertEquals(x2.toString(), "");
+}
+
 function testXMLCycleError() returns [error|xml, error|xml] {
      return [trap testXMLCycleErrorInner(), trap testXMLCycleInnerNonError()];
 }
@@ -279,21 +433,21 @@ function testAsyncFpArgsWithXmls() returns [int, xml] {
     ((bookstore/*).elements()).forEach(function (xml x) {
       int value = <int> checkpanic langint:fromString((x/<year>/*).toString()) ;
       future<int> f1 = start getRandomNumber(value);
-      int result = wait f1;
+      int result = checkpanic wait f1;
       sum = sum + result;
     });
 
     var filter = ((bookstore/*).elements()).filter(function (xml x) returns boolean {
       int value =   <int> checkpanic langint:fromString((x/<year>/*).toString()) ;
       future<int> f1 = start getRandomNumber(value);
-      int result = wait f1;
+      int result = checkpanic wait f1;
       return result > 2000;
     });
 
     var filter2 = (filter).map(function (xml x) returns xml {
       int value =   <int> checkpanic langint:fromString((x/<year>/*).toString()) ;
       future<int> f1 = start getRandomNumber(value);
-      int result = wait f1;
+      int result = checkpanic wait f1;
       return xml `<year>${result}</year>`;
     });
     return [sum, filter];
@@ -623,6 +777,20 @@ function testData() {
     assertEquals(concat.data(), "EnidBlytonhello>abc<");
 }
 
+function testXmlSubtypeFillerValue() {
+    xml:Text x1 = xml:createText("text 1");
+    xml:Text x2 = xml:createText("text 2");
+    xml:Text x3 = xml:createText("text 3");
+
+    xml:Text[] x = [x1, x2];
+    insertListValue(x, 3, x3);
+    assertEquals(x.toString(), "[`text 1`,`text 2`,``,`text 3`]");
+}
+
+function insertListValue('xml:Text[] list, int pos, 'xml:Text value) {
+    list[pos] = value;
+}
+
 function testXmlGetContentOverACommentSequence() {
     xml a = xml `<elem><!--Hello--></elem>`;
     xml c = a/*;
@@ -678,5 +846,36 @@ function testXmlGetContentOverAProcInstructionSequence() {
     } else {
         panic error("Assert failure: single item processing instruction sequence should pass " +
             "`is xml:ProcessingInstruction` type test");
+    }
+}
+
+function fromStringTest() {
+    var a = xml:fromString("hello");
+    if !(a is xml:Text) {
+        panic error("Assertion error: not a text");
+    }
+
+    var b = xml:fromString("<!-- hello -->");
+    if !(b is xml:Comment) {
+        panic error("Assertion error: not a comment");
+    }
+
+    var c = xml:fromString("<?pi data ?>");
+    if !(c is xml:ProcessingInstruction) {
+        panic error("Assertion error: not a PI");
+    }
+
+    var d = checkpanic xml:fromString("<hello/>world<?pi data ?><!-- comment -->");
+    if !(d[0] is xml:Element) {
+        panic error("Assertion error: not an element");
+    }
+    if !(d[1] is xml:Text) {
+        panic error("Assertion error: not a text");
+    }
+    if !(d[2] is xml:ProcessingInstruction) {
+        panic error("Assertion error: not a pi");
+    }
+    if !(d[3] is xml:Comment) {
+        panic error("Assertion error: not a comment");
     }
 }

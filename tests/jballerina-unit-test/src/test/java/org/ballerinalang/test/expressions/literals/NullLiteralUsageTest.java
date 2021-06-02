@@ -28,7 +28,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
@@ -47,35 +46,6 @@ public class NullLiteralUsageTest {
         result = BCompileUtil.compile("test-src/expressions/literals/null_literal_usage.bal");
     }
 
-    @Test(enabled = false)
-    public void testInvalidNullLiteralUsage() {
-        final String errorMsg = "'null' literal is only supported for 'json'";
-        CompileResult result = BCompileUtil.compile("test-src/expressions/literals/null_literal_usage_negative.bal");
-        int index = 0;
-
-        assertEquals(result.getErrorCount(), 20);
-        validateError(result, index++, errorMsg, 17, 13);
-        validateError(result, index++, errorMsg, 20, 18);
-        validateError(result, index++, errorMsg, 22, 15);
-        validateError(result, index++, errorMsg, 27, 38);
-        validateError(result, index++, errorMsg, 29, 22);
-        validateError(result, index++, errorMsg, 31, 27);
-        validateError(result, index++, errorMsg, 31, 37);
-        validateError(result, index++, errorMsg, 32, 27);
-        validateError(result, index++, errorMsg, 34, 14);
-        validateError(result, index++, errorMsg, 38, 12);
-        validateError(result, index++, errorMsg, 42, 45);
-        validateError(result, index++, errorMsg, 50, 20);
-        validateError(result, index++, errorMsg, 54, 17);
-        validateError(result, index++, errorMsg, 62, 9);
-        validateError(result, index++, errorMsg, 68, 15);
-        validateError(result, index++, errorMsg, 73, 14);
-        validateError(result, index++, "incompatible types: expected '()', found 'string'", 78, 18);
-        validateError(result, index++, errorMsg, 78, 67);
-        validateError(result, index++, errorMsg, 78, 74);
-        validateError(result, index, errorMsg, 78, 81);
-    }
-
     @Test
     public void testNullAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "testNullAssignment");
@@ -88,15 +58,13 @@ public class NullLiteralUsageTest {
         assertNull(returns[0]);
     }
 
-    // disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/13384
-    @Test(enabled = false)
+    @Test
     public void testNullStringRepresentation() {
         BValue[] returns = BRunUtil.invoke(result, "testNullStringRepresentation");
-        assertEquals(returns[0].stringValue(), "null");
+        assertEquals(returns[0].stringValue(), "");
     }
 
-    // disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/13384
-    @Test(enabled = false)
+    @Test
     public void testNullStringRepresentation2() {
         BValue[] returns = BRunUtil.invoke(result, "testNullStringRepresentation2");
         assertEquals(returns[0].stringValue(), "null");
@@ -112,6 +80,12 @@ public class NullLiteralUsageTest {
     public void testNullStringRepresentation4() {
         BValue[] returns = BRunUtil.invoke(result, "testNullStringRepresentation4");
         assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\",\"age\":25,\"location\":null}");
+    }
+
+    @Test
+    public void testNullStringRepresentation5() {
+        BValue[] returns = BRunUtil.invoke(result, "testNullStringRepresentation5");
+        assertEquals(returns[0].stringValue(), "()");
     }
 
     @Test

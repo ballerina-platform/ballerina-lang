@@ -515,25 +515,24 @@
                                             },
                                             {
                                               "kind": "COMMA_TOKEN",
+                                              "isMissing": true,
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_TOKEN",
+                                                "ERROR_MISSING_COMMA_TOKEN"
+                                              ]
+                                            },
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "a"
+                                            },
+                                            {
+                                              "kind": "COMMA_TOKEN",
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
                                                 "ERROR_INVALID_TOKEN",
                                                 "ERROR_INVALID_TOKEN"
                                               ],
                                               "leadingMinutiae": [
-                                                {
-                                                  "kind": "INVALID_NODE_MINUTIAE",
-                                                  "invalidNode": {
-                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                    "children": [
-                                                      {
-                                                        "kind": "IDENTIFIER_TOKEN",
-                                                        "value": "a"
-                                                      }
-                                                    ]
-                                                  }
-                                                },
                                                 {
                                                   "kind": "INVALID_NODE_MINUTIAE",
                                                   "invalidNode": {

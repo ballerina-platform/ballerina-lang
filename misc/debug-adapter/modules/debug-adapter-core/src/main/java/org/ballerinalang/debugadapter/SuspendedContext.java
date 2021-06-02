@@ -22,7 +22,6 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.debugadapter.evaluation.DebugExpressionCompiler;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
@@ -33,6 +32,7 @@ import org.ballerinalang.debugadapter.utils.PackageUtils;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.DebugSourceType.DEPENDENCY;
 import static org.ballerinalang.debugadapter.DebugSourceType.PACKAGE;
 import static org.ballerinalang.debugadapter.DebugSourceType.SINGLE_FILE;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
@@ -42,12 +42,13 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
  */
 public class SuspendedContext {
 
+    private final ExecutionContext executionContext;
     private final VirtualMachineProxyImpl attachedVm;
     private final ThreadReferenceProxyImpl owningThread;
     private final StackFrameProxyImpl frame;
     private final Project project;
-    private final DebugSourceType sourceType;
 
+    private DebugSourceType sourceType;
     private Path breakPointSourcePath;
     private String fileName;
     private int lineNumber;
@@ -55,16 +56,18 @@ public class SuspendedContext {
     private ClassLoaderReference classLoader;
     private DebugExpressionCompiler debugCompiler;
 
-    SuspendedContext(Project project, VirtualMachineProxyImpl vm, ThreadReferenceProxyImpl threadRef,
+    SuspendedContext(ExecutionContext executionContext, ThreadReferenceProxyImpl threadRef,
                      StackFrameProxyImpl frame) {
-        this.attachedVm = vm;
+        this.executionContext = executionContext;
+        this.project = executionContext.getSourceProject();
+        this.attachedVm = executionContext.getDebuggeeVM();
         this.owningThread = threadRef;
         this.frame = frame;
-        this.project = project;
-        this.sourceType = (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) ? SINGLE_FILE : PACKAGE;
         this.lineNumber = -1;
-        this.fileName = null;
-        this.breakPointSourcePath = null;
+    }
+
+    public ExecutionContext getExecutionContext() {
+        return executionContext;
     }
 
     public Project getProject() {
@@ -95,6 +98,22 @@ public class SuspendedContext {
     }
 
     public DebugSourceType getSourceType() {
+        if (sourceType == null) {
+            Project project = getProject();
+            switch (project.kind()) {
+                case BUILD_PROJECT:
+                    sourceType = PACKAGE;
+                    break;
+                case SINGLE_FILE_PROJECT:
+                    sourceType = SINGLE_FILE;
+                    break;
+                case BALA_PROJECT:
+                default:
+                    sourceType = DEPENDENCY;
+                    break;
+            }
+        }
+
         return sourceType;
     }
 

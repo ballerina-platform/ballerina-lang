@@ -17,18 +17,20 @@
  */
 package org.ballerinalang.langserver.commons;
 
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.Token;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents the Completion operation context.
  *
  * @since 2.0.0
  */
-public interface BallerinaCompletionContext extends CompletionContext {
+public interface BallerinaCompletionContext extends CompletionContext, BallerinaEnclosedPositionContext {
 
     /**
      * Set the token at the completion's cursor position.
@@ -71,4 +73,11 @@ public interface BallerinaCompletionContext extends CompletionContext {
      * @return {@link List} of nodes
      */
     List<Node> getResolverChain();
+
+    /**
+     * Get the ContextType for the node at cursor.
+     *
+     * @return {@link Optional<TypeSymbol>} Context TypeSymbol for node at cursor.
+     */
+    Optional<TypeSymbol> getContextType();
 }

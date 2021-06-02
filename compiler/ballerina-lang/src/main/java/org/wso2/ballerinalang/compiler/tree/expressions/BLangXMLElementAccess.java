@@ -30,7 +30,9 @@ import java.util.Set;
 /**
  * @since 1.2.0
  */
-public class BLangXMLElementAccess extends BLangAccessExpression implements XMLElementAccess {
+public class BLangXMLElementAccess extends BLangExpression implements XMLElementAccess {
+
+    public BLangExpression expr;
     public List<BLangXMLElementFilter> filters;
 
     public BLangXMLElementAccess(Location pos, Set<Whitespace> ws, BLangExpression expr,

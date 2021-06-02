@@ -31,37 +31,3 @@ class Person {
         self.name = name;
     }
 }
-
-class ErrorField {
-    public error 'error;
-    public int 'int;
-
-    function init (error er, int value = 20) {
-        self.'error = er;
-        self.'int = value;
-    }
-}
-
-public function testErrorAsObjectField() {
-    error newError = error("bam", message = "new error");
-    ErrorField p = new ErrorField(newError);
-    assertEquality(p.'error.toString(), "error(\"bam\",message=\"new error\")");
-    assertEquality(p.'int, 20);
-}
-
-const ASSERTION_ERROR_REASON = "AssertionError";
-
-function assertEquality(any|error actual, any|error expected) {
-    if expected is anydata && actual is anydata && expected == actual {
-        return;
-    }
-
-    if expected === actual {
-        return;
-    }
-
-    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
-    string actualValAsString = actual is error ? actual.toString() : actual.toString();
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
-}

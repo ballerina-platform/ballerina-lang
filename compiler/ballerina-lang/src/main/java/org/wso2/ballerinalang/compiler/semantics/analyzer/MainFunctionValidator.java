@@ -25,16 +25,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * This represents the code analyzing pass of semantic analysis.
@@ -46,11 +42,12 @@ import java.util.Set;
  */
 public class MainFunctionValidator extends BLangNodeVisitor {
     private final Types types;
-    private final BLangDiagnosticLog dlog;
+    private final BLangDiagnosticLog dLog;
+    private BType foundArrayType;
 
-    public MainFunctionValidator(Types types, BLangDiagnosticLog dlog) {
+    public MainFunctionValidator(Types types, BLangDiagnosticLog dLog) {
         this.types = types;
-        this.dlog = dlog;
+        this.dLog = dLog;
     }
 
     void validateMainFunction(BLangFunction funcNode) {
@@ -67,62 +64,91 @@ public class MainFunctionValidator extends BLangNodeVisitor {
     }
 
     private void validateOperandParams(BLangFunction funcNode, List<BLangSimpleVariable> requiredParams) {
-        Set<Integer> foundArrayTypes = new HashSet<>();
         MainParameterVisitor mainParameterVisitor = new MainParameterVisitor(false);
+        BLangSimpleVariable foundOperand = null;
+        boolean foundInvalid = false;
         for (int i = 0; i < requiredParams.size(); i++) {
             BLangSimpleVariable param = requiredParams.get(i);
-            if (!mainParameterVisitor.visit(param.type)) {
+            if (mainParameterVisitor.visit(param.type)) {
+                foundOperand = handleSuccessfulVisit(mainParameterVisitor, foundOperand, param);
+            } else {
                 if (i == requiredParams.size() - 1 && isIncludedRecord(param)) {
                     break;
                 }
-                dlog.error(param.pos, DiagnosticErrorCode.INVALID_MAIN_PARAMS_TYPE, param.name, param.type);
-                continue;
+                dLog.error(param.pos, DiagnosticErrorCode.INVALID_MAIN_PARAMS_TYPE, param.name, param.type);
+                foundInvalid = true;
             }
-            validateWithFoundArrayTypes(foundArrayTypes, param);
         }
+        validateRestParams(funcNode, mainParameterVisitor);
+        if (foundInvalid) {
+            return;
+        }
+        detectArrayRelatedErrors(requiredParams);
+    }
 
-        if (funcNode.restParam != null) {
-            validateRestParams(funcNode.restParam, mainParameterVisitor, foundArrayTypes);
+    private void detectArrayRelatedErrors(List<BLangSimpleVariable> requiredParams) {
+        boolean firstArrayFound = false;
+        for (BLangSimpleVariable param : requiredParams) {
+            if (param.type.tag == TypeTags.ARRAY && !firstArrayFound) {
+                firstArrayFound = true;
+            } else {
+                validateWithFoundArrayType(param);
+            }
         }
     }
 
-    private void validateRestParams(BLangSimpleVariable param, MainParameterVisitor mainParameterVisitor,
-                                    Set<Integer> foundArrayTypes) {
+    private BLangSimpleVariable handleSuccessfulVisit(MainParameterVisitor mainParameterVisitor,
+                                                      BLangSimpleVariable foundOperand, BLangSimpleVariable param) {
+        if (mainParameterVisitor.isOperandType(param.type) && param.expr == null && foundOperand != null) {
+            dLog.error(param.pos, DiagnosticErrorCode.OPTIONAL_OPERAND_PRECEDES_OPERAND, foundOperand.name,
+                       foundOperand.type, param.name, param.type);
+        } else if (foundUnion(param)) {
+            foundOperand = param;
+        } else if (param.type.tag == TypeTags.ARRAY && foundArrayType == null) {
+            foundArrayType = ((BArrayType) param.type).eType;
+        }
+        return foundOperand;
+    }
+
+    private void validateRestParams(BLangFunction funcNode, MainParameterVisitor mainParameterVisitor) {
+        if (funcNode.restParam == null) {
+            return;
+        }
+        BLangSimpleVariable param = funcNode.restParam;
         if (!mainParameterVisitor.visit(param.type)) {
-            dlog.error(param.pos, DiagnosticErrorCode.INVALID_MAIN_PARAMS_TYPE, param.name, param.type);
+            dLog.error(param.pos, DiagnosticErrorCode.INVALID_MAIN_PARAMS_TYPE, param.name, param.type);
         } else {
-            validateWithFoundArrayTypes(foundArrayTypes, param);
+            if (foundArrayType != null) {
+                dLog.error(param.pos, DiagnosticErrorCode.SAME_ARRAY_TYPE_AS_MAIN_PARAMETER);
+                return;
+            }
+            foundArrayType = ((BArrayType) param.type).eType;
         }
     }
 
     private void validatePublicFunction(BLangFunction funcNode) {
         if (!Symbols.isPublic(funcNode.symbol)) {
-            dlog.error(funcNode.pos, DiagnosticErrorCode.MAIN_SHOULD_BE_PUBLIC);
+            dLog.error(funcNode.pos, DiagnosticErrorCode.MAIN_SHOULD_BE_PUBLIC);
         }
     }
 
-    private void validateWithFoundArrayTypes(Set<Integer> foundArrayTypes, BLangSimpleVariable param) {
-        if (param.type.tag == TypeTags.ARRAY) {
-            BType elementType = ((BArrayType) param.type).eType;
-            if (foundArrayTypes.contains(elementType.tag)) {
-                dlog.error(param.pos, DiagnosticErrorCode.SAME_ARRAY_TYPE_AS_MAIN_PARAMETER, elementType);
-            } else {
-                foundArrayTypes.add(elementType.tag);
-            }
-        } else if (param.expr != null) { // defaultable
-            if (foundArrayTypes.contains(param.type.tag)) {
-                dlog.error(param.pos, DiagnosticErrorCode.VARIABLE_AND_ARRAY_TYPE_AS_MAIN_PARAM, param.name,
-                           "defaultable " + param.type, param.type);
-            }
-        } else if (param.type.tag == TypeTags.UNION) { // optional
-            LinkedHashSet<BType> memberTypes = ((BUnionType) param.type).getMemberTypes();
-            memberTypes.forEach(type -> {
-                if (foundArrayTypes.contains(type.tag)) {
-                    dlog.error(param.pos, DiagnosticErrorCode.VARIABLE_AND_ARRAY_TYPE_AS_MAIN_PARAM, param.name,
-                               param.type, type);
-                }
-            });
+    private void validateWithFoundArrayType(BLangSimpleVariable param) {
+        if (foundArrayType == null) {
+            return;
         }
+        if (param.type.tag == TypeTags.ARRAY) {
+            dLog.error(param.pos, DiagnosticErrorCode.SAME_ARRAY_TYPE_AS_MAIN_PARAMETER);
+        } else if (param.expr != null) { // defaultable
+            dLog.error(param.pos, DiagnosticErrorCode.VARIABLE_AND_ARRAY_TYPE_AS_MAIN_PARAM, param.name,
+                       "defaultable " + param.type, foundArrayType);
+        } else if (foundUnion(param)) { // optional
+            dLog.error(param.pos, DiagnosticErrorCode.VARIABLE_AND_ARRAY_TYPE_AS_MAIN_PARAM, param.name, param.type,
+                       foundArrayType);
+        }
+    }
+
+    private boolean foundUnion(BLangSimpleVariable param) {
+        return param.type.tag == TypeTags.UNION;
     }
 
     private boolean isIncludedRecord(BLangSimpleVariable param) {
@@ -135,7 +161,7 @@ public class MainFunctionValidator extends BLangNodeVisitor {
         recordType.getFields().forEach(
                 (name, field) -> {
                     if (!mainParameterVisitor.visit(field.type)) {
-                        dlog.error(field.pos, DiagnosticErrorCode.INVALID_MAIN_OPTION_PARAMS_TYPE, field.name,
+                        dLog.error(field.pos, DiagnosticErrorCode.INVALID_MAIN_OPTION_PARAMS_TYPE, field.name,
                                    lastVar.name, field.type);
                     }
                 }

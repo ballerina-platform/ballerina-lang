@@ -1,12 +1,3 @@
-class
-    Foo
-    { readonly
-        a
-    ;
-    readonly
-a
-
-            =
-    v
-    ;
+class  Foo   { readonly   a   ;
+    readonly   a=v      ;
         }

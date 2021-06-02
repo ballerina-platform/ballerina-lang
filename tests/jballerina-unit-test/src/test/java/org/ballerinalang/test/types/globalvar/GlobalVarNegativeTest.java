@@ -81,12 +81,37 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, "configurable variable must be initialized or be marked as required",
                 18, 19);
         BAssertUtil.validateError(result, i++, "configurable variable cannot be declared with var", 20, 1);
-        BAssertUtil.validateError(result, i++, "type of configurable variable must be anydata&readonly", 22, 22);
-        BAssertUtil.validateError(result, i++, "type of configurable variable must be anydata&readonly", 24, 14);
+        BAssertUtil.validateError(result, i++, "invalid type for configurable variable: expected a subtype" +
+                " of 'anydata'", 22, 22);
         BAssertUtil.validateError(result, i++, "missing close brace token", 27, 1);
         BAssertUtil.validateError(result, i++, "invalid token '}'", 31, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for " +
                 "'(json & readonly)'", 31, 14);
+        BAssertUtil.validateError(result, i++, "only simple variables are allowed to be configurable", 34, 1);
+        BAssertUtil.validateError(result, i++, "'final' qualifier not allowed: configurable variables are " +
+                "implicitly final", 37, 7);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
+
+    @Test
+    public void testConfigurableImplicitFinal() {
+        CompileResult result = BCompileUtil.compile
+                ("test-src/statements/variabledef/configurable_global_var_decl_negative_02.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "cannot assign a value to final 'discountRate'",
+                21, 5);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
+
+    @Test
+    public void testConfigurableImplicitReadOnly() {
+        CompileResult result = BCompileUtil.compile
+                ("test-src/statements/variabledef/configurable_global_var_decl_negative_03.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'int[] & readonly', found 'int[]'",
+                20, 27);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected '(Foo & readonly)', found 'Foo'",
+                28, 22);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }

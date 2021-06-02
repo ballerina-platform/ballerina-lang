@@ -8,11 +8,12 @@ $lambda$_0 function(map<...>, int) -> int {
     %3(LOCAL) int;
     %6(TEMP) int;
     %7(TEMP) boolean;
-    %12(TEMP) string;
-    %13(TEMP) int;
-    %14(TEMP) int;
-    %17(LOCAL) string;
-    %21(TEMP) string;
+    %10(TEMP) [3];
+    %12(TEMP) int;
+    %14(TEMP) string;
+    %16(TEMP) int;
+    %19(LOCAL) string;
+    %23(TEMP) string;
 
     bb0 {
         %3 = ConstLoad 34;
@@ -21,20 +22,22 @@ $lambda$_0 function(map<...>, int) -> int {
         %7? bb1 : bb2;
     }
     bb1 {
-        %6 = %3 + %2;
-        %12 = ConstLoad a;
-        %13 = %1[%12];
-        %14 = %6 + %13;
-        %3 = %14 + globalA;
+        %10 = <[3]> %2;
+        %6 = <int> %10;
+        %12 = %3 + %6;
+        %14 = ConstLoad a;
+        %6 = %1[%14];
+        %16 = %12 + %6;
+        %3 = %16 + globalA;
         GOTO bb2;
     }
     bb2 {
-        %12 = ConstLoad l;
-        %21 = %1[%12];
-        %17 = s + %21;
-        %12 = ConstLoad a;
-        %6 = %1[%12];
-        %0 = %3 + %6;
+        %14 = ConstLoad l;
+        %23 = %1[%14];
+        %19 = s + %23;
+        %14 = ConstLoad a;
+        %12 = %1[%14];
+        %0 = %3 + %12;
         GOTO bb4;
     }
     bb3 {

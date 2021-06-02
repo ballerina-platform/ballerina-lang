@@ -138,29 +138,6 @@
       ]
     },
     {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
@@ -456,11 +433,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestRecord1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "TestRecord1",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -469,6 +446,14 @@
       "detail": "int",
       "sortText": "B",
       "insertText": "testParam1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testParam2",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "testParam2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -483,6 +468,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "TestRecord1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testFunction1(int testParam1, int testParam2)",
       "kind": "Function",
       "detail": "Function",
@@ -493,28 +486,13 @@
         }
       },
       "sortText": "C",
+      "filterText": "testFunction1",
       "insertText": "testFunction1(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "testParam2",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "testParam2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "readonly",

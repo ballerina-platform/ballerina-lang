@@ -57,10 +57,11 @@ public class CliSpec {
         // First argument is for the strand
         mainArgs.add(null);
         if (option != null) {
-            BMap<BString, Object> record = option.parseRecord(args);
+            BMap<BString, Object> recordVal = option.parseRecord(args);
             processOperands(option.getOperandArgs());
-            mainArgs.add(record);
-            mainArgs.add(true);
+            int optionLocation = option.getLocation() * 2 + 1;
+            mainArgs.add(optionLocation, recordVal);
+            mainArgs.add(optionLocation + 1, true);
         } else {
             RecordType type = TypeCreator.createRecordType("dummy", null, 1, new HashMap<>(), null, true, 6);
             Option dummyOption = new Option(type, ValueCreator.createMapValue(type));
@@ -81,7 +82,7 @@ public class CliSpec {
                 ArrayType arrayType = (ArrayType) typeOp;
                 BArray bArray = ValueCreator.createArrayValue(arrayType, -1);
                 Type elementType = arrayType.getElementType();
-                int elementCount = getElementCount(elementType, operands, opIndex);
+                int elementCount = getElementCount(operands, opIndex);
                 while (argIndex < operandArgs.size() - elementCount) {
                     try {
                         bArray.append(CliUtil.getBValue(elementType, operandArgs.get(argIndex++), curOperand.name));
@@ -145,9 +146,9 @@ public class CliSpec {
         }
     }
 
-    private int getElementCount(Type elementType, Operand[] operands, int opIndex) {
+    private int getElementCount(Operand[] operands, int opIndex) {
         int count = 0;
-        while (opIndex < operands.length && elementType == operands[opIndex++].type) {
+        while (opIndex < operands.length && operands[opIndex++].type.getTag() != TypeTags.RECORD_TYPE_TAG) {
             count++;
         }
         return count;

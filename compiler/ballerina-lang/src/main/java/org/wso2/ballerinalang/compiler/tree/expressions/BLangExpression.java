@@ -51,4 +51,5 @@ public abstract class BLangExpression extends BLangNode implements ExpressionNod
     public BType expectedType;
 
     public Map<BVarSymbol, NarrowedTypes> narrowedTypeInfo;
+
 }

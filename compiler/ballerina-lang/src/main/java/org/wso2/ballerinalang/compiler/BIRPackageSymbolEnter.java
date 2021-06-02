@@ -28,6 +28,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.ConstrainedType;
+import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
@@ -194,7 +195,8 @@ public class BIRPackageSymbolEnter {
             this.env = prevEnv;
             return pkgSymbol;
         } catch (Throwable e) {
-            throw new BLangCompilerException(e.getMessage(), e);
+            throw new BLangCompilerException("failed to load the module '" + packageId.toString() + "' from its BIR" +
+                    (e.getMessage() != null ? (" due to: " + e.getMessage()) : ""), e);
         }
     }
 
@@ -1324,7 +1326,7 @@ public class BIRPackageSymbolEnter {
                         constituentTypes.add(readTypeFromCp());
                     }
 
-                    BType effectiveType = readTypeFromCp();
+                    IntersectableReferenceType effectiveType = (IntersectableReferenceType) readTypeFromCp();
                     return new BIntersectionType(intersectionTypeSymbol, constituentTypes, effectiveType, flags);
                 case TypeTags.PACKAGE:
                     // TODO fix
@@ -1460,7 +1462,7 @@ public class BIRPackageSymbolEnter {
                     for (int i = 0; i < fieldCount; i++) {
                         String fieldName = getStringCPEntryValue(inputStream);
                         var fieldFlags = inputStream.readLong();
-
+                        var defaultable = inputStream.readBoolean();
                         byte[] docBytes = readDocBytes(inputStream);
 
                         BType fieldType = readTypeFromCp();
@@ -1468,7 +1470,7 @@ public class BIRPackageSymbolEnter {
                                                                     objectSymbol.pkgID, fieldType,
                                                                     objectSymbol.scope.owner, symTable.builtinPos,
                                                                     COMPILED_SOURCE);
-
+                        objectVarSymbol.isDefaultable = defaultable;
                         defineMarkDownDocAttachment(objectVarSymbol, docBytes);
 
                         BField structField = new BField(objectVarSymbol.name, null, objectVarSymbol);

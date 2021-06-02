@@ -198,8 +198,6 @@ public class SelectivelyImmutableTypeTest {
         // lang.xml
         validateError(result, index++, "cannot update 'readonly' value of type 'xml:Element & readonly'", 85, 5);
         validateError(result, index++, "cannot update 'readonly' value of type 'xml:Element & readonly'", 86, 5);
-        validateError(result, index++, "cannot update 'readonly' value of type 'xml<(" +
-                "(xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) & readonly)> & readonly'", 87, 9);
 
         assertEquals(result.getErrorCount(), index);
     }

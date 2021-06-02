@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
@@ -72,7 +73,7 @@ public class TomlProviderTest {
         VariableKey[] keys = new VariableKey[]{arrayKey};
         configVarMap.put(ROOT_MODULE, keys);
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
                 List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ArrayConfig.toml"),
                         configVarMap.keySet())));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
@@ -136,7 +137,7 @@ public class TomlProviderTest {
         VariableKey recordVar = new VariableKey(ROOT_MODULE, variableName, type, true);
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{recordVar}));
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
                 List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("RecordTypeConfig.toml"),
                         configVarMap.keySet())));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
@@ -179,7 +180,7 @@ public class TomlProviderTest {
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{tableVar}));
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         ConfigResolver configResolver =
-                new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
+                new ConfigResolver(configVarMap, diagnosticLog,
                                    List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("TableTypeConfig.toml"),
                                                                 configVarMap.keySet())));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
@@ -227,7 +228,7 @@ public class TomlProviderTest {
                                                     Map<VariableKey, Object> expectedValues,
                                                     List<ConfigProvider> providers) {
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, variableMap, diagnosticLog, providers);
+        ConfigResolver configResolver = new ConfigResolver(variableMap, diagnosticLog, providers);
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
         for (Map.Entry<VariableKey, Object> keyEntry : expectedValues.entrySet()) {
@@ -475,7 +476,7 @@ public class TomlProviderTest {
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         List<ConfigProvider> providers = List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath(
                 "MultiDimentionalArray.toml"), Set.of(ROOT_MODULE)));
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog, providers);
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog, providers);
         Map<VariableKey, Object> variableKeyObjectMap = configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
         Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
@@ -514,7 +515,7 @@ public class TomlProviderTest {
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         List<ConfigProvider> providers = List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ComplexTableType" +
                 ".toml"), Set.of(ROOT_MODULE)));
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog, providers);
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog, providers);
         Map<VariableKey, Object> variableKeyObjectMap = configResolver.resolveConfigs();
         Object bValue = variableKeyObjectMap.get(tableVar);
         Assert.assertTrue(bValue instanceof BTable);
@@ -547,7 +548,7 @@ public class TomlProviderTest {
                List<ConfigProvider> providers =  List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath(
                        "ConfigClashingModule6.toml"), Set.of(ROOT_MODULE, clashingModule3)));
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, variableMap, diagnosticLog, providers);
+        ConfigResolver configResolver = new ConfigResolver(variableMap, diagnosticLog, providers);
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
         for (Map.Entry<VariableKey, Object> keyEntry : expectedValues.entrySet()) {
@@ -575,7 +576,7 @@ public class TomlProviderTest {
                 List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule5.toml"),
                 Set.of(subModule, clashingModule3)));
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, variableMap, diagnosticLog, providers);
+        ConfigResolver configResolver = new ConfigResolver(variableMap, diagnosticLog, providers);
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
         for (Map.Entry<VariableKey, Object> keyEntry : expectedValues.entrySet()) {
@@ -600,7 +601,7 @@ public class TomlProviderTest {
         configVarMap.put(ROOT_MODULE, keys);
         String tomlContent = "[rootOrg.test_module] intVar = 33 stringVar = \"xyz\" " +
                 "stringArr = [\"aa\", \"bb\", \"cc\"] booleanArr = [false, true, true, false]";
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, new RuntimeDiagnosticLog(),
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, new RuntimeDiagnosticLog(),
                 List.of(new TomlContentProvider(ROOT_MODULE, tomlContent, configVarMap.keySet())));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
@@ -619,5 +620,37 @@ public class TomlProviderTest {
                 new String[]{"aa", "bb", "cc"});
         Assert.assertEquals(((BArray) configValueMap.get(keys[3])).getBooleanArray(),
                 new boolean[]{false, true, true, false});
+    }
+
+    @Test(dataProvider = "map-data-provider")
+    public void testTomlProviderMaps(String variableName, Type constraint, Map<String, Object> expectedValues) {
+        MapType type = TypeCreator.createMapType("MapType", constraint, ROOT_MODULE, false);
+        IntersectionType mapType = new BIntersectionType(ROOT_MODULE, new Type[]{type, PredefinedTypes.TYPE_READONLY}
+                , type, 1, true);
+        VariableKey mapVar = new VariableKey(ROOT_MODULE, variableName, mapType, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{mapVar}));
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
+                List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("MapTypeConfig.toml"),
+                        configVarMap.keySet())));
+        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+
+        Object obj = configValueMap.get(mapVar);
+        Assert.assertTrue(obj instanceof BMap<?, ?>, "Non-map value received for variable : " + variableName);
+        BMap<?, ?> mapValue = (BMap<?, ?>) obj;
+        for (Map.Entry<String, Object> expectedField : expectedValues.entrySet()) {
+            BString fieldName = StringUtils.fromString(expectedField.getKey());
+            Assert.assertEquals((mapValue.get(fieldName)), expectedField.getValue());
+        }
+    }
+
+    @DataProvider(name = "map-data-provider")
+    public Object[][] mapDataProvider() {
+        return new Object[][]{
+                {"intMap", PredefinedTypes.TYPE_INT, Map.ofEntries(Map.entry("int1", 12L), Map.entry("int2", 34L))},
+                {"decimalMap", PredefinedTypes.TYPE_DECIMAL,
+                        Map.ofEntries(Map.entry("d1", ValueCreator.createDecimalValue("56.78")),
+                        Map.entry("d2", ValueCreator.createDecimalValue("32.94")))}
+        };
     }
 }

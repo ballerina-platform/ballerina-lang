@@ -18,10 +18,12 @@
 package io.ballerina.cli.utils;
 
 import io.ballerina.cli.launcher.LauncherUtils;
+import io.ballerina.projects.Settings;
+import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.util.ProjectConstants;
+import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
-import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.toml.parser.SettingsProcessor;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
@@ -30,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static org.wso2.ballerinalang.util.RepoUtils.SET_BALLERINA_DEV_CENTRAL;
 import static org.wso2.ballerinalang.util.RepoUtils.SET_BALLERINA_STAGE_CENTRAL;
 
@@ -49,12 +52,10 @@ public class CentralUtils {
 
     /**
      * Checks if the access token is available in Settings.toml or not.
-     *
-     * @return access token if its present
      */
-    public static String authenticate(PrintStream errStream, String ballerinaCentralCliTokenUrl, Settings settings,
-            Path settingsTomlFilePath) throws SettingsTomlException {
-        String accessToken = getAccessTokenOfCLI(settings);
+    public static void authenticate(PrintStream errStream, String ballerinaCentralCliTokenUrl,
+                                    Path settingsTomlFilePath, CentralAPIClient client) throws SettingsTomlException {
+        String accessToken = client.accessToken();
 
         if (accessToken.isEmpty()) {
             try {
@@ -76,7 +77,7 @@ public class CentralUtils {
                 long modifiedTimeOfFileAfter = getLastModifiedTimeOfFile(settingsTomlFilePath);
                 if (modifiedTimeOfFileAtStart != modifiedTimeOfFileAfter) {
                     // read updated Settings.toml file to get the token
-                    settings = readSettings();
+                    Settings settings = readSettings();
                     accessToken = getAccessTokenOfCLI(settings);
                     if (accessToken.isEmpty()) {
                         throw createLauncherException(
@@ -85,28 +86,11 @@ public class CentralUtils {
                     } else {
                         waitForToken = false;
                     }
+                    // set newly retrieved access token
+                    client.setAccessToken(accessToken);
                 }
             }
         }
-        return accessToken;
-    }
-
-    /**
-     * Read the access token generated for the CLI.
-     *
-     * @return access token for generated for the CLI
-     */
-    static String getAccessTokenOfCLI(Settings settings) {
-        // The access token can be specified as an environment variable or in 'Settings.toml'. First we would check if
-        // the access token was specified as an environment variable. If not we would read it from 'Settings.toml'
-        String tokenAsEnvVar = System.getenv(ProjectConstants.BALLERINA_CENTRAL_ACCESS_TOKEN);
-        if (tokenAsEnvVar != null) {
-            return tokenAsEnvVar;
-        }
-        if (settings.getCentral() != null) {
-            return settings.getCentral().getAccessToken();
-        }
-        return "";
     }
 
     /**
@@ -145,9 +129,13 @@ public class CentralUtils {
     public static Settings readSettings() throws SettingsTomlException {
         Path settingsFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectConstants.SETTINGS_FILE_NAME);
         try {
-            return SettingsProcessor.parseTomlContentFromFile(settingsFilePath);
+            TomlDocument settingsTomlDocument = TomlDocument
+                    .from(String.valueOf(settingsFilePath.getFileName()), Files.readString(settingsFilePath));
+            SettingsBuilder settingsBuilder = SettingsBuilder.from(settingsTomlDocument);
+            return settingsBuilder.settings();
         } catch (IOException e) {
-            return new Settings();
+            // If Settings.toml not exists return empty Settings object
+            return Settings.from();
         }
     }
 

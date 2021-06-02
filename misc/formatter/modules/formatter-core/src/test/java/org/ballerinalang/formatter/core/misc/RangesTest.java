@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Test range formatting functionality with manually added fixed ranges.
@@ -57,6 +59,11 @@ public class RangesTest extends RangeFormatterTest {
     @Override
     public String getTestResourceDir() {
         return Paths.get("misc", "ranges").toString();
+    }
+
+    @Override
+    public List<String> skipList() {
+        return Arrays.asList("ranges_1.bal", "ranges_2.bal", "ranges_3.bal", "ranges_4.bal", "ranges_5.bal");
     }
 
     @Override

@@ -40,6 +40,7 @@ public class ChildNodeListTest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testGetChildByIndex() {
         SyntaxTree syntaxTree = parseFile("child_node_list_test_01.bal");
+        Assert.assertFalse(syntaxTree.hasDiagnostics());
         ModulePartNode modulePartNode = syntaxTree.rootNode();
         FunctionDefinitionNode firstFunctionNode = (FunctionDefinitionNode) modulePartNode.members().get(0);
         int actualChildCount = firstFunctionNode.children().size();
@@ -67,6 +68,7 @@ public class ChildNodeListTest extends AbstractSyntaxTreeAPITest {
                 SyntaxKind.FUNCTION_BODY_BLOCK);
 
         SyntaxTree syntaxTree = parseFile("child_node_list_test_01.bal");
+        Assert.assertFalse(syntaxTree.hasDiagnostics());
         ModulePartNode modulePartNode = syntaxTree.rootNode();
         FunctionDefinitionNode firstFunctionNode = (FunctionDefinitionNode) modulePartNode.members().get(0);
         List<SyntaxKind> actualKinds = new ArrayList<>(firstFunctionNode.children().size());

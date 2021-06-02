@@ -1,4 +1,2 @@
-function getInt() returns int {  return
-20
-;
+function getInt() returns int {  return 20   ;
 }

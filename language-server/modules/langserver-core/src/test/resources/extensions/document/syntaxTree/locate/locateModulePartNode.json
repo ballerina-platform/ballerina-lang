@@ -396,24 +396,7 @@
                       "signature":"int"
                     },
                     "symbol":{
-                      "name":"int",
-                      "typeKind":"typeReference",
-                      "moduleID":{
-                        "orgName":"ballerina",
-                        "moduleName":"lang.annotations",
-                        "version":"1.0.0"
-                      },
-                      "definition":{
-                        "readonly":false,
-                        "deprecated":false,
-                        "moduleID":{
-                          "orgName":"ballerina",
-                          "moduleName":"lang.annotations",
-                          "version":"1.0.0"
-                        },
-                        "kind":"TYPE_DEFINITION",
-                        "moduleQualifiedName":"annotations:int"
-                      },
+                      "typeKind":"int",
                       "kind":"TYPE",
                       "signature":"int"
                     },
@@ -731,24 +714,7 @@
                       "signature":"int"
                     },
                     "symbol":{
-                      "name":"int",
-                      "typeKind":"typeReference",
-                      "moduleID":{
-                        "orgName":"ballerina",
-                        "moduleName":"lang.annotations",
-                        "version":"1.0.0"
-                      },
-                      "definition":{
-                        "readonly":false,
-                        "deprecated":false,
-                        "moduleID":{
-                          "orgName":"ballerina",
-                          "moduleName":"lang.annotations",
-                          "version":"1.0.0"
-                        },
-                        "kind":"TYPE_DEFINITION",
-                        "moduleQualifiedName":"annotations:int"
-                      },
+                      "typeKind":"int",
                       "kind":"TYPE",
                       "signature":"int"
                     },

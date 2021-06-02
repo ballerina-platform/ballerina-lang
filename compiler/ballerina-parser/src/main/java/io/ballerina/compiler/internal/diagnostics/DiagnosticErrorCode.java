@@ -209,6 +209,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_DOUBLE_QUOTE("BCE0411", "error.missing.double.quote"),
     ERROR_MISSING_ENTITY_REFERENCE_NAME("BCE0412", "error.missing.entity.reference.name"),
     ERROR_MISSING_SEMICOLON_IN_XML_REFERENCE("BCE0413", "error.missing.semicolon.in.xml.reference"),
+    ERROR_MISSING_ATTACH_POINT_NAME("BCE0414", "error.missing.attach.point.name"),
 
     // Missing non-terminal nodes
     ERROR_MISSING_FUNCTION_NAME("BCE0500", "error.missing.function.name"),
@@ -329,7 +330,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC("BCE669", "error.variable.declared.with.var.cannot.be.public"),
     ERROR_FIELD_BP_INSIDE_LIST_BP("BCE670", "error.field.binding.pattern.inside.list.binding.pattern"),
     ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION("BCE671", "error.invalid.expression.expected.a.call.expression"),
-    ERROR_TYPE_DESC_AFTER_REST_DESCRIPTOR("BCE672", "error.type.desc.after.rest.descriptor")
+    ERROR_TYPE_DESC_AFTER_REST_DESCRIPTOR("BCE672", "error.type.desc.after.rest.descriptor"),
+    ERROR_CONFIGURABLE_VAR_IMPLICITLY_FINAL("BCE673", "error.configurable.var.implicitly.final"),
     ;
 
     String diagnosticId;

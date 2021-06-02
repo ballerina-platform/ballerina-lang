@@ -49,6 +49,17 @@ public class ConfigurableTest extends BaseTest {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
+
+        // Build and push config Lib project.
+        LogLeecher buildLeecher = new LogLeecher("target/bala/testOrg-configLib-any-0.1.0.bala");
+        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/testOrg-configLib-any-0.1.0.bala to " +
+                                                        "'local' repository.", ERROR);
+        bMainInstance.runMain("build", new String[]{"-c"}, null, null, new LogLeecher[]{buildLeecher},
+                              testFileLocation + "/configLibProject");
+        buildLeecher.waitForText(5000);
+        bMainInstance.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},
+                              testFileLocation + "/configLibProject");
+        pushLeecher.waitForText(5000);
     }
 
     @Test
@@ -72,7 +83,7 @@ public class ConfigurableTest extends BaseTest {
         bMainInstance.runMain(testFileLocation + "/configurableCliProject", "main", null,
                               new String[]{"-CintVar=42", "-CbyteVar=22", "-CstringVar=waru=na", "-CbooleanVar=true",
                                       "-CxmlVar=<book>The Lost World</book>", "-CtestOrg.main.floatVar=3.5",
-                                      "-Cmain.decimalVar=24.87"},
+                                      "-Cmain.decimalVar=24.87", "-Cmain.color=RED", "-Cmain.countryCode=Sri Lanka"},
                               null, null, new LogLeecher[]{logLeecher});
         logLeecher.waitForText(5000);
     }
@@ -188,18 +199,14 @@ public class ConfigurableTest extends BaseTest {
         executeBalCommand("/recordModuleProject", "main", null);
     }
 
-    @Test
+    @Test()
     public void testConfigurableRecordsAndRecordTables() throws BallerinaTestException {
-        LogLeecher buildLeecher = new LogLeecher("target/bala/testOrg-configLib-any-0.1.0.bala");
-        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/testOrg-configLib-any-0.1.0.bala to " +
-                                                        "'local' repository.", ERROR);
-        bMainInstance.runMain("build", new String[]{"-c"}, null, null, new LogLeecher[]{buildLeecher},
-                              testFileLocation + "/configLibProject");
-        buildLeecher.waitForText(5000);
-        bMainInstance.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},
-                              testFileLocation + "/configLibProject");
-        pushLeecher.waitForText(5000);
         executeBalCommand("/configStructuredTypesProject", "configStructuredTypes", null);
+    }
+
+    @Test()
+    public void testConfigurableUnionTypes() throws BallerinaTestException {
+        executeBalCommand("/configUnionTypesProject", "configUnionTypes", null);
     }
 
     /** Negative test cases. */

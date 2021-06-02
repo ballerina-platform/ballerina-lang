@@ -315,7 +315,7 @@ function typeGuard3(any matchExpr) returns string {
             return "Matched with foo : " + io:sprintf("%s", x + 6.1);
         }
         var {var1, var2: [x, {var1: y}]} if (x is float && y is [string, string]) => {
-            return "Matched with nothing : " + io:sprintf("%s", x + 5);
+            return "Matched with nothing : " + io:sprintf("%s", x + 5f);
         }
         var {var1, var2: [x, {var1: y, var2: z}]} if (y is [int, string] && z is [float, boolean]) => {
             return "Matched with bar : " + io:sprintf("%s", y[0] + 5);

@@ -331,6 +331,10 @@ public class Utils {
         }
     }
 
+    static String getBearerToken(String accessToken) {
+        return "Bearer " + accessToken;
+    }
+
     /**
      * Custom request body implementation that indicate the number of bytes written using a progress bar.
      */

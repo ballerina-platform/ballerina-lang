@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -134,7 +135,23 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
         List<FunctionSymbol> filteredFunctions = new ArrayList<>();
 
         for (FunctionSymbol function : functions) {
-            ParameterSymbol firstParam = function.typeDescriptor().params().get().get(0);
+
+            List<ParameterSymbol> functionParams = function.typeDescriptor().params().get();
+
+            if (functionParams.isEmpty()) {
+                // If the function-type-descriptor doesn't have params, then, check for the rest-param
+                Optional<ParameterSymbol> restParamOptional = function.typeDescriptor().restParam();
+                if (restParamOptional.isPresent()) {
+                    BArrayType restArrayType =
+                            (BArrayType) ((AbstractTypeSymbol) restParamOptional.get().typeDescriptor()).getBType();
+                    if (types.isAssignable(internalType, restArrayType.eType)) {
+                        filteredFunctions.add(function);
+                    }
+                }
+                continue;
+            }
+
+            ParameterSymbol firstParam = functionParams.get(0);
             BType firstParamType = ((AbstractTypeSymbol) firstParam.typeDescriptor()).getBType();
 
             if (types.isAssignable(internalType, firstParamType)) {

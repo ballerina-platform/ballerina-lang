@@ -1,9 +1,9 @@
 # Adds two parameters
 # + x - one thing to be added
 #
-# + 
-# + y 
+# +
+# + y
 # + z -
-# + return 
+# + return
 function foo(int x, int y, int z) {
 }

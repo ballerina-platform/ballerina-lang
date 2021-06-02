@@ -161,7 +161,7 @@ function testReduce() returns float {
     Person[] personList = getPersonList();
     stream<Person> personStream = personList.toStream();
     float? avg = personStream.reduce(function (float accum, Person person) returns float {
-        return accum + <float>person.age / personList.length();
+        return accum + <float>person.age / <float>personList.length();
     }, 0.0);
     return <float>avg;
 }
@@ -171,7 +171,7 @@ function testForEach() returns float {
     float avg = 0.0;
     stream<Person> personStream = personList.toStream();
     error? err = personStream.forEach(function (Person person) {
-        avg += <float>person.age / personList.length();
+        avg += <float>person.age / <float>personList.length();
     });
     return avg;
 }

@@ -101,6 +101,7 @@ public class SymbolAtCursorTest {
                 {93, 23, "v2"},
                 {93, 78, "v3"},
                 {102, 2, "v4"},
+                {112, 4, null},
         };
     }
 
@@ -174,6 +175,56 @@ public class SymbolAtCursorTest {
                 {20, 3},
                 {21, 25},
                 {23, 3},
+        };
+    }
+
+    @Test(dataProvider = "QuotedIdentifierProvider")
+    public void testQuotedIdentifiers(int line, int column, String expSymbolName) {
+        Project project = BCompileUtil.loadProject("test-src/symbol_at_cursor_quoted_identifiers_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
+        symbol.ifPresent(value -> assertEquals(value.getName().get(), expSymbolName));
+
+        if (symbol.isEmpty()) {
+            assertNull(expSymbolName);
+        }
+    }
+
+    @DataProvider(name = "QuotedIdentifierProvider")
+    public Object[][]  getQuotedIdentifierPositions() {
+        return new Object[][]{
+                {18, 5, "'record"},
+                {19, 8, "'float"},
+                {22, 23, "'from"},
+                {23, 28, "'from"},
+                {26, 9, "'function"},
+                {30, 11, "'function"},
+                {31, 7, "'if"},
+                {32, 11, "'if"},
+                {33, 7, "nonReservedVar"},
+                {39, 4, "'any"},
+                {40, 13, "'any"},
+                {43, 11, "w1"},
+                {45, 19, "'worker"},
+                {52, 11, "'worker"},
+                {58, 18, "'string"},
+                {60, 10, "floatNum"},
+                {62, 25, "'foreach"},
+                {63, 13, "'string"},
+                {64, 20, "'int"},
+                {68, 48, "'string"},
+                {70, 13, "'from"},
+                {77, 27, "Example"},
+                {79, 11, "'check"},
+                {84, 7, "'int"},
+                {85, 8, "'from"},
+                {85, 19, "'from"},
+                {87, 4, "Example"},
+                {87, 13, "'new"},
+                {88, 4, "'new"},
+                {88, 9, "'anydata"}
         };
     }
 }

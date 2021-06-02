@@ -67,4 +67,5 @@ public class TesterinaConstants {
     public static final String BLANG_SRC_FILE_EXT = "bal";
     public static final String BLANG_SRC_FILE_SUFFIX = "." + BLANG_SRC_FILE_EXT;
 
+    public static final String JACOCO_XML_FORMAT = "xml";
 }

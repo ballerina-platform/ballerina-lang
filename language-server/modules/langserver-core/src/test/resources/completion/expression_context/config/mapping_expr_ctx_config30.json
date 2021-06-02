@@ -1,0 +1,49 @@
+{
+  "position": {
+    "line": 20,
+    "character": 28
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source30.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "G",
+      "insertText": "name: \"${1}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "age",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "G",
+      "insertText": "age: ${2:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "address",
+      "kind": "Field",
+      "detail": "Address",
+      "sortText": "G",
+      "insertText": "address: {\n\tstreet: \"${1}\",\n\tcity: \"${2}\",\n\tpostalCode: \"${3}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Add All Attributes",
+      "kind": "Property",
+      "detail": "none",
+      "sortText": "Q",
+      "insertText": "name: \"\",\nage: 0,\naddress: {street: \"\", city: \"\", postalCode: \"\"}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

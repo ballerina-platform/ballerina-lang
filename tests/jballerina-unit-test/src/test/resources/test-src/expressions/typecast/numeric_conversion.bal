@@ -341,32 +341,32 @@ function testByteAsByteInUnions(byte f1) returns [boolean, byte|boolean] {
 }
 
 function testNaNFloatAsByte() {
-    float f = 0.0/0;
+    float f = 0.0/0.0;
     byte i = <byte> f;
 }
 
 function testInfiniteFloatAsByte() {
-    float f = 1.0/0;
+    float f = 1.0/0.0;
     byte i = <byte> f;
 }
 
 function testNaNFloatInUnionAsByte() {
-    float|boolean f = 0.0/0;
+    float|boolean f = 0.0/0.0;
     byte i = <byte> f;
 }
 
 function testInfiniteFloatInUnionAsByte() {
-    float|boolean f = 2.0/0;
+    float|boolean f = 2.0/0.0;
     byte i = <byte> f;
 }
 
 function testNaNFloatAsInt() {
-    float f = 0.0/0;
+    float f = 0.0/0.0;
     int i = <int> f;
 }
 
 function testInfiniteFloatAsInt() {
-    float f = 1.0/0;
+    float f = 1.0/0.0;
     int i = <int> f;
 }
 
@@ -381,12 +381,12 @@ function testOutOfIntRangeNegativeFloatAsInt() {
 }
 
 function testNaNFloatInUnionAsInt() {
-    float|int f = 0.0/0;
+    float|int f = 0.0/0.0;
     int i = <int> f;
 }
 
 function testInfiniteFloatInUnionAsInt() {
-    float|boolean f = 2.0/0;
+    float|boolean f = 2.0/0.0;
     int i = <int> f;
 }
 
@@ -442,19 +442,19 @@ function testNegativeInfiniteDecimalAsByte() {
 
 function testNaNDecimalInUnionAsByte() {
     decimal d1 = 0.0;
-    decimal|boolean d2 = d1/0;
+    decimal|boolean d2 = d1/0d;
     byte i = <byte> d2;
 }
 
 function testPositiveInfiniteDecimalInUnionAsByte() {
     decimal d1 = 0.0;
-    decimal|boolean d2 = 1.0/d1;
+    decimal|boolean d2 = 1d/d1;
     byte i = <byte> d2;
 }
 
 function testNegativeInfiniteDecimalInUnionAsByte() {
     decimal d1 = 0.0;
-    decimal|boolean d2 = -1.0/d1;
+    decimal|boolean d2 = -1d/d1;
     byte i = <byte> d2;
 }
 
@@ -478,19 +478,19 @@ function testNegativeInfiniteDecimalAsInt() {
 
 function testNaNDecimalInUnionAsInt() {
     decimal d1 = 0.0;
-    decimal|boolean d2 = d1/0;
+    decimal|boolean d2 = d1/0d;
     int i = <int> d2;
 }
 
 function testPositiveInfiniteDecimalInUnionAsInt() {
     decimal d1 = 0.0;
-    decimal|boolean d2 = 1.0/d1;
+    decimal|boolean d2 = 1d/d1;
     int i = <int> d2;
 }
 
 function testNegativeInfiniteDecimalInUnionAsInt() {
     decimal d1 = 0.0;
-    decimal|boolean d2 = -1.0/d1;
+    decimal|boolean d2 = -1d/d1;
     int i = <int> d2;
 }
 

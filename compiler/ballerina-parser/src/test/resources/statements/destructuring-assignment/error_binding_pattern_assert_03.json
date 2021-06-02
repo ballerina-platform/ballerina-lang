@@ -1401,31 +1401,32 @@
                           ]
                         },
                         {
-                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "kind": "NAMED_ARG_BINDING_PATTERN",
                           "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
+                              "isMissing": true,
                               "hasDiagnostics": true,
                               "diagnostics": [
-                                "ERROR_INVALID_TOKEN"
-                              ],
-                              "value": "bindingPattern",
-                              "leadingMinutiae": [
-                                {
-                                  "kind": "INVALID_NODE_MINUTIAE",
-                                  "invalidNode": {
-                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                    "children": [
-                                      {
-                                        "kind": "EQUAL_TOKEN"
-                                      }
-                                    ]
-                                  }
-                                },
+                                "ERROR_MISSING_IDENTIFIER"
+                              ]
+                            },
+                            {
+                              "kind": "EQUAL_TOKEN",
+                              "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
                                   "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "bindingPattern"
                                 }
                               ]
                             }

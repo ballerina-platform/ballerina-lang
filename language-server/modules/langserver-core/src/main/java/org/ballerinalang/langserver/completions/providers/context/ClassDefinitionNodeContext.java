@@ -89,6 +89,9 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
         if (ClassDefinitionNodeContextUtil.onSuggestResourceSnippet(node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.get()));
         }
+        if (ClassDefinitionNodeContextUtil.onSuggestInitFunction(node)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_INIT_FUNCTION.get()));
+        }
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getModuleCompletionItems(context));
 

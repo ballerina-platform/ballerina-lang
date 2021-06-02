@@ -32,9 +32,9 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.engine.GeneratedStaticMethod;
-import org.ballerinalang.debugadapter.evaluation.engine.RuntimeInstanceMethod;
-import org.ballerinalang.debugadapter.evaluation.engine.RuntimeStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeInstanceMethod;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.JVMValueType;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
@@ -66,6 +66,7 @@ public class EvaluationUtils {
     private static final String RUNTIME_HELPER_PREFIX = "io.ballerina.runtime.";
     public static final String B_TYPE_CHECKER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeChecker";
     public static final String B_TYPE_CREATOR_CLASS = RUNTIME_HELPER_PREFIX + "api.creators.TypeCreator";
+    public static final String B_TYPE_CONVERTER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeConverter";
     public static final String B_VALUE_CREATOR_CLASS = RUNTIME_HELPER_PREFIX + "api.creators.ValueCreator";
     public static final String B_STRING_UTILS_CLASS = RUNTIME_HELPER_PREFIX + "api.utils.StringUtils";
     public static final String B_TYPE_UTILS_CLASS = RUNTIME_HELPER_PREFIX + "api.utils.TypeUtils";
@@ -77,7 +78,6 @@ public class EvaluationUtils {
     public static final String B_TYPE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type[]";
     private static final String B_LINK_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BLink";
     private static final String B_ERROR_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.ErrorValue";
-    public static final String FROM_STRING_CLASS = "org.ballerinalang.langlib.xml.FromString";
 
     // Java runtime helper classes
     public static final String JAVA_OBJECT_CLASS = "java.lang.Object";
@@ -116,12 +116,13 @@ public class EvaluationUtils {
     public static final String CHECK_CAST_METHOD = "checkCast";
     public static final String CREATE_UNION_TYPE_METHOD = "createUnionType";
     public static final String CREATE_DECIMAL_VALUE_METHOD = "createDecimalValue";
+    public static final String CREATE_XML_ITEM = "createXmlItem";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String VALUE_FROM_STRING_METHOD = "fromString";
     public static final String REF_EQUAL_METHOD = "isReferenceEqual";
     public static final String VALUE_EQUAL_METHOD = "isEqual";
     public static final String XML_CONCAT_METHOD = "concatenate";
-    public static final String XML_FROM_STRING_METHOD = "fromString";
+    public static final String STRING_TO_XML_METHOD = "stringToXml";
     private static final String B_STRING_CONCAT_METHOD = "concat";
     static final String FROM_STRING_METHOD = "fromString";
     private static final String FOR_NAME_METHOD = "forName";
@@ -156,14 +157,14 @@ public class EvaluationUtils {
         }
         List<Method> methods = classesRef.get(0).methodsByName(methodName);
         if (methods == null || methods.isEmpty()) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
-                    "occurred when trying to load JVM util function: " + methodName));
+            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
+                    methodName));
         }
         methods = methods.stream().filter(method -> method.isPublic() && method.isStatic() &&
                 compare(method.argumentTypeNames(), argTypeNames)).collect(Collectors.toList());
         if (methods.size() != 1) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
-                    "occurred when trying to load JVM util function: " + methodName));
+            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
+                    methodName));
         }
         return new RuntimeStaticMethod(context, classesRef.get(0), methods.get(0));
     }
@@ -178,16 +179,16 @@ public class EvaluationUtils {
         }
         List<Method> methods = classesRef.get(0).methodsByName(methodName);
         if (methods == null || methods.isEmpty()) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
-                    "occurred when trying to load JVM util function: " + methodName));
+            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
+                    methodName));
         }
         methods = methods.stream()
                 .filter(method -> method.isPublic() && method.isStatic())
                 .collect(Collectors.toList());
 
         if (methods.size() != 1) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
-                    "occurred when trying to load JVM util function: " + methodName));
+            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
+                    methodName));
         }
         return new GeneratedStaticMethod(context, classesRef.get(0), methods.get(0));
     }
@@ -274,7 +275,7 @@ public class EvaluationUtils {
             }
             RuntimeInstanceMethod unboxingMethod = new RuntimeInstanceMethod(context, value, method.get(0));
             unboxingMethod.setArgValues(new ArrayList<>());
-            return unboxingMethod.invoke();
+            return unboxingMethod.invokeSafely();
         } catch (EvaluationException e) {
             return value;
         }
@@ -297,7 +298,7 @@ public class EvaluationUtils {
                     methodArgTypeNames.add(JVMValueType.BOOLEAN.getString());
                     method = getRuntimeMethod(context, JAVA_BOOLEAN_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
                     method.setArgValues(Collections.singletonList(jvmValue));
-                    return method.invoke();
+                    return method.invokeSafely();
                 } else {
                     return jvmValue;
                 }
@@ -306,12 +307,12 @@ public class EvaluationUtils {
                     methodArgTypeNames.add(JVMValueType.INT.getString());
                     method = getRuntimeMethod(context, JAVA_INT_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
                     method.setArgValues(Collections.singletonList(jvmValue));
-                    return method.invoke();
+                    return method.invokeSafely();
                 } else if (jvmValue instanceof LongValue) {
                     methodArgTypeNames.add(JVMValueType.LONG.getString());
                     method = getRuntimeMethod(context, JAVA_LONG_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
                     method.setArgValues(Collections.singletonList(jvmValue));
-                    return method.invoke();
+                    return method.invokeSafely();
                 } else {
                     return jvmValue;
                 }
@@ -321,12 +322,12 @@ public class EvaluationUtils {
                     methodArgTypeNames.add(JVMValueType.FLOAT.getString());
                     method = getRuntimeMethod(context, JAVA_FLOAT_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
                     method.setArgValues(Collections.singletonList(variable.getJvmValue()));
-                    return method.invoke();
+                    return method.invokeSafely();
                 } else if (jvmValue instanceof DoubleValue) {
                     methodArgTypeNames.add(JVMValueType.DOUBLE.getString());
                     method = getRuntimeMethod(context, JAVA_DOUBLE_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
                     method.setArgValues(Collections.singletonList(variable.getJvmValue()));
-                    return method.invoke();
+                    return method.invokeSafely();
                 } else {
                     return jvmValue;
                 }
@@ -351,7 +352,7 @@ public class EvaluationUtils {
             }
             RuntimeInstanceMethod concatMethod = new RuntimeInstanceMethod(context, result, method.get(0));
             concatMethod.setArgValues(Collections.singletonList(bStrings[i]));
-            result = concatMethod.invoke();
+            result = concatMethod.invokeSafely();
             method = ((ObjectReference) result).referenceType().methodsByName("concat");
         }
         return result;
@@ -373,7 +374,7 @@ public class EvaluationUtils {
         args.add(EvaluationUtils.getValueAsObject(context, value));
         args.add(null);
         runtimeMethod.setArgValues(args);
-        return runtimeMethod.invoke();
+        return runtimeMethod.invokeSafely();
     }
 
     /**
@@ -399,7 +400,7 @@ public class EvaluationUtils {
         RuntimeStaticMethod fromStringMethod = getRuntimeMethod(context, B_STRING_UTILS_CLASS, FROM_STRING_METHOD,
                 argTypeNames);
         fromStringMethod.setArgValues(Collections.singletonList(stringRef));
-        return fromStringMethod.invoke();
+        return fromStringMethod.invokeSafely();
     }
 
     /**

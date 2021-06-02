@@ -9,9 +9,7 @@
 import ballerina/jballerina.java;
 
 # Ballerina class mapping for the Java `FULL_CLASS_NAME` CLASS_TYPE.
-@java:Binding {
-    'class: "FULL_CLASS_NAME"
-}
+@java:Binding {'class: "FULL_CLASS_NAME"}
 ACCESS_MODIFIERdistinct class SIMPLE_CLASS_NAME {
 
     *java:JObject;

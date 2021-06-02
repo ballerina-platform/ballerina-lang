@@ -84,7 +84,7 @@ public class TestCentralApiClient extends CentralAPIClient {
     private final OkHttpClient client = mock(OkHttpClient.class);
 
     public TestCentralApiClient() {
-        super("https://localhost:9090/registry", null);
+        super("https://localhost:9090/registry", null, ACCESS_TOKEN);
     }
 
     @Override
@@ -364,7 +364,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         when(this.remoteCall.execute()).thenReturn(mockResponse);
         when(this.client.newCall(any())).thenReturn(this.remoteCall);
 
-        this.pushPackage(balaPath, "foo", "sf", "1.3.5", ACCESS_TOKEN, ANY_PLATFORM, TEST_BAL_VERSION);
+        this.pushPackage(balaPath, "foo", "sf", "1.3.5", ANY_PLATFORM, TEST_BAL_VERSION);
         String buildLog = readOutput();
         given().with().pollInterval(Duration.ONE_SECOND).and()
                 .with().pollDelay(Duration.ONE_SECOND)
@@ -405,7 +405,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         when(this.remoteCall.execute()).thenReturn(mockResponse);
         when(this.client.newCall(any())).thenReturn(this.remoteCall);
 
-        this.pushPackage(balaPath, "foo", "github", "1.8.3", ACCESS_TOKEN, ANY_PLATFORM, TEST_BAL_VERSION);
+        this.pushPackage(balaPath, "foo", "github", "1.8.3", ANY_PLATFORM, TEST_BAL_VERSION);
     }
 
     @Test(description = "Test push package request failure", expectedExceptions = CentralClientException.class,
@@ -436,7 +436,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         when(this.remoteCall.execute()).thenReturn(mockResponse);
         when(this.client.newCall(any())).thenReturn(this.remoteCall);
 
-        this.pushPackage(balaPath, "foo", "sf", "1.3.5", ACCESS_TOKEN, ANY_PLATFORM, TEST_BAL_VERSION);
+        this.pushPackage(balaPath, "foo", "sf", "1.3.5", ANY_PLATFORM, TEST_BAL_VERSION);
     }
 
     @Test(description = "Test search package")

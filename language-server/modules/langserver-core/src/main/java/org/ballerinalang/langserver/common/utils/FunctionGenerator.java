@@ -206,7 +206,7 @@ public class FunctionGenerator {
         // body
         String body;
         if (!returnStmt.isEmpty()) {
-            body = paddingStr + CommonUtil.LINE_SEPARATOR + paddingStr + returnStmt + CommonUtil.LINE_SEPARATOR;
+            body = paddingStr + returnStmt + CommonUtil.LINE_SEPARATOR;
         } else {
             body = paddingStr + CommonUtil.LINE_SEPARATOR;
         }

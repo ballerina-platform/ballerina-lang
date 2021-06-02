@@ -66,10 +66,10 @@ function testInvalidTypeIntStringCompound() returns (int){
     return x;
 }
 
-function testIntFloatDivision() returns (int){
+function testIntFloatDivision() returns (float){
     int x = 5;
     float d = 2.5;
-    x /= d;
+    x /= <int>d;
     return x;
 }
 

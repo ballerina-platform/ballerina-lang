@@ -241,6 +241,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testXMLStrip() {
+        BRunUtil.invoke(compileResult, "testXMLStrip");
+    }
+
+    @Test
     public void testGet() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGet");
         assertEquals(returns[0].stringValue(), "<elem/>");
@@ -306,6 +311,16 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void fromStringTest() {
+        BRunUtil.invoke(compileResult, "fromStringTest");
+    }
+
+    @Test
+    public void testXmlSubtypeFillerValue() {
+        BRunUtil.invoke(compileResult, "testXmlSubtypeFillerValue");
+    }
+
+    @Test
     public void testNegativeCases() {
         negativeResult = BCompileUtil.compile("test-src/xmllib_test_negative.bal");
         int i = 0;
@@ -319,6 +334,8 @@ public class LangLibXMLTest {
         validateError(negativeResult, i++, "incompatible types: expected " +
                 "'(xml:ProcessingInstruction|xml:Comment)', found 'xml:Element'", 61, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'xml:Element', found 'xml'", 69, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml<xml:Element>', found 'xml'",
+                75, 28);
         assertEquals(negativeResult.getErrorCount(), i);
     }
 

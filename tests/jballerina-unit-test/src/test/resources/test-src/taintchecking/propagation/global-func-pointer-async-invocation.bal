@@ -24,6 +24,6 @@ public function main() {
 function () returns int sumFunction =
         function () returns int {
              future<int> intFuture = start getInt();
-             return wait intFuture;
+             return checkpanic wait intFuture;
         };
         

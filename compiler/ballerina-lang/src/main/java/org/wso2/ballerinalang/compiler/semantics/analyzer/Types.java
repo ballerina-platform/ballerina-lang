@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Name;
@@ -89,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
@@ -3515,6 +3517,180 @@ public class Types {
         return matchFound;
     }
 
+    boolean validNumericTypeExists(BType type) {
+        if (isBasicNumericType(type)) {
+            return true;
+        }
+        switch (type.tag) {
+            case TypeTags.UNION:
+                BUnionType unionType = (BUnionType) type;
+                Set<BType> memberTypes = unionType.getMemberTypes();
+                BType firstTypeInUnion = memberTypes.iterator().next();
+                if (firstTypeInUnion.tag == TypeTags.FINITE) {
+                    Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
+                    BType baseExprType = valSpace.iterator().next().type;
+                    for (BType memType : memberTypes) {
+                        if (memType.tag == TypeTags.FINITE) {
+                            if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
+                                return false;
+                            }
+                        }
+                        if (!checkValidNumericTypesInUnion(memType, firstTypeInUnion.tag)) {
+                            return false;
+                        }
+                    }
+                } else {
+                    for (BType memType : memberTypes) {
+                        if (!checkValidNumericTypesInUnion(memType, firstTypeInUnion.tag)) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            case TypeTags.FINITE:
+                Set<BLangExpression> valSpace = ((BFiniteType) type).getValueSpace();
+                BType baseExprType = valSpace.iterator().next().type;
+                for (BLangExpression expr : valSpace) {
+                    if (!checkValueSpaceHasSameType((BFiniteType) type, baseExprType)) {
+                        return false;
+                    }
+                    if (!validNumericTypeExists(expr.type)) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private boolean checkValidNumericTypesInUnion(BType memType, int firstTypeTag) {
+        if (memType.tag != firstTypeTag && !checkTypesBelongToInt(memType.tag, firstTypeTag)) {
+            return false;
+        }
+        return validNumericTypeExists(memType);
+    }
+
+    private boolean checkTypesBelongToInt(int firstTypeTag, int secondTypeTag) {
+        return ((TypeTags.isIntegerTypeTag(firstTypeTag) || firstTypeTag == TypeTags.BYTE) &&
+                (TypeTags.isIntegerTypeTag(secondTypeTag) || secondTypeTag == TypeTags.BYTE));
+    }
+
+    boolean validIntegerTypeExists(BType type) {
+        if (TypeTags.isIntegerTypeTag(type.tag)) {
+            return true;
+        }
+        switch (type.tag) {
+            case TypeTags.BYTE:
+                return true;
+            case TypeTags.UNION:
+                LinkedHashSet<BType> memberTypes = ((BUnionType) type).getMemberTypes();
+                for (BType memberType : memberTypes) {
+                    if (!validIntegerTypeExists(memberType)) {
+                        return false;
+                    }
+                }
+                return true;
+            case TypeTags.FINITE:
+                Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
+                for (BLangExpression expr : valueSpace) {
+                    if (!validIntegerTypeExists(expr.type)) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    boolean validStringOrXmlTypeExists(BType type) {
+        if (TypeTags.isStringTypeTag(type.tag)) {
+            return true;
+        }
+        switch (type.tag) {
+            case TypeTags.XML:
+            case TypeTags.XML_TEXT:
+                return true;
+            case TypeTags.UNION:
+                BUnionType unionType = (BUnionType) type;
+                Set<BType> memberTypes = unionType.getMemberTypes();
+                BType firstTypeInUnion = memberTypes.iterator().next();
+                if (firstTypeInUnion.tag == TypeTags.FINITE) {
+                    Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
+                    BType baseExprType = valSpace.iterator().next().type;
+                    for (BType memType : memberTypes) {
+                        if (memType.tag == TypeTags.FINITE) {
+                            if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
+                                return false;
+                            }
+                        }
+                        if (!checkValidStringOrXmlTypesInUnion(memType, firstTypeInUnion.tag)) {
+                            return false;
+                        }
+                    }
+                } else {
+                    for (BType memType : memberTypes) {
+                        if (!checkValidStringOrXmlTypesInUnion(memType, firstTypeInUnion.tag)) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            case TypeTags.FINITE:
+                Set<BLangExpression> valSpace = ((BFiniteType) type).getValueSpace();
+                BType baseExprType = valSpace.iterator().next().type;
+                for (BLangExpression expr : valSpace) {
+                    if (!checkValueSpaceHasSameType((BFiniteType) type, baseExprType)) {
+                        return false;
+                    }
+                    if (!validStringOrXmlTypeExists(expr.type)) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private boolean checkValidStringOrXmlTypesInUnion(BType memType, int firstTypeTag) {
+        if (memType.tag != firstTypeTag && !checkTypesBelongToStringOrXml(memType.tag, firstTypeTag)) {
+            return false;
+        }
+        return validStringOrXmlTypeExists(memType);
+    }
+
+    private boolean checkTypesBelongToStringOrXml(int firstTypeTag, int secondTypeTag) {
+        return (TypeTags.isStringTypeTag(firstTypeTag) && TypeTags.isStringTypeTag(secondTypeTag)) ||
+                (TypeTags.isXMLTypeTag(firstTypeTag) && TypeTags.isXMLTypeTag(secondTypeTag));
+    }
+
+    public boolean checkTypeContainString(BType type) {
+        if (TypeTags.isStringTypeTag(type.tag)) {
+            return true;
+        }
+        switch (type.tag) {
+            case TypeTags.UNION:
+                for (BType memType : ((BUnionType) type).getMemberTypes()) {
+                    if (!checkTypeContainString(memType)) {
+                        return false;
+                    }
+                }
+                return true;
+            case TypeTags.FINITE:
+                Set<BLangExpression> valSpace = ((BFiniteType) type).getValueSpace();
+                for (BLangExpression expr : valSpace) {
+                    if (!checkTypeContainString(expr.type)) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                return false;
+        }
+    }
+
     /**
      * Retrieves member types of the specified type, expanding maps/arrays of/constrained by unions types to individual
      * maps/arrays.
@@ -3990,41 +4166,49 @@ public class Types {
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (type.tag == TypeTags.ANYDATA && lhsType.tag == TypeTags.RECORD) {
-            BType intersectionType = createAnyDataAndRecordIntersection(intersectionContext, (BRecordType) lhsType,
-                    env);
+        } else if (type.tag == TypeTags.TUPLE && lhsType.tag == TypeTags.TUPLE) {
+            BType intersectionType = createTupleAndTupleIntersection(intersectionContext,
+                    (BTupleType) lhsType, (BTupleType) type, env);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (type.tag == TypeTags.RECORD && lhsType.tag == TypeTags.ANYDATA) {
-            BType intersectionType = createAnyDataAndRecordIntersection(intersectionContext, (BRecordType) type, env);
+        } else if (isAnydataOrJson(type) && lhsType.tag == TypeTags.RECORD) {
+            BType intersectionType = createRecordIntersection(intersectionContext, (BRecordType) lhsType,
+                    getEquivalentRecordType(getMapTypeForAnydataOrJson(type)), env);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (type.tag == TypeTags.ANYDATA && lhsType.tag == TypeTags.MAP) {
-            return getIntersection(intersectionContext, lhsType, env, symTable.mapAnydataType);
-        } else if (type.tag == TypeTags.MAP && lhsType.tag == TypeTags.ANYDATA) {
-            return getIntersection(intersectionContext, symTable.mapAnydataType, env, type);
-        } else if (type.tag == TypeTags.ANYDATA && lhsType.tag == TypeTags.TUPLE) {
-            BType intersectionType = createAnyDataAndTupleIntersection(intersectionContext, (BTupleType) lhsType, env);
+        } else if (type.tag == TypeTags.RECORD && isAnydataOrJson(lhsType)) {
+            BType intersectionType = createRecordIntersection(intersectionContext,
+                    getEquivalentRecordType(getMapTypeForAnydataOrJson(lhsType)), (BRecordType) type, env);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (type.tag == TypeTags.TUPLE && lhsType.tag == TypeTags.ANYDATA) {
-            BType intersectionType = createAnyDataAndTupleIntersection(intersectionContext, (BTupleType) type, env);
+        } else if (isAnydataOrJson(type) && lhsType.tag == TypeTags.MAP) {
+            return getIntersection(intersectionContext, lhsType, env, getMapTypeForAnydataOrJson(type));
+        } else if (type.tag == TypeTags.MAP && isAnydataOrJson(lhsType)) {
+            return getIntersection(intersectionContext, getMapTypeForAnydataOrJson(lhsType), env, type);
+        } else if (isAnydataOrJson(type) && lhsType.tag == TypeTags.TUPLE) {
+            BType intersectionType = createArrayAndTupleIntersection(intersectionContext,
+                    getArrayTypeForAnydataOrJson(type), (BTupleType) lhsType, env);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (type.tag == TypeTags.ANYDATA && lhsType.tag == TypeTags.ARRAY) {
+        } else if (type.tag == TypeTags.TUPLE && isAnydataOrJson(lhsType)) {
+            BType intersectionType = createArrayAndTupleIntersection(intersectionContext,
+                    getArrayTypeForAnydataOrJson(lhsType), (BTupleType) type, env);
+            if (intersectionType != symTable.semanticError) {
+                return intersectionType;
+            }
+        } else if (isAnydataOrJson(type) && lhsType.tag == TypeTags.ARRAY) {
             BType elementIntersection = getIntersection(intersectionContext, ((BArrayType) lhsType).eType, env,
-                                                        symTable.anydataType);
+                                                        type);
             if (elementIntersection == null) {
                 return elementIntersection;
             }
             return new BArrayType(elementIntersection);
-        } else if (type.tag == TypeTags.ARRAY && lhsType.tag == TypeTags.ANYDATA) {
-            BType elementIntersection = getIntersection(intersectionContext, symTable.anydataType, env,
-                                                        ((BArrayType) type).eType);
+        } else if (type.tag == TypeTags.ARRAY && isAnydataOrJson(lhsType)) {
+            BType elementIntersection = getIntersection(intersectionContext, lhsType, env, ((BArrayType) type).eType);
             if (elementIntersection == null) {
                 return elementIntersection;
             }
@@ -4035,15 +4219,33 @@ public class Types {
         return null;
     }
 
-    private BType createAnyDataAndRecordIntersection(IntersectionContext intersectionContext, BRecordType recordType,
-                                                     SymbolEnv env) {
-        return createRecordIntersection(intersectionContext, recordType,
-                                        getEquivalentRecordType(symTable.mapAnydataType), env);
+    private boolean isAnydataOrJson(BType type) {
+        switch (type.tag) {
+            case TypeTags.ANYDATA:
+            case TypeTags.JSON:
+                return true;
+        }
+        return false;
     }
 
-    private BType createAnyDataAndTupleIntersection(IntersectionContext intersectionContext, BTupleType tupleType,
-                                                    SymbolEnv env) {
-        return createArrayAndTupleIntersection(intersectionContext, symTable.arrayAnydataType, tupleType, env);
+    private BMapType getMapTypeForAnydataOrJson(BType type) {
+        BMapType mapType = type.tag == TypeTags.ANYDATA ? symTable.mapAnydataType : symTable.mapJsonType;
+
+        if (isImmutable(type)) {
+            return (BMapType) ImmutableTypeCloner.getEffectiveImmutableType(null, this, mapType, env, symTable,
+                    anonymousModelHelper, names);
+        }
+        return mapType;
+    }
+
+    private BArrayType getArrayTypeForAnydataOrJson(BType type) {
+        BArrayType arrayType = type.tag == TypeTags.ANYDATA ? symTable.arrayAnydataType : symTable.arrayJsonType;
+
+        if (isImmutable(type)) {
+            return (BArrayType) ImmutableTypeCloner.getEffectiveImmutableType(null, this, arrayType, env, symTable,
+                    anonymousModelHelper, names);
+        }
+        return arrayType;
     }
 
     private BType createArrayAndTupleIntersection(IntersectionContext intersectionContext,
@@ -4078,6 +4280,45 @@ public class Types {
             return new BTupleType(null, tupleMemberTypes);
         }
         return new BTupleType(null, tupleMemberTypes, restIntersectionType, 0);
+    }
+
+    private BType createTupleAndTupleIntersection(IntersectionContext intersectionContext,
+                                                  BTupleType lhsTupleType, BTupleType tupleType, SymbolEnv env) {
+        if (lhsTupleType.restType == null && tupleType.restType != null) {
+            return symTable.semanticError;
+        }
+
+        if (lhsTupleType.restType == null && lhsTupleType.tupleTypes.size() != tupleType.tupleTypes.size()) {
+            return symTable.semanticError;
+        }
+
+        List<BType> lhsTupleTypes = lhsTupleType.tupleTypes;
+        List<BType> tupleTypes = tupleType.tupleTypes;
+
+        if (lhsTupleTypes.size() > tupleTypes.size()) {
+            return symTable.semanticError;
+        }
+
+        List<BType> tupleMemberTypes = new ArrayList<>();
+        for (int i = 0; i < tupleTypes.size(); i++) {
+            BType lhsType = (lhsTupleTypes.size() > i) ? lhsTupleTypes.get(i) : lhsTupleType.restType;
+            BType intersectionType = getTypeIntersection(intersectionContext, tupleTypes.get(i), lhsType, env);
+            if (intersectionType == symTable.semanticError) {
+                return symTable.semanticError;
+            }
+            tupleMemberTypes.add(intersectionType);
+        }
+
+        if (lhsTupleType.restType != null && tupleType.restType != null) {
+            BType restIntersectionType = getTypeIntersection(intersectionContext, tupleType.restType,
+                    lhsTupleType.restType, env);
+            if (restIntersectionType == symTable.semanticError) {
+                return new BTupleType(null, tupleMemberTypes);
+            }
+            return new BTupleType(null, tupleMemberTypes, restIntersectionType, 0);
+        }
+
+        return new BTupleType(null, tupleMemberTypes);
     }
 
     private BType getIntersectionForErrorTypes(IntersectionContext intersectionContext,
@@ -4338,7 +4579,7 @@ public class Types {
 
     public BErrorType createErrorType(BType detailType, long flags, SymbolEnv env) {
         String name = anonymousModelHelper.getNextAnonymousIntersectionErrorTypeName(env.enclPkg.packageID);
-        BErrorTypeSymbol errorTypeSymbol = Symbols.createErrorSymbol(flags, names.fromString(name),
+        BErrorTypeSymbol errorTypeSymbol = Symbols.createErrorSymbol(flags | Flags.ANONYMOUS, names.fromString(name),
                                                                      env.enclPkg.symbol.pkgID, null,
                                                                      env.scope.owner, symTable.builtinPos, VIRTUAL);
         errorTypeSymbol.scope = new Scope(errorTypeSymbol);
@@ -5053,6 +5294,34 @@ public class Types {
         return isSimpleBasicType(type.tag);
     }
 
+    public BType findCompatibleType(BType type) {
+        switch (type.tag) {
+            case TypeTags.DECIMAL:
+            case TypeTags.FLOAT:
+            case TypeTags.XML:
+            case TypeTags.XML_TEXT:
+                return type;
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.SIGNED32_INT:
+            case TypeTags.SIGNED16_INT:
+            case TypeTags.SIGNED8_INT:
+            case TypeTags.UNSIGNED32_INT:
+            case TypeTags.UNSIGNED16_INT:
+            case TypeTags.UNSIGNED8_INT:
+                return symTable.intType;
+            case TypeTags.STRING:
+            case TypeTags.CHAR_STRING:
+                return symTable.stringType;
+            case TypeTags.UNION:
+                LinkedHashSet<BType> memberTypes = ((BUnionType) type).getMemberTypes();
+                return findCompatibleType(memberTypes.iterator().next());
+            default:
+                Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
+                return findCompatibleType(valueSpace.iterator().next().type);
+        }
+    }
+
     public boolean isNonNilSimpleBasicTypeOrString(BType type) {
         if (type.tag == TypeTags.UNION) {
             Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
@@ -5093,6 +5362,10 @@ public class Types {
         return Symbols.isFlagOn(type.flags, Flags.ISOLATED);
     }
 
+    private boolean isImmutable(BType type) {
+        return Symbols.isFlagOn(type.flags, Flags.READONLY);
+    }
+
     BType getTypeWithoutNil(BType type) {
         if (type.tag != TypeTags.UNION) {
             return type;
@@ -5118,14 +5391,22 @@ public class Types {
     }
 
     boolean isNeverTypeOrStructureTypeWithARequiredNeverMember(BType type) {
+        Set<BType> visitedTypeSet = new HashSet<>();
+        visitedTypeSet.add(type);
+        return isNeverTypeOrStructureTypeWithARequiredNeverMember(type, visitedTypeSet);
+    }
+
+    boolean isNeverTypeOrStructureTypeWithARequiredNeverMember(BType type, Set<BType> visitedTypeSet) {
         switch (type.tag) {
             case TypeTags.NEVER:
                 return true;
             case TypeTags.RECORD:
                 for (BField field : ((BRecordType) type).fields.values()) {
                     // skip check for fields with self referencing type and not required fields.
-                    if (!isSameType(type, field.type) && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED) &&
-                            isNeverTypeOrStructureTypeWithARequiredNeverMember(field.type)) {
+                    if ((SymbolFlags.isFlagOn(field.symbol.flags, SymbolFlags.REQUIRED) ||
+                            !SymbolFlags.isFlagOn(field.symbol.flags, SymbolFlags.OPTIONAL)) &&
+                            !visitedTypeSet.contains(field.type) &&
+                            isNeverTypeOrStructureTypeWithARequiredNeverMember(field.type, visitedTypeSet)) {
                         return true;
                     }
                 }
@@ -5134,11 +5415,17 @@ public class Types {
                 BTupleType tupleType = (BTupleType) type;
                 List<BType> tupleTypes = tupleType.tupleTypes;
                 for (BType mem : tupleTypes) {
-                    if (isNeverTypeOrStructureTypeWithARequiredNeverMember(mem)) {
+                    visitedTypeSet.add(tupleType);
+                    if (isNeverTypeOrStructureTypeWithARequiredNeverMember(mem, visitedTypeSet)) {
                         return true;
                     }
                 }
                 return false;
+            case TypeTags.ARRAY:
+                BArrayType arrayType = (BArrayType) type;
+                visitedTypeSet.add(arrayType.eType);
+                return arrayType.state != BArrayState.OPEN &&
+                        isNeverTypeOrStructureTypeWithARequiredNeverMember(arrayType.eType, visitedTypeSet);
             default:
                 return false;
         }

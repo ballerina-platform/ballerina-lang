@@ -347,7 +347,6 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         if (prevChildWasATextNode && !prevConsecutiveText.trim().isEmpty()) {
             elementsSeq.add(new XmlText(prevConsecutiveText));
         }
-
         return new XmlSequence(elementsSeq);
     }
 

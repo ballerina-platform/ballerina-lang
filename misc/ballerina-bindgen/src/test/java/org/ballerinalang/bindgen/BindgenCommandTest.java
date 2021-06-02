@@ -26,6 +26,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import picocli.CommandLine;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -72,7 +73,7 @@ public class BindgenCommandTest extends CommandTest {
         MavenResolver mavenResolver = new MavenResolver(projectDir);
         mavenResolver.resolve("log4j", "log4j", "1.2.17", false);
 
-        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream);
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
@@ -83,7 +84,7 @@ public class BindgenCommandTest extends CommandTest {
         Assert.assertTrue(output.contains("commons-logging-1.1.1.jar"));
         Assert.assertTrue(output.contains("log4j-1.2.17.jar"));
         Assert.assertFalse(output.contains("Failed to add the following to classpath:"));
-        Assert.assertFalse(output.contains("class could not be generated."));
+        Assert.assertFalse(output.contains("error: unable to generate the '"));
     }
 
     @Test(description = "Test if the correct error is given for incorrect classpaths")
@@ -94,7 +95,7 @@ public class BindgenCommandTest extends CommandTest {
         String[] args = {"-cp=" + incorrectJarPath + ", test.txt, " + invalidDirPath, "-o=" +
                 projectDir, "java.lang.Object"};
 
-        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream);
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
@@ -110,12 +111,12 @@ public class BindgenCommandTest extends CommandTest {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
         String[] args = {"-mvn=org.yaml.snakeyaml.1.25", "-o=" + projectDir, "java.lang.Object"};
 
-        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream);
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("Error in the maven dependency provided."));
+        Assert.assertTrue(output.contains("error: invalid maven dependency provided"));
     }
 
     @Test(description = "Test if the correct error is given for an incorrect output path")
@@ -123,13 +124,140 @@ public class BindgenCommandTest extends CommandTest {
         String incorrectPath = Paths.get("./incorrect").toString();
         String[] args = {"-o=" + incorrectPath, "java.lang.Object"};
 
-        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream);
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("Error while generating Ballerina bindings:"));
-        Assert.assertTrue(output.contains("Output path provided"));
+        Assert.assertTrue(output.contains("Failed to generate the Ballerina bindings."));
+        Assert.assertTrue(output.contains("error: output path provided could not be found: "));
+    }
+
+    @Test(description = "Test a scenario where the output path resides inside a project")
+    public void testOutputPathInsideProject() throws IOException {
+        String projectDir = Paths.get(testResources.toString(), "balProject", "tests").toString();
+        String[] args = {"-o=" + projectDir, "java.lang.String"};
+
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        bindgenCommand.execute();
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("Ballerina project detected at: "));
+    }
+
+    @Test(description = "Test if the correct error is given when the output path is provided with the modules flag")
+    public void testOutputPathWithModulesFlag() throws IOException {
+        String projectDir = Paths.get(testResources.toString(), "balProject").toString();
+        String[] args = {"-o=" + projectDir, "-m", "java.lang.Object"};
+
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        bindgenCommand.execute();
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("error: output path is not supported together with the modules flag"));
+    }
+
+    @Test(description = "Test if the correct error is given when no class names are provided")
+    public void testNoClassNames() throws IOException {
+        String projectDir = Paths.get(testResources.toString(), "balProject").toString();
+        String[] args = {"-o=" + projectDir};
+
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        bindgenCommand.execute();
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("error: one or more class names are required"));
+    }
+
+    @Test(description = "Test if the correct error is given when a user tries to generate " +
+            "module level mappings outside a ballerina project")
+    public void testModuleFlagWithoutProject() throws IOException {
+        String[] args = {"-m", "java.lang.Object"};
+
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        bindgenCommand.execute();
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("error: module level mappings can only be generated " +
+                "inside a ballerina project"));
+    }
+
+    @Test(description = "Test if the correct error is given for invalid class names")
+    public void testInvalidClassNames() throws IOException {
+        String projectDir = Paths.get(testResources.toString(), "balProject").toString();
+        String[] args = {"-o=" + projectDir, "java.lang.Objec", "java.lang.Apple", "java.lang.String"};
+
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        bindgenCommand.execute();
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("error: unable to generate the 'java.lang.Objec' binding class: " +
+                "java.lang.ClassNotFoundException: java.lang.Objec"));
+        Assert.assertTrue(output.contains("error: unable to generate the 'java.lang.Apple' binding class: " +
+                "java.lang.ClassNotFoundException: java.lang.Apple"));
+    }
+
+    @Test(description = "Test if the correct error is given for failed method generations")
+    public void testFailedMethodGenerations() throws IOException {
+        String projectDir = Paths.get(testResources.toString(), "balProject").toString();
+        String[] args = {"-o=" + projectDir, "org.ballerinalang.bindgen.MethodsTestResource", "java.invalid.Class"};
+
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        bindgenCommand.execute();
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("error: unable to generate the 'java.invalid.Class' binding class: " +
+                "java.lang.ClassNotFoundException: java.invalid.Class"));
+        Assert.assertTrue(output.contains("error: unable to generate the binding function 'unsupportedParam' of " +
+                "'org.ballerinalang.bindgen.MethodsTestResource': multidimensional arrays are currently unsupported"));
+        Assert.assertTrue(output.contains("error: unable to generate the binding function 'unsupportedReturnType' of " +
+                "'org.ballerinalang.bindgen.MethodsTestResource': multidimensional arrays are currently unsupported"));
+    }
+
+    @Test(description = "Test if the correct error is given for a failure in the project loading")
+    public void testFailedProjectLoad() throws IOException {
+        String projectDir = Paths.get(testResources.toString(), "balProject").toString();
+        String[] args = {"-o=" + projectDir, "java.lang.Object"};
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        File file = new File(Paths.get(projectDir, "Ballerina.toml").toString());
+        if (file.exists()) {
+            boolean success = file.setReadable(false);
+            if (success) {
+                bindgenCommand.execute();
+                String output = readOutput(true);
+                file.setReadable(true);
+                Assert.assertTrue(output.contains("error: unable to load the project ["));
+                Assert.assertTrue(output.contains("Ballerina.toml' does not have read permissions"));
+            }
+        }
+    }
+
+    @Test(description = "Test if the correct error is given for a failure in the writing bal files")
+    public void testFileWriteFailure() throws IOException {
+        String projectDir = Paths.get(testResources.toString(), "balProject", "tests").toString();
+        String[] args = {"-o=" + projectDir, "java.lang.Object"};
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        File file = new File(projectDir);
+        if (file.exists()) {
+            boolean success = file.setWritable(false);
+            if (success) {
+                bindgenCommand.execute();
+                String output = readOutput(true);
+                file.setWritable(true);
+                Assert.assertTrue(output.contains("error: unable to create the file:"));
+                Assert.assertTrue(output.contains("Object.bal (Permission denied)"));
+            }
+        }
     }
 
     @AfterClass

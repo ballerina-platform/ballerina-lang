@@ -85,11 +85,11 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STArrayNode transform(
             STArrayNode arrayNode) {
         STNode openBracket = modifyNode(arrayNode.openBracket);
-        STNode values = modifyNode(arrayNode.values);
+        STNode value = modifyNode(arrayNode.value);
         STNode closeBracket = modifyNode(arrayNode.closeBracket);
         return arrayNode.modify(
                 openBracket,
-                values,
+                value,
                 closeBracket);
     }
 
@@ -141,6 +141,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STIdentifierLiteralNode identifierLiteralNode) {
         STNode value = modifyNode(identifierLiteralNode.value);
         return identifierLiteralNode.modify(
+                value);
+    }
+
+    @Override
+    public STKeyNode transform(
+            STKeyNode keyNode) {
+        STNode value = modifyNode(keyNode.value);
+        return keyNode.modify(
                 value);
     }
 

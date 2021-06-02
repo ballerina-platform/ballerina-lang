@@ -30,3 +30,15 @@ function testInvalidTypes((int|error)[][] a) {
         }
     }
 }
+
+function testInvalidTypesWithJson(json j) returns [int, boolean[]] {
+    match j {
+        [var x, ...var y] => {
+            return [x, y];
+        }
+        [var z] => {
+            return [z, [z]];
+        }
+    }
+    return [0, []];
+}

@@ -80,6 +80,7 @@ public class BuildLangLib {
                 skipBootstrap = true;
             }
             System.setProperty(ProjectConstants.BALLERINA_HOME, distCache.toString());
+            System.setProperty("LANG_REPO_BUILD", "true");
             out.println("Building langlib ...");
             out.println("Project Dir: " + projectDir);
 

@@ -458,7 +458,7 @@
                                   "leadingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "             "
+                                      "value": "        "
                                     }
                                   ],
                                   "trailingMinutiae": [

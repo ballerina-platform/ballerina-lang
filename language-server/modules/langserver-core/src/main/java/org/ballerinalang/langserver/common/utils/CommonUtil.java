@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.common.utils;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
@@ -32,10 +33,12 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -112,6 +115,7 @@ import static org.ballerinalang.langserver.common.utils.CommonKeys.SLASH_KEYWORD
  * Common utils to be reuse in language server implementation.
  */
 public class CommonUtil {
+
     private static final Path TEMP_DIR = Paths.get(System.getProperty("java.io.tmpdir"));
 
     public static final String MD_LINE_SEPARATOR = "  " + System.lineSeparator();
@@ -182,10 +186,10 @@ public class CommonUtil {
      */
     public static List<TextEdit> getAutoImportTextEdits(@Nonnull String orgName, String pkgName,
                                                         DocumentServiceContext context) {
-        List<ImportDeclarationNode> currentDocImports = context.currentDocImports();
+        Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();
         Position start = new Position(0, 0);
         if (currentDocImports != null && !currentDocImports.isEmpty()) {
-            ImportDeclarationNode last = CommonUtil.getLastItem(currentDocImports);
+            ImportDeclarationNode last = CommonUtil.getLastItem(new ArrayList<>(currentDocImports.keySet()));
             int endLine = last.lineRange().endLine().line();
             start = new Position(endLine, 0);
         }
@@ -210,10 +214,10 @@ public class CommonUtil {
      */
     public static List<TextEdit> getAutoImportTextEdits(@Nonnull String orgName, String pkgName, String alias,
                                                         DocumentServiceContext context) {
-        List<ImportDeclarationNode> currentDocImports = context.currentDocImports();
+        Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();
         Position start = new Position(0, 0);
         if (currentDocImports != null && !currentDocImports.isEmpty()) {
-            ImportDeclarationNode last = CommonUtil.getLastItem(currentDocImports);
+            ImportDeclarationNode last = CommonUtil.getLastItem(new ArrayList<>(currentDocImports.keySet()));
             int endLine = last.lineRange().endLine().line();
             start = new Position(endLine, 0);
         }
@@ -310,6 +314,21 @@ public class CommonUtil {
                 List<TypeSymbol> members =
                         new ArrayList<>(((UnionTypeSymbol) bType).memberTypeDescriptors());
                 typeString = getDefaultValueForType(members.get(0));
+                break;
+            case INTERSECTION:
+                TypeSymbol effectiveType = ((IntersectionTypeSymbol) rawType).effectiveTypeDescriptor();
+                effectiveType = getRawType(effectiveType);
+                typeString = "()";
+                // Right now, intersection types can only have readonly and another type only. Therefore, not doing 
+                // further checks here.
+                // Get the member type from intersection which is not readonly and get its default value
+                Optional<TypeSymbol> memberType = ((IntersectionTypeSymbol) effectiveType)
+                        .memberTypeDescriptors().stream()
+                        .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.READONLY)
+                        .findAny();
+                if (memberType.isPresent()) {
+                    typeString = getDefaultValueForType(memberType.get());
+                }
                 break;
             case STREAM:
 //            case TABLE:
@@ -809,7 +828,7 @@ public class CommonUtil {
             pkgPrefix = (!preDeclaredLangLib && BALLERINA_KEYWORDS.contains(pkgPrefix)) ? "'" + pkgPrefix : pkgPrefix;
 
             // See if an alias (ex: import project.module1 as mod1) is used
-            List<ImportDeclarationNode> existingModuleImports = context.currentDocImports().stream()
+            List<ImportDeclarationNode> existingModuleImports = context.currentDocImportsMap().keySet().stream()
                     .filter(importDeclarationNode ->
                             CodeActionModuleId.from(importDeclarationNode).moduleName().equals(moduleID.moduleName()))
                     .collect(Collectors.toList());
@@ -856,6 +875,7 @@ public class CommonUtil {
      * Node comparator to compare the nodes by position.
      */
     public static class BLangNodeComparator implements Comparator<BLangNode> {
+
         /**
          * {@inheritDoc}
          */
@@ -1009,8 +1029,8 @@ public class CommonUtil {
     public static Optional<ImportDeclarationNode> matchingImportedModule(CompletionContext context, Package pkg) {
         String name = pkg.packageName().value();
         String orgName = pkg.packageOrg().value();
-        List<ImportDeclarationNode> currentDocImports = context.currentDocImports();
-        return currentDocImports.stream()
+        Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();
+        return currentDocImports.keySet().stream()
                 .filter(importPkg -> importPkg.orgName().isPresent()
                         && importPkg.orgName().get().orgName().text().equals(orgName)
                         && CommonUtil.getPackageNameComponentsCombined(importPkg).equals(name))
@@ -1027,17 +1047,12 @@ public class CommonUtil {
      */
     public static Optional<ImportDeclarationNode> matchingImportedModule(DocumentServiceContext context, String orgName,
                                                                          String modName) {
-        List<ImportDeclarationNode> currentDocImports = context.currentDocImports();
-        return currentDocImports.stream()
+        Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();
+        return currentDocImports.keySet().stream()
                 .filter(importPkg -> (importPkg.orgName().isEmpty()
                         || importPkg.orgName().get().orgName().text().equals(orgName))
                         && CommonUtil.getPackageNameComponentsCombined(importPkg).equals(modName))
                 .findFirst();
-    }
-
-    public static boolean isPreDeclaredLangLib(Package pkg) {
-        return "ballerina".equals(pkg.packageOrg().value())
-                && CommonUtil.PRE_DECLARED_LANG_LIBS.contains(pkg.packageName().value());
     }
 
     public static String getModifiedTypeName(DocumentServiceContext context, TypeSymbol typeSymbol) {
@@ -1080,11 +1095,12 @@ public class CommonUtil {
         String[] modNameComponents = modName.split("\\.");
         return modNameComponents[modNameComponents.length - 1];
     }
+
     /**
      * Get the validated symbol name against the visible symbols.
      * This method can be used to auto generate the symbol names without conflicting with the existing symbol names
      *
-     * @param context completion context
+     * @param context    completion context
      * @param symbolName raw symbol name to modify with the numbered suffix
      * @return {@link String} modified symbol name
      */
@@ -1117,6 +1133,20 @@ public class CommonUtil {
         return symbolName;
     }
 
+    /**
+     * Escape a given value.
+     *
+     * @param value to be escape
+     * @return {@link String}
+     */
+    public static String escapeReservedKeyword(String value) {
+        if (CommonUtil.BALLERINA_KEYWORDS.contains(value)) {
+            return "'" + value;
+        }
+
+        return value;
+    }
+
     private static String getQualifiedModuleName(Module module) {
         if (module.isDefaultModule()) {
             return module.moduleName().packageName().value();
@@ -1144,5 +1174,47 @@ public class CommonUtil {
         } catch (ClassNotFoundException e) {
             return Collections.emptyList();
         }
+    }
+
+    /**
+     * Given the cursor position information, returns the expected ParameterSymbol
+     * information corresponding to the FunctionTypeSymbol instance.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param ctx                Positioned operation context information.
+     * @param node               Function call expression node.
+     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
+     */
+    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                           PositionedOperationContext ctx,
+                                                                           FunctionCallExpressionNode node) {
+        int cursorPosition = ctx.getCursorPositionInTree();
+        int argIndex = -1;
+        for (Node child : node.arguments()) {
+            if (child.textRange().endOffset() < cursorPosition) {
+                argIndex += 1;
+            }
+        }
+        Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
+        if (params.isEmpty() || params.get().size() < argIndex + 2) {
+            return Optional.empty();
+        }
+        return Optional.of(params.get().get(argIndex + 1));
+    }
+
+    /**
+     * Check if the cursor is positioned in a function call expression parameter context.
+     *
+     * @param ctx  PositionedOperationContext
+     * @param node FunctionCallExpressionNode
+     * @return {@link Boolean} whether the cursor is in parameter context.
+     */
+    public static Boolean isInFunctionCallParameterContext(PositionedOperationContext ctx,
+                                                           FunctionCallExpressionNode node) {
+        int cursorPosition = ctx.getCursorPositionInTree();
+        return (!node.openParenToken().isMissing())
+                && (node.openParenToken().textRange().endOffset() <= cursorPosition)
+                && (!node.closeParenToken().isMissing())
+                && (cursorPosition <= node.closeParenToken().textRange().startOffset());
     }
 }

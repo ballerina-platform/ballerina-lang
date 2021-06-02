@@ -24,15 +24,13 @@ distinct class MethodsTestResource {
     function toString() returns string {
         return java:toString(self.jObj) ?: "null";
     }
-
     # The function that maps to the `abstractObjectParam` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
     # + arg0 - The `AbstractSet` value required to map with the Java method parameter.
     # + arg1 - The `Object` value required to map with the Java method parameter.
     # + arg2 - The `string` value required to map with the Java method parameter.
     function abstractObjectParam(AbstractSet arg0, Object arg1, string arg2) {
-        org_ballerinalang_bindgen_MethodsTestResource_abstractObjectParam(self.jObj, arg0.jObj, arg1.jObj,
-        java:fromString(arg2));
+        org_ballerinalang_bindgen_MethodsTestResource_abstractObjectParam(self.jObj, arg0.jObj, arg1.jObj, java:fromString(arg2));
     }
 
     # The function that maps to the `enumParam` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -59,8 +57,7 @@ distinct class MethodsTestResource {
     # + arg1 - The `string[]` value required to map with the Java method parameter.
     # + return - The `error?` value returning from the Java mapping.
     function errorParam(JIOException arg0, string[] arg1) returns error? {
-        org_ballerinalang_bindgen_MethodsTestResource_errorParam(self.jObj, arg0.jObj, check jarrays:toHandle(arg1,
-        "java.lang.String"));
+        org_ballerinalang_bindgen_MethodsTestResource_errorParam(self.jObj, arg0.jObj, check jarrays:toHandle(arg1, "java.lang.String"));
     }
 
     # The function that maps to the `genericObjectParam` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -70,8 +67,7 @@ distinct class MethodsTestResource {
     # + arg2 - The `string[]` value required to map with the Java method parameter.
     # + return - The `Set` value returning from the Java mapping.
     function genericObjectParam(Set arg0, int arg1, string[] arg2) returns Set|error {
-        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_genericObjectParam(self.jObj, arg0.jObj, arg1, check
-        jarrays:toHandle(arg2, "java.lang.String"));
+        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_genericObjectParam(self.jObj, arg0.jObj, arg1, check jarrays:toHandle(arg2, "java.lang.String"));
         Set newObj = new (externalObj);
         return newObj;
     }
@@ -99,8 +95,7 @@ distinct class MethodsTestResource {
     # + arg2 - The `Object[]` value required to map with the Java method parameter.
     # + return - The `error?` value returning from the Java mapping.
     function interfaceParam(Map arg0, Object[] arg1, Object[] arg2) returns error? {
-        org_ballerinalang_bindgen_MethodsTestResource_interfaceParam(self.jObj, arg0.jObj, check jarrays:toHandle(arg1,
-        "java.lang.Object"), check jarrays:toHandle(arg2, "java.lang.Object"));
+        org_ballerinalang_bindgen_MethodsTestResource_interfaceParam(self.jObj, arg0.jObj, check jarrays:toHandle(arg1, "java.lang.Object"), check jarrays:toHandle(arg2, "java.lang.Object"));
     }
 
     # The function that maps to the `notify` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -136,8 +131,7 @@ distinct class MethodsTestResource {
     # + arg1 - The `Object[]` value required to map with the Java method parameter.
     # + return - The `boolean` value returning from the Java mapping.
     function returnBoolean2(boolean arg0, Object[] arg1) returns boolean|error {
-        return org_ballerinalang_bindgen_MethodsTestResource_returnBoolean2(self.jObj, arg0, check jarrays:toHandle(arg1,
-        "java.lang.Object"));
+        return org_ballerinalang_bindgen_MethodsTestResource_returnBoolean2(self.jObj, arg0, check jarrays:toHandle(arg1, "java.lang.Object"));
     }
 
     # The function that maps to the `returnBooleanArray` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -169,8 +163,7 @@ distinct class MethodsTestResource {
     # + arg0 - The `byte[]` value required to map with the Java method parameter.
     # + return - The `byte[]` value returning from the Java mapping.
     function returnByteArray(byte[] arg0) returns byte[]|error {
-        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnByteArray(self.jObj, check
-        jarrays:toHandle(arg0, "byte"));
+        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnByteArray(self.jObj, check jarrays:toHandle(arg0, "byte"));
         return <byte[]>check jarrays:fromHandle(externalObj, "byte");
     }
 
@@ -179,8 +172,7 @@ distinct class MethodsTestResource {
     # + arg0 - The `byte[]` value required to map with the Java method parameter.
     # + return - The `byte[]` value returning from the Java mapping.
     function returnByteMultiArray(byte[] arg0) returns byte[]|error {
-        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnByteMultiArray(self.jObj, check
-        jarrays:toHandle(arg0, "byte"));
+        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnByteMultiArray(self.jObj, check jarrays:toHandle(arg0, "byte"));
         return <byte[]>check jarrays:fromHandle(externalObj, "byte");
     }
 
@@ -190,8 +182,7 @@ distinct class MethodsTestResource {
     # + arg1 - The `int[]` value required to map with the Java method parameter.
     # + return - The `int` value returning from the Java mapping.
     function returnChar(int arg0, int[] arg1) returns int|error {
-        return org_ballerinalang_bindgen_MethodsTestResource_returnChar(self.jObj, arg0, check jarrays:toHandle(arg1,
-        "int"));
+        return org_ballerinalang_bindgen_MethodsTestResource_returnChar(self.jObj, arg0, check jarrays:toHandle(arg1, "int"));
     }
 
     # The function that maps to the `returnCharArray` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -201,8 +192,7 @@ distinct class MethodsTestResource {
     # + arg2 - The `int[]` value required to map with the Java method parameter.
     # + return - The `int[]` value returning from the Java mapping.
     function returnCharArray(int[] arg0, int[] arg1, int[] arg2) returns int[]|error {
-        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnCharArray(self.jObj, check
-        jarrays:toHandle(arg0, "char"), check jarrays:toHandle(arg1, "int"), check jarrays:toHandle(arg2, "short"));
+        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnCharArray(self.jObj, check jarrays:toHandle(arg0, "char"), check jarrays:toHandle(arg1, "int"), check jarrays:toHandle(arg2, "short"));
         return <int[]>check jarrays:fromHandle(externalObj, "char");
     }
 
@@ -213,9 +203,7 @@ distinct class MethodsTestResource {
     # + arg2 - The `Object[]` value required to map with the Java method parameter.
     # + return - The `int[]` value returning from the Java mapping.
     function returnCharMultiArray(int[] arg0, int[] arg1, Object[] arg2) returns int[]|error {
-        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnCharMultiArray(self.jObj, check
-        jarrays:toHandle(arg0, "char"), check jarrays:toHandle(arg1, "int"), check jarrays:toHandle(arg2,
-        "java.lang.Object"));
+        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnCharMultiArray(self.jObj, check jarrays:toHandle(arg0, "char"), check jarrays:toHandle(arg1, "int"), check jarrays:toHandle(arg2, "java.lang.Object"));
         return <int[]>check jarrays:fromHandle(externalObj, "char");
     }
 
@@ -242,8 +230,7 @@ distinct class MethodsTestResource {
     # + arg1 - The `float[]` value required to map with the Java method parameter.
     # + return - The `float[]` value returning from the Java mapping.
     function returnDoubleArray(float[] arg0, float[] arg1) returns float[]|error {
-        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnDoubleArray(self.jObj, check
-        jarrays:toHandle(arg0, "double"), check jarrays:toHandle(arg1, "double"));
+        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnDoubleArray(self.jObj, check jarrays:toHandle(arg0, "double"), check jarrays:toHandle(arg1, "double"));
         return <float[]>check jarrays:fromHandle(externalObj, "double");
     }
 
@@ -253,8 +240,7 @@ distinct class MethodsTestResource {
     # + arg1 - The `float[]` value required to map with the Java method parameter.
     # + return - The `float[]` value returning from the Java mapping.
     function returnDoubleMultiArray(float[] arg0, float[] arg1) returns float[]|error {
-        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnDoubleMultiArray(self.jObj, check
-        jarrays:toHandle(arg0, "double"), check jarrays:toHandle(arg1, "double"));
+        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnDoubleMultiArray(self.jObj, check jarrays:toHandle(arg0, "double"), check jarrays:toHandle(arg1, "double"));
         return <float[]>check jarrays:fromHandle(externalObj, "double");
     }
 
@@ -299,8 +285,7 @@ distinct class MethodsTestResource {
     # + arg1 - The `string` value required to map with the Java method parameter.
     # + return - The `float[]` value returning from the Java mapping.
     function returnFloatArray(float[] arg0, string arg1) returns float[]|error {
-        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnFloatArray(self.jObj, check
-        jarrays:toHandle(arg0, "float"), java:fromString(arg1));
+        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnFloatArray(self.jObj, check jarrays:toHandle(arg0, "float"), java:fromString(arg1));
         return <float[]>check jarrays:fromHandle(externalObj, "float");
     }
 
@@ -344,8 +329,7 @@ distinct class MethodsTestResource {
     # + arg2 - The `boolean[]` value required to map with the Java method parameter.
     # + return - The `int[]` value returning from the Java mapping.
     function returnIntArray(int[] arg0, boolean arg1, boolean[] arg2) returns int[]|error {
-        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnIntArray(self.jObj, check
-        jarrays:toHandle(arg0, "int"), arg1, check jarrays:toHandle(arg2, "boolean"));
+        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnIntArray(self.jObj, check jarrays:toHandle(arg0, "int"), arg1, check jarrays:toHandle(arg2, "boolean"));
         return <int[]>check jarrays:fromHandle(externalObj, "int");
     }
 
@@ -355,8 +339,7 @@ distinct class MethodsTestResource {
     # + arg1 - The `boolean` value required to map with the Java method parameter.
     # + return - The `int[]` value returning from the Java mapping.
     function returnIntMultiArray(int[] arg0, boolean arg1) returns int[]|error {
-        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnIntMultiArray(self.jObj, check
-        jarrays:toHandle(arg0, "int"), arg1);
+        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnIntMultiArray(self.jObj, check jarrays:toHandle(arg0, "int"), arg1);
         return <int[]>check jarrays:fromHandle(externalObj, "int");
     }
 
@@ -375,8 +358,7 @@ distinct class MethodsTestResource {
     # + arg1 - The `Object` value required to map with the Java method parameter.
     # + return - The `int[]` value returning from the Java mapping.
     function returnLongArray(int[] arg0, Object arg1) returns int[]|error {
-        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnLongArray(self.jObj, check
-        jarrays:toHandle(arg0, "long"), arg1.jObj);
+        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnLongArray(self.jObj, check jarrays:toHandle(arg0, "long"), arg1.jObj);
         return <int[]>check jarrays:fromHandle(externalObj, "long");
     }
 
@@ -409,8 +391,7 @@ distinct class MethodsTestResource {
     # + arg0 - The `int[]` value required to map with the Java method parameter.
     # + return - The `File` value returning from the Java mapping.
     function returnObjectError2(int[] arg0) returns File|error {
-        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnObjectError2(self.jObj, check
-        jarrays:toHandle(arg0, "int"));
+        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnObjectError2(self.jObj, check jarrays:toHandle(arg0, "int"));
         File newObj = new (externalObj);
         return newObj;
     }
@@ -421,8 +402,7 @@ distinct class MethodsTestResource {
     function returnObjectThrowable() returns File|FileNotFoundException {
         handle|error externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnObjectThrowable(self.jObj);
         if (externalObj is error) {
-            FileNotFoundException e = error FileNotFoundException(FILENOTFOUNDEXCEPTION, externalObj, message =
-            externalObj.message());
+            FileNotFoundException e = error FileNotFoundException(FILENOTFOUNDEXCEPTION, externalObj, message = externalObj.message());
             return e;
         } else {
             File newObj = new (externalObj);
@@ -436,8 +416,7 @@ distinct class MethodsTestResource {
     function returnObjectThrowableError() returns File[]|FileNotFoundException|error {
         handle|error externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnObjectThrowableError(self.jObj);
         if (externalObj is error) {
-            FileNotFoundException e = error FileNotFoundException(FILENOTFOUNDEXCEPTION, externalObj, message =
-            externalObj.message());
+            FileNotFoundException e = error FileNotFoundException(FILENOTFOUNDEXCEPTION, externalObj, message = externalObj.message());
             return e;
         } else {
             File[] newObj = [];
@@ -456,11 +435,9 @@ distinct class MethodsTestResource {
     # + arg0 - The `int[]` value required to map with the Java method parameter.
     # + return - The `File` or the `FileNotFoundException` value returning from the Java mapping.
     function returnObjectThrowableError2(int[] arg0) returns File|FileNotFoundException|error {
-        handle|error externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnObjectThrowableError2(self.jObj, check
-        jarrays:toHandle(arg0, "int"));
+        handle|error externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnObjectThrowableError2(self.jObj, check jarrays:toHandle(arg0, "int"));
         if (externalObj is error) {
-            FileNotFoundException e = error FileNotFoundException(FILENOTFOUNDEXCEPTION, externalObj, message =
-            externalObj.message());
+            FileNotFoundException e = error FileNotFoundException(FILENOTFOUNDEXCEPTION, externalObj, message = externalObj.message());
             return e;
         } else {
             File newObj = new (externalObj);
@@ -496,8 +473,7 @@ distinct class MethodsTestResource {
     # + arg2 - The `int[]` value required to map with the Java method parameter.
     # + return - The `int[]` value returning from the Java mapping.
     function returnShortMultiArray(int arg0, int arg1, int[] arg2) returns int[]|error {
-        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnShortMultiArray(self.jObj, arg0, arg1, check
-        jarrays:toHandle(arg2, "short"));
+        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnShortMultiArray(self.jObj, arg0, arg1, check jarrays:toHandle(arg2, "short"));
         return <int[]>check jarrays:fromHandle(externalObj, "short");
     }
 
@@ -506,8 +482,7 @@ distinct class MethodsTestResource {
     # + arg0 - The `string` value required to map with the Java method parameter.
     # + return - The `string` value returning from the Java mapping.
     function returnString(string arg0) returns string? {
-        return java:toString(
-        org_ballerinalang_bindgen_MethodsTestResource_returnString(self.jObj, java:fromString(arg0)));
+        return java:toString(org_ballerinalang_bindgen_MethodsTestResource_returnString(self.jObj, java:fromString(arg0)));
     }
 
     # The function that maps to the `returnStringArray1` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -517,8 +492,7 @@ distinct class MethodsTestResource {
     # + arg2 - The `int` value required to map with the Java method parameter.
     # + return - The `string[]` value returning from the Java mapping.
     function returnStringArray1(string[] arg0, StringBuffer arg1, int arg2) returns string[]|error {
-        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStringArray1(self.jObj, check
-        jarrays:toHandle(arg0, "java.lang.String"), arg1.jObj, arg2);
+        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStringArray1(self.jObj, check jarrays:toHandle(arg0, "java.lang.String"), arg1.jObj, arg2);
         return <string[]>check jarrays:fromHandle(externalObj, "string");
     }
 
@@ -529,11 +503,9 @@ distinct class MethodsTestResource {
     # + arg2 - The `int` value required to map with the Java method parameter.
     # + return - The `string[]` or the `InterruptedException` value returning from the Java mapping.
     function returnStringArray2(string[] arg0, StringBuffer arg1, int arg2) returns string[]|InterruptedException|error {
-        handle|error externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStringArray2(self.jObj, check
-        jarrays:toHandle(arg0, "java.lang.String"), arg1.jObj, arg2);
+        handle|error externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStringArray2(self.jObj, check jarrays:toHandle(arg0, "java.lang.String"), arg1.jObj, arg2);
         if (externalObj is error) {
-            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
-            message());
+            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.message());
             return e;
         } else {
             return <string[]>check jarrays:fromHandle(externalObj, "string");
@@ -559,8 +531,7 @@ distinct class MethodsTestResource {
     function 'wait() returns InterruptedException? {
         error|() externalObj = org_ballerinalang_bindgen_MethodsTestResource_wait(self.jObj);
         if (externalObj is error) {
-            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
-            message());
+            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.message());
             return e;
         }
     }
@@ -572,8 +543,7 @@ distinct class MethodsTestResource {
     function wait2(int arg0) returns InterruptedException? {
         error|() externalObj = org_ballerinalang_bindgen_MethodsTestResource_wait2(self.jObj, arg0);
         if (externalObj is error) {
-            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
-            message());
+            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.message());
             return e;
         }
     }
@@ -586,11 +556,11 @@ distinct class MethodsTestResource {
     function wait3(int arg0, int arg1) returns InterruptedException? {
         error|() externalObj = org_ballerinalang_bindgen_MethodsTestResource_wait3(self.jObj, arg0, arg1);
         if (externalObj is error) {
-            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
-            message());
+            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.message());
             return e;
         }
     }
+
 }
 
 # The constructor function to generate an object of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -617,8 +587,7 @@ function MethodsTestResource_abstractObjectStaticParam(AbstractSet arg0, int arg
 # + arg1 - The `Object[]` value required to map with the Java method parameter.
 # + return - The `Level` value returning from the Java mapping.
 function MethodsTestResource_enumStaticParam(Level arg0, Object[] arg1) returns Level|error {
-    handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_enumStaticParam(arg0.jObj, check jarrays:toHandle(
-    arg1, "java.lang.Object"));
+    handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_enumStaticParam(arg0.jObj, check jarrays:toHandle(arg1, "java.lang.Object"));
     Level newObj = new (externalObj);
     return newObj;
 }
@@ -639,8 +608,7 @@ function MethodsTestResource_genericObjectStaticParam(Set arg0) returns Set {
 # + arg1 - The `boolean[]` value required to map with the Java method parameter.
 # + return - The `error?` value returning from the Java mapping.
 function MethodsTestResource_interfaceStaticParam(Map arg0, boolean[] arg1) returns error? {
-    org_ballerinalang_bindgen_MethodsTestResource_interfaceStaticParam(arg0.jObj, check
-    jarrays:toHandle(arg1, "boolean"));
+    org_ballerinalang_bindgen_MethodsTestResource_interfaceStaticParam(arg0.jObj, check jarrays:toHandle(arg1, "boolean"));
 }
 
 # The function that maps to the `join` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -708,8 +676,7 @@ function MethodsTestResource_returnStaticObject() returns File {
 function MethodsTestResource_returnStaticObjectThrowableError1() returns File[]|FileNotFoundException|error {
     handle|error externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStaticObjectThrowableError1();
     if (externalObj is error) {
-        FileNotFoundException e = error FileNotFoundException(FILENOTFOUNDEXCEPTION, externalObj, message = externalObj.
-        message());
+        FileNotFoundException e = error FileNotFoundException(FILENOTFOUNDEXCEPTION, externalObj, message = externalObj.message());
         return e;
     } else {
         File[] newObj = [];
@@ -746,8 +713,7 @@ function MethodsTestResource_getTEST_FIELD() returns int {
     return org_ballerinalang_bindgen_MethodsTestResource_getTEST_FIELD();
 }
 
-function org_ballerinalang_bindgen_MethodsTestResource_abstractObjectParam(handle receiver, handle arg0, handle arg1,
-                                                                           handle arg2) = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_abstractObjectParam(handle receiver, handle arg0, handle arg1, handle arg2) = @java:Method {
     name: "abstractObjectParam",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["java.util.AbstractSet", "java.lang.Object", "java.lang.String"]
@@ -783,8 +749,7 @@ function org_ballerinalang_bindgen_MethodsTestResource_errorParam(handle receive
     paramTypes: ["java.io.IOException", "[Ljava.lang.String;"]
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_genericObjectParam(handle receiver, handle arg0, int arg1,
-                                                                          handle arg2) returns handle = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_genericObjectParam(handle receiver, handle arg0, int arg1, handle arg2) returns handle = @java:Method {
     name: "genericObjectParam",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["java.util.Set", "int", "[Ljava.lang.String;"]
@@ -808,8 +773,7 @@ function org_ballerinalang_bindgen_MethodsTestResource_hashCode(handle receiver)
     paramTypes: []
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_interfaceParam(handle receiver, handle arg0, handle arg1,
-                                                                      handle arg2) = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_interfaceParam(handle receiver, handle arg0, handle arg1, handle arg2) = @java:Method {
     name: "interfaceParam",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["java.util.Map", "[Ljava.lang.Object;", "[Ljava.lang.Object;"]
@@ -851,8 +815,7 @@ function org_ballerinalang_bindgen_MethodsTestResource_returnBoolean(handle rece
     paramTypes: ["boolean"]
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnBoolean2(handle receiver, boolean arg0, handle arg1)
-returns boolean = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnBoolean2(handle receiver, boolean arg0, handle arg1) returns boolean = @java:Method {
     name: "returnBoolean",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["boolean", "[Ljava.lang.Object;"]
@@ -882,8 +845,7 @@ function org_ballerinalang_bindgen_MethodsTestResource_returnByteArray(handle re
     paramTypes: ["[B"]
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnByteMultiArray(handle receiver, handle arg0)
-returns handle = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnByteMultiArray(handle receiver, handle arg0) returns handle = @java:Method {
     name: "returnByteMultiArray",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["[B"]
@@ -895,15 +857,13 @@ function org_ballerinalang_bindgen_MethodsTestResource_returnChar(handle receive
     paramTypes: ["char", "[I"]
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnCharArray(handle receiver, handle arg0, handle arg1,
-                                                                       handle arg2) returns handle = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnCharArray(handle receiver, handle arg0, handle arg1, handle arg2) returns handle = @java:Method {
     name: "returnCharArray",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["[C", "[I", "[S"]
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnCharMultiArray(handle receiver, handle arg0, handle arg1,
-                                                                            handle arg2) returns handle = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnCharMultiArray(handle receiver, handle arg0, handle arg1, handle arg2) returns handle = @java:Method {
     name: "returnCharMultiArray",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["[C", "[I", "[Ljava.lang.Object;"]
@@ -915,22 +875,19 @@ function org_ballerinalang_bindgen_MethodsTestResource_returnDouble(handle recei
     paramTypes: ["double"]
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnDouble2(handle receiver, float arg0, handle arg1)
-returns float = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnDouble2(handle receiver, float arg0, handle arg1) returns float = @java:Method {
     name: "returnDouble",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["double", "java.lang.Object"]
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnDoubleArray(handle receiver, handle arg0, handle arg1)
-returns handle = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnDoubleArray(handle receiver, handle arg0, handle arg1) returns handle = @java:Method {
     name: "returnDoubleArray",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["[D", "[D"]
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnDoubleMultiArray(handle receiver, handle arg0, handle arg1)
-returns handle = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnDoubleMultiArray(handle receiver, handle arg0, handle arg1) returns handle = @java:Method {
     name: "returnDoubleMultiArray",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["[D", "[D"]
@@ -954,15 +911,13 @@ function org_ballerinalang_bindgen_MethodsTestResource_returnFloat(handle receiv
     paramTypes: ["float"]
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnFloat2(handle receiver, float arg0, handle arg1)
-returns float = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnFloat2(handle receiver, float arg0, handle arg1) returns float = @java:Method {
     name: "returnFloat",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["float", "java.lang.String"]
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnFloatArray(handle receiver, handle arg0, handle arg1)
-returns handle = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnFloatArray(handle receiver, handle arg0, handle arg1) returns handle = @java:Method {
     name: "returnFloatArray",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["[F", "java.lang.String"]
@@ -992,15 +947,13 @@ function org_ballerinalang_bindgen_MethodsTestResource_returnInt3(handle receive
     paramTypes: ["short", "int"]
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnIntArray(handle receiver, handle arg0, boolean arg1,
-                                                                      handle arg2) returns handle = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnIntArray(handle receiver, handle arg0, boolean arg1, handle arg2) returns handle = @java:Method {
     name: "returnIntArray",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["[I", "boolean", "[Z"]
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnIntMultiArray(handle receiver, handle arg0, boolean arg1)
-returns handle = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnIntMultiArray(handle receiver, handle arg0, boolean arg1) returns handle = @java:Method {
     name: "returnIntMultiArray",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["[I", "boolean"]
@@ -1012,8 +965,7 @@ function org_ballerinalang_bindgen_MethodsTestResource_returnInterface(handle re
     paramTypes: []
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnLongArray(handle receiver, handle arg0, handle arg1)
-returns handle = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnLongArray(handle receiver, handle arg0, handle arg1) returns handle = @java:Method {
     name: "returnLongArray",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["[J", "java.lang.Object"]
@@ -1049,8 +1001,7 @@ function org_ballerinalang_bindgen_MethodsTestResource_returnObjectThrowableErro
     paramTypes: []
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnObjectThrowableError2(handle receiver, handle arg0)
-returns handle|error = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnObjectThrowableError2(handle receiver, handle arg0) returns handle|error = @java:Method {
     name: "returnObjectThrowableError",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["[I"]
@@ -1062,15 +1013,13 @@ function org_ballerinalang_bindgen_MethodsTestResource_returnOptionalError(handl
     paramTypes: []
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnShortArray(handle receiver, int arg0, int arg1)
-returns handle = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnShortArray(handle receiver, int arg0, int arg1) returns handle = @java:Method {
     name: "returnShortArray",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["short", "int"]
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnShortMultiArray(handle receiver, int arg0, int arg1,
-                                                                             handle arg2) returns handle = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnShortMultiArray(handle receiver, int arg0, int arg1, handle arg2) returns handle = @java:Method {
     name: "returnShortMultiArray",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["short", "int", "[S"]
@@ -1136,15 +1085,13 @@ function org_ballerinalang_bindgen_MethodsTestResource_returnString(handle recei
     paramTypes: ["java.lang.String"]
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnStringArray1(handle receiver, handle arg0, handle arg1,
-                                                                          int arg2) returns handle = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnStringArray1(handle receiver, handle arg0, handle arg1, int arg2) returns handle = @java:Method {
     name: "returnStringArray1",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["[Ljava.lang.String;", "java.lang.StringBuffer", "int"]
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnStringArray2(handle receiver, handle arg0, handle arg1,
-                                                                          int arg2) returns handle|error = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnStringArray2(handle receiver, handle arg0, handle arg1, int arg2) returns handle|error = @java:Method {
     name: "returnStringArray2",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["[Ljava.lang.String;", "java.lang.StringBuffer", "int"]
@@ -1160,6 +1107,12 @@ function org_ballerinalang_bindgen_MethodsTestResource_testMethod(handle receive
     name: "testMethod",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["int"]
+} external;
+
+function org_ballerinalang_bindgen_MethodsTestResource_unsupportedReturnType(handle receiver) returns handle = @java:Method {
+    name: "unsupportedReturnType",
+    'class: "org.ballerinalang.bindgen.MethodsTestResource",
+    paramTypes: []
 } external;
 
 function org_ballerinalang_bindgen_MethodsTestResource_wait(handle receiver) returns error? = @java:Method {

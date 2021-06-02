@@ -6,6 +6,7 @@ import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -365,6 +366,7 @@ public class Package {
         Modifier updateBallerinaToml(BallerinaToml ballerinaToml) {
             this.ballerinaTomlContext = ballerinaToml.ballerinaTomlContext();
             updateManifest();
+            updateModules();
             return this;
         }
 
@@ -384,6 +386,11 @@ public class Package {
             return this;
         }
 
+        Modifier updatePackageMd(MdDocumentContext packageMd) {
+            this.packageMdContext = packageMd;
+            return this;
+        }
+
         /**
          * Returns the updated package created by a module add/remove/update operation.
          *
@@ -395,7 +402,6 @@ public class Package {
 
         private Map<ModuleId, ModuleContext> copyModules(Package oldPackage) {
             Map<ModuleId, ModuleContext> moduleContextMap = new HashMap<>();
-
             for (ModuleId moduleId : oldPackage.packageContext.moduleIds()) {
                 moduleContextMap.put(moduleId, oldPackage.packageContext.moduleContext(moduleId));
             }
@@ -417,11 +423,42 @@ public class Package {
                     Optional.ofNullable(this.compilerPluginTomlContext).map(d -> d.tomlDocument()).orElse(null),
                     this.project.sourceRoot());
             this.packageManifest = manifestBuilder.packageManifest();
+            BuildOptions newBuildOptions;
+            if (manifestBuilder.buildOptions() == null) {
+                newBuildOptions = new BuildOptionsBuilder().build();
+            } else {
+                newBuildOptions = manifestBuilder.buildOptions();
+            }
+            this.project.setBuildOptions(this.project.buildOptions().acceptTheirs(newBuildOptions));
         }
 
-        Modifier updatePackageMd(MdDocumentContext packageMd) {
-            this.packageMdContext = packageMd;
-            return this;
+        private void updateModules() {
+            Set<ModuleContext> moduleContextSet = new HashSet<>();
+            for (Map.Entry<ModuleId, ModuleContext> moduleIdModuleContextEntry : moduleContextMap.entrySet()) {
+                ModuleId moduleId = moduleIdModuleContextEntry.getKey();
+                ModuleContext oldModuleContext = moduleIdModuleContextEntry.getValue();
+
+                PackageDescriptor packageDescriptor = this.packageManifest.descriptor();
+                ModuleName moduleName = ModuleName.from(
+                        packageDescriptor.name(), oldModuleContext.moduleName().moduleNamePart());
+                ModuleDescriptor moduleDescriptor = ModuleDescriptor.from(moduleName, packageDescriptor);
+
+                Map<DocumentId, DocumentContext> srcDocContextMap = new HashMap<>();
+                for (DocumentId documentId : oldModuleContext.srcDocumentIds()) {
+                    srcDocContextMap.put(documentId, oldModuleContext.documentContext(documentId));
+                }
+
+                Map<DocumentId, DocumentContext> testDocContextMap = new HashMap<>();
+                for (DocumentId documentId : oldModuleContext.testSrcDocumentIds()) {
+                    testDocContextMap.put(documentId, oldModuleContext.documentContext(documentId));
+                }
+
+                moduleContextSet.add(new ModuleContext(this.project, moduleId, moduleDescriptor,
+                        oldModuleContext.isDefaultModule(), srcDocContextMap, testDocContextMap,
+                        oldModuleContext.moduleMdContext().orElse(null),
+                        oldModuleContext.moduleDescDependencies()));
+            }
+            updateModules(moduleContextSet);
         }
     }
 }

@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
@@ -121,7 +122,7 @@ public class TypeConverter {
                 return anyToIntCast(inputValue, () ->
                         ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_INT));
             case TypeTags.DECIMAL_TAG:
-                return anyToDecimal(inputValue, () ->
+                return anyToDecimalCast(inputValue, () ->
                         ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_DECIMAL));
             case TypeTags.FLOAT_TAG:
                 return anyToFloatCast(inputValue, () ->
@@ -405,8 +406,6 @@ public class TypeConverter {
             return floatToInt((double) sourceVal);
         } else if (sourceVal instanceof Integer) {
             return ((Integer) sourceVal).longValue();
-        } else if (sourceVal instanceof Boolean) {
-            return (Boolean) sourceVal ? 1 : 0;
         } else if (sourceVal instanceof DecimalValue) {
             return ((DecimalValue) sourceVal).intValue();
         } else {
@@ -461,8 +460,6 @@ public class TypeConverter {
             return (Double) sourceVal;
         } else if (sourceVal instanceof Integer) {
             return ((Integer) sourceVal).floatValue();
-        } else if (sourceVal instanceof Boolean) {
-            return (Boolean) sourceVal ? 1.0 : 0.0;
         } else if (sourceVal instanceof DecimalValue) {
             return ((DecimalValue) sourceVal).floatValue();
         } else {
@@ -607,7 +604,10 @@ public class TypeConverter {
     }
 
     public static BXml stringToXml(String value) throws BError {
-        return XmlUtils.parse(value);
+        StringBuilder sb = new StringBuilder();
+        sb.append("<root>").append(value).append("</root>");
+        BXml item = XmlUtils.parse(sb.toString());
+        return item.children();
     }
 
     public static BString anyToChar(Object sourceVal) {
@@ -679,8 +679,6 @@ public class TypeConverter {
             return floatToByte((Double) sourceVal);
         } else if (sourceVal instanceof Integer) {
             return (int) sourceVal;
-        } else if (sourceVal instanceof Boolean) {
-            return ((Boolean) sourceVal ? 1 : 0);
         } else if (sourceVal instanceof DecimalValue) {
             return ((DecimalValue) sourceVal).byteValue();
         } else {
@@ -726,6 +724,19 @@ public class TypeConverter {
             return DecimalValue.valueOf((Integer) sourceVal);
         } else if (sourceVal instanceof Boolean) {
             return DecimalValue.valueOf((Boolean) sourceVal);
+        } else if (sourceVal instanceof DecimalValue) {
+            return (DecimalValue) sourceVal;
+        }
+        throw errorFunc.get();
+    }
+
+    static DecimalValue anyToDecimalCast(Object sourceVal, Supplier<BError> errorFunc) {
+        if (sourceVal instanceof Long) {
+            return DecimalValue.valueOf((Long) sourceVal);
+        } else if (sourceVal instanceof Double) {
+            return DecimalValue.valueOf((Double) sourceVal);
+        } else if (sourceVal instanceof Integer) {
+            return DecimalValue.valueOf((Integer) sourceVal);
         } else if (sourceVal instanceof DecimalValue) {
             return (DecimalValue) sourceVal;
         } else if (sourceVal instanceof String) {
@@ -828,12 +839,12 @@ public class TypeConverter {
     public static Type resolveMatchingTypeForUnion(Object value, Type type) {
         if (value instanceof ArrayValue && ((ArrayValue) value).getType().getTag() == TypeTags.ARRAY_TAG &&
                 !isDeepConversionRequiredForArray(((ArrayValue) value).getType())) {
-            return ((ArrayValue) value).getType();
+            return TypeCreator.createArrayType(type);
         }
 
         if (value instanceof MapValue && ((MapValue) value).getType().getTag() == TypeTags.MAP_TAG &&
                 !isDeepConversionRequiredForMap(((MapValue) value).getType())) {
-            return ((MapValue) value).getType();
+            return TypeCreator.createMapType(type);
         }
 
         if (value == null && type.isNilable()) {

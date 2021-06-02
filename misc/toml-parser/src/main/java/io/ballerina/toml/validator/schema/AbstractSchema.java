@@ -19,7 +19,6 @@
 package io.ballerina.toml.validator.schema;
 
 import java.util.Map;
-
 /**
  * Represents the base class for all the sub schemas in json schema.
  *

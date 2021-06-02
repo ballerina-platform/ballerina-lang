@@ -33,24 +33,16 @@ OPTIONS
             the output will be written onto the same directory from where the command is run.
 
         (--mode) <mode-type>
-            Mode type can be service or client. Generate a ballerina service and client only
+            Mode type can be service or client. Generate a Ballerina service and client only
             according to the mode. This is optional input.
-
-        (-m| --module) <module-name>
-            This use when ballerina file convert to openapi contract
-
-        (--service-name) <service-name>
-            This use for allocating specific user-given name to generated service and client stub according to openapi
-            contract. This option uses with the command of openApi to ballerina file generation.
-
 
         (-s| --service ) <current-service-name>
             This service name is used to identify the service that need to documented as openApi specification. This
-            option uses with the command of ballerina to openApi specification generation.
+            option uses with the command of Ballerina to OpenAPI specification generation.
 
         (--tags) <tag-names>
             This tags use to filter the operations tag need to generate services. This option uses with command
-            of openApi to ballerina file generation.
+            of OpenAPI to Ballerina file generation.
 
         (--operations) <operation-names>
             These operations are used to filter the operations that are needed to generate services. This option is used with the command
@@ -78,8 +70,8 @@ EXAMPLES
        Generate both the Ballerina client and service file.
           $ bal openapi --input petstore.yaml -o ./example
 
-       Generate services for given tags
+       Generate services for the given tags.
           $ bal openapi -i hello.yaml --mode service --tags pets
 
-       Generate services for given operations
+       Generate services for the given operations.
           $ bal openapi -i hello.yaml --mode service --operations listPets

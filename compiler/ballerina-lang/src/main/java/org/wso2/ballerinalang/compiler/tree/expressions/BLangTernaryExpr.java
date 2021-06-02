@@ -25,7 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 /**
  * @since 0.94
  */
-public class BLangTernaryExpr extends BLangAccessibleExpression implements TernaryExpressionNode {
+public class BLangTernaryExpr extends BLangExpression implements TernaryExpressionNode {
 
     public BLangExpression expr;
     public BLangExpression thenExpr;

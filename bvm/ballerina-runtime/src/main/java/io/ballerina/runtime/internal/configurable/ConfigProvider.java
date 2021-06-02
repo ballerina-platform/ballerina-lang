@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 
 import java.util.Optional;
 
@@ -35,6 +36,8 @@ import java.util.Optional;
 public interface ConfigProvider {
 
     void initialize();
+
+    void complete(RuntimeDiagnosticLog diagnosticLog);
 
     boolean hasConfigs();
 
@@ -54,7 +57,11 @@ public interface ConfigProvider {
 
     Optional<BMap<BString, Object>> getAsRecordAndMark(Module module, VariableKey key);
 
+    Optional<BMap<BString, Object>> getAsMapAndMark(Module module, VariableKey key);
+
     Optional<BTable<BString, Object>> getAsTableAndMark(Module module, VariableKey key);
+
+    Optional<Object> getAsUnionAndMark(Module module, VariableKey key);
 
     Optional<BXml> getAsXmlAndMark(Module module, VariableKey key);
 

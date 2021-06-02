@@ -6,6 +6,19 @@
   "source": "expression_context/source/conditional_expr_ctx_source5.bal",
   "items": [
     {
+      "label": "ENUM1_FIELD1",
+      "kind": "EnumMember",
+      "detail": "ENUM1_FIELD1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "insertText": "ENUM1_FIELD1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TEST_INT_CONST1",
       "kind": "Variable",
       "detail": "1",
@@ -29,26 +42,6 @@
         }
       },
       "insertText": "TEST_STRING_CONST1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ENUM1_FIELD1",
-      "kind": "EnumMember",
-      "detail": "ENUM1_FIELD1",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
-      "insertText": "ENUM1_FIELD1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "AnnotationType",
-      "kind": "Struct",
-      "detail": "Record",
-      "insertText": "AnnotationType",
       "insertTextFormat": "Snippet"
     },
     {
@@ -121,17 +114,17 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "insertText": "AnnotationType",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TestClass1",
       "kind": "Interface",
       "detail": "Class",
       "insertText": "TestClass1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Listener",
-      "kind": "Interface",
-      "detail": "Class",
-      "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
     {
@@ -155,6 +148,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Listener",
+      "kind": "Interface",
+      "detail": "Class",
+      "insertText": "Listener",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "listener1",
       "kind": "Variable",
       "detail": "module1:Listener",
@@ -171,6 +171,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n"
         }
       },
+      "filterText": "function1",
       "insertText": "function1()",
       "insertTextFormat": "Snippet"
     },
@@ -184,6 +185,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n"
         }
       },
+      "filterText": "function2",
       "insertText": "function2()",
       "insertTextFormat": "Snippet"
     },
@@ -197,6 +199,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Returns** `int`   \n- Return Value Description  \n  \n"
         }
       },
+      "filterText": "function3",
       "insertText": "function3(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -214,6 +217,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function4 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `string` param3: param3 Parameter Description(Defaultable)  \n- `float[]` param4: param4 Parameter Description"
         }
       },
+      "filterText": "function4",
       "insertText": "function4(${1})",
       "insertTextFormat": "Snippet",
       "command": {

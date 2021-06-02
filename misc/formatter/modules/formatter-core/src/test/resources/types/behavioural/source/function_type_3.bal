@@ -1,11 +1,9 @@
  final   int   x   =   1  ;
 
 final  map <int>  &  readonly  y  =  {
-    one: 1
-    ,
+    one: 1  ,
 two   : 2
-}
-;
+}  ;
 
 isolated             function   foo(int i, map<int> j)   returns   int {
    int a = i; // ok, `i` is a param
@@ -19,11 +17,7 @@ int   e = bar(); // ok, since `bar` is also `isolated`
    Baz   baz = new;
    int f = baz.getInt(); // ok, since `baz` is local variable and `getInt` of `Baz` is `isolated`
 
-   return a + b + c +  <int>   d + e + f
-
-   ; // ok, can return a value
+   return a + b + c +  <int>   d + e + f; // ok, can return a value
 }
 
-isolated   function   bar()
-returns   int   =>   34
-;
+isolated   function   bar()   returns   int   =>   34  ;

@@ -95,6 +95,7 @@ dependencies {
     dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
     dist 'commons-logging:commons-logging:1.1.1'
     dist 'io.opentelemetry:opentelemetry-api:1.0.0'
+    dist 'io.opentelemetry:opentelemetry-context:1.0.0'
     dist 'org.awaitility:awaitility:3.1.6'
     dist 'org.hdrhistogram:HdrHistogram:2.1.10'
     dist 'com.h2database:h2:1.4.199'

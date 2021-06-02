@@ -8,18 +8,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "key",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "key",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -63,24 +68,29 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "STRING_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
-                      "kind": "DOUBLE_QUOTE_TOKEN"
-                    },
-                    {
-                      "kind": "IDENTIFIER_LITERAL",
-                      "value": "key"
-                    },
-                    {
-                      "kind": "DOUBLE_QUOTE_TOKEN",
-                      "trailingMinutiae": [
+                      "kind": "STRING_LITERAL",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "key"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -132,36 +142,41 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "site"
-                    }
-                  ]
-                },
-                {
-                  "kind": "DOT_TOKEN"
-                },
-                {
-                  "kind": "STRING_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DOUBLE_QUOTE_TOKEN"
-                    },
-                    {
-                      "kind": "IDENTIFIER_LITERAL",
-                      "value": "google.com"
-                    },
-                    {
-                      "kind": "DOUBLE_QUOTE_TOKEN",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "site"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "google.com"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -198,103 +213,41 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "apple",
-                      "leadingMinutiae": [
+                      "children": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "apple",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
                         }
                       ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "DOT_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "type",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "EQUAL_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "STRING_LITERAL",
-              "children": [
-                {
-                  "kind": "DOUBLE_QUOTE_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "value": "fruit"
-                },
-                {
-                  "kind": "DOUBLE_QUOTE_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "KEY_VALUE",
-          "children": [
-            {
-              "kind": "LIST",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_LITERAL",
-                      "value": "orange"
-                    }
-                  ]
-                },
-                {
-                  "kind": "DOT_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_LITERAL",
-                      "value": "type",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "type",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -338,36 +291,113 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "apple",
-                      "leadingMinutiae": [
+                      "children": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "orange"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "type",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
-                },
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
                 {
-                  "kind": "DOT_TOKEN"
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN"
                 },
                 {
                   "kind": "IDENTIFIER_LITERAL",
+                  "value": "fruit"
+                },
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "KEY_VALUE",
+          "children": [
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "skin",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "apple",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "skin",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -411,30 +441,35 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "orange"
-                    }
-                  ]
-                },
-                {
-                  "kind": "DOT_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_LITERAL",
-                      "value": "skin",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "orange"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "skin",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -478,36 +513,41 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "apple",
-                      "leadingMinutiae": [
+                      "children": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "apple",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
                         }
                       ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "DOT_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "color",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "color",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -551,30 +591,35 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "orange"
-                    }
-                  ]
-                },
-                {
-                  "kind": "DOT_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_LITERAL",
-                      "value": "color",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "orange"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "color",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -618,30 +663,35 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "foo"
-                    }
-                  ]
-                },
-                {
-                  "kind": "DOT_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_LITERAL",
-                      "value": "bar",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "foo"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "bar",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -694,14 +744,19 @@
               ]
             },
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "table"
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "table"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -723,18 +778,23 @@
                   "kind": "KEY_VALUE",
                   "children": [
                     {
-                      "kind": "LIST",
+                      "kind": "KEY",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_LITERAL",
+                          "kind": "LIST",
                           "children": [
                             {
                               "kind": "IDENTIFIER_LITERAL",
-                              "value": "hi",
-                              "trailingMinutiae": [
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "hi",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -778,24 +838,29 @@
                   "kind": "KEY_VALUE",
                   "children": [
                     {
-                      "kind": "LIST",
+                      "kind": "KEY",
                       "children": [
                         {
-                          "kind": "STRING_LITERAL",
+                          "kind": "LIST",
                           "children": [
                             {
-                              "kind": "DOUBLE_QUOTE_TOKEN"
-                            },
-                            {
-                              "kind": "IDENTIFIER_LITERAL",
-                              "value": "foo bar"
-                            },
-                            {
-                              "kind": "DOUBLE_QUOTE_TOKEN",
-                              "trailingMinutiae": [
+                              "kind": "STRING_LITERAL",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "DOUBLE_QUOTE_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "foo bar"
+                                },
+                                {
+                                  "kind": "DOUBLE_QUOTE_TOKEN",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -846,26 +911,31 @@
               "kind": "OPEN_BRACKET_TOKEN"
             },
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "table"
-                    }
-                  ]
-                },
-                {
-                  "kind": "DOT_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "table"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "hello"
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "hello"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -887,18 +957,23 @@
                   "kind": "KEY_VALUE",
                   "children": [
                     {
-                      "kind": "LIST",
+                      "kind": "KEY",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_LITERAL",
+                          "kind": "LIST",
                           "children": [
                             {
                               "kind": "IDENTIFIER_LITERAL",
-                              "value": "child",
-                              "trailingMinutiae": [
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "child",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -958,38 +1033,43 @@
               "kind": "OPEN_BRACKET_TOKEN"
             },
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "cloud"
-                    }
-                  ]
-                },
-                {
-                  "kind": "DOT_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "cloud"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "config"
-                    }
-                  ]
-                },
-                {
-                  "kind": "DOT_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "config"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "envs"
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "envs"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -1014,14 +1094,19 @@
                   "kind": "KEY_VALUE",
                   "children": [
                     {
-                      "kind": "LIST",
+                      "kind": "KEY",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_LITERAL",
+                          "kind": "LIST",
                           "children": [
                             {
                               "kind": "IDENTIFIER_LITERAL",
-                              "value": "config_name"
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "config_name"
+                                }
+                              ]
                             }
                           ]
                         }
@@ -1063,14 +1148,19 @@
                   "kind": "KEY_VALUE",
                   "children": [
                     {
-                      "kind": "LIST",
+                      "kind": "KEY",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_LITERAL",
+                          "kind": "LIST",
                           "children": [
                             {
                               "kind": "IDENTIFIER_LITERAL",
-                              "value": "key"
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "key"
+                                }
+                              ]
                             }
                           ]
                         }
@@ -1128,38 +1218,43 @@
               "kind": "OPEN_BRACKET_TOKEN"
             },
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "cloud"
-                    }
-                  ]
-                },
-                {
-                  "kind": "DOT_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "cloud"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "config"
-                    }
-                  ]
-                },
-                {
-                  "kind": "DOT_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "config"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "envs"
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "envs"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -1184,14 +1279,19 @@
                   "kind": "KEY_VALUE",
                   "children": [
                     {
-                      "kind": "LIST",
+                      "kind": "KEY",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_LITERAL",
+                          "kind": "LIST",
                           "children": [
                             {
                               "kind": "IDENTIFIER_LITERAL",
-                              "value": "name"
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "name"
+                                }
+                              ]
                             }
                           ]
                         }
@@ -1233,14 +1333,19 @@
                   "kind": "KEY_VALUE",
                   "children": [
                     {
-                      "kind": "LIST",
+                      "kind": "KEY",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_LITERAL",
+                          "kind": "LIST",
                           "children": [
                             {
                               "kind": "IDENTIFIER_LITERAL",
-                              "value": "config_name"
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "config_name"
+                                }
+                              ]
                             }
                           ]
                         }
@@ -1282,14 +1387,19 @@
                   "kind": "KEY_VALUE",
                   "children": [
                     {
-                      "kind": "LIST",
+                      "kind": "KEY",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_LITERAL",
+                          "kind": "LIST",
                           "children": [
                             {
                               "kind": "IDENTIFIER_LITERAL",
-                              "value": "key"
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "key"
+                                }
+                              ]
                             }
                           ]
                         }
@@ -1344,14 +1454,19 @@
               ]
             },
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "root"
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "root"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -1373,30 +1488,35 @@
                   "kind": "KEY_VALUE",
                   "children": [
                     {
-                      "kind": "LIST",
+                      "kind": "KEY",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_LITERAL",
+                          "kind": "LIST",
                           "children": [
                             {
                               "kind": "IDENTIFIER_LITERAL",
-                              "value": "first"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "DOT_TOKEN"
-                        },
-                        {
-                          "kind": "IDENTIFIER_LITERAL",
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_LITERAL",
-                              "value": "second",
-                              "trailingMinutiae": [
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "first"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "DOT_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "second",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -1440,30 +1560,35 @@
                   "kind": "KEY_VALUE",
                   "children": [
                     {
-                      "kind": "LIST",
+                      "kind": "KEY",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_LITERAL",
+                          "kind": "LIST",
                           "children": [
                             {
                               "kind": "IDENTIFIER_LITERAL",
-                              "value": "first"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "DOT_TOKEN"
-                        },
-                        {
-                          "kind": "IDENTIFIER_LITERAL",
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_LITERAL",
-                              "value": "third",
-                              "trailingMinutiae": [
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "first"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "DOT_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "third",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }

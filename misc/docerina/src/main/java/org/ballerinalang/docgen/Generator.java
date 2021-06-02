@@ -67,7 +67,6 @@ import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerina.compiler.syntax.tree.TypedescTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.generator.model.Annotation;
@@ -187,9 +186,8 @@ public class Generator {
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             Type refType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
             if (refType.category.equals("errors")) {
-                module.errors.add(new Error(typeDefinition.typeName().text(),
-                        getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition
-                        .metadata()), refType));
+                module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode),
+                        refType));
             } else {
                 module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
                         semanticModel));
@@ -197,8 +195,40 @@ public class Generator {
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
                 ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
                         == SyntaxKind.ERROR_TYPE_DESC) {
-            module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode),
-                    null));
+            Type detailType = null;
+            ErrorTypeDescriptorNode errorTypeDescNode = (ErrorTypeDescriptorNode)
+                    ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor();
+            if (errorTypeDescNode.errorTypeParamsNode().isPresent()) {
+                detailType = Type.fromNode(errorTypeDescNode.errorTypeParamsNode().get().typeNode(), semanticModel);
+            }
+            Error err = new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), detailType);
+            err.isDistinct = true;
+            module.errors.add(err);
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
+                ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
+                        == SyntaxKind.OBJECT_TYPE_DESC) {
+            BObjectType bObj = getObjectTypeModel((ObjectTypeDescriptorNode)
+                            ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor(), typeName,
+                    metaDataNode, semanticModel);
+            bObj.isDistinct = true;
+            module.objectTypes.add(bObj);
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
+                ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
+                        == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            Type refType = Type.fromNode(((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor()))
+                    .typeDescriptor(), semanticModel);
+            if (refType.category.equals("errors")) {
+                Error err = new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), refType);
+                err.isDistinct = true;
+                module.errors.add(err);
+            } else {
+                List<Type> memberTypes = new ArrayList<>();
+                memberTypes.add(refType);
+                BType bType = new BType(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode),
+                        memberTypes);
+                bType.isAnonymousUnionType = true;
+                module.types.add(bType);
+            }
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.ERROR_TYPE_DESC) {
             ErrorTypeDescriptorNode errorTypeDescriptor = (ErrorTypeDescriptorNode) typeDefinition.typeDescriptor();
             Type type = null;
@@ -324,8 +354,7 @@ public class Generator {
             }
         }
         List<Type> memberTypes = new ArrayList<>();
-        memberTypes.add(Type.fromNode(typeDescriptor.leftTypeDesc(), semanticModel));
-        memberTypes.add(Type.fromNode(typeDescriptor.rightTypeDesc(), semanticModel));
+        Type.addIntersectionMemberTypes(memberTypes, typeDescriptor, semanticModel);
         BType bType = new BType(typeName, getDocFromMetadata(optionalMetadataNode),
                 isDeprecated(optionalMetadataNode), memberTypes);
         bType.isIntersectionType = true;
@@ -360,13 +389,7 @@ public class Generator {
     private static BType getUnionTypeModel(Node unionTypeDescriptor, String unionName,
                                            Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel) {
         List<Type> memberTypes = new ArrayList<>();
-        Node typeDescriptor = unionTypeDescriptor;
-        while (typeDescriptor.kind().equals(SyntaxKind.UNION_TYPE_DESC)) {
-            UnionTypeDescriptorNode unionType = (UnionTypeDescriptorNode) typeDescriptor;
-            memberTypes.add(Type.fromNode(unionType.leftTypeDesc(), semanticModel));
-            typeDescriptor = unionType.rightTypeDesc();
-        }
-        memberTypes.add(Type.fromNode(typeDescriptor, semanticModel));
+        Type.addUnionMemberTypes(memberTypes, unionTypeDescriptor, semanticModel);
         BType bType = new BType(unionName, getDocFromMetadata(optionalMetadataNode),
                                 isDeprecated(optionalMetadataNode), memberTypes);
         bType.isAnonymousUnionType = true;
@@ -670,8 +693,9 @@ public class Generator {
                         originType.memberTypes.add(type);
                     });
                 }
-                defaultableVariable.type = originType;
-                variables.add(defaultableVariable);
+                if (originType.memberTypes.size() > 0) {
+                    variables.add(defaultableVariable);
+                }
             } else if (node instanceof ObjectFieldNode) {
                 ObjectFieldNode objectField = (ObjectFieldNode) node;
                 if (objectField.visibilityQualifier().isPresent() && objectField.visibilityQualifier().get().kind()

@@ -659,48 +659,11 @@ function waitTest() returns string {
    future<()> p = start foo("abc", 7);
    future<string> p2 = start foo2("wait");
 
-   string result = wait p2;
-   wait p;
+   string result = checkpanic wait p2;
+   checkpanic wait p;
    future<string> p3 = acceptFuture(p2);
    
    return result;
-}
-
-string waitMultimple = "";
-
-function waitOnSame() returns [string,string,string] {
-    future<string> p1 = start foo2("wait1");
-    future<()> p = start append("00");
-    
-    string wait2 = waitAgain();
-    string p1Result = wait p1;
-
-    waitSame(p);
-    wait p;
-
-    future<()> ap = start append("22");
-    wait ap;
-
-    future<()> ap2 = start append("33");
-    wait ap2;
-
-    return [p1Result, wait2, waitMultimple];
-}
-
-function waitSame(future<()> f) {
-    wait f;
-    future<()> ap = start append("11");
-    wait ap;
-}
-
-function waitAgain() returns string {
-    future<string> p2 = start foo2("wait2");
-    string res = wait p2;
-    return res;
-}
-
-function append(string str) {
-    waitMultimple = waitMultimple + str;
 }
 
 public type Foo record {

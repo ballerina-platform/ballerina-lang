@@ -26,6 +26,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 
@@ -146,7 +147,7 @@ public class BasicLiteralEvaluator extends Evaluator {
         RuntimeStaticMethod method = getRuntimeMethod(context, B_VALUE_CREATOR_CLASS,
                 CREATE_DECIMAL_VALUE_METHOD, Collections.singletonList(EvaluationUtils.JAVA_STRING_CLASS));
         method.setArgValues(Collections.singletonList(EvaluationUtils.getAsJString(context, decimalValueString)));
-        return method.invoke();
+        return method.invokeSafely();
     }
 
     /**

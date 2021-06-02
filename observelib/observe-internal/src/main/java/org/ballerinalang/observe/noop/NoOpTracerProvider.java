@@ -25,11 +25,13 @@ import io.opentelemetry.context.propagation.ContextPropagators;
  * Implementation of No-Op {@link TracerProvider}.
  */
 public class NoOpTracerProvider implements TracerProvider {
+    public static final String NAME = "noop";
+
     private Tracer instance;
 
     @Override
     public String getName() {
-        return "noop";
+        return NAME;
     }
 
     @Override

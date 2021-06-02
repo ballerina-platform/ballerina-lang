@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 import static org.wso2.ballerinalang.compiler.util.Names.ANNOTATIONS_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.ARRAY_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.BOOLEAN_VERSION;
-import static org.wso2.ballerinalang.compiler.util.Names.CODE2CLOUD_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.DECIMAL_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.ERROR_VERSION;
@@ -117,8 +116,6 @@ public class PackageID {
             Lists.of(Names.OBSERVE), OBSERVE_INTERNAL_VERSION);
     public static final PackageID OBSERVE = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.OBSERVE), OBSERVE_VERSION);
-    public static final PackageID CODE2CLOUD = new PackageID(Names.BALLERINA_ORG,
-            Lists.of(Names.CLOUD), CODE2CLOUD_VERSION);
 
     public Name orgName;
     public Name name;

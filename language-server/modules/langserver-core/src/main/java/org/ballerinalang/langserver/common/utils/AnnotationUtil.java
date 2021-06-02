@@ -19,6 +19,7 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.AnnotationAttachPoint;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -39,6 +40,7 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
@@ -83,8 +85,8 @@ public class AnnotationUtil {
         String label = getAnnotationLabel(alias, annotationSymbol);
         String insertText = getAnnotationInsertText(alias, annotationSymbol);
 
-        List<ImportDeclarationNode> imports = ctx.currentDocImports();
-        Optional<ImportDeclarationNode> pkgImport = imports.stream()
+        Map<ImportDeclarationNode, ModuleSymbol> imports = ctx.currentDocImportsMap();
+        Optional<ImportDeclarationNode> pkgImport = imports.keySet().stream()
                 .filter(bLangImportPackage -> {
                     Optional<ImportOrgNameNode> importOrgNameNode = bLangImportPackage.orgName();
                     if (importOrgNameNode.isEmpty()) {
@@ -138,8 +140,8 @@ public class AnnotationUtil {
             return Collections.emptyList();
         }
         String currentProjectOrgName = currentModule.get().project().currentPackage().packageOrg().value();
-        List<ImportDeclarationNode> imports = context.currentDocImports();
-        Optional<ImportDeclarationNode> pkgImport = imports.stream()
+        Map<ImportDeclarationNode, ModuleSymbol> imports = context.currentDocImportsMap();
+        Optional<ImportDeclarationNode> pkgImport = imports.keySet().stream()
                 .filter(importNode -> {
                     if (importNode.orgName().isEmpty()) {
                         return false;
@@ -198,22 +200,24 @@ public class AnnotationUtil {
             if (resultType.isPresent() && (resultType.get().typeKind() == TypeDescKind.RECORD
                     || resultType.get().typeKind() == TypeDescKind.MAP)) {
                 List<RecordFieldSymbol> requiredFields = new ArrayList<>();
-                annotationStart.append(" ").append(OPEN_BRACE_KEY).append(LINE_SEPARATOR);
                 if (resultType.get().typeKind() == TypeDescKind.RECORD) {
                     requiredFields.addAll(CommonUtil.getMandatoryRecordFields((RecordTypeSymbol) resultType.get()));
                 }
-                List<String> insertTexts = new ArrayList<>();
-                for (int i = 0; i < requiredFields.size(); i++) {
-                    RecordFieldSymbol field = requiredFields.get(i);
-                    String fieldInsertionText = "\t" +
-                            getRecordFieldCompletionInsertText(field, Collections.emptyList(), 1, i + 1);
-                    insertTexts.add(fieldInsertionText);
+                if (!requiredFields.isEmpty()) {
+                    annotationStart.append(" ").append(OPEN_BRACE_KEY).append(LINE_SEPARATOR);
+                    List<String> insertTexts = new ArrayList<>();
+                    for (int i = 0; i < requiredFields.size(); i++) {
+                        RecordFieldSymbol field = requiredFields.get(i);
+                        String fieldInsertionText = "\t" +
+                                getRecordFieldCompletionInsertText(field, Collections.emptyList(), 1, i + 1);
+                        insertTexts.add(fieldInsertionText);
+                    }
+                    annotationStart.append(String.join("," + LINE_SEPARATOR, insertTexts));
+                    if (requiredFields.isEmpty()) {
+                        annotationStart.append("\t").append("${1}");
+                    }
+                    annotationStart.append(LINE_SEPARATOR).append(CLOSE_BRACE_KEY);
                 }
-                annotationStart.append(String.join("," + LINE_SEPARATOR, insertTexts));
-                if (requiredFields.isEmpty()) {
-                    annotationStart.append("\t").append("${1}");
-                }
-                annotationStart.append(LINE_SEPARATOR).append(CLOSE_BRACE_KEY);
             }
         } else {
             annotationStart.append(annotationSymbol.getName().get());
@@ -267,7 +271,7 @@ public class AnnotationUtil {
     }
 
     private static Optional<String> getAlias(BallerinaCompletionContext context, ModuleID moduleID) {
-        return context.currentDocImports().stream().filter(importNode -> {
+        return context.currentDocImportsMap().keySet().stream().filter(importNode -> {
             Optional<ImportOrgNameNode> orgName = importNode.orgName();
             StringBuilder nodeName = new StringBuilder();
             orgName.ifPresent(importOrgNameNode -> nodeName.append(importOrgNameNode.orgName().text()));

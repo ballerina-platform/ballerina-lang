@@ -20,7 +20,7 @@ package org.ballerinalang.test.observability.tracing;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.ballerina.testobserve.tracing.extension.BMockSpan;
+import org.ballerinalang.observe.mockextension.BMockSpan;
 import org.ballerinalang.test.observability.ObservabilityBaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.testng.annotations.AfterGroups;
@@ -60,7 +60,7 @@ public class TracingBaseTestCase extends ObservabilityBaseTest {
     @BeforeGroups(value = "tracing-test", alwaysRun = true)
     public void setup() throws Exception {
         super.setupServer(TEST_SRC_PROJECT_NAME, TEST_SRC_PACKAGE_NAME,
-                new int[] {19090, 19091, 19092, 19093, 19094, 19095, 19096});
+                new int[] {19090, 19091, 19092, 19093, 19094, 19095, 19096, 19097});
     }
 
     @AfterGroups(value = "tracing-test", alwaysRun = true)

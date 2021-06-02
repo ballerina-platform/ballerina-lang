@@ -1,6 +1,5 @@
 public function foo() {
-   var   x   =   (  )   ;(   )   y   =   (  )
-;
+   var   x   =   (  )   ;(   )   y   =   (  );
    boolean   z   =   false  ;   int   h   =   90  ;
    float   i   =   8.0   ;
    string   j   =   " hello "  ;

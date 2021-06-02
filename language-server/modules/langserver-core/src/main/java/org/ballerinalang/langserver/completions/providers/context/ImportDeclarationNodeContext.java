@@ -222,17 +222,21 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         }
 
         Package currentPackage = currentProject.get().currentPackage();
-        String currentPackageName = this.escapeReservedKeyword(currentPackage.packageName().value());
+        String currentPackageName = CommonUtil.escapeReservedKeyword(currentPackage.packageName().value());
         
         completionItems.add(getImportCompletion(ctx, currentPackageName, currentPackageName + "."));
         Optional<Module> currentModule = ctx.currentModule();
         for (Module module : currentPackage.modules()) {
-            String moduleNamePart = this.escapeReservedKeyword(module.moduleName().moduleNamePart());
+            if (module.isDefaultModule()
+                    || (currentModule.isPresent() && module.moduleId().equals(currentModule.get().moduleId()))) {
+                continue;
+            }
+            String moduleNamePart = Arrays.stream(module.moduleName().moduleNamePart().split("\\."))
+                    .map(CommonUtil::escapeReservedKeyword)
+                    .collect(Collectors.joining("."));
             String qualifiedModuleName = module.moduleName().packageName().value()
                     + Names.DOT + moduleNamePart;
-            if (module.isDefaultModule()
-                    || (currentModule.isPresent() && module.moduleId().equals(currentModule.get().moduleId()))
-                    || CommonUtil.matchingImportedModule(ctx, "", qualifiedModuleName).isPresent()) {
+            if (CommonUtil.matchingImportedModule(ctx, "", qualifiedModuleName).isPresent()) {
                 continue;
             }
             String label = currentPackageName + "." + moduleNamePart;
@@ -272,7 +276,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
             moduleName.forEach(token -> moduleNameParts.remove(token.text()));
             String label = module.moduleName().moduleNamePart();
             String insertText = moduleNameParts.stream()
-                    .map(this::escapeReservedKeyword)
+                    .map(CommonUtil::escapeReservedKeyword)
                     .collect(Collectors.joining("."));
 
             completionItems.add(getImportCompletion(context, label, insertText));
@@ -352,14 +356,6 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                 && module.isPresent() && (moduleNameComponents.size() >= 2 || node.moduleName().separatorSize() != 0)
                 && node.orgName().isEmpty()
                 && moduleNameComponents.get(moduleNameComponents.size() - 1).textRange().endOffset() <= cursor;
-    }
-    
-    private String escapeReservedKeyword(String value) {
-        if (CommonUtil.BALLERINA_KEYWORDS.contains(value)) {
-            return "'" + value;
-        }
-        
-        return value;
     }
 
     private enum ContextScope {

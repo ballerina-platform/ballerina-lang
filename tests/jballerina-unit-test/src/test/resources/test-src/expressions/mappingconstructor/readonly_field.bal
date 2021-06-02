@@ -47,7 +47,7 @@ function testBasicReadOnlyField1() {
     assertTrue(res is error);
 
     error err = <error> res;
-    var expected = "cannot update 'readonly' field 'name' in record of type " +
+    string expected = "cannot update 'readonly' field 'name' in record of type " +
                    "'record {| readonly string name; int id; |}'";
     var actual = <string> checkpanic err.detail()["message"];
     assertEquality(expected, actual);
@@ -75,7 +75,7 @@ function testBasicReadOnlyField2() {
     assertTrue(res is error);
 
     error err = <error> res;
-    var expected = "cannot update 'readonly' field 'name' in record of type " +
+    string expected = "cannot update 'readonly' field 'name' in record of type " +
                    "'record {| readonly string name; readonly int id; |} & readonly'";
     var actual = <string> checkpanic err.detail()["message"];
     assertEquality(expected, actual);
@@ -121,7 +121,7 @@ function testComplexReadOnlyField() {
 
     error err = <error> res;
 
-    var expected = "cannot update 'readonly' field 'details' in record of type " +
+    string expected = "cannot update 'readonly' field 'details' in record of type " +
                    "'record {| readonly (Details & readonly) details; readonly string department; |} & readonly'";
     var actual = <string> checkpanic err.detail()["message"];
     assertEquality(expected, actual);
@@ -242,7 +242,7 @@ function testReadOnlyFieldsWithSimpleMapCET() {
     assertTrue(res is error);
 
     error err = <error> res;
-    var expected = "cannot update 'readonly' field 'b' in record of type " +
+    string expected = "cannot update 'readonly' field 'b' in record of type " +
                    "'record {| readonly int b; readonly int c; int...; |}'";
     var actual = <string> checkpanic err.detail()["message"];
     assertEquality(expected, actual);

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -472,7 +473,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         }
 
         BIntersectionType type = new BIntersectionType(null, (LinkedHashSet<BType>) originalType.getConstituentTypes(),
-                                                       newEffectiveType);
+                                                       (IntersectableReferenceType) newEffectiveType);
         setFlags(type, originalType.flags);
         return originalType;
     }
@@ -650,7 +651,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     private BLangNamedArgsExpression createTypedescExprNamedArg(BType expType, String name) {
         BLangTypedescExpr typedescExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
-        typedescExpr.pos = this.invocation.pos;
+        typedescExpr.pos = this.symbolTable.builtinPos;
         typedescExpr.resolvedType = expType;
         typedescExpr.type = new BTypedescType(expType, null);
 
@@ -659,6 +660,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         identifierNode.value = name;
         namedArgsExpression.name = identifierNode;
         namedArgsExpression.expr = typedescExpr;
+        namedArgsExpression.pos = this.symbolTable.builtinPos;
         return namedArgsExpression;
     }
 

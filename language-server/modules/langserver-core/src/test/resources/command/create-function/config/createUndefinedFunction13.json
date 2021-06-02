@@ -28,7 +28,7 @@
                                         "character": 0
                                     }
                                 },
-                                "newText": "\n\nfunction thisIsANewFunction(record {| string recField; anydata...; |} testRec) returns record {| int recField; anydata...; |} {\n    \n    return {};\n}\n"
+                                "newText": "\n\nfunction thisIsANewFunction(record {| string recField; anydata...; |} testRec) returns record {| int recField; anydata...; |} {\n    return {};\n}\n"
                             }
                         ]
                     }

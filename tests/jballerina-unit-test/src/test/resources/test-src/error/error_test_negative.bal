@@ -121,3 +121,24 @@ function panicOnNonErrorMemberUnion() {
 function errorDefinitionNegative() {
     error<record { string message?; error cause?; int i;}> e  = 1;
 }
+
+type Detail record {|
+    int code;
+|};
+
+type CloseDetail record {|
+
+|};
+
+type OpenDetail record {
+
+};
+
+function errorDetailNegative() {
+    error<Detail> err1 = error("Error!", code = 404); // valid
+    error<string, Detail> err2 = error("Error!", code = 404); // invalid
+    error<string> err3 = error("Error!"); // invalid
+    error<int> err4 = error("Error!"); // invalid
+    error<OpenDetail> err5 = error("Error!", id = 404); // valid
+    error<CloseDetail> err6 = error("Error!", id = 404); // invalid
+}

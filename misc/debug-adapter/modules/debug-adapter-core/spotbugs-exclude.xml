@@ -22,11 +22,12 @@
             <And>
                 <Class name="org.ballerinalang.debugadapter.JBallerinaDebugServer"/>
                 <Or>
+                    <Bug pattern="DM_EXIT"/>
+                    <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
                     <And>
                         <Method name="evaluate"/>
                         <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
                     </And>
-                    <Bug pattern="DM_EXIT"/>
                     <And>
                         <Or>
                             <Method name="attach"/>

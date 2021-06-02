@@ -49,7 +49,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessibleExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
@@ -726,11 +725,11 @@ public class ASTBuilderUtil {
         return matchExpr;
     }
 
-    public static BLangFieldBasedAccess createFieldAccessExpr(BLangAccessibleExpression varRef, BLangIdentifier field) {
+    public static BLangFieldBasedAccess createFieldAccessExpr(BLangExpression varRef, BLangIdentifier field) {
         return createFieldAccessExpr(varRef, field, false);
     }
 
-    public static BLangFieldBasedAccess createFieldAccessExpr(BLangAccessibleExpression varRef, BLangIdentifier field,
+    public static BLangFieldBasedAccess createFieldAccessExpr(BLangExpression varRef, BLangIdentifier field,
                                                               boolean except) {
         BLangFieldBasedAccess fieldAccessExpr = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         fieldAccessExpr.expr = varRef;
@@ -738,7 +737,7 @@ public class ASTBuilderUtil {
         return fieldAccessExpr;
     }
 
-    public static BLangIndexBasedAccess createIndexAccessExpr(BLangAccessibleExpression varRef,
+    public static BLangIndexBasedAccess createIndexAccessExpr(BLangExpression varRef,
                                                               BLangExpression indexExpr) {
         BLangIndexBasedAccess fieldAccessExpr = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         fieldAccessExpr.expr = varRef;

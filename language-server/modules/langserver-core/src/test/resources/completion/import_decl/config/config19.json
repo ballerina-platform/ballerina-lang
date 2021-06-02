@@ -142,14 +142,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "B",
-      "insertText": "lang.query;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "lang.int",
       "kind": "Module",
       "detail": "Module",

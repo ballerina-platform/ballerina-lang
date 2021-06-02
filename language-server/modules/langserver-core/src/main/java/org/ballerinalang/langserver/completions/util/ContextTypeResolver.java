@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -32,18 +33,31 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
+import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
+import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
+import io.ballerina.compiler.syntax.tree.NewExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
@@ -84,11 +98,22 @@ import javax.annotation.Nonnull;
  * @since 2.0.0
  */
 public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
+
     private final PositionedOperationContext context;
     private final List<Node> visitedNodes = new ArrayList<>();
 
     public ContextTypeResolver(PositionedOperationContext context) {
         this.context = context;
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(ListenerDeclarationNode node) {
+        Optional<TypeDescriptorNode> typeDesc = node.typeDescriptor();
+        if (typeDesc.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        return typeDesc.get().apply(this);
     }
 
     @Override
@@ -137,7 +162,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                 && (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS)
                 && symbol.getName().get().equals(node.identifier().text());
         List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, node, predicate);
-        if (moduleContent.size() > 1) {
+        if (moduleContent.size() != 1) {
             // At the moment we do not handle the ambiguity. Hence consider only single item
             return Optional.empty();
         }
@@ -156,7 +181,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(IndexedExpressionNode node) {
-        Optional<TypeSymbol> containerType = this.visit(node.containerExpression());
+        Optional<TypeSymbol> containerType =
+                context.currentSemanticModel().flatMap(semanticModel -> semanticModel.type(node));
         if (containerType.isEmpty()) {
             return Optional.empty();
         }
@@ -232,8 +258,112 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (filteredSymbol.isEmpty()) {
             return Optional.empty();
         }
-        
+
         return SymbolUtil.getTypeDescriptor(filteredSymbol.get());
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(FunctionCallExpressionNode node) {
+        Optional<Symbol> funcSymbol = Optional.empty();
+        NameReferenceNode nameRef = node.functionName();
+        if (nameRef.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nameRef;
+            Predicate<Symbol> predicate = symbol -> symbol.getName().isPresent()
+                    && symbol.kind() == SymbolKind.FUNCTION;
+            Predicate<Symbol> qNamePredicate =
+                    predicate.and(symbol -> symbol.getName().orElse("").equals(qNameRef.identifier().text()));
+            funcSymbol = this.getTypeFromQNameReference(qNameRef, qNamePredicate);
+        } else if (nameRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            funcSymbol = getSymbolByName(((SimpleNameReferenceNode) nameRef).name().text());
+        }
+
+        if (funcSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+
+        if (!CommonUtil.isInFunctionCallParameterContext(context, node)
+                || !(funcSymbol.get() instanceof FunctionSymbol)) {
+            return SymbolUtil.getTypeDescriptor(funcSymbol.get());
+        }
+
+        Optional<ParameterSymbol> paramSymbol =
+                CommonUtil.resolveFunctionParameterSymbol(
+                        ((FunctionSymbol) funcSymbol.get()).typeDescriptor(), context, node);
+
+        if (paramSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        return SymbolUtil.getTypeDescriptor(paramSymbol.get());
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(PositionalArgumentNode positionalArgumentNode) {
+        // TODO: Add other cases like error constructors here
+        switch (positionalArgumentNode.parent().kind()) {
+            case FUNCTION_CALL:
+                return getPositionalArgumentTypeForFunction(positionalArgumentNode,
+                        ((FunctionCallExpressionNode) positionalArgumentNode.parent()).arguments(),
+                        positionalArgumentNode.parent());
+            case METHOD_CALL:
+                return getPositionalArgumentTypeForFunction(positionalArgumentNode,
+                        ((MethodCallExpressionNode) positionalArgumentNode.parent()).arguments(),
+                        positionalArgumentNode.parent());
+            case PARENTHESIZED_ARG_LIST:
+                ParenthesizedArgList parenthesizedArgList = (ParenthesizedArgList) positionalArgumentNode.parent();
+                switch (parenthesizedArgList.parent().kind()) {
+                    case IMPLICIT_NEW_EXPRESSION:
+                        ImplicitNewExpressionNode implicitNewExpressionNode =
+                                (ImplicitNewExpressionNode) parenthesizedArgList.parent();
+                        Optional<ParenthesizedArgList> argList = implicitNewExpressionNode.parenthesizedArgList();
+                        if (argList.isEmpty()) {
+                            return Optional.empty();
+                        }
+
+                        return getPositionalArgumentTypeForNewExpr(positionalArgumentNode,
+                                argList.get().arguments(),
+                                implicitNewExpressionNode);
+                    case EXPLICIT_NEW_EXPRESSION:
+                        ExplicitNewExpressionNode explicitNewExpressionNode =
+                                (ExplicitNewExpressionNode) parenthesizedArgList.parent();
+                        return getPositionalArgumentTypeForNewExpr(positionalArgumentNode,
+                                explicitNewExpressionNode.parenthesizedArgList().arguments(),
+                                explicitNewExpressionNode);
+                }
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(NamedArgumentNode namedArgumentNode) {
+        switch (namedArgumentNode.parent().kind()) {
+            case FUNCTION_CALL:
+            case METHOD_CALL:
+                NonTerminalNode parentNode = namedArgumentNode.parent();
+                Optional<List<ParameterSymbol>> parameterSymbols = context.currentSemanticModel()
+                        .flatMap(semanticModel -> semanticModel.symbol(parentNode))
+                        .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION ||
+                                symbol.kind() == SymbolKind.METHOD ||
+                                symbol.kind() == SymbolKind.RESOURCE_METHOD)
+                        .flatMap(symbol -> ((FunctionSymbol) symbol).typeDescriptor().params());
+
+                if (parameterSymbols.isEmpty()) {
+                    return Optional.empty();
+                }
+
+                for (ParameterSymbol parameterSymbol : parameterSymbols.get()) {
+                    if (parameterSymbol.getName().stream()
+                            .anyMatch(name -> name.equals(namedArgumentNode.argumentName().name().text()))) {
+                        return Optional.of(parameterSymbol.typeDescriptor());
+                    }
+                }
+                break;
+            case ERROR_CONSTRUCTOR: {
+                // TODO: Couldn't find a way to get this done yet due to a limitation. Need to implement
+            }
+        }
+
+        return Optional.empty();
     }
 
     @Override
@@ -284,5 +414,75 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             default:
                 return rawType;
         }
+    }
+
+    /**
+     * Given a positional argument node, it's parent (function or method call expression node) and function's/method's
+     * argument nodes; this method returns the type symbol of the argument corresponding to the positional argument
+     * provided.
+     *
+     * @param positionalArgumentNode   Positional argument node
+     * @param argumentNodes            Argument nodes of the function/method call expression
+     * @param functionOrMethodCallExpr Function/method call expression
+     * @return {@link Optional<TypeSymbol>} Type symbol.
+     */
+    private Optional<TypeSymbol> getPositionalArgumentTypeForFunction(PositionalArgumentNode positionalArgumentNode,
+                                                                      NodeList<FunctionArgumentNode> argumentNodes,
+                                                                      NonTerminalNode functionOrMethodCallExpr) {
+        int argIndex = -1;
+        for (int i = 0; i < argumentNodes.size(); i++) {
+            if (argumentNodes.get(i).equals(positionalArgumentNode)) {
+                argIndex = i;
+                break;
+            }
+        }
+
+        Optional<List<ParameterSymbol>> parameterSymbols = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.symbol(functionOrMethodCallExpr))
+                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION ||
+                        symbol.kind() == SymbolKind.METHOD ||
+                        symbol.kind() == SymbolKind.RESOURCE_METHOD)
+                .flatMap(symbol -> ((FunctionSymbol) symbol).typeDescriptor().params());
+
+        if (argIndex == -1 || parameterSymbols.isEmpty() || parameterSymbols.get().size() <= argIndex) {
+            return Optional.empty();
+        }
+
+        ParameterSymbol parameterSymbol = parameterSymbols.get().get(argIndex);
+        return Optional.of(parameterSymbol.typeDescriptor());
+    }
+
+    /**
+     * Given a new expression node and a positional argument node, this method finds the type of the argument at the
+     * positional argument.
+     *
+     * @param positionalArgumentNode Positional arg node
+     * @param argumentNodes          Argument nodes
+     * @param newExpressionNode      Implicit/explicit new expression node
+     * @return Optiona type symbol of the parameter
+     */
+    private Optional<TypeSymbol> getPositionalArgumentTypeForNewExpr(PositionalArgumentNode positionalArgumentNode,
+                                                                     NodeList<FunctionArgumentNode> argumentNodes,
+                                                                     NewExpressionNode newExpressionNode) {
+        int argIndex = -1;
+        for (int i = 0; i < argumentNodes.size(); i++) {
+            if (argumentNodes.get(i).equals(positionalArgumentNode)) {
+                argIndex = i;
+                break;
+            }
+        }
+
+        Optional<List<ParameterSymbol>> parameterSymbols = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.type(newExpressionNode))
+                .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol)))
+                .filter(typeSymbol -> typeSymbol instanceof ClassSymbol)
+                .flatMap(typeSymbol -> (((ClassSymbol) typeSymbol).initMethod()))
+                .flatMap(methodSymbol -> methodSymbol.typeDescriptor().params());
+
+        if (argIndex == -1 || parameterSymbols.isEmpty() || parameterSymbols.get().size() <= argIndex) {
+            return Optional.empty();
+        }
+
+        return Optional.of(parameterSymbols.get().get(argIndex).typeDescriptor());
     }
 }

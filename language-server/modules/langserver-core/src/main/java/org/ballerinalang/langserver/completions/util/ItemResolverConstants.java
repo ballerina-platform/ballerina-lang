@@ -49,6 +49,7 @@ public class ItemResolverConstants {
     public static final String CONTINUE = "continue";
     public static final String BREAK = "break";
     public static final String FOREACH = "foreach";
+    public static final String FOREACH_RANGE_EXP = "foreach i";
     public static final String MATCH = "match";
     public static final String PANIC = "panic";
     public static final String TYPEOF = "typeof";
@@ -80,7 +81,7 @@ public class ItemResolverConstants {
     public static final String DISTINCT = "distinct";
     public static final String HTTP_RESOURCE = "http resource";
     public static final String RESOURCE = "resource";
-    public static final String RESOURCE_FUNC_DEF = "function name . () {}";
+    public static final String RESOURCE_FUNC_DEF = "resource function";
     
     public static final String FROM_CLAUSE = "from clause";
     public static final String LET_CLAUSE = "let clause";

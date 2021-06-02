@@ -29,13 +29,13 @@ import org.testng.annotations.Test;
  */
 public class IOTest {
 
-    @Test(enabled = false)
+    @Test
     public void testCharacterIO() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/connectors/character-io.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testCharacterIONegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/connectors/character-io-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 4);

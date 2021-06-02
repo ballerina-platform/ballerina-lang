@@ -1,6 +1,6 @@
 import ballerina/jballerina.java;
 
-function workerReturnTest() returns int{
+function workerReturnTest() returns int {
     @strand{thread:"any"}
     worker wx returns int {
 	    int x = 50;
@@ -8,38 +8,6 @@ function workerReturnTest() returns int{
     }
     int res = wait wx;
     return res + 1;
-}
-
-int updateMultiple = 0;
-function waitOnSameFutureByMultiple() returns int {
-    @strand{thread:"any"}
-    worker w1 returns int {
-        return 9;
-    }
-
-    waitOnSameFutureWorkers(w1);
-    sleep(1000);
-    return updateMultiple;
-
-}
-
-function waitOnSameFutureWorkers(future<int> aa) {
-
-    @strand{thread:"any"}
-    worker w1 {
-        int result = wait aa;
-        lock {
-        updateMultiple = updateMultiple + result;
-        }
-    }
-    @strand{thread:"any"}
-    worker w2 {
-        int result = wait aa;
-        lock {
-        updateMultiple = updateMultiple + result;
-        }
-    }
-
 }
 
 public function workerSendToWorker() returns int {
@@ -221,8 +189,8 @@ public function sendToDefaultWithPanicBeforeSendInWorker() returns int {
         }
         i -> function;
     }
-    wait w1;
     int res = <- w1;
+    wait w1;
     return res;
 }
 
@@ -230,14 +198,14 @@ public function sendToDefaultWithPanicBeforeSendInDefault() returns int {
     @strand{thread:"any"}
     worker w1 {
         int i = 2;
-        i -> function;
+        i ->> function;
     }
-    wait w1;
     if(true) {
         error err = error("error: err from panic");
         panic err;
     }
     int res = <- w1;
+    wait w1;
     return res;
 }
 
@@ -245,14 +213,16 @@ public function sendToDefaultWithPanicAfterSendInWorker() returns int {
     @strand{thread:"any"}
     worker w1 {
         int i = 2;
+        error err = error("error: err from panic");
         i -> function;
         if(true) {
-            error err = error("error: err from panic");
             panic err;
         }
+        i -> function;
     }
-    wait w1;
+
     int res = <- w1;
+    res = <- w1;
     return res;
 }
 
@@ -481,7 +451,7 @@ public function testComplexType() returns Rec {
 }
 
 // First cancel the future and then wait
-public function workerWithFutureTest1() returns int {
+public function workerWithFutureTest1() returns int|error {
     future<int> f1 = @strand{thread:"any"} start add2(5, 5);
     @strand{thread:"any"}
     worker w1 {
@@ -490,10 +460,10 @@ public function workerWithFutureTest1() returns int {
     }
 
     @strand{thread:"any"}
-    worker w2 returns int {
+    worker w2 returns int|error {
       // Delay the execution of worker w2
       sleep(1000);
-      int i = wait f1;
+      int|error i = wait f1;
       return i;
     }
 
@@ -501,7 +471,7 @@ public function workerWithFutureTest1() returns int {
 }
 
 // First wait on the future and then cancel
-public function workerWithFutureTest2() returns int {
+public function workerWithFutureTest2() returns int|error {
     future<int> f1 = @strand{thread:"any"} start add(6, 6);
     @strand{thread:"any"}
     worker w1 {
@@ -512,8 +482,8 @@ public function workerWithFutureTest2() returns int {
     }
 
     @strand{thread:"any"}
-    worker w2 returns int {
-      int i = wait f1;
+    worker w2 returns int|error {
+      int|error i = wait f1;
       return i;
     }
     return wait w2;
@@ -532,7 +502,7 @@ public function workerWithFutureTest3() returns int {
     worker w2 returns int {
       // Delay the execution of worker w1
       sleep(1000);
-      int i = wait f1;
+      int i = checkpanic wait f1;
       return i;
     }
     return wait w2;
@@ -654,6 +624,28 @@ function testPanicStartInsideLockWithDepth1() {
 
 function testStartFunction() {
     int i = 4;
+}
+
+function () returns int sumFunction =
+        function () returns int {
+            worker w1 {
+                1 -> w2;
+            }
+
+            worker w2 returns int {
+                int j = <- w1;
+                return j;
+            }
+
+            int k = wait w2;
+            return k;
+        };
+
+function testLambdaWithWorkerMessagePassing() {
+    int k = sumFunction();
+    if (k != 1) {
+        panic error("Assertion error: expected 1, found: " + k.toString());
+    }
 }
 
 public function sleep(int millis) = @java:Method {

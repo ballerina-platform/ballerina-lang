@@ -23,6 +23,8 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
@@ -167,7 +169,7 @@ public class BinaryExpressionEvaluator extends Evaluator {
             RuntimeStaticMethod runtimeMethod = getRuntimeMethod(context, B_XML_FACTORY_CLASS, XML_CONCAT_METHOD,
                     argTypeNames);
             runtimeMethod.setArgValues(argList);
-            Value result = runtimeMethod.invoke();
+            Value result = runtimeMethod.invokeSafely();
             return new BExpressionValue(context, result);
         } else {
             // Prepares to invoke the JVM runtime util function which is responsible for XML concatenation.
@@ -196,7 +198,7 @@ public class BinaryExpressionEvaluator extends Evaluator {
                     throw createUnsupportedOperationException(lVar, rVar, operator);
             }
             genMethod.setArgValues(argList);
-            Value result = genMethod.invoke();
+            Value result = genMethod.invokeSafely();
             return new BExpressionValue(context, result);
         }
     }
@@ -229,7 +231,7 @@ public class BinaryExpressionEvaluator extends Evaluator {
                 throw createUnsupportedOperationException(lVar, rVar, operator);
         }
         genMethod.setArgValues(argList);
-        Value result = genMethod.invoke();
+        Value result = genMethod.invokeSafely();
         return new BExpressionValue(context, result);
     }
 
@@ -254,7 +256,7 @@ public class BinaryExpressionEvaluator extends Evaluator {
                 throw createUnsupportedOperationException(lVar, rVar, operator);
         }
         genMethod.setArgValues(argList);
-        Value result = genMethod.invoke();
+        Value result = genMethod.invokeSafely();
         return new BExpressionValue(context, result);
     }
 
@@ -279,7 +281,7 @@ public class BinaryExpressionEvaluator extends Evaluator {
                 throw createUnsupportedOperationException(lVar, rVar, operator);
         }
         genMethod.setArgValues(argList);
-        Value result = genMethod.invoke();
+        Value result = genMethod.invokeSafely();
         return new BExpressionValue(context, result);
     }
 
@@ -301,7 +303,7 @@ public class BinaryExpressionEvaluator extends Evaluator {
                 throw createUnsupportedOperationException(lVar, rVar, operator);
         }
         genMethod.setArgValues(argList);
-        Value result = genMethod.invoke();
+        Value result = genMethod.invokeSafely();
         return new BExpressionValue(context, result);
     }
 
@@ -334,7 +336,7 @@ public class BinaryExpressionEvaluator extends Evaluator {
         RuntimeStaticMethod runtimeMethod = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, VALUE_EQUAL_METHOD,
                 argTypeNames);
         runtimeMethod.setArgValues(argList);
-        Value result = runtimeMethod.invoke();
+        Value result = runtimeMethod.invokeSafely();
         BVariable variable = VariableFactory.getVariable(context, result);
         boolean booleanValue = Boolean.parseBoolean(variable.getDapVariable().getValue());
         booleanValue = operatorType == SyntaxKind.DOUBLE_EQUAL_TOKEN ? booleanValue : !booleanValue;
@@ -356,7 +358,7 @@ public class BinaryExpressionEvaluator extends Evaluator {
         RuntimeStaticMethod runtimeMethod = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, REF_EQUAL_METHOD,
                 argTypeNames);
         runtimeMethod.setArgValues(argList);
-        Value result = runtimeMethod.invoke();
+        Value result = runtimeMethod.invokeSafely();
         BVariable variable = VariableFactory.getVariable(context, result);
         boolean booleanValue = Boolean.parseBoolean(variable.getDapVariable().getValue());
         booleanValue = operatorType == SyntaxKind.TRIPPLE_EQUAL_TOKEN ? booleanValue : !booleanValue;

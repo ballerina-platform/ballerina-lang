@@ -335,14 +335,14 @@ function getTypeDesc() returns typedesc<any> = @java:Method {
 
 function testUseFuture() returns any {
     future<any> f = start getInt();
-    _ = wait f;
+    _ = checkpanic wait f;
     return useFuture(f);
 }
 
 function testGetFuture() returns any {
     future<any> f1 = start getInt();
     future<any> f2 = getFuture(f1);
-    return wait f2;
+    return checkpanic wait f2;
 }
 
 function useFuture(future<any> f) returns any = @java:Method {

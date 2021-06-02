@@ -1,0 +1,9 @@
+[[dependency]]
+org = "foo-1"
+name = "proj-1"
+version = "221"
+
+[[dependency]]
+org = "winery"
+name = "foo2"
+version = "0.2.0"

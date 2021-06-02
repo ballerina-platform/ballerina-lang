@@ -52,12 +52,7 @@ public class TomlFileProvider extends TomlProvider {
         if (!Files.exists(configFilePath)) {
             throw new ConfigException(RuntimeErrors.CONFIG_TOML_FILE_NOT_FOUND, configFilePath);
         }
-        ConfigToml configToml = new ConfigToml(configFilePath);
-        TomlTableNode rootNode = configToml.tomlAstNode();
-        if (rootNode.entries().isEmpty()) {
-            throw new ConfigException(RuntimeErrors.CONFIG_TOML_EMPTY_FILE, configFilePath);
-        }
-        return rootNode;
+        return new ConfigToml(configFilePath).tomlAstNode();
     }
 
 }

@@ -18,13 +18,18 @@ package org.ballerinalang.debugadapter.utils;
 
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectPaths;
 import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.ExecutionContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
@@ -32,10 +37,13 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
@@ -79,6 +87,45 @@ public class PackageUtils {
             }
         }
         return Optional.empty();
+    }
+
+
+    /**
+     * Loads the target ballerina source project instance using the Project API, from the file path of the open/active
+     * editor instance in the client(plugin) side.
+     *
+     * @param filePath file path of the open/active editor instance in the plugin side.
+     */
+    public static Project loadProject(String filePath) {
+        Map.Entry<ProjectKind, Path> projectKindAndProjectRootPair = computeProjectKindAndRoot(Paths.get(filePath));
+        ProjectKind projectKind = projectKindAndProjectRootPair.getKey();
+        Path projectRoot = projectKindAndProjectRootPair.getValue();
+        BuildOptions options = new BuildOptionsBuilder().offline(true).build();
+        if (projectKind == ProjectKind.BUILD_PROJECT) {
+            return BuildProject.load(projectRoot, options);
+        } else if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
+            return SingleFileProject.load(projectRoot, options);
+        } else {
+            return ProjectLoader.loadProject(projectRoot, options);
+        }
+    }
+
+    /**
+     * Computes the source root and the shape(kind) of the enclosing Ballerina project, using the given file path.
+     *
+     * @param path file path
+     * @return A pair of project kind and the project root.
+     */
+    public static Map.Entry<ProjectKind, Path> computeProjectKindAndRoot(Path path) {
+        if (ProjectPaths.isStandaloneBalFile(path)) {
+            return new AbstractMap.SimpleEntry<>(ProjectKind.SINGLE_FILE_PROJECT, path);
+        }
+        // Following is a temp fix to distinguish Bala and Build projects.
+        Path tomlPath = ProjectPaths.packageRoot(path).resolve(ProjectConstants.BALLERINA_TOML);
+        if (Files.exists(tomlPath)) {
+            return new AbstractMap.SimpleEntry<>(ProjectKind.BUILD_PROJECT, ProjectPaths.packageRoot(path));
+        }
+        return new AbstractMap.SimpleEntry<>(ProjectKind.BALA_PROJECT, ProjectPaths.packageRoot(path));
     }
 
     /**
@@ -145,9 +192,9 @@ public class PackageUtils {
      * @param filePath file path
      * @return full-qualified class name
      */
-    public static String getQualifiedClassName(String filePath) {
+    public static String getQualifiedClassName(ExecutionContext context, String filePath) {
         Path path = Paths.get(filePath);
-        Project project = ProjectLoader.loadProject(path);
+        Project project = context.getProjectCache().getProject(path);
         if (project instanceof SingleFileProject) {
             DocumentId documentId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
             String docName = project.currentPackage().getDefaultModule().document(documentId).name();
@@ -166,6 +213,7 @@ public class PackageUtils {
                 .add(encodeModuleName(document.module().moduleName().toString()))
                 .add(document.module().packageInstance().packageVersion().toString().replace(".", "_"))
                 .add(document.name().replace(BAL_FILE_EXT, "").replace(SEPARATOR_REGEX, ".").replace("/", "."));
+
         return classNameJoiner.toString();
     }
 
@@ -221,10 +269,11 @@ public class PackageUtils {
      */
     public static String[] getQModuleNameParts(String path) {
         String[] moduleParts;
+        // Makes the path os-independent, as some of the incoming windows source paths can contain both of the
+        // separator types(possibly due to a potential JDI bug).
+        path = path.replaceAll("\\\\", "/");
         if (path.contains("/")) {
             moduleParts = path.split("/");
-        } else if (path.contains("\\")) {
-            moduleParts = path.split("\\\\");
         } else {
             moduleParts = new String[]{path};
         }

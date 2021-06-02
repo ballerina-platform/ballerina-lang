@@ -100,11 +100,14 @@ public enum RuntimeErrors implements DiagnosticCode {
     CONFIG_TOML_FILE_NOT_FOUND("config.toml.file.not.found", "RUNTIME_0070"),
     CONFIG_TOML_TYPE_NOT_SUPPORTED("config.toml.type.not.supported", "RUNTIME_0071"),
     CONFIG_TOML_FIELD_TYPE_NOT_SUPPORTED("config.toml.field.type.not.supported", "RUNTIME_0072"),
-    CONFIG_TOML_FIELD_INCOMPATIBLE_TYPE("config.toml.field.incompatible.type", "RUNTIME_0073"),
     CONFIG_TOML_READ_FAILED("config.toml.read.failed", "RUNTIME_0074"),
     CONFIG_TOML_PARSE_FAILED("config.toml.parse.failed", "RUNTIME_0075"),
     CONFIG_TOML_MODULE_AMBIGUITY("config.toml.module.ambiguity", "RUNTIME_0076"),
-    CONFIG_CLI_TYPE_NOT_SUPPORTED("config.cli.type.not.supported", "RUNTIME_0077");
+    CONFIG_TOML_UNUSED_VALUE("config.toml.unused.value", "RUNTIME_0077"),
+    CONFIG_CLI_TYPE_NOT_SUPPORTED("config.cli.type.not.supported", "RUNTIME_0078"),
+    CONFIG_CLI_VARIABLE_AMBIGUITY("config.cli.variable.ambiguity", "RUNTIME_0079"),
+    CONFIG_CLI_ARGS_AMBIGUITY("config.cli.args.ambiguity", "RUNTIME_0080"),
+    CONFIG_CLI_UNUSED_CLI_ARGS("config.cli.unused.args", "RUNTIME_0081");
 
     private String errorMsgKey;
     private String errorCode;

@@ -3,7 +3,6 @@ function foo() {
                           <book><name>Sherlock Holmes</name><author>Sir Arthur Conan Doyle</author></book>
                      </books>`;
 
-     foreach   var   book   in    books/<*>
-       {
+     foreach   var   book   in    books/<*>    {
     }
 }

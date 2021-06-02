@@ -6,19 +6,19 @@
   "source": "expression_context/source/error_constructor_expr_ctx_source4.bal",
   "items": [
     {
-      "label": "ErrorThree",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "Q",
-      "insertText": "ErrorThree",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ErrorOne",
       "kind": "Event",
       "detail": "Error",
       "sortText": "Q",
       "insertText": "ErrorOne",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorThree",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "Q",
+      "insertText": "ErrorThree",
       "insertTextFormat": "Snippet"
     },
     {
@@ -126,29 +126,6 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
         }
       ]
     },

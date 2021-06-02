@@ -319,7 +319,7 @@ function createNullableNonHomogeneousUnionAutoFillArray() {
     unionArray[2] = 4.0;
     assertArrayValuePanic((), unionArray, 0);
     assertArrayValuePanic((), unionArray, 1);
-    assertArrayValuePanic(4, unionArray, 2);
+    assertArrayValuePanic(4.0, unionArray, 2);
     assertArrayLengthPanic(3, unionArray);
 }
 

@@ -1033,7 +1033,6 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        find(tableMultiKeyExpr.expr);
         find(tableMultiKeyExpr.multiKeyIndexExprs);
     }
 
@@ -1102,6 +1101,7 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
+        find(recordTypeNode.typeRefs);
         find(recordTypeNode.fields);
         find(recordTypeNode.restFieldType);
     }
@@ -1233,6 +1233,7 @@ public class ReferenceFinder extends BaseVisitor {
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
         find(xmlNavigation.childIndex);
         find(xmlNavigation.filters);
+        find(xmlNavigation.expr);
     }
 
     @Override

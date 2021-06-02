@@ -197,6 +197,39 @@ public class CodeActionTest {
         checkAssertion(config, source);
     }
 
+    @Test(dataProvider = "codeAction-data-mapper-data-provider-10")
+    public void testDataMapperCodeAction_10(String config, String source) throws Exception {
+
+        stopServer();
+
+        // Set the Handler.
+        server.setHandler(new DataMapperServiceHandler(null));
+        server.start();
+
+        // Read expected results
+        String configJsonPath = "codeaction" + File.separator + config;
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+
+        // Get code action from language server
+        JsonObject responseJson = getCodeActionResponse(source, configJsonObject, serviceEndpoint);
+
+        if (responseJson.getAsJsonArray("result").size() == 0) {
+            Assert.assertFalse(false);
+        } else {
+            JsonObject expectedResponse = configJsonObject.get("expected").getAsJsonObject();
+            String title = expectedResponse.get("title").getAsString();
+
+            boolean codeActionFound = false;
+            for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
+                JsonElement right = jsonElement.getAsJsonObject().get("right");
+                if (right.getAsJsonObject().get("title").getAsString().equals(title)) {
+                    codeActionFound = true;
+                }
+            }
+            Assert.assertFalse(codeActionFound, "Found a data mapper code action");
+        }
+    }
+
     @DataProvider(name = "codeAction-data-mapper-data-provider-1")
     public Object[][] codeActionDataMapperDataProvider_1() {
         log.info("Test textDocument/codeAction QuickFixes");
@@ -283,6 +316,14 @@ public class CodeActionTest {
         log.info("Test textDocument/codeAction QuickFixes");
         return new Object[][]{
                 {"dataMapper15.json", "dataMapper15.bal"},
+        };
+    }
+
+    @DataProvider(name = "codeAction-data-mapper-data-provider-10")
+    public Object[] codeActionDataMapperDataProvider_10() {
+        log.info("Test textDocument/codeAction QuickFixes");
+        return new Object[][]{
+                {"dataMapper18.json", "dataMapper18.bal"},
         };
     }
 

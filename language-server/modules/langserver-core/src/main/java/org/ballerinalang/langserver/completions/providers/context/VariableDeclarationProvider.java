@@ -33,8 +33,10 @@ import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
@@ -77,15 +79,15 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
             if (completionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
                 SymbolCompletionItem symbolCompletionItem = (SymbolCompletionItem) completionItem;
 
-                Optional<TypeSymbol> completionItemType =
-                        SymbolUtil.getTypeDescriptor(symbolCompletionItem.getSymbol());
+                Optional<TypeSymbol> completionItemType = symbolCompletionItem.getSymbol().isEmpty() ?
+                        Optional.empty() : SymbolUtil.getTypeDescriptor(symbolCompletionItem.getSymbol().get());
                 if (completionItemType.isPresent() && completionItemType.get() instanceof FunctionTypeSymbol) {
                     completionItemType = ((FunctionTypeSymbol) completionItemType.get()).returnTypeDescriptor();
                 }
 
                 // TODO: Remove the symbol equality check after #25607
-                if (symbolCompletionItem.getSymbol() != null && completionItemType.isPresent() &&
-                        !symbolCompletionItem.getSymbol().equals(symbolAtCursor.get()) &&
+                if (symbolCompletionItem.getSymbol().isPresent() && completionItemType.isPresent() &&
+                        !symbolCompletionItem.getSymbol().get().equals(symbolAtCursor.get()) &&
                         completionItemType.get().assignableTo(typeSymbol)) {
                     rank = 1;
                 }
@@ -98,7 +100,7 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
     protected List<LSCompletionItem> initializerContextCompletions(BallerinaCompletionContext context,
                                                                    TypeDescriptorNode typeDsc) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             /*
             Captures the following cases
             (1) [module:]TypeName c = module:<cursor>
@@ -122,7 +124,9 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
         completionItems.addAll(this.actionKWCompletions(context));
         completionItems.addAll(this.expressionCompletions(context));
         completionItems.addAll(getNewExprCompletionItems(context, typeDsc));
-
+        if (withinTransactionStatementNode(context)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_COMMIT.get()));
+        }
         return completionItems;
     }
 
@@ -131,7 +135,7 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<ClassSymbol> classSymbol;
-        if (this.onQualifiedNameIdentifier(context, typeDescriptorNode)) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, typeDescriptorNode)) {
             String modulePrefix = QNameReferenceUtil.getAlias(((QualifiedNameReferenceNode) typeDescriptorNode));
             Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, modulePrefix);
             if (module.isEmpty()) {
@@ -160,5 +164,19 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
         classSymbol.ifPresent(typeDesc -> completionItems.add(this.getImplicitNewCompletionItem(typeDesc, context)));
 
         return completionItems;
+    }
+
+    private boolean withinTransactionStatementNode(BallerinaCompletionContext context) {
+        NonTerminalNode evalNode = context.getNodeAtCursor().parent();
+        boolean withinTransaction = false;
+
+        while (evalNode != null) {
+            if (evalNode.kind() == SyntaxKind.TRANSACTION_STATEMENT) {
+                withinTransaction = true;
+                break;
+            }
+            evalNode = evalNode.parent();
+        }
+        return withinTransaction;
     }
 }

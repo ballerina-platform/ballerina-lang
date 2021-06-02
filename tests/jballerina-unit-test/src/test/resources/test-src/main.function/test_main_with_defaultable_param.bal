@@ -13,10 +13,11 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/jballerina.java;
 
-public function main(int i, boolean b, string s = "default hello", string s2 = "default") {
-    print(i.toHexString() + " " + s + " world: " + s2 + " " + b.toString());
+public function main(int i, string s = "default hello", string s2 = "default") {
+    print(i.toHexString() + " " + s + " world: " + s2);
 }
 
 public function print(any|error... values) = @java:Method {

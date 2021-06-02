@@ -188,9 +188,11 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.DEFAULTABLE_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REDECLARED_SYMBOL;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REQUIRED_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
 /**
@@ -1404,6 +1406,20 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
+//        // check for unresolved fields. This record may be referencing another record
+//        if (typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
+//            BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
+//            for (BLangSimpleVariable variable : structureTypeNode.fields) {
+//                BType referencedType = symResolver.resolveTypeNode(variable.typeNode, env);
+//                if (referencedType == symTable.noType) {
+//                    if (!this.unresolvedTypes.contains(typeDefinition)) {
+//                        this.unresolvedTypes.add(typeDefinition);
+//                        return;
+//                    }
+//                }
+//            }
+//        }
+
         if (typeDefinition.typeNode.getKind() == NodeKind.FUNCTION_TYPE && definedType.tsymbol == null) {
             definedType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, Flags.asMask(typeDefinition.flagSet),
                                                            Names.EMPTY, env.enclPkg.symbol.pkgID, definedType,
@@ -1496,8 +1512,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void invalidateAlreadyDefinedErrorType(BLangTypeDefinition typeDefinition) {
         // We need to invalidate the already defined type as we don't have a way to undefine it.
-        BTypeSymbol alreadyDefinedTypeSymbol =
-                (BTypeSymbol) symResolver.lookupSymbolInMainSpace(env, names.fromString(typeDefinition.name.value));
+        BSymbol alreadyDefinedTypeSymbol =
+                                symResolver.lookupSymbolInMainSpace(env, names.fromString(typeDefinition.name.value));
         if (alreadyDefinedTypeSymbol.type.tag == TypeTags.ERROR) {
             alreadyDefinedTypeSymbol.type = symTable.errorType;
         }
@@ -3193,6 +3209,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         for (BLangSimpleVariable field : classDefinition.fields) {
             defineNode(field, typeDefEnv);
+            if (field.expr != null) {
+                field.symbol.isDefaultable = true;
+            }
             // Unless skipped, this causes issues in negative cases such as duplicate fields.
             if (field.symbol.type == symTable.semanticError) {
                 continue;
@@ -3240,6 +3259,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
+        // analyze restFieldType for open records
         for (BLangType typeRef : recordTypeNode.typeRefs) {
             if (typeRef.type.tag != TypeTags.RECORD) {
                 continue;
@@ -3276,23 +3296,29 @@ public class SymbolEnter extends BLangNodeVisitor {
                 })
                 .collect(getFieldCollector());
 
-        List<BType> list = new ArrayList<>();
-        for (BLangType tRef : structureTypeNode.typeRefs) {
-            BType type = tRef.type;
-            list.add(type);
-        }
-        structureType.typeInclusions = list;
-
-        // Resolve and add the fields of the referenced types to this object.
+        // Resolve referenced types and their fields of structural type
         resolveReferencedFields(structureTypeNode, typeDefEnv);
 
+        // collect resolved type refs from structural type
+        structureType.typeInclusions = new ArrayList<>();
+        for (BLangType tRef : structureTypeNode.typeRefs) {
+            BType type = tRef.type;
+            structureType.typeInclusions.add(type);
+        }
+
+        // Add referenced fields of structural type
+        defineReferencedFields(structureType, structureTypeNode, typeDefEnv);
+    }
+
+    private void defineReferencedFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode,
+                                        SymbolEnv typeDefEnv) {
         for (BLangSimpleVariable field : structureTypeNode.referencedFields) {
             defineNode(field, typeDefEnv);
             if (field.symbol.type == symTable.semanticError) {
                 continue;
             }
             structureType.fields.put(field.name.value, new BField(names.fromIdNode(field.name), field.pos,
-                                                                  field.symbol));
+                    field.symbol));
         }
     }
 
@@ -3631,16 +3657,30 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol invokableSymbol,
                                              SymbolEnv invokableEnv) {
         boolean foundDefaultableParam = false;
+        boolean foundIncludedRecordParam = false;
         List<BVarSymbol> paramSymbols = new ArrayList<>();
         Set<String> requiredParamNames = new HashSet<>();
         invokableNode.clonedEnv = invokableEnv.shallowClone();
         for (BLangSimpleVariable varNode : invokableNode.requiredParams) {
+            boolean isDefaultableParam = varNode.expr != null;
+            boolean isIncludedRecordParam = varNode.flagSet.contains(Flag.INCLUDED);
             defineNode(varNode, invokableEnv);
-            if (varNode.expr != null) {
+            if (isDefaultableParam) {
                 foundDefaultableParam = true;
+            } else if (isIncludedRecordParam) {
+                foundIncludedRecordParam = true;
             }
-            if (varNode.expr == null && foundDefaultableParam) {
-                dlog.error(varNode.pos, REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM);
+
+            if (isDefaultableParam) {
+                if (foundIncludedRecordParam) {
+                    dlog.error(varNode.pos, DEFAULTABLE_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM);
+                }
+            } else if (!isIncludedRecordParam) {
+                if (foundDefaultableParam) {
+                    dlog.error(varNode.pos, REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM);
+                } else if (foundIncludedRecordParam) {
+                    dlog.error(varNode.pos, REQUIRED_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM);
+                }
             }
             BVarSymbol symbol = varNode.symbol;
             if (varNode.expr != null) {
@@ -3768,14 +3808,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Create variable symbol
         Scope enclScope = env.scope;
         BVarSymbol varSymbol = createVarSymbol(flagSet, varType, varName, env, pos, isInternal);
-        if (flagSet.contains(Flag.FIELD) || flagSet.contains(Flag.REQUIRED_PARAM) ||
-                flagSet.contains(Flag.DEFAULTABLE_PARAM) || flagSet.contains(Flag.REST_PARAM)) {
-            if (!symResolver.checkForUniqueMemberSymbol(pos, env, varSymbol)) {
-                varSymbol.type = symTable.semanticError;
-            }
-        } else if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
+        boolean considerAsMemberSymbol = flagSet.contains(Flag.FIELD) || flagSet.contains(Flag.REQUIRED_PARAM) ||
+                flagSet.contains(Flag.DEFAULTABLE_PARAM) || flagSet.contains(Flag.REST_PARAM) ||
+                flagSet.contains(Flag.INCLUDED);
+
+        if (considerAsMemberSymbol && !symResolver.checkForUniqueMemberSymbol(pos, env, varSymbol)) {
+            varSymbol.type = symTable.semanticError;
+        } else if (!considerAsMemberSymbol && !symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
             varSymbol.type = symTable.semanticError;
         }
+
         enclScope.define(varSymbol.name, varSymbol);
         return varSymbol;
     }

@@ -15,15 +15,23 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.FunctionPointerCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion provider for {@link VariableDeclarationNode} context.
@@ -47,7 +55,7 @@ public class VariableDeclarationNodeContext extends VariableDeclarationProvider<
         List<LSCompletionItem> completionItems
                 = this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor());
         this.sort(context, node, completionItems);
-        
+
         return completionItems;
     }
 
@@ -59,5 +67,56 @@ public class VariableDeclarationNodeContext extends VariableDeclarationProvider<
         int textPosition = context.getCursorPositionInTree();
         TextRange equalTokenRange = node.equalsToken().get().textRange();
         return equalTokenRange.endOffset() <= textPosition;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, VariableDeclarationNode node,
+                     List<LSCompletionItem> completionItems) {
+        Optional<TypeSymbol> typeSymbolAtCursor = context.getContextType();
+        if (!typeSymbolAtCursor.isEmpty()) {
+            super.sort(context, node, completionItems);
+        }
+
+        TypeSymbol symbol = typeSymbolAtCursor.get();
+        completionItems.forEach(completionItem -> {
+            int rank = SortingUtil.toRank(completionItem, 2);
+            if (completionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+
+                Optional<Symbol> completionSymbol = ((SymbolCompletionItem) completionItem).getSymbol();
+                if (completionSymbol.isEmpty()) {
+                    completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
+                    return;
+                }
+                Optional<TypeSymbol> evalTypeSymbol = SymbolUtil.getTypeDescriptor(completionSymbol.get());
+                if (evalTypeSymbol.isPresent()) {
+                    switch (completionItem.getCompletionItem().getKind()) {
+                        case Variable:
+                            if (evalTypeSymbol.get().assignableTo(symbol)) {
+                                rank = 1;
+                            }
+                            break;
+                        case Method:
+                        case Function:
+                            Optional<TypeSymbol> returnType = ((FunctionSymbol) completionSymbol.get())
+                                    .typeDescriptor().returnTypeDescriptor();
+                            if (returnType.isPresent() && returnType.get().assignableTo(symbol)) {
+                                rank = 2;
+                            }
+                            break;
+                        default:
+                            rank = SortingUtil.toRank(completionItem, 2);
+                    }
+                }
+            } else if (completionItem.getType() == LSCompletionItem.CompletionItemType.FUNCTION_POINTER) {
+                Optional<Symbol> cSymbol = ((FunctionPointerCompletionItem) completionItem).getSymbol();
+                if (cSymbol.isPresent()) {
+                    Optional<TypeSymbol> evalTypeSymbol = SymbolUtil.getTypeDescriptor(cSymbol.get());
+                    if (evalTypeSymbol.isPresent() && evalTypeSymbol.get().assignableTo(symbol)) {
+                        rank = 1;
+                    }
+                }
+            }
+            completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
+        });
     }
 }

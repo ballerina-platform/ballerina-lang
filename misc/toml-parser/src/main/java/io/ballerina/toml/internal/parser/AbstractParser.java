@@ -108,6 +108,7 @@ public abstract class AbstractParser {
         Solution sol = this.errorHandler.recover(currentCtx, token, args);
         // If the action is to remove, then re-parse the same rule.
         if (sol.action == Action.REMOVE) {
+            this.insertedToken = null;  // Clean up the inserted token, if any.
             addInvalidTokenToNextToken(sol.removedToken);
         } else if (sol.action == Action.INSERT) {
             this.insertedToken = (STToken) sol.recoveredNode;

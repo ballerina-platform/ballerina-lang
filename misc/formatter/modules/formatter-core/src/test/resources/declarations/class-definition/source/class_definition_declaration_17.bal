@@ -1,18 +1,10 @@
 class    Foo    {
-    public
-        function     init() {
+    public   function     init() {
 
     }
 
-    function
-
-    getName()
-
-         {
+    function  getName()       {
 
       }
-         remote
-                  function
-                       get()
-                       {          }
+         remote             function                     get()             {          }
 }

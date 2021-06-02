@@ -6,6 +6,20 @@
   "source": "query_expression/source/query_expr_ctx_join_clause_source5a.bal",
   "items": [
     {
+      "label": "ENUM1_FIELD1",
+      "kind": "EnumMember",
+      "detail": "ENUM1_FIELD1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "H",
+      "insertText": "ENUM1_FIELD1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TEST_INT_CONST1",
       "kind": "Variable",
       "detail": "1",
@@ -31,28 +45,6 @@
       },
       "sortText": "B",
       "insertText": "TEST_STRING_CONST1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ENUM1_FIELD1",
-      "kind": "EnumMember",
-      "detail": "ENUM1_FIELD1",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
-      "sortText": "H",
-      "insertText": "ENUM1_FIELD1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "AnnotationType",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "AnnotationType",
       "insertTextFormat": "Snippet"
     },
     {
@@ -134,19 +126,19 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "AnnotationType",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TestClass1",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "K",
       "insertText": "TestClass1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Listener",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "K",
-      "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
     {
@@ -172,6 +164,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Listener",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "K",
+      "insertText": "Listener",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "listener1",
       "kind": "Variable",
       "detail": "module1:Listener",
@@ -190,6 +190,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "function1",
       "insertText": "function1()",
       "insertTextFormat": "Snippet"
     },
@@ -204,6 +205,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "function2",
       "insertText": "function2()",
       "insertTextFormat": "Snippet"
     },
@@ -218,6 +220,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "function3",
       "insertText": "function3(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -236,6 +239,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "function4",
       "insertText": "function4(${1})",
       "insertTextFormat": "Snippet",
       "command": {

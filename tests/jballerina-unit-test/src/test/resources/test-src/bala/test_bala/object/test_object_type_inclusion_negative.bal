@@ -23,7 +23,7 @@ public class PartTimeEmployee1 {
     float salary;
 
     function getBonus(float ratio, int months) returns float {
-        return <float>(self.salary) * ratio * months * self.shares;
+        return <float>(self.salary) * ratio * <float>months * <float>self.shares;
     }
 }
 
@@ -34,7 +34,7 @@ public class PartTimeEmployee2 {
     private float salary;
 
     private function getBonus(float ratio, int months) returns float {
-        return <float>(self.salary) * ratio * months * self.shares;
+        return <float>(self.salary) * ratio * <float>months * <float>self.shares;
     }
 }
 
@@ -48,6 +48,6 @@ public class PartTimeEmployee4 {
     *foo:Employee5;
 
     function getBonus(float ratio, int months) returns float {
-        return 1000.00 * ratio * months;
+        return 1000.00 * ratio * <float>months;
     }
 }

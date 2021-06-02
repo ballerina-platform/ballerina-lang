@@ -16,6 +16,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "publicFunction1",
       "insertText": "publicFunction1()",
       "insertTextFormat": "Snippet"
     },
@@ -30,6 +31,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "function2",
       "insertText": "function2()",
       "insertTextFormat": "Snippet"
     },
@@ -44,6 +46,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "privateFunction3",
       "insertText": "privateFunction3()",
       "insertTextFormat": "Snippet"
     },
@@ -58,6 +61,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "privateFunction4",
       "insertText": "privateFunction4()",
       "insertTextFormat": "Snippet"
     }

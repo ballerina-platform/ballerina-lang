@@ -158,14 +158,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "insertText": "ballerina/lang.query;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/lang.int",
       "kind": "Module",
       "detail": "Module",
@@ -187,6 +179,14 @@
       "detail": "Module",
       "sortText": "A",
       "insertText": "'service.",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "'service.'transaction.'join",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "A",
+      "insertText": "'service.'transaction.'join",
       "insertTextFormat": "Snippet"
     },
     {
