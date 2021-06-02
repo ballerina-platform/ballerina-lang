@@ -72,3 +72,12 @@ function testCastWithErrorType() {
 function foo() returns int|error {
     return 1;
 }
+
+function testTypeCastInConstructorMemberWithUnionCETNegative() {
+    string[]|int val1 = [];
+    record {byte[] a;} a = {a: <byte[]> val1};
+    record {byte[] a;}|record {string a;} b = {a: <byte[]> val1};
+
+    any[]|error val2 = [];
+    record {string[] a;}|record {string a;} c = {a: <byte[]> checkpanic val2};
+}
