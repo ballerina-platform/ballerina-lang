@@ -46,3 +46,13 @@ function testAmbiguousAssignment() {
     ClosedFoo|Foo2 x5 = {var2:"John"}; // Match to Foo2
     ClosedFoo|Foo2 x6 = {var2:12}; // Incompatible
 }
+
+type SomeTypes int:Signed8|object{};
+type SomeTypes2 string:Char|object{};
+
+function testIncompatibleAssignment() {
+    int:Signed8|object{} v1 = 255;
+    SomeTypes v2 = 255;
+    string:Char|int v3 = "ABC";
+    SomeTypes2 v4 = "ABC";
+}
