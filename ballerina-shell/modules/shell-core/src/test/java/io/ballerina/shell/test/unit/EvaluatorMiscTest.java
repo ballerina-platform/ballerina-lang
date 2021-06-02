@@ -67,7 +67,6 @@ public class EvaluatorMiscTest {
         evaluator.evaluate("import ballerina/lang.'float as prefix2");
         Assert.assertEquals(new HashSet<>(evaluator.availableImports()),
                 Set.of(
-                        "('java) import ballerina/'jballerina.'java as 'java;",
                         "('prefix) import ballerina/'lang.'int as 'prefix;",
                         "('prefix2) import ballerina/'lang.'float as 'prefix2;"
                 )
@@ -97,7 +96,7 @@ public class EvaluatorMiscTest {
                         "('b) string 'b = \"World\""
                 )
         );
-        Assert.assertEquals(evaluator.availableImports().size(), 1);
+        Assert.assertEquals(evaluator.availableImports().size(), 0);
         Assert.assertTrue(evaluator.availableModuleDeclarations().isEmpty());
     }
 
@@ -119,7 +118,7 @@ public class EvaluatorMiscTest {
                         "('B) enum B{C, D}"
                 )
         );
-        Assert.assertEquals(evaluator.availableImports().size(), 1);
+        Assert.assertEquals(evaluator.availableImports().size(), 0);
         Assert.assertTrue(evaluator.availableVariables().isEmpty());
     }
 }

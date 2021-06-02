@@ -45,6 +45,7 @@ import io.ballerina.shell.utils.StringUtils;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -539,9 +540,13 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     @Override
     public List<String> availableImports() {
         // Imports with prefixes
+        List<String> initialImports = getInitialImports();
         List<String> importStrings = new ArrayList<>();
         for (QuotedIdentifier prefix : importsManager.prefixes()) {
-            importStrings.add(String.format("(%s) %s", prefix, importsManager.getImport(prefix)));
+            String importStatement = String.format("(%s) %s", prefix, importsManager.getImport(prefix));
+            if (!initialImports.contains(importStatement)) {
+                importStrings.add(importStatement);
+            }
         }
         return importStrings;
     }
@@ -579,5 +584,13 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     @Override
     protected PrintStream getErrorStream() {
         return System.err;
+    }
+
+    /**
+     * @return Initial imports.
+     */
+    private List<String> getInitialImports() {
+        return Arrays.
+                asList("(\'java) import ballerina/\'jballerina.\'java as \'java;");
     }
 }
