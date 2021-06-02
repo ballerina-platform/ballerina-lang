@@ -229,12 +229,11 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         and to get the particular symbol, we extract the type symbol from the function symbol. 
          */
         Optional<ReturnTypeDescriptorNode> returnTypeDesc = node.functionSignature().returnTypeDesc();
-        if (returnTypeDesc.isEmpty()) {
+        if (returnTypeDesc.isEmpty() || context.currentSemanticModel().isEmpty()) {
             return Optional.empty();
         }
 
-        Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.FUNCTION;
-        Optional<Symbol> functionSymbol = this.getSymbolByName(node.functionName().text(), predicate);
+        Optional<Symbol> functionSymbol = context.currentSemanticModel().get().symbol(node);
 
         if (functionSymbol.isEmpty()) {
             return Optional.empty();
