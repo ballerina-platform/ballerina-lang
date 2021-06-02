@@ -4082,26 +4082,25 @@ public class Desugar extends BLangNodeVisitor {
         BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(symTable.stringType,
                 constraintType)), null);
         BLangInvocation entriesInvocation = generateMapEntriesInvocation(matchExprVarRef, entriesType);
-        BLangSimpleVariableDef entriesVarDef = createVarDef("$entries$", entriesType, entriesInvocation,
-                pos);
+        BLangSimpleVariableDef entriesVarDef = createVarDef("$entries$", entriesType, entriesInvocation, pos);
         blockStmt.addStatement(entriesVarDef);
         BLangLambdaFunction filteringFunction = createFuncToFilterOutRestParam(keysToRemove, pos);
         BLangInvocation filterInvocation = generateMapFilterInvocation(pos, entriesVarDef.var, filteringFunction);
-        BLangSimpleVariableDef filtersVarDef = createVarDef("$filteredVarDef$", entriesType, filterInvocation,
-                pos);
+        BLangSimpleVariableDef filtersVarDef = createVarDef("$filteredVarDef$", entriesType,
+                filterInvocation, pos);
         blockStmt.addStatement(filtersVarDef);
 
         BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(pos, constraintType);
         BLangInvocation mapInvocation = generateMapMapInvocation(pos, filtersVarDef.var,
                 backToMapLambda);
-        BLangSimpleVariableDef mappedVarDef = createVarDef("$mappedVarDef$", entriesType, mapInvocation,
-                pos);
+        BLangSimpleVariableDef mappedVarDef = createVarDef("$mappedVarDef$", entriesType,
+                mapInvocation, pos);
         blockStmt.addStatement(mappedVarDef);
 
         BLangInvocation recordConversion = generateCreateRecordValueInvocation(pos, targetType,
                 mappedVarDef.var.symbol);
-        BLangSimpleVariableDef recordVarDef = createVarDef("$recordVarDef$", entriesType, recordConversion,
-                pos);
+        BLangSimpleVariableDef recordVarDef = createVarDef("$recordVarDef$", entriesType,
+                recordConversion, pos);
         blockStmt.addStatement(recordVarDef);
 
         blockStmt.addStatement(ASTBuilderUtil.createAssignmentStmt(pos, restMatchPatternVarRef,

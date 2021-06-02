@@ -2323,8 +2323,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         List<LinkedHashMap<String, BField>> possibleRecordFieldMapList = new ArrayList<>();
 
         for (BType possibleType : possibleTypes) {
-            BRecordType recordType = (BRecordType) possibleType;
             if (possibleType.tag == TypeTags.RECORD) {
+                BRecordType recordType = (BRecordType) possibleType;
                 possibleRecordFieldMapList.add(recordType.fields);
                 restFieldMemberTypes.add(recordType.restFieldType);
             } else if (possibleType.tag == TypeTags.MAP) {
@@ -2660,11 +2660,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         for (BField field : unMappedFields.values()) {
-            BField newField = new BField(field.name, pos,
-                    new BVarSymbol(field.symbol.flags, field.name, env.enclPkg.symbol.pkgID,
-                            field.type, targetRestRecType.tsymbol, pos, VIRTUAL));
-            fields.put(field.name.value, newField);
-            targetRestRecType.tsymbol.scope.define(newField.name, newField.symbol);
+            if (fields.containsKey(field.name.value)) {
+                BField targetField = fields.get(field.getName().value);
+                targetField.type = types.mergeTypes(targetField.type, field.type);
+            } else {
+                BField newField = new BField(field.name, pos,
+                        new BVarSymbol(field.symbol.flags, field.name, env.enclPkg.symbol.pkgID,
+                                field.type, targetRestRecType.tsymbol, pos, VIRTUAL));
+                fields.put(field.name.value, newField);
+                targetRestRecType.tsymbol.scope.define(newField.name, newField.symbol);
+            }
         }
 
         //marks field as optional if the field is not common for all union members

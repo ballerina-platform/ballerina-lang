@@ -281,12 +281,15 @@ public class RecordVariableDefinitionTest {
     @Test(description = "Test record variables rest param types")
     public void testRestParameterType() {
         BValue[] returns = BRunUtil.invoke(result, "testRestParameterType");
-        Assert.assertEquals(returns.length, 5);
+        Assert.assertEquals(returns.length, 8);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[5]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[6]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[7]).booleanValue());
     }
 
     @Test(description = "Test resolving the rest field type during record restructuring")
