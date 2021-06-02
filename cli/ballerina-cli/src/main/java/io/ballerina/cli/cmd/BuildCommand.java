@@ -185,7 +185,7 @@ public class BuildCommand implements BLauncherCmd {
         if (FileUtils.hasExtension(this.projectPath)) {
             if (coverage != null && coverage) {
                 this.outStream.println("Code coverage is not yet supported with single bal files. Ignoring the flag " +
-                        "and continuing the test run...");
+                        "and continuing the test run...\n");
             }
             coverage = false;
         }

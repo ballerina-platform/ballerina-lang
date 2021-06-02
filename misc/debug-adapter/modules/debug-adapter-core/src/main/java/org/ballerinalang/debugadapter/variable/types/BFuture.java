@@ -29,6 +29,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFrom;
+
 /**
  * Ballerina future variable type.
  */
@@ -37,6 +40,9 @@ public class BFuture extends NamedCompoundVariable {
     private static final String FIELD_RESULT = "result";
     private static final String FIELD_IS_DONE = "isDone";
     private static final String FIELD_PANIC = "panic";
+    private static final String FIELD_TYPE = "type";
+    private static final String FIELD_CONSTRAINT = "constraint";
+    private static final String FIELD_TYPENAME = "typeName";
     private static final String METHOD_LOCALIZEDMESSAGE = "getLocalizedMessage";
 
     public BFuture(SuspendedContext context, String name, Value value) {
@@ -45,7 +51,7 @@ public class BFuture extends NamedCompoundVariable {
 
     @Override
     public String computeValue() {
-        return BVariableType.FUTURE.getString();
+        return BVariableType.FUTURE.getString() + "<" + getConstrainedType() + ">";
     }
 
     @Override
@@ -78,5 +84,16 @@ public class BFuture extends NamedCompoundVariable {
     public int getChildrenCount() {
         // maximum children size will be 3 (isDone, result and panic).
         return 3;
+    }
+
+    private String getConstrainedType() {
+        try {
+            Optional<Value> futureType = VariableUtils.getFieldValue(jvmValue, FIELD_TYPE);
+            Optional<Value> constrainedType = VariableUtils.getFieldValue(futureType.get(), FIELD_CONSTRAINT);
+            Optional<Value> typeName = VariableUtils.getFieldValue(constrainedType.get(), FIELD_TYPENAME);
+            return getStringFrom(typeName.get());
+        } catch (Exception e) {
+            return UNKNOWN_VALUE;
+        }
     }
 }

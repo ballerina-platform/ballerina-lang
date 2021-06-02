@@ -5,7 +5,7 @@ This module facilitates developers to write automation tests for Ballerina code 
 ## Annotations
 A Ballerina testsuite can be implemented using a set of annotations. The available annotations enable executing instructions before and after the testsuite or a single test, organize a set of tests into a group, define data-driven tests, specify an order of execution, disable tests and mocking.
 
-### Test Config
+### Test Config 
 
 The following example shows a simple testsuite.
 ```ballerina
@@ -79,7 +79,7 @@ function dataGen() returns (int[][]) {
 
 ### Before and After Suite
 
-The `BeforeSuite` annotation is used to execute a particular function before the test suite is executed. This can be used to setup the prerequisites before executing the test suite.
+The `BeforeSuite` annotation is used to execute a particular function before the test suite is executed. This can be used to setup the prerequisites before executing the test suite. 
 
 ```ballerina
 @test:BeforeSuite

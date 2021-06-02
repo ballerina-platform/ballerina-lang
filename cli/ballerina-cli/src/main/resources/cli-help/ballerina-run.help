@@ -7,9 +7,9 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Run builds and executes the given .bal file, package, or program.
+       Run builds and executes the given `.bal` file, package, or program.
 
-       If a Ballerina source file (.bal file) or a package directory is given, the run
+       If a Ballerina source file (`.bal` file) or a package directory is given, the run
        command builds and runs it. Compilation is done internally and the
        executable will not be created.
 
@@ -62,7 +62,7 @@ DEFAULT BEHAVIOR
 
 
 EXAMPLES
-       Run the 'main' function and/or services in the hello .bal file.
+       Run the 'main' function and/or services in the hello.bal file.
           $ bal run hello.bal
 
        Run the 'main' function and/or services in the hello executable jar.

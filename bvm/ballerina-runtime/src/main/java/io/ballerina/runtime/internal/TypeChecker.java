@@ -1912,8 +1912,8 @@ public class TypeChecker {
 
     private static boolean isMutable(Object value, Type sourceType) {
         // All the value types are immutable
-        if (value == null || sourceType.getTag() < TypeTags.JSON_TAG || TypeTags.isIntegerTypeTag(sourceType.getTag())
-                || sourceType.getTag() == TypeTags.FINITE_TYPE_TAG || TypeTags.isStringTypeTag(sourceType.getTag())) {
+        if (value == null || sourceType.getTag() < TypeTags.JSON_TAG ||
+                sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
             return false;
         }
 
@@ -2583,7 +2583,7 @@ public class TypeChecker {
     }
 
     private static boolean isSimpleBasicType(Type type) {
-        return type.getTag() < TypeTags.JSON_TAG || TypeTags.isIntegerTypeTag(type.getTag());
+        return type.getTag() < TypeTags.JSON_TAG;
     }
 
     private static boolean isHandleType(Type type) {
@@ -2868,7 +2868,8 @@ public class TypeChecker {
         if (type == null) {
             return true;
         }
-        if (type.getTag() < TypeTags.RECORD_TYPE_TAG || TypeTags.isIntegerTypeTag(type.getTag())) {
+        if (type.getTag() < TypeTags.RECORD_TYPE_TAG &&
+                !(type.getTag() == TypeTags.CHAR_STRING_TAG || type.getTag() == TypeTags.NEVER_TAG)) {
             return true;
         }
         switch (type.getTag()) {
