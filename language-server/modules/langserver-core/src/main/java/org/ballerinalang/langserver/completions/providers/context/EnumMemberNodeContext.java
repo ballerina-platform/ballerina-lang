@@ -15,6 +15,10 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.syntax.tree.EnumMemberNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -22,8 +26,8 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link EnumMemberNode} context.
@@ -32,6 +36,7 @@ import java.util.List;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class EnumMemberNodeContext extends AbstractCompletionProvider<EnumMemberNode> {
+
     public EnumMemberNodeContext() {
         super(EnumMemberNode.class);
     }
@@ -39,6 +44,11 @@ public class EnumMemberNodeContext extends AbstractCompletionProvider<EnumMember
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, EnumMemberNode node)
             throws LSCompletionException {
-        return Collections.emptyList();
+        List<Symbol> visibleSymbols = ctx.visibleSymbols(ctx.getCursorPosition());
+        List<Symbol> filteredSymbols = visibleSymbols.stream()
+                .filter(symbol -> symbol.kind() == SymbolKind.CONSTANT
+                        && ((ConstantSymbol) symbol).broaderTypeDescriptor().typeKind() == TypeDescKind.STRING)
+                .collect(Collectors.toList());
+        return this.getCompletionItemList(filteredSymbols, ctx);
     }
 }

@@ -1,0 +1,22 @@
+{
+  "position": {
+    "line": 3,
+    "character": 16
+  },
+  "source": "enum_decl_ctx/source/source3.bal",
+  "items": [
+    {
+      "label": "super",
+      "kind": "Variable",
+      "detail": "SUPER",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "insertText": "super",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
