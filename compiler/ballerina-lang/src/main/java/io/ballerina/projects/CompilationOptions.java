@@ -128,6 +128,6 @@ class CompilationOptions {
     }
 
     public boolean getnBal() {
-        return toBooleanDefaultIfNull(dumpBir);
+        return toBooleanDefaultIfNull(nBal);
     }
 }
