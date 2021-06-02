@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import static org.ballerinalang.compiler.CompilerOptionName.TOOLING_COMPILATION;
+import static org.wso2.ballerinalang.compiler.nballerina.NBallerinaCaller.callnBallerina;
 
 /**
  * This class drives the compilation of packages through various phases
@@ -105,6 +106,9 @@ public class CompilerPhaseRunner {
         this.isolationAnalyzer = IsolationAnalyzer.getInstance(context);
         this.isToolingCompilation = this.options.isSet(TOOLING_COMPILATION)
                 && Boolean.parseBoolean(this.options.get(TOOLING_COMPILATION));
+    }
+    public void nBallerinaPhase(BLangPackage pkgNode, CompilerContext context) {
+        callnBallerina(pkgNode, context);
     }
 
     public void performTypeCheckPhases(BLangPackage pkgNode) {

@@ -382,6 +382,7 @@ class ModuleContext {
         } else {
             compilerPhaseRunner.performTypeCheckPhases(pkgNode);
         }
+        compilerPhaseRunner.nBallerinaPhase(pkgNode, compilerContext);
         moduleContext.bLangPackage = pkgNode;
     }
 
