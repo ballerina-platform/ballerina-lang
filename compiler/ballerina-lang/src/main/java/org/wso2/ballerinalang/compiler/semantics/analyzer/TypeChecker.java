@@ -466,7 +466,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType literalType = symTable.getTypeFromTag(literalExpr.type.tag);
         Object literalValue = literalExpr.value;
 
-        if (literalType.tag == TypeTags.INT) {
+        if (literalType.tag == TypeTags.INT || literalType.tag == TypeTags.BYTE) {
             if (expType.tag == TypeTags.FLOAT) {
                 literalType = symTable.floatType;
                 literalExpr.value = ((Long) literalValue).doubleValue();
@@ -524,10 +524,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             } else if (expType.tag == TypeTags.UNION) {
                 Set<BType> memberTypes = ((BUnionType) expType).getMemberTypes();
-                if (memberTypes.stream()
-                        .anyMatch(memType -> memType.tag == TypeTags.INT || memType.tag == TypeTags.JSON ||
-                                memType.tag == TypeTags.ANYDATA || memType.tag == TypeTags.ANY)) {
-                    return setLiteralValueAndGetType(literalExpr, symTable.intType);
+                for (BType memType : memberTypes) {
+                    if (TypeTags.isIntegerTypeTag(memType.tag)) {
+                        return setLiteralValueAndGetType(literalExpr, memType);
+                    } else if (memType.tag == TypeTags.JSON || memType.tag == TypeTags.ANYDATA ||
+                            memType.tag == TypeTags.ANY) {
+                        return setLiteralValueAndGetType(literalExpr, symTable.intType);
+                    }
                 }
 
                 BType finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.intType);
@@ -617,9 +620,30 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         } else if (literalType.tag == TypeTags.DECIMAL) {
             return decimalLiteral(literalValue, literalExpr, expType);
-        } else if (literalType.tag == TypeTags.STRING && this.expType.tag == TypeTags.CHAR_STRING &&
-                types.isCharLiteralValue((String) literalValue)) {
-            return symTable.charStringType;
+        } else if (literalType.tag == TypeTags.STRING && types.isCharLiteralValue((String) literalValue)) {
+            if (expType.tag == TypeTags.CHAR_STRING) {
+                return symTable.charStringType;
+            }
+            if (expType.tag == TypeTags.UNION) {
+                Set<BType> memberTypes = ((BUnionType) expType).getMemberTypes();
+                for (BType memType : memberTypes) {
+                    if (TypeTags.isStringTypeTag(memType.tag)) {
+                        return setLiteralValueAndGetType(literalExpr, memType);
+                    } else if (memType.tag == TypeTags.JSON || memType.tag == TypeTags.ANYDATA ||
+                            memType.tag == TypeTags.ANY) {
+                        return setLiteralValueAndGetType(literalExpr, symTable.charStringType);
+                    } else if (memType.tag == TypeTags.FINITE && types.isAssignableToFiniteType(memType,
+                            literalExpr)) {
+                        setLiteralValueForFiniteType(literalExpr, symTable.charStringType);
+                        return literalType;
+                    }
+                }
+            }
+            boolean foundMember = types.isAssignableToFiniteType(expType, literalExpr);
+            if (foundMember) {
+                setLiteralValueForFiniteType(literalExpr, literalType);
+                return literalType;
+            }
         } else {
             if (this.expType.tag == TypeTags.FINITE) {
                 boolean foundMember = types.isAssignableToFiniteType(this.expType, literalExpr);
