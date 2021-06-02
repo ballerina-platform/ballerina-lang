@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -43,7 +43,8 @@ public class DependencyGraphTests extends BaseTest {
         // 1) load the project
         Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_edit_api_tests/package_test_dependencies_toml");
         BuildProject project = BuildProject.load(projectPath);
-        DependencyGraph<ResolvedPackageDependency> dependencyGraphOld = project.currentPackage().getResolution().dependencyGraph();
+        DependencyGraph<ResolvedPackageDependency> dependencyGraphOld =
+                project.currentPackage().getResolution().dependencyGraph();
         // dependency graph should contain self and package_c
         Assert.assertEquals(dependencyGraphOld.getNodes().size(), 2);
 
@@ -55,7 +56,8 @@ public class DependencyGraphTests extends BaseTest {
                         "version = \"0.1.1\"\n").apply();
 
         // 3) compare dependency graphs before and after edit
-        DependencyGraph<ResolvedPackageDependency> dependencyGraphNew = project.currentPackage().getResolution().dependencyGraph();
+        DependencyGraph<ResolvedPackageDependency> dependencyGraphNew =
+                project.currentPackage().getResolution().dependencyGraph();
         // dependency graph should contain self and package_c
         Assert.assertEquals(dependencyGraphNew.getNodes().size(), 2);
         DependencyGraph.Compatibility compatibility = dependencyGraphOld.compareTo(dependencyGraphNew);
@@ -67,17 +69,19 @@ public class DependencyGraphTests extends BaseTest {
         // 1) load the project
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_resolution_tests/package_b");
         BuildProject project = BuildProject.load(projectDirPath);
-        DependencyGraph<ResolvedPackageDependency> dependencyGraphOld = project.currentPackage().getResolution().dependencyGraph();
+        DependencyGraph<ResolvedPackageDependency> dependencyGraphOld =
+                project.currentPackage().getResolution().dependencyGraph();
         // dependency graph should contain self and package_c
         Assert.assertEquals(dependencyGraphOld.getNodes().size(), 2);
 
         // 2) update the mod_b2/mod2.bal file to remove package_c dependency
-        Module mod_b2 = project.currentPackage().module(ModuleName.from(PackageName.from("package_b"), "mod_b2"));
-        Document document = mod_b2.document(mod_b2.documentIds().stream().findFirst().get());
+        Module modB2 = project.currentPackage().module(ModuleName.from(PackageName.from("package_b"), "mod_b2"));
+        Document document = modB2.document(modB2.documentIds().stream().findFirst().get());
         document.modify().withContent("public function func2() {\n" + "}").apply();
 
         // 3) compare dependency graphs before and after edit
-        DependencyGraph<ResolvedPackageDependency> dependencyGraphNew = project.currentPackage().getResolution().dependencyGraph();
+        DependencyGraph<ResolvedPackageDependency> dependencyGraphNew =
+                project.currentPackage().getResolution().dependencyGraph();
         // dependency graph should contain only self
         Assert.assertEquals(dependencyGraphNew.getNodes().size(), 1);
         DependencyGraph.Compatibility compatibility = dependencyGraphOld.compareTo(dependencyGraphNew);
@@ -89,13 +93,14 @@ public class DependencyGraphTests extends BaseTest {
         // 1) load the project
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_resolution_tests/package_b");
         BuildProject project = BuildProject.load(projectDirPath);
-        DependencyGraph<ResolvedPackageDependency> dependencyGraphOld = project.currentPackage().getResolution().dependencyGraph();
+        DependencyGraph<ResolvedPackageDependency> dependencyGraphOld =
+                project.currentPackage().getResolution().dependencyGraph();
         // dependency graph should contain self and package_c
         Assert.assertEquals(dependencyGraphOld.getNodes().size(), 2);
 
         // 2) update the mod_b2/mod2.bal file to add a new dependency
-        Module mod_b2 = project.currentPackage().module(ModuleName.from(PackageName.from("package_b"), "mod_b2"));
-        Document document = mod_b2.document(mod_b2.documentIds().stream().findFirst().get());
+        Module modB2 = project.currentPackage().module(ModuleName.from(PackageName.from("package_b"), "mod_b2"));
+        Document document = modB2.document(modB2.documentIds().stream().findFirst().get());
         document.modify().withContent(
                 "import samjs/package_c.mod_c1;\n" +
                 "import samjs/package_e as _;\n" +
@@ -106,7 +111,8 @@ public class DependencyGraphTests extends BaseTest {
         ).apply();
 
         // 3) compare dependency graphs before and after edit
-        DependencyGraph<ResolvedPackageDependency> dependencyGraphNew = project.currentPackage().getResolution().dependencyGraph();
+        DependencyGraph<ResolvedPackageDependency> dependencyGraphNew =
+                project.currentPackage().getResolution().dependencyGraph();
         // dependency graph should contain self, package_c and package_e
         Assert.assertEquals(dependencyGraphNew.getNodes().size(), 3);
 
@@ -119,18 +125,20 @@ public class DependencyGraphTests extends BaseTest {
         // 1) load the project
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_resolution_tests/package_b");
         BuildProject project = BuildProject.load(projectDirPath);
-        DependencyGraph<ResolvedPackageDependency> dependencyGraphOld = project.currentPackage().getResolution().dependencyGraph();
+        DependencyGraph<ResolvedPackageDependency> dependencyGraphOld =
+                project.currentPackage().getResolution().dependencyGraph();
         // dependency graph should contain self and package_c
         Assert.assertEquals(dependencyGraphOld.getNodes().size(), 2);
 
         // 2) update the mod_b2/mod2.bal file to remove package_c dependency
-        Module mod_b2 = project.currentPackage().module(ModuleName.from(PackageName.from("package_b"), "mod_b2"));
-        Document document = mod_b2.document(mod_b2.documentIds().stream().findFirst().get());
+        Module modB2 = project.currentPackage().module(ModuleName.from(PackageName.from("package_b"), "mod_b2"));
+        Document document = modB2.document(modB2.documentIds().stream().findFirst().get());
         document.modify().withContent("import samjs/package_e as _;\n" +
                 "public function func2() {\n" + "}").apply();
 
         // 3) compare dependency graphs before and after edit
-        DependencyGraph<ResolvedPackageDependency> dependencyGraphNew = project.currentPackage().getResolution().dependencyGraph();
+        DependencyGraph<ResolvedPackageDependency> dependencyGraphNew =
+                project.currentPackage().getResolution().dependencyGraph();
         // dependency graph should contain self and package_e
         Assert.assertEquals(dependencyGraphNew.getNodes().size(), 2);
         DependencyGraph.Compatibility compatibility = dependencyGraphOld.compareTo(dependencyGraphNew);
@@ -142,7 +150,8 @@ public class DependencyGraphTests extends BaseTest {
         // 1) load the project
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_resolution_tests/package_b");
         BuildProject project = BuildProject.load(projectDirPath);
-        DependencyGraph<ResolvedPackageDependency> dependencyGraphOld = project.currentPackage().getResolution().dependencyGraph();
+        DependencyGraph<ResolvedPackageDependency> dependencyGraphOld =
+                project.currentPackage().getResolution().dependencyGraph();
         // dependency graph should contain self and package_c
         Assert.assertEquals(dependencyGraphOld.getNodes().size(), 2);
 
@@ -152,7 +161,8 @@ public class DependencyGraphTests extends BaseTest {
         document.modify().withContent("public function func2() {\n" + "}").apply();
 
         // 3) compare dependency graphs before and after edit
-        DependencyGraph<ResolvedPackageDependency> dependencyGraphNew = project.currentPackage().getResolution().dependencyGraph();
+        DependencyGraph<ResolvedPackageDependency> dependencyGraphNew =
+                project.currentPackage().getResolution().dependencyGraph();
         // dependency graph should contain self and package_e
         Assert.assertEquals(dependencyGraphNew.getNodes().size(), 2);
         DependencyGraph.Compatibility compatibility = dependencyGraphOld.compareTo(dependencyGraphNew);

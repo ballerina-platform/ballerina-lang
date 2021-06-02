@@ -61,21 +61,25 @@ public class DependencyGraph<T> {
     }
 
     /**
-     * Compares this instance with a provided {@code DependencyGraph} instance.
+     * Compares two instances of {@code DependencyGraph}.
      *
      * @param other other dependency graph to compare with
      * @return DependencyGraph.Compatibility.COMPATIBLE if graphs are compatible;
      *         DependencyGraph.Compatibility.INCOMPATIBLE otherwise
      */
     public Compatibility compareTo(DependencyGraph<T> other) {
+        // If this graph can be converted to the other graph without removing
+        // any nodes, we consider the graphs to be Compatible. Else if, deletion
+        // of nodes is required, they are considered Incompatible.
         Set<T> diff = new HashSet<>(this.getNodes());
         diff.removeAll(other.getNodes());
 
-        // if the diff is empty, either the old graph is identical to the new graph
-        // or the old graph is a subset of the new graph.
+        // If the diff is empty, either this graph is equivalent to or a subset of the other graph.
+        // No deletion of nodes required to convert this to the other, hence Compatible.
         if (diff.isEmpty()) {
             return Compatibility.COMPATIBLE;
         } else {
+            // Deletion of nodes required to convert this to the other, hence Incompatible.
             return Compatibility.INCOMPATIBLE;
         }
     }
@@ -216,7 +220,7 @@ public class DependencyGraph<T> {
     }
 
     /**
-     * Represents the compatibility between two dependency graphs {@code DependencyGrapsh} instances.
+     * Represents the compatibility between two dependency graphs {@code DependencyGraph} instances.
      *
      * @since 2.0.0
      */
