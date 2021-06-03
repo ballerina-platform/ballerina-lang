@@ -437,11 +437,11 @@ public class JvmTypeGen {
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, TYPE_ID_SET, JVM_INIT_METHOD, "()V", false);
 
-        for (BTypeIdSet.BTypeId typeId : typeIdSet.primary) {
+        for (BTypeIdSet.BTypeId typeId : typeIdSet.getPrimary()) {
             addTypeId(mv, typeId, true);
         }
 
-        for (BTypeIdSet.BTypeId typeId : typeIdSet.secondary) {
+        for (BTypeIdSet.BTypeId typeId : typeIdSet.getSecondary()) {
             addTypeId(mv, typeId, false);
         }
     }

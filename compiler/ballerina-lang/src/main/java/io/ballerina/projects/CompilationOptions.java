@@ -32,12 +32,11 @@ class CompilationOptions {
     private Boolean dumpBir;
     private String dumpBirFile;
     private String cloud;
-    private Boolean taintCheck;
     private Boolean listConflictedClasses;
 
     public CompilationOptions(Boolean skipTests, Boolean offlineBuild, Boolean experimental,
                               Boolean observabilityIncluded, Boolean dumpBir, String dumpBirFile,
-                              String cloud, Boolean taintCheck, Boolean listConflictedClasses) {
+                              String cloud, Boolean listConflictedClasses) {
         this.skipTests = skipTests;
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
@@ -45,7 +44,6 @@ class CompilationOptions {
         this.dumpBir = dumpBir;
         this.dumpBirFile = dumpBirFile;
         this.cloud = cloud;
-        this.taintCheck = taintCheck;
         this.listConflictedClasses = listConflictedClasses;
     }
 
@@ -77,10 +75,6 @@ class CompilationOptions {
         return cloud;
     }
 
-    public boolean getTaintCheck() {
-        return toBooleanDefaultIfNull(taintCheck);
-    }
-
     public boolean listConflictedClasses() {
         return toBooleanDefaultIfNull(listConflictedClasses);
     }
@@ -104,8 +98,6 @@ class CompilationOptions {
         this.dumpBir = Objects.requireNonNullElseGet(theirOptions.dumpBir, () -> toBooleanDefaultIfNull(this.dumpBir));
         this.cloud = Objects.requireNonNullElse(theirOptions.cloud, toStringDefaultIfNull(this.cloud));
         this.dumpBirFile = theirOptions.dumpBirFile;
-        this.taintCheck = Objects.requireNonNullElseGet(theirOptions.taintCheck,
-                () -> toBooleanDefaultIfNull(this.taintCheck));
         this.listConflictedClasses = Objects.requireNonNullElseGet(
                 theirOptions.listConflictedClasses, () -> toBooleanDefaultIfNull(this.listConflictedClasses));
         return this;

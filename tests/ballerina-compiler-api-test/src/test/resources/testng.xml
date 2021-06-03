@@ -53,6 +53,7 @@
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInTestsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInWorkersTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInRecordTypeDefTest" />
+            <class name="io.ballerina.semantic.api.test.allreferences.FindRefsOfEnumsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.XMLRefsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.CyclicUnionRefsTest" />
 

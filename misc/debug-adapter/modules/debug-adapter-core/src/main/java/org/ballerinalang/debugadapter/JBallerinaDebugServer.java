@@ -493,8 +493,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             if (context.getDebuggeeVM().process() != null) {
                 exitCode = killProcessWithDescendants(context.getDebuggeeVM().process());
             }
-            context.getDebuggeeVM().exit(exitCode);
+            try {
+                context.getDebuggeeVM().exit(exitCode);
+            } catch (Exception ignored) {
+                // It is okay to ignore the VM exit Exceptions, in-case the remote debuggee is already terminated.
+            }
         }
+
         // If 'terminationRequestReceived' is false, debug server termination should have been triggered from the
         // JDI event processor, after receiving a 'VMDisconnected'/'VMExited' event.
         if (!context.isTerminateRequestReceived()) {
@@ -521,23 +526,26 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     private static int killProcessWithDescendants(Process parent) {
-        // Kills the descendants of the process. The descendants of a process are the children
-        // of the process and the descendants of those children, recursively.
-        parent.descendants().forEach(processHandle -> {
-            boolean successful = processHandle.destroy();
-            if (!successful) {
-                processHandle.destroyForcibly();
-            }
-        });
-
-        // Kills the parent process. Whether the process represented by this Process object will be normally
-        // terminated or not, is implementation dependent.
-        parent.destroyForcibly();
         try {
+            // Kills the descendants of the process. The descendants of a process are the children
+            // of the process and the descendants of those children, recursively.
+            parent.descendants().forEach(processHandle -> {
+                boolean successful = processHandle.destroy();
+                if (!successful) {
+                    processHandle.destroyForcibly();
+                }
+            });
+
+            // Kills the parent process. Whether the process represented by this Process object will be normally
+            // terminated or not, is implementation dependent.
+            parent.destroyForcibly();
             parent.waitFor();
+            return parent.exitValue();
         } catch (InterruptedException ignored) {
+            return 0;
+        } catch (Exception e) {
+            return 1;
         }
-        return parent.exitValue();
     }
 
     public void connect(IDebugProtocolClient client) {
@@ -925,6 +933,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         stackFramesMap.clear();
         loadedVariables.clear();
         variableToStackFrameMap.clear();
+        scopeIdToFrameIdMap.clear();
         loadedThreadFrames.clear();
         nextVarReference.set(1);
     }

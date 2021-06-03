@@ -124,6 +124,8 @@ type Qux object {
     isolated function qux() returns int;
 };
 
+int globInt = 1;
+
 function testNonIsolatedMethodAsIsolatedMethodRuntimeNegative() {
     object {
         int i;
@@ -137,7 +139,7 @@ function testNonIsolatedMethodAsIsolatedMethodRuntimeNegative() {
         }
 
         function qux() returns int {
-            return self.i;
+            return self.i + globInt;
         }
     };
 
