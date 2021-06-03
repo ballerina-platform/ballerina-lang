@@ -131,6 +131,13 @@ public class JsonToRecordConverterTests {
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 
+    @Test(description = "Test reference type extraction")
+    public void testRefTypeExtraction() throws ConverterException {
+        String refString = "#/definitions/address/state";
+        String extracted = ConverterUtils.extractReferenceType(refString);
+        Assert.assertEquals(extracted, "state");
+    }
+
     @Test(description = "Test with sample json objects")
     public void testSamples() throws ConverterException, IOException {
         Map<Path, Path> samples = new HashMap<>();

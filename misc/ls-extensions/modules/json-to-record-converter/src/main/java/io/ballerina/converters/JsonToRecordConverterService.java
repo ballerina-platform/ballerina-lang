@@ -3,12 +3,14 @@ package io.ballerina.converters;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.converters.exception.ConverterException;
 import io.ballerina.converters.util.ConverterUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
@@ -40,8 +42,7 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
                 }
                 String codeBlock = ConverterUtils.typeNodesToFormattedString(nodes);
                 response.setCodeBlock(codeBlock);
-            } catch (Throwable e) {
-                String msg = "Operation 'jsonToRecordConverter/convert' failed!";
+            } catch (IOException | ConverterException e) {
                 response.setCodeBlock("");
             }
             return response;

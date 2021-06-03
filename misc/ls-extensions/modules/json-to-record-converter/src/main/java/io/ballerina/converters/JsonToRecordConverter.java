@@ -14,14 +14,12 @@ import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerina.converters.exception.ConverterException;
 import io.ballerina.converters.util.ErrorMessages;
 import io.ballerina.converters.util.SchemaGenerator;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.parser.OpenAPIV3Parser;
@@ -115,40 +113,7 @@ public class JsonToRecordConverter {
                     //Generate RecordFiled
                     List<Node> recordFieldList = new ArrayList<>();
                     Schema schemaValue = schema.getValue();
-                    if (schemaValue instanceof ComposedSchema) {
-                        ComposedSchema composedSchema = (ComposedSchema) schemaValue;
-                        if (composedSchema.getAllOf() != null) {
-                            List<Schema> allOf = composedSchema.getAllOf();
-                            for (Schema allOfschema: allOf) {
-                                if (allOfschema.getType() == null && allOfschema.get$ref() != null) {
-                                    //Generate typeReferenceNode
-                                    Token typeRef =
-                                            AbstractNodeFactory.createIdentifierToken(escapeIdentifier(
-                                                    extractReferenceType(allOfschema.get$ref())));
-                                    Token asterisk = AbstractNodeFactory.createIdentifierToken("*");
-                                    Token semicolon = AbstractNodeFactory.createIdentifierToken(";");
-                                    TypeReferenceNode recordField =
-                                            NodeFactory.createTypeReferenceNode(asterisk, typeRef, semicolon);
-                                    recordFieldList.add(recordField);
-                                } else if (allOfschema instanceof ObjectSchema &&
-                                        (allOfschema.getProperties() != null)) {
-                                    Map<String, Schema> properties = allOfschema.getProperties();
-                                    for (Map.Entry<String, Schema> field : properties.entrySet()) {
-                                        addRecordFields(required, recordFieldList, field);
-                                    }
-                                }
-                            }
-                            NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFieldList);
-                            Token bodyEndDelimiter = AbstractNodeFactory.createIdentifierToken("}");
-                            RecordTypeDescriptorNode recordTypeDescriptorNode =
-                                    NodeFactory.createRecordTypeDescriptorNode(recordKeyWord, bodyStartDelimiter,
-                                            fieldNodes, null, bodyEndDelimiter);
-                            Token semicolon = AbstractNodeFactory.createIdentifierToken(";");
-                            TypeDefinitionNode typeDefinitionNode = NodeFactory.createTypeDefinitionNode(null,
-                                    null, typeKeyWord, typeName, recordTypeDescriptorNode, semicolon);
-                            typeDefinitionNodeList.add(typeDefinitionNode);
-                        }
-                    } else if (schema.getValue().getProperties() != null || schema.getValue() instanceof ObjectSchema) {
+                    if (schema.getValue().getProperties() != null || schema.getValue() instanceof ObjectSchema) {
                         Map<String, Schema> fields = schema.getValue().getProperties();
                         if (fields != null) {
                             for (Map.Entry<String, Schema> field : fields.entrySet()) {
