@@ -38,8 +38,6 @@ public enum CompilerPhase {
 
     DOCUMENTATION_ANALYZE("documentationAnalyze"),
 
-    TAINT_ANALYZE("taintAnalyze"),
-
     CONSTANT_PROPAGATION("constantPropagation"),
 
     COMPILER_PLUGIN("compilerPlugin"),
@@ -68,8 +66,6 @@ public enum CompilerPhase {
                 return CODE_ANALYZE;
             case "documentationAnalyze":
                 return DOCUMENTATION_ANALYZE;
-            case "taintAnalyze":
-                return TAINT_ANALYZE;
             case "constantPropagation":
                 return CONSTANT_PROPAGATION;
             case "compilerPlugin":

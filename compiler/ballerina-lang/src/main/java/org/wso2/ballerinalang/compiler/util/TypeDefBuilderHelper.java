@@ -22,7 +22,6 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -35,7 +34,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -181,11 +179,6 @@ public class TypeDefBuilderHelper {
 
         // Add return type as nil to the symbol
         initFunction.symbol.retType = symTable.nilType;
-
-        // Set the taint information to the constructed init function
-        initFunction.symbol.taintTable = new HashMap<>();
-        TaintRecord taintRecord = new TaintRecord(TaintRecord.TaintedStatus.UNTAINTED, new ArrayList<>());
-        initFunction.symbol.taintTable.put(TaintAnalyzer.ALL_UNTAINTED_TABLE_ENTRY_INDEX, taintRecord);
 
         return initFunction;
     }

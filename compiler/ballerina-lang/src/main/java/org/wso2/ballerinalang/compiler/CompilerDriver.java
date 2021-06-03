@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.IsolationAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -90,7 +89,6 @@ public class CompilerDriver {
     private final SymbolResolver symResolver;
     private final SemanticAnalyzer semAnalyzer;
     private final CodeAnalyzer codeAnalyzer;
-    private final TaintAnalyzer taintAnalyzer;
     private final ConstantPropagation constantPropagation;
     private final DocumentationAnalyzer documentationAnalyzer;
     private final CompilerPluginRunner compilerPluginRunner;
@@ -123,7 +121,6 @@ public class CompilerDriver {
         this.symResolver = SymbolResolver.getInstance(context);
         this.codeAnalyzer = CodeAnalyzer.getInstance(context);
         this.documentationAnalyzer = DocumentationAnalyzer.getInstance(context);
-        this.taintAnalyzer = TaintAnalyzer.getInstance(context);
         this.constantPropagation = ConstantPropagation.getInstance(context);
         this.compilerPluginRunner = CompilerPluginRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
@@ -297,11 +294,6 @@ public class CompilerDriver {
         }
 
         documentationAnalyze(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.TAINT_ANALYZE)) {
-            return;
-        }
-
-        taintAnalyze(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.CONSTANT_PROPAGATION)) {
             return;
         }
@@ -363,10 +355,6 @@ public class CompilerDriver {
         return this.isolationAnalyzer.analyze(pkgNode);
     }
 
-    private BLangPackage taintAnalyze(BLangPackage pkgNode) {
-        return this.taintAnalyzer.analyze(pkgNode);
-    }
-
     private BLangPackage propagateConstants(BLangPackage pkgNode) {
         return this.constantPropagation.perform(pkgNode);
     }
@@ -396,7 +384,6 @@ public class CompilerDriver {
 
     private boolean checkNextPhase(CompilerPhase nextPhase) {
         return (!isToolingCompilation && nextPhase == CompilerPhase.CODE_ANALYZE) ||
-                nextPhase == CompilerPhase.TAINT_ANALYZE ||
                 nextPhase == CompilerPhase.COMPILER_PLUGIN ||
                 nextPhase == CompilerPhase.DESUGAR;
     }
@@ -405,12 +392,11 @@ public class CompilerDriver {
 
         BLangPackage pkg =
                 propagateConstants(
-                        taintAnalyze(
-                            isolationAnalyze(
-                                        documentationAnalyze(
-                                                dataflowAnalyze(
-                                                        codeAnalyze(
-                                                                typeCheck(pkgLoader.loadAndDefinePackage(modID))))))));
+                        isolationAnalyze(
+                                documentationAnalyze(
+                                        dataflowAnalyze(
+                                                codeAnalyze(
+                                                        typeCheck(pkgLoader.loadAndDefinePackage(modID)))))));
         if (dlog.errorCount() > 0) {
             return null;
         }
