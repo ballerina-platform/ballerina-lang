@@ -16,7 +16,7 @@
 
 import ballerina/jballerina.java;
 
-# Get elements matching at least one of `elemNames`
+# Get elements matching at least one of `elemNames`.
 #
 # + x - The xml source
 # + elemNames - ualified name of the elements to filter
@@ -51,7 +51,7 @@ public function selectDescendants(xml x, string... qname) returns xml = @java:Me
     name: "selectDescendants"
 } external;
 
-# Return attribute matching expanded attribute name
+# Return attribute matching expanded attribute name.
 #
 # + x - The xml value
 # + attributeName - Attribute name in expanded from

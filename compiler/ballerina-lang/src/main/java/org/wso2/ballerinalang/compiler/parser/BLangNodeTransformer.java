@@ -5591,8 +5591,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             docText.append(codeBlockNode.startBacktick().toString());
         }
 
-        codeBlockNode.codeLines().forEach(codeLine -> docText.append(codeLine.toString()));
-        docText.append(codeBlockNode.endLineHashToken().toString());
+        codeBlockNode.codeLines().forEach(codeLine -> docText.append(codeLine.codeDescription().toString()));
         docText.append(codeBlockNode.endBacktick().text());
 
         bLangDocLine.text = docText.toString();

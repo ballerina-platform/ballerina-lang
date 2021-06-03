@@ -62,8 +62,6 @@ public enum CompilerOptionName {
 
     EXPERIMENTAL_FEATURES_ENABLED("experimentalFeaturesEnabled"),
 
-    TAINT_CHECK("taintCheck"),
-
     LIST_CONFLICTED_CLASSES("listConflictedClasses"),
 
     /**
