@@ -15,19 +15,34 @@
 // under the License.
 
 type Student record {
-    string name;
+    string fname;
+    string lname;
     int age;
     float gpa;
 };
 
-function testQueryExpression() {
-    Student s1 = {name: "Foo", age: 1, gpa: 2.1};
-    Student s2 = {name: "Bar", age: 2, gpa: 3.2};
-    Student s3 = {name: "Baz", age: 3, gpa: 1.3};
+public function testQueryExpression() {
+    Student s1 = {fname: "Jon", lname: "Doe", age: 21, gpa: 2.1};
+    Student s2 = {fname: "Jane", lname: "Doe", age: 25, gpa: 3.2};
+    Student s3 = {fname: "Amy", lname: "Melina", age: 30, gpa: 1.3};
 
     Student[] students = [s1, s2, s3];
 
     var x = from var st in students
-        where st.name == "Foo"
-        select {name: st.name};
+        where st.fname == "Jon"
+        select {name: st.fname};
+
+    string[] fullName =   from var {fname, lname} in students
+                            let int len1 = fname.length()
+                            where len1 > 0
+                            let int len2 = lname.length()
+                            where len2 > 0
+                            let string name = fname + " " + lname  select name;
+
+    Student[] gpaRanking =  from var st in students order by st.gpa ascending
+                                select st;
+
+    Student[] selectedStudents =  from var st in students order by st.gpa ascending
+                          limit 2 select st;
+
 }

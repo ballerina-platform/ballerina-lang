@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.semantic.api.test.queryexpressions;
+package io.ballerina.semantic.api.test.expressions;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
@@ -104,29 +105,39 @@ public class QueryExpressionTest {
     @DataProvider(name = "SymbolPosProvider")
     public Object[][] getSymbolPos() {
         return new Object[][]{
-                {27, 30, "s2"},
-                {29, 21, "st"},
-                {27, 14, "students"},
-                {30, 17, "name"}
+                {28, 30, "s2"},
+                {30, 21, "st"},
+                {28, 14, "students"},
+                {31, 17, "fname"},
+                {37, 43, "lname"},
+                {41, 43, "students"},
+                {44, 67, "st"}
         };
     }
 
     @DataProvider(name = "TypeSymbolPosProvider")
     public Object[][] getTypeSymbolPos() {
         return new Object[][]{
-                {27, 30, 27, 32, TYPE_REFERENCE},
-                {29, 21, 29, 23, TYPE_REFERENCE},
-                {23, 24, 23, 29, STRING},
-                {25, 36, 25, 37, INT}
+                {28, 30, 28, 32, TYPE_REFERENCE},
+                {30, 21, 30, 23, TYPE_REFERENCE},
+                {24, 24, 24, 29, STRING},
+                {26, 54, 26, 56, INT},
+                {35, 43, 35, 48, STRING},
+                {42, 39, 42, 41, TYPE_REFERENCE},
+                {44, 14, 44, 18, ARRAY}
         };
     }
 
     @DataProvider(name = "visibleSymbolPosProvider")
     public Object[][] getVisibleSymbolsAtPos() {
         return new Object[][]{
-                {19, 14, 5, asList("testQueryExpression", "Student", "name", "age", "gpa")},
-                {28, 14, 6, asList("testQueryExpression", "Student", "s1", "s2", "s3",
-                        "students")}
+                {20, 14, 6, asList("testQueryExpression", "Student", "fname", "lname", "age", "gpa")},
+                {29, 14, 6, asList("testQueryExpression", "Student", "s1", "s2", "s3",
+                        "students")},
+                {40, 14, 8, asList("testQueryExpression", "Student", "s1", "s2", "s3",
+                        "students", "fullName", "x")},
+                {46, 14, 10, asList("testQueryExpression", "Student", "s1", "s2", "s3",
+                        "students", "fullName", "x", "gpaRanking", "selectedStudents")},
         };
     }
 }
