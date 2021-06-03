@@ -129,6 +129,26 @@ public final class FunctionCompletionItemBuilder {
         return item;
     }
 
+    /**
+     * Creates and returns a completion item.
+     *
+     * @param functionSymbol BSymbol
+     * @param context        LS context
+     * @return {@link CompletionItem}
+     */
+    public static CompletionItem buildMethod(FunctionSymbol functionSymbol, BallerinaCompletionContext context) {
+        CompletionItem item = new CompletionItem();
+        setMeta(item, functionSymbol, context);
+        if (functionSymbol != null) {
+            String funcName = functionSymbol.getName().get();
+            Pair<String, String> functionSignature = getFunctionInvocationSignature(functionSymbol, funcName, context);
+            item.setInsertText("self." + functionSignature.getLeft());
+            item.setLabel("self." + functionSignature.getRight());
+            item.setFilterText("self." + funcName);
+        }
+        return item;
+    }
+
     private static void setMeta(CompletionItem item, FunctionSymbol bSymbol, BallerinaCompletionContext ctx) {
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setDetail(ItemResolverConstants.FUNCTION_TYPE);
