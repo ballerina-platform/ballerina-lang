@@ -2449,7 +2449,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     fieldAccessExpr.isCompoundAssignmentLValue;
         }
 
-        BType varRefType = getTypeOfExprInFieldAccess(containerExpression);
+        BType varRefType = types.getTypeWithEffectiveIntersectionTypes(getTypeOfExprInFieldAccess(containerExpression));
 
         // Disallow `expr.ns:attrname` syntax on non xml expressions.
         if (fieldAccessExpr instanceof BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess
@@ -4804,11 +4804,11 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangQueryExpr queryExpr) {
         if (prevEnvs.empty()) {
-            prevEnvs.push(env.createClone());
+            prevEnvs.push(env);
         } else {
             prevEnvs.push(prevEnvs.peek());
         }
-        queryEnvs.push(prevEnvs.peek().createClone());
+        queryEnvs.push(prevEnvs.peek());
         selectClauses.push(queryExpr.getSelectClause());
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         BLangExpression collectionNode = (BLangExpression) ((BLangFromClause) clauses.get(0)).getCollection();
@@ -4984,11 +4984,11 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangQueryAction queryAction) {
         if (prevEnvs.empty()) {
-            prevEnvs.push(env.createClone());
+            prevEnvs.push(env);
         } else {
             prevEnvs.push(prevEnvs.peek());
         }
-        queryEnvs.push(prevEnvs.peek().createClone());
+        queryEnvs.push(prevEnvs.peek());
         selectClauses.push(null);
         BLangDoClause doClause = queryAction.getDoClause();
         List<BLangNode> clauses = queryAction.getQueryClauses();
@@ -7002,7 +7002,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkIndexAccessExpr(BLangIndexBasedAccess indexBasedAccessExpr) {
-        BType varRefType = indexBasedAccessExpr.expr.type;
+        BType varRefType = types.getTypeWithEffectiveIntersectionTypes(indexBasedAccessExpr.expr.type);
 
         boolean nillableExprType = false;
 

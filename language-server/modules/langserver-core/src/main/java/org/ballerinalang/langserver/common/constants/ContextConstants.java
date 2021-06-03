@@ -27,7 +27,7 @@ public class ContextConstants {
     public static final String TYPE_DEF = "TYPE_DEF";
     public static final String DESCRIPTION = "Description";
     public static final String PARAM_TITLE = "Parameters";
-    public static final String RETURN_TITLE = "Returns";
+    public static final String RETURN_TITLE = "Return";
     public static final String FIELD_TITLE = "Fields";
     public static final String METHOD_TITLE = "Methods";
     public static final String RECEIVER_TITLE = "Receiver";

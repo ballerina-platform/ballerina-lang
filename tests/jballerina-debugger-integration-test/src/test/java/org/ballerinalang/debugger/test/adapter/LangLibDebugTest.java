@@ -58,7 +58,6 @@ public class LangLibDebugTest {
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         Assert.assertTrue(debugHitInfo.getLeft().getSource().getPath().replaceAll("\\\\", "/")
                 .endsWith("ballerina/lang.int/1.1.0/any/modules/lang.int/int.bal"));
-        Assert.assertEquals(debugHitInfo.getLeft().getDAPBreakPoint().getLine(), 86);
 
         // Next breakpoint.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
@@ -70,7 +69,6 @@ public class LangLibDebugTest {
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         Assert.assertTrue(debugHitInfo.getLeft().getSource().getPath().replaceAll("\\\\", "/")
                 .endsWith("ballerina/lang.float/1.0.0/any/modules/lang.float/float.bal"));
-        Assert.assertEquals(debugHitInfo.getLeft().getDAPBreakPoint().getLine(), 123);
     }
 
     @AfterMethod(alwaysRun = true)

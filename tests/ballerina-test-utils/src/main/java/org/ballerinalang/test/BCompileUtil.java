@@ -65,7 +65,7 @@ public class BCompileUtil {
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
 
         BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
-        return ProjectLoader.loadProject(projectPath, buildOptionsBuilder.taintCheck(Boolean.TRUE).build());
+        return ProjectLoader.loadProject(projectPath, buildOptionsBuilder.build());
     }
 
     public static CompileResult compile(String sourceFilePath) {
