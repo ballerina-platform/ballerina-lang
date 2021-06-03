@@ -70,7 +70,7 @@ public class ExprBodiedFunctionTest {
         Assert.assertEquals(result.getErrorCount(), index);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testTaintChecking() {
         CompileResult result = BCompileUtil.compile("test-src/functions/expr_bodied_functions_taint.bal");
         int index = 0;

@@ -26,7 +26,6 @@ import org.ballerinalang.maven.MavenResolver;
 import org.ballerinalang.maven.Utils;
 import org.ballerinalang.maven.exceptions.MavenResolverException;
 
-import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,8 +59,7 @@ public class ResolveMavenDependenciesTask implements Task {
             return;
         }
 
-        String targetRepo = project.sourceRoot().toString() + File.separator + "target" + File.separator
-                + "platform-libs";
+        String targetRepo = project.sourceRoot().resolve("target").resolve("platform-libs").toAbsolutePath().toString();
         MavenResolver resolver = new MavenResolver(targetRepo);
 
         for (Map<String, Object> repository : platformRepositories) {

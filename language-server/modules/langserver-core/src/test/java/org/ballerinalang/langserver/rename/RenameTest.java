@@ -81,7 +81,9 @@ public class RenameTest {
                 {"rename_on_fail.json", "myVarName"},
                 {"rename_within_service1.json", "ep1"},
                 {"rename_within_service2.json", "baz"},
-                {"rename_within_service3.json", "baz"}
+                {"rename_within_service3.json", "baz"},
+                {"rename_enum.json", "Color"},
+                {"rename_enum_member.json", "DARK_RED"}
         };
     }
 

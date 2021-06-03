@@ -90,6 +90,7 @@ public class HoverUtil {
             case ANNOTATION:
             case ENUM:
             case ENUM_MEMBER:
+            case CLASS_FIELD:
             case VARIABLE:
                 return getDescriptionOnlyHoverObject(symbol);
             case TYPE:
@@ -309,9 +310,10 @@ public class HoverUtil {
             hoverContent.add(String.join(CommonUtil.MD_LINE_SEPARATOR, params));
         }
         if (documentation.get().returnDescription().isPresent()) {
+            TypeSymbol returnTypeDesc = symbol.typeDescriptor().returnTypeDescriptor().orElseThrow();
+            String returnTypeName = quotedString(CommonUtil.getModifiedTypeName(ctx, returnTypeDesc));
             String returnDoc = header(3, ContextConstants.RETURN_TITLE) + CommonUtil.MD_LINE_SEPARATOR +
-                    CommonUtil.getModifiedTypeName(ctx, symbol.typeDescriptor().returnTypeDescriptor().orElseThrow())
-                    + documentation.get().returnDescription().get();
+                    returnTypeName + " : " + documentation.get().returnDescription().get();
             hoverContent.add(returnDoc);
         }
 

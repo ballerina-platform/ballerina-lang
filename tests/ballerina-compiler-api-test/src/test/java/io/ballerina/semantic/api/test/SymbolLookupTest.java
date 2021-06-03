@@ -261,39 +261,40 @@ public class SymbolLookupTest {
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
 
         Map<String, Symbol> symbolsForWhere = getSymbolsInFile(model, srcFile, 22, 21, moduleID);
-        assertList(symbolsForWhere, Arrays.asList("test", "arr1", "arr2", "i", "j"));
+        assertList(symbolsForWhere, Arrays.asList("test", "arr1", "arr2", "i", "j", "res1"));
 
         Map<String, Symbol> symbolsForSelect = getSymbolsInFile(model, srcFile, 28, 21, moduleID);
-        assertList(symbolsForSelect, Arrays.asList("test", "arr1", "arr2", "i", "j", "stringVal", "intVal", "res1"));
+        assertList(symbolsForSelect, Arrays.asList("intVal", "test", "res1", "stringVal", "res2", "i", "j", "arr2",
+                "arr1"));
 
         Map<String, Symbol> symbolsForQueryAct = getSymbolsInFile(model, srcFile, 31, 20, moduleID);
-        assertList(symbolsForQueryAct, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "ii"));
+        assertList(symbolsForQueryAct, Arrays.asList("ii", "test", "res1", "res3", "res2", "arr2", "arr1"));
 
         Map<String, Symbol> symbolsForJoinLHS = getSymbolsInFile(model, srcFile, 36, 20, moduleID);
-        assertList(symbolsForJoinLHS, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "i"));
-
+        assertList(symbolsForJoinLHS, Arrays.asList("test", "res1", "res3", "res2", "i", "arr2", "arr1"));
+ 
         Map<String, Symbol> symbolsForJoinRHS = getSymbolsInFile(model, srcFile, 36, 28, moduleID);
-        assertList(symbolsForJoinRHS, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "j"));
+        assertList(symbolsForJoinRHS, Arrays.asList("test", "res1", "res3", "res2", "j", "arr2", "arr1"));
 
         Map<String, Symbol> symbolsForOrderBy = getSymbolsInFile(model, srcFile, 44, 25, moduleID);
-        assertList(symbolsForOrderBy, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "res4", "p1",
-                "p2", "personList", "p"));
+        assertList(symbolsForOrderBy, Arrays.asList("res5", "p", "res4", "p1", "p2", "personList", "test", "res1",
+                "res3", "res2", "arr2", "arr1"));
 
         Map<String, Symbol> symbolsForNestedFrom1 = getSymbolsInFile(model, srcFile, 48, 42, moduleID);
-        assertList(symbolsForNestedFrom1, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "res4", "res5",
-                "p1", "p2", "personList", "k"));
-
+        assertList(symbolsForNestedFrom1, Arrays.asList("res5", "res4", "p1", "p2", "personList", "res6", "test",
+                "res1", "res3", "res2", "k", "arr2", "arr1"));
+ 
         Map<String, Symbol> symbolsForNestedFrom2 = getSymbolsInFile(model, srcFile, 49, 23, moduleID);
-        assertList(symbolsForNestedFrom2, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "res4", "res5",
-                "p1", "p2", "personList", "i"));
-
+        assertList(symbolsForNestedFrom2, Arrays.asList("res5", "res4", "p1", "p2", "personList", "res6", "test",
+                "res1", "res3", "res2", "i", "arr2", "arr1"));
+ 
         Map<String, Symbol> symbolsForNestedFrom3 = getSymbolsInFile(model, srcFile, 53, 58, moduleID);
-        assertList(symbolsForNestedFrom3, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "res4", "res5",
-                "res6", "p1", "p2", "personList", "m"));
+        assertList(symbolsForNestedFrom3, Arrays.asList("res5", "res4", "p1", "res7", "p2", "personList", "res6",
+                "test", "res1", "res3", "res2", "m", "arr2", "arr1"));
 
         Map<String, Symbol> symbolsForNestedFrom4 = getSymbolsInFile(model, srcFile, 53, 64, moduleID);
-        assertList(symbolsForNestedFrom4, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "res4", "res5",
-                "res6", "p1", "p2", "personList", "ii"));
+        assertList(symbolsForNestedFrom4, Arrays.asList("res5", "ii", "res4", "p1", "p2", "personList", "res6",
+                "test", "res1", "res3", "res2", "arr2", "arr1"));
     }
 
     @Test

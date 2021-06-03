@@ -1210,7 +1210,12 @@ public class BallerinaParser extends AbstractParser {
                 return parseFuncDefOrFuncTypeDescRhs(metadata, visibilityQualifier, qualifiers, functionKeyword, name,
                                                      isObjectMember, isObjectTypeDesc);
             case OPEN_PAREN_TOKEN:
+                switchContext(ParserRuleContext.VAR_DECL_STMT);
+                startContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
+                startContext(ParserRuleContext.FUNC_TYPE_DESC);
                 STNode funcSignature = parseFuncSignature(true);
+                endContext();
+                endContext();
                 return parseFunctionTypeDescRhs(metadata, visibilityQualifier, qualifiers, functionKeyword,
                         funcSignature, isObjectMember, isObjectTypeDesc);
             default:
@@ -1627,7 +1632,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Treat as function definition.
-
+        switchContext(ParserRuleContext.FUNC_DEF);
         // We reach this method only if the func-name is not present.
         STNode name = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
                 DiagnosticErrorCode.ERROR_MISSING_FUNCTION_NAME);
@@ -2234,8 +2239,8 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createEmptyNode();
             case RETURNS_KEYWORD:
                 break;
-            case IDENTIFIER_TOKEN: // function foo() r<cursor>
-                if (!isFuncTypeDesc) {
+            case IDENTIFIER_TOKEN: // function foo() r<cursor> and function foo() returns function() r<cursor>
+                if (!isFuncTypeDesc || isSafeMissingReturnsParse()) {
                     break;    
                 }
                 // fall through
@@ -2252,6 +2257,32 @@ public class BallerinaParser extends AbstractParser {
         STNode annot = parseOptionalAnnotations();
         STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RETURN_TYPE_DESC);
         return STNodeFactory.createReturnTypeDescriptorNode(returnsKeyword, annot, type);
+    }
+
+    private boolean isSafeMissingReturnsParse() {
+        for (ParserRuleContext context : this.errorHandler.getContextStack()) {
+            if (!isSafeMissingReturnsParseCtx(context)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isSafeMissingReturnsParseCtx(ParserRuleContext ctx) {
+        switch (ctx) {
+            case TYPE_DESC_IN_ANNOTATION_DECL:
+            case TYPE_DESC_BEFORE_IDENTIFIER:
+            case TYPE_DESC_IN_RECORD_FIELD:
+            case TYPE_DESC_IN_PARAM:
+            case TYPE_DESC_IN_TYPE_BINDING_PATTERN:
+            case VAR_DECL_STARTED_WITH_DENTIFIER:
+            case TYPE_DESC_IN_PATH_PARAM:
+            case AMBIGUOUS_STMT:
+                // Contexts that expect an identifier after function type are not safe to parse as a missing return type
+                return false;
+            default:
+                return true;
+        }
     }
 
     /**
@@ -3566,8 +3597,7 @@ public class BallerinaParser extends AbstractParser {
                         break;
                     }
                     recordRestDescriptor = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(recordRestDescriptor,
-                            invalidField,
-                            DiagnosticErrorCode.ERROR_MORE_RECORD_FIELDS_AFTER_REST_FIELD);
+                            invalidField, DiagnosticErrorCode.ERROR_MORE_RECORD_FIELDS_AFTER_REST_FIELD);
                     token = peek();
                 }
                 break;
@@ -8812,7 +8842,10 @@ public class BallerinaParser extends AbstractParser {
             // Parse attach point. Null represents the end of attach-points.
             attachPoint = parseAnnotationAttachPoint();
             if (attachPoint == null) {
-                attachPoint = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                STToken missingAttachPointIdent = SyntaxErrors.createMissingToken(SyntaxKind.TYPE_KEYWORD);
+                STNode identList = STNodeFactory.createNodeList(missingAttachPointIdent);
+                attachPoint = STNodeFactory.createAnnotationAttachPointNode(STNodeFactory.createEmptyNode(), identList);
+                attachPoint = SyntaxErrors.addDiagnostic(attachPoint,
                         DiagnosticErrorCode.ERROR_MISSING_ANNOTATION_ATTACH_POINT);
                 attachPoints.add(attachPoint);
                 break;
@@ -8820,6 +8853,15 @@ public class BallerinaParser extends AbstractParser {
 
             attachPoints.add(attachPoint);
             nextToken = peek();
+        }
+        
+        if (attachPoint.lastToken().isMissing() && this.tokenReader.peek().kind == SyntaxKind.IDENTIFIER_TOKEN &&
+                !this.tokenReader.head().hasTrailingNewline()) {
+            // Special case, when annotation-decl is in typing state.
+            // e.g. annotation name on source object f<cursor>
+            STToken nextNonVirtualToken = this.tokenReader.read();
+            updateLastNodeInListWithInvalidNode(attachPoints, nextNonVirtualToken,
+                    DiagnosticErrorCode.ERROR_INVALID_TOKEN);
         }
 
         endContext();

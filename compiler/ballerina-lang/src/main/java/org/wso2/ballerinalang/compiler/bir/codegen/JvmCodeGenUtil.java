@@ -148,7 +148,10 @@ public class JvmCodeGenUtil {
     }
 
     private static String cleanupBalExt(String name) {
-        return name.replace(BAL_EXTENSION, "");
+        if (name.endsWith(BAL_EXTENSION)) {
+            return name.substring(0, name.length() - 4); // 4 = BAL_EXTENSION.length
+        }
+        return name;
     }
 
     public static String getFieldTypeSignature(BType bType) {
