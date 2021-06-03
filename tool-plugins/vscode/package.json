@@ -1,6 +1,6 @@
 {
     "name": "ballerina",
-    "displayName": "Ballerina",
+    "displayName": "Ballerina (Deprecated)",
     "description": "Language Intelligence, Diagram View, Debugging, code formatting and refactoring for Ballerina",
     "version": "1.2.14",
     "publisher": "ballerina",
