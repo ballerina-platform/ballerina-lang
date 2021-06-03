@@ -79,7 +79,8 @@ public class ForeachCompletionUtil {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (!isInBlockContext(expr) || !ITERABLES.contains(CommonUtil.getRawType(typeSymbol).typeKind())
                 || !(expr.expression().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
-                expr.expression().kind() == SyntaxKind.FUNCTION_CALL)) {
+                expr.expression().kind() == SyntaxKind.FUNCTION_CALL ||
+                expr.expression().kind() == SyntaxKind.FIELD_ACCESS)) {
             return completionItems;
         }
         completionItems.addAll(getForEachCompletionItems(ctx, expr, typeSymbol));
@@ -110,11 +111,10 @@ public class ForeachCompletionUtil {
         textEdits.add(textEdit);
 
         String symbolName;
-        if (expr.expression().kind() == SyntaxKind.FUNCTION_CALL) {
-            symbolName = expr.expression().toSourceCode().trim();
-            //todo: Trim for arguments as well
-        } else {
+        if (expr.expression().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             symbolName = ((SimpleNameReferenceNode) expr.expression()).name().text();
+        } else {
+            symbolName = expr.expression().toSourceCode().trim();
         }
 
         completionItems.add(new StaticCompletionItem(ctx,

@@ -233,8 +233,6 @@ public class JvmTypeGen {
      * @param typeDefs array of type definitions
      */
     void generateUserDefinedTypeFields(ClassWriter cw, List<BIRTypeDefinition> typeDefs) {
-
-        String fieldName;
         // create the type
         for (BIRTypeDefinition typeDef : typeDefs) {
             BType bType = typeDef.type;

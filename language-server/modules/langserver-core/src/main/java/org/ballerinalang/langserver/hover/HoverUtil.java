@@ -86,6 +86,8 @@ public class HoverUtil {
                 return getTypeDefHoverMarkupContent((TypeDefinitionSymbol) symbol, context);
             case CLASS:
                 return getClassHoverMarkupContent((ClassSymbol) symbol, context);
+            case OBJECT_FIELD:
+            case RECORD_FIELD:
             case CONSTANT:
             case ANNOTATION:
             case ENUM:
