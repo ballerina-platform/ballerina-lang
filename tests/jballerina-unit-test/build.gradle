@@ -60,7 +60,6 @@ dependencies {
     distributionBala project(path: ':ballerina-observability-internal', configuration: 'distributionBala')
 
 //    balaTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-runtime-api', configuration: 'balaImplementation')
 //    balaTestImplementation project(path: ':ballerina-io', configuration: 'balaImplementation')
 ////    balaTestImplementation project(path: ':ballerina-transactions', configuration: 'balaImplementation')
 ////    balaTestImplementation project(path: ':ballerina-http', configuration: 'balaImplementation')
