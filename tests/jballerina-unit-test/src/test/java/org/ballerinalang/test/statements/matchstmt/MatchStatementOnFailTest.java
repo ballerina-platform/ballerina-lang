@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.statements.matchstmt;
 
+import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.BAssertUtil;
@@ -118,6 +119,16 @@ public class MatchStatementOnFailTest {
         Assert.assertEquals(results.getString(++i), msg + "'Default'");
         Assert.assertEquals(results.getString(++i), msg + "'15 & 34'");
         Assert.assertEquals(results.getString(++i), msg + "'true'");
+    }
+
+    @Test(description = "Test on fail clause within match clause")
+    public void testDoOnfailWithinMatch() {
+
+        BValue[] returns = BRunUtil.invoke(result, "testDoOnfailWithinMatch", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "-> error caught at inner onfail "
+                + "because of Custom Error, -> error caught at outer onfail because of re-throw");
     }
 
     @Test(description = "Check not incompatible types and reachable statements.")

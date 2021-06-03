@@ -225,6 +225,26 @@ function barWithCheck(string | int | boolean a, string | int | boolean b) return
         return "Value is 'Default'";
 }
 
+const DECIMAL_NUMBER = 2;
+
+function testDoOnfailWithinMatch() returns string {
+    string str = "";
+    var dataEntry = [2, "10"];
+    match dataEntry {
+        [DECIMAL_NUMBER, var digits] => {
+            do {
+                string val = check getError();
+            } on fail error cause {
+                str += "-> error caught at inner onfail because of " + cause.message() + ", ";
+                fail error("re-throw");
+            }
+        }
+    } on fail error cause {
+        str += "-> error caught at outer onfail because of " + cause.message();
+    }
+    return str;
+}
+
 public function println(any|error... values) = @java:Method {
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
