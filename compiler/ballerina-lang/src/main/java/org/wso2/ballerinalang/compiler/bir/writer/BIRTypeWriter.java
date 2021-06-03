@@ -146,12 +146,12 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     private void writeTypeIds(BTypeIdSet typeIdSet) {
-        buff.writeInt(typeIdSet.primary.size());
-        for (BTypeIdSet.BTypeId bTypeId : typeIdSet.primary) {
+        buff.writeInt(typeIdSet.getPrimary().size());
+        for (BTypeIdSet.BTypeId bTypeId : typeIdSet.getPrimary()) {
             writeTypeId(bTypeId);
         }
-        buff.writeInt(typeIdSet.secondary.size());
-        for (BTypeIdSet.BTypeId bTypeId : typeIdSet.secondary) {
+        buff.writeInt(typeIdSet.getSecondary().size());
+        for (BTypeIdSet.BTypeId bTypeId : typeIdSet.getSecondary()) {
             writeTypeId(bTypeId);
         }
     }

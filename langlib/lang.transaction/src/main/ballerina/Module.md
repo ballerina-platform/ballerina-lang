@@ -1,3 +1,3 @@
 ## Module Overview
 
-This module provides lang library operations on `transaction`s.
+The `lang.transaction` module supports transactions.

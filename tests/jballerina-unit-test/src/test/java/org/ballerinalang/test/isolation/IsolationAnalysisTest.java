@@ -27,6 +27,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
 
 /**
  * Test cases related to isolation analysis.
@@ -146,13 +147,9 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 101, 22);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 105, 25);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 124, 17);
-        validateError(result, i++, "invalid reference to 'self' outside a 'lock' statement in an 'isolated' object",
-                      128, 9);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 129, 28);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 133, 17);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 139, 17);
-        validateError(result, i++, "invalid reference to 'self' outside a 'lock' statement in an 'isolated' object",
-                      143, 9);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 144, 28);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 148, 17);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 155, 20);
@@ -193,10 +190,15 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 227, 73);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 253, 27);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 254, 17);
+        validateWarning(result, i++, "concurrent calls will not be made to this method since the service is not an " +
+                "'isolated' service", 258, 5);
+        validateWarning(result, i++, "concurrent calls will not be made to this method since the service is not an " +
+                "'isolated' service", 263, 5);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 271, 14);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 272, 14);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 273, 14);
-        Assert.assertEquals(result.getErrorCount(), i);
+        Assert.assertEquals(result.getErrorCount(), i - 2);
+        Assert.assertEquals(result.getDiagnostics().length, i);
     }
 
     @Test

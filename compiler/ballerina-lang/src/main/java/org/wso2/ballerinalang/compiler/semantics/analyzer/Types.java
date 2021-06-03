@@ -1955,6 +1955,32 @@ public class Types {
         return unionType.getMemberTypes().iterator().next();
     }
 
+    public BType getTypeWithEffectiveIntersectionTypes(BType type) {
+        if (type.tag == TypeTags.INTERSECTION) {
+            type = ((BIntersectionType) type).effectiveType;
+        }
+
+        if (type.tag != TypeTags.UNION) {
+            return type;
+        }
+
+        LinkedHashSet<BType> members = new LinkedHashSet<>();
+        boolean hasDifferentMember = false;
+
+        for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+            BType effectiveType = getTypeWithEffectiveIntersectionTypes(memberType);
+            if (effectiveType != memberType) {
+                hasDifferentMember = true;
+            }
+            members.add(effectiveType);
+        }
+
+        if (hasDifferentMember) {
+            return BUnionType.create(null, members);
+        }
+        return type;
+    }
+
     /**
      * Enum to represent type test result.
      *
@@ -4090,6 +4116,9 @@ public class Types {
     }
 
     private BType getIntersection(IntersectionContext intersectionContext, BType lhsType, SymbolEnv env, BType type) {
+        lhsType = getEffectiveTypeForIntersection(lhsType);
+        type = getEffectiveTypeForIntersection(type);
+
         if (intersectionContext.preferNonGenerativeIntersection) {
             if (isAssignable(type, lhsType)) {
                 return type;
@@ -4217,6 +4246,18 @@ public class Types {
             return type;
         }
         return null;
+    }
+
+    private BType getEffectiveTypeForIntersection(BType type) {
+        if (type.tag != TypeTags.INTERSECTION) {
+            return type;
+        }
+
+        BType effectiveType = ((BIntersectionType) type).effectiveType;
+
+        // Don't return a cyclic type as the effective type due to
+        // https://github.com/ballerina-platform/ballerina-lang/issues/30681.
+        return effectiveType.tag == TypeTags.UNION && ((BUnionType) effectiveType).isCyclic ? type : effectiveType;
     }
 
     private boolean isAnydataOrJson(BType type) {

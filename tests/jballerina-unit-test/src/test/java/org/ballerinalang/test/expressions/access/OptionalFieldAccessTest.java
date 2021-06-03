@@ -47,7 +47,6 @@ public class OptionalFieldAccessTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 12);
         int i = 0;
         validateError(negativeResult, i++, "invalid operation: type 'Foo' does not support optional field access",
                       23, 19);
@@ -67,8 +66,15 @@ public class OptionalFieldAccessTest {
                 , 9);
         validateError(negativeResult, i++, "invalid operation: type 'string[]' does not support optional field access",
                       91, 9);
-        validateError(negativeResult, i, "invalid operation: type 'Address?' does not support optional field access " +
-                        "for field 'road'", 120, 18);
+        validateError(negativeResult, i++, "invalid operation: type 'Address?' does not support optional field access" +
+                " for field 'road'", 120, 18);
+        validateError(negativeResult, i++, "invalid operation: type '((Baz & readonly)|int[] & readonly)?' does not " +
+                "support optional field access", 140, 14);
+        validateError(negativeResult, i++, "invalid operation: type '((Baz & readonly)|int[] & readonly)?' does not " +
+                "support optional field access", 141, 14);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int?'", 144, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int?'", 145, 17);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test(dataProvider = "recordOptionalFieldAccessFunctions")
@@ -158,5 +164,10 @@ public class OptionalFieldAccessTest {
     @Test
     public void testOptionalFieldAccessOnMethodCall() {
         BRunUtil.invoke(result, "testOptionalFieldAccessOnMethodCall");
+    }
+
+    @Test
+    public void testNestedOptionalFieldAccessOnIntersectionTypes() {
+        BRunUtil.invoke(result, "testNestedOptionalFieldAccessOnIntersectionTypes");
     }
 }
