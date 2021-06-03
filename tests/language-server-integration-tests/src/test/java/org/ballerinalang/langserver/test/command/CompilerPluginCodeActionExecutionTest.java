@@ -20,7 +20,6 @@ import org.ballerinalang.langserver.command.AbstractCommandExecutionTest;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.test.BCompileUtil;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -67,10 +66,5 @@ public class CompilerPluginCodeActionExecutionTest extends AbstractCommandExecut
     @Override
     protected String getSourceRoot() {
         return "compiler-plugins";
-    }
-
-    @AfterClass
-    public void tearDown() {
-        BCompileUtil.clearCachedBala("compiler_plugin_tests/package_comp_plugin_with_codeactions");
     }
 }

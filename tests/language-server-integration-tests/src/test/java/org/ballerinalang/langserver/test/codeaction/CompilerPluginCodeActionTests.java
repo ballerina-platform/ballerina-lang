@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.test.codeaction;
 import org.ballerinalang.langserver.codeaction.AbstractCodeActionTest;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.test.BCompileUtil;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -52,10 +51,5 @@ public class CompilerPluginCodeActionTests extends AbstractCodeActionTest {
     @Override
     public String getResourceDir() {
         return "compiler-plugins";
-    }
-
-    @AfterClass
-    public void tearDown() {
-        BCompileUtil.clearCachedBala("compiler_plugin_tests/package_comp_plugin_with_codeactions");
     }
 }
