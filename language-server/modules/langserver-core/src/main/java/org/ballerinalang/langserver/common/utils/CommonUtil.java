@@ -1285,4 +1285,21 @@ public class CommonUtil {
         return classSymbol.equals(varTypeSymbol);
     }
 
+   /**
+     * Check if the cursor is positioned in a lock statement node context.
+     *
+     * @param context Completion context.
+     * @return {@link Boolean} Whether the cursor is in lock statement node context.
+     */
+    public static Boolean withinLockStatementNode(BallerinaCompletionContext context) {
+        NonTerminalNode evalNode = context.getNodeAtCursor();
+        do {
+            if (evalNode.kind() == SyntaxKind.LOCK_STATEMENT) {
+                return true;
+            }
+            evalNode = evalNode.parent();
+        }
+        while (evalNode != null);
+        return false;
+    }
 }
