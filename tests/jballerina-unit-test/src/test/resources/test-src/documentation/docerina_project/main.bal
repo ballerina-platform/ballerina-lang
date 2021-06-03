@@ -1,6 +1,12 @@
 import docerina_project.world as prj;
 import ballerina/lang.'int as ints;
 
+# Docs for tuple module variable.
+public [int, float] [a, b] = [1, 1.5];
+
+# A public variable of string type
+public string pubString = "123";
+
 public type Coordinates record {|
     decimal latitude;
     decimal longitude;
