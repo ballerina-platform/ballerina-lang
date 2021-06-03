@@ -60,8 +60,7 @@ public class BCompileUtil {
 
     public static Project loadProject(String sourceFilePath) {
         BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
-        BuildOptions buildOptions = buildOptionsBuilder.taintCheck(Boolean.TRUE).build();
-        return loadProject(sourceFilePath, buildOptions);
+        return loadProject(sourceFilePath, buildOptionsBuilder.build());
     }
 
     public static Project loadProject(String sourceFilePath, BuildOptions buildOptions) {
@@ -90,7 +89,7 @@ public class BCompileUtil {
 
     public static CompileResult compileOffline(String sourceFilePath) {
         BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
-        BuildOptions buildOptions = buildOptionsBuilder.taintCheck(Boolean.TRUE).offline(Boolean.TRUE).build();
+        BuildOptions buildOptions = buildOptionsBuilder.offline(Boolean.TRUE).build();
         Project project = loadProject(sourceFilePath, buildOptions);
 
         Package currentPackage = project.currentPackage();
