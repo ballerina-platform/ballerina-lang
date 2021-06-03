@@ -5135,6 +5135,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BType typeOfExprWithCheckingKeyword;
         if (expType == symTable.noType) {
             typeOfExprWithCheckingKeyword = symTable.noType;
+        } else if (expType.tag == TypeTags.UNION && types.getErrorType((BUnionType) expType) != null) {
+            typeOfExprWithCheckingKeyword = expType;
         } else {
             typeOfExprWithCheckingKeyword = BUnionType.create(null, expType, symTable.errorType);
         }
