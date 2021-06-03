@@ -378,21 +378,29 @@ function testFutureCastPositive() returns boolean {
 function testFutureCastNegative() {
     future<int> s1 = start testFutureFunc();
     any a = s1;
-    future<int[]> s2 = <future<int[]>> a;
-}
+    future<int[]>|error s2 = trap <future<int[]>> a;
 
-function testCastOfIntArrayFutureNegative() {
-    future<int[]> f1 = start futureFunc();
-    any a = f1;
-    future<int[5]>|error f2 = trap <future<int[5]>> a;
-
-    assertEquality(true, f2 is error);
-    error err = <error> f2;
+    assertEquality(true, s2 is error);
+    error err = <error> s2;
     assertEquality("{ballerina}TypeCastError", err.message());
-    assertEquality("incompatible types: 'future<int[]>' cannot be cast to 'future<int[5]>'", <string> checkpanic err.detail()["message"]);
+    assertEquality("incompatible types: 'future<int>' cannot be cast to 'future<int[]>'", <string> checkpanic err.detail()["message"]);
 }
 
-function futureFunc() returns int[] => [1, 2, 3, 4];
+function foo() returns future<int> {
+    future<int> f = start testFutureFunc();
+    return f;
+}
+
+function testFutureOfFutureValueCastNegative() {
+    future<future<int>> s = start foo();
+    any a = s;
+    future<future<int[]>>|error res = trap <future<future<int[]>>> a;
+
+    assertEquality(true, res is error);
+    error err = <error> res;
+    assertEquality("{ballerina}TypeCastError", err.message());
+    assertEquality("incompatible types: 'future<future<int>>' cannot be cast to 'future<future<int[]>>'", <string> checkpanic err.detail()["message"]);
+}
 
 function testObjectCastPositive() returns boolean {
     EmployeeObject e = new("Em Zee");
