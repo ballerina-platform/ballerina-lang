@@ -43,6 +43,7 @@ import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.NewExpressionNode;
@@ -176,6 +177,11 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(VariableDeclarationNode node) {
+        return this.visit(node.typedBindingPattern().bindingPattern());
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(ModuleVariableDeclarationNode node) {
         return this.visit(node.typedBindingPattern().bindingPattern());
     }
 
