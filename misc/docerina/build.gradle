@@ -47,7 +47,6 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.7'
     implementation 'org.slf4j:slf4j-api'
     distBal project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')
-    distBal project(path: ':ballerina-io', configuration: 'balaImplementation')
 
     testImplementation 'org.testng:testng'
     testImplementation 'org.slf4j:slf4j-jdk14'
