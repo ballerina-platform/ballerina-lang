@@ -116,6 +116,26 @@ function testModificationAfterSliceOfReadonlyRecordArray() {
     assertValueEquality([{name: "Jane Doe", age: 27, designation: "UX Engineer"}], s);
 }
 
+type Person2 record {
+    int id;
+    string name;
+    int age;
+};
+
+type Student2 record {
+    int id;
+    string name;
+    string school;
+    float average;
+};
+
+function testSliceOfIntersectionOfReadonlyRecordArray() {
+    readonly & (readonly & Person2 & Student2)[] ps = [{id: 16158, name: "Arun", age: 12, average: 89.9, school: "JHC"}];
+    (readonly & Person2 & Student2)[] s = ps.slice(0);
+    s[0] = {id: 175149, name: "Roy", age: 12, school: "RC", average: 84.9};
+    assertValueEquality([{id: 175149, name: "Roy", age: 12, school: "RC", average: 84.9}], s);
+}
+
 function testPushAfterSlice() returns [int, int, float[]] {
      float[] arr = [12.34, 23.45, 34.56, 45.67, 56.78];
      float[] s = arr.slice(1, 4);

@@ -41,9 +41,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
@@ -822,13 +824,18 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 slicedArray = new ArrayValueImpl(new BString[slicedSize], false);
                 System.arraycopy(bStringValues, (int) startIndex, slicedArray.bStringValues, 0, slicedSize);
                 break;
+            case TypeTags.INTERSECTION_TAG:
+                List<Type> constituentTypes = ((BIntersectionType) this.elementType).getConstituentTypes();
+                List<Type> slicedArrayElementTypes = constituentTypes.stream()
+                                        .filter(arrayElementType -> arrayElementType.getTag() != TypeTags.READONLY_TAG)
+                                        .collect(Collectors.toList());
+                Type slicedArrayElementType = (slicedArrayElementTypes.size() != 1) ?
+                        ((BIntersectionType) slicedArrayElementTypes).getEffectiveType() :
+                        slicedArrayElementTypes.get(0);
+                slicedArray = new ArrayValueImpl(new Object[slicedSize], new BArrayType(slicedArrayElementType));
+                System.arraycopy(refValues, (int) startIndex, slicedArray.refValues, 0, slicedSize);
+                break;
             default:
-                if (this.elementType.getTag() == TypeTags.INTERSECTION_TAG) {
-                    Type slicedArrayElementType = ((BIntersectionType) this.elementType).getConstituentTypes().get(0);
-                    slicedArray = new ArrayValueImpl(new Object[slicedSize], new BArrayType(slicedArrayElementType));
-                    System.arraycopy(refValues, (int) startIndex, slicedArray.refValues, 0, slicedSize);
-                    break;
-                }
                 slicedArray = new ArrayValueImpl(new Object[slicedSize], new BArrayType(this.elementType));
                 System.arraycopy(refValues, (int) startIndex, slicedArray.refValues, 0, slicedSize);
                 break;

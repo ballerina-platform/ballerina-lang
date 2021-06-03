@@ -151,6 +151,7 @@ public class LangLibArrayTest {
                 {"testModificationAfterSliceOfReadonlyByteArray"},
                 {"testModificationAfterSliceOfReadonlyFloatArray"},
                 {"testModificationAfterSliceOfReadonlyRecordArray"},
+                {"testSliceOfIntersectionOfReadonlyRecordArray"},
                 {"testPushAfterSliceOfReadonlyMapArray"}
         };
     }
