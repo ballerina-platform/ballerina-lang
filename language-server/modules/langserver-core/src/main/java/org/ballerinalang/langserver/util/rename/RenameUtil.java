@@ -210,7 +210,6 @@ public class RenameUtil {
                                                                              ImportDeclarationNode importDeclaration,
                                                                              String newName) {
         Map<Module, List<Location>> locationMap = ReferencesUtil.getReferences(context);
-        Path projectRoot = context.workspace().projectRoot(context.filePath());
         Map<String, List<TextEdit>> changes = new HashMap<>();
 
         // Filter location map for refs in same doc
@@ -220,7 +219,7 @@ public class RenameUtil {
                     Module module = moduleLocations.getKey();
                     List<Location> locations = moduleLocations.getValue();
                     locations.forEach(location -> {
-                        String fileUri = ReferencesUtil.getUriFromLocation(module, location, projectRoot);
+                        String fileUri = ReferencesUtil.getUriFromLocation(module, location);
                         // If within the same file
                         if (!context.fileUri().equals(fileUri)) {
                             return;
@@ -248,7 +247,6 @@ public class RenameUtil {
                                                                         NonTerminalNode nodeAtCursor,
                                                                         String newName) {
         Map<Module, List<Location>> locationMap = ReferencesUtil.getReferences(context);
-        Path projectRoot = context.workspace().projectRoot(context.filePath());
 
         Map<String, List<TextEdit>> changes = new HashMap<>();
         // Filter location map for refs in same doc
@@ -258,7 +256,7 @@ public class RenameUtil {
                     Module module = moduleLocations.getKey();
                     List<Location> locations = moduleLocations.getValue();
                     locations.forEach(location -> {
-                        String fileUri = ReferencesUtil.getUriFromLocation(module, location, projectRoot);
+                        String fileUri = ReferencesUtil.getUriFromLocation(module, location);
                         // If within the same file
                         if (!context.fileUri().equals(fileUri)) {
                             return;
