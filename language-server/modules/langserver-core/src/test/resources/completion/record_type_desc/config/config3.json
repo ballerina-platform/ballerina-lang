@@ -92,6 +92,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "TestEnum1",
+      "kind": "Enum",
+      "detail": "enum",
+      "sortText": "I",
+      "insertText": "TestEnum1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TestClass1",
       "kind": "Interface",
       "detail": "Class",

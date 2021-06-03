@@ -5474,11 +5474,12 @@ public class TypeChecker extends BLangNodeVisitor {
         SymbolEnv cEnv = env;
         while (node != null && node.getKind() != NodeKind.FUNCTION) {
             if (node.getKind() == NodeKind.ON_FAIL) {
+                BLangOnFailClause onFailClause = (BLangOnFailClause) node;
                 SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
                 BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
                         SymTag.VARIABLE);
-                if (resolvedSymbol != symTable.notFoundSymbol) {
-                    resolvedSymbol.closure = true;
+                if (resolvedSymbol != symTable.notFoundSymbol && !resolvedSymbol.closure) {
+                    onFailClause.possibleClosureSymbols.add(resolvedSymbol);
                 }
                 break;
             } else {

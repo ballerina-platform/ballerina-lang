@@ -20,7 +20,6 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 configurations {
     dist {
         transitive true
-        exclude group: 'org.apache.servicemix.bundles', module: 'org.apache.servicemix.bundles.commons-beanutils'
         exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
         exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-log4j2'
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'

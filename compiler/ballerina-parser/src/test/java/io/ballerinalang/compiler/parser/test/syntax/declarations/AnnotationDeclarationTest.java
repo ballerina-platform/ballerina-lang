@@ -76,8 +76,9 @@ public class AnnotationDeclarationTest extends AbstractDeclarationTest {
     }
     
     @Test
-    public void testInvalidAttachPointIdent() {
+    public void testInvalidOrIncompleteAttachPointIdent() {
         testFile("annot-decl/annot_decl_source_10.bal", "annot-decl/annot_decl_assert_10.json");
         test("annot-decl/annot_decl_source_11.bal", "annot-decl/annot_decl_assert_11.json");
+        testFile("annot-decl/annot_decl_source_12.bal", "annot-decl/annot_decl_assert_12.json");
     }
 }

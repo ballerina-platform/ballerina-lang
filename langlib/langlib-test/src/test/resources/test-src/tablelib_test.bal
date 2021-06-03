@@ -702,6 +702,18 @@ function testReadOnlyTableFilter() {
     assertFalse(children.isReadOnly());
 }
 
+type UnionConstraint Person|Employee;
+
+type UnionConstrinedTbl table<UnionConstraint> key(name);
+
+function testGetKeysFromUnionConstrained() returns any[] {
+    UnionConstrinedTbl tab = table key(name)[
+      { name: "Adam", age: 33 },
+      { name: "Mark", department: "HR" }
+    ];
+    return tab.keys();
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(boolean actual) {

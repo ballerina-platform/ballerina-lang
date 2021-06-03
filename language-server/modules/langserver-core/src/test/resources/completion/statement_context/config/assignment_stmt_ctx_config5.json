@@ -169,7 +169,7 @@
           "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns absolute value of an int.\n  \n**Params**  \n- `int` n: int value to be operated on  \n  \n**Returns** `int`   \n- absolute value of `n`  \n  \n"
         }
       },
-      "sortText": "A",
+      "sortText": "B",
       "filterText": "abs",
       "insertText": "abs(${1})",
       "insertTextFormat": "Snippet",
@@ -188,7 +188,7 @@
           "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns sum of zero or more int values.\n  \n**Params**  \n- `int[]` ns: int values to sum  \n  \n**Returns** `int`   \n- sum of all the `ns`; 0 is `ns` is empty  \n  \n"
         }
       },
-      "sortText": "A",
+      "sortText": "B",
       "filterText": "sum",
       "insertText": "sum(${1})",
       "insertTextFormat": "Snippet",
@@ -207,7 +207,7 @@
           "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nMaximum of one or more int values.\n  \n**Params**  \n- `int` n: first int value  \n- `int[]` ns: other int values  \n  \n**Returns** `int`   \n- maximum value of value of `x` and all the `xs`  \n  \n"
         }
       },
-      "sortText": "A",
+      "sortText": "B",
       "filterText": "max",
       "insertText": "max(${1})",
       "insertTextFormat": "Snippet",
@@ -226,7 +226,7 @@
           "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nMinimum of one or more int values\n  \n**Params**  \n- `int` n: first int value  \n- `int[]` ns: other int values  \n  \n**Returns** `int`   \n- minimum value of `n` and all the `ns`  \n  \n"
         }
       },
-      "sortText": "A",
+      "sortText": "B",
       "filterText": "min",
       "insertText": "min(${1})",
       "insertTextFormat": "Snippet",
@@ -245,7 +245,7 @@
           "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the integer that `s` represents in decimal.\nReturns error if `s` is not the decimal representation of an integer.\nThe first character may be `+` or `-`.\nThis is the inverse of `value:toString` applied to an `int`.\n  \n**Params**  \n- `string` s: string representation of a integer value  \n  \n**Returns** `int|error`   \n- int representation of the argument or error  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "fromString",
       "insertText": "fromString(${1})",
       "insertTextFormat": "Snippet",
@@ -264,7 +264,7 @@
           "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns representation of `n` as hexdecimal string.\nThere is no `0x` prefix. Lowercase letters a-f are used.\nNegative numbers will have a `-` prefix. No sign for\nnon-negative numbers.\n  \n**Params**  \n- `int` n: int value  \n  \n**Returns** `string`   \n- hexadecimal string representation of int value  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "toHexString",
       "insertText": "toHexString(${1})",
       "insertTextFormat": "Snippet",
@@ -283,7 +283,7 @@
           "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the integer that `s` represents in hexadecimal.\nBoth uppercase A-F and lowercase a-f are allowed.\nIt may start with an optional `+` or `-` sign.\nNo `0x` or `0X` prefix is allowed.\nReturns an error if the `s` is not in an allowed format.\n  \n**Params**  \n- `string` s: hexadecimal string representation of int value  \n  \n**Returns** `int|error`   \n- int value or error  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "fromHexString",
       "insertText": "fromHexString(${1})",
       "insertTextFormat": "Snippet",

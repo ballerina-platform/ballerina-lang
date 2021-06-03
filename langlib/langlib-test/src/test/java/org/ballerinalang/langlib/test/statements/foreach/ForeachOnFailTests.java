@@ -52,8 +52,9 @@ public class ForeachOnFailTests {
     public void testIntArrayWithArityOne() {
         BValue[] returns = BRunUtil.invoke(program, "testIntArrayWithArityOne");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "Positive:1, Negative; hence failed, Positive:5, " +
-                "Negative; hence failed, Positive:4, Positive:11, Positive:25, Positive:10, ");
+        Assert.assertEquals(returns[0].stringValue(), " (Positive:1), (Negative:-3) within grace, "
+                + "(Positive:5), (Negative:-30) within grace, (Positive:4), (Positive:11), "
+                + "(Negative:-25) Throttle reached");
     }
 
     @Test(description = "Test foreach with check which evaluates to error")
@@ -77,5 +78,10 @@ public class ForeachOnFailTests {
         String expected = "level3-> error caught at level 3, level2-> error caught at level 2, " +
                 "level1-> error caught at level 1.";
         Assert.assertEquals(actual, expected);
+
+        BValue[] result = BRunUtil.invoke(program, "testNestedForeachLoopBreak");
+        Assert.assertEquals(result.length, 1);
+        Assert.assertSame(result[0].getClass(), BString.class);
+        Assert.assertEquals(result[0].stringValue(), expected);
     }
 }

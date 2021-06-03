@@ -1,9 +1,9 @@
 public function foo() {
     int a = service object {
-                        Person person;
+        Person person;
 
-                        function foo() {
-                            int b = m;
-                        }
-                    };
+        function foo() {
+            int b = m;
+        }
+    };
 }
