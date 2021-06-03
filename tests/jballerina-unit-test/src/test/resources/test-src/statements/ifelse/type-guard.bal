@@ -1509,6 +1509,26 @@ function testJsonIntersection() {
     assertEquality(4, jsonIntersection(<int[]> [1, 2, 3, 4]));
 }
 
+public type Qux record {|
+    record {|
+        string s;
+    |} baz?;
+|};
+
+function intersectionWithIntersectionType(Qux? & readonly bar) returns string {
+    if bar is Qux {
+        record {| string s; |}? y = bar?.baz;
+        return y?.s ?: "Qux without baz";
+    }
+    return "nil";
+}
+
+function testIntersectionWithIntersectionType() {
+    assertEquality("nil", intersectionWithIntersectionType(()));
+    assertEquality("Qux without baz", intersectionWithIntersectionType({}));
+    assertEquality("hello world", intersectionWithIntersectionType({baz: {s: "hello world"}}));
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

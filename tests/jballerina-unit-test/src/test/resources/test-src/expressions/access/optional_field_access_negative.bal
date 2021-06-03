@@ -119,3 +119,28 @@ function testOptionalFieldAccessOnClassDef() {
     Student person = new Student(details);
     string? c1 = person.getDetails()?.addr?.road;
 }
+
+public type Quux record {|
+    int i;
+    Baz|int[] baz?;
+|};
+
+public type Baz record {|
+    string a;
+    int i?;
+|};
+
+public type Corge record {|
+    int i;
+    Baz baz?;
+|};
+
+public function testNestedOptionalFieldAccessOnIntersectionTypesNegative() {
+    Quux & readonly q1 = {i: 1, baz: {a: "hello", i: 2}};
+    var v1 = q1?.baz?.i;
+    any v2 = q1["baz"]?.i;
+
+    Corge & readonly q2 = {i: 1, baz: {a: "hello", i: 2}};
+    string v3 = q2?.baz?.i;
+    string v4 = q2?.baz["i"];
+}

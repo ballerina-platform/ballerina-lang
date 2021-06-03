@@ -222,7 +222,7 @@ public final class FunctionCompletionItemBuilder {
                         .replaceAll(CommonUtil.MD_LINE_SEPARATOR) + CommonUtil.MD_LINE_SEPARATOR;
             }
             documentation.append(CommonUtil.MD_LINE_SEPARATOR).append(CommonUtil.MD_LINE_SEPARATOR)
-                    .append("**Returns**").append(" `")
+                    .append("**Return**").append(" `")
                     .append(CommonUtil.getModifiedTypeName(ctx, functionTypeDesc.returnTypeDescriptor().get()))
                     .append("` ").append(CommonUtil.MD_LINE_SEPARATOR).append(desc)
                     .append(CommonUtil.MD_LINE_SEPARATOR);

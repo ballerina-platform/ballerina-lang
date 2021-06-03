@@ -18,7 +18,10 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
@@ -225,6 +228,29 @@ public class SymbolAtCursorTest {
                 {87, 13, "'new"},
                 {88, 4, "'new"},
                 {88, 9, "'anydata"}
+        };
+    }
+
+    @Test(dataProvider = "VarPosProvider")
+    public void testVarsWithFunctionType(int line, int col, String name) {
+        Project project = BCompileUtil.loadProject("test-src/regression-tests/field_with_function_type.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), SymbolKind.FUNCTION);
+        assertEquals(symbol.get().getName().get(), name);
+        assertEquals(((FunctionSymbol) symbol.get()).typeDescriptor().typeKind(), TypeDescKind.FUNCTION);
+    }
+
+    @DataProvider(name = "VarPosProvider")
+    public Object[][] getVarPos() {
+        return new Object[][]{
+                {19, 10, "union"},
+                {23, 10, "op"},
+                {27, 10, "op"}
         };
     }
 }

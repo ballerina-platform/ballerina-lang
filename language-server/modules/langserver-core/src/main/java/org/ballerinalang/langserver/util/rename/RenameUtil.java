@@ -41,7 +41,6 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -132,12 +131,11 @@ public class RenameUtil {
         }
 
         Map<Module, List<Location>> locationMap = ReferencesUtil.getReferences(context);
-        Path projectRoot = context.workspace().projectRoot(context.filePath());
 
         Map<String, List<TextEdit>> changes = new HashMap<>();
         locationMap.forEach((module, locations) ->
                 locations.forEach(location -> {
-                    String uri = ReferencesUtil.getUriFromLocation(module, location, projectRoot);
+                    String uri = ReferencesUtil.getUriFromLocation(module, location);
                     List<TextEdit> textEdits = changes.computeIfAbsent(uri, k -> new ArrayList<>());
                     textEdits.add(new TextEdit(ReferencesUtil.getRange(location), newName));
                 }));

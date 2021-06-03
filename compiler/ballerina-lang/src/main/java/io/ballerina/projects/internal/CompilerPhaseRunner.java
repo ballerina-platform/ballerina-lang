@@ -133,11 +133,6 @@ public class CompilerPhaseRunner {
         }
 
         documentationAnalyze(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.TAINT_ANALYZE)) {
-            return;
-        }
-
-        taintAnalyze(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.CONSTANT_PROPAGATION)) {
             return;
         }
@@ -187,8 +182,6 @@ public class CompilerPhaseRunner {
         if (this.stopCompilation(pkgNode, CompilerPhase.TAINT_ANALYZE)) {
             return;
         }
-
-        taintAnalyze(pkgNode);
     }
 
     public void performLangLibBirGenPhases(BLangPackage pkgNode) {
@@ -231,10 +224,6 @@ public class CompilerPhaseRunner {
 
     private BLangPackage isolationAnalyze(BLangPackage pkgNode) {
         return this.isolationAnalyzer.analyze(pkgNode);
-    }
-
-    private BLangPackage taintAnalyze(BLangPackage pkgNode) {
-        return this.taintAnalyzer.analyze(pkgNode);
     }
 
     private BLangPackage propagateConstants(BLangPackage pkgNode) {

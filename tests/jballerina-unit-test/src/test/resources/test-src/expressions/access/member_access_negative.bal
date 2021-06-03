@@ -201,3 +201,26 @@ function testMemberAccessWithoutIndex() {
     int value = intArray[];
     intArray[]
 }
+
+public type Quux record {|
+    int i;
+    Grault|int[] baz?;
+|};
+
+public type Grault record {|
+    string a;
+    int i?;
+|};
+
+public type Corge record {|
+    int i;
+    Grault baz?;
+|};
+
+public function testNestedMemberAccessOnIntersectionTypesNegative() {
+    Quux & readonly q1 = {i: 1, baz: {a: "hello", i: 2}};
+    var v1 = q1["baz"]["i"];
+
+    Corge & readonly q2 = {i: 1, baz: {a: "hello", i: 2}};
+    string v2 = q2["baz"]["i"];
+}

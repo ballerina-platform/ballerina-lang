@@ -57,6 +57,10 @@ public class RenameTest extends AbstractRenameTest {
                 {"rename_within_service1.json", "ep1"},
                 {"rename_within_service2.json", "baz"},
                 {"rename_within_service3.json", "baz"},
+                {"rename_enum.json", "Color"},
+                {"rename_enum_member.json", "DARK_RED"},
+                {"rename_enum.json", "Color"},
+                {"rename_enum_member.json", "DARK_RED"},
                 
                 // Invalid rename positions tests
                 {"rename_on_keyword1.json", "fn"},

@@ -52,3 +52,20 @@ distinct class DistinctPerson {
 
     function getName() returns string => self.name;
 }
+
+class Person3 {
+    string fname = "John";
+    string lname = "Doe";
+    string address = "No 20, Palm Grove";
+    string tempAddress;
+    int age;
+
+}
+
+function test() {
+    Person3 p3 = new;
+    p3.fname;
+    p3.address;
+    p3.tempAddress;
+    p3.age;
+}

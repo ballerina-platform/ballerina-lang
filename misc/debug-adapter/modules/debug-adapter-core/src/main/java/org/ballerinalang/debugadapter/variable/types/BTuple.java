@@ -51,7 +51,7 @@ public class BTuple extends IndexedCompoundVariable {
     @Override
     public String computeValue() {
         try {
-            return getTupleType(jvmValue);
+            return String.format("%s (size = %d)", getTupleType(jvmValue), getChildrenCount());
         } catch (Exception e) {
             return UNKNOWN_VALUE;
         }
@@ -111,7 +111,7 @@ public class BTuple extends IndexedCompoundVariable {
                     tupleTypes.add(getStringFrom(typeNameRef));
                 }
             });
-            return String.format("tuple[%s]", tupleTypes.toString());
+            return String.format("tuple[%s]", tupleTypes);
         } catch (Exception e) {
             return UNKNOWN_VALUE;
         }

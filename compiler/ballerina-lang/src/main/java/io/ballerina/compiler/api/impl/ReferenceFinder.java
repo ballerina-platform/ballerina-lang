@@ -1101,6 +1101,7 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
+        find(recordTypeNode.typeRefs);
         find(recordTypeNode.fields);
         find(recordTypeNode.restFieldType);
     }
