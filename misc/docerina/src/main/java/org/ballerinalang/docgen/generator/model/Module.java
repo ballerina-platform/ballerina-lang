@@ -52,6 +52,8 @@ public class Module extends ModuleMetaData {
     public List<BType> types = new ArrayList<>();
     @Expose
     public List<Enum> enums = new ArrayList<>();
+    @Expose
+    public List<DefaultableVariable> variables = new ArrayList<>();
 
     public List<Path> resources = new ArrayList<>();
 }

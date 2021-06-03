@@ -59,9 +59,6 @@ OPTIONS
        --cloud
            Enable cloud artifact generation for cloud providers such as kubernetes.
 
-       --taint-check
-           Perform taint flow analysis.
-
        --list-conflicted-classes
        		List conflicting classes of conflicting jars in the project.
 

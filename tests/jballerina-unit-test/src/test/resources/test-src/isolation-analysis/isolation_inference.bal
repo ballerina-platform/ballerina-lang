@@ -287,6 +287,79 @@ service on new Listener() {
     function quuz() returns string => helloMutableGlobalVar();
 }
 
+function testObjectConstructorIsolatedInference() {
+    object {
+        int i;
+
+        function qux() returns int;
+    } a = object {
+        int i;
+
+        function init() {
+            self.i = 123;
+        }
+
+        function qux() returns int {
+            return self.i + globInt;
+        }
+    };
+
+    assertFalse(<any> a is object { int i; isolated function qux() returns int; });
+
+    object {
+        int i;
+
+        function qux() returns int;
+    } b = object {
+        int i;
+
+        function init() {
+            self.i = 123;
+        }
+
+        function qux() returns int {
+            return self.i;
+        }
+    };
+
+    assertTrue(<any> b is object { int i; isolated function qux() returns int; });
+
+    var  c = service object {
+        int i = 2;
+
+        function a() returns int {
+            return self.i + globInt;
+        }
+
+        function b() returns int {
+            return self.i;
+        }
+
+        remote function c() {
+            int x = self.b();
+        }
+
+        remote function d() {
+            int x = self.a();
+        }
+
+        resource function get e() returns int {
+            return self.b() + self.i;
+        }
+
+        resource function update f() {
+            int x = self.a() + self.i;
+        }
+    };
+
+    assertFalse(isMethodIsolated(c, "a"));
+    assertTrue(isMethodIsolated(c, "b"));
+    assertTrue(isRemoteMethodIsolated(c, "c"));
+    assertFalse(isRemoteMethodIsolated(c, "d"));
+    assertTrue(isResourceIsolated(c, "get", "e"));
+    assertFalse(isResourceIsolated(c, "update", "f"));
+}
+
 class Listener {
 
     public function attach(service object {} s, string|string[]? name = ()) returns error?  = @java:Method {
