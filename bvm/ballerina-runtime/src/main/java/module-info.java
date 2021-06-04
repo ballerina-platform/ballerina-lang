@@ -59,8 +59,8 @@ module io.ballerina.runtime {
             io.ballerina.java, io.ballerina.lang.internal, io.ballerina.lang.array, io.ballerina.lang.bool,
             io.ballerina.lang.floatingpoint, io.ballerina.lang.map, io.ballerina.lang.string, io.ballerina.lang.table,
             io.ballerina.lang.xml, io.ballerina.testerina.core, io.ballerina.cli.utils, io.ballerina.cli,
-            io.ballerina.lang.decimal;
+            io.ballerina.lang.decimal, io.ballerina.lang;
     exports io.ballerina.runtime.internal.values to io.ballerina.testerina.core, io.ballerina.testerina.runtime,
-            io.ballerina.lang.xml;
+            io.ballerina.lang.xml, io.ballerina.lang;
     exports io.ballerina.runtime.internal.configurable to io.ballerina.lang.internal;
 }
