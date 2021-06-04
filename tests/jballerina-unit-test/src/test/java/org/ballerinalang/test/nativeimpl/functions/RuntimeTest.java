@@ -68,12 +68,12 @@ public class RuntimeTest {
     public void testErrorCallStack() {
         BValue[] returns = BRunUtil.invoke(errorResult, "testErrorCallStack");
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"level2Error\", moduleName:\"runtime-error\", " +
+        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"level2Error\", " +
                 "fileName:\"runtime-error.bal\", lineNumber:30}");
-        Assert.assertEquals(returns[1].stringValue(), "{callableName:\"level1Error\", moduleName:\"runtime-error\", " +
+        Assert.assertEquals(returns[1].stringValue(), "{callableName:\"level1Error\", " +
                 "fileName:\"runtime-error.bal\", lineNumber:25}");
         Assert.assertEquals(returns[2].stringValue(), "{callableName:\"testErrorCallStack\", " +
-                "moduleName:\"runtime-error\", fileName:\"runtime-error.bal\", lineNumber:16}");
+                "fileName:\"runtime-error.bal\", lineNumber:16}");
     }
 
     @AfterClass
