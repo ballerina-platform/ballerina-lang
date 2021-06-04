@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.formatting;
+package org.ballerinalang.langserver.rangeformat;
 
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
-import org.eclipse.lsp4j.DocumentFormattingParams;
+import org.eclipse.lsp4j.DocumentRangeFormattingParams;
 import org.eclipse.lsp4j.FormattingOptions;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
@@ -38,8 +40,8 @@ import java.util.List;
 /**
  * Test suit for source code formatting.
  */
-public class FormattingTest {
-    private final Path formattingDirectory = FileUtils.RES_DIR.resolve("formatting");
+public class RangeFormattingTest {
+    private final Path formattingDirectory = FileUtils.RES_DIR.resolve("rangeformat");
     private Endpoint serviceEndpoint;
 
     @BeforeClass
@@ -54,7 +56,10 @@ public class FormattingTest {
 
         String expected = new String(Files.readAllBytes(expectedFilePath));
         expected = expected.replaceAll("\\r\\n", "\n");
-        DocumentFormattingParams documentFormattingParams = new DocumentFormattingParams();
+        DocumentRangeFormattingParams params = new DocumentRangeFormattingParams();
+        Position start = new Position(1, 4);
+        Position end = new Position(3, 29);
+        Range range = new Range(start, end);
 
         TextDocumentIdentifier textDocumentIdentifier1 = new TextDocumentIdentifier();
         textDocumentIdentifier1.setUri(Paths.get(inputFilePath.toString()).toUri().toString());
@@ -63,12 +68,13 @@ public class FormattingTest {
         formattingOptions.setInsertSpaces(true);
         formattingOptions.setTabSize(4);
 
-        documentFormattingParams.setOptions(formattingOptions);
-        documentFormattingParams.setTextDocument(textDocumentIdentifier1);
+        params.setOptions(formattingOptions);
+        params.setTextDocument(textDocumentIdentifier1);
+        params.setRange(range);
 
         TestUtil.openDocument(this.serviceEndpoint, inputFilePath);
 
-        String result = TestUtil.getFormattingResponse(documentFormattingParams, this.serviceEndpoint);
+        String result = TestUtil.getRangeFormatResponse(params, this.serviceEndpoint);
         Gson gson = new Gson();
         ResponseMessage responseMessage = gson.fromJson(result, ResponseMessage.class);
         String actual = (String) ((LinkedTreeMap) ((List) responseMessage.getResult()).get(0)).get("newText");
