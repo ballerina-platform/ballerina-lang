@@ -248,7 +248,8 @@ public class SymbolFactory {
             builder.withAnnotation(createAnnotationSymbol(annAttachment.annotationSymbol));
         }
 
-        return builder.withTypeDescriptor((FunctionTypeSymbol) typesFactory.getTypeDescriptor(invokableSymbol.type))
+        return builder.withTypeDescriptor((FunctionTypeSymbol) typesFactory
+                .getTypeDescriptor(invokableSymbol.type, invokableSymbol.type.tsymbol, true))
                 .build();
     }
 
@@ -323,6 +324,9 @@ public class SymbolFactory {
         }
         if (isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
             symbolBuilder.withQualifier(Qualifier.CONFIGURABLE);
+        }
+        if (isFlagOn(symbol.flags, Flags.ISOLATED)) {
+            symbolBuilder.withQualifier(Qualifier.ISOLATED);
         }
 
         for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {

@@ -1,3 +1,3 @@
 ## Module Overview
 
-This module provides lang library operations on `stream` values defined by the language specification 2020R1.
+The `lang.stream` module corresponds to basic type stream.

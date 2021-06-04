@@ -16,12 +16,16 @@
 
 import ballerina/jballerina.java;
 
+# Holds the event data.
+#
 public type Event record {
     string name;
     int timestampMicros;
     map<string> tags;
 };
 
+# Holds the span data.
+#
 public type Span record {
   string operationName;
   string traceId;

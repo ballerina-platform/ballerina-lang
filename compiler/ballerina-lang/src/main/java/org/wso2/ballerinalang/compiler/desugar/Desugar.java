@@ -5698,7 +5698,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // First get the type and then visit the expr. Order matters, since the desugar
         // can change the type of the expression, if it is type narrowed.
-        BType varRefType = fieldAccessExpr.expr.type;
+        BType varRefType = types.getTypeWithEffectiveIntersectionTypes(fieldAccessExpr.expr.type);
         fieldAccessExpr.expr = rewriteExpr(fieldAccessExpr.expr);
         if (!types.isSameType(fieldAccessExpr.expr.type, varRefType)) {
             fieldAccessExpr.expr = addConversionExprIfRequired(fieldAccessExpr.expr, varRefType);
@@ -6010,7 +6010,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // First get the type and then visit the expr. Order matters, since the desugar
         // can change the type of the expression, if it is type narrowed.
-        BType varRefType = indexAccessExpr.expr.type;
+        BType varRefType = types.getTypeWithEffectiveIntersectionTypes(indexAccessExpr.expr.type);
         indexAccessExpr.expr = rewriteExpr(indexAccessExpr.expr);
         if (!types.isSameType(indexAccessExpr.expr.type, varRefType)) {
             indexAccessExpr.expr = addConversionExprIfRequired(indexAccessExpr.expr, varRefType);
@@ -7028,13 +7028,7 @@ public class Desugar extends BLangNodeVisitor {
         BObjectType objectClassType = new BObjectType(classTSymbol, classTSymbol.flags);
         objectClassType.fields = objectType.fields;
         classTSymbol.type = objectClassType;
-        var typeIdSet = objectType.typeIdSet;
-        if (!typeIdSet.primary.isEmpty()) {
-            objectClassType.typeIdSet.primary.addAll(typeIdSet.primary);
-        }
-        if (!typeIdSet.secondary.isEmpty()) {
-            objectClassType.typeIdSet.secondary.addAll(typeIdSet.secondary);
-        }
+        objectClassType.typeIdSet.add(objectType.typeIdSet);
 
         // Create a new object type node and a type def from the concrete class type
 //        BLangObjectTypeNode objectClassNode = TypeDefBuilderHelper.createObjectTypeNode(objectClassType, pos);

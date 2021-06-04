@@ -46,7 +46,7 @@ public class BallerinaClassFieldSymbol extends BallerinaObjectFieldSymbol implem
 
     @Override
     public boolean hasDefaultValue() {
-        return false;
+        return bField.symbol.isDefaultable;
     }
 
     @Override

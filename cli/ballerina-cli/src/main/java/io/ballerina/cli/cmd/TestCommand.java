@@ -107,9 +107,6 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
     private Boolean coverage;
 
-    @CommandLine.Option(names = "--jacoco-xml", description = "enable Jacoco XML generation")
-    private boolean enableJacocoXML;
-
     @CommandLine.Option(names = "--coverage-format", description = "list of supported coverage report formats")
     private String coverageFormat;
 
@@ -198,10 +195,6 @@ public class TestCommand implements BLauncherCmd {
                 this.outStream.println("warning: ignoring --coverage-format flag since code coverage is not " +
                         "enabled");
             }
-            // Skip --jacoco-xml flag if it is set without code coverage
-            if (enableJacocoXML) {
-                this.outStream.println("warning: ignoring --jacoco-xml flag since code coverage is not enabled");
-            }
         }
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
@@ -211,7 +204,7 @@ public class TestCommand implements BLauncherCmd {
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new ListTestGroupsTask(outStream, displayWarning), !listGroups) // list available test groups
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
-                        testList, includes, enableJacocoXML, coverageFormat), listGroups)
+                        testList, includes, coverageFormat), listGroups)
                 .build();
 
         taskExecutor.executeTasks(project);

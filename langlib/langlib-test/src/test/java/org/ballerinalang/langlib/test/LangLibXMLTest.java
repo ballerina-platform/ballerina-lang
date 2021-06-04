@@ -316,6 +316,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testXmlSubtypeFillerValue() {
+        BRunUtil.invoke(compileResult, "testXmlSubtypeFillerValue");
+    }
+
+    @Test
     public void testNegativeCases() {
         negativeResult = BCompileUtil.compile("test-src/xmllib_test_negative.bal");
         int i = 0;

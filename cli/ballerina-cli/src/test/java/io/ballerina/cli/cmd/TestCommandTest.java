@@ -186,7 +186,7 @@ public class TestCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         // Build project
         BuildCommand buildCommand = new BuildCommand(
-                projectPath, printStream, printStream, false, true, null, null, true, false, "html");
+                projectPath, printStream, printStream, false, true, null, null, true, "html");
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);

@@ -38,18 +38,21 @@ type CallStackElement record {|
     int lineNumber;
 |};
 
-# Register a listener object with a module.
-# + listener - the listener object to be registered
+# Registers a listener object with a module.
+#
 # The listener becomes a module listener of the module from which this
 # function is called.
+#
+# + listener - the listener object to be registered
 public isolated function registerListener(DynamicListener 'listener) = @java:Method {
     'class: "org.ballerinalang.langlib.runtime.Registry"
 } external;
 
-# Deregister a listener from a module.
-# + listener - the listener object to be unregistered
+# Deregisters a listener from a module.
+#
 # The `listener` ceases to be a module listener of the module from
 # which this function is called.
+# + listener - the listener object to be unregistered
 public isolated function deregisterListener(DynamicListener 'listener) = @java:Method {
     'class: "org.ballerinalang.langlib.runtime.Registry"
 } external;
@@ -62,6 +65,7 @@ public isolated function sleep(decimal seconds) = @java:Method {
 } external;
 
 # Type representing a stack frame.
+#
 # A call stack is represented as an array of stack frames.
 # This type is also present in lang.error to avoid a dependency.
 public type StackFrame readonly & object {
@@ -71,9 +75,10 @@ public type StackFrame readonly & object {
    public function toString() returns string;
 };
 
-# Return a stack trace for the current call stack.
-# + return - an array representing the current call stack
+# Returns a stack trace for the current call stack.
+#
 # The first member of the array represents the top of the call stack.
+# + return - an array representing the current call stack
 public isolated function getStackTrace() returns StackFrame[] {
     StackFrame[] stackFrame = [];
     int i = 0;

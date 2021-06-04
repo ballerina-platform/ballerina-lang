@@ -7,7 +7,6 @@ module io.ballerina.lang {
     requires org.objectweb.asm;
     requires io.ballerina.runtime;
     requires io.netty.buffer;
-    requires io.ballerina.cli.module;
     requires io.ballerina.parser;
     requires io.ballerina.tools.api;
     requires org.apache.commons.compress;
@@ -75,5 +74,5 @@ module io.ballerina.lang {
     exports io.ballerina.projects.plugins;
     exports io.ballerina.projects.internal.model; // TODO Remove this exports
     exports io.ballerina.projects.internal.environment; // TODO Remove these exports
-    exports io.ballerina.projects.internal to org.wso2.ballerinalang.compiler.semantics.model.symbols, io.ballerina.cli;
+    exports io.ballerina.projects.internal to io.ballerina.cli;
 }

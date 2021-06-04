@@ -247,7 +247,6 @@ public class Strand {
         WaitContext ctx = new WaitMultipleContext(this.schedulerItem);
         ctx.waitCount.set(keyValues.size());
         ctx.lock();
-        int doneCount = 0;
         for (Map.Entry<String, FutureValue> entry : keyValues.entrySet()) {
             FutureValue future = entry.getValue();
             // need to lock the future's strand since we cannot have a parallel state change
@@ -261,22 +260,21 @@ public class Strand {
                     ctx.unLock();
                     throw future.panic;
                 }
-                if (future.hasWaited()) {
+                if (future.hasWaited() && target.getNativeData(entry.getKey()) == null) {
                     target.put(StringUtils.fromString(entry.getKey()), createWaitOnSameFutureError());
                 } else {
+                    future.setWaited(true);
+                    target.addNativeData(entry.getKey(), true);
                     target.put(StringUtils.fromString(entry.getKey()), future.result);
                 }
                 ctx.waitCount.decrementAndGet();
-                doneCount++;
             } else {
                 this.setState(BLOCK_ON_AND_YIELD);
                 entry.getValue().strand.waitingContexts.add(ctx);
             }
             future.strand.unlock();
         }
-        if (doneCount == keyValues.size()) {
-            keyValues.forEach((s, futureValue) -> futureValue.setWaited(true));
-        }
+
         if (!this.isBlocked()) {
             ctx.waitCount.set(0);
             ctx.completed = true;

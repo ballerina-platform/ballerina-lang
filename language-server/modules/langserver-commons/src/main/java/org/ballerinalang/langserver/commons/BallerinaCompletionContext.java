@@ -30,7 +30,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public interface BallerinaCompletionContext extends CompletionContext {
+public interface BallerinaCompletionContext extends CompletionContext, BallerinaEnclosedPositionContext {
 
     /**
      * Set the token at the completion's cursor position.
@@ -80,5 +80,4 @@ public interface BallerinaCompletionContext extends CompletionContext {
      * @return {@link Optional<TypeSymbol>} Context TypeSymbol for node at cursor.
      */
     Optional<TypeSymbol> getContextType();
-
 }

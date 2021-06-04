@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.LambdaGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MainMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGenUtils;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.ModuleStopMethodGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -617,8 +618,14 @@ public class JvmPackageGen {
             } else {
                 balFileName = birFunc.pos.lineRange().filePath();
             }
-            String birModuleClassName = getModuleLevelClassName(packageID,
-                                                                JvmCodeGenUtil.cleanupPathSeparators(balFileName));
+
+            String cleanedBalFileName = balFileName;
+            if (!birFunc.name.value.startsWith(MethodGenUtils.encodeModuleSpecialFuncName(".<test"))) {
+                // skip removing `.bal` from generated file names. otherwise `.<testinit>` brakes because,
+                // it's "file name" may end in `.bal` due to module. see #27201
+                cleanedBalFileName = JvmCodeGenUtil.cleanupPathSeparators(balFileName);
+            }
+            String birModuleClassName = getModuleLevelClassName(packageID, cleanedBalFileName);
 
             if (!JvmCodeGenUtil.isBallerinaBuiltinModule(packageID.orgName.value, packageID.name.value)) {
                 JavaClass javaClass = jvmClassMap.get(birModuleClassName);

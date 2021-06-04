@@ -430,6 +430,36 @@ function testMemberAccessHavingNilableFields() {
     assertEquality(true, val4 is ());
 }
 
+type Emp record {
+    readonly string name;
+    string department;
+};
+
+type UnionConstraint Person|Emp;
+
+type UnionConstrinedTbl table<UnionConstraint> key(name);
+
+function testUnionConstrainedTableIteration() {
+    UnionConstrinedTbl tbl = table key(name)[
+      { name: "Adam", age: 33 },
+      { name: "Mark", department: "HR" },
+      { name: "John", age: 40 }
+    ];
+
+    string[] names = [];
+    string[] expectedNames = ["Adam", "John"];
+
+    int i = -1;
+    foreach var rec in tbl {
+      if rec is Person {
+         i += 1;
+         names[i] = rec.name;
+      }
+    }
+
+    assertEquality(expectedNames, names);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
