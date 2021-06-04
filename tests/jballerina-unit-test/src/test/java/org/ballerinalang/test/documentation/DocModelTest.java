@@ -20,6 +20,7 @@ import org.ballerinalang.docgen.generator.model.BClass;
 import org.ballerinalang.docgen.generator.model.BObjectType;
 import org.ballerinalang.docgen.generator.model.BType;
 import org.ballerinalang.docgen.generator.model.Client;
+import org.ballerinalang.docgen.generator.model.DefaultableVariable;
 import org.ballerinalang.docgen.generator.model.Function;
 import org.ballerinalang.docgen.generator.model.Listener;
 import org.ballerinalang.docgen.generator.model.Module;
@@ -544,4 +545,27 @@ public class DocModelTest {
         Assert.assertEquals(studentA.get().methods.get(0).returnParameters.get(0).type.category, "builtin");
     }
 
+    @Test(description = "Test module variables")
+    public void testModuleVariables() {
+        Optional<DefaultableVariable> pubString = testModule.variables.stream()
+                .filter(client -> client.name.equals("pubString")).findAny();
+        Assert.assertTrue(pubString.isPresent());
+
+        Assert.assertEquals(pubString.get().description, "A public variable of string type\n");
+        Assert.assertEquals(pubString.get().defaultValue, "\"123\"");
+        Assert.assertEquals(pubString.get().type.category, "builtin");
+        Assert.assertEquals(pubString.get().type.name, "string");
+
+        Optional<DefaultableVariable> tuple = testModule.variables.stream()
+                .filter(client -> client.name.equals("[a,b]")).findAny();
+        Assert.assertTrue(tuple.isPresent());
+        Assert.assertEquals(tuple.get().description, "Docs for tuple module variable.\n");
+        Assert.assertEquals(tuple.get().defaultValue, "[1, 1.5]");
+        Assert.assertTrue(tuple.get().type.isTuple);
+        Assert.assertEquals(tuple.get().type.memberTypes.size(), 2);
+        Assert.assertEquals(tuple.get().type.memberTypes.get(0).name, "int");
+        Assert.assertEquals(tuple.get().type.memberTypes.get(0).category, "builtin");
+        Assert.assertEquals(tuple.get().type.memberTypes.get(1).name, "float");
+        Assert.assertEquals(tuple.get().type.memberTypes.get(1).category, "builtin");
+    }
 }

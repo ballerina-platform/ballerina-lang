@@ -119,7 +119,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                                        "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -157,7 +157,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                                        "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -237,7 +237,7 @@
                                       "leadingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "                                            "
+                                          "value": "        "
                                         }
                                       ]
                                     }
@@ -299,7 +299,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                                        "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -316,13 +316,7 @@
           ]
         },
         {
-          "kind": "CLOSE_BRACE_TOKEN",
-          "leadingMinutiae": [
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": "                                    "
-            }
-          ]
+          "kind": "CLOSE_BRACE_TOKEN"
         }
       ]
     },

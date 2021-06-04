@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -181,7 +180,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -269,8 +267,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         dlog = BLangDiagnosticLog.getInstance(context);
         symTable = SymbolTable.getInstance(context);
         types = Types.getInstance(context);
-        emmitTaintErrors = Boolean.parseBoolean(
-                CompilerOptions.getInstance(context).get(CompilerOptionName.TAINT_CHECK));
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -319,8 +315,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         analyzeModuleLevelVariableDefinitions(topLevelNodeGroups.get(true));
 
         if (dlogSet.size() > 0) {
-            dlogSet.forEach(dlogEntry -> logTaintError(dlogEntry.pos, dlogEntry.diagnosticCode,
-                    dlogEntry.paramName.toArray()));
+            for (TaintRecord.TaintError dlogEntry : dlogSet) {
+                dlog.error(dlogEntry.pos, dlogEntry.diagnosticCode, dlogEntry.paramName.toArray());
+            }
         }
         currPkgEnv = prevPkgEnv;
         pkgNode.completedPhases.add(CompilerPhase.TAINT_ANALYZE);
@@ -1128,7 +1125,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (varRefExpr.symbol == null) {
             Name varName = names.fromIdNode(varRefExpr.variableName);
             if (varName != Names.IGNORE) {
-                if (varRefExpr.pkgSymbol.tag == SymTag.XMLNS) {
+                // Check xml namespace reference such as ns0:foo, where nso is a xml namespace prefix
+                if (varRefExpr.pkgSymbol != null && varRefExpr.pkgSymbol.tag == SymTag.XMLNS) {
                     getCurrentAnalysisState().taintedStatus = varRefExpr.pkgSymbol.tainted ?
                             TaintedStatus.TAINTED : TaintedStatus.UNTAINTED;
                     return;
@@ -1252,9 +1250,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isExternalLangLibFunction(BLangInvocation invocationExpr) {
-        return invocationExpr.symbol.pkgID.orgName.value.equals("ballerina")
-                && invocationExpr.symbol.pkgID.name.value.startsWith("lang.")
-                && Symbols.isNative(invocationExpr.symbol);
+        BSymbol symbol = invocationExpr.symbol;
+        return symbol != null
+                && symbol.pkgID.orgName.value.equals("ballerina")
+                && symbol.pkgID.name.value.startsWith("lang.")
+                && Symbols.isNative(symbol);
     }
 
     private int receiverIfAttachedFunction(BLangInvocation invocationExpr) {
@@ -1996,8 +1996,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 }
 
                 if (hasAnnotation(param, ANNOTATION_UNTAINTED)) {
-                    logTaintError(param.pos, DiagnosticErrorCode.ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED,
-                            param.name.value);
+                    dlog.error(param.pos,
+                            DiagnosticErrorCode.ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED, param.name.value);
                     return true;
                 }
             }
@@ -2134,8 +2134,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (taintRecord.returnTaintedStatus == TaintedStatus.TAINTED
                 && !hasAnnotation(invokableNode.returnTypeAnnAttachments, ANNOTATION_TAINTED)
                 && !invokableNode.flagSet.contains(Flag.LAMBDA)) {
-            logTaintError(invokableNode.returnTypeNode.pos, DiagnosticErrorCode.TAINTED_RETURN_NOT_ANNOTATED_TAINTED,
-                    invokableNode.name.getValue());
+            dlog.error(invokableNode.returnTypeNode.pos,
+                    DiagnosticErrorCode.TAINTED_RETURN_NOT_ANNOTATED_TAINTED, invokableNode.name.getValue());
             stopAnalysis = true;
         }
 
@@ -2152,17 +2152,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
                 if (!hasAnnotation(param, ANNOTATION_TAINTED)) {
-                    logTaintError(param.pos, DiagnosticErrorCode.TAINTED_PARAM_NOT_ANNOTATED_TAINTED,
-                            param.name, invokableNode.name);
+                    dlog.error(param.pos,
+                            DiagnosticErrorCode.TAINTED_PARAM_NOT_ANNOTATED_TAINTED, param.name, invokableNode.name);
                     stopAnalysis = true;
                 }
             }
-        }
-    }
-
-    private void logTaintError(Location pos, DiagnosticCode errorCode, Object... args) {
-        if (emmitTaintErrors) {
-            dlog.error(pos, errorCode, args);
         }
     }
 

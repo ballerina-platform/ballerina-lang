@@ -18,10 +18,10 @@
 #
 # + enable - Flag to enable/disable test functions
 # + groups - List of groups that this test function belongs to
-# + dataProvider - Name of the function which will be used to feed data into this test
-# + before - Name of the function to be run before the test is run
-# + after - Name of the function to be run after the test is run
-# + dependsOn - A list of function names the test function depends on, and will be run before the test
+# + dataProvider - Function, which will be used to feed data into this test
+# + before - Function to be run before the test is run
+# + after - Function to be run after the test is run
+# + dependsOn - A list of functions the test function depends on and will be run before the test
 public type TestConfig record {
     boolean enable = true;
     string[] groups = [];
@@ -32,7 +32,8 @@ public type TestConfig record {
 };
 
 # Configuration of the function to be mocked.
-# + moduleName - Name of the module of the function to be mocked
+#
+# + moduleName - Name of the module, which includes the function to be mocked
 # + functionName - Name of the function to be mocked
 public type MockConfig record {
     string moduleName = ".";

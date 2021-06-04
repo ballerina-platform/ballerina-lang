@@ -1,3 +1,3 @@
 ## Module Overview
 
-This module provides lang library operations common to all values defined by the language specification 2020R1.
+The `lang.value` module provides functions that work on values of more than one basic type.

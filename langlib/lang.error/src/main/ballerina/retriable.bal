@@ -17,6 +17,8 @@
 # A type of error which can be retried.
 public type Retriable distinct error;
 
+# The type to allow control over retries performed 
+# by the `retry` statement and `retry transaction` statement.
 public type RetryManager object {
  public function shouldRetry(error? e) returns boolean;
 };

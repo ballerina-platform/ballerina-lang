@@ -31,6 +31,7 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -61,85 +62,83 @@ public class ExecutorPositionsUtil {
     private ExecutorPositionsUtil() {
     }
 
-    public static JsonArray getExecutorPositions(Project project, Path filePath) {
+    public static JsonArray getExecutorPositions(Module module, Path filePath) {
+        Project project = module.project();
 
         JsonArray execPositions = new JsonArray();
-        project.currentPackage().modules().forEach(module -> {
-            if (module.isDefaultModule()) {
-                List<Symbol> symbolList = module.getCompilation().getSemanticModel().moduleSymbols();
-
-                List<FunctionSymbol> defaultModuleFunctionList =
-                        symbolList.stream().filter(symbol -> symbol.kind() == SymbolKind.FUNCTION)
-                                .filter(symbol -> {
-                                    try {
-                                        return symbol.getName().isPresent() && symbol.getName().get().equals(FUNC_MAIN)
-                                                && symbol.getLocation().isPresent()
-                                                && (project.kind() == ProjectKind.BUILD_PROJECT
-                                                && Files.isSameFile(filePath,
-                                                project.sourceRoot().resolve(symbol.getLocation().get().lineRange()
-                                                        .filePath())) || (project.kind()
-                                                == ProjectKind.SINGLE_FILE_PROJECT
-                                                && Files.isSameFile(filePath, project.sourceRoot())));
-                                    } catch (IOException e) {
-                                        return false;
-                                    }
-                                })
-                                .map(symbol -> (FunctionSymbol) symbol)
-                                .collect(Collectors.toList());
-
-                if (defaultModuleFunctionList.size() == 1) {
-                    JsonObject mainFunctionObject = new JsonObject();
-                    mainFunctionObject.addProperty(KIND, SOURCE);
-                    mainFunctionObject.addProperty(NAME, FUNC_MAIN);
-                    if (defaultModuleFunctionList.get(0).getLocation().isPresent()) {
-                        Location location = defaultModuleFunctionList.get(0).getLocation().get();
-                        mainFunctionObject.add(RANGE, GSON.toJsonTree(location.lineRange()));
-                        mainFunctionObject.addProperty(FILE_PATH, location.lineRange().filePath());
-                    }
-                    execPositions.add(mainFunctionObject);
-                }
-
-                symbolList.stream().filter(symbol -> symbol.kind() == SymbolKind.SERVICE_DECLARATION)
-                        .filter(symbol -> {
-                            try {
-                                return symbol.getLocation().isPresent()
-                                        && (project.kind() == ProjectKind.BUILD_PROJECT
-                                        && Files.isSameFile(filePath,
-                                        project.sourceRoot().resolve(symbol.getLocation().get().lineRange()
-                                                .filePath())) || (project.kind()
-                                        == ProjectKind.SINGLE_FILE_PROJECT
-                                        && Files.isSameFile(filePath, project.sourceRoot())));
-                            } catch (IOException e) {
-                                return false;
-                            }
-                        })
-                        .map(symbol -> (ServiceDeclarationSymbol) symbol)
-                        .collect(Collectors.toList())
-                        .forEach(serviceSymbol -> {
-                            JsonObject serviceObject = new JsonObject();
-                            serviceObject.addProperty(KIND, SOURCE);
-                            if (serviceSymbol.getLocation().isPresent()) {
-                                Location location = serviceSymbol.getLocation().get();
-                                serviceObject.add(RANGE, GSON.toJsonTree(location.lineRange()));
-                                serviceObject.addProperty(FILE_PATH, location.lineRange().filePath());
-                            }
-                            Optional<ServiceAttachPoint> serviceAttachPoint = serviceSymbol.attachPoint();
-                            if (serviceAttachPoint.isPresent()) {
-                                ServiceAttachPointKind kind = serviceAttachPoint.get().kind();
-                                if (kind == ServiceAttachPointKind.ABSOLUTE_RESOURCE_PATH) {
-                                    List<String> segments =
-                                            ((AbsResourcePathAttachPoint) serviceAttachPoint.get()).segments();
-                                    serviceObject.addProperty(NAME, String.join("_", segments));
-                                } else if (kind == ServiceAttachPointKind.STRING_LITERAL) {
-                                    serviceObject.addProperty(NAME,
-                                            ((LiteralAttachPoint) serviceAttachPoint.get()).literal());
-                                }
-                            }
-                            execPositions.add(serviceObject);
-                        });
-            }
+        if (!module.isDefaultModule()) {
             getTestCasePositions(execPositions, project, filePath, module);
-        });
+            return execPositions;
+        }
+        
+        List<Symbol> symbolList = module.project().currentPackage()
+                .getCompilation()
+                .getSemanticModel(module.moduleId())
+                .moduleSymbols();
+
+        List<FunctionSymbol> defaultModuleFunctionList = symbolList.stream()
+                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION &&
+                        symbol.getName().isPresent() &&
+                        symbol.getName().get().equals(FUNC_MAIN) &&
+                        symbol.getLocation().isPresent())
+                .filter(symbol -> {
+                    try {
+                        return CommonUtil.isLocationInFile(module, symbol.getLocation().get(), filePath);
+                    } catch (IOException e) {
+                        return false;
+                    }
+                })
+                .map(symbol -> (FunctionSymbol) symbol)
+                .collect(Collectors.toList());
+
+        if (defaultModuleFunctionList.size() == 1) {
+            JsonObject mainFunctionObject = new JsonObject();
+            mainFunctionObject.addProperty(KIND, SOURCE);
+            mainFunctionObject.addProperty(NAME, FUNC_MAIN);
+            if (defaultModuleFunctionList.get(0).getLocation().isPresent()) {
+                Location location = defaultModuleFunctionList.get(0).getLocation().get();
+                mainFunctionObject.add(RANGE, GSON.toJsonTree(location.lineRange()));
+                mainFunctionObject.addProperty(FILE_PATH, location.lineRange().filePath());
+            }
+            execPositions.add(mainFunctionObject);
+        }
+
+        symbolList.stream()
+                .filter(symbol -> symbol.kind() == SymbolKind.SERVICE_DECLARATION &&
+                        symbol.getLocation().isPresent())
+                .filter(symbol -> {
+                    try {
+                        return CommonUtil.isLocationInFile(module, symbol.getLocation().get(), filePath);
+                    } catch (IOException e) {
+                        return false;
+                    }
+                })
+                .map(symbol -> (ServiceDeclarationSymbol) symbol)
+                .collect(Collectors.toList())
+                .forEach(serviceSymbol -> {
+                    JsonObject serviceObject = new JsonObject();
+                    serviceObject.addProperty(KIND, SOURCE);
+                    if (serviceSymbol.getLocation().isPresent()) {
+                        Location location = serviceSymbol.getLocation().get();
+                        serviceObject.add(RANGE, GSON.toJsonTree(location.lineRange()));
+                        serviceObject.addProperty(FILE_PATH, location.lineRange().filePath());
+                    }
+                    Optional<ServiceAttachPoint> serviceAttachPoint = serviceSymbol.attachPoint();
+                    if (serviceAttachPoint.isPresent()) {
+                        ServiceAttachPointKind kind = serviceAttachPoint.get().kind();
+                        if (kind == ServiceAttachPointKind.ABSOLUTE_RESOURCE_PATH) {
+                            List<String> segments =
+                                    ((AbsResourcePathAttachPoint) serviceAttachPoint.get()).segments();
+                            serviceObject.addProperty(NAME, String.join("_", segments));
+                        } else if (kind == ServiceAttachPointKind.STRING_LITERAL) {
+                            serviceObject.addProperty(NAME,
+                                    ((LiteralAttachPoint) serviceAttachPoint.get()).literal());
+                        }
+                    }
+                    execPositions.add(serviceObject);
+                });
+        
+        getTestCasePositions(execPositions, project, filePath, module);
         return execPositions;
     }
 
@@ -147,28 +146,30 @@ public class ExecutorPositionsUtil {
         String moduleName = module.moduleName().moduleNamePart() == null ? "" :
                 module.moduleName().moduleNamePart();
         TestCaseVisitor testCaseVisitor = new TestCaseVisitor(execPositions, filePath);
-        try {
-            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT && Files.isSameFile(filePath,
-                    project.sourceRoot())) {
-                module.documentIds().forEach(documentId -> {
-                    testCaseVisitor.visitTestCases(module.document(documentId).syntaxTree().rootNode());
-                });
+        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            module.documentIds().forEach(documentId -> {
+                testCaseVisitor.visitTestCases(module.document(documentId).syntaxTree().rootNode());
+            });
 
-            } else if (project.kind() == ProjectKind.BUILD_PROJECT) {
-                module.testDocumentIds().forEach(testDocumentId -> {
-                    try {
-                        Document testDocument = module.document(testDocumentId);
-                        if ((module.isDefaultModule() && Files.isSameFile(filePath, project.sourceRoot()
-                                .resolve(moduleName).resolve(testDocument.name()))) || (!module.isDefaultModule()
-                                && Files.isSameFile(filePath, project.sourceRoot().resolve(MODULES)
-                                .resolve(moduleName).resolve(testDocument.name())))) {
-                            testCaseVisitor.visitTestCases(testDocument.syntaxTree().rootNode());
-                        }
-                    } catch (IOException ignored) {
+        } else if (project.kind() == ProjectKind.BUILD_PROJECT) {
+            module.testDocumentIds().forEach(testDocumentId -> {
+                Document testDocument = module.document(testDocumentId);
+                Path testDocPath;
+                if (module.isDefaultModule()) {
+                    testDocPath = project.sourceRoot().resolve(testDocument.name());
+                } else {
+                    testDocPath = project.sourceRoot()
+                            .resolve(MODULES)
+                            .resolve(moduleName)
+                            .resolve(testDocument.name());
+                }
+                try {
+                    if (Files.isSameFile(filePath, testDocPath)) {
+                        testCaseVisitor.visitTestCases(testDocument.syntaxTree().rootNode());
                     }
-                });
-            }
-        } catch (IOException ignored) {
+                } catch (IOException ignored) {
+                }
+            });
         }
     }
 }

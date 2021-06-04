@@ -182,6 +182,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "'service.'transaction.'join",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "A",
+      "insertText": "'service.'transaction.'join",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "'service.'client",
       "kind": "Module",
       "detail": "Module",

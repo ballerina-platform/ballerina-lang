@@ -45,7 +45,7 @@ type Type1 any|error;
 #
 # + stm - the stream
 # + func - a predicate to apply to each member to test whether it should be selected
-# + return - new stream only containing members of `stm` for which `func` evaluates to true
+# + return - new stream only containing members of parameter `stm` for which function `func` evaluates to true
 public isolated function filter(stream<Type,CompletionType> stm, @isolatedParam function(Type val) returns boolean func)
         returns stream<Type,CompletionType>  {
     FilterSupport itrObj = new(stm, func);
@@ -78,7 +78,7 @@ public isolated function next(stream<Type, CompletionType> strm) returns record 
 #
 # + stm - the stream
 # + func - a function to apply to each member
-# + return - new stream containing result of applying `func` to each member of `stm` in order
+# + return - new stream containing result of applying function `func` to each member of parameter `stm` in order
 public isolated function 'map(stream<Type,CompletionType> stm, @isolatedParam function(Type val) returns Type1 func)
         returns stream<Type1,CompletionType> {
     MapSupport iteratorObj = new(stm, func);
@@ -87,13 +87,14 @@ public isolated function 'map(stream<Type,CompletionType> stm, @isolatedParam fu
 
 // Refer to issue https://github.com/ballerina-platform/ballerina-lang/issues/21527
 # Combines the members of a stream using a combining function.
+#
 # The combining function takes the combined value so far and a member of the stream,
 # and returns a new combined value.
 #
 # + stm - the stream
 # + func - combining function
 # + initial - initial value for the first argument of combining function `func`
-# + return - result of combining the members of `stm` using `func`
+# + return - result of combining the members of parameter `stm` using function `func`
 public isolated function reduce(stream<Type,ErrorType?> stm,
         @isolatedParam function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1|ErrorType {
     any | error reducedValue = initial;
@@ -111,7 +112,8 @@ public isolated function reduce(stream<Type,ErrorType?> stm,
 }
 
 # Applies a function to each member of a stream.
-# The function `func` is applied to each member of stream `stm` in order.
+#
+# The function `func` is applied to each member of parameter `stm` stream in order.
 #
 # + stm - the stream
 # + func - a function to apply to each member
@@ -135,7 +137,7 @@ public isolated function forEach(stream<Type,CompletionType> stm,
 # Returns an iterator over a stream.
 #
 # + stm - the stream
-# + return - a new iterator object that will iterate over the members of `stm`.
+# + return - a new iterator object that will iterate over the members of parameter `stm`.
 public isolated function iterator(stream<Type,CompletionType> stm) returns object {
     public isolated function next() returns record {|
         Type value;
@@ -145,6 +147,7 @@ public isolated function iterator(stream<Type,CompletionType> stm) returns objec
 }
 
 # Closes a stream.
+#
 # This releases any system resources being used by the stream.
 # Closing a stream that has already been closed has no efffect and returns `()`.
 #

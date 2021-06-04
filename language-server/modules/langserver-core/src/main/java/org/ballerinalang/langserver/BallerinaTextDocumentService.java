@@ -281,12 +281,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                 Map<Module, List<io.ballerina.tools.diagnostics.Location>> referencesMap = 
                         ReferencesUtil.getReferences(context);
-                Path projectRoot = context.workspace().projectRoot(context.filePath());
 
                 List<Location> references = new ArrayList<>();
                 referencesMap.forEach((module, locations) ->
                         locations.forEach(location -> {
-                            String uri = ReferencesUtil.getUriFromLocation(module, location, projectRoot);
+                            String uri = ReferencesUtil.getUriFromLocation(module, location);
                             references.add(new Location(uri, ReferencesUtil.getRange(location)));
                         }));
                 
@@ -374,7 +373,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     LSContextOperation.TXT_CODE_LENS, this.serverContext);
 
             try {
-                lenses = CodeLensUtil.getCodeLenses(codeLensContext);
+                lenses = CodeLensUtil.getCodeLenses(codeLensContext, params.getTextDocument());
                 return lenses;
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Code Lens", e);

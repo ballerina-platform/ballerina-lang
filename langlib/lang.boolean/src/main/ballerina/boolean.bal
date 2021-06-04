@@ -17,14 +17,15 @@
 import ballerina/jballerina.java;
 
 # Converts a string to a boolean.
-# Returns the boolean of which `s` is a string representation.
+#
+# Returns the boolean of which parameter `s` is a string representation.
 # The accepted representations are `true`, `false`
 # (in any combination of lower- and upper-case),
 # and also `1` for true and `0` for `false`.
-# This is the inverse of `value:toString` applied to a `boolean`.
+# This is the inverse of function `value:toString` applied to a `boolean`.
 #
 # + s - string representing a boolean value
-# + return - boolean that `s` represents, or an error if there is no such boolean
+# + return - boolean that parameter `s` represents, or an error if there is no such boolean
 public isolated function fromString(string s) returns boolean|error = @java:Method {
     'class: "org.ballerinalang.langlib.bool.FromString",
     name: "fromString"

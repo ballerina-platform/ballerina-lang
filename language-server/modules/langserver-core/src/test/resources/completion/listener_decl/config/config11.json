@@ -15,9 +15,24 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `module1:Listener`   \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "D",
       "filterText": "getListener",
       "insertText": "getListener()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getInt()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "sortText": "H",
+      "filterText": "getInt",
+      "insertText": "getInt()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -37,25 +52,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getInt()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "sortText": "F",
-      "filterText": "getInt",
-      "insertText": "getInt()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "Q",
+      "sortText": "S",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
@@ -296,7 +296,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `int` port"
         }
       },
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "new(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -308,7 +308,7 @@
       "label": "new",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "E",
       "insertText": "new ",
       "insertTextFormat": "Snippet"
     },
@@ -316,7 +316,7 @@
       "label": "check",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "insertText": "check ",
       "insertTextFormat": "Snippet"
     },
@@ -324,7 +324,7 @@
       "label": "checkpanic",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "insertText": "checkpanic ",
       "insertTextFormat": "Snippet"
     },
@@ -332,7 +332,7 @@
       "label": "trap",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "S",
+      "sortText": "U",
       "insertText": "trap",
       "insertTextFormat": "Snippet"
     }
