@@ -28,6 +28,7 @@ import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
@@ -120,15 +121,15 @@ public class JsonToRecordConverter {
                     List<String> required = schema.getValue().getRequired();
 
 
-                    Token typeKeyWord = AbstractNodeFactory.createIdentifierToken("type");
+                    Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
 
                     IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(
                             escapeIdentifier(schema.getKey().trim()));
 
 
-                    Token recordKeyWord = AbstractNodeFactory.createIdentifierToken("record");
+                    Token recordKeyWord = AbstractNodeFactory.createToken(SyntaxKind.RECORD_KEYWORD);
 
-                    Token bodyStartDelimiter = AbstractNodeFactory.createIdentifierToken("{");
+                    Token bodyStartDelimiter = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN);
 
                     //Generate RecordFiled
                     List<Node> recordFieldList = new ArrayList<>();
@@ -141,19 +142,19 @@ public class JsonToRecordConverter {
                             }
                         }
                         NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFieldList);
-                        Token bodyEndDelimiter = AbstractNodeFactory.createIdentifierToken("}");
+                        Token bodyEndDelimiter = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
                         RecordTypeDescriptorNode recordTypeDescriptorNode =
                                 NodeFactory.createRecordTypeDescriptorNode(recordKeyWord, bodyStartDelimiter,
                                         fieldNodes, null, bodyEndDelimiter);
-                        Token semicolon = AbstractNodeFactory.createIdentifierToken(";");
+                        Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
                         TypeDefinitionNode typeDefinitionNode = NodeFactory.createTypeDefinitionNode(null,
                                 null, typeKeyWord, typeName, recordTypeDescriptorNode, semicolon);
                         typeDefinitionNodeList.add(typeDefinitionNode);
                     } else if (schema.getValue().getType().equals("array")) {
                         if (schemaValue instanceof ArraySchema) {
                             ArraySchema arraySchema = (ArraySchema) schemaValue;
-                            Token openSBracketToken = AbstractNodeFactory.createIdentifierToken("[");
-                            Token closeSBracketToken = AbstractNodeFactory.createIdentifierToken("]");
+                            Token openSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN);
+                            Token closeSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
                             IdentifierToken fieldName =
                                     AbstractNodeFactory.createIdentifierToken(escapeIdentifier(
                                             schema.getKey().trim().toLowerCase(Locale.ENGLISH)) + "list");
@@ -165,7 +166,7 @@ public class JsonToRecordConverter {
                                 fieldTypeName = extractOpenApiSchema(arraySchema.getItems(), schema.getKey());
                             } else {
                                 Token type =
-                                        AbstractNodeFactory.createIdentifierToken("string ");
+                                        AbstractNodeFactory.createToken(SyntaxKind.STRING_TYPE_DESC);
                                 fieldTypeName =  NodeFactory.createBuiltinSimpleNameReferenceNode(null, type);
                             }
                             ArrayTypeDescriptorNode arrayField =
@@ -174,11 +175,11 @@ public class JsonToRecordConverter {
                             RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null,
                                     null, arrayField, fieldName, null, semicolonToken);
                             NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFieldNode);
-                            Token bodyEndDelimiter = AbstractNodeFactory.createIdentifierToken("}");
+                            Token bodyEndDelimiter = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
                             RecordTypeDescriptorNode recordTypeDescriptorNode =
                                     NodeFactory.createRecordTypeDescriptorNode(recordKeyWord, bodyStartDelimiter,
                                             fieldNodes, null, bodyEndDelimiter);
-                            Token semicolon = AbstractNodeFactory.createIdentifierToken(";");
+                            Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
                             TypeDefinitionNode typeDefinitionNode = NodeFactory.createTypeDefinitionNode(null,
                                     null, typeKeyWord, typeName, recordTypeDescriptorNode, semicolon);
                             typeDefinitionNodeList.add(typeDefinitionNode);
@@ -207,8 +208,8 @@ public class JsonToRecordConverter {
                 AbstractNodeFactory.createIdentifierToken(escapeIdentifier(field.getKey().trim()));
 
         TypeDescriptorNode fieldTypeName = extractOpenApiSchema(field.getValue(), field.getKey());
-        Token semicolonToken = AbstractNodeFactory.createIdentifierToken(";");
-        Token questionMarkToken = AbstractNodeFactory.createIdentifierToken("?");
+        Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
+        Token questionMarkToken = AbstractNodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
         if (required != null) {
             if (!required.contains(field.getKey().trim())) {
                 recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
@@ -246,8 +247,8 @@ public class JsonToRecordConverter {
 
                     if (arraySchema.getItems() != null) {
                         //single array
-                        Token openSBracketToken = AbstractNodeFactory.createIdentifierToken("[");
-                        Token closeSBracketToken = AbstractNodeFactory.createIdentifierToken("]");
+                        Token openSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN);
+                        Token closeSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
                         String type;
                         Token typeName;
                         TypeDescriptorNode memberTypeDesc;
@@ -276,13 +277,13 @@ public class JsonToRecordConverter {
                 Map<String, Schema> properties = schema.getProperties();
                 List<String> required = schema.getRequired();
                 //1.typeKeyWord
-                Token typeKeyWord = AbstractNodeFactory.createIdentifierToken("type");
+                Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
                 //2.typeName
                 IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(
                         escapeIdentifier(StringUtils.capitalize(name)));
-                Token recordKeyWord = AbstractNodeFactory.createIdentifierToken("record");
-                Token bodyStartDelimiter = AbstractNodeFactory.createIdentifierToken("{");
-                Token bodyEndDelimiter = AbstractNodeFactory.createIdentifierToken("}");
+                Token recordKeyWord = AbstractNodeFactory.createToken(SyntaxKind.RECORD_KEYWORD);
+                Token bodyStartDelimiter = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN);
+                Token bodyEndDelimiter = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
                 List<Node> recordFList = new ArrayList<>();
                 for (Map.Entry<String, Schema> property: properties.entrySet()) {
                     addRecordFields(required, recordFList, property);
@@ -290,7 +291,7 @@ public class JsonToRecordConverter {
                 NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFList);
                 TypeDescriptorNode typeDescriptorNode = NodeFactory.createRecordTypeDescriptorNode(recordKeyWord,
                         bodyStartDelimiter, fieldNodes, null, bodyEndDelimiter);
-                Token semicolon = AbstractNodeFactory.createIdentifierToken(";");
+                Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
                 TypeDefinitionNode typeDefinitionNode = NodeFactory.createTypeDefinitionNode(null,
                         null, typeKeyWord, typeName, typeDescriptorNode, semicolon);
                 typeDefinitionNodeList.add(typeDefinitionNode);
@@ -299,7 +300,7 @@ public class JsonToRecordConverter {
 
             } else {
                 outStream.println("Encountered an unsupported type. Type `any` would be used for the field.");
-                Token typeName = AbstractNodeFactory.createIdentifierToken("any");
+                Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
                 return createBuiltinSimpleNameReferenceNode(null, typeName);
             }
         } else if (schema.get$ref() != null) {
@@ -309,10 +310,10 @@ public class JsonToRecordConverter {
             //This contains a fallback to Ballerina common type `any` if the OpenApi specification type is not defined
             // or not compatible with any of the current Ballerina types.
             outStream.println("Encountered an unsupported type. Type `any` would be used for the field.");
-            Token typeName = AbstractNodeFactory.createIdentifierToken("any");
+            Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
             return createBuiltinSimpleNameReferenceNode(null, typeName);
         }
-        Token typeName = AbstractNodeFactory.createIdentifierToken("any");
+        Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
         return createBuiltinSimpleNameReferenceNode(null, typeName);
     }
 
