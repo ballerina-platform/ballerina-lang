@@ -1589,16 +1589,16 @@
       ]
     },
     {
-      "name": "ParameterizedTypeDescriptorNode",
+      "name": "MapTypeDescriptorNode",
       "base": "TypeDescriptorNode",
-      "kind": "PARAMETERIZED_TYPE_DESC",
+      "kind": "MAP_TYPE_DESC",
       "attributes": [
         {
-          "name": "parameterizedType",
+          "name": "mapKeywordToken",
           "type": "Token"
         },
         {
-          "name": "typeParameter",
+          "name": "mapTypeParamsNode",
           "type": "TypeParameterNode"
         }
       ]
@@ -4355,6 +4355,22 @@
         {
           "name": "closeParenToken",
           "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "FutureTypeDescriptorNode",
+      "base": "TypeDescriptorNode",
+      "kind": "FUTURE_TYPE_DESC",
+      "attributes": [
+        {
+          "name": "futureKeywordToken",
+          "type": "Token"
+        },
+        {
+          "name": "futureTypeParamsNode",
+          "type": "TypeParameterNode",
+          "isOptional": true
         }
       ]
     }
