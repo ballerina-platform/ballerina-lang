@@ -94,6 +94,26 @@ public class MatchStmtErrorMatchPatternTest {
     }
 
     @Test
+    public void testErrorMatchPatter11() {
+        BRunUtil.invoke(result, "testErrorMatchPattern11");
+    }
+
+    @Test
+    public void testErrorMatchPatter12() {
+        BRunUtil.invoke(result, "testErrorMatchPattern12");
+    }
+
+    @Test
+    public void testErrorMatchPatter13() {
+        BRunUtil.invoke(result, "testErrorMatchPattern13");
+    }
+
+    @Test
+    public void testErrorMatchPatter14() {
+        BRunUtil.invoke(result, "testErrorMatchPattern14");
+    }
+
+    @Test
     public void testErrorMatchPatternWithRestPattern1() {
         BRunUtil.invoke(restPatternResult, "testErrorMatchPattern1");
     }

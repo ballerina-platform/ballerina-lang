@@ -826,7 +826,6 @@ public class ASTBuilderUtil {
         dupFuncSymbol.retType = invokableSymbol.retType;
         dupFuncSymbol.restParam = invokableSymbol.restParam;
         dupFuncSymbol.params = new ArrayList<>(invokableSymbol.params);
-        dupFuncSymbol.taintTable = invokableSymbol.taintTable;
         dupFuncSymbol.tainted = invokableSymbol.tainted;
         dupFuncSymbol.closure = invokableSymbol.closure;
         dupFuncSymbol.markdownDocumentation = invokableSymbol.markdownDocumentation;
@@ -877,7 +876,6 @@ public class ASTBuilderUtil {
             dupFuncSymbol.restParam = duplicateParamSymbol(invokableSymbol.restParam, dupFuncSymbol);
         }
 
-        dupFuncSymbol.taintTable = invokableSymbol.taintTable;
         dupFuncSymbol.tainted = invokableSymbol.tainted;
         dupFuncSymbol.closure = invokableSymbol.closure;
         dupFuncSymbol.tag = invokableSymbol.tag;
