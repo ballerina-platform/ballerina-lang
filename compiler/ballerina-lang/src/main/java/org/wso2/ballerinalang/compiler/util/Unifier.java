@@ -860,7 +860,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     private boolean hasIntersection(BType t1, BType t2) {
         BType typeIntersection =
-                types.getTypeIntersection(Types.IntersectionContext.compilerInternalIntersectionContext(), t1, t2, env);
+                types.getTypeIntersection(Types.IntersectionContext.compilerInternalIntersectionContext(), t1, t2, env,
+                        new LinkedHashSet<>());
         return typeIntersection != null && typeIntersection != symbolTable.semanticError;
     }
 

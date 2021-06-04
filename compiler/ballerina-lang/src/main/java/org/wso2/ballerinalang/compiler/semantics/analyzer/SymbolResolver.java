@@ -2105,7 +2105,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return lhsType;
         }
 
-        return types.getTypeIntersection(intersectionContext, lhsType, rhsType, env);
+        return types.getTypeIntersection(intersectionContext, lhsType, rhsType, env, new LinkedHashSet<>());
     }
 
     boolean validateInferTypedescParams(Location pos, List<? extends BLangVariable> parameters, BType retType) {
