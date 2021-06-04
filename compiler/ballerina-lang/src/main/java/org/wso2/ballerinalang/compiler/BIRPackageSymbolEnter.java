@@ -62,7 +62,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
@@ -435,9 +434,6 @@ public class BIRPackageSymbolEnter {
 
         // set parameter symbols to the function symbol
         setParamSymbols(invokableSymbol, dataInStream);
-
-        // set taint table to the function symbol
-        readTaintTable(invokableSymbol, dataInStream);
 
         defineMarkDownDocAttachment(invokableSymbol, readDocBytes(dataInStream));
 
@@ -908,49 +904,6 @@ public class BIRPackageSymbolEnter {
                 }
                 break;
         }
-    }
-
-    /**
-     * Set taint table to the invokable symbol.
-     *
-     * @param invokableSymbol   Invokable symbol
-     * @param dataInStream      Input stream
-     * @throws IOException      On error while reading the stream
-     */
-    private void readTaintTable(BInvokableSymbol invokableSymbol, DataInputStream dataInStream)
-            throws IOException {
-        long length = dataInStream.readLong();
-        if (length <= 0) {
-            return;
-        }
-        int rowCount = dataInStream.readShort();
-        int columnCount = dataInStream.readShort();
-
-        // Extract and set taint table to the symbol
-        invokableSymbol.taintTable = new HashMap<>();
-
-        dataInStream.readInt(); // read and ignore table size
-
-        for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-            int paramIndex = dataInStream.readShort();
-
-            dataInStream.readInt(); // read and ignore taint records size
-
-            TaintRecord.TaintedStatus returnTaintedStatus =
-                    convertByteToTaintedStatus(dataInStream.readByte());
-            List<TaintRecord.TaintedStatus> parameterTaintedStatusList = new ArrayList<>(columnCount);
-
-            for (int columnIndex = 1; columnIndex < columnCount; columnIndex++) {
-                parameterTaintedStatusList.add(convertByteToTaintedStatus(dataInStream.readByte()));
-            }
-            TaintRecord taintRecord = new TaintRecord(returnTaintedStatus, parameterTaintedStatusList);
-            invokableSymbol.taintTable.put(paramIndex, taintRecord);
-        }
-    }
-
-    private TaintRecord.TaintedStatus convertByteToTaintedStatus(byte readByte) {
-        return EnumSet.allOf(TaintRecord.TaintedStatus.class).stream()
-                .filter(taintedStatus -> readByte == taintedStatus.getByteValue()).findFirst().get();
     }
 
     private Location readPosition(DataInputStream dataInStream) throws IOException {
