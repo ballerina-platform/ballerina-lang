@@ -210,7 +210,12 @@ public class TypeGuardTest {
                 "'map<int>'", 480, 30);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean[]', found '" +
                 "(string|boolean)[]'", 484, 23);
-
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type '(Bar & readonly)' does not support " +
+                "optional field access for field 't'", 498, 17);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', found '(record {| " +
+                "string s; |} & readonly)?'", 499, 21);
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type '(Bar & readonly)' does not support " +
+                "field access for non-required field 'baz'", 500, 50);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -411,7 +416,7 @@ public class TypeGuardTest {
         Assert.assertEquals(returns[0].stringValue(), "status: 500");
     }
 
-    @Test(groups = { "brokenOnJBallerina", "brokenOnNewParser" })
+    @Test
     public void testTypeGuardsWithErrorInmatch() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardsWithErrorInmatch");
         Assert.assertEquals(returns[0].stringValue(), "some error");
@@ -628,13 +633,13 @@ public class TypeGuardTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(groups = { "brokenOnJBallerina", "brokenOnNewParser"})
+    @Test
     public void testTypeGuardForErrorDestructuringAssignmentPositive() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForErrorDestructuringAssignmentPositive");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(groups = { "brokenOnJBallerina", "brokenOnNewParser" })
+    @Test
     public void testTypeGuardForErrorDestructuringAssignmentNegative() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForErrorDestructuringAssignmentNegative");
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
@@ -700,6 +705,11 @@ public class TypeGuardTest {
     @Test
     public void testJsonIntersection() {
         BRunUtil.invoke(result, "testJsonIntersection");
+    }
+
+    @Test
+    public void testIntersectionWithIntersectionType() {
+        BRunUtil.invoke(result, "testIntersectionWithIntersectionType");
     }
 
     @Test

@@ -2046,12 +2046,6 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private BLangTypeDefinition defineErrorDetailRecord(BRecordType detailRecord, Location pos, SymbolEnv env) {
         BRecordTypeSymbol detailRecordSymbol = (BRecordTypeSymbol) detailRecord.tsymbol;
-//        if (detailRecordSymbol.initializerFunc != null) {
-//            detailRecordSymbol.scope.define(names.fromString(
-//                    detailRecordSymbol.name.value + "." + detailRecordSymbol.initializerFunc.funcName.value),
-//                    detailRecordSymbol.initializerFunc.symbol);
-//            env.scope.define(detailRecordSymbol.name, detailRecordSymbol);
-//        }
 
         for (BField field : detailRecord.fields.values()) {
             BVarSymbol fieldSymbol = field.symbol;

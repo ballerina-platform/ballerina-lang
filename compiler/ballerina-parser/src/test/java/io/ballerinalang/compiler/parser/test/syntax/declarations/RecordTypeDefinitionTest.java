@@ -132,7 +132,7 @@ public class RecordTypeDefinitionTest extends AbstractDeclarationTest {
 
     @Test
     public void testRecordFieldsAfterRestField() {
-        test("record-type-def/record_type_def_source_20.bal", "record-type-def/record_type_def_assert_20.json");
+        testFile("record-type-def/record_type_def_source_20.bal", "record-type-def/record_type_def_assert_20.json");
     }
     
     @Test

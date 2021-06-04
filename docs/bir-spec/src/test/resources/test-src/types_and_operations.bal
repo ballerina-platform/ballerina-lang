@@ -491,7 +491,7 @@ public function functionWithAsynchInvocations() {
 
     int result = squarePlusCube(f1);
 
-    _ = wait f1;
+    _ = checkpanic wait f1;
 
     future<()> f2 = start countInfinity();
 
@@ -504,16 +504,16 @@ public function functionWithAsynchInvocations() {
     future<int> f4 = start square(20);
     future<string> f5 = start greet("Bert");
 
-    int|string anyResult = wait f4|f5;
+    int|string anyResult = checkpanic wait f4|f5;
 
     future<int> f6 = start sum(40, 60);
     future<int> f7 = start cube(3);
     future<string> f8 = start greet("Moose");
 
-    map<int|string> resultMap = wait {first_field: f6, second_field: f7,
+    map<int|string|error> resultMap = wait {first_field: f6, second_field: f7,
                                             third_field: f8};
 
-    record {int first_field; int second_field; string third_field;} rec =
+    record {int|error first_field; int|error second_field; string|error third_field;} rec =
                     wait {first_field: f6, second_field: f7, third_field: f8};
 }
 
@@ -560,12 +560,12 @@ type UndergradStudentRec record {|
 
 function squarePlusCube(future<int> f) returns int {
     worker w1 {
-        int n = wait f;
+        int n = checkpanic wait f;
         int sq = square(n);
         sq -> w2;
     }
     worker w2 returns int {
-        int n = wait f;
+        int n = checkpanic wait f;
         int cb = cube(n);
         int sq;
         sq = <- w1;

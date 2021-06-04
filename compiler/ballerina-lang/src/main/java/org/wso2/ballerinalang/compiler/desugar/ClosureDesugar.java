@@ -460,6 +460,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
             return createMapSymbolIfAbsent((BLangBlockStmt) node, closureMapCount);
         } else if (node.getKind() == NodeKind.FUNCTION) {
             return createMapSymbolIfAbsent((BLangFunction) node, closureMapCount);
+        } else if (node.getKind() == NodeKind.RESOURCE_FUNC) {
+            return createMapSymbolIfAbsent((BLangResourceFunction) node, closureMapCount);
         }
         return null;
     }

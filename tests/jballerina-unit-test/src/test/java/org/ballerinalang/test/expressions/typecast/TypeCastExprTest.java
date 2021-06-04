@@ -48,24 +48,6 @@ public class TypeCastExprTest {
         result = BCompileUtil.compile("test-src/expressions/typecast/type-casting.bal");
     }
 
-//    @Test
-//    public void testXMLToJSON() {
-//        BValue[] args = {new BXML("<name>chanaka</name>")};
-//        BValue[] returns = Functions.invoke(bLangProgram, "xmltojson", args);
-//        Assert.assertTrue(returns[0] instanceof BJSON);
-//        final String expected = "{\"name\":\"chanaka\"}";
-//        Assert.assertEquals(returns[0].stringValue(), expected);
-//    }
-//
-//    @Test
-//    public void testJSONToXML() {
-//        BValue[] args = {new BJSON("{\"name\":\"chanaka\"}")};
-//        BValue[] returns = BTestUtils.invoke(result, "jsontoxml", args);
-//        Assert.assertTrue(returns[0] instanceof BXML);
-//        final String expected = "<name>chanaka</name>";
-//        Assert.assertEquals(returns[0].stringValue(), expected);
-//    }
-
     @Test
     public void testFloatToInt() {
         BValue[] args = {new BFloat(222222.44444f)};
@@ -199,80 +181,6 @@ public class TypeCastExprTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    /*@Test
-    public void testSimpleJsonToMap() {
-        BValue[] returns = BTestUtils.invoke(result, "testSimpleJsonToMap");
-        Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
-        BMap map = (BMap) returns[0];
-
-        BValue value1 = map.get(new BString("fname"));
-        Assert.assertTrue(value1 instanceof BString);
-        Assert.assertEquals(value1.stringValue(), "Supun");
-
-        BValue value2 = map.get(new BString("lname"));
-        Assert.assertTrue(value2 instanceof BString);
-        Assert.assertEquals(value2.stringValue(), "Setunga");
-    }*/
-
-    /*@Test
-    public void testComplexJsonToMap() {
-        BValue[] returns = BTestUtils.invoke(result, "testComplexJsonToMap");
-        Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
-        BMap map = (BMap) returns[0];
-
-        BValue value1 = map.get(new BString("name"));
-        Assert.assertTrue(value1 instanceof BString);
-        Assert.assertEquals(value1.stringValue(), "Supun");
-
-        BValue value2 = map.get(new BString("age"));
-        Assert.assertTrue(value2 instanceof BInteger);
-        Assert.assertEquals(((BInteger) value2).intValue(), 25);
-
-        BValue value3 = map.get(new BString("gpa"));
-        Assert.assertTrue(value3 instanceof BFloat);
-        Assert.assertEquals(((BFloat) value3).floatValue(), 2.81);
-
-        BValue value4 = map.get(new BString("status"));
-        Assert.assertTrue(value4 instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) value4).booleanValue(), true);
-
-        BValue value5 = map.get(new BString("info"));
-        Assert.assertEquals(value5, null);
-
-        BValue value6 = map.get(new BString("address"));
-        Assert.assertTrue(value6 instanceof BJSON);
-        Assert.assertEquals(value6.stringValue(), "{\"city\":\"Colombo\",\"country\":\"SriLanka\"}");
-
-        BValue value7 = map.get(new BString("marks"));
-        Assert.assertTrue(value7 instanceof BJSON);
-        Assert.assertEquals(value7.stringValue(), "[1,5,7]");
-    }*/
-
-    /*@Test
-    public void testSimpleMapToJson() {
-        BValue[] returns = BTestUtils.invoke(result, "testSimpleMapToJson");
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        JsonNode jsonNode = ((BJSON) returns[0]).value();
-        Assert.assertEquals(jsonNode.get("fname").textValue(), "Supun");
-        Assert.assertEquals(jsonNode.get("lname").textValue(), "Setunga");
-    }*/
-
-    /*@Test
-    public void testComplexMapToJson() {
-        BValue[] returns = BTestUtils.invoke(result, "testComplexMapToJson");
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        JsonNode jsonNode = ((BJSON) returns[0]).value();
-        Assert.assertEquals(jsonNode.get("name").textValue(), "Supun");
-        Assert.assertEquals(jsonNode.get("age").intValue(), 25);
-        Assert.assertEquals(jsonNode.get("status").booleanValue(), true);
-        Assert.assertTrue(jsonNode.get("info").isNull());
-        Assert.assertEquals(jsonNode.get("intArray").toString(), "[7,8,9]");
-
-        JsonNode addressNode = jsonNode.get("address");
-        Assert.assertEquals(addressNode.get("country").textValue(), "USA");
-        Assert.assertEquals(addressNode.get("city").textValue(), "CA");
-    }*/
-
     @Test
     public void testStructToStruct() {
         BValue[] returns = BRunUtil.invoke(result, "testStructToStruct");
@@ -332,6 +240,7 @@ public class TypeCastExprTest {
         Assert.assertEquals(errorMsg, "'string' value 'hello' cannot be converted to 'float'");
     }
 
+    @Test(enabled = false) // See https://github.com/ballerina-platform/ballerina-lang/issues/29359
     public void testBooleanInJsonToInt() {
         BValue[] returns = BRunUtil.invoke(result, "testBooleanInJsonToInt");
         Assert.assertTrue(returns[0] instanceof BError);
@@ -368,11 +277,12 @@ public class TypeCastExprTest {
         BRunUtil.invoke(result, "testNullJsonToBoolean");
     }
 
-//    @Test(description = "Test casting a null Struct to Struct")
-//    public void testNullStructToStruct() {
-//        BValue[] returns = BRunUtil.invoke(result, "testNullStructToStruct");
-//        Assert.assertEquals(returns[0], null);
-//    }
+    @Test(description = "Test casting nil to a record",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'Student'.*")
+    public void testNullStructToStruct() {
+        BRunUtil.invoke(result, "testNullStructToStruct");
+    }
 
     @Test(description = "Test casting an int as any type to json")
     public void testAnyIntToJson() {
@@ -696,22 +606,6 @@ public class TypeCastExprTest {
     public void testAnyBooleanToUnionWithErrors() {
         BRunUtil.invoke(result, "testAnyBooleanToUnionWithErrors");
     }
-
-    // TODO:
-/*    @Test
-    public void testErrorInForceCasting() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testErrorInForceCasting");
-
-        // check whether float is zero
-        Assert.assertNull(returns[0]);
-
-        // check the error
-        Assert.assertTrue(returns[1] instanceof BStruct);
-        BStruct error = (BStruct) returns[1];
-        BValue errorMsg = error.getValue(0);
-        Assert.assertTrue(errorMsg instanceof BString);
-        Assert.assertEquals(errorMsg.stringValue(), "incompatible types: expected 'A', found 'B'");
-    }*/
 
     @Test
     public void testSameTypeCast() {

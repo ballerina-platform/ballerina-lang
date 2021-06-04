@@ -14,6 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.test.worker;
 
 import org.ballerinalang.core.model.values.BInteger;
@@ -240,7 +241,7 @@ public class WorkerTest {
         BRunUtil.invoke(result, "receiveDefaultWithCheckAndTrap");
     }
 
-    @Test(groups = "brokenOnJBallerina")
+    @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/30595
     public void sameStrandMultipleInvocation() {
         for (int i = 0; i < 20; i++) {
             sameStrandMultipleInvocationTest();
@@ -293,13 +294,6 @@ public class WorkerTest {
         } finally {
             System.setOut(defaultOut);
         }
-    }
-
-    @Test
-    public void waitOnSameFutureByMultiple() {
-        BValue[] returns = BRunUtil.invoke(result, "waitOnSameFutureByMultiple");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 18);
     }
 
     @Test

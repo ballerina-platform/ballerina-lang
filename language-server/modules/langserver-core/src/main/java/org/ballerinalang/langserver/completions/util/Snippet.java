@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
-import org.ballerinalang.langserver.SnippetBlock;
-import org.ballerinalang.langserver.SnippetGenerator;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 
 /**
  * Snippet for the Ballerina language constructs.
@@ -266,15 +266,21 @@ public enum Snippet {
 
     KW_TRANSACTIONAL(SnippetGenerator.getTransactionalKeywordSnippet()),
 
+    KW_WORKER(SnippetGenerator.getKeywordSnippet("worker")),
+
+    KW_FIELD(SnippetGenerator.getKeywordSnippet("field")),
+
     KW_SOURCE(SnippetGenerator.getKeywordSnippet("source")),
 
     KW_OBJ_FUNCTION(SnippetGenerator.getKeywordSnippet("object function")),
 
     KW_SERVICE_REMOTE_FUNCTION(SnippetGenerator.getKeywordSnippet("service remote function")),
 
+    KW_REMOTE_FUNCTION(SnippetGenerator.getKeywordSnippet("remote function")),
+
     KW_PARAMETER(SnippetGenerator.getKeywordSnippet("parameter")),
 
-    KW_RETURN(SnippetGenerator.getKeywordSnippet("parameter")),
+    KW_RETURN(SnippetGenerator.getKeywordSnippet("return")),
 
     KW_OBJECT_FIELD(SnippetGenerator.getKeywordSnippet("object field")),
 
@@ -354,23 +360,18 @@ public enum Snippet {
 
     TYPE_MAP(SnippetGenerator.getMapTypeSnippet());
 
-    private final String snippetName;
     private final SnippetBlock snippetBlock;
 
     Snippet(SnippetBlock snippetBlock) {
-        this.snippetName = null;
         this.snippetBlock = snippetBlock;
+        this.snippetBlock.setId(name());
     }
-
-    /**
-     * Get the Snippet Name.
-     *
-     * @return {@link String} snippet name
-     */
-    public String snippetName() {
-        return this.snippetName;
+    
+    public boolean equals(LSCompletionItem lsCItem) {
+        return lsCItem.getType() == LSCompletionItem.CompletionItemType.SNIPPET
+                && ((SnippetCompletionItem) lsCItem).id().equals(name());
     }
-
+    
     /**
      * Get the SnippetBlock.
      *

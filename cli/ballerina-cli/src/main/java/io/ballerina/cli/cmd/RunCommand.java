@@ -80,10 +80,7 @@ public class RunCommand implements BLauncherCmd {
             "when run is used with a source file or a module.")
     private Boolean observabilityIncluded;
 
-    @CommandLine.Option(names = "--taint-check", description = "perform taint flow analysis")
-    private Boolean taintCheck;
-
-    private static final String runCmd = "bal run [--experimental] [--offline] [--taint-check]\n" +
+    private static final String runCmd = "bal run [--experimental] [--offline]\n" +
             "                  [<executable-jar | ballerina-file | package-path>] [-- program-args...]";
 
     public RunCommand() {
@@ -201,7 +198,6 @@ public class RunCommand implements BLauncherCmd {
                 .skipTests(true)
                 .testReport(false)
                 .observabilityIncluded(observabilityIncluded)
-                .taintCheck(taintCheck)
                 .build();
     }
 }

@@ -56,12 +56,6 @@ function testIntCastFloatStmt (int a) returns float {
     return x;
 }
 
-function testBinaryExpressionIntAndFloatStmt (int a) returns float {
-    float x;
-    x = <float>a;
-    return x + <float>a;
-}
-
 public client class Client {
     remote function foo() returns [int, int] {
         return [0, 0];

@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.commons;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -28,6 +29,7 @@ import org.eclipse.lsp4j.Position;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -76,10 +78,19 @@ public interface DocumentServiceContext {
 
     /**
      * Get the imports in the current document.
+     * This API is deprecated. Instead, use {@link #currentDocImportsMap}
      *
      * @return {@link List} of import nodes
      */
+    @Deprecated(forRemoval = true)
     List<ImportDeclarationNode> currentDocImports();
+
+    /**
+     * Get the imports in the current document.
+     *
+     * @return {@link Map} of import nodes
+     */
+    Map<ImportDeclarationNode, ModuleSymbol> currentDocImportsMap();
 
     /**
      * Get the current document where the given file URI resides.

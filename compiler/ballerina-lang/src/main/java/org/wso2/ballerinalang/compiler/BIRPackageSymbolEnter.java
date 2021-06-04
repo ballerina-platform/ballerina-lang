@@ -1462,7 +1462,7 @@ public class BIRPackageSymbolEnter {
                     for (int i = 0; i < fieldCount; i++) {
                         String fieldName = getStringCPEntryValue(inputStream);
                         var fieldFlags = inputStream.readLong();
-
+                        var defaultable = inputStream.readBoolean();
                         byte[] docBytes = readDocBytes(inputStream);
 
                         BType fieldType = readTypeFromCp();
@@ -1470,7 +1470,7 @@ public class BIRPackageSymbolEnter {
                                                                     objectSymbol.pkgID, fieldType,
                                                                     objectSymbol.scope.owner, symTable.builtinPos,
                                                                     COMPILED_SOURCE);
-
+                        objectVarSymbol.isDefaultable = defaultable;
                         defineMarkDownDocAttachment(objectVarSymbol, docBytes);
 
                         BField structField = new BField(objectVarSymbol.name, null, objectVarSymbol);

@@ -365,7 +365,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validProjectWithBuildOptions");
         System.setProperty("user.dir", projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(
-                projectPath, printStream, printStream, false, true, null, null, null, false);
+                projectPath, printStream, printStream, false, true, null, null, null, null);
         // non existing bal file
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
@@ -389,7 +389,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validProjectWithBuildOptions");
         System.setProperty("user.dir", projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(
-                projectPath, printStream, printStream, false, true, false, true, false, false);
+                projectPath, printStream, printStream, false, true, false, true, false, null);
         // non existing bal file
         new CommandLine(buildCommand).parse();
         try {
@@ -423,7 +423,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
         System.setProperty("user.dir", this.testResources.resolve("valid-bal-file").toString());
         BuildCommand buildCommand = new BuildCommand(
-                projectPath, printStream, printStream, false, true, null, null, null, false);
+                projectPath, printStream, printStream, false, true, null, null, null, null);
         // non existing bal file
         new CommandLine(buildCommand).parse();
         try {
@@ -448,7 +448,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
         System.setProperty("user.dir", this.testResources.resolve("valid-bal-file").toString());
         BuildCommand buildCommand = new BuildCommand(
-                projectPath, printStream, printStream, false, true, false, true, true, false);
+                projectPath, printStream, printStream, false, true, false, true, true, null);
         // non existing bal file
         new CommandLine(buildCommand).parse();
         try {
@@ -636,5 +636,18 @@ public class BuildCommandTest extends BaseCommandTest {
             Files.copy(file, toPath.resolve(fromPath.relativize(file).toString()), copyOption);
             return FileVisitResult.CONTINUE;
         }
+    }
+
+    @Test
+    public void testUnsupportedCoverageFormat() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithBuildOptions");
+        // Build project
+        BuildCommand buildCommand = new BuildCommand(
+                projectPath, printStream, printStream, false, true, null, null, true, "html");
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("unsupported coverage report format 'html' found. Only 'xml' format is " +
+                "supported."));
     }
 }

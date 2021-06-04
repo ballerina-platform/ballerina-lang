@@ -1,3 +1,3 @@
 ## Module Overview
 
-This module provides lang library operations on `float` values defined by the language specification 2020R1.
+The `lang.float` module corresponds to basic type float.

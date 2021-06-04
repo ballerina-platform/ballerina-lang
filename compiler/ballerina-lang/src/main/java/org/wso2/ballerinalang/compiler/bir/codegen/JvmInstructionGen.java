@@ -38,7 +38,10 @@ import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -1335,8 +1338,14 @@ public class JvmInstructionGen {
             jvmTypeGen.loadType(this.mv, inst.type);
             this.loadVar(inst.sizeOp.variableDcl);
             loadListInitialValues(inst);
-            this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
-                    String.format("(L%s;J[L%s;)V", ARRAY_TYPE, LIST_INITIAL_VALUE_ENTRY), false);
+            BType elementType = ((BArrayType) inst.type).eType;
+            if (elementType.tag == TypeTags.RECORD || (elementType.tag == TypeTags.INTERSECTION &&
+                    ((BIntersectionType) elementType).effectiveType.tag == TypeTags.RECORD)) {
+                visitNewRecordArray(elementType);
+            } else {
+                this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
+                        String.format("(L%s;J[L%s;)V", ARRAY_TYPE, LIST_INITIAL_VALUE_ENTRY), false);
+            }
             this.storeToVar(inst.lhsOp.variableDcl);
         } else {
             this.mv.visitTypeInsn(NEW, TUPLE_VALUE_IMPL);
@@ -1348,6 +1357,16 @@ public class JvmInstructionGen {
                     String.format("(L%s;J[L%s;)V", TUPLE_TYPE, LIST_INITIAL_VALUE_ENTRY), false);
             this.storeToVar(inst.lhsOp.variableDcl);
         }
+    }
+
+    private void visitNewRecordArray(BType elementType) {
+        BTypeSymbol tsymbol = elementType.tag == TypeTags.RECORD ? elementType.tsymbol :
+                ((BIntersectionType) elementType).effectiveType.tsymbol;
+        String typeOwner = JvmCodeGenUtil.getPackageName(elementType.tsymbol.pkgID) + MODULE_INIT_CLASS_NAME;
+        this.mv.visitFieldInsn(GETSTATIC, typeOwner,
+                jvmTypeGen.getTypedescFieldName(tsymbol.name.value), "L" + TYPEDESC_VALUE + ";");
+        this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD, String.format("(L%s;J[L%s;" +
+                "L%s;)V", ARRAY_TYPE, LIST_INITIAL_VALUE_ENTRY, TYPEDESC_VALUE), false);
     }
 
     void generateArrayStoreIns(BIRNonTerminator.FieldAccess inst) {
@@ -1574,9 +1593,9 @@ public class JvmInstructionGen {
         asyncDataCollector.incrementLambdaIndex();
         String pkgName = JvmCodeGenUtil.getPackageName(inst.pkgId);
 
-        BType returnType = inst.lhsOp.variableDcl.type;
-        if (returnType.tag != TypeTags.INVOKABLE) {
-            throw new BLangCompilerException("Expected BInvokableType, found " + String.format("%s", returnType));
+        BType type = inst.type;
+        if (type.tag != TypeTags.INVOKABLE) {
+            throw new BLangCompilerException("Expected BInvokableType, found " + String.format("%s", type));
         }
 
         for (BIROperand operand : inst.closureMaps) {
@@ -1587,7 +1606,7 @@ public class JvmInstructionGen {
 
         JvmCodeGenUtil.visitInvokeDynamic(mv, asyncDataCollector.getEnclosingClass(), lambdaName,
                                           inst.closureMaps.size());
-        jvmTypeGen.loadType(this.mv, returnType);
+        jvmTypeGen.loadType(this.mv, type);
         if (inst.strandName != null) {
             mv.visitLdcInsn(inst.strandName);
         } else {

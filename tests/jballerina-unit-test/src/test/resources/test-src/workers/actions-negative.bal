@@ -142,7 +142,7 @@ public function workerAsAFutureTest() returns int {
         any a = <- wy;
         "h" -> wy;
         future<int> fi = wy; // illegal peer worker ref
-        return wait fi;
+        return checkpanic wait fi;
     }
 
     worker wy returns int {
@@ -182,10 +182,10 @@ public function workerAsAFutureTest() returns int {
 
     future<int> fLambda0 = start lambda0();
 
-    function () returns int lambda1 = function () returns int {
+    function () returns int|error lambda1 = function () returns int|error {
         return wait fLambda0;
     };
-    future<int> fLambda1 = start lambda1();
+    future<int|error> fLambda1 = start lambda1();
 
     return wait wy;
 }
@@ -199,7 +199,7 @@ class ObjFuncUsingWorkersAsFutureValues {
             var f = function () {
                 _ = wait wy; // illegal peer worker ref within a worker
             };
-            return wait fi;
+            return checkpanic wait fi;
         }
 
         worker wy returns int {

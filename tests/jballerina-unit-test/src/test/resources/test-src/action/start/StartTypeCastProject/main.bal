@@ -23,11 +23,11 @@ public function main() {
 
 function testCast() {
     future<string> fs1 = start callee:getValueMessage([1,2]);
-    string result1 = wait fs1;
+    string result1 = checkpanic wait fs1;
     test:assertValueEqual(result1, "The value is [1,2]");
 
     map<int> marks = {sam: 50, jon: 60};
     future<string> fs2 = start callee:getValueMessage(marks);
-    string result2 = wait fs2;
+    string result2 = checkpanic wait fs2;
     test:assertValueEqual(result2, "The value is {\"sam\":50,\"jon\":60}");
 }

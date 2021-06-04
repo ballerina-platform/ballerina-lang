@@ -35,15 +35,21 @@ import org.testng.annotations.Test;
  */
 public class ForwardReferencingGlobalDefinitionTest {
 
-    @Test(description = "Test compiler rejecting cyclic references in global variable definitions",
-            groups = "brokenOnErrorChange")
+    @Test(description = "Test compiler rejecting cyclic references in global variable definitions")
     public void globalDefinitionsWithCyclicReferences() {
         CompileResult resultNegativeCycleFound = BCompileUtil.compile(
                 "test-src/statements/variabledef/globalcycle/simpleProject");
         Diagnostic[] diagnostics = resultNegativeCycleFound.getDiagnostics();
         Assert.assertTrue(diagnostics.length > 0);
-        BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[employee, person]'", 35, 1);
-        BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference '[dep1, dep2]'", 54, 1);
+        BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[employee, person]'", 33, 1);
+
+        String message = diagnostics[1].message();
+        // https://github.com/ballerina-platform/ballerina-lang/issues/30505
+        if (message.contains("illegal cyclic reference '[dep1, dep2]'")) {
+            BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference '[dep1, dep2]'", 50, 1);
+            return;
+        }
+        BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference '[dep2, dep1]'", 24, 1);
     }
 
     @Test(description = "Test re-ordering global variable initializations to satisfy dependency order")
@@ -94,12 +100,13 @@ public class ForwardReferencingGlobalDefinitionTest {
                 "getPersonInner, getfromFuncA]'", 22, 1);
     }
 
-    @Test(description = "Test compiler rejecting cyclic references in global variable definitions via object def",
-            groups = "brokenOnErrorChange")
+    @Test(description = "Test compiler rejecting cyclic references in global variable definitions via object def")
     public void globalDefinitionsListenerDef() {
         CompileResult resultNegativeCycleFound = BCompileUtil.
                 compile("test-src/statements/variabledef/globalcycle/viaServiceProject");
-        Assert.assertEquals(resultNegativeCycleFound.getDiagnostics().length, 1);
-        BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[port, o, Obj]'", 22, 1);
+        Assert.assertEquals(resultNegativeCycleFound.getDiagnostics().length, 2);
+        BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[port, o, Obj]'", 20, 1);
+        BAssertUtil.validateWarning(resultNegativeCycleFound, 1, "concurrent calls will not be made to this method " +
+                "since the method is not an 'isolated' method", 32, 5);
     }
 }

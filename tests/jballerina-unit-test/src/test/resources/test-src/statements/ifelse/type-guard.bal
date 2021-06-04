@@ -419,14 +419,14 @@ function testTypeGuardsWithError() returns string {
     }
 }
 
-// function testTypeGuardsWithErrorInmatch() returns string {
-//     error e = error("some error");
-//     any|error x = e;
-//     match x {
-//         var p if p is error => {return string `${p.message()}`;}
-//         var p => {return "Internal server error";}
-//     }
-// }
+function testTypeGuardsWithErrorInmatch() returns string {
+    error e = error("some error");
+    any|error x = e;
+    match x {
+        var p if p is error => {return string `${p.message()}`;}
+        var p => {return "Internal server error";}
+    }
+}
 
 function testTypeNarrowingWithClosures() returns string {
     int|string x = 8;
@@ -1002,27 +1002,27 @@ function recordReturningFunc(int? i) returns record {string s; int? i;} {
     return {s: "hello", i: i, "f": 1.0};
 }
 
-// function testTypeGuardForErrorDestructuringAssignmentPositive() returns boolean {
-//     var error(s, message = message, code = code) = errorReturningFunc(1);
-//     if (code is int) {
-//         int intVal = code;
-//         error(s, message = message, code = code) = errorReturningFunc(());
-//         return code is ();
-//     }
-// 
-//     return false;
-// }
+function testTypeGuardForErrorDestructuringAssignmentPositive() returns boolean {
+    var error(s, message = message, code = code) = errorReturningFunc(1);
+    if (code is int) {
+        int intVal = code;
+        error(s, message = message, code = code) = errorReturningFunc(());
+        return code is ();
+    }
 
-// function testTypeGuardForErrorDestructuringAssignmentNegative() returns boolean {
-//     error<Detail> error(s, message = message, code = code) = errorReturningFunc(1);
-//     if (code is int) {
-//         int intVal = code;
-//         error(s, message = message, code = code) = errorReturningFunc(3);
-//         return code is ();
-//     }
-// 
-//     return true;
-// }
+    return false;
+}
+
+function testTypeGuardForErrorDestructuringAssignmentNegative() returns boolean {
+    error<Detail> error(s, message = message, code = code) = errorReturningFunc(1);
+    if (code is int) {
+        int intVal = code;
+        error(s, message = message, code = code) = errorReturningFunc(3);
+        return code is ();
+    }
+
+    return true;
+}
 
 type Detail record {
     string message?;
@@ -1507,6 +1507,26 @@ function testJsonIntersection() {
     assertEquality(-1, jsonIntersection(1));
     assertEquality(-1, jsonIntersection([1, 2, 3]));
     assertEquality(4, jsonIntersection(<int[]> [1, 2, 3, 4]));
+}
+
+public type Qux record {|
+    record {|
+        string s;
+    |} baz?;
+|};
+
+function intersectionWithIntersectionType(Qux? & readonly bar) returns string {
+    if bar is Qux {
+        record {| string s; |}? y = bar?.baz;
+        return y?.s ?: "Qux without baz";
+    }
+    return "nil";
+}
+
+function testIntersectionWithIntersectionType() {
+    assertEquality("nil", intersectionWithIntersectionType(()));
+    assertEquality("Qux without baz", intersectionWithIntersectionType({}));
+    assertEquality("hello world", intersectionWithIntersectionType({baz: {s: "hello world"}}));
 }
 
 function assertEquality(anydata expected, anydata actual) {

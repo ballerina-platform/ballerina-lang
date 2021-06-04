@@ -35,7 +35,6 @@ import org.testng.annotations.Test;
 /**
  * Class to test functionality of assignment operation.
  */
-
 public class AssignStmtTest {
 
     private CompileResult result;
@@ -141,19 +140,6 @@ public class AssignStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test binary expression with int and float")
-    public void testBinaryExpressionIntToFloat() {
-        BValue[] args = { new BInteger(100) };
-        BValue[] returns = BRunUtil.invoke(result, "testBinaryExpressionIntAndFloatStmt", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-
-        double actual = ((BFloat) returns[0]).floatValue();
-        double expected = 200f;
-        Assert.assertEquals(actual, expected);
-    }
-
     @Test(description = "Test action result assignment with variable destructure")
     public void restActionResultAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "restActionResultAssignment");
@@ -163,6 +149,16 @@ public class AssignStmtTest {
         Assert.assertEquals(returns[3].stringValue(), "the error reason");
         Assert.assertEquals(returns[4].stringValue(), "foo3 error");
         Assert.assertEquals(returns[5].stringValue(), "3");
+    }
+
+    @Test
+    public void testAssignmentSemanticAnalysisNegativeCases() {
+        CompileResult resultNegative = BCompileUtil.compile(
+                "test-src/statements/assign/assign_stmt_semantic_negative.bal");
+        int index = 0;
+        BAssertUtil.validateError(resultNegative, index++, "cannot assign a value to final 'i'", 21, 5);
+        BAssertUtil.validateError(resultNegative, index++, "cannot assign a value to final 'aa'", 27, 5);
+        Assert.assertEquals(index, resultNegative.getErrorCount());
     }
 
     @Test(description = "Test assignment statement with errors")

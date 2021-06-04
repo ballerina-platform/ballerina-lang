@@ -148,10 +148,10 @@ function testStructToStruct() returns (Student) {
     return p2;
 }
 
-//function testNullStructToStruct() returns (Student) {
-//    Person | () p;
-//    return <Student> p;
-//}
+function testNullStructToStruct() returns Student {
+    Person? p = ();
+    return <Student> p;
+}
 
 function testStructAsAnyToStruct() returns Person|error {
     Person p1 = { name:"Supun",
@@ -224,6 +224,11 @@ function testIncompatibleJsonToFloat() returns float|error {
     float value;
     value = check floats:fromString(j.toJsonString());
     return value;
+}
+
+function testBooleanInJsonToInt() returns int|error {
+    json j = true;
+    return trap <int> j;
 }
 
 type Address record {

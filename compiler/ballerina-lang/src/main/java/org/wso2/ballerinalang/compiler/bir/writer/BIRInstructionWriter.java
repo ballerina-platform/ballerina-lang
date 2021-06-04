@@ -459,7 +459,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         int pkgIndex = addPkgCPEntry(pkgId);
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(fpLoad.funcName.getValue()));
-        writeType(fpLoad.retType);
+        writeType(fpLoad.type);
 
         buf.writeInt(fpLoad.closureMaps.size());
         for (BIROperand op : fpLoad.closureMaps) {

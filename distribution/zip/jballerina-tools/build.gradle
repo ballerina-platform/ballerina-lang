@@ -75,7 +75,7 @@ dependencies {
     // dist 'org.ow2.asm:asm:6.2.1'
     dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
     dist 'org.codehaus.woodstox:stax2-api:3.1.1'
-    dist 'org.apache.commons:commons-compress:1.18'
+    dist 'org.apache.commons:commons-compress:1.19'
     dist 'me.tongfei:progressbar:0.7.4'
     dist 'org.jline:jline:3.11.0'
     dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
@@ -97,13 +97,9 @@ dependencies {
     dist 'com.atomikos:atomikos-util:5.0.8'
     dist 'com.atomikos:transactions:5.0.8'
 
-    // Temporary workaround until moving to native Toml Parser
-    dist 'com.moandjiezana.toml:toml4j:0.7.2'
-
     dist project(':ballerina-tools-api')
     dist project(':ballerina-parser')
     dist project(':ballerina-tools-api')
-    dist project(':ballerina-cli-module')
     dist project(':central-client')
     dist project(':ballerina-cli')
     dist project(':ballerina-rt')

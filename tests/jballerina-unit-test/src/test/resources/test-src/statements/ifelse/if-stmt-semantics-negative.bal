@@ -43,3 +43,19 @@ function testIfStmtWithIncompatibleType3() {
     }
     return;
 }
+
+function testResetTypeNarrowingForCompoundAssignmentNegative() {
+    int|string a = 5;
+    if a == 5 {
+        5 b = a;
+        a += 1;
+        int c = a + 3;
+    }
+
+    if a is int {
+        a += 5; // type should not reset
+        int b = a;
+        a = "Hello"; // type should reset to original
+        string c = a;
+    }
+}

@@ -38,7 +38,6 @@ public class TypeUnificationTest {
 
     @BeforeClass
     public void setup() {
-        // Todo - Fix any type issue
         compileResult = BCompileUtil.compile("test-src/types/map-struct-json-unified.bal");
     }
 

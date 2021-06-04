@@ -253,26 +253,31 @@ public class IfElseStmtTest {
 
     @Test()
     public void ifStmtNegativeTestSemanticsNegative() {
-        Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 6);
-        BAssertUtil.validateError(semanticsNegativeResult, 0,
+        int i = 0;
+        BAssertUtil.validateError(semanticsNegativeResult, i++,
                 "incompatible types: expected 'boolean', found 'int'", 2, 7);
-        BAssertUtil.validateError(semanticsNegativeResult, 1,
+        BAssertUtil.validateError(semanticsNegativeResult, i++,
                 "incompatible types: expected 'boolean', found 'string'", 22, 16);
-        BAssertUtil.validateError(semanticsNegativeResult, 2,
+        BAssertUtil.validateError(semanticsNegativeResult, i++,
                 "incompatible types: expected 'boolean', found 'string'", 28, 9);
-        BAssertUtil.validateError(semanticsNegativeResult, 3,
+        BAssertUtil.validateError(semanticsNegativeResult, i++,
                 "incompatible types: expected 'boolean', found 'string'", 35, 8);
-        BAssertUtil.validateError(semanticsNegativeResult, 4,
+        BAssertUtil.validateError(semanticsNegativeResult, i++,
                 "incompatible types: expected 'boolean', found 'int'", 37, 15);
-        BAssertUtil.validateError(semanticsNegativeResult, 5,
+        BAssertUtil.validateError(semanticsNegativeResult, i++,
                 "incompatible types: expected 'boolean', found '[int,string]'", 41, 8);
+        BAssertUtil.validateError(semanticsNegativeResult, i++, "operator '+' not defined for '(int|string)' and 'int'",
+                52, 17);
+        BAssertUtil.validateError(semanticsNegativeResult, i++, "incompatible types: expected 'string', " +
+                        "found '(int|string)'", 59, 20);
+        Assert.assertEquals(semanticsNegativeResult.getErrorCount(), i);
     }
 
     @Test()
     public void ifStmtTypeNarrowingTest() {
         BValue[] args = {new BString("ballerina")};
-        BRunUtil.invoke(result, "testTypeNarrowingWithClosure");
-        BRunUtil.invoke(result, "testResetTypeNarrowingForConditionalExpr");
+        BRunUtil.invoke(result, "testTypeNarrowingWithLambda");
+        BRunUtil.invoke(result, "testResetTypeNarrowingForCompoundAssignment");
         BValue[] returns = BRunUtil.invoke(result, "testTypeNarrowing", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "ballerina");

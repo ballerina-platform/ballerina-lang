@@ -27,7 +27,7 @@ public readonly class StackFrameImpl {
     public string fileName;
     public int lineNumber;
 
-    # Returns a string representing for the `StackFrame`
+    # Returns a string representing for the `StackFrame`.
     #
     # + return - A stack frame as string
     public function toString() returns string {

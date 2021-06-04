@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
  *
  * @since Swan Lake
  */
-@Test(groups = { "disableOnOldParser" })
 public class MatchStmtMappingMatchPatternTest {
 
     private CompileResult result, resultNegative, resultRestPattern;

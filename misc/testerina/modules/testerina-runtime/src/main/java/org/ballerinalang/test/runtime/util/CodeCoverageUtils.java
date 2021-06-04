@@ -72,6 +72,21 @@ public class CodeCoverageUtils {
     private static final PrintStream errStream = System.err;
 
     /**
+     * Checks if a given code coverage report format was requested by user.
+     *
+     * @param coverageReportFormat
+     * @param format
+     * @return
+     */
+    public static boolean isRequestedReportFormat(String coverageReportFormat, String format) {
+        boolean isRequested = false;
+        if (coverageReportFormat != null) {
+            isRequested = coverageReportFormat.equals(format);
+        }
+        return isRequested;
+    }
+
+    /**
      * Util method to extract required class files for code coverage analysis.
      *
      * @param source      path of testable jar

@@ -30,7 +30,7 @@ function testNestedClientObjectActions() {
     Foo1 f1 = new("foo");
 
     future<string> fs = start f1->getName();
-    string result = wait fs;
+    string result = checkpanic wait fs;
     assert("foo", result);
 }
 
