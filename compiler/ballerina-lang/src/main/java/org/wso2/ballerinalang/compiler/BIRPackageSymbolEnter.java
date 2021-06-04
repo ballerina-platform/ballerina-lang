@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
-import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeParamAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -164,11 +163,8 @@ public class BIRPackageSymbolEnter {
         this.types = Types.getInstance(context);
     }
 
-    public BPackageSymbol definePackage(PackageID packageId,
-                                        RepoHierarchy packageRepositoryHierarchy,
-                                        byte[] packageBinaryContent) {
-        BPackageSymbol pkgSymbol = definePackage(packageId, packageRepositoryHierarchy,
-                new ByteArrayInputStream(packageBinaryContent));
+    public BPackageSymbol definePackage(PackageID packageId, byte[] packageBinaryContent) {
+        BPackageSymbol pkgSymbol = definePackage(packageId, new ByteArrayInputStream(packageBinaryContent));
 
         // Strip magic value (4 bytes) and the version (2 bytes) off from the binary content of the package.
         byte[] modifiedPkgBinaryContent = Arrays.copyOfRange(
@@ -180,15 +176,12 @@ public class BIRPackageSymbolEnter {
         return pkgSymbol;
     }
 
-    private BPackageSymbol definePackage(PackageID packageId,
-                                         RepoHierarchy packageRepositoryHierarchy,
-                                         InputStream programFileInStream) {
+    private BPackageSymbol definePackage(PackageID packageId, InputStream programFileInStream) {
         // TODO packageID --> package to be loaded. this is required for error reporting..
         try (DataInputStream dataInStream = new DataInputStream(programFileInStream)) {
             BIRPackageSymbolEnv prevEnv = this.env;
             this.env = new BIRPackageSymbolEnv();
             this.env.requestedPackageId = packageId;
-            this.env.repoHierarchy = packageRepositoryHierarchy;
 
             BPackageSymbol pkgSymbol = definePackage(dataInStream);
             this.env = prevEnv;
@@ -962,7 +955,6 @@ public class BIRPackageSymbolEnter {
      */
     private static class BIRPackageSymbolEnv {
         PackageID requestedPackageId;
-        RepoHierarchy repoHierarchy;
         Map<Integer, byte[]> unparsedBTypeCPs = new HashMap<>();
         BPackageSymbol pkgSymbol;
         CPEntry[] constantPool;
