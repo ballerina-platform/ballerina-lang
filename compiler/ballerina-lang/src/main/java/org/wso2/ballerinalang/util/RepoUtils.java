@@ -18,13 +18,9 @@
 package org.wso2.ballerinalang.util;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.toml.exceptions.TomlException;
-import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -32,9 +28,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.regex.Pattern;
 
 /**
  * Home repository util methods.
@@ -43,9 +36,7 @@ public class RepoUtils {
 
     public static final String BALLERINA_INSTALL_DIR_PROP = "ballerina.home";
     public static final String COMPILE_BALLERINA_ORG_PROP = "BALLERINA_DEV_COMPILE_BALLERINA_ORG";
-    public static final String LOAD_BUILTIN_FROM_SOURCE_PROP = "BALLERINA_DEV_LOAD_BUILTIN_FROM_SOURCE";
     public static final boolean COMPILE_BALLERINA_ORG = getBooleanProp(COMPILE_BALLERINA_ORG_PROP);
-    public static final boolean LOAD_BUILTIN_FROM_SOURCE = getBooleanProp(LOAD_BUILTIN_FROM_SOURCE_PROP);
 
     private static final String USER_HOME = "user.home";
     private static final String DEFAULT_TERMINAL_SIZE = "80";
@@ -237,39 +228,6 @@ public class RepoUtils {
     }
 
     /**
-     * Validates the org-name and package name.
-     *
-     * @param orgName The org-name
-     * @return True if valid org-name or package name, else false.
-     */
-    public static boolean validateOrg(String orgName) {
-        String validRegex = "^[a-z0-9_]*$";
-        return Pattern.matches(validRegex, orgName);
-    }
-
-    /**
-     * Validates the org-name and package name.
-     *
-     * @param pkgName The package name.
-     * @return True if valid package name, else false.
-     */
-    public static boolean validatePkg(String pkgName) {
-        String validRegex = "^[a-zA-Z0-9_.]*$";
-        return Pattern.matches(validRegex, pkgName);
-    }
-
-    /**
-     * Validates the org-name and package name.
-     *
-     * @param pkgName The package name.
-     * @return True if valid package name, else false.
-     */
-    public static boolean validateModuleName(String pkgName) {
-        String validRegex = "^[a-zA-Z0-9_.]*$";
-        return Pattern.matches(validRegex, pkgName);
-    }
-
-    /**
      * Check if the org-name is a reserved org-name in ballerina.
      *
      * @param orgName The org-name
@@ -287,41 +245,4 @@ public class RepoUtils {
     public static boolean isANightlyBuild() {
         return getBallerinaPackVersion().contains("SNAPSHOT");
     }
-    
-    /**
-     * Get the Ballerina.toml from a bala file.
-     *
-     * @param balaPath The path to bala file.
-     * @return Ballerina.toml contents.
-     */
-    public static Manifest getManifestFromBala(Path balaPath) {
-        try (JarFile jar = new JarFile(balaPath.toString())) {
-            java.util.Enumeration enumEntries = jar.entries();
-            while (enumEntries.hasMoreElements()) {
-                JarEntry file = (JarEntry) enumEntries.nextElement();
-                if (file.getName().contains(ProjectDirConstants.MANIFEST_FILE_NAME)) {
-                    if (file.isDirectory()) { // if its a directory, ignore
-                        continue;
-                    }
-                    // get the input stream
-                    Manifest manifest;
-                    try (InputStream is = jar.getInputStream(file)) {
-                        manifest = ManifestProcessor.parseTomlContentAsStream(is);
-                    }
-                    
-                    return manifest;
-                }
-            }
-        } catch (IOException e) {
-            throw new BLangCompilerException("unable to read bala file: " + balaPath +
-                                             ". bala file seems to be corrupted.");
-        } catch (TomlException e) {
-            throw new BLangCompilerException("unable to read bala file: " + balaPath +
-                                             ". bala file seems to be corrupted: " + e.getMessage());
-        }
-    
-        throw new BLangCompilerException("unable to find '/metadata/Ballerina.toml' file in bala file: " +
-                                         balaPath + "");
-    }
-    
 }

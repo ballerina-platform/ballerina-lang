@@ -35,7 +35,6 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
-import org.wso2.ballerinalang.compiler.packaging.converters.URIDryConverter;
 import org.wso2.ballerinalang.util.Lists;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -48,6 +47,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Authenticator;
 import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -485,7 +485,7 @@ public class ProjectUtils {
         if (proxy != null && !"".equals(proxy.host()) && proxy.port() > 0) {
             InetSocketAddress proxyInet = new InetSocketAddress(proxy.host(), proxy.port());
             if (!"".equals(proxy.username()) && "".equals(proxy.password())) {
-                Authenticator authenticator = new URIDryConverter.RemoteAuthenticator();
+                Authenticator authenticator = new RemoteAuthenticator(proxy);
                 Authenticator.setDefault(authenticator);
             }
             return new Proxy(Proxy.Type.HTTP, proxyInet);
@@ -680,5 +680,20 @@ public class ProjectUtils {
             }
         }
         return directory.delete();
+    }
+
+    /**
+     * Authenticator for the proxy server if provided.
+     */
+    public static class RemoteAuthenticator extends Authenticator {
+        io.ballerina.projects.internal.model.Proxy proxy;
+        public RemoteAuthenticator(io.ballerina.projects.internal.model.Proxy proxy) {
+            this.proxy = proxy;
+        }
+
+        @Override
+        protected PasswordAuthentication getPasswordAuthentication() {
+            return (new PasswordAuthentication(this.proxy.username(), this.proxy.password().toCharArray()));
+        }
     }
 }
