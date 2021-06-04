@@ -51,6 +51,8 @@ checkstyleMain {
 }
 
 test {
+    systemProperty "BOOTSTRAP_LANG_LIB", "false"
+
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
