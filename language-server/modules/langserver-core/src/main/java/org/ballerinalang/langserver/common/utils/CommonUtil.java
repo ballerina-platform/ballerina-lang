@@ -845,7 +845,7 @@ public class CommonUtil {
             }
 
             if (importsAcceptor != null && !preDeclaredLangLib) {
-                importsAcceptor.getAcceptor().accept(orgName, alias);
+                importsAcceptor.getAcceptor(context).accept(orgName, alias);
             }
         }
         return pkgPrefix;
