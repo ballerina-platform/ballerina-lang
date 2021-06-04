@@ -181,10 +181,9 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                         typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
 
-                TypeSymbol rawType = CommonUtil.getRawType(varSymbol.typeDescriptor());
-
                 if (ctx.enclosedModuleMember().isPresent() && CommonUtil.isSelfClassSymbol(symbol, ctx,
                         ctx.enclosedModuleMember().get())) {
+                    TypeSymbol rawType = CommonUtil.getRawType(varSymbol.typeDescriptor());
                     completionItems.addAll(populateSelfClassSymbolCompletionItems(ctx, rawType));
                 }
             } else if (symbol.kind() == PARAMETER) {
