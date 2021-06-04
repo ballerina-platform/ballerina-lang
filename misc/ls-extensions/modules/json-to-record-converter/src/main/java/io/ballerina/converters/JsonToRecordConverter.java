@@ -61,6 +61,8 @@ import static io.ballerina.converters.util.ConverterUtils.extractReferenceType;
  * Implements functionality to convert Json (object or schema) to a ballerina record.
  *
  * The conversion is done by using openAPI schema as an intermediary.
+ *
+ * @since 2.0.0
  */
 public class JsonToRecordConverter {
     private static final PrintStream outStream = System.err;
@@ -68,10 +70,11 @@ public class JsonToRecordConverter {
 
     /**
      * This method takes in a json Schema and returns the Ballerina record nodes.
+     *
      * @param jsonSchema json string for the schema
-     * @return {@link ArrayList<TypeDefinitionNode>}
-     * @throws IOException
-     * @throws ConverterException
+     * @return {@link ArrayList<TypeDefinitionNode>} arraylist of type nodes
+     * @throws IOException in case of Json parse error
+     * @throws ConverterException in case of invalid schema
      */
     public static ArrayList<TypeDefinitionNode> fromSchema(String jsonSchema) throws IOException,
             ConverterException {
@@ -83,9 +86,9 @@ public class JsonToRecordConverter {
      * This method takes in a json object and returns the Ballerina record nodes.
      *
      * @param jsonString json object string
-     * @return {@link ArrayList<TypeDefinitionNode>}
-     * @throws ConverterException
-     * @throws IOException
+     * @return {@link ArrayList<TypeDefinitionNode>} arraylist of type nodes
+     * @throws IOException in case of Json parse error
+     * @throws ConverterException in case of invalid schema
      */
     public static ArrayList<TypeDefinitionNode> fromJSON(String jsonString) throws ConverterException, IOException {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -116,17 +119,17 @@ public class JsonToRecordConverter {
                 for (Map.Entry<String, Schema> schema: schemas.entrySet()) {
                     List<String> required = schema.getValue().getRequired();
 
-                    //1.typeKeyWord
+
                     Token typeKeyWord = AbstractNodeFactory.createIdentifierToken("type");
-                    //2.typeName
+
                     IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(
                             escapeIdentifier(schema.getKey().trim()));
-                    //3.typeDescriptor - RecordTypeDescriptor
-                    //3.1 recordKeyWord
+
+
                     Token recordKeyWord = AbstractNodeFactory.createIdentifierToken("record");
-                    //3.2 bodyStartDelimiter
+
                     Token bodyStartDelimiter = AbstractNodeFactory.createIdentifierToken("{");
-                    //3.3 fields
+
                     //Generate RecordFiled
                     List<Node> recordFieldList = new ArrayList<>();
                     Schema schemaValue = schema.getValue();
@@ -189,6 +192,11 @@ public class JsonToRecordConverter {
 
     /**
      * method for generating record fields with given schema properties.
+     *
+     * @param field schema entry of the field
+     * @param recordFieldList record field list
+     * @param required is it a required field.
+     * @throws ConverterException in case of bad schema entries
      */
     private static void addRecordFields(List<String> required, List<Node> recordFieldList,
                                         Map.Entry<String, Schema> field) throws ConverterException {
@@ -218,8 +226,10 @@ public class JsonToRecordConverter {
 
     /**
      * Common method to extract OpenApi Schema type objects in to Ballerina type compatible schema objects.
-     * @param schema - OpenApi Schema
-     * @param name - Name of the field
+     *
+     * @param schema OpenApi Schema
+     * @param name Name of the field
+     * @throws ConverterException in case of invalid schema
      */
     private static TypeDescriptorNode extractOpenApiSchema(Schema schema, String name) throws
             ConverterException {
@@ -311,7 +321,8 @@ public class JsonToRecordConverter {
      *
      * @param schemaString     json Schema as a string
      * @return {@link OpenAPI}  OpenAPI model
-     * @throws ConverterException in case of exception
+     * @throws ConverterException in case of invalid schema
+     * @throws IOException in case of Json parse error
      */
     public static OpenAPI parseJSONSchema(String schemaString) throws ConverterException, IOException {
         final String prefix = "{\n" +
@@ -346,7 +357,6 @@ public class JsonToRecordConverter {
 
     /**
      * Take a schema and recursively clean unsupported keywords.
-     *
      *
      * @param schemaMap   Json Schema as a map
      * @return {@link Map}  cleaned json schema

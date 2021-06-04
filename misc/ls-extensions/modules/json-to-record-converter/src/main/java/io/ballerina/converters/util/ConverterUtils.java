@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -33,6 +33,7 @@ import java.util.Optional;
 public class ConverterUtils {
     /**
      * Method for mapping openApi type to ballerina type.
+     *
      * @param type  OpenApi parameter types
      * @return ballerina type
      */
@@ -78,8 +79,8 @@ public class ConverterUtils {
 
         if (identifier.matches("\\b[0-9]*\\b")) {
             return "'" + identifier;
-        } else if (!identifier.matches("\\b[_a-zA-Z][_a-zA-Z0-9]*\\b"
-        ) || Constants.BAL_KEYWORDS.stream().anyMatch(identifier::equals)) {
+        } else if (!identifier.matches("\\b[_a-zA-Z][_a-zA-Z0-9]*\\b")
+                || Constants.BAL_KEYWORDS.stream().anyMatch(identifier::equals)) {
 
             // TODO: Remove this `if`. Refer - https://github.com/ballerina-platform/ballerina-lang/issues/23045
             if (identifier.equals("error")) {
