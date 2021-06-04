@@ -1506,8 +1506,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
             effectiveTypeSymbol.flags |= definedType.tsymbol.flags;
             effectiveTypeSymbol.origin = VIRTUAL;
-
-            ((BIntersectionType) definedType).effectiveType.flags |= definedType.flags;
+            effectiveDefinedType.flags |= definedType.flags;
         }
 
         typeDefinition.symbol = typeDefSymbol;
