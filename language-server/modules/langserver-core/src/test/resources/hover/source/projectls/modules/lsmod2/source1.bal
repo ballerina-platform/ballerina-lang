@@ -11,3 +11,8 @@ public type Mod2Record1 record {
     int field1 = 123;
     module1:TestRecord1 field2 = {};
 };
+
+public class Person {
+    # Name of the person
+    public string name = "MyName";
+}

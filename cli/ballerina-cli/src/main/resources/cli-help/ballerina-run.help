@@ -42,9 +42,6 @@ OPTIONS
            Package observability in the executable when run is used
            with a source file or a package.
 
-       --taint-check
-           Perform taint flow analysis.
-
 ARGUMENTS
        --
            The argument '--' signals the end of Ballerina environment

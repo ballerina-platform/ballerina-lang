@@ -61,7 +61,7 @@ public class BTable extends IndexedCompoundVariable {
         try {
             String constrainedTypeName = getConstrainedTypeName();
             String tableSize = getTableSizeAsString();
-            return String.format("table<%s>[%s]", constrainedTypeName, tableSize);
+            return String.format("table<%s> (entries = %s)", constrainedTypeName, tableSize);
         } catch (Exception e) {
             return UNKNOWN_VALUE;
         }

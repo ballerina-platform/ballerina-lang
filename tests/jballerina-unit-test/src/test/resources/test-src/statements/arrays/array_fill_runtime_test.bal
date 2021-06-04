@@ -144,6 +144,56 @@ function tesTwoDimensionalArrayWithConstantSizeReferenceFill() {
     assertEqualPanic([1,2,3], b[1]);
 }
 
+function testAnonRecordTypeWithDefaultValueFill() {
+    record {| int i = 101; |}[3] testArray = [];
+    testArray[1] = {i: 202};
+    assertEqualPanic(3, testArray.length());
+    assertEqualPanic(101, testArray[0].i);
+    assertEqualPanic(202, testArray[1].i);
+    assertEqualPanic(101, testArray[2].i);
+
+    testAnonRecordArray(getAnonFromAnon, "Jane");
+    testAnonRecordArray(getAnonFromPerson, "default");
+    testAnonRecordArray(getPersonFromAnon, "John");
+    testAnonRecordArray(getPersonFromPerson, "default");
+}
+
+function testAnonRecordArray(function () returns record {|string name;|}[] func, string name) {
+    var resultArr = func();
+    resultArr[1] = {name: "Jack"};
+    assertEqualPanic(2, resultArr.length());
+    assertEqualPanic(name, resultArr[0].name);
+    assertEqualPanic("Jack", resultArr[1].name);    
+}
+
+type Person record {|
+    string name = "default";
+|};
+
+function getAnonFromAnon() returns record {| string name; |}[] {
+    record {|
+        string name = "Jane";
+    |}[] arr = [];
+    return arr;
+}
+
+function getAnonFromPerson() returns record {| string name; |}[] {
+    Person[] arr = [];
+    return arr;
+}
+
+function getPersonFromAnon() returns Person[] {
+    record {|
+        string name = "John";
+    |}[] arr = [];
+    return arr;
+}
+
+function getPersonFromPerson() returns Person[] {
+    Person[] arr = [];
+    return arr;
+}
+
 public function main() {
     testObjectDynamicArrayFilling();
     testRecordTypeWithOptionalFieldsArrayFill();
@@ -154,6 +204,7 @@ public function main() {
     createMultipleConstLiteralAutoFilledSealedArray();
     tesOneDimensionalArrayWithConstantSizeReferenceFill();
     tesTwoDimensionalArrayWithConstantSizeReferenceFill();
+    testAnonRecordTypeWithDefaultValueFill();
 }
 
 function assertEqualPanic(anydata expected, anydata actual, string message = "Value mismatch") {

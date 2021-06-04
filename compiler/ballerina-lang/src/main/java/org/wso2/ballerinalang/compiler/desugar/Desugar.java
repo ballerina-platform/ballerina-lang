@@ -4584,21 +4584,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BType createMatchingRecordType(BLangErrorFieldMatchPatterns errorFieldMatchPatterns) {
-        BRecordTypeSymbol detailRecordTypeSymbol = new BRecordTypeSymbol(
-                SymTag.RECORD,
-                Flags.PUBLIC,
-                names.fromString("$anonErrorType$" + UNDERSCORE + recordCount++ + "$detailType"),
-                env.enclPkg.symbol.pkgID, null, null, errorFieldMatchPatterns.pos, VIRTUAL);
-
-        detailRecordTypeSymbol.initializerFunc = createRecordInitFunc();
-        detailRecordTypeSymbol.scope = new Scope(detailRecordTypeSymbol);
-        detailRecordTypeSymbol.scope.define(
-                names.fromString(detailRecordTypeSymbol.name.value + "." +
-                        detailRecordTypeSymbol.initializerFunc.funcName.value),
-                detailRecordTypeSymbol.initializerFunc.symbol);
-
-        BRecordType detailRecordType = new BRecordType(detailRecordTypeSymbol);
-        detailRecordType.restFieldType = symTable.anydataType;
+        BRecordType detailRecordType = createAnonRecordType(errorFieldMatchPatterns.pos);
         List<BLangSimpleVariable> typeDefFields = new ArrayList<>();
         for (BLangNamedArgMatchPattern bindingPattern : errorFieldMatchPatterns.namedArgMatchPatterns) {
             Name fieldName = names.fromIdNode(bindingPattern.argName);
@@ -4608,10 +4594,10 @@ public class Desugar extends BLangNodeVisitor {
                 continue;
             }
             BType fieldType = declaredVarSym.type;
-            BVarSymbol fieldSym = new BVarSymbol(Flags.PUBLIC, fieldName, detailRecordTypeSymbol.pkgID, fieldType,
-                    detailRecordTypeSymbol, bindingPattern.pos, VIRTUAL);
+            BVarSymbol fieldSym = new BVarSymbol(Flags.PUBLIC, fieldName, detailRecordType.tsymbol.pkgID, fieldType,
+                    detailRecordType.tsymbol, bindingPattern.pos, VIRTUAL);
             detailRecordType.fields.put(fieldName.value, new BField(fieldName, bindingPattern.pos, fieldSym));
-            detailRecordTypeSymbol.scope.define(fieldName, fieldSym);
+            detailRecordType.tsymbol.scope.define(fieldName, fieldSym);
             typeDefFields.add(ASTBuilderUtil.createVariable(null, fieldName.value, fieldType, null, fieldSym));
         }
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(typeDefFields, detailRecordType,
@@ -5724,7 +5710,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // First get the type and then visit the expr. Order matters, since the desugar
         // can change the type of the expression, if it is type narrowed.
-        BType varRefType = fieldAccessExpr.expr.type;
+        BType varRefType = types.getTypeWithEffectiveIntersectionTypes(fieldAccessExpr.expr.type);
         fieldAccessExpr.expr = rewriteExpr(fieldAccessExpr.expr);
         if (!types.isSameType(fieldAccessExpr.expr.type, varRefType)) {
             fieldAccessExpr.expr = addConversionExprIfRequired(fieldAccessExpr.expr, varRefType);
@@ -6036,7 +6022,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // First get the type and then visit the expr. Order matters, since the desugar
         // can change the type of the expression, if it is type narrowed.
-        BType varRefType = indexAccessExpr.expr.type;
+        BType varRefType = types.getTypeWithEffectiveIntersectionTypes(indexAccessExpr.expr.type);
         indexAccessExpr.expr = rewriteExpr(indexAccessExpr.expr);
         if (!types.isSameType(indexAccessExpr.expr.type, varRefType)) {
             indexAccessExpr.expr = addConversionExprIfRequired(indexAccessExpr.expr, varRefType);
@@ -7054,13 +7040,7 @@ public class Desugar extends BLangNodeVisitor {
         BObjectType objectClassType = new BObjectType(classTSymbol, classTSymbol.flags);
         objectClassType.fields = objectType.fields;
         classTSymbol.type = objectClassType;
-        var typeIdSet = objectType.typeIdSet;
-        if (!typeIdSet.primary.isEmpty()) {
-            objectClassType.typeIdSet.primary.addAll(typeIdSet.primary);
-        }
-        if (!typeIdSet.secondary.isEmpty()) {
-            objectClassType.typeIdSet.secondary.addAll(typeIdSet.secondary);
-        }
+        objectClassType.typeIdSet.add(objectType.typeIdSet);
 
         // Create a new object type node and a type def from the concrete class type
 //        BLangObjectTypeNode objectClassNode = TypeDefBuilderHelper.createObjectTypeNode(objectClassType, pos);
@@ -8811,10 +8791,29 @@ public class Desugar extends BLangNodeVisitor {
 
     private BType createDetailType(List<BLangErrorVariable.BLangErrorDetailEntry> detail,
                                    BLangSimpleVariable restDetail, int errorNo, Location pos) {
+        BRecordType detailRecordType = createAnonRecordType(pos);
+
+        if (restDetail == null) {
+            detailRecordType.sealed = true;
+        }
+
+        for (BLangErrorVariable.BLangErrorDetailEntry detailEntry : detail) {
+            Name fieldName = names.fromIdNode(detailEntry.key);
+            BType fieldType = getStructuredBindingPatternType(detailEntry.valueBindingPattern);
+            BVarSymbol fieldSym = new BVarSymbol(Flags.PUBLIC, fieldName, detailRecordType.tsymbol.pkgID, fieldType,
+                    detailRecordType.tsymbol, detailEntry.key.pos, VIRTUAL);
+            detailRecordType.fields.put(fieldName.value, new BField(fieldName, detailEntry.key.pos, fieldSym));
+            detailRecordType.tsymbol.scope.define(fieldName, fieldSym);
+        }
+
+        return detailRecordType;
+    }
+
+    private BRecordType createAnonRecordType(Location pos) {
         BRecordTypeSymbol detailRecordTypeSymbol = new BRecordTypeSymbol(
                 SymTag.RECORD,
                 Flags.PUBLIC,
-                names.fromString("$anonErrorType$" + UNDERSCORE + errorNo + "$detailType"),
+                names.fromString(anonModelHelper.getNextRecordVarKey(env.enclPkg.packageID)),
                 env.enclPkg.symbol.pkgID, null, null, pos, VIRTUAL);
 
         detailRecordTypeSymbol.initializerFunc = createRecordInitFunc();
@@ -8826,20 +8825,6 @@ public class Desugar extends BLangNodeVisitor {
 
         BRecordType detailRecordType = new BRecordType(detailRecordTypeSymbol);
         detailRecordType.restFieldType = symTable.anydataType;
-
-        if (restDetail == null) {
-            detailRecordType.sealed = true;
-        }
-
-        for (BLangErrorVariable.BLangErrorDetailEntry detailEntry : detail) {
-            Name fieldName = names.fromIdNode(detailEntry.key);
-            BType fieldType = getStructuredBindingPatternType(detailEntry.valueBindingPattern);
-            BVarSymbol fieldSym = new BVarSymbol(Flags.PUBLIC, fieldName, detailRecordTypeSymbol.pkgID, fieldType,
-                                                 detailRecordTypeSymbol, detailEntry.key.pos, VIRTUAL);
-            detailRecordType.fields.put(fieldName.value, new BField(fieldName, detailEntry.key.pos, fieldSym));
-            detailRecordTypeSymbol.scope.define(fieldName, fieldSym);
-        }
-
         return detailRecordType;
     }
 

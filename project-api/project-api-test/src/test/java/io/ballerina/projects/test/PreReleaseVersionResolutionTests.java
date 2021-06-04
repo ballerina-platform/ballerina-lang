@@ -25,7 +25,6 @@ import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.PackageVersion;
-import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.BuildProject;
 import org.ballerinalang.test.BCompileUtil;
@@ -73,11 +72,8 @@ public class PreReleaseVersionResolutionTests {
                 "Unexpected number of dependencies");
     }
 
-    @Test(description = "Two pre-release versions (specified by the user) in the dependency graph",
-            expectedExceptions = ProjectException.class,
-            expectedExceptionsMessageRegExp = "Two incompatible versions exist in the dependency graph: " +
-                    "samjs/package_k versions: 1.1.0-alpha, 1.1.0-beta")
-    public void testTwoIncompatiblePreReleaseVersionsInDependencyGraph() {
+    @Test(description = "Two pre-release versions (specified by the user) in the dependency graph")
+    public void testTwoCompatiblePreReleaseVersionsInDependencyGraph() {
         // package_m_with_unstable_dep --> package_l (2.1.0) --> package_k (1.1.0-beta)
         // package_l (2.1.0) --> package_k (1.1.0-alpha)
         // This test case should fail. There are two incompatible versions of package-k in the dependency graph of

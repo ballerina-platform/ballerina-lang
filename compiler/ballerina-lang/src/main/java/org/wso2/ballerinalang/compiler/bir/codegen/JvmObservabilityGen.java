@@ -327,7 +327,7 @@ class JvmObservabilityGen {
             BInvokableType bInvokableType = new BInvokableType(argTypes, null,
                     returnType, null);
             BIRFunction desugaredFunc = new BIRFunction(asyncCallIns.pos, lambdaName, 0, bInvokableType,
-                    func.workerName, 0, null, VIRTUAL);
+                    func.workerName, 0, VIRTUAL);
             desugaredFunc.receiver = func.receiver;
             scopeFunctionsList.add(desugaredFunc);
 

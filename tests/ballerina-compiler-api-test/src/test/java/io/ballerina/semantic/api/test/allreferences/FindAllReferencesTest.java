@@ -123,11 +123,8 @@ public abstract class FindAllReferencesTest {
     private void assertLocations(List<Location> locations, List<Location> expLocations) {
         assertEquals(locations.size(), expLocations.size());
 
-        for (int i = 0; i < expLocations.size(); i++) {
-            Location expLocation = expLocations.get(i);
-            Location location = locations.get(i);
-
-            assertEquals(location.lineRange(), expLocation.lineRange());
+        for (Location expLocation : expLocations) {
+            assertTrue(locations.contains(expLocation));
         }
     }
 }
