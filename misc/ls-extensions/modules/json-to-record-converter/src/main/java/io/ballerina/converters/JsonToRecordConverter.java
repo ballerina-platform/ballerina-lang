@@ -166,7 +166,7 @@ public class JsonToRecordConverter {
                                 fieldTypeName = extractOpenApiSchema(arraySchema.getItems(), schema.getKey());
                             } else {
                                 Token type =
-                                        AbstractNodeFactory.createToken(SyntaxKind.STRING_TYPE_DESC);
+                                        AbstractNodeFactory.createToken(SyntaxKind.STRING_KEYWORD);
                                 fieldTypeName =  NodeFactory.createBuiltinSimpleNameReferenceNode(null, type);
                             }
                             ArrayTypeDescriptorNode arrayField =
