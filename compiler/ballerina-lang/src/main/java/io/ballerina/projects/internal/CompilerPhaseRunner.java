@@ -108,6 +108,9 @@ public class CompilerPhaseRunner {
                 && Boolean.parseBoolean(this.options.get(TOOLING_COMPILATION));
     }
     public void nBallerinaPhase(BLangPackage pkgNode, CompilerContext context) {
+        if (this.stopCompilation(pkgNode, CompilerPhase.NBALLERINA)) {
+            return;
+        }
         callnBallerina(pkgNode, context);
     }
 
