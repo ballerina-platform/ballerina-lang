@@ -1432,14 +1432,17 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         typeDefinition.setPrecedence(this.typePrecedence++);
         BTypeSymbol typeDefSymbol;
+
+        boolean label = false;
         if (definedType.tsymbol.name != Names.EMPTY) {
             typeDefSymbol = definedType.tsymbol.createLabelSymbol();
+            label = true;
         } else {
             typeDefSymbol = definedType.tsymbol;
         }
 
-        boolean isIntersectionType = definedType.tag == TypeTags.INTERSECTION;
-        BType effectiveDefinedType = isIntersectionType ? ((BIntersectionType) definedType).effectiveType :
+        boolean isNonLabelIntersectionType = definedType.tag == TypeTags.INTERSECTION && !label;
+        BType effectiveDefinedType = isNonLabelIntersectionType ? ((BIntersectionType) definedType).effectiveType :
                 definedType;
 
         typeDefSymbol.markdownDocumentation = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
@@ -1448,7 +1451,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.pos = typeDefinition.name.pos;
         typeDefSymbol.origin = getOrigin(typeDefSymbol.name);
 
-        if (isIntersectionType) {
+        if (isNonLabelIntersectionType) {
             BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
             effectiveTypeSymbol.name = typeDefSymbol.name;
             effectiveTypeSymbol.pkgID = typeDefSymbol.pkgID;
@@ -1459,8 +1462,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 BErrorType distinctType = getDistinctErrorType(typeDefinition, (BErrorType) definedType, typeDefSymbol);
                 typeDefinition.typeNode.type = distinctType;
                 definedType = distinctType;
-            } else if (isIntersectionType && effectiveDefinedType.getKind() == TypeKind.ERROR) {
-                populateErrorTypeIds((BErrorType) effectiveDefinedType,
+            } else if (definedType.tag == TypeTags.INTERSECTION &&
+                    ((BIntersectionType) definedType).effectiveType.getKind() == TypeKind.ERROR) {
+                populateErrorTypeIds((BErrorType) ((BIntersectionType) definedType).effectiveType,
                                      (BLangIntersectionTypeNode) typeDefinition.typeNode, typeDefinition.name.value);
             } else if (definedType.getKind() == TypeKind.OBJECT) {
                 BObjectType distinctType = getDistinctObjectType(typeDefinition, (BObjectType) definedType,
@@ -1502,7 +1506,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         definedType.flags |= typeDefSymbol.flags;
 
-        if (isIntersectionType) {
+        if (isNonLabelIntersectionType) {
             BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
             effectiveTypeSymbol.flags |= definedType.tsymbol.flags;
             effectiveTypeSymbol.origin = VIRTUAL;
