@@ -28,19 +28,19 @@ function testBasicTypes() {
     assertEquality("hello foo", result3);
 }
 
-//function testBasicTypesWithoutFutureConstraint() {
-//    future f1 = start add(5, 2);
-//    future f2 = start status();
-//    future f3 = start concat("foo");
-//
-//    any|error result1 = wait f1;
-//    any|error result2 = wait f2;
-//    any|error result3 = wait f3;
-//
-//    assertEquality(7, result1);
-//    assertEquality(true, result2);
-//    assertEquality("hello foo", result3);
-//}
+function testBasicTypesWithoutFutureConstraint() {
+    future f1 = start add(5, 2);
+    future f2 = start status();
+    future f3 = start concat("foo");
+
+    any|error result1 = wait f1;
+    any|error result2 = wait f2;
+    any|error result3 = wait f3;
+
+    assertEquality(7, result1);
+    assertEquality(true, result2);
+    assertEquality("hello foo", result3);
+}
 
 function testRefTypes() {
     future<xml> a = start xmlFile();
@@ -53,16 +53,16 @@ function testRefTypes() {
     assertEquality(5, y);
 }
 
-//function testRefTypesWithoutFutureConstraint() {
-//    future a = start xmlFile();
-//    future b = start getJson();
-//
-//    any|error x = wait a;
-//    any|error y = wait b;
-//
-//    assertEquality(xml `aaa`, x);
-//    assertEquality(5, y);
-//}
+function testRefTypesWithoutFutureConstraint() {
+    future a = start xmlFile();
+    future b = start getJson();
+
+    any|error x = wait a;
+    any|error y = wait b;
+
+    assertEquality(xml `aaa`, x);
+    assertEquality(5, y);
+}
 
 function testArrayTypes() {
     future<int[]> a = start intArray();
@@ -72,13 +72,13 @@ function testArrayTypes() {
     assertEquality(intArray(), x);
 }
 
-//function testArrayTypesWithoutFutureConstraint() {
-//    future a = start intArray();
-//
-//    any|error x = wait a;
-//
-//    assertEquality(intArray(), x);
-//}
+function testArrayTypesWithoutFutureConstraint() {
+    future a = start intArray();
+
+    any|error x = wait a;
+
+    assertEquality(intArray(), x);
+}
 
 function testRecordTypes() {
     future<Person> a = start getNewPerson();
@@ -88,13 +88,13 @@ function testRecordTypes() {
     assertEquality(getNewPerson(), x);
 }
 
-//function testRecordTypesWithoutFutureConstraint() {
-//    future a = start getNewPerson();
-//
-//    any|error x = wait a;
-//
-//    assertEquality(getNewPerson(), x);
-//}
+function testRecordTypesWithoutFutureConstraint() {
+    future a = start getNewPerson();
+
+    any|error x = wait a;
+
+    assertEquality(getNewPerson(), x);
+}
 
 function testObjectTypes() {
     future<PersonA> a = start getPersonAObject();
@@ -105,13 +105,15 @@ function testObjectTypes() {
     assertEquality("sample name", name);
 }
 
-//function testObjectTypesWithoutFutureConstraint() {
-//    future a = start getPersonAObject();
-//
-//    any|error x = wait a;
-//
-//    assertEquality("object PersonA", x.toString());
-//}
+function testObjectTypesWithoutFutureConstraint() {
+    future a = start getPersonAObject();
+
+    any x = checkpanic wait a;
+    PersonA personA = <PersonA>x;
+
+    assertEquality(getPersonAObject().age, personA.age);
+    assertEquality(getPersonAObject().name, personA.name);
+}
 
 function testCustomErrorFuture() {
     future<error> te = start getError();
@@ -121,13 +123,14 @@ function testCustomErrorFuture() {
     assertEquality("SimpleErrorType", x.message());
 }
 
-//function testCustomErrorFutureWithoutConstraint() {
-//    future te = start getError();
-//
-//    any|error x = wait te;
-//
-//    assertEquality(getError().toString(), x.toString());
-//}
+function testCustomErrorFutureWithoutConstraint() {
+    future te = start getError();
+
+    any|error x = getError();
+    string str = (<error>x).toString();
+
+    assertEquality(getError().toString(), str.toString());
+}
 
 function add(int i, int j) returns int {
     int k = i + j;
@@ -237,4 +240,3 @@ function assertEquality(any|error expected, any|error actual) {
     panic error(ASSERTION_ERROR_REASON,
                  message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
-
