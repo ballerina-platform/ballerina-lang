@@ -52,7 +52,6 @@ import io.ballerina.compiler.syntax.tree.EnumMemberNode;
 import io.ballerina.compiler.syntax.tree.ErrorBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorMatchPatternNode;
-import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionFunctionBodyNode;
@@ -75,7 +74,6 @@ import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.FutureTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
@@ -148,6 +146,7 @@ import io.ballerina.compiler.syntax.tree.OrderByClauseNode;
 import io.ballerina.compiler.syntax.tree.OrderKeyNode;
 import io.ballerina.compiler.syntax.tree.PanicStatementNode;
 import io.ballerina.compiler.syntax.tree.ParameterNode;
+import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
@@ -207,7 +206,6 @@ import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceTypeDescNode;
 import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
-import io.ballerina.compiler.syntax.tree.TypedescTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
 import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
@@ -236,7 +234,6 @@ import io.ballerina.compiler.syntax.tree.XMLSimpleNameNode;
 import io.ballerina.compiler.syntax.tree.XMLStartTagNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
-import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
 import io.ballerina.tools.text.LineRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1234,20 +1231,19 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     @Override
-    public ErrorTypeDescriptorNode transform(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
-        Token errorKeywordToken;
-        if (errorTypeDescriptorNode.errorTypeParamsNode().isPresent()) {
-            errorKeywordToken = formatToken(errorTypeDescriptorNode.errorKeywordToken(), 0, 0);
+    public ParameterizedTypeDescriptorNode transform(ParameterizedTypeDescriptorNode parameterizedTypeDescNode) {
+        Token keywordToken;
+        if (parameterizedTypeDescNode.typeParamNode().isPresent()) {
+            keywordToken = formatToken(parameterizedTypeDescNode.keywordToken(), 0, 0);
         } else {
-            errorKeywordToken = formatToken(errorTypeDescriptorNode.errorKeywordToken(),
-                    env.trailingWS, env.trailingNL);
+            keywordToken = formatToken(parameterizedTypeDescNode.keywordToken(), env.trailingWS, env.trailingNL);
         }
 
-        TypeParameterNode errorTypeParamsNode = formatNode(errorTypeDescriptorNode.errorTypeParamsNode().orElse(null),
+        TypeParameterNode typeParamNode = formatNode(parameterizedTypeDescNode.typeParamNode().orElse(null),
                 env.trailingWS, env.trailingNL);
-        return errorTypeDescriptorNode.modify()
-                .withErrorKeywordToken(errorKeywordToken)
-                .withErrorTypeParamsNode(errorTypeParamsNode)
+        return parameterizedTypeDescNode.modify()
+                .withKeywordToken(keywordToken)
+                .withTypeParamNode(typeParamNode)
                 .apply();
     }
 
@@ -2537,43 +2533,6 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     @Override
-    public TypedescTypeDescriptorNode transform(TypedescTypeDescriptorNode typedescTypeDescriptorNode) {
-        Token typedescKeyword;
-        if (typedescTypeDescriptorNode.typedescTypeParamsNode().isPresent()) {
-            typedescKeyword = formatToken(typedescTypeDescriptorNode.typedescKeywordToken(), 0, 0);
-        } else {
-            typedescKeyword =
-                    formatToken(typedescTypeDescriptorNode.typedescKeywordToken(), env.trailingWS, env.trailingNL);
-        }
-
-        TypeParameterNode typedescTypeParamsNode =
-                formatNode(typedescTypeDescriptorNode.typedescTypeParamsNode().orElse(null), env.trailingWS,
-                        env.trailingNL);
-        return typedescTypeDescriptorNode.modify()
-                .withTypedescTypeParamsNode(typedescTypeParamsNode)
-                .withTypedescKeywordToken(typedescKeyword)
-                .apply();
-    }
-
-    @Override
-    public FutureTypeDescriptorNode transform(FutureTypeDescriptorNode futureTypeDescriptorNode) {
-        Token futureKeyword;
-        if (futureTypeDescriptorNode.futureTypeParamsNode().isPresent()) {
-            futureKeyword = formatToken(futureTypeDescriptorNode.futureKeywordToken(), 0, 0);
-        } else {
-            futureKeyword = formatToken(futureTypeDescriptorNode.futureKeywordToken(), env.trailingWS, env.trailingNL);
-        }
-
-        TypeParameterNode futureTypeParamsNode =
-                formatNode(futureTypeDescriptorNode.futureTypeParamsNode().orElse(null), env.trailingWS,
-                        env.trailingNL);
-        return futureTypeDescriptorNode.modify()
-                .withFutureTypeParamsNode(futureTypeParamsNode)
-                .withFutureKeywordToken(futureKeyword)
-                .apply();
-    }
-
-    @Override
     public LetExpressionNode transform(LetExpressionNode letExpressionNode) {
         Token letKeyword = formatToken(letExpressionNode.letKeyword(), 1, 0);
 
@@ -3452,23 +3411,6 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withSlashToken(slashToken)
                 .withName(name)
                 .withGetToken(getToken)
-                .apply();
-    }
-
-    @Override
-    public XmlTypeDescriptorNode transform(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
-        Token xmlKeywordToken;
-        if (xmlTypeDescriptorNode.xmlTypeParamsNode().isPresent()) {
-            xmlKeywordToken = formatToken(xmlTypeDescriptorNode.xmlKeywordToken(), 0, 0);
-        } else {
-            xmlKeywordToken = formatToken(xmlTypeDescriptorNode.xmlKeywordToken(), env.trailingWS, env.trailingNL);
-        }
-
-        TypeParameterNode xmlTypeParamsNode = formatNode(xmlTypeDescriptorNode.xmlTypeParamsNode().orElse(null),
-                env.trailingWS, env.trailingNL);
-        return xmlTypeDescriptorNode.modify()
-                .withXmlKeywordToken(xmlKeywordToken)
-                .withXmlTypeParamsNode(xmlTypeParamsNode)
                 .apply();
     }
 

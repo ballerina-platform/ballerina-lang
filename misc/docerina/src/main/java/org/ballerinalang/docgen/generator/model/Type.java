@@ -32,16 +32,15 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.FutureTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.MapTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.NilTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
@@ -52,9 +51,7 @@ import io.ballerina.compiler.syntax.tree.StreamTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeParamsNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.TypedescTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
@@ -164,11 +161,6 @@ public class Type {
             type.name = builtinSimpleNameReferenceNode.name().text();
             type.version = ballerinaShotVersion;
             type.category = "builtin";
-        } else if (node instanceof XmlTypeDescriptorNode) {
-            XmlTypeDescriptorNode xmlType = (XmlTypeDescriptorNode) node;
-            type.name = xmlType.xmlKeywordToken().text();
-            type.version = ballerinaShotVersion;
-            type.category = "builtin";
         } else if (node instanceof NilTypeDescriptorNode) {
             type.name = node.toString();
             type.version = ballerinaShotVersion;
@@ -226,13 +218,19 @@ public class Type {
                 type.category = "map";
                 type.version = ballerinaShotVersion;
                 type.constraint = fromNode(mapTypeDesc.mapTypeParamsNode().typeNode(), semanticModel);
-        } else if (node instanceof FutureTypeDescriptorNode) {
-            // Do nothing
-        } else if (node instanceof ErrorTypeDescriptorNode) {
-            ErrorTypeDescriptorNode errorType = (ErrorTypeDescriptorNode) node;
-            type.name = errorType.errorKeywordToken().text();
-            type.version = ballerinaShotVersion;
-            type.category = "builtin";
+        } else if (node instanceof ParameterizedTypeDescriptorNode) {
+            ParameterizedTypeDescriptorNode parameterizedTypeNode = (ParameterizedTypeDescriptorNode) node;
+            SyntaxKind typeKind = node.kind();
+            if (typeKind == SyntaxKind.ERROR_TYPE_DESC || typeKind == SyntaxKind.XML_TYPE_DESC) {
+                type.name = parameterizedTypeNode.keywordToken().text();
+                type.version = ballerinaShotVersion;
+                type.category = "builtin";
+            } else if (typeKind == SyntaxKind.TYPEDESC_TYPE_DESC) {
+                type.elementType = parameterizedTypeNode.typeParamNode().map(typeParameterNode ->
+                        Type.fromNode(typeParameterNode.typeNode(), semanticModel)).orElse(null);
+                type.isTypeDesc = true;
+                type.version = ballerinaShotVersion;
+            }
         } else if (node instanceof ObjectTypeDescriptorNode) {
             ObjectTypeDescriptorNode objectType = (ObjectTypeDescriptorNode) node;
             type.name = objectType.toString();
@@ -252,15 +250,6 @@ public class Type {
             type.memberTypes.addAll(typeDescriptor.memberTypeDesc().stream().map(memberType ->
                     Type.fromNode(memberType, semanticModel)).collect(Collectors.toList()));
             type.isTuple = true;
-        } else if (node instanceof TypedescTypeDescriptorNode) {
-            TypedescTypeDescriptorNode typeDescriptor = (TypedescTypeDescriptorNode) node;
-            Type elemType = null;
-            if (typeDescriptor.typedescTypeParamsNode().isPresent()) {
-                elemType = Type.fromNode(typeDescriptor.typedescTypeParamsNode().get().typeNode(), semanticModel);
-            }
-            type.isTypeDesc = true;
-            type.version = ballerinaShotVersion;
-            type.elementType = elemType;
         } else {
             type.name = node.toSourceCode();
             type.generateUserDefinedTypeLink = false;

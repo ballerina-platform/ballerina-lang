@@ -1507,18 +1507,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public ErrorTypeDescriptorNode transform(
-            ErrorTypeDescriptorNode errorTypeDescriptorNode) {
-        Token errorKeywordToken =
-                modifyToken(errorTypeDescriptorNode.errorKeywordToken());
-        TypeParameterNode errorTypeParamsNode =
-                modifyNode(errorTypeDescriptorNode.errorTypeParamsNode().orElse(null));
-        return errorTypeDescriptorNode.modify(
-                errorKeywordToken,
-                errorTypeParamsNode);
-    }
-
-    @Override
     public StreamTypeDescriptorNode transform(
             StreamTypeDescriptorNode streamTypeDescriptorNode) {
         Token streamKeywordToken =
@@ -1552,18 +1540,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public TypedescTypeDescriptorNode transform(
-            TypedescTypeDescriptorNode typedescTypeDescriptorNode) {
-        Token typedescKeywordToken =
-                modifyToken(typedescTypeDescriptorNode.typedescKeywordToken());
-        TypeParameterNode typedescTypeParamsNode =
-                modifyNode(typedescTypeDescriptorNode.typedescTypeParamsNode().orElse(null));
-        return typedescTypeDescriptorNode.modify(
-                typedescKeywordToken,
-                typedescTypeParamsNode);
-    }
-
-    @Override
     public LetExpressionNode transform(
             LetExpressionNode letExpressionNode) {
         Token letKeyword =
@@ -1579,18 +1555,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 letVarDeclarations,
                 inKeyword,
                 expression);
-    }
-
-    @Override
-    public XmlTypeDescriptorNode transform(
-            XmlTypeDescriptorNode xmlTypeDescriptorNode) {
-        Token xmlKeywordToken =
-                modifyToken(xmlTypeDescriptorNode.xmlKeywordToken());
-        TypeParameterNode xmlTypeParamsNode =
-                modifyNode(xmlTypeDescriptorNode.xmlTypeParamsNode().orElse(null));
-        return xmlTypeDescriptorNode.modify(
-                xmlKeywordToken,
-                xmlTypeParamsNode);
     }
 
     @Override
@@ -3243,15 +3207,16 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public FutureTypeDescriptorNode transform(
-            FutureTypeDescriptorNode futureTypeDescriptorNode) {
-        Token futureKeywordToken =
-                modifyToken(futureTypeDescriptorNode.futureKeywordToken());
-        TypeParameterNode futureTypeParamsNode =
-                modifyNode(futureTypeDescriptorNode.futureTypeParamsNode().orElse(null));
-        return futureTypeDescriptorNode.modify(
-                futureKeywordToken,
-                futureTypeParamsNode);
+    public ParameterizedTypeDescriptorNode transform(
+            ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
+        Token keywordToken =
+                modifyToken(parameterizedTypeDescriptorNode.keywordToken());
+        TypeParameterNode typeParamNode =
+                modifyNode(parameterizedTypeDescriptorNode.typeParamNode().orElse(null));
+        return parameterizedTypeDescriptorNode.modify(
+                parameterizedTypeDescriptorNode.kind(),
+                keywordToken,
+                typeParamNode);
     }
 
     // Tokens

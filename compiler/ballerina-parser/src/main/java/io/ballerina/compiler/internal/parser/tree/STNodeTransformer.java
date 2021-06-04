@@ -365,10 +365,6 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(keySpecifierNode);
     }
 
-    public T transform(STErrorTypeDescriptorNode errorTypeDescriptorNode) {
-        return transformSyntaxNode(errorTypeDescriptorNode);
-    }
-
     public T transform(STStreamTypeDescriptorNode streamTypeDescriptorNode) {
         return transformSyntaxNode(streamTypeDescriptorNode);
     }
@@ -377,16 +373,8 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(streamTypeParamsNode);
     }
 
-    public T transform(STTypedescTypeDescriptorNode typedescTypeDescriptorNode) {
-        return transformSyntaxNode(typedescTypeDescriptorNode);
-    }
-
     public T transform(STLetExpressionNode letExpressionNode) {
         return transformSyntaxNode(letExpressionNode);
-    }
-
-    public T transform(STXmlTypeDescriptorNode xmlTypeDescriptorNode) {
-        return transformSyntaxNode(xmlTypeDescriptorNode);
     }
 
     public T transform(STLetVariableDeclarationNode letVariableDeclarationNode) {
@@ -817,8 +805,8 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(errorConstructorExpressionNode);
     }
 
-    public T transform(STFutureTypeDescriptorNode futureTypeDescriptorNode) {
-        return transformSyntaxNode(futureTypeDescriptorNode);
+    public T transform(STParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
+        return transformSyntaxNode(parameterizedTypeDescriptorNode);
     }
 
     // Tokens

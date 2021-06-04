@@ -17,9 +17,9 @@
  */
 package io.ballerina.compiler.internal.parser.tree;
 
-import io.ballerina.compiler.syntax.tree.FutureTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -30,56 +30,62 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STFutureTypeDescriptorNode extends STTypeDescriptorNode {
-    public final STNode futureKeywordToken;
-    public final STNode futureTypeParamsNode;
+public class STParameterizedTypeDescriptorNode extends STTypeDescriptorNode {
+    public final STNode keywordToken;
+    public final STNode typeParamNode;
 
-    STFutureTypeDescriptorNode(
-            STNode futureKeywordToken,
-            STNode futureTypeParamsNode) {
+    STParameterizedTypeDescriptorNode(
+            SyntaxKind kind,
+            STNode keywordToken,
+            STNode typeParamNode) {
         this(
-                futureKeywordToken,
-                futureTypeParamsNode,
+                kind,
+                keywordToken,
+                typeParamNode,
                 Collections.emptyList());
     }
 
-    STFutureTypeDescriptorNode(
-            STNode futureKeywordToken,
-            STNode futureTypeParamsNode,
+    STParameterizedTypeDescriptorNode(
+            SyntaxKind kind,
+            STNode keywordToken,
+            STNode typeParamNode,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.FUTURE_TYPE_DESC, diagnostics);
-        this.futureKeywordToken = futureKeywordToken;
-        this.futureTypeParamsNode = futureTypeParamsNode;
+        super(kind, diagnostics);
+        this.keywordToken = keywordToken;
+        this.typeParamNode = typeParamNode;
 
         addChildren(
-                futureKeywordToken,
-                futureTypeParamsNode);
+                keywordToken,
+                typeParamNode);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STFutureTypeDescriptorNode(
-                this.futureKeywordToken,
-                this.futureTypeParamsNode,
+        return new STParameterizedTypeDescriptorNode(
+                this.kind,
+                this.keywordToken,
+                this.typeParamNode,
                 diagnostics);
     }
 
-    public STFutureTypeDescriptorNode modify(
-            STNode futureKeywordToken,
-            STNode futureTypeParamsNode) {
+    public STParameterizedTypeDescriptorNode modify(
+            SyntaxKind kind,
+            STNode keywordToken,
+            STNode typeParamNode) {
         if (checkForReferenceEquality(
-                futureKeywordToken,
-                futureTypeParamsNode)) {
+                keywordToken,
+                typeParamNode)) {
             return this;
         }
 
-        return new STFutureTypeDescriptorNode(
-                futureKeywordToken,
-                futureTypeParamsNode,
+        return new STParameterizedTypeDescriptorNode(
+                kind,
+                keywordToken,
+                typeParamNode,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new FutureTypeDescriptorNode(this, position, parent);
+        return new ParameterizedTypeDescriptorNode(this, position, parent);
     }
 
     @Override

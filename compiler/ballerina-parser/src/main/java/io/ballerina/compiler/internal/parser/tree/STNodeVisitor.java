@@ -365,10 +365,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(keySpecifierNode);
     }
 
-    public void visit(STErrorTypeDescriptorNode errorTypeDescriptorNode) {
-        visitSyntaxNode(errorTypeDescriptorNode);
-    }
-
     public void visit(STStreamTypeDescriptorNode streamTypeDescriptorNode) {
         visitSyntaxNode(streamTypeDescriptorNode);
     }
@@ -377,16 +373,8 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(streamTypeParamsNode);
     }
 
-    public void visit(STTypedescTypeDescriptorNode typedescTypeDescriptorNode) {
-        visitSyntaxNode(typedescTypeDescriptorNode);
-    }
-
     public void visit(STLetExpressionNode letExpressionNode) {
         visitSyntaxNode(letExpressionNode);
-    }
-
-    public void visit(STXmlTypeDescriptorNode xmlTypeDescriptorNode) {
-        visitSyntaxNode(xmlTypeDescriptorNode);
     }
 
     public void visit(STLetVariableDeclarationNode letVariableDeclarationNode) {
@@ -817,8 +805,8 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(errorConstructorExpressionNode);
     }
 
-    public void visit(STFutureTypeDescriptorNode futureTypeDescriptorNode) {
-        visitSyntaxNode(futureTypeDescriptorNode);
+    public void visit(STParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
+        visitSyntaxNode(parameterizedTypeDescriptorNode);
     }
 
     // STNodeList

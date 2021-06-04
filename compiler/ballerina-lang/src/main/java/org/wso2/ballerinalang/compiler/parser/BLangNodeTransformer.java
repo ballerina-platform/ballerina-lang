@@ -52,7 +52,6 @@ import io.ballerina.compiler.syntax.tree.EnumMemberNode;
 import io.ballerina.compiler.syntax.tree.ErrorBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorMatchPatternNode;
-import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionFunctionBodyNode;
@@ -74,7 +73,6 @@ import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.FutureTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
@@ -143,6 +141,7 @@ import io.ballerina.compiler.syntax.tree.OrderByClauseNode;
 import io.ballerina.compiler.syntax.tree.OrderKeyNode;
 import io.ballerina.compiler.syntax.tree.PanicStatementNode;
 import io.ballerina.compiler.syntax.tree.ParameterNode;
+import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
@@ -196,7 +195,6 @@ import io.ballerina.compiler.syntax.tree.TypeParameterNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
-import io.ballerina.compiler.syntax.tree.TypedescTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
 import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
@@ -224,7 +222,6 @@ import io.ballerina.compiler.syntax.tree.XMLSimpleNameNode;
 import io.ballerina.compiler.syntax.tree.XMLStartTagNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
-import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
@@ -969,10 +966,43 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
-    public BLangNode transform(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
+    public BLangNode transform(ParameterizedTypeDescriptorNode parameterizedTypeDescNode) {
+        if (parameterizedTypeDescNode.kind() == SyntaxKind.ERROR_TYPE_DESC) {
+            return transformErrorTypeDescriptor(parameterizedTypeDescNode);
+        }
+        
+        BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
+        refType.typeKind = getTypeKind(parameterizedTypeDescNode.kind());
+        refType.pos = getPosition(parameterizedTypeDescNode);
+
+        Optional<TypeParameterNode> typeParam = parameterizedTypeDescNode.typeParamNode();
+        if (typeParam.isPresent()) {
+            BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
+            constrainedType.type = refType;
+            constrainedType.constraint = createTypeNode(typeParam.get().typeNode());
+            constrainedType.pos = refType.pos;
+            return constrainedType;
+        }
+        
+        return refType;
+    }
+
+    private TypeKind getTypeKind(SyntaxKind syntaxKind) {
+        switch (syntaxKind) {
+            case TYPEDESC_TYPE_DESC:
+                return TypeKind.TYPEDESC;
+            case FUTURE_TYPE_DESC:
+                return TypeKind.FUTURE;
+            case XML_TYPE_DESC:
+            default:
+                return TypeKind.XML;
+        }
+    }
+    
+    private BLangNode transformErrorTypeDescriptor(ParameterizedTypeDescriptorNode parameterizedTypeDescNode) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
-        Optional<TypeParameterNode> typeParam = errorTypeDescriptorNode.errorTypeParamsNode();
-        errorType.pos = getPosition(errorTypeDescriptorNode);
+        Optional<TypeParameterNode> typeParam = parameterizedTypeDescNode.typeParamNode();
+        errorType.pos = getPosition(parameterizedTypeDescNode);
         if (typeParam.isPresent()) {
             TypeParameterNode typeNode = typeParam.get();
             if (isAnonymousTypeNode(typeNode)) {
@@ -982,7 +1012,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         }
 
-        NonTerminalNode parent = errorTypeDescriptorNode.parent();
+        NonTerminalNode parent = parameterizedTypeDescNode.parent();
         boolean isDistinctError = parent.kind() == SyntaxKind.DISTINCT_TYPE_DESC;
         if (isDistinctError) {
             parent = parent.parent();
@@ -2681,62 +2711,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
-    public BLangNode transform(TypedescTypeDescriptorNode typedescTypeDescriptorNode) {
-        BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
-        refType.typeKind = TypeKind.TYPEDESC;
-        refType.pos = getPosition(typedescTypeDescriptorNode);
-
-        Optional<TypeParameterNode> node = typedescTypeDescriptorNode.typedescTypeParamsNode();
-        if (node.isPresent()) {
-            BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
-            constrainedType.type = refType;
-            constrainedType.constraint = createTypeNode(node.get().typeNode());
-            constrainedType.pos = refType.pos;
-            return constrainedType;
-        }
-
-        return refType;
-    }
-
-    @Override
-    public BLangNode transform(FutureTypeDescriptorNode futureTypeDescriptorNode) {
-        BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
-        refType.typeKind = TypeKind.FUTURE;
-        refType.pos = getPosition(futureTypeDescriptorNode);
-
-        Optional<TypeParameterNode> node = futureTypeDescriptorNode.futureTypeParamsNode();
-        if (node.isPresent()) {
-            BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
-            constrainedType.type = refType;
-            constrainedType.constraint = createTypeNode(node.get().typeNode());
-            constrainedType.pos = refType.pos;
-            return constrainedType;
-        }
-
-        return refType;
-    }
-
-    @Override
     public BLangNode transform(VariableDeclarationNode varDeclaration) {
         return (BLangNode) createBLangVarDef(getPosition(varDeclaration), varDeclaration.typedBindingPattern(),
                 varDeclaration.initializer(), varDeclaration.finalKeyword());
-    }
-
-    public BLangNode transform(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
-        BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
-        refType.typeKind = TypeKind.XML;
-        refType.pos = getPosition(xmlTypeDescriptorNode);
-
-        Optional<TypeParameterNode> node = xmlTypeDescriptorNode.xmlTypeParamsNode();
-        if (node.isPresent()) {
-            BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
-            constrainedType.type = refType;
-            constrainedType.constraint = createTypeNode(node.get().typeNode());
-            constrainedType.pos = getPosition(xmlTypeDescriptorNode);
-            return constrainedType;
-        }
-
-        return refType;
     }
 
     private VariableDefinitionNode createBLangVarDef(Location location,

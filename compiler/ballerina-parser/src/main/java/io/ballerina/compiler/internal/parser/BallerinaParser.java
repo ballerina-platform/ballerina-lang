@@ -8536,14 +8536,15 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseFutureTypeDescriptor(STNode futureKeywordToken) {
-        STNode futureTypeParamsNode;
+        STNode typeParamNode;
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.LT_TOKEN) {
-            futureTypeParamsNode = parseTypeParameter();
+            typeParamNode = parseTypeParameter();
         } else {
-            futureTypeParamsNode = STNodeFactory.createEmptyNode();
+            typeParamNode = STNodeFactory.createEmptyNode();
         }
-        return STNodeFactory.createFutureTypeDescriptorNode(futureKeywordToken, futureTypeParamsNode);
+        return STNodeFactory.createParameterizedTypeDescriptorNode(SyntaxKind.FUTURE_TYPE_DESC, futureKeywordToken,
+                typeParamNode);
     }
 
     /**
@@ -10008,14 +10009,15 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseErrorTypeDescriptor(STNode errorKeywordToken) {
-        STNode errorTypeParamsNode;
+        STNode typeParamNode;
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.LT_TOKEN) {
-            errorTypeParamsNode = parseTypeParameter();
+            typeParamNode = parseTypeParameter();
         } else {
-            errorTypeParamsNode = STNodeFactory.createEmptyNode();
+            typeParamNode = STNodeFactory.createEmptyNode();
         }
-        return STNodeFactory.createErrorTypeDescriptorNode(errorKeywordToken, errorTypeParamsNode);
+        return STNodeFactory.createParameterizedTypeDescriptorNode(SyntaxKind.ERROR_TYPE_DESC, errorKeywordToken,
+                typeParamNode);
     }
 
     /**
@@ -10040,14 +10042,15 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed typedesc type node
      */
     private STNode parseTypedescTypeDescriptor(STNode typedescKeywordToken) {
-        STNode typedescTypeParamsNode;
+        STNode typeParamNode;
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.LT_TOKEN) {
-            typedescTypeParamsNode = parseTypeParameter();
+            typeParamNode = parseTypeParameter();
         } else {
-            typedescTypeParamsNode = STNodeFactory.createEmptyNode();
+            typeParamNode = STNodeFactory.createEmptyNode();
         }
-        return STNodeFactory.createTypedescTypeDescriptorNode(typedescKeywordToken, typedescTypeParamsNode);
+        return STNodeFactory.createParameterizedTypeDescriptorNode(SyntaxKind.TYPEDESC_TYPE_DESC, typedescKeywordToken,
+                typeParamNode);
     }
 
     /**
@@ -10078,14 +10081,15 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed typedesc type node
      */
     private STNode parseXmlTypeDescriptor(STNode xmlKeywordToken) {
-        STNode typedescTypeParamsNode;
+        STNode typeParamNode;
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.LT_TOKEN) {
-            typedescTypeParamsNode = parseTypeParameter();
+            typeParamNode = parseTypeParameter();
         } else {
-            typedescTypeParamsNode = STNodeFactory.createEmptyNode();
+            typeParamNode = STNodeFactory.createEmptyNode();
         }
-        return STNodeFactory.createXmlTypeDescriptorNode(xmlKeywordToken, typedescTypeParamsNode);
+        return STNodeFactory.createParameterizedTypeDescriptorNode(SyntaxKind.XML_TYPE_DESC, xmlKeywordToken,
+                typeParamNode);
     }
 
     /**

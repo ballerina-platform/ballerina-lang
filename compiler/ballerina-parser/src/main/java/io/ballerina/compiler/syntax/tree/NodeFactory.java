@@ -1457,17 +1457,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stKeySpecifierNode.createUnlinkedFacade();
     }
 
-    public static ErrorTypeDescriptorNode createErrorTypeDescriptorNode(
-            Token errorKeywordToken,
-            TypeParameterNode errorTypeParamsNode) {
-        Objects.requireNonNull(errorKeywordToken, "errorKeywordToken must not be null");
-
-        STNode stErrorTypeDescriptorNode = STNodeFactory.createErrorTypeDescriptorNode(
-                errorKeywordToken.internalNode(),
-                getOptionalSTNode(errorTypeParamsNode));
-        return stErrorTypeDescriptorNode.createUnlinkedFacade();
-    }
-
     public static StreamTypeDescriptorNode createStreamTypeDescriptorNode(
             Token streamKeywordToken,
             Node streamTypeParamsNode) {
@@ -1498,17 +1487,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stStreamTypeParamsNode.createUnlinkedFacade();
     }
 
-    public static TypedescTypeDescriptorNode createTypedescTypeDescriptorNode(
-            Token typedescKeywordToken,
-            TypeParameterNode typedescTypeParamsNode) {
-        Objects.requireNonNull(typedescKeywordToken, "typedescKeywordToken must not be null");
-
-        STNode stTypedescTypeDescriptorNode = STNodeFactory.createTypedescTypeDescriptorNode(
-                typedescKeywordToken.internalNode(),
-                getOptionalSTNode(typedescTypeParamsNode));
-        return stTypedescTypeDescriptorNode.createUnlinkedFacade();
-    }
-
     public static LetExpressionNode createLetExpressionNode(
             Token letKeyword,
             SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations,
@@ -1525,17 +1503,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 inKeyword.internalNode(),
                 expression.internalNode());
         return stLetExpressionNode.createUnlinkedFacade();
-    }
-
-    public static XmlTypeDescriptorNode createXmlTypeDescriptorNode(
-            Token xmlKeywordToken,
-            TypeParameterNode xmlTypeParamsNode) {
-        Objects.requireNonNull(xmlKeywordToken, "xmlKeywordToken must not be null");
-
-        STNode stXmlTypeDescriptorNode = STNodeFactory.createXmlTypeDescriptorNode(
-                xmlKeywordToken.internalNode(),
-                getOptionalSTNode(xmlTypeParamsNode));
-        return stXmlTypeDescriptorNode.createUnlinkedFacade();
     }
 
     public static LetVariableDeclarationNode createLetVariableDeclarationNode(
@@ -3156,15 +3123,17 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stErrorConstructorExpressionNode.createUnlinkedFacade();
     }
 
-    public static FutureTypeDescriptorNode createFutureTypeDescriptorNode(
-            Token futureKeywordToken,
-            TypeParameterNode futureTypeParamsNode) {
-        Objects.requireNonNull(futureKeywordToken, "futureKeywordToken must not be null");
+    public static ParameterizedTypeDescriptorNode createParameterizedTypeDescriptorNode(
+            SyntaxKind kind,
+            Token keywordToken,
+            TypeParameterNode typeParamNode) {
+        Objects.requireNonNull(keywordToken, "keywordToken must not be null");
 
-        STNode stFutureTypeDescriptorNode = STNodeFactory.createFutureTypeDescriptorNode(
-                futureKeywordToken.internalNode(),
-                getOptionalSTNode(futureTypeParamsNode));
-        return stFutureTypeDescriptorNode.createUnlinkedFacade();
+        STNode stParameterizedTypeDescriptorNode = STNodeFactory.createParameterizedTypeDescriptorNode(
+                kind,
+                keywordToken.internalNode(),
+                getOptionalSTNode(typeParamNode));
+        return stParameterizedTypeDescriptorNode.createUnlinkedFacade();
     }
 }
 

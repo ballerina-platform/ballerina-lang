@@ -375,10 +375,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(keySpecifierNode);
     }
 
-    public void visit(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
-        visitSyntaxNode(errorTypeDescriptorNode);
-    }
-
     public void visit(StreamTypeDescriptorNode streamTypeDescriptorNode) {
         visitSyntaxNode(streamTypeDescriptorNode);
     }
@@ -387,16 +383,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(streamTypeParamsNode);
     }
 
-    public void visit(TypedescTypeDescriptorNode typedescTypeDescriptorNode) {
-        visitSyntaxNode(typedescTypeDescriptorNode);
-    }
-
     public void visit(LetExpressionNode letExpressionNode) {
         visitSyntaxNode(letExpressionNode);
-    }
-
-    public void visit(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
-        visitSyntaxNode(xmlTypeDescriptorNode);
     }
 
     public void visit(LetVariableDeclarationNode letVariableDeclarationNode) {
@@ -827,8 +815,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(errorConstructorExpressionNode);
     }
 
-    public void visit(FutureTypeDescriptorNode futureTypeDescriptorNode) {
-        visitSyntaxNode(futureTypeDescriptorNode);
+    public void visit(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
+        visitSyntaxNode(parameterizedTypeDescriptorNode);
     }
 
     // Tokens
