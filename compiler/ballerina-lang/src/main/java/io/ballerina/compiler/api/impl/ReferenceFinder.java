@@ -309,7 +309,10 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
-        find(typeDefinition.typeNode);
+        // We don't want to visit enum type defs as they will be covered under enum constants
+        if (!typeDefinition.flagSet.contains(Flag.ENUM)) {
+            find(typeDefinition.typeNode);
+        }
         find(typeDefinition.annAttachments);
         addIfSameSymbol(typeDefinition.symbol, typeDefinition.name.pos);
     }
