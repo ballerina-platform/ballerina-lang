@@ -7,7 +7,6 @@ module io.ballerina.lang {
     requires org.objectweb.asm;
     requires io.ballerina.runtime;
     requires io.netty.buffer;
-    requires io.ballerina.cli.module;
     requires io.ballerina.parser;
     requires io.ballerina.tools.api;
     requires org.apache.commons.compress;
