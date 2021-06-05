@@ -113,7 +113,6 @@ function testModificationAfterSliceOfReadonlyRecordArray() {
     readonly & Employee[] arr = [{name: "John Doe", age: 25, designation: "Software Engineer"}];
     Employee[] s = arr.slice(0);
     s[0] = {name: "Jane Doe", age: 27, designation: "UX Engineer"};
-    assertValueEquality([{name: "Jane Doe", age: 27, designation: "UX Engineer"}], s);
 }
 
 type Person2 record {
@@ -158,7 +157,6 @@ function testPushAfterSliceOfReadonlyMapArray() {
     readonly & map<string>[] arr = [{x: "a"}, {y: "b"}];
     map<string>[] r = arr.slice(1);
     r.push({z: "c"});
-    assertValueEquality([{y: "b"}, {z: "c"}], r);
 }
 
 function testSliceOnTupleWithRestDesc() {

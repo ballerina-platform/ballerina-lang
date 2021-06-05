@@ -150,10 +150,16 @@ public class LangLibArrayTest {
                 {"testModificationAfterSliceOfReadonlyBooleanArray"},
                 {"testModificationAfterSliceOfReadonlyByteArray"},
                 {"testModificationAfterSliceOfReadonlyFloatArray"},
-                {"testModificationAfterSliceOfReadonlyRecordArray"},
-                {"testSliceOfIntersectionOfReadonlyRecordArray"},
-                {"testPushAfterSliceOfReadonlyMapArray"}
+                {"testSliceOfIntersectionOfReadonlyRecordArray"}
         };
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InherentTypeViolation " +
+                    "\\{\"message\":\"incompatible types: expected '\\(Employee & readonly\\)', found 'Employee'\"}.*")
+    public void testModificationAfterSliceOfReadonlyRecordArray() {
+        BRunUtil.invoke(compileResult, "testModificationAfterSliceOfReadonlyRecordArray");
+        Assert.fail();
     }
 
     @Test
@@ -187,6 +193,15 @@ public class LangLibArrayTest {
         assertEquals(arr.getInt(0), 4);
         assertEquals(arr.getInt(1), 5);
         assertEquals(arr.getInt(2), 88);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InherentTypeViolation " +
+                    "\\{\"message\":\"incompatible types: expected '\\(map<string> & readonly\\)', " +
+                    "found 'map<string>'\"}.*")
+    public void testPushAfterSliceOfReadonlyMapArray() {
+        BRunUtil.invoke(compileResult, "testPushAfterSliceOfReadonlyMapArray");
+        Assert.fail();
     }
 
     @Test
