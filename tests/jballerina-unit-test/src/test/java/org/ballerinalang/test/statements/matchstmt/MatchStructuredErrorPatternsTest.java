@@ -82,8 +82,7 @@ public class MatchStructuredErrorPatternsTest {
         Assert.assertEquals(results.getString(++i), msg + "string : It's fatal");
     }
 
-    // https://github.com/ballerina-platform/ballerina-lang/issues/30480
-    @Test(description = "Test basics of structured pattern match statement 1", enabled = false)
+    @Test(description = "Test basics of structured pattern match statement 1")
     public void testBasicErrorMatch5() {
         BValue[] returns = BRunUtil.invoke(result, "testBasicErrorMatch5", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
@@ -92,9 +91,9 @@ public class MatchStructuredErrorPatternsTest {
         String msg = "Matched with ";
         Assert.assertEquals(results.getString(++i), msg + "a record : true");
         Assert.assertEquals(results.getString(++i), msg + "an error : Error Code 1");
-        Assert.assertEquals(results.getString(++i), msg + "an error : Error Code 1 {}");
+        Assert.assertEquals(results.getString(++i), msg + "an error : Error Code 1");
         Assert.assertEquals(results.getString(++i), msg + "an error 1: Error Code 1");
-        Assert.assertEquals(results.getString(++i), msg + "an error : Error Code 1, message = Something Wrong");
+        Assert.assertEquals(results.getString(++i), msg + "an error 1: Error Code 1");
     }
 
     @Test(description = "Test basics of structured pattern match statement 1")
@@ -109,8 +108,7 @@ public class MatchStructuredErrorPatternsTest {
                 "an error: reason = Just Panic, message = Bit of detail");
     }
 
-    // https://github.com/ballerina-platform/ballerina-lang/issues/30480
-    @Test(description = "Test basics of structured pattern match statement 1", enabled = false)
+    @Test(description = "Test basics of structured pattern match statement 1")
     public void testErrorWithUnderscore() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorWithUnderscore", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
@@ -120,8 +118,7 @@ public class MatchStructuredErrorPatternsTest {
         Assert.assertEquals(results.getString(++i), msg + "error reason = Error One");
     }
 
-    // https://github.com/ballerina-platform/ballerina-lang/issues/30484
-    @Test(description = "Test basics of structured pattern match statement 1", enabled = false)
+    @Test(description = "Test basics of structured pattern match statement 1")
     public void testBasicErrorMatch7() {
         BValue[] returns = BRunUtil.invoke(result, "testBasicErrorMatch7", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
@@ -143,12 +140,11 @@ public class MatchStructuredErrorPatternsTest {
         Assert.assertEquals(results.getString(++i), "reason = Error Three, message = msgTwo, fatal = false");
     }
 
-    // // https://github.com/ballerina-platform/ballerina-lang/issues/30484
-    @Test(description = "TestMatchingErrorRestParameter", enabled = false)
+    @Test(description = "TestMatchingErrorRestParameter")
     public void testErrorRestParameterMatch() {
         BInteger[] args0 = { new BInteger(0) };
         BValue[] returns0 = BRunUtil.invoke(result, "testErrorRestParamMatch", args0);
-        Assert.assertEquals(returns0[0].stringValue(), "Msg of error-0");
+        Assert.assertEquals(returns0[0].stringValue(), "Error Code{}");
 
         BInteger[] args1 = { new BInteger(1) };
         BValue[] returns1 = BRunUtil.invoke(result, "testErrorRestParamMatch", args1);
@@ -160,7 +156,7 @@ public class MatchStructuredErrorPatternsTest {
 
         BInteger[] args3 = { new BInteger(3) };
         BValue[] returns3 = BRunUtil.invoke(result, "testErrorRestParamMatch", args3);
-        Assert.assertEquals(returns3[0].stringValue(), "Error Code foo=foo");
+        Assert.assertEquals(returns3[0].stringValue(), "Error Code{\"foo\":\"foo\"}");
     }
 
     @Test(description = "Test error match pattern")
