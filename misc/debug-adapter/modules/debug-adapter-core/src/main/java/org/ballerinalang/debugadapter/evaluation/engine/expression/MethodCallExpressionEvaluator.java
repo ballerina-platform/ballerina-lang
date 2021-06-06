@@ -34,6 +34,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.engine.ClassDefinitionResolver;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedInstanceMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
@@ -127,8 +128,27 @@ public class MethodCallExpressionEvaluator extends Evaluator {
     private Value invokeObjectMethod(BVariable resultVar) throws EvaluationException {
         boolean isFoundObjectMethod = false;
         try {
+            ClassDefinitionResolver classDefResolver = new ClassDefinitionResolver(context);
             String className = resultVar.getDapVariable().getValue();
-            Optional<ClassSymbol> classDef = findClassDefWithinModule(className);
+            Optional<ClassSymbol> classDef = classDefResolver.findBalClassDefWithinModule(className);
+            if (classDef.isEmpty()) {
+                // Resolves the JNI signature to see if the the object/class is defined with a dependency module.
+                String signature = resultVar.getJvmValue().type().signature();
+                if (!signature.startsWith("L")) {
+                    throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_NOT_FOUND.getString(),
+                            className));
+                }
+
+                String[] signatureParts = signature.substring(1).split("/");
+                if (signatureParts.length < 2) {
+                    throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_NOT_FOUND.getString(),
+                            className));
+                }
+                String orgName = signatureParts[0];
+                String packageName = signatureParts[1];
+                classDef = classDefResolver.findBalClassDefWithinDependencies(orgName, packageName, className);
+            }
+
             if (classDef.isEmpty()) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_NOT_FOUND.getString(),
                         className));
@@ -147,7 +167,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
                     typeDescriptor(), argEvaluators));
             return objectMethod.invokeSafely();
         } catch (EvaluationException e) {
-            // If the object method is not found, we have to ignore the Evaluation Exception and try find any
+            // If the object method is not found, we have to ignore the Evaluation Exception and try to find any
             // matching lang library functions.
             if (isFoundObjectMethod) {
                 throw e;
