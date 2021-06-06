@@ -83,6 +83,11 @@ public class ErrorBindingPatternTest {
     }
 
     @Test
+    public void testErrorBindingPattern9() {
+        BRunUtil.invoke(result, "testErrorBindingPattern9");
+    }
+
+    @Test
     public void testErrorBindingPatternWithRestBindingPattern1() {
         BRunUtil.invoke(restPatternResult, "testErrorBindingPattern1");
     }
