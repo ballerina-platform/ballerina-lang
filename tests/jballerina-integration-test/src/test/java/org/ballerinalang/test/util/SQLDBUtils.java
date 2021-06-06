@@ -18,6 +18,7 @@
 package org.ballerinalang.test.util;
 
 import org.apache.commons.io.FileUtils;
+import org.ballerinalang.test.BCompileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
