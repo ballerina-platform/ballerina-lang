@@ -563,7 +563,7 @@ public class JvmPackageGen {
     private void linkModuleFunction(PackageID packageID, String initClass, String funcName) {
         BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, new BNilType(), null);
         BIRFunction moduleStopFunction = new BIRFunction(null, new Name(funcName), 0, funcType, new Name(""), 0,
-                                                         null, VIRTUAL);
+                                                        VIRTUAL);
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(packageID) + funcName,
                            getFunctionWrapper(moduleStopFunction, packageID, initClass));
     }

@@ -42,7 +42,6 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     public List<BVarSymbol> params;
     public BVarSymbol restParam;
     public BType retType;
-    public Map<Integer, TaintRecord> taintTable;
     public List<BLangAnnotationAttachment> annAttachments;
     public Map<String, BType> paramDefaultValTypes;
 

@@ -21,9 +21,7 @@ import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.bala.BalaCreator;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -46,10 +44,5 @@ public class ListenerBalaTest {
         Assert.assertEquals(result.length, 1, "expected one return type");
         Assert.assertNotNull(result[0]);
         Assert.assertEquals(result[0].stringValue(), "2_3");
-    }
-
-    @AfterClass()
-    public void tearDown() {
-        BalaCreator.clearPackageFromRepository("test-src/bala/test_projects/test_listener", "listenerProject", "bee");
     }
 }

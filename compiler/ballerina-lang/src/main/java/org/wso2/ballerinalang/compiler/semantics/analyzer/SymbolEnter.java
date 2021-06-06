@@ -37,7 +37,6 @@ import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -203,7 +202,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     private static final CompilerContext.Key<SymbolEnter> SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
 
-    private final PackageLoader pkgLoader;
     private final SymbolTable symTable;
     private final Names names;
     private final SymbolResolver symResolver;
@@ -239,7 +237,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     public SymbolEnter(CompilerContext context) {
         context.put(SYMBOL_ENTER_KEY, this);
 
-        this.pkgLoader = PackageLoader.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
@@ -979,12 +976,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        BPackageSymbol pkgSymbol;
-        if (projectAPIInitiatedCompilation) {
-            pkgSymbol = packageCache.getSymbol(pkgId);
-        } else {
-            pkgSymbol = pkgLoader.loadPackageSymbol(pkgId, enclPackageID, this.env.enclPkg.repos);
-        }
+        BPackageSymbol pkgSymbol = packageCache.getSymbol(pkgId);
 
         if (pkgSymbol == null) {
             dlog.error(importPkgNode.pos, DiagnosticErrorCode.MODULE_NOT_FOUND,

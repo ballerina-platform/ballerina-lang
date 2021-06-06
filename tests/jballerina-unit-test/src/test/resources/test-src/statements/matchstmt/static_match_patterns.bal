@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 function testStaticMatchPatternsBasic1() returns string[] {
     string | int | boolean a1 = 12;
     string | int | boolean a2 = "Hello";
@@ -336,23 +334,23 @@ function testStaticMatchOrPatterns1() returns string[] {
 function baz(string | int | boolean a) returns string {
     match a {
         12 | 13 | 14 => {
-            return "Value is : " + io:sprintf("%s", a);
+            return "Value is : " + a.toString();
         }
         "Hello" | "World" => {
-            return "Value is : " + io:sprintf("%s", a);
+            return "Value is : " + a.toString();
         }
         15 | "Test" => {
-            return "Value is : " + io:sprintf("%s", a);
+            return "Value is : " + a.toString();
         }
         true | false => {
-            return "Value is : " + io:sprintf("%s", a);
+            return "Value is : " + a.toString();
         }
         "HelloAgain" => {
-            return "Value is : " + io:sprintf("%s", a);
+            return "Value is : " + a.toString();
         }
     }
 
-    return "Default value is : " + io:sprintf("%s", a);
+    return "Default value is : " + a.toString();
 }
 
 
@@ -381,17 +379,17 @@ function caz1(anydata f) returns string {
 
     match f {
         15 | [12, "Ballerina"] => {
-            return "Value is : " + io:sprintf("%s", f);
+            return "Value is : " + f.toString();
         }
         [15, "Ballerina"] | [20, "Ballerina"] | [20, "Bala"] => {
-            return "Value is : " + io:sprintf("%s", f);
+            return "Value is : " + f.toString();
         }
         [15, "Bal", 100] | [15, "Bal", 200, 400] | [15, "Bal", "Ballerina", 5678, "Test"] => {
-            return "Value is : " + io:sprintf("%s", f);
+            return "Value is : " + f.toString();
         }
     }
 
-    return "Default Value is : " + io:sprintf("%s", f);
+    return "Default Value is : " + f.toString();
 }
 
 type AnotherFoo record {
@@ -422,22 +420,22 @@ function caz2(Foo | AnotherFoo | map<any> | int f) returns string {
 
     match f {
         {x: 10, y: "Ballerina"} | {x: 12, y: "Ballerina", z: true} => {
-            return "Value is : 1st pattern - " + io:sprintf("%s", f);
+            return "Value is : 1st pattern - " + f.toString();
         }
         {x: 12, y: "B"} | {x: 12, y: "Ballerina"} => {
-            return "Value is : 2nd pattern - " + io:sprintf("%s", f);
+            return "Value is : 2nd pattern - " + f.toString();
         }
         {x: 15, y: ["Stark", {x: 12, y: "Ballerina", z: true}, "Sansa"], z: 15.1} |
         {x: 40, y: ["Tyrion", {x: 12, y: "Ballerina"}, "Lanister"], z: 56.9} => {
-            return "Value is : 3rd pattern - " + io:sprintf("%s", f);
+            return "Value is : 3rd pattern - " + f.toString();
         }
-        16 | 15 | {x: 10, y: "B"} => {return "Value is : 4th pattern - " + io:sprintf("%s", f);}
+        16 | 15 | {x: 10, y: "B"} => {return "Value is : 4th pattern - " + f.toString();}
         {x: 15, y: ["John", {x: 12, y: "Ballerina"}, "Snow"], z: 15.1} => {
-            return "Value is : 5th pattern - " + io:sprintf("%s", f);
+            return "Value is : 5th pattern - " + f.toString();
         }
     }
 
-    return "Value is Default pattern - " + io:sprintf("%s", f);
+    return "Value is Default pattern - " + f.toString();
 }
 
 
@@ -464,22 +462,22 @@ function caz3(any f) returns string {
 
     match f {
         {x: 10, y: "Ballerina"} | {x: 12, y: "Ballerina", z: true} => {
-            return "Value is : 1st pattern - " + io:sprintf("%s", f);
+            return "Value is : 1st pattern - " + f.toString();
         }
         {x: 12, y: "B"} | {x: 12, y: "Ballerina"} => {
-            return "Value is : 2nd pattern - " + io:sprintf("%s", f);
+            return "Value is : 2nd pattern - " + f.toString();
         }
         {x: 15, y: ["Stark", {x: 12, y: "Ballerina", z: true}, "Sansa"], z: 15.1} |
         {x: 40, y: ["Tyrion", {x: 12, y: "Ballerina"}, "Lanister"], z: 56.9} => {
-            return "Value is : 3rd pattern - " + io:sprintf("%s", f);
+            return "Value is : 3rd pattern - " + f.toString();
         }
-        16 | 15 | {x: 10, y: "B"} => {return "Value is : 4th pattern - " + io:sprintf("%s", f);}
+        16 | 15 | {x: 10, y: "B"} => {return "Value is : 4th pattern - " + f.toString();}
         {x: 15, y: ["John", {x: 12, y: "Ballerina"}, "Snow"], z: 15.1} => {
-            return "Value is : 5th pattern - " + io:sprintf("%s", f);
+            return "Value is : 5th pattern - " + f.toString();
         }
     }
 
-    return "Value is Default pattern - " + io:sprintf("%s", f);
+    return "Value is Default pattern - " + f.toString();
 }
 
 function testBracedUnionType() returns string {

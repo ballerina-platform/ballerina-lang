@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 function testStructuredMatchPatternsBasic1() returns string {
     [string, int, float] a = ["S", 23, 5.6];
 
@@ -41,7 +39,7 @@ function testStructuredMatchPatternsBasic3() returns string {
 
     match a {
         var [s, t] => {
-            return "Matched Values : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", t);
+            return "Matched Values : " + s.toString() + ", " + t.toString();
         }
     }
 }
@@ -60,14 +58,13 @@ function testStructuredMatchPatternsBasics5() returns string[] {
 function foo1([string, int] | [float, boolean] | [float, string, boolean] | float a) returns string {
     match a {
         var [s, i] => {
-            return "Matched with two vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i);
+            return "Matched with two vars : " + s.toString() + ", " + i.toString();
         }
         var [s, i, b] => {
-            return "Matched with three vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i) + ", " +
-            io:sprintf("%s", b);
+            return "Matched with three vars : " + s.toString() + ", " + i.toString() + ", " + b.toString();
         }
         var s => {
-            return "Matched with single var : " + io:sprintf("%s", s);
+            return "Matched with single var : " + s.toString();
         }
     }
 }
@@ -88,18 +85,17 @@ function testStructuredMatchPatternComplex1() returns string[] {
 function bar1([string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a) returns string {
     match a {
         var [f, [s, [b, i]]] => {
-            return "Matched with four vars : " + io:sprintf("%s", f) + ", " + io:sprintf("%s", s) +
-            ", " + io:sprintf("%s", i) + ", " + io:sprintf("%s", b);
+            return "Matched with four vars : " + f.toString() + ", " + s.toString() +
+            ", " + i.toString() + ", " + b.toString();
         }
         var [s, [i, b]] => {
-            return "Matched with three vars : " + io:sprintf("%s", s) + ", " +
-            io:sprintf("%s", i) + ", " + io:sprintf("%s", b);
+            return "Matched with three vars : " + s.toString() + ", " + i.toString() + ", " + b.toString();
         }
         var [s, i] => {
-            return "Matched with two vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i);
+            return "Matched with two vars : " + s.toString() + ", " + i.toString();
         }
         var s => {
-            return "Matched with single var : " + io:sprintf("%s", s);
+            return "Matched with single var : " + s.toString();
         }
     }
 }
@@ -120,11 +116,10 @@ function testStructuredMatchPatternComplex2() returns string[] {
 function baz1([string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a) returns string {
     match a {
         var [s, [i, b]] => {
-            return "Matched with three vars : " + io:sprintf("%s", s) + ", " +
-            io:sprintf("%s", i) + ", " + io:sprintf("%s", b);
+            return "Matched with three vars : " + s.toString() + ", " + i.toString() + ", " + b.toString();
         }
         var [s, i] => {
-            return "Matched with two vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i);
+            return "Matched with two vars : " + s.toString() + ", " + i.toString();
         }
     }
 
@@ -134,18 +129,17 @@ function baz1([string, int] | [float, [string, boolean]] | [float, [string, [boo
 function bar2(any a) returns string {
     match a {
         var [f, [s, [b, i]]] => {
-            return "Matched with four vars : " + io:sprintf("%s", f) + ", " + io:sprintf("%s", s) +
-            ", " + io:sprintf("%s", i) + ", " + io:sprintf("%s", b);
+            return "Matched with four vars : " + toString(f) + ", " + toString(s) +
+            ", " + toString(i) + ", " + toString(b);
         }
         var [s, [i, b]] => {
-            return "Matched with three vars : " + io:sprintf("%s", s) + ", " +
-            io:sprintf("%s", i) + ", " + io:sprintf("%s", b);
+            return "Matched with three vars : " + toString(s) + ", " + toString(i) + ", " + toString(b);
         }
         var [s, i] => {
-            return "Matched with two vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i);
+            return "Matched with two vars : " + toString(s) + ", " + toString(i);
         }
         var s => {
-            return "Matched with single var : " + io:sprintf("%s", s);
+            return "Matched with single var : " + toString(s);
         }
     }
 }
@@ -165,11 +159,10 @@ function testStructuredMatchPatternComplex3() returns string[] {
 function baz2(any a) returns string {
     match a {
         var [s, [i, b]] => {
-            return "Matched with three vars : " + io:sprintf("%s", s) + ", " +
-            io:sprintf("%s", i) + ", " + io:sprintf("%s", b);
+            return "Matched with three vars : " + toString(s) + ", " + toString(i) + ", " + toString(b);
         }
         var [s, i] => {
-            return "Matched with two vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i);
+            return "Matched with two vars : " + toString(s) + ", " + toString(i);
         }
     }
 
@@ -206,19 +199,19 @@ function foo3(any x) returns string {
 
     match x {
         var [s, i] if s is string => {
-            return "Matched with string : " + s + " added text with " + io:sprintf("%s", i);
+            return "Matched with string : " + s + " added text with " + toString(i);
         }
         var [s, i] if s is float => {
-            return "Matched with float : " + io:sprintf("%s", s + 4.5) + " with " + io:sprintf("%s", i);
+            return "Matched with float : " + (s + 4.5).toString() + " with " + toString(i);
         }
         var [s, i] if i is int => {
-            return "Matched with int : " + io:sprintf("%s", s) + " with " + io:sprintf("%s", i + 3456);
+            return "Matched with int : " + toString(s) + " with " + (i + 3456).toString();
         }
         var [s, i] if i is boolean => {
-            return "Matched with boolean : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i);
+            return "Matched with boolean : " + toString(s) + ", " + toString(i);
         }
         var y => {
-            return "Matched with default type - float : " + io:sprintf("%s", y);
+            return "Matched with default type - float : " + toString(y);
         }
     }
 }
@@ -240,18 +233,16 @@ function foo4(any x) returns string {
 
     match x {
         var [s, i, f] if s is string => {
-            return "Matched with string : " + s + " added text with " + io:sprintf("%s", i);
+            return "Matched with string : " + s + " added text with " + toString(i);
         }
         var [s, [i, f]] if s is float => {
-            return "Matched with float : " + io:sprintf("%s", s + 4.5) + " with " + io:sprintf("%s", i) + " and " +
-            io:sprintf("%s", f);
+            return "Matched with float : " + (s + 4.5).toString() + " with " + toString(i) + " and " + toString(f);
         }
         var [[s, i], f] if i is int => {
-            return "Matched with int : " + io:sprintf("%s", s) + " with " + io:sprintf("%s", i + 3456) + " and " +
-            io:sprintf("%s", f);
+            return "Matched with int : " + toString(s) + " with " + (i + 3456).toString() + " and " + toString(f);
         }
         var [s, i] if i is boolean => {
-            return "Matched with boolean : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i);
+            return "Matched with boolean : " + toString(s) + ", " + toString(i);
         }
     }
 
@@ -275,19 +266,19 @@ function foo5(any x) returns string {
 
     match x {
         var [s, i, f] if (s is string && i is int && f is float) => {
-            return "Matched with string : " + s + " added text with " + io:sprintf("%s", i + 5) +
-            " with " + io:sprintf("%s", f + 5.4);
+            return "Matched with string : " + s + " added text with " + (i + 5).toString() +
+            " with " + (f + 5.4).toString();
         }
         var [s, [i, f]] if (s is float && i is boolean) => {
-            return "Matched with float : " + io:sprintf("%s", s + 4.5) + " and boolean with " +
-            io:sprintf("%s", i) + " and " + io:sprintf("%s", f);
+            return "Matched with float : " + (s + 4.5).toString() + " and boolean with " +
+            toString(i) + " and " + toString(f);
         }
         var [[s, i], f] if (i is int && (s is boolean && f is float)) => {
-            return "Matched with boolean : " + io:sprintf("%s", s) + " and int with " +
-            io:sprintf("%s", i + 3456) + " and float with " + io:sprintf("%s", f);
+            return "Matched with boolean : " + toString(s) + " and int with " +
+            (i + 3456).toString() + " and float with " + toString(f);
         }
         var [s, i] if i is boolean => {
-            return "Matched with boolean : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i);
+            return "Matched with boolean : " + toString(s) + ", " + toString(i);
         }
     }
 
@@ -326,22 +317,22 @@ function testStructuredMatchPatternWithTypeGuard4() returns string[] {
 function foo6(any a) returns string {
     match a {
         var [i, s] if i is FooRec && s is BarRec => {
-            return "Matched with FooRec and BarRec : " + io:sprintf("%s", i) + " , " + io:sprintf("%s", s);
+            return "Matched with FooRec and BarRec : " + i.toString() + " , " + s.toString();
         }
         var [i, s] if i is FooRec && s is float => {
-            return "Matched with FooRec and float : " + io:sprintf("%s", i) + " , " + io:sprintf("%s", s);
+            return "Matched with FooRec and float : " + i.toString() + " , " + s.toString();
         }
         var [i, s] if i is BarRec && s is FooRec => {
-            return "Matched with BarRec and FooRec : " + io:sprintf("%s", i) + " , " + io:sprintf("%s", s);
+            return "Matched with BarRec and FooRec : " + i.toString() + " , " + s.toString();
         }
         var [i, s] if i is BarRec && s is int => {
-            return "Matched with BarRec and int : " + io:sprintf("%s", i) + " , " + io:sprintf("%s", s);
+            return "Matched with BarRec and int : " + i.toString() + " , " + s.toString();
         }
         var [i, s] if i is float && s is FooRec => {
-            return "Matched with float and FooRec : " + io:sprintf("%s", i) + " , " + io:sprintf("%s", s);
+            return "Matched with float and FooRec : " + i.toString() + " , " + s.toString();
         }
         var [i, s] if i is int && s is BarRec => {
-            return "Matched with int and BarRec : " + io:sprintf("%s", i) + " , " + io:sprintf("%s", s);
+            return "Matched with int and BarRec : " + i.toString() + " , " + s.toString();
         }
     }
 
@@ -365,23 +356,23 @@ function foo7(any x) returns string {
 
     match x {
         var [s, i, f] if (s is string && i is int && f is float) => {
-            return "Matched with string : " + s + " added text with " + io:sprintf("%s", i + 5) +
-            " with " + io:sprintf("%s", f + 5.4);
+            return "Matched with string : " + s + " added text with " + (i + 5).toString() +
+            " with " + (f + 5.4).toString();
         }
         var [s, [i, f]] if (s is float && i is boolean) => {
-            return "Matched with float : " + io:sprintf("%s", s + 4.5) + " and boolean with " +
-            io:sprintf("%s", i) + " and " + io:sprintf("%s", f);
+            return "Matched with float : " + (s + 4.5).toString() + " and boolean with " +
+            toString(i) + " and " + toString(f);
         }
         var [[s, i], f] if (i is int && (s is boolean && f is float)) => {
-            return "Matched with boolean : " + io:sprintf("%s", s) + " and int with " +
-            io:sprintf("%s", i + 3456) + " and float with " + io:sprintf("%s", f);
+            return "Matched with boolean : " + s.toString() + " and int with " +
+            (i + 3456).toString() + " and float with " + f.toString();
         }
         var [s, i] if i is boolean => {
-            return "Matched with boolean : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i);
+            return "Matched with boolean : " + toString(s) + ", " + toString(i);
         }
 
         var s if s is int => {
-            return "Matched with int : " + io:sprintf("%s", s);
+            return "Matched with int : " + s.toString();
         }
 
         var s => {
@@ -417,13 +408,13 @@ function foo8(any x) returns string {
             return "Matched with empty array";
         }
         var [i] => {
-            return io:sprintf("Matched with i: %s", i);
+            return "Matched with i: " + toString(i);
         }
         var [i, j] => {
-            return io:sprintf("Matched with i: %s, j: %s", i, j);
+            return "Matched with i: " + toString(i) + ", j: " + toString(j);
         }
         var [i, j, k] => {
-            return io:sprintf("Matched with i: %s, j: %s, k: %s", i, j, k);
+            return "Matched with i: " + toString(i) + ", j: " + toString(j) + ", k: " + toString(k);
         }
         var s => {
             return "Matched with default";
@@ -437,4 +428,8 @@ class NoFillerObject {
     function init(int i) {
         self.i = i;
     }
+}
+
+function toString(any|error val) returns string {
+    return val is any ? val.toString() : val.toString();
 }
