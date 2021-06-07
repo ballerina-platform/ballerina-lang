@@ -481,7 +481,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<Either<Range, PrepareRenameResult>> prepareRename(PrepareRenameParams params) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                ReferencesContext context = ContextBuilder.buildReferencesContext(params.getTextDocument().getUri(),
+                ReferencesContext context = ContextBuilder.buildPrepareRenameContext(params.getTextDocument().getUri(),
                         this.workspaceManager,
                         this.serverContext,
                         params.getPosition());
@@ -507,7 +507,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             WorkspaceEdit workspaceEdit = new WorkspaceEdit();
 
             try {
-                ReferencesContext context = ContextBuilder.buildReferencesContext(params.getTextDocument().getUri(),
+                ReferencesContext context = ContextBuilder.buildRenameContext(params.getTextDocument().getUri(),
                         this.workspaceManager,
                         this.serverContext,
                         params.getPosition());
