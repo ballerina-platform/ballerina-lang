@@ -524,13 +524,21 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             } else if (expType.tag == TypeTags.UNION) {
                 Set<BType> memberTypes = ((BUnionType) expType).getMemberTypes();
+                BType intSubType = null;
+                boolean otherIntCompatibleTypeFound = false;
                 for (BType memType : memberTypes) {
-                    if (TypeTags.isIntegerTypeTag(memType.tag)) {
-                        return setLiteralValueAndGetType(literalExpr, memType);
+                    if (TypeTags.isIntegerTypeTag(memType.tag) || memType.tag == TypeTags.BYTE) {
+                        intSubType = memType;
                     } else if (memType.tag == TypeTags.JSON || memType.tag == TypeTags.ANYDATA ||
                             memType.tag == TypeTags.ANY) {
-                        return setLiteralValueAndGetType(literalExpr, symTable.intType);
+                        otherIntCompatibleTypeFound = true;
                     }
+                }
+                if (otherIntCompatibleTypeFound) {
+                    return setLiteralValueAndGetType(literalExpr, symTable.intType);
+                }
+                if (intSubType != null) {
+                    return setLiteralValueAndGetType(literalExpr, intSubType);
                 }
 
                 BType finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.intType);

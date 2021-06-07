@@ -252,6 +252,11 @@ function testUnionWithIntegerSubTypes() {
     map<int:Unsigned32|object{}> v7 = {"a": 12};
     AA v8 = {};
     BB v9 = new;
+    any|byte v10 = 1;
+    any|byte v11 = 1000;
+    byte|anydata v12 = 1;
+    byte|anydata v13 = 1000;
+    int:Unsigned32|json v14 = 6500;
 
     assertEquality(0, v1);
     assertEquality(1, v2);
@@ -263,6 +268,11 @@ function testUnionWithIntegerSubTypes() {
     assertEquality(0, v8.a);
     assertEquality(1, foo1());
     assertEquality(0, v9.a);
+    assertEquality(1, v10);
+    assertEquality(1000, v11);
+    assertEquality(1, v12);
+    assertEquality(1000, v13);
+    assertEquality(6500, v14);
 }
 
 function testUnionWithStringSubTypes() {
@@ -275,6 +285,10 @@ function testUnionWithStringSubTypes() {
     map<string:Char|object{}> v7 = {"a": "A"};
     AA v8 = {};
     BB v9 = new;
+    any|string:Char v10 = "A";
+    any|string:Char v11 = "A";
+    string:Char|anydata v12 = "A";
+    string:Char|anydata v13 = "A";
 
     assertEquality("A", v1);
     assertEquality("A", v2);
@@ -286,6 +300,10 @@ function testUnionWithStringSubTypes() {
     assertEquality("A", v8.b);
     assertEquality("A", foo2());
     assertEquality("A", v9.b);
+    assertEquality("A", v10);
+    assertEquality("A", v11);
+    assertEquality("A", v12);
+    assertEquality("A", v13);
 }
 
 function foo1() returns int:Unsigned32|object{} {
