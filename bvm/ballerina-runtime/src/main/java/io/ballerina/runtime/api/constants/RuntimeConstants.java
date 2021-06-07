@@ -33,6 +33,7 @@ public class RuntimeConstants {
 
     public static final String MAIN_FUNCTION_NAME = "main";
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
+    public static final String FILE_NAME_PERIOD_SEPARATOR = "$$$";
 
     // Configs
     public static final String BALLERINA_ARGS_INIT_PREFIX = "--";

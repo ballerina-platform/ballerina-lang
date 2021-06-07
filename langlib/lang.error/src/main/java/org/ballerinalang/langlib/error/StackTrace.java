@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -41,6 +42,8 @@ import java.util.Map;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_ERROR_PKG_ID;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERIOD_SEPARATOR;
 import static io.ballerina.runtime.api.values.BError.CALL_STACK_ELEMENT;
 
 /**
@@ -79,7 +82,7 @@ public class StackTrace {
 
     static BMap<BString, Object> getStackFrame(StackTraceElement stackTraceElement) {
         String methodName = stackTraceElement.getMethodName();
-        String moduleName = stackTraceElement.getClassName();
+        String moduleName = IdentifierUtils.decodeIdentifier(stackTraceElement.getClassName());
         String fileName = stackTraceElement.getFileName();
         int lineNumber = stackTraceElement.getLineNumber();
 
@@ -96,6 +99,7 @@ public class StackTrace {
 
     private static String getModuleName(String moduleName, String fileName) {
         fileName = fileName.replace(BLANG_SRC_FILE_SUFFIX, "");
+        moduleName = moduleName.replace(FILE_NAME_PERIOD_SEPARATOR, DOT);
         int index = moduleName.lastIndexOf("." + fileName);
         if (index != -1) {
             moduleName = moduleName.substring(0, index);
@@ -104,7 +108,9 @@ public class StackTrace {
     }
 
     private static boolean isSingleBalFile(String moduleName, String fileName) {
-        return moduleName.equals(fileName.replace(BLANG_SRC_FILE_SUFFIX, "")) ? true : false;
+        moduleName = moduleName.replace(FILE_NAME_PERIOD_SEPARATOR, DOT);
+        fileName = fileName.replace(BLANG_SRC_FILE_SUFFIX, "");
+        return moduleName.equals(fileName) ? true : false;
     }
 
     /**
