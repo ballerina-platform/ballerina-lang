@@ -273,6 +273,10 @@ public class TypeParamAnalyzer {
                 anydataType.name = name;
                 anydataType.flags |= flags;
                 return anydataType;
+            case TypeTags.MAP:
+                BMapType mapType = new BMapType(type.tag, ((BMapType) type).constraint, null, flags);
+                mapType.name = name;
+                return mapType;
             case TypeTags.READONLY:
                 return new BReadonlyType(type.tag, null, name, flags);
         }
