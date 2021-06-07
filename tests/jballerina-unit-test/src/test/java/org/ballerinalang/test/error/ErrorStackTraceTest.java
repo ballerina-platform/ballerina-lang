@@ -24,6 +24,11 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Test case for Error StackTrace.
+ *
+ * @since 2.0
+ */
 public class ErrorStackTraceTest {
 
     private CompileResult compileResult;
