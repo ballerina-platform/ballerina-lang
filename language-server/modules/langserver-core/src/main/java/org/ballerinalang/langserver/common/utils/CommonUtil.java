@@ -310,16 +310,6 @@ public class CommonUtil {
                     typeString = "object {}";
                 }
                 break;
-            // Fixme
-//            case FINITE:
-//                List<BLangExpression> valueSpace = new ArrayList<>(((BFiniteType) bType).getValueSpace());
-//                String value = valueSpace.get(0).toString();
-//                BType type = valueSpace.get(0).type;
-//                typeString = value;
-//                if (type.toString().equals("string")) {
-//                    typeString = "\"" + typeString + "\"";
-//                }
-//                break;
             case UNION:
                 List<TypeSymbol> members =
                         new ArrayList<>(((UnionTypeSymbol) rawType).memberTypeDescriptors());
