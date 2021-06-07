@@ -195,6 +195,10 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BTupleType type) {
+        if (isVisited(type)) {
+            return isAnydata;
+        }
+        visited.add(type);
         if (type.isAnyData != null) {
             return type.isAnyData;
         }

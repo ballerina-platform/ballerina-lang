@@ -120,7 +120,7 @@ public class BTupleType extends BType implements TupleType {
         this.intersectionType = intersectionType;
     }
 
-    // In the case of a reference based cyclic tuple, this aids in
+    // In the case of a cyclic tuple, this aids in
     //adding resolved members to a previously defined empty tuple shell in main scope
     public boolean addMembers(BType memberType) {
         // Prevent cyclic types of same type ex: type Foo [int, Foo];
@@ -129,5 +129,12 @@ public class BTupleType extends BType implements TupleType {
         }
         this.tupleTypes.add(memberType);
         return true;
+    }
+
+    // In the case of a cyclic tuple, this aids in
+    // adding rest type of resolved node to a previously defined
+    // empty tuple shell in main scope
+    public void addRestType(BType restType) {
+        this.restType = restType;
     }
 }

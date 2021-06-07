@@ -198,6 +198,10 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BTupleType type) {
+        if (isVisited(type)) {
+            return isPureType;
+        }
+        visited.add(type);
         IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor(visited);
         return isAnydataUniqueVisitor.visit(type);
     }

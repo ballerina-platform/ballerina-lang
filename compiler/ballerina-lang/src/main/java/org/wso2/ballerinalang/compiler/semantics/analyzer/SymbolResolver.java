@@ -1274,7 +1274,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         tupleTypeSymbol.type = tupleType;
 
         if (tupleTypeNode.restParamType != null) {
-            tupleType.restType = resolveTypeNode(tupleTypeNode.restParamType, env);
+            BType tupleRestType = resolveTypeNode(tupleTypeNode.restParamType, env);
+            if (tupleRestType == symTable.noType) {
+                resultType = symTable.noType;
+                return;
+            }
+            tupleType.restType = tupleRestType;
             markParameterizedType(tupleType, tupleType.restType);
         }
 
