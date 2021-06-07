@@ -65,7 +65,7 @@ public class QueryExpressionTest {
 
     @BeforeClass
     public void setup() {
-        project = BCompileUtil.loadProject("test-src/query-expression/query_expression_tests.bal");
+        project = BCompileUtil.loadProject("test-src/expressions/query_expression_tests.bal");
         model = getDefaultModulesSemanticModel(project);
         srcFile = getDocumentForSingleSource(project);
     }
