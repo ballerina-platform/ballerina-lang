@@ -33,7 +33,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.PrepareRenameContext;
 import org.ballerinalang.langserver.commons.ReferencesContext;
+import org.ballerinalang.langserver.commons.RenameContext;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.util.TokensUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
@@ -64,7 +66,7 @@ public class RenameUtil {
      * @param context Reference context
      * @return A range if position is valid for rename
      */
-    public static Optional<Range> prepareRename(ReferencesContext context) {
+    public static Optional<Range> prepareRename(PrepareRenameContext context) {
         fillTokenInfoAtCursor(context);
 
         // Token at cursor is checked at cursor position and cursor position - 1 column due to left associativity.
@@ -104,7 +106,7 @@ public class RenameUtil {
      * @param newName Assigned identifier after renaming
      * @return Text edits for that rename operation
      */
-    public static Map<String, List<TextEdit>> rename(ReferencesContext context, String newName) {
+    public static Map<String, List<TextEdit>> rename(RenameContext context, String newName) {
         fillTokenInfoAtCursor(context);
 
         if (!CommonUtil.isValidIdentifier(newName)) {

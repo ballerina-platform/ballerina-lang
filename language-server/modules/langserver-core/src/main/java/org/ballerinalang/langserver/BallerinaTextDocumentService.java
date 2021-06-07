@@ -36,7 +36,9 @@ import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.FoldingRangeContext;
 import org.ballerinalang.langserver.commons.HoverContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.PrepareRenameContext;
 import org.ballerinalang.langserver.commons.ReferencesContext;
+import org.ballerinalang.langserver.commons.RenameContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -481,7 +483,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<Either<Range, PrepareRenameResult>> prepareRename(PrepareRenameParams params) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                ReferencesContext context = ContextBuilder.buildPrepareRenameContext(params.getTextDocument().getUri(),
+                PrepareRenameContext context = ContextBuilder.buildPrepareRenameContext(
+                        params.getTextDocument().getUri(),
                         this.workspaceManager,
                         this.serverContext,
                         params.getPosition());
@@ -507,7 +510,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             WorkspaceEdit workspaceEdit = new WorkspaceEdit();
 
             try {
-                ReferencesContext context = ContextBuilder.buildRenameContext(params.getTextDocument().getUri(),
+                RenameContext context = ContextBuilder.buildRenameContext(params.getTextDocument().getUri(),
                         this.workspaceManager,
                         this.serverContext,
                         params.getPosition());
