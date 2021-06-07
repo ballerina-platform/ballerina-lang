@@ -525,16 +525,17 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if (expType.tag == TypeTags.UNION) {
                 Set<BType> memberTypes = ((BUnionType) expType).getMemberTypes();
                 BType intSubType = null;
-                boolean otherIntCompatibleTypeFound = false;
+                boolean intOrIntCompatibleTypeFound = false;
                 for (BType memType : memberTypes) {
-                    if (TypeTags.isIntegerTypeTag(memType.tag) || memType.tag == TypeTags.BYTE) {
+                    if ((memType.tag != TypeTags.INT && TypeTags.isIntegerTypeTag(memType.tag)) ||
+                            memType.tag == TypeTags.BYTE) {
                         intSubType = memType;
-                    } else if (memType.tag == TypeTags.JSON || memType.tag == TypeTags.ANYDATA ||
-                            memType.tag == TypeTags.ANY) {
-                        otherIntCompatibleTypeFound = true;
+                    } else if (memType.tag == TypeTags.INT || memType.tag == TypeTags.JSON ||
+                            memType.tag == TypeTags.ANYDATA || memType.tag == TypeTags.ANY) {
+                        intOrIntCompatibleTypeFound = true;
                     }
                 }
-                if (otherIntCompatibleTypeFound) {
+                if (intOrIntCompatibleTypeFound) {
                     return setLiteralValueAndGetType(literalExpr, symTable.intType);
                 }
                 if (intSubType != null) {
