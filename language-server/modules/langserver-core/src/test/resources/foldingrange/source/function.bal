@@ -36,3 +36,56 @@ public function print(int value) {
         io:println(numbers.pop());
     }
 }
+
+enum Color {
+    RED,
+    GREEN,
+    BLUE
+}
+
+function miscellaneous() {
+    transaction {
+        check print(12);
+        var res = commit;
+    } on fail error er {
+        io:println("Error caught during printing: ", er);
+        rollback;
+        fail invalidAccoundIdError;
+    }
+
+    match continent {
+        "North America" => {
+            return "USA";
+        }
+        "Antarctica" => {
+            return ();
+        }
+    }
+
+     fork {
+        worker w1 returns int {
+            string response = <string>checkpanic httpClient->get("/v4/?expr=2*3", targetType = string);
+            return checkpanic int:fromString(response);
+        }
+     }
+
+     retry(3) {
+         io:println("Attempting execution...");
+         check print();
+     }
+
+     do {
+         print(1);
+     } on fail Error e {
+         io:println("Error caught: ", e.message());
+     }
+
+     lock {
+         print(2);
+     }
+}
+
+public function pi() returns float = @java:FieldGet {
+    name: "PI",
+    'class: "java/lang/Math"
+} external;

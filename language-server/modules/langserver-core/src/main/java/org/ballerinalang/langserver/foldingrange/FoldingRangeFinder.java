@@ -15,19 +15,32 @@
  */
 package org.ballerinalang.langserver.foldingrange;
 
+import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.DoStatementNode;
 import io.ballerina.compiler.syntax.tree.ElseBlockNode;
+import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.ForEachStatementNode;
+import io.ballerina.compiler.syntax.tree.ForkStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.LockStatementNode;
+import io.ballerina.compiler.syntax.tree.MatchClauseNode;
+import io.ballerina.compiler.syntax.tree.MatchStatementNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
+import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.OnFailClauseNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.RetryStatementNode;
+import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.TransactionStatementNode;
 import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import io.ballerina.tools.text.LineRange;
 import org.eclipse.lsp4j.FoldingRange;
@@ -118,13 +131,84 @@ public class FoldingRangeFinder extends NodeVisitor {
     }
 
     public void visit(ForEachStatementNode forEachStatementNode) {
-        appendNodeFoldingRanges(forEachStatementNode);
+        appendBlockFoldingRanges(forEachStatementNode.blockStatement());
         visitSyntaxNode(forEachStatementNode);
     }
 
     public void visit(WhileStatementNode whileStatementNode) {
-        appendNodeFoldingRanges(whileStatementNode);
+        appendBlockFoldingRanges(whileStatementNode.whileBody());
         visitSyntaxNode(whileStatementNode);
+    }
+
+    public void visit(EnumDeclarationNode enumDeclarationNode) {
+        foldingRanges.add(createFoldingRange(enumDeclarationNode.openBraceToken().lineRange().startLine().line(),
+                enumDeclarationNode.closeBraceToken().lineRange().endLine().line() - 1,
+                enumDeclarationNode.openBraceToken().lineRange().startLine().offset(),
+                enumDeclarationNode.closeBraceToken().lineRange().startLine().offset(), FoldingRangeKind.Region));
+        visitSyntaxNode(enumDeclarationNode);
+    }
+
+    public void visit(TransactionStatementNode transactionStatementNode) {
+        appendBlockFoldingRanges(transactionStatementNode.blockStatement());
+        visitSyntaxNode(transactionStatementNode);
+    }
+
+    public void visit(ExternalFunctionBodyNode externalFunctionBodyNode) {
+        appendNodeFoldingRanges(externalFunctionBodyNode);
+        visitSyntaxNode(externalFunctionBodyNode);
+    }
+
+    public void visit(MatchStatementNode matchStatementNode) {
+        foldingRanges.add(createFoldingRange(matchStatementNode.openBrace().lineRange().startLine().line(),
+                matchStatementNode.closeBrace().lineRange().endLine().line() - 1,
+                matchStatementNode.openBrace().lineRange().startLine().offset(),
+                matchStatementNode.closeBrace().lineRange().startLine().offset(), FoldingRangeKind.Region));
+        visitSyntaxNode(matchStatementNode);
+    }
+
+    public void visit(MatchClauseNode matchClauseNode) {
+        appendBlockFoldingRanges(matchClauseNode.blockStatement());
+        visitSyntaxNode(matchClauseNode);
+    }
+
+    public void visit(ForkStatementNode forkStatementNode) {
+        foldingRanges.add(createFoldingRange(forkStatementNode.openBraceToken().lineRange().startLine().line(),
+                forkStatementNode.closeBraceToken().lineRange().endLine().line() - 1,
+                forkStatementNode.openBraceToken().lineRange().startLine().offset(),
+                forkStatementNode.closeBraceToken().lineRange().startLine().offset(), FoldingRangeKind.Region));
+        visitSyntaxNode(forkStatementNode);
+    }
+
+    public void visit(RetryStatementNode retryStatementNode) {
+        appendNodeFoldingRanges(retryStatementNode.retryBody());
+        visitSyntaxNode(retryStatementNode);
+    }
+
+    public void visit(NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
+        appendBlockFoldingRanges(namedWorkerDeclarationNode.workerBody());
+        visitSyntaxNode(namedWorkerDeclarationNode);
+    }
+
+    public void visit(OnFailClauseNode onFailClauseNode) {
+        appendBlockFoldingRanges(onFailClauseNode.blockStatement());
+        visitSyntaxNode(onFailClauseNode);
+    }
+
+    public void visit(DoStatementNode doStatementNode) {
+        appendBlockFoldingRanges(doStatementNode.blockStatement());
+        visitSyntaxNode(doStatementNode);
+    }
+
+    public void visit(LockStatementNode lockStatementNode) {
+        appendBlockFoldingRanges(lockStatementNode.blockStatement());
+        visitSyntaxNode(lockStatementNode);
+    }
+
+    public void visit(ReturnStatementNode returnStatementNode) {
+        LineRange lineRange = returnStatementNode.lineRange();
+        foldingRanges.add(createFoldingRange(lineRange.startLine().line(), lineRange.endLine().line(),
+                lineRange.startLine().offset(), lineRange.endLine().offset(), FoldingRangeKind.Region));
+        visitSyntaxNode(returnStatementNode);
     }
 
     public List<FoldingRange> getFoldingRange(Node node) {
@@ -170,5 +254,12 @@ public class FoldingRangeFinder extends NodeVisitor {
         LineRange lineRange = node.lineRange();
         foldingRanges.add(createFoldingRange(lineRange.startLine().line(), lineRange.endLine().line() - 1,
                 lineRange.startLine().offset(), lineRange.endLine().offset(), FoldingRangeKind.Region));
+    }
+
+    private void appendBlockFoldingRanges(BlockStatementNode blockStatementNode) {
+        foldingRanges.add(createFoldingRange(blockStatementNode.openBraceToken().lineRange().startLine().line(),
+                blockStatementNode.closeBraceToken().lineRange().endLine().line() - 1,
+                blockStatementNode.openBraceToken().lineRange().startLine().offset(),
+                blockStatementNode.closeBraceToken().lineRange().startLine().offset(), FoldingRangeKind.Region));
     }
 }
