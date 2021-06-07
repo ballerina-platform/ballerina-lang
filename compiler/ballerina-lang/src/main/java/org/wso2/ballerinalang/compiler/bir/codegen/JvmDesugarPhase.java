@@ -436,7 +436,8 @@ public class JvmDesugarPhase {
         }
     }
 
-    private static String encodeFunctionIdentifier(String initialIdString, HashMap<String, String> encodedVsInitialIds) {
+    private static String encodeFunctionIdentifier(String initialIdString,
+                                                   HashMap<String, String> encodedVsInitialIds) {
         if (encodedVsInitialIds.containsKey(initialIdString)) {
             return initialIdString;
         }
@@ -445,7 +446,8 @@ public class JvmDesugarPhase {
         return encodedString;
     }
 
-    private static String encodeNonFunctionIdentifier(String encodedIdString, HashMap<String, String> encodedVsInitialIds) {
+    private static String encodeNonFunctionIdentifier(String encodedIdString,
+                                                      HashMap<String, String> encodedVsInitialIds) {
         if (encodedVsInitialIds.containsKey(encodedIdString)) {
             return encodedIdString;
         }
