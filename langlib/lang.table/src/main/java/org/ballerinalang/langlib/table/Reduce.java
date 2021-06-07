@@ -59,7 +59,7 @@ public class Reduce {
                         () -> new Object[]{parentStrand, accum.get(), true,
                                 tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
                                                        accum::set, accum::get, Scheduler.getStrand().scheduler);
-        return accum.get();
+        return  accum.get();
     }
 
     public static Object reduce_bstring(Strand strand, BTable tbl,

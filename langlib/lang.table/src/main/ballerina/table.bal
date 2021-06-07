@@ -183,7 +183,7 @@ public isolated function removeIfHasKey(table<Type> key<KeyType> t, KeyType k) r
 # This panics if any member cannot be removed.
 #
 # + t - the table
-public isolated function removeAll(table<any|error> t) returns () = @java:Method {
+public isolated function removeAll(table<MapType> t) returns () = @java:Method {
     'class: "org.ballerinalang.langlib.table.RemoveAll",
     name: "removeAll"
 } external;
@@ -202,7 +202,7 @@ public isolated function hasKey(table<Type> key<KeyType> t, KeyType k) returns b
 #
 # + t - the table
 # + return - a new list of all keys
-public isolated function keys(table<any|error> key<KeyType> t) returns KeyType[] = @java:Method {
+public isolated function keys(table<MapType> key<KeyType> t) returns KeyType[] = @java:Method {
     'class: "org.ballerinalang.langlib.table.GetKeys",
     name: "keys"
 } external;
