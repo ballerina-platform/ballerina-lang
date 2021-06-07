@@ -12,7 +12,22 @@
     },
     {
       "startLine":9,
-      "endLine":15,
+      "endLine":22,
+      "kind":"region"
+    },
+    {
+      "startLine":16,
+      "endLine":17,
+      "kind":"region"
+    },
+    {
+      "startLine":18,
+      "endLine":19,
+      "kind":"region"
+    },
+    {
+      "startLine":20,
+      "endLine":21,
       "kind":"region"
     },
     {

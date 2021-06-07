@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.foldingrange;
 
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ElseBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
@@ -61,10 +62,19 @@ public class FoldingRangeFinder extends NodeVisitor {
     }
 
     public void visit(IfElseStatementNode ifElseStatementNode) {
-        LineRange lineRange = ifElseStatementNode.lineRange();
+        LineRange ifElseLineRange = ifElseStatementNode.lineRange();
+        LineRange ifBodyLineRange = ifElseStatementNode.ifBody().lineRange();
+        foldingRanges.removeIf(foldingRange -> ifElseLineRange.startLine().line() == foldingRange.getStartLine());
+        foldingRanges.add(createFoldingRange(ifElseLineRange.startLine().line(), ifBodyLineRange.endLine().line() - 1,
+                ifElseLineRange.startLine().offset(), ifBodyLineRange.endLine().offset(), REGION));
+        visitSyntaxNode(ifElseStatementNode);
+    }
+
+    public void visit(ElseBlockNode elseBlockNode) {
+        LineRange lineRange = elseBlockNode.lineRange();
         foldingRanges.add(createFoldingRange(lineRange.startLine().line(), lineRange.endLine().line() - 1,
                 lineRange.startLine().offset(), lineRange.endLine().offset(), REGION));
-        visitSyntaxNode(ifElseStatementNode);
+        visitSyntaxNode(elseBlockNode);
     }
 
     public void visit(FunctionBodyBlockNode functionBodyBlockNode) {
