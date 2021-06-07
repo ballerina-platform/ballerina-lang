@@ -18,14 +18,15 @@ jobs:
         run: chmod +x gradlew
       - name: Publish artifact
         env:
-          packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
-          packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          publishUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
+          publishPAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
         run: |
           git config user.name ${{ secrets.BALLERINA_BOT_USERNAME }}
           git config user.email ${{ secrets.BALLERINA_BOT_EMAIL }}
           git checkout -b release-${VERSION}
-          ./gradlew build release publish -Prelease.useAutomaticVersion=true -Pversion=${VERSION} --continue
+          ./gradlew release -Prelease.useAutomaticVersion=true
+          ./gradlew -Pversion=${VERSION} publish -x test --continue
       - name: Create Github release from the release tag
         run: |
           curl --request POST 'https://api.github.com/repos/ballerina-platform/ballerina-lang/releases' \

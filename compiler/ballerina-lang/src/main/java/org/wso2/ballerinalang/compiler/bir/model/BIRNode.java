@@ -319,11 +319,6 @@ public abstract class BIRNode {
          */
         public ChannelDetails[] workerChannels;
 
-        /**
-         * Taint table for the function.
-         */
-        public TaintTable taintTable;
-
         public List<BIRAnnotationAttachment> annotAttachments;
 
         public List<BIRAnnotationAttachment> returnTypeAnnots;
@@ -335,7 +330,7 @@ public abstract class BIRNode {
                            int argsCount, List<BIRVariableDcl> localVars,
                            BIRVariableDcl returnVariable, Map<BIRFunctionParameter, List<BIRBasicBlock>> parameters,
                            List<BIRBasicBlock> basicBlocks, List<BIRErrorEntry> errorTable, Name workerName,
-                           ChannelDetails[] workerChannels, TaintTable taintTable,
+                           ChannelDetails[] workerChannels,
                            List<BIRAnnotationAttachment> annotAttachments,
                            List<BIRAnnotationAttachment> returnTypeAnnots,
                            Set<BIRGlobalVariableDcl> dependentGlobalVars) {
@@ -355,14 +350,13 @@ public abstract class BIRNode {
             this.errorTable = errorTable;
             this.workerName = workerName;
             this.workerChannels = workerChannels;
-            this.taintTable = taintTable;
             this.annotAttachments = annotAttachments;
             this.returnTypeAnnots = returnTypeAnnots;
             this.dependentGlobalVars = dependentGlobalVars;
         }
 
         public BIRFunction(Location pos, Name name, long flags, BInvokableType type, Name workerName,
-                           int sendInsCount, TaintTable taintTable, SymbolOrigin origin) {
+                           int sendInsCount, SymbolOrigin origin) {
             super(pos);
             this.name = name;
             this.flags = flags;
@@ -374,7 +368,6 @@ public abstract class BIRNode {
             this.errorTable = new ArrayList<>();
             this.workerName = workerName;
             this.workerChannels = new ChannelDetails[sendInsCount];
-            this.taintTable = taintTable;
             this.annotAttachments = new ArrayList<>();
             this.returnTypeAnnots = new ArrayList<>();
             this.origin = origin;
@@ -386,7 +379,7 @@ public abstract class BIRNode {
         }
 
         public BIRFunction duplicate() {
-            BIRFunction f = new BIRFunction(pos, name, flags, type, workerName, 0, taintTable, origin);
+            BIRFunction f = new BIRFunction(pos, name, flags, type, workerName, 0, origin);
             f.localVars = localVars;
             f.parameters = parameters;
             f.requiredParams = requiredParams;
@@ -747,21 +740,6 @@ public abstract class BIRNode {
         public ConstValue(Object value, BType type) {
             this.value = value;
             this.type = type;
-        }
-    }
-
-    /**
-     * Taint table of the function.
-     *
-     * @since 0.995.0
-     */
-    public static class TaintTable {
-        public int columnCount;
-        public int rowCount;
-        public Map<Integer, List<Byte>> taintTable;
-
-        public TaintTable() {
-            this.taintTable = new LinkedHashMap<>();
         }
     }
 

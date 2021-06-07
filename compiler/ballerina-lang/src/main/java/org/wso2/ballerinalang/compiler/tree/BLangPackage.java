@@ -37,7 +37,6 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.wso2.ballerinalang.compiler.diagnostic.DiagnosticComparator;
-import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -89,7 +88,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     private int warnCount;
     private TreeSet<Diagnostic> diagnostics;
 
-    public RepoHierarchy repos;
     public ModuleContextDataHolder moduleContextDataHolder;
 
     public BLangPackage() {

@@ -315,7 +315,7 @@ public class CloneOperationTest {
         Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testCloneNegative() {
         Assert.assertEquals(negativeResult.getErrorCount(), 1);
         BAssertUtil.validateError(negativeResult, 0, "too many arguments in call to 'clone()'", 19, 13);

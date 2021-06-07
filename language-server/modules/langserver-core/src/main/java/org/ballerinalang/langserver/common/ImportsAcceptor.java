@@ -15,8 +15,9 @@
  */
 package org.ballerinalang.langserver.common;
 
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
-import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
@@ -27,6 +28,8 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -38,7 +41,7 @@ import java.util.stream.Collectors;
  */
 public class ImportsAcceptor {
     private final Set<String> newImports;
-    private final List<ImportDeclarationNode> currentModuleImports;
+    private final Map<ImportDeclarationNode, ModuleSymbol> currentModuleImportsMap;
     private final BiConsumer<String, String> onExistCallback;
 
     public ImportsAcceptor(DocumentServiceContext context) {
@@ -47,7 +50,7 @@ public class ImportsAcceptor {
 
     public ImportsAcceptor(DocumentServiceContext context, BiConsumer<String, String> onExistCallback) {
         this.newImports = new HashSet<>();
-        this.currentModuleImports = context.currentDocImports();
+        this.currentModuleImportsMap = context.currentDocImportsMap();
         this.onExistCallback = onExistCallback;
     }
 
@@ -56,17 +59,21 @@ public class ImportsAcceptor {
      *
      * @return Returns imports acceptor
      */
-    public BiConsumer<String, String> getAcceptor() {
+    public BiConsumer<String, String> getAcceptor(DocumentServiceContext context) {
+        Optional<Project> project = context.workspace().project(context.filePath());
+        String currentPkgName = project.isEmpty() ? "" :
+                CommonUtil.escapeReservedKeyword(project.get().currentPackage().packageName().value());
         return (orgName, alias) -> {
-            boolean notFound = currentModuleImports.stream().noneMatch(
+            boolean notFound = currentModuleImportsMap.keySet().stream().noneMatch(
                     pkg -> {
                         String importAlias = pkg.moduleName().stream()
-                                .map(Token::text)
+                                .map(identifierToken -> CommonUtil.escapeReservedKeyword(identifierToken.text()))
                                 .collect(Collectors.joining("."));
-                        String escapedName = importAlias.replace(".", ".'");
-                        boolean aliasMatched = importAlias.equals(alias) || escapedName.equals(alias);
-                        return pkg.orgName().isPresent() && pkg.orgName().get().orgName().text().equals(orgName)
-                                && aliasMatched;
+                        boolean isCurrentPkgModule = pkg.orgName().isEmpty()
+                                && importAlias.startsWith(currentPkgName + ".");
+                        boolean aliasMatched = importAlias.equals(alias);
+                        return (isCurrentPkgModule
+                                || (pkg.orgName().get().orgName().text().equals(orgName))) && aliasMatched;
                     }
             );
             if (notFound) {
@@ -104,8 +111,9 @@ public class ImportsAcceptor {
     private TextEdit createImportTextEdit(String pkgName) {
         Location pos = null;
 
-        if (!currentModuleImports.isEmpty()) {
-            ImportDeclarationNode lastImport = CommonUtil.getLastItem(currentModuleImports);
+        if (!currentModuleImportsMap.isEmpty()) {
+            ImportDeclarationNode lastImport =
+                    CommonUtil.getLastItem(new ArrayList<>(currentModuleImportsMap.keySet()));
             pos = lastImport.location();
         }
 

@@ -744,6 +744,33 @@ function testInvalidMemberAccessOnStrings2() {
     string b = a[3];
 }
 
+public type Quux record {|
+    int i;
+    Corge baz?;
+|};
+
+public type Corge record {|
+    string a;
+    int i?;
+|};
+
+public function testNestedMemberAccessOnIntersectionTypes() {
+    Quux & readonly q1 = {i: 1, baz: {a: "hello", i: 2}};
+    var v1 = q1["baz"]["i"];
+    assertTrue(v1 is int);
+    assertEquality(2, v1);
+
+    Quux & readonly q2 = {i: 1, baz: {a: "hello"}};
+    int? v2 = q2["baz"]["i"];
+    assertTrue(v2 is ());
+    assertEquality((), v2);
+
+    Quux & readonly q3 = {i: 1};
+    var v3 = q3["baz"]["i"];
+    assertTrue(v3 is ());
+    assertEquality((), v3);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

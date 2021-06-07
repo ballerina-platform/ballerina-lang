@@ -6,6 +6,58 @@
   "source": "expression_context/source/field_access_ctx_source3.bal",
   "items": [
     {
+      "label": "foreach",
+      "kind": "Snippet",
+      "detail": "foreach var item in expr",
+      "documentation": {
+        "left": "foreach statement for iterable variable - functionWithReturn().testField"
+      },
+      "sortText": "Q",
+      "insertText": "foreach var item in functionWithReturn().testField {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 4
+            },
+            "end": {
+              "line": 3,
+              "character": 35
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "foreach i",
+      "kind": "Snippet",
+      "detail": "foreach int i in 0...expr",
+      "documentation": {
+        "left": "foreach i statement for iterable variable - functionWithReturn().testField"
+      },
+      "sortText": "Q",
+      "insertText": "foreach int i in ${1:0}...functionWithReturn().testField.length() {\n\t${2}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 4
+            },
+            "end": {
+              "line": 3,
+              "character": 35
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
       "label": "rec1Field1",
       "kind": "Field",
       "detail": "int",

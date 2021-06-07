@@ -45,6 +45,7 @@ import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DocumentFormattingParams;
+import org.eclipse.lsp4j.DocumentRangeFormattingParams;
 import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.FoldingRangeCapabilities;
@@ -105,6 +106,8 @@ public class TestUtil {
     private static final String CODE_ACTION = "textDocument/codeAction";
 
     private static final String FORMATTING = "textDocument/formatting";
+
+    private static final String RANGE_FORMATTING = "textDocument/rangeFormatting";
 
     private static final String IMPLEMENTATION = "textDocument/implementation";
 
@@ -287,6 +290,18 @@ public class TestUtil {
      */
     public static String getFormattingResponse(DocumentFormattingParams params, Endpoint serviceEndpoint) {
         CompletableFuture result = serviceEndpoint.request(FORMATTING, params);
+        return getResponseString(result);
+    }
+
+    /**
+     * Get formatting response.
+     *
+     * @param params          Document range formatting parameters
+     * @param serviceEndpoint Service endpoint to language server
+     * @return {@link String} Language server response as String
+     */
+    public static String getRangeFormatResponse(DocumentRangeFormattingParams params, Endpoint serviceEndpoint) {
+        CompletableFuture result = serviceEndpoint.request(RANGE_FORMATTING, params);
         return getResponseString(result);
     }
 

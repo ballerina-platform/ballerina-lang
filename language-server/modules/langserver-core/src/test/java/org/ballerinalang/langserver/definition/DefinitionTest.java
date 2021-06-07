@@ -22,7 +22,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.ballerinalang.langserver.exception.LSStdlibCacheException;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
@@ -60,7 +59,7 @@ public class DefinitionTest {
     }
 
     @Test(description = "Test goto definitions", dataProvider = "testDataProvider")
-    public void test(String configPath, String configDir) throws IOException, LSStdlibCacheException {
+    public void test(String configPath, String configDir) throws IOException {
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configDir)
                 .resolve(configPath).toString());
         JsonObject source = configObject.getAsJsonObject("source");
@@ -70,7 +69,7 @@ public class DefinitionTest {
     }
 
     @Test(description = "Test goto definitions for standard libs", dataProvider = "testStdLibDataProvider")
-    public void testStdLibDefinition(String configPath, String configDir) throws IOException, LSStdlibCacheException {
+    public void testStdLibDefinition(String configPath, String configDir) throws IOException {
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configDir)
                 .resolve(configPath).toString());
         JsonObject source = configObject.getAsJsonObject("source");
@@ -89,7 +88,7 @@ public class DefinitionTest {
     }
 
     protected void compareResults(Path sourcePath, Position position, JsonObject configObject, Path root)
-            throws IOException, LSStdlibCacheException {
+            throws IOException {
         TestUtil.openDocument(serviceEndpoint, sourcePath);
         String actualStr = TestUtil.getDefinitionResponse(sourcePath.toString(), position, serviceEndpoint);
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
@@ -112,6 +111,8 @@ public class DefinitionTest {
                 {"defProject5.json", "project"},
                 {"defProject6.json", "project"},
                 {"defProject7.json", "project"},
+                {"defProject9.json", "project"},
+                {"defProject10.json", "project"},
         };
     }
 
@@ -128,7 +129,7 @@ public class DefinitionTest {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 
-    protected void alterExpectedUri(JsonArray expected, Path root) throws IOException, LSStdlibCacheException {
+    protected void alterExpectedUri(JsonArray expected, Path root) throws IOException {
         for (JsonElement jsonElement : expected) {
             JsonObject item = jsonElement.getAsJsonObject();
             String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");
@@ -141,7 +142,7 @@ public class DefinitionTest {
         }
     }
 
-    protected void alterExpectedStdlibUri(JsonArray expected) throws IOException, LSStdlibCacheException {
+    protected void alterExpectedStdlibUri(JsonArray expected) throws IOException {
         for (JsonElement jsonElement : expected) {
             JsonObject item = jsonElement.getAsJsonObject();
             String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");

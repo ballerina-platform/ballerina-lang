@@ -18,7 +18,9 @@
 package org.ballerinalang.langserver.contexts;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -34,7 +36,9 @@ import org.eclipse.lsp4j.Position;
 
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -58,6 +62,8 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
     private List<Symbol> visibleSymbols;
 
     private List<ImportDeclarationNode> currentDocImports;
+
+    private Map<ImportDeclarationNode, ModuleSymbol> currentDocImportsMap;
 
     private final LanguageServerContext languageServerContext;
 
@@ -135,6 +141,30 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
         }
 
         return this.currentDocImports;
+    }
+    @Override
+    public Map<ImportDeclarationNode, ModuleSymbol> currentDocImportsMap() {
+        Optional<SemanticModel> semanticModel = this.workspace().semanticModel(this.filePath());
+        if (semanticModel.isEmpty()) {
+            throw new RuntimeException("Semantic Model Cannot be Empty");
+        }
+        if (this.currentDocImportsMap == null) {
+            this.currentDocImportsMap = new LinkedHashMap<>();
+            Optional<Document> document = this.workspace().document(this.filePath);
+            if (document.isEmpty()) {
+                throw new RuntimeException("Cannot find a valid document");
+            }
+            ModulePartNode modulePartNode = document.get().syntaxTree().rootNode();
+            for (ImportDeclarationNode importDeclaration : modulePartNode.imports()) {
+                Optional<Symbol> symbol = semanticModel.get().symbol(importDeclaration);
+                if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.MODULE) {
+                    continue;
+                }
+                currentDocImportsMap.put(importDeclaration, (ModuleSymbol) symbol.get());
+            }
+        }
+
+        return this.currentDocImportsMap;
     }
 
     @Override
