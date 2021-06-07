@@ -227,7 +227,7 @@ function testTypeDefWithIntersectionTypeDescAsTypedesc() {
 
     // tests for fromJsonWithType
     anydata|error c = arr.fromJsonWithType(ImmutableIntArray);
-    assertEquality(true, c is int[]);
+    assertEquality(true, c is int[] & readonly);
     assertEquality(true, (<int[]> checkpanic c).isReadOnly());
     assertEquality(<int[]> [1, 2, 3], c);
 
