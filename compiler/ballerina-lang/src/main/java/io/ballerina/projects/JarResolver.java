@@ -101,6 +101,7 @@ public class JarResolver {
             manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
 
             try {
+                // Generating an empty Jar which can be used by the Observability Symbol Collector
                 String packageName = getPackageName(rootPackageContext);
                 Path jarPath = Path.of(System.getProperty("java.io.tmpdir"),
                         packageName.replaceAll(File.separatorChar == '\\' ? "\\\\" : File.separator, "-")
@@ -109,6 +110,7 @@ public class JarResolver {
                         new FileOutputStream(jarPath.toFile())), manifest);
                 jarOutputStream.close();
 
+                // Writing the Syntax Tree to the Jar
                 CompilerContext compilerContext = rootPackageContext.project().projectEnvironmentContext()
                         .getService(CompilerContext.class);
                 ObservabilitySymbolCollector observabilitySymbolCollector
