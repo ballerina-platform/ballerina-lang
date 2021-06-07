@@ -100,10 +100,12 @@ public class BasicWorkerTest {
     @DataProvider(name = "workerSendTests")
     public Object[] testFunctions() {
         return new Object[]{
-                "testSimpleSyncSendWithCloneableExpression",
-                "testSimpleSyncSendWithErrorType",
-                "testSimpleSyncSendWithXMLType",
-                "testSimpleSyncSendWithReadonlyRecord",
+                "testSimpleSendActionWithCloneableType",
+                "testSimpleSendActionErrorType",
+                "testSimpleSendActionXMLType",
+                "testSimpleSendActionReadonlyRecord",
+                "testSimpleSendActionWithMapType",
+                "testSimpleSendActionWithListType",
         };
     }
 

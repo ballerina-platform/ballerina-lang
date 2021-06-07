@@ -120,7 +120,7 @@ function workerSameThreadTest() returns any {
     return res;
 }
 
-function processWithCloneableExpression() returns string {
+function simpleSendActionWithCloneableType() returns string {
     worker w1Cloneable returns boolean {
         value:Cloneable w1a = 10;
         value:Cloneable w1b = 11;
@@ -154,7 +154,7 @@ function processWithCloneableExpression() returns string {
     return "done";
 }
 
-function simpleSyncSendErrorType() returns string {
+function simpleSendActionErrorType() returns string {
     @strand {thread: "parent"}
     worker w1Error returns error {
         error w1a = error("10");
@@ -185,7 +185,7 @@ function simpleSyncSendErrorType() returns string {
     return "done";
 }
 
-function simpleSyncSendXMLType() returns string {
+function simpleSendActionXMLType() returns string {
     @strand {thread: "parent"}
     worker w1Xml returns xml {
         xml w1a = xml `10`;
@@ -217,27 +217,27 @@ function simpleSyncSendXMLType() returns string {
 }
 
 
-function testSimpleSyncSendWithCloneableExpression() {
-    assertValueEquality("done", processWithCloneableExpression());
+function testSimpleSendActionWithCloneableType() {
+    assertValueEquality("done", simpleSendActionWithCloneableType());
 }
 
 type IntRec readonly & record {
                            int ID = 0;
                        };
 
-function testSimpleSyncSendWithReadonlyRecord() {
-    assertValueEquality("done", simpleSyncSendReadonllyRecord());
+function testSimpleSendActionReadonlyRecord() {
+    assertValueEquality("done", simpleSendActionReadonlyRecord());
 }
 
-function testSimpleSyncSendWithXMLType() {
-    assertValueEquality("done", simpleSyncSendXMLType());
+function testSimpleSendActionXMLType() {
+    assertValueEquality("done", simpleSendActionXMLType());
 }
 
-function testSimpleSyncSendWithErrorType() {
-    assertValueEquality("done", simpleSyncSendErrorType());
+function testSimpleSendActionErrorType() {
+    assertValueEquality("done", simpleSendActionErrorType());
 }
 
-function simpleSyncSendReadonllyRecord() returns string {
+function simpleSendActionReadonlyRecord() returns string {
     @strand {thread: "parent"}
     worker w1readonlyRec returns string {
         IntRec w1a = {ID: 10};
@@ -268,6 +268,82 @@ function simpleSyncSendReadonllyRecord() returns string {
     return "done";
 }
 
+function simpleSendActionWithMapType() returns map<anydata> {
+    @strand {thread: "parent"}
+    worker w1 returns boolean {
+        map<int> a = { "a" : 1, "b" : 2};
+        map<int> b = { "c" : 40, "d" : 50};
+        a -> w2;
+        b ->> w2;
+        return true;
+    }
+
+    @strand {thread: "parent"}
+    worker w2 returns boolean {
+        map<int> data = <- w1;
+        sleep(10);
+        map<anydata> dataSet2 = <- w1;
+        assertValueEquality(1, data["a"]);
+        assertValueEquality(2, data["b"]);
+        assertValueEquality(40, dataSet2["c"]);
+        assertValueEquality(50, dataSet2["d"]);
+        return true;
+    }
+
+    @strand {thread: "any"}
+    worker w3 returns map<anydata> {
+        map<anydata> results = wait {w1, w2};
+        return results;
+    }
+
+    map<anydata> waitedResult =  wait w3;
+    return waitedResult;
+}
+
+function testSimpleSendActionWithMapType() {
+    map<anydata> simpleSendActionWithMapTypeResult = simpleSendActionWithMapType();
+    assertValueEquality(true, simpleSendActionWithMapTypeResult["w1"]);
+    assertValueEquality(true, simpleSendActionWithMapTypeResult["w2"]);
+}
+
+function simpleSendActionWithListType() returns map<anydata> {
+    @strand {thread: "parent"}
+    worker w1 returns boolean {
+        int[] a = [1, 2, 3];
+        int[2] b = [ 40, 50];
+        a -> w2;
+        b ->> w2;
+        return true;
+    }
+
+    @strand {thread: "parent"}
+    worker w2 returns boolean {
+        int[] data = <- w1;
+        sleep(10);
+        int[] dataSet2 = <- w1;
+        assertValueEquality(1, data[0]);
+        assertValueEquality(2, data[1]);
+        assertValueEquality(40, dataSet2[0]);
+        assertValueEquality(50, dataSet2[1]);
+        return true;
+    }
+
+    @strand {thread: "any"}
+    worker w3 returns map<anydata> {
+        map<anydata> results = wait {w1, w2};
+        return results;
+    }
+
+    map<anydata> waitedResult =  wait w3;
+    return waitedResult;
+}
+
+function testSimpleSendActionWithListType() {
+    map<anydata> simpleSendActionWithMapTypeResult = simpleSendActionWithListType();
+    assertValueEquality(true, simpleSendActionWithMapTypeResult["w1"]);
+    assertValueEquality(true, simpleSendActionWithMapTypeResult["w2"]);
+}
+
 type AssertionError distinct error;
 const ASSERTION_ERROR_REASON = "AssertionError";
 
@@ -278,7 +354,6 @@ function assertValueEquality(anydata expected, anydata actual) {
     panic error(ASSERTION_ERROR_REASON,
                 message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
-
 
 function getCurrentThreadName() returns string {
     handle t = currentThread();
