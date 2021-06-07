@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
+import balTest/proj.B as io;
 import balTest/proj.A;
 
 public function main() {

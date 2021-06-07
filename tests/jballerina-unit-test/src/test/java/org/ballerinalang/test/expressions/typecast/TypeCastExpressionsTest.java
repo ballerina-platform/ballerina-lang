@@ -188,6 +188,11 @@ public class TypeCastExpressionsTest {
         BRunUtil.invoke(result, "testMutableJsonMappingToExclusiveRecordNegative");
     }
 
+    @Test
+    public void testTypeCastInConstructorMemberWithUnionCET() {
+        BRunUtil.invoke(result, "testTypeCastInConstructorMemberWithUnionCET");
+    }
+
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'int'.*")
     public void testStringAsInvalidBasicType() {
@@ -291,6 +296,14 @@ public class TypeCastExpressionsTest {
                 , 13);
         validateError(resultNegative, errIndex++, "incompatible types: '(json|error)' cannot be cast to 'string'", 69,
                 13);
+        validateError(resultNegative, errIndex++, "incompatible types: '(string[]|int)' cannot be cast to 'byte[]'",
+                78, 32);
+        validateError(resultNegative, errIndex++, "incompatible mapping constructor expression for type '(record {| " +
+                        "byte[] a; anydata...; |}|record {| string a; anydata...; |})'", 79, 47);
+        validateError(resultNegative, errIndex++, "incompatible types: '(string[]|int)' cannot be cast to 'byte[]'",
+                79, 51);
+        validateError(resultNegative, errIndex++, "incompatible mapping constructor expression for type '(record {| " +
+                "string[] a; anydata...; |}|record {| string a; anydata...; |})'", 82, 49);
         Assert.assertEquals(resultNegative.getErrorCount(), errIndex);
     }
 

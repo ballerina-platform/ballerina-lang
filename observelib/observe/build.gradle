@@ -31,11 +31,9 @@ dependencies {
 
     testRuntime 'org.slf4j:slf4j-jdk14'
 
-    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils')
     testCompile project(':ballerina-cli')
     testCompile project(':ballerina-runtime')
-    testCompile project(':ballerina-test-common')
     testCompile project(':ballerina-core')
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-api'

@@ -1,4 +1,4 @@
-import ballerina/io as x;
+import ballerina/lang.'int as x;
 
 function testRestrictedElementPrefix() returns (xml) {
     xml x = xml `<xmlns:foo>hello</xmlns:foo>`;
@@ -55,7 +55,7 @@ function testMismatchingElementTags() {
 }
 
 function dummyFunctionToUseMath() {
-    x:println("text");
+    _ = x:abs(-123);
 }
 
 function testXmlNsInterpolation() returns xml {

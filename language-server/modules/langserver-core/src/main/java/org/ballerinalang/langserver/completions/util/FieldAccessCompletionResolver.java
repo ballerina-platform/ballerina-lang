@@ -97,11 +97,11 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         Optional<TypeSymbol> typeSymbol = node.expression().apply(this);
 
         NameReferenceNode fieldName = node.fieldName();
-        if (fieldName.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+        if (fieldName.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE || typeSymbol.isEmpty()) {
             return Optional.empty();
         }
         String name = ((SimpleNameReferenceNode) fieldName).name().text();
-        List<Symbol> visibleEntries = this.getVisibleEntries(typeSymbol.orElseThrow(), node.expression());
+        List<Symbol> visibleEntries = this.getVisibleEntries(typeSymbol.get(), node.expression());
         Optional<Symbol> filteredSymbol = this.getSymbolByName(visibleEntries, name);
 
         if (filteredSymbol.isEmpty()) {
