@@ -19,7 +19,6 @@ import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
@@ -102,11 +101,6 @@ public class DocsCodeLensesProvider extends AbstractCodeLensesProvider {
                             .orElse(false);
                     nodeRange = CommonUtil.toRange(classDef.lineRange());
                     break;
-                case SERVICE_DECLARATION:
-                    ServiceDeclarationNode serviceDeclr = (ServiceDeclarationNode) member;
-                    showLens = false;
-                    nodeRange = CommonUtil.toRange(serviceDeclr.lineRange());
-                    break;
                 default:
                     break;
             }
@@ -114,10 +108,10 @@ public class DocsCodeLensesProvider extends AbstractCodeLensesProvider {
                 String documentUri = context.fileUri();
                 CommandArgument docUriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, documentUri);
                 CommandArgument lineStart = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE,
-                                                                 nodeRange);
+                        nodeRange);
                 List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, lineStart));
                 Command command = new Command(CommandConstants.ADD_DOCUMENTATION_TITLE,
-                                              AddDocumentationExecutor.COMMAND, args);
+                        AddDocumentationExecutor.COMMAND, args);
                 lenses.add(new CodeLens(nodeRange, command, null));
             }
         }
