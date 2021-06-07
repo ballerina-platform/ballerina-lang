@@ -43,8 +43,7 @@ import java.util.List;
  * Test code lens feature in language server.
  */
 public class CodeLensTest {
-    private Path servicesBalPath = FileUtils.RES_DIR.resolve("codelens").resolve("services.bal");
-    private Path functionsBalPath = FileUtils.RES_DIR.resolve("codelens").resolve("functions.bal");
+    private final Path functionsBalPath = FileUtils.RES_DIR.resolve("codelens").resolve("functions.bal");
     private Endpoint serviceEndpoint;
     private static final JsonParser JSON_PARSER = new JsonParser();
     private static final Logger log = LoggerFactory.getLogger(CodeLensTest.class);
@@ -53,19 +52,12 @@ public class CodeLensTest {
     @BeforeClass
     public void loadLangServer() throws IOException {
         serviceEndpoint = TestUtil.initializeLanguageSever();
-        TestUtil.openDocument(serviceEndpoint, servicesBalPath);
         TestUtil.openDocument(serviceEndpoint, functionsBalPath);
     }
 
     @Test(description = "Test Code Lenses for functions", dataProvider = "codeLensFunctionPositions")
     public void codeLensForBuiltInFunctionTest(String expectedConfigName) throws IOException {
         String response = TestUtil.getCodeLensesResponse(functionsBalPath.toString(), serviceEndpoint);
-        testCodeLenses(expectedConfigName, response);
-    }
-
-    @Test(description = "Test Code Lenses for services", dataProvider = "codeLensServicesPositions")
-    public void codeLensForCurrentPackageFunctionTest(String expectedConfigName) throws IOException {
-        String response = TestUtil.getCodeLensesResponse(servicesBalPath.toString(), serviceEndpoint);
         testCodeLenses(expectedConfigName, response);
     }
 
@@ -84,7 +76,6 @@ public class CodeLensTest {
 
     @AfterClass
     public void shutDownLanguageServer() {
-        TestUtil.closeDocument(this.serviceEndpoint, servicesBalPath);
         TestUtil.closeDocument(this.serviceEndpoint, functionsBalPath);
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
@@ -127,13 +118,13 @@ public class CodeLensTest {
         return flattenList;
     }
 
-    private static String getCompletionItemPropertyString(CodeLens completionItem) {
+    private static String getCodeLensPropertyString(CodeLens codeLens) {
         String additionalTextEdits = "";
-        if (completionItem.getRange() != null) {
-            additionalTextEdits = "," + GSON.toJson(completionItem.getRange());
+        if (codeLens.getRange() != null) {
+            additionalTextEdits = "," + GSON.toJson(codeLens.getRange());
         }
 
-        Command command = completionItem.getCommand();
+        Command command = codeLens.getCommand();
         if (command != null) {
             additionalTextEdits = "," + command.getTitle() + ", " + command.getCommand();
         }
@@ -141,9 +132,9 @@ public class CodeLensTest {
         return ("{" + additionalTextEdits + "}");
     }
 
-    private static List<String> getStringListForEvaluation(List<CodeLens> completionItems) {
+    private static List<String> getStringListForEvaluation(List<CodeLens> codeLenses) {
         List<String> evalList = new ArrayList<>();
-        completionItems.forEach(completionItem -> evalList.add(getCompletionItemPropertyString(completionItem)));
+        codeLenses.forEach(completionItem -> evalList.add(getCodeLensPropertyString(completionItem)));
         return evalList;
     }
 }

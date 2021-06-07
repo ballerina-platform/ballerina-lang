@@ -98,8 +98,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         this.ballerinaExampleService = new BallerinaExampleServiceImpl(this.serverContext);
         this.ballerinaSymbolService = new BallerinaSymbolServiceImpl(workspaceManager, this.serverContext);
         this.ballerinaPackageService = new BallerinaPackageServiceImpl(workspaceManager, this.serverContext);
-
-        LSAnnotationCache.getInstance(this.serverContext).initiate();
     }
 
     public ExtendedLanguageClient getClient() {
