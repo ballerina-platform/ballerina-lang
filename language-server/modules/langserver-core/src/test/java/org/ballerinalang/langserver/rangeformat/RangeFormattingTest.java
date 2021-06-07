@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * Test suit for source code formatting.
+ * Test suit for range-formatting.
  */
 public class RangeFormattingTest {
     private final Path formattingDirectory = FileUtils.RES_DIR.resolve("rangeformat");
