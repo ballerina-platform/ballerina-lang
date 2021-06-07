@@ -43,11 +43,6 @@ public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
     // Only used for type-narrowing. Cache of the original symbol.
     public BVarSymbol originalSymbol;
 
-    /**
-     * This indicate the indicated (by programmer) taintedness of a variable.
-     */
-    public TaintabilityAllowance taintabilityAllowance = TaintabilityAllowance.IGNORED;
-
     public BVarSymbol(long flags, Name name, PackageID pkgID, BType type, BSymbol owner, Location pos,
                       SymbolOrigin origin) {
         super(VARIABLE, flags, name, pkgID, type, owner, pos, origin);
@@ -77,12 +72,5 @@ public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
     @Override
     public Object getConstValue() {
         return null;
-    }
-
-    /**
-     * Indicate the allowed taintedness marked for a given variable.
-     */
-    public enum TaintabilityAllowance {
-        TAINTED, UNTAINTED, IGNORED
     }
 }

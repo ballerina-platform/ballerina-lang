@@ -17,7 +17,6 @@ package org.wso2.ballerinalang.compiler;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.ProjectLoader;
@@ -251,7 +250,6 @@ public class BLangNodeTransformerTest {
         String sourceFileName = sourcePath.getFileName().toString();
         Path sourceRoot = RES_DIR.resolve(sourcePath.getParent());
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
-        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
-        return ProjectLoader.loadProject(projectPath, buildOptionsBuilder.build());
+        return ProjectLoader.loadProject(projectPath);
     }
 }
