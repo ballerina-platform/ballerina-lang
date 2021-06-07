@@ -3,7 +3,10 @@ package org.wso2.ballerinalang.compiler.nballerina;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.FutureValue;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -30,12 +33,11 @@ public class NBallerinaCaller {
         boolean nBal = getBooleanValueIfSet(compilerOptions, CompilerOptionName.NBAL);
         if (nBal) {
 
-            File path = new File("/home/ushira/WSO2/Parse/Parse/build/mock_nballerina.jar");
+            File path = new File("filepath");
             try {
                 URLClassLoader cl = new URLClassLoader(new URL[]{path.toURI().toURL()});
-                Class<?> c = cl.loadClass("$value$mocknBal");
-                Method m = c.getDeclaredMethod("one", Strand.class);
-                Object arg = new Object();
+                Class<?> c = cl.loadClass("nballerina");
+                Method m = c.getDeclaredMethod("compile", Strand.class);
                 Function<Object[], Object> func = objects -> {
                     try {
                         return m.invoke(null, objects[0]);
@@ -51,9 +53,20 @@ public class NBallerinaCaller {
                     }
                 };
                 final Scheduler scheduler = new Scheduler(false);
-                scheduler.schedule(new Object[1], func, null,
+                FutureValue out = scheduler.schedule(new Object[1], func, null,
                         null, null, PredefinedTypes.TYPE_ANY, null, null);
                 scheduler.start();
+                final Throwable t = out.panic;
+                if (t != null) {
+                    if (t instanceof io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException) {
+                        throw new BLangRuntimeException(t.getMessage());
+                    }
+                    if (t instanceof ErrorValue) {
+                        throw new BLangRuntimeException(
+                                "error: " + ((ErrorValue) t).getPrintableStackTrace());
+                    }
+                    throw (RuntimeException) t;
+                }
                 console.println(c.getName());
             } catch (MalformedURLException | ClassNotFoundException  | NoSuchMethodException e) {
                 console.println(e);
