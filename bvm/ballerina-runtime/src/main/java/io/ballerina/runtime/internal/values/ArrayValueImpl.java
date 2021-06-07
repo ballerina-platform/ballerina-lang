@@ -809,24 +809,24 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.UNSIGNED32_INT_TAG:
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
-                slicedArray = new ArrayValueImpl(new long[slicedSize], arrayType.isReadOnly());
+                slicedArray = new ArrayValueImpl(new long[slicedSize], false);
                 System.arraycopy(intValues, (int) startIndex, slicedArray.intValues, 0, slicedSize);
                 break;
             case TypeTags.BOOLEAN_TAG:
-                slicedArray = new ArrayValueImpl(new boolean[slicedSize], arrayType.isReadOnly());
+                slicedArray = new ArrayValueImpl(new boolean[slicedSize], false);
                 System.arraycopy(booleanValues, (int) startIndex, slicedArray.booleanValues, 0, slicedSize);
                 break;
             case TypeTags.BYTE_TAG:
-                slicedArray = new ArrayValueImpl(new byte[slicedSize], arrayType.isReadOnly());
+                slicedArray = new ArrayValueImpl(new byte[slicedSize], false);
                 System.arraycopy(byteValues, (int) startIndex, slicedArray.byteValues, 0, slicedSize);
                 break;
             case TypeTags.FLOAT_TAG:
-                slicedArray = new ArrayValueImpl(new double[slicedSize], arrayType.isReadOnly());
+                slicedArray = new ArrayValueImpl(new double[slicedSize], false);
                 System.arraycopy(floatValues, (int) startIndex, slicedArray.floatValues, 0, slicedSize);
                 break;
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
-                slicedArray = new ArrayValueImpl(new BString[slicedSize], arrayType.isReadOnly());
+                slicedArray = new ArrayValueImpl(new BString[slicedSize], false);
                 System.arraycopy(bStringValues, (int) startIndex, slicedArray.bStringValues, 0, slicedSize);
                 break;
             default:
