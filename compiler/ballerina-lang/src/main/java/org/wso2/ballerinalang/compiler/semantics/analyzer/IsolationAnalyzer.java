@@ -1190,15 +1190,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        markDependsOnIsolationNonInferableConstructs();
-        inferredIsolated = false;
-
         if (isolatedModuleVariableReference) {
             if (!inLockStatement) {
                 dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_ISOLATED_VARIABLE_ACCESS_OUTSIDE_LOCK);
             }
             return;
         }
+
+        markDependsOnIsolationNonInferableConstructs();
+        inferredIsolated = false;
 
         if (inIsolatedFunction) {
             dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_MUTABLE_ACCESS_IN_ISOLATED_FUNCTION);
