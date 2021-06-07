@@ -4,6 +4,7 @@ string 'Variable\ String = "value";
 float 'Variable\ Float = 99.34323;
 any 'Variable\ Any = 88343;
 Person 'person\ 1 = {'first\ name: "Harry", 'last\ name:"potter", 'current\ age: 25};
+Employee 'employee\ 1 = {'first\ name: "John", 'current\ age: 20};
 
 public function 'getVariable\ Int() returns int {
     return 'Variable\ Int;
@@ -25,8 +26,14 @@ public function 'getPerson\ 1() returns Person {
     return 'person\ 1;
 }
 
+public function 'getEmployee\ 1() returns Person {
+    return 'employee\ 1;
+}
+
 public type Person record {
     string 'first\ name;
-    string 'last\ name;
-    int 'current\ age;
+    string 'last\ name?;
+    int 'current\ age?;
 };
+
+type Employee Person;
