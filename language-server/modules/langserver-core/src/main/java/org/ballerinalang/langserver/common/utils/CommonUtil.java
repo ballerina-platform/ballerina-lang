@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.common.utils;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
@@ -27,6 +28,7 @@ import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -262,7 +264,7 @@ public class CommonUtil {
                 typeString = Boolean.toString(false);
                 break;
             case TUPLE:
-                TupleTypeSymbol tupleType = (TupleTypeSymbol) bType;
+                TupleTypeSymbol tupleType = (TupleTypeSymbol) rawType;
                 String memberTypes = tupleType.memberTypeDescriptors().stream()
                         .map(CommonUtil::getDefaultValueForType)
                         .collect(Collectors.joining(", "));
@@ -270,7 +272,7 @@ public class CommonUtil {
                 break;
             case ARRAY:
                 // Filler value of an array is []
-                ArrayTypeSymbol arrayType = (ArrayTypeSymbol) bType;
+                ArrayTypeSymbol arrayType = (ArrayTypeSymbol) rawType;
                 if (arrayType.memberTypeDescriptor().typeKind() == TypeDescKind.ARRAY) {
                     typeString = "[" + getDefaultValueForType(arrayType.memberTypeDescriptor()) + "]";
                 } else {
@@ -308,19 +310,9 @@ public class CommonUtil {
                     typeString = "object {}";
                 }
                 break;
-            // Fixme
-//            case FINITE:
-//                List<BLangExpression> valueSpace = new ArrayList<>(((BFiniteType) bType).getValueSpace());
-//                String value = valueSpace.get(0).toString();
-//                BType type = valueSpace.get(0).type;
-//                typeString = value;
-//                if (type.toString().equals("string")) {
-//                    typeString = "\"" + typeString + "\"";
-//                }
-//                break;
             case UNION:
                 List<TypeSymbol> members =
-                        new ArrayList<>(((UnionTypeSymbol) bType).memberTypeDescriptors());
+                        new ArrayList<>(((UnionTypeSymbol) rawType).memberTypeDescriptors());
                 typeString = getDefaultValueForType(members.get(0));
                 break;
             case INTERSECTION:
@@ -338,8 +330,29 @@ public class CommonUtil {
                     typeString = getDefaultValueForType(memberType.get());
                 }
                 break;
+            case TABLE:
+                TypeSymbol rowType = ((TableTypeSymbol) rawType).rowTypeParameter();
+                typeString = "table [" + getDefaultValueForType(rowType) + "]";
+                break;
+            case ERROR:
+                TypeSymbol errorType = CommonUtil.getRawType(((ErrorTypeSymbol) rawType).detailTypeDescriptor());
+                StringBuilder errorString = new StringBuilder("error (\"\"");
+                if (errorType.typeKind() == TypeDescKind.RECORD) {
+                    errorString.append(", ");
+                    errorString.append(getMandatoryRecordFields((RecordTypeSymbol) errorType).stream()
+                            .map(recordFieldSymbol -> recordFieldSymbol.getName().get()
+                                    + " = " + getDefaultValueForType(recordFieldSymbol.typeDescriptor()))
+                            .collect(Collectors.joining(", ")));
+                }
+                errorString.append(")");
+                typeString = errorString.toString();
+                break;
             case STREAM:
-//            case TABLE:
+                typeString = "new ()";
+                break;
+            case XML:
+                typeString = "xml ``";
+                break;
             default:
                 if (typeKind.isIntegerType()) {
                     typeString = Integer.toString(0);
