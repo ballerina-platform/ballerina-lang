@@ -49,14 +49,13 @@ subprojects {
         failOnSnapshotDependencies = false
         failOnCommitNeeded = false
         tagTemplate = 'v${version}'
+        buildTasks = ['build']
         git {
             // To release from any branch
             requireBranch = null
         }
     }
 
-    afterReleaseBuild.dependsOn publishToMavenLocal
-    afterReleaseBuild.dependsOn publish
 }
 
 buildScan {
