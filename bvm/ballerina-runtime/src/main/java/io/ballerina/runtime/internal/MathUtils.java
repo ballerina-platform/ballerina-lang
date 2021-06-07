@@ -63,4 +63,28 @@ public class MathUtils {
             }
         }
     }
+
+    public static long addExact(long num1, long num2) {
+        try {
+            return Math.addExact(num1, num2);
+        } catch (ArithmeticException e) {
+            throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_OVERFLOW, INT_RANGE_OVERFLOW_ERROR);
+        }
+    }
+
+    public static long subtractExact(long num1, long num2) {
+        try {
+            return Math.subtractExact(num1, num2);
+        } catch (ArithmeticException e) {
+            throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_OVERFLOW, INT_RANGE_OVERFLOW_ERROR);
+        }
+    }
+
+    public static long multiplyExact(long num1, long num2) {
+        try {
+            return Math.multiplyExact(num1, num2);
+        } catch (ArithmeticException e) {
+            throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_OVERFLOW, INT_RANGE_OVERFLOW_ERROR);
+        }
+    }
 }
