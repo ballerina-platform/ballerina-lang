@@ -15,8 +15,12 @@
  */
 package org.ballerinalang.langserver;
 
+import io.ballerina.compiler.syntax.tree.ChildNodeList;
+import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -106,6 +110,7 @@ import java.util.stream.Collectors;
  * Text document service implementation for ballerina.
  */
 class BallerinaTextDocumentService implements TextDocumentService {
+
     private final BallerinaLanguageServer languageServer;
     private LSClientCapabilities clientCapabilities;
     private final WorkspaceManager workspaceManager;
@@ -219,7 +224,20 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 // Find parameter index
                 int cLine = params.getPosition().getLine();
                 int cCol = params.getPosition().getCharacter();
-                for (Node child : sNode.children()) {
+                ChildNodeList childrenInParen = sNode.children();
+                switch (sKind) {
+                    case IMPLICIT_NEW_EXPRESSION:
+                        Optional<ParenthesizedArgList> implicitArgList =
+                                ((ImplicitNewExpressionNode) sNode).parenthesizedArgList();
+                        if (implicitArgList.isPresent()) {
+                            childrenInParen = implicitArgList.get().children();
+                        }
+                        break;
+                    case EXPLICIT_NEW_EXPRESSION:
+                        childrenInParen = ((ExplicitNewExpressionNode) sNode).parenthesizedArgList().children();
+                        break;
+                }
+                for (Node child : childrenInParen) {
                     int sLine = child.lineRange().startLine().line();
                     int sCol = child.lineRange().startLine().offset();
                     if ((cLine == sLine && cCol < sCol) || (cLine < sLine)) {

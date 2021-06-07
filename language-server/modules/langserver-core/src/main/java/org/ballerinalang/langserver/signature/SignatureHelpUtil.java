@@ -190,8 +190,8 @@ public class SignatureHelpUtil {
             documentation.get().parameterMap().forEach(paramToDesc::put);
         }
         // Add parameters and rest params
-        functionSymbol.typeDescriptor().params().get()
-                .forEach(param -> parameters.add(new Parameter(param, false, false, context)));
+        parameters.addAll(functionSymbol.typeDescriptor().params().orElse(new ArrayList<>()).stream()
+                .map(param -> new Parameter(param, false, false, context)).collect(Collectors.toList()));
         Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();
         restParam.ifPresent(parameter -> parameters.add(new Parameter(parameter, false, true, context)));
         boolean skipFirstParam = functionSymbol.kind() == METHOD
@@ -239,6 +239,7 @@ public class SignatureHelpUtil {
      * Parameter model to hold the parameter information meta data.
      */
     private static class Parameter {
+
         private final boolean isRestArg;
         private final boolean isOptional;
         private final ParameterSymbol parameterSymbol;
@@ -278,6 +279,7 @@ public class SignatureHelpUtil {
      * Parameter information model to hold the parameter information meta data.
      */
     private static class ParameterInfoModel {
+
         private final String description;
         private final Parameter parameter;
 
