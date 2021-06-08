@@ -1230,6 +1230,15 @@ public class SymbolResolver extends BLangNodeVisitor {
             tableType.keyPos = tableKeySpecifier.pos;
         }
 
+        if (constraintType.tag == TypeTags.MAP &&
+                (tableType.fieldNameList != null || tableType.keyTypeConstraint != null) &&
+                !tableType.tsymbol.owner.getFlags().contains(Flag.LANG_LIB)) {
+            dlog.error(tableType.keyPos,
+                    DiagnosticErrorCode.KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT);
+            resultType = symTable.semanticError;
+            return;
+        }
+
         markParameterizedType(tableType, constraintType);
         tableTypeNode.tableType = tableType;
 

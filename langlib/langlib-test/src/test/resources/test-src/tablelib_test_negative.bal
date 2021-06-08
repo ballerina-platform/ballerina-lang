@@ -181,3 +181,10 @@ function testLangLibInvocationOnSemanticallyIncorrectTable() {
     table<int> key(age) tab = table [1];
     _ = tab.remove(2);
 }
+
+type MapType map<any|error>;
+type KeyType anydata;
+
+function foo(table <MapType> key<KeyType>? t) {
+
+}

@@ -162,7 +162,7 @@ public class LangLibTableTest {
 
     @Test
     public void testCompilerNegativeCases() {
-        assertEquals(negativeResult.getErrorCount(), 20);
+        assertEquals(negativeResult.getErrorCount(), 21);
         int index = 0;
         validateError(negativeResult, index++, "incompatible types: expected 'table<Employee> " +
                 "key(name)', found 'table<Person> key<string>'", 68, 36);
@@ -202,7 +202,9 @@ public class LangLibTableTest {
         validateError(negativeResult, index++, "missing close brace token", 181, 39);
         validateError(negativeResult, index++, "incompatible types: expected 'table<map<(any|error)>> " +
                 "key<anydata>', found 'table<int> key(age)'", 182, 9);
-        validateError(negativeResult, index, "incompatible types: expected '[]', found 'int'", 182, 20);
+        validateError(negativeResult, index++, "incompatible types: expected '[]', found 'int'", 182, 20);
+        validateError(negativeResult, index, "table with constraint of type map cannot have key specifier " +
+                "or key type constraint", 188, 30);
     }
 
     @Test
