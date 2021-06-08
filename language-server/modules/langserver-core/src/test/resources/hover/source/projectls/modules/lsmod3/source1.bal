@@ -29,7 +29,13 @@ public class Mod3Class {
 
     # Get name of the person
     # + return - String
-    function getName() returns string{
+    public function getName() returns string{
+        return self.name;
+    }
+
+    # Get name of the person
+    # + return - String
+    function getName2() returns string{
         return self.name;
     }
 
