@@ -45,8 +45,8 @@ import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -391,25 +391,12 @@ public class JsonToRecordConverter {
      * @return {@link Map}  cleaned json schema
      */
     public static Map<String, Object> removeUnsupportedKeywords(Map<String, Object> jsonMap) {
-        jsonMap.remove("$schema");
-        jsonMap.remove("$id");
-        jsonMap.remove("id");
-        jsonMap.remove("additionalItems");
-        jsonMap.remove("const");
-        jsonMap.remove("contains");
-        jsonMap.remove("dependencies");
-        jsonMap.remove("patternProperties");
-        jsonMap.remove("propertyNames");
-
-        jsonMap.remove("format");
-        jsonMap.remove("examples");
-        jsonMap.remove("title");
-        jsonMap.remove("description");
-        jsonMap.remove("allOf");
-        jsonMap.remove("oneOf");
-        jsonMap.remove("anyOf");
-        jsonMap.remove("not");
-
+        final List<String> unsupportedKeywords = Arrays.asList("$schema", "$id", "id", "additionalItems", "const",
+                "contains", "dependencies", "patternProperties", "propertyNames", "format", "examples", "title",
+                "description", "allOf", "oneOf", "anyOf", "not");
+        for (String keyword : unsupportedKeywords) {
+            jsonMap.remove(keyword);
+        }
         return jsonMap;
     }
 }
