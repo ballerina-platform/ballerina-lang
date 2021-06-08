@@ -1538,11 +1538,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         // change default worker name
-        String workerName;
-        if (namedWorkerDeclNode.workerName().isMissing()) {
+        String workerName = namedWorkerDeclNode.workerName().text();
+        if (namedWorkerDeclNode.workerName().isMissing() || workerName.equals(IDENTIFIER_LITERAL_PREFIX)) {
             workerName = missingNodesHelper.getNextMissingNodeName(packageID);
-        } else {
-            workerName = namedWorkerDeclNode.workerName().text();
         }
 
         if (workerName.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
@@ -5110,11 +5108,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             return createIdentifier(pos, null, null);
         }
 
-        String identifierName;
-        if (token.isMissing()) {
+        String identifierName = token.text();
+        if (token.isMissing() || identifierName.equals(IDENTIFIER_LITERAL_PREFIX)) {
             identifierName = missingNodesHelper.getNextMissingNodeName(packageID);
-        } else {
-            identifierName = token.text();
         }
 
         return createIdentifier(pos, identifierName);
