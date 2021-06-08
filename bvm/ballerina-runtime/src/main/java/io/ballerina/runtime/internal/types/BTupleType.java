@@ -74,8 +74,10 @@ public class BTupleType extends BType implements TupleType {
     public BTupleType(List<Type> typeList, Type restType, int typeFlags, boolean isCyclic, boolean readonly) {
         super(null, null, Object.class);
         if (readonly) {
+            this.resolvingReadonly = true;
             this.tupleTypes = getReadOnlyTypes(typeList);
             this.restType = restType != null ? ReadOnlyUtils.getReadOnlyType(restType) : null;
+            this.resolvingReadonly = false;
         } else {
             this.tupleTypes = typeList;
             this.restType = restType;
@@ -102,11 +104,11 @@ public class BTupleType extends BType implements TupleType {
         this.resolvingReadonly = true;
         boolean isAllMembersPure = true;
         boolean isAllMembersAnydata = true;
-        boolean readonly = true;
+//        boolean readonly = true;
         for (Type memberType : tupleTypes) {
             isAllMembersPure &= memberType.isPureType();
             isAllMembersAnydata &= memberType.isAnydata();
-            readonly &= memberType.isReadOnly();
+//            readonly &= memberType.isReadOnly();
         }
         this.resolvingReadonly = false;
         this.resolving = false;
@@ -116,7 +118,7 @@ public class BTupleType extends BType implements TupleType {
         if (isAllMembersAnydata) {
             this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.ANYDATA, TypeFlags.PURETYPE);
         }
-        this.readonly = readonly;
+        this.readonly = false;
     }
 
     private List<Type> getReadOnlyTypes(List<Type> typeList) {
@@ -144,8 +146,10 @@ public class BTupleType extends BType implements TupleType {
             return;
         }
         if (readonly) {
+            this.resolvingReadonly = true;
             this.tupleTypes = getReadOnlyTypes(members);
             this.restType = restType != null ? ReadOnlyUtils.getReadOnlyType(restType) : null;
+            this.resolvingReadonly = false;
         } else {
             this.tupleTypes = members;
             this.restType = restType;
@@ -246,6 +250,9 @@ public class BTupleType extends BType implements TupleType {
 
     @Override
     public boolean isReadOnly() {
+        if (this.resolvingReadonly) {
+            return true;
+        }
         return this.readonly;
     }
 
