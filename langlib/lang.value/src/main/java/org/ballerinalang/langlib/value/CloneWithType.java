@@ -212,7 +212,7 @@ public class CloneWithType {
                 BMapInitialValueEntry[] initialValues = new BMapInitialValueEntry[map.entrySet().size()];
                 Type constraintType = ((MapType) targetType).getConstrainedType();
                 int count = 0;
-                for (Map.Entry entry : map.entrySet()) {
+                for (Map.Entry<?, ?> entry : map.entrySet()) {
                     Object newValue = convert(entry.getValue(), constraintType, unresolvedValues, true, t, strand);
                     initialValues[count] = ValueCreator
                             .createKeyFieldEntry(StringUtils.fromString(entry.getKey().toString()), newValue);
@@ -223,33 +223,18 @@ public class CloneWithType {
                 RecordType recordType = (RecordType) targetType;
                 BMap<BString, Object> newRecord;
 
-                initialValues = new BMapInitialValueEntry[map.entrySet().size()];
-                count = 0;
-
                 Type restFieldType = recordType.getRestFieldType();
                 Map<String, Type> targetTypeField = new HashMap<>();
                 for (Field field : recordType.getFields().values()) {
                     targetTypeField.put(field.getFieldName(), field.getFieldType());
                 }
-                if (t.getDescribingType() == targetType) {
-                    for (Map.Entry entry : map.entrySet()) {
-                        Type fieldType = targetTypeField.getOrDefault(entry.getKey().toString(), restFieldType);
-                        Object newValue = convert(entry.getValue(), fieldType, unresolvedValues, true, t, strand);
-                        initialValues[count] = ValueCreator
-                                .createKeyFieldEntry(StringUtils.fromString(entry.getKey().toString()), newValue);
-                        count++;
-                    }
-                    newRecord = (BMap<BString, Object>) t.instantiate(Scheduler.getStrand(), initialValues);
+                if (t != null && t.getDescribingType() == targetType) {
+                    return convertToRecordWithTypeDesc(map, unresolvedValues, t, strand, restFieldType,
+                                                       targetTypeField);
                 } else {
-                    Map<String, Object> valueMap = new HashMap<>();
-                    for (Map.Entry entry : map.entrySet()) {
-                        Type fieldType = targetTypeField.getOrDefault(entry.getKey().toString(), restFieldType);
-                        Object newValue = convert(entry.getValue(), fieldType, unresolvedValues, true, t, strand);
-                        valueMap.put(entry.getKey().toString(), newValue);
-                    }
-                    newRecord = ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName(), valueMap);
+                    return convertToRecord(map, unresolvedValues, t, strand, recordType, restFieldType,
+                                           targetTypeField);
                 }
-                return newRecord;
             case TypeTags.JSON_TAG:
                 Type matchingType = TypeConverter.resolveMatchingTypeForUnion(map, targetType);
                 return convert(map, matchingType, unresolvedValues, t, strand);
@@ -260,6 +245,44 @@ public class CloneWithType {
         }
         // should never reach here
         throw CloneUtils.createConversionError(map, targetType);
+    }
+
+    private static BMap<BString, Object> convertToRecord(BMap<?, ?> map, List<TypeValuePair> unresolvedValues,
+                                                         BTypedesc t, Strand strand, RecordType recordType,
+                                                         Type restFieldType, Map<String, Type> targetTypeField) {
+        BMap<BString, Object> newRecord;
+        Map<String, Object> valueMap = new HashMap<>();
+        for (Map.Entry<?, ?> entry : map.entrySet()) {
+            Object newValue = convertRecordEntry(unresolvedValues, t, strand, restFieldType, targetTypeField, entry);
+            valueMap.put(entry.getKey().toString(), newValue);
+        }
+        newRecord = ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName(), valueMap);
+        return newRecord;
+    }
+
+    private static BMap<BString, Object> convertToRecordWithTypeDesc(BMap<?, ?> map,
+                                                                     List<TypeValuePair> unresolvedValues,
+                                                                     BTypedesc t, Strand strand,
+                                                                     Type restFieldType,
+                                                                     Map<String, Type> targetTypeField) {
+        BMap<BString, Object> newRecord;
+        BMapInitialValueEntry[] initialValues = new BMapInitialValueEntry[map.entrySet().size()];
+        int count = 0;
+        for (Map.Entry<?, ?> entry : map.entrySet()) {
+            Object newValue = convertRecordEntry(unresolvedValues, t, strand, restFieldType, targetTypeField, entry);
+            initialValues[count] = ValueCreator
+                    .createKeyFieldEntry(StringUtils.fromString(entry.getKey().toString()), newValue);
+            count++;
+        }
+        newRecord = (BMap<BString, Object>) t.instantiate(Scheduler.getStrand(), initialValues);
+        return newRecord;
+    }
+
+    private static Object convertRecordEntry(List<TypeValuePair> unresolvedValues, BTypedesc t, Strand strand,
+                                             Type restFieldType, Map<String, Type> targetTypeField,
+                                             Map.Entry<?, ?> entry) {
+        Type fieldType = targetTypeField.getOrDefault(entry.getKey().toString(), restFieldType);
+        return convert(entry.getValue(), fieldType, unresolvedValues, true, t, strand);
     }
 
     private static Object convertArray(BArray array, Type targetType, List<TypeValuePair> unresolvedValues,
