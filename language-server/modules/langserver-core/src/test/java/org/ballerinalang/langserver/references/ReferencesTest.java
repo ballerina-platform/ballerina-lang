@@ -59,7 +59,7 @@ public class ReferencesTest {
     }
 
     @Test(description = "Test reference", dataProvider = "testDataProvider")
-    public void test(String configPath, String configDir) throws IOException {
+    public void test(String configPath) throws IOException {
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configPath).toString());
         JsonObject source = configObject.getAsJsonObject("source");
         Path sourcePath = sourceRoot.resolve(source.get("file").getAsString());
@@ -81,7 +81,14 @@ public class ReferencesTest {
     private Object[][] testDataProvider() {
         log.info("Test textDocument/definition for Basic Cases");
         return new Object[][]{
-                {"ref_config1.json", "project"},
+                {"ref_config1.json"},
+                {"ref_error_types_config1.json"},
+                {"ref_error_types_config2.json"},
+                {"ref_error_types_config3.json"},
+                {"ref_record_types_config1.json"},
+                // TODO type Err error; user defined types from other modules are not detected due to their parent
+                //  being set to lang.annotations.
+                {"ref_package_alias_config1.json"}
         };
     }
 
