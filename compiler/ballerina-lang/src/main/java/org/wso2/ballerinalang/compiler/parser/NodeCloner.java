@@ -222,6 +222,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -266,7 +267,7 @@ public class NodeCloner extends BLangNodeVisitor {
         if (nodes == null) {
             return null;
         }
-        List<T> cloneList = new ArrayList<>();
+        List<T> cloneList = new ArrayList<>(nodes.size());
         for (T node : nodes) {
             T clone = (T) clone(node);
             cloneList.add(clone);
@@ -751,7 +752,8 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.restMatchPattern = clone(source.restMatchPattern);
         clone.matchGuardIsAvailable = source.matchGuardIsAvailable;
         clone.matchPatterns = cloneList(source.matchPatterns);
-        clone.declaredVars = source.declaredVars;
+        // TODO: create cloneMap methods
+        clone.declaredVars = new HashMap<>(source.declaredVars);
     }
 
     @Override
@@ -1585,7 +1587,7 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     private List<BLangLetVariable> cloneLetVarDeclarations(List<BLangLetVariable> letVarDeclarations) {
-        List<BLangLetVariable> cloneDefs = new ArrayList<>();
+        List<BLangLetVariable> cloneDefs = new ArrayList<>(letVarDeclarations.size());
         for (BLangLetVariable letVarDeclaration : letVarDeclarations) {
             BLangLetVariable clonedVar = new BLangLetVariable();
             clonedVar.definitionNode = clone(letVarDeclaration.definitionNode);
