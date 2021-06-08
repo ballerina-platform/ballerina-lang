@@ -139,7 +139,7 @@ public class BTable extends IndexedCompoundVariable {
     private void populateTableValues(int start, int count) throws Exception {
         int index = 0;
         Value iterator = getIterator();
-        while (hasNext(iterator)) {
+        while (hasNext(iterator) && index < start + count) {
             Value next = nextElement(iterator);
             if (index >= start && index < start + count) {
                 if (tableValues.containsKey(String.valueOf(index))) {
@@ -151,10 +151,6 @@ public class BTable extends IndexedCompoundVariable {
                 }
                 Value value = ((ArrayReference) values).getValue(1);
                 tableValues.put(String.valueOf(index), value);
-            }
-            // while loop termination condition
-            if (index >= start + count) {
-                break;
             }
             index++;
         }
