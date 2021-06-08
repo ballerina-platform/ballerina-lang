@@ -86,7 +86,7 @@ public class ModuleRecordVariableTest {
         assertEquals(compileResultNegetive.getErrorCount(), index);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testTaintAnalysisWithModuleLevelRecordVar() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/vardeclr/module_record_var_decl_taint_analysis_negetive.bal");

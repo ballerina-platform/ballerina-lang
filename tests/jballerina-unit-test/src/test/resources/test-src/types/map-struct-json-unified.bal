@@ -1,5 +1,3 @@
-import ballerina/io;
-
 type Person record {
     string name = "";
     int age = 0;
@@ -36,17 +34,14 @@ function testAccessJsonInStruct () returns [string, string, string]| error {
     var result1 = p1.parent;
     if (result1 is Person) {
         status1 = check result1.info.status;
-    } else {
-        io:println("Person is null");
     }
 
     var result2 = p1["parent"];
     if (result2 is Person) {
         status2 = check result2["info"].status;
         status3 = check result2.info.status;
-    } else {
-        io:println("Person is null");
     }
+
     return [status1, status2, status3];
 }
 
@@ -68,7 +63,6 @@ function testAccessMapInStruct () returns [any, any, any, string] {
         city = checkpanic result.address[cityKey].ensureType();
         return [result.address["city"], result["address"]["city"], result.address["city"], city];
     } else {
-        io:println("Person is null");
         return [(), (), (), city];
     }
 }
@@ -91,7 +85,6 @@ function testSetValueToJsonInStruct () returns (json) {
          info["retired"] = true;
          return result.info;
     } else {
-         io:println("Person is null");
          return null;
     }
 }

@@ -13,7 +13,7 @@ DESCRIPTION
        Use 'bal test to execute tests in the current package.
 
        Use 'bal test <balfile>' to execute the given Ballerina test file.
-              Note that testing single BAL files that belongs to a Ballerina package is not allowed.
+              Note that testing single `.bal` files that belongs to a Ballerina package is not allowed.
               File path can be relative or absolute.
 
 
@@ -65,7 +65,7 @@ OPTIONS
 
        --code-coverage
            Enables code coverage. This will analyze the line coverage of
-           source .bal files in the Ballerina package and add a section
+           source `.bal` files in the Ballerina package and add a section
            to the testerina report with code coverage details.
            This feature is not supported with single file executions.
 
@@ -86,10 +86,10 @@ OPTIONS
 
 
 EXAMPLES
-        Run all tests in the current package.
+        Run all the tests in the current package.
            $ bal test
 
-        List all test groups in the package.
+        List all the test groups in the package.
            $ bal test --list-groups
 
         Run only the set of tests belonging to the `group_x` in the current package.
@@ -98,10 +98,10 @@ EXAMPLES
         Run only the given set of functions in the current package.
             $ bal test --tests testFunction
 
-        Run the given set of functions in the default module only
+        Run only the given set of functions in the default module.
             $ bal test --tests PackageName:testA1,testB*
 
-        Run the all functions in the given module
+        Run all the functions in the given module.
             $ bal test --tests PackageName.ModuleName:*
 
         Run only the previously-failed test cases in the current package.

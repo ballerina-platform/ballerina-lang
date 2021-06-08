@@ -4,7 +4,7 @@ type Obj object {
 
 function bar() {
     var o = object {
-                function foo() {
-                }
-            };
+        function foo() {
+        }
+    };
 }

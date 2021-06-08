@@ -209,6 +209,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_DOUBLE_QUOTE("BCE0411", "error.missing.double.quote"),
     ERROR_MISSING_ENTITY_REFERENCE_NAME("BCE0412", "error.missing.entity.reference.name"),
     ERROR_MISSING_SEMICOLON_IN_XML_REFERENCE("BCE0413", "error.missing.semicolon.in.xml.reference"),
+    ERROR_MISSING_ATTACH_POINT_NAME("BCE0414", "error.missing.attach.point.name"),
 
     // Missing non-terminal nodes
     ERROR_MISSING_FUNCTION_NAME("BCE0500", "error.missing.function.name"),

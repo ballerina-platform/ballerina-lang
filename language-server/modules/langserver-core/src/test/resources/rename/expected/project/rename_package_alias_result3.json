@@ -1,0 +1,57 @@
+{
+  "source": {
+    "file": "mod_alias.bal"
+  },
+  "position": {
+    "line": 0,
+    "character": 28
+  },
+  "prepareRename": {
+    "valid": true
+  },
+  "result": {
+    "changes": {
+      "mod_alias.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 26
+            },
+            "end": {
+              "line": 0,
+              "character": 30
+            }
+          },
+          "newText": "mod"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 4
+            },
+            "end": {
+              "line": 3,
+              "character": 8
+            }
+          },
+          "newText": "mod"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 27
+            },
+            "end": {
+              "line": 3,
+              "character": 31
+            }
+          },
+          "newText": "mod"
+        }
+      ]
+    }
+  }
+}

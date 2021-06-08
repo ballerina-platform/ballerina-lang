@@ -416,8 +416,6 @@ public class ManifestBuilder {
         if (topLevelNode != null) {
             cloud = getStringFromTomlTableNode(topLevelNode);
         }
-        boolean taintCheck =
-                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.TAINT_CHECK.toString());
         boolean listConflictedClasses =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.LIST_CONFLICTED_CLASSES.toString());
 
@@ -428,7 +426,6 @@ public class ManifestBuilder {
                 .testReport(testReport)
                 .codeCoverage(codeCoverage)
                 .cloud(cloud)
-                .taintCheck(taintCheck)
                 .listConflictedClasses(listConflictedClasses)
                 .build();
     }

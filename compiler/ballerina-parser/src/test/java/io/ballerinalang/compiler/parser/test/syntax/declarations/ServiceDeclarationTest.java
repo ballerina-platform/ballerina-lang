@@ -149,4 +149,9 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
         testFile("service-decl/isolated_service_func_source_04.bal",
                 "service-decl/isolated_service_func_assert_04.json");
     }
+
+    @Test
+    public void testMissingServiceMemberWithPublicQual() {
+        testFile("service-decl/service_decl_source_21.bal", "service-decl/service_decl_assert_21.json");
+    }
 }

@@ -24,6 +24,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
 
 /**
  * Test cases related to isolated objects.
@@ -40,7 +41,8 @@ public class IsolatedObjectTest {
     private static final String ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE =
             "invalid attempt to transfer a value into a 'lock' statement with restricted variable usage";
     private static final String ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE =
-            "invalid attempt to transfer out a value from a 'lock' statement with restricted variable usage";
+            "invalid attempt to transfer out a value from a 'lock' statement with restricted variable usage: expected" +
+                    " an isolated expression";
     private static final String ERROR_INVALID_NON_ISOLATED_INVOCATION_IN_LOCK_WITH_RESTRICTED_VAR_USAGE =
             "invalid invocation of a non-isolated function in a 'lock' statement with restricted variable usage";
 
@@ -142,102 +144,132 @@ public class IsolatedObjectTest {
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 334, 5);
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 335, 5);
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 339, 5);
-        validateError(result, i++, "invalid reference to 'self' outside a 'lock' statement in an 'isolated' object",
-                      347, 13);
-        validateError(result, i++, "invalid reference to 'self' outside a 'lock' statement in an 'isolated' object",
-                      348, 9);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 374, 40);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 386, 27);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 388, 27);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 389, 22);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 390, 33);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 393, 31);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 396, 35);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 404, 35);
-        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 430, 14);
-        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 430, 17);
-        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 431, 14);
-        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 431, 18);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 431, 33);
-        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 441, 14);
-        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 441, 17);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 441, 25);
-        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 442, 14);
-        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 442, 17);
-        validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 456, 18);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 461, 36);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 461, 42);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 461, 45);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 462, 38);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 462, 59);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 463, 49);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 463, 71);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 468, 35);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 471, 36);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 471, 36);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 471, 42);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 471, 59);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 471, 59);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 471, 112);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 471, 115);
-        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 477, 5);
-        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 478, 5);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 493, 40);
-        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 505, 6);
-        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 516, 5);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 356, 40);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 368, 27);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 370, 27);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 371, 22);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 372, 33);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 375, 31);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 378, 35);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 386, 35);
+        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 412, 14);
+        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 412, 17);
+        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 413, 14);
+        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 413, 18);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 413, 33);
+        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 423, 14);
+        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 423, 17);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 423, 25);
+        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 424, 14);
+        validateError(result, i++, ERROR_INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 424, 17);
+        validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 438, 18);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 443, 36);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 443, 42);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 443, 45);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 444, 38);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 444, 59);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 445, 49);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 445, 71);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 450, 35);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 453, 36);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 453, 36);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 453, 42);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 453, 59);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 453, 59);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 453, 112);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 453, 115);
+        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 459, 5);
+        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 460, 5);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 475, 40);
+        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 487, 6);
+        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 498, 5);
         validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
-                "statement", 519, 9);
+                "statement", 501, 9);
         validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
-                "statement", 523, 9);
+                "statement", 505, 9);
         validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
-                "statement", 527, 9);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 531, 9);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 535, 9);
+                "statement", 509, 9);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 513, 9);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 517, 9);
+        validateWarning(result, i++, "concurrent calls will not be made to this method since the method is not an " +
+                "'isolated' method", 520, 5);
         validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
-                "'lock' statement", 540, 13);
+                "'lock' statement", 522, 13);
         validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
-                "'lock' statement", 541, 13);
-        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 547, 5);
+                "'lock' statement", 523, 13);
+        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 529, 5);
         validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
-                "statement", 550, 9);
+                "statement", 532, 9);
         validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
-                "statement", 554, 9);
+                "statement", 536, 9);
         validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
-                "statement", 558, 9);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 562, 9);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 566, 9);
+                "statement", 540, 9);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 544, 9);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 548, 9);
+        validateWarning(result, i++, "concurrent calls will not be made to this method since the method is not an " +
+                "'isolated' method", 551, 5);
         validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
-                "'lock' statement", 571, 13);
+                "'lock' statement", 553, 13);
         validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
-                "'lock' statement", 572, 13);
-        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 578, 5);
+                "'lock' statement", 554, 13);
+        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 560, 5);
         validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
-                "statement", 581, 9);
+                "statement", 563, 9);
         validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
-                "statement", 585, 9);
+                "statement", 567, 9);
         validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
-                "statement", 589, 9);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 593, 9);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 597, 9);
+                "statement", 571, 9);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 575, 9);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 579, 9);
+        validateWarning(result, i++, "concurrent calls will not be made to this method since the method is not an " +
+                "'isolated' method", 582, 5);
         validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
-                "'lock' statement", 602, 13);
+                "'lock' statement", 584, 13);
         validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
-                "'lock' statement", 603, 13);
+                "'lock' statement", 585, 13);
         validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
-                "'lock' statement", 609, 13);
+                "'lock' statement", 591, 13);
         validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
-                "'lock' statement", 610, 13);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 632, 13);
-        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 639, 13);
-        validateError(result, i++, "invalid reference to 'self' outside a 'lock' statement in an 'isolated' object",
-                646, 35);
-        Assert.assertEquals(result.getErrorCount(), i);
+                "'lock' statement", 592, 13);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 614, 13);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 614, 13);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 621, 13);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 642, 13);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 643, 13);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 644, 24);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 652, 17);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 664, 13);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 665, 13);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 666, 24);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 667, 20);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 667, 20);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 673, 17);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 686, 13);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 687, 17);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 688, 20);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 702, 23);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 724, 20);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 735, 31);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 741, 62);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 747, 31);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 748, 31);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 748, 57);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 748, 70);
+        Assert.assertEquals(result.getErrorCount(), i - 3);
+        Assert.assertEquals(result.getWarnCount(), 3);
     }
 
     @Test
     public void testIsolatedObjects() {
         CompileResult compileResult = BCompileUtil.compile("test-src/isolated-objects/isolated_objects.bal");
-        Assert.assertEquals(compileResult.getDiagnostics().length, 0);
+        Assert.assertEquals(compileResult.getErrorCount(), 0);
+
+        int i = 0;
+        validateWarning(compileResult, i++, "concurrent calls will not be made to this method since the method is not" +
+                " an 'isolated' method", 546, 5);
+        validateWarning(compileResult, i++, "concurrent calls will not be made to this method since the method is not" +
+                " an 'isolated' method", 574, 5);
+        Assert.assertEquals(compileResult.getWarnCount(), i);
 
         BRunUtil.invoke(compileResult, "testRuntimeIsolatedFlag");
     }

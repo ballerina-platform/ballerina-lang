@@ -43,6 +43,7 @@ import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.NewExpressionNode;
@@ -180,8 +181,14 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     }
 
     @Override
+    public Optional<TypeSymbol> transform(ModuleVariableDeclarationNode node) {
+        return this.visit(node.typedBindingPattern().bindingPattern());
+    }
+
+    @Override
     public Optional<TypeSymbol> transform(IndexedExpressionNode node) {
-        Optional<TypeSymbol> containerType = this.visit(node.containerExpression());
+        Optional<TypeSymbol> containerType =
+                context.currentSemanticModel().flatMap(semanticModel -> semanticModel.type(node));
         if (containerType.isEmpty()) {
             return Optional.empty();
         }
@@ -228,12 +235,11 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         and to get the particular symbol, we extract the type symbol from the function symbol. 
          */
         Optional<ReturnTypeDescriptorNode> returnTypeDesc = node.functionSignature().returnTypeDesc();
-        if (returnTypeDesc.isEmpty()) {
+        if (returnTypeDesc.isEmpty() || context.currentSemanticModel().isEmpty()) {
             return Optional.empty();
         }
 
-        Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.FUNCTION;
-        Optional<Symbol> functionSymbol = this.getSymbolByName(node.functionName().text(), predicate);
+        Optional<Symbol> functionSymbol = context.currentSemanticModel().get().symbol(node);
 
         if (functionSymbol.isEmpty()) {
             return Optional.empty();

@@ -1,9 +1,8 @@
-import ballerina/http;
-import ballerina/task;
-import ballerina/io;
-import ballerina/websub;
+import ballerina/module1;
 
-http:Client client2 = new("https://postman-echo.com/get?foo1=bar1&foo2=bar2");
+public class TestClass {
+    int field1 = 1;
+}
 
 public type ObjectName object {
 
@@ -17,9 +16,8 @@ public function returnInt(int n1, int n2, int n3) returns int {
     return 1;
 }
 
-public function returnTuple(int n1, int n2, int n3) returns (int, float) {
-    io:println("");
-    return (300, 4.0);
+public function returnTuple(int n1, int n2, int n3) returns [int, float] {
+    return [300, 4.0];
 }
 
 public function returnUnion(int n1, int n2, int n3) returns (int|string) {
@@ -37,11 +35,11 @@ public function returnMap(int n1, int n2, int n3) returns map<string> {
     return m;
 }
 
-public function complexInput(task:Timer timer) returns error? {
+public function complexInput(module1:TestObject1 input) returns error? {
     return ();
 }
 
-function complexReturnType(string url) returns http:Client {
-    http:Client myclient = new("https://postman-echo.com/get?foo1=bar1&foo2=bar2");
+function complexReturnType(string url) returns module1:Client {
+    module1:Client myclient = new("https://postman-echo.com/get?foo1=bar1&foo2=bar2");
     return myclient;
 }

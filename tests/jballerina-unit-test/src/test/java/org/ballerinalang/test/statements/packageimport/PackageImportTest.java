@@ -93,7 +93,7 @@ public class PackageImportTest {
         BAssertUtil.validateError(result, i, "unused import module 'ballerina/jballerina.java as otherJAVA'", 2, 1);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testIgnoreImport() {
         PrintStream out = System.out;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
