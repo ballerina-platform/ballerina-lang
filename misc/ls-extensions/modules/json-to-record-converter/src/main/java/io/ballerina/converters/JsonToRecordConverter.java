@@ -65,8 +65,7 @@ import static io.ballerina.converters.util.ConverterUtils.extractReferenceType;
  * @since 2.0.0
  */
 public class JsonToRecordConverter {
-    private static final PrintStream outStream = System.err;
-    private static List<TypeDefinitionNode> typeDefinitionNodeList;
+//    private static List<TypeDefinitionNode> typeDefinitionNodeList;
 
     /**
      * This method takes in a json Schema and returns the Ballerina record nodes.
@@ -109,7 +108,7 @@ public class JsonToRecordConverter {
      */
     public static ArrayList<TypeDefinitionNode> generateRecords(OpenAPI openApi) throws ConverterException {
         // TypeDefinitionNodes their
-        typeDefinitionNodeList = new LinkedList<>();
+        List<TypeDefinitionNode> typeDefinitionNodeList = new LinkedList<>();
 
         if (openApi.getComponents() == null) {
             return new ArrayList<>(typeDefinitionNodeList);
@@ -143,7 +142,7 @@ public class JsonToRecordConverter {
                 Map<String, Schema> fields = schema.getValue().getProperties();
                 if (fields != null) {
                     for (Map.Entry<String, Schema> field : fields.entrySet()) {
-                        addRecordFields(required, recordFieldList, field);
+                        addRecordFields(required, recordFieldList, field, typeDefinitionNodeList);
                     }
                 }
                 NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFieldList);
@@ -168,7 +167,8 @@ public class JsonToRecordConverter {
                     if (arraySchema.getItems() != null) {
                         //Generate RecordFiled
                         //FiledName
-                        fieldTypeName = extractOpenApiSchema(arraySchema.getItems(), schema.getKey());
+                        fieldTypeName = extractOpenApiSchema(arraySchema.getItems(), schema.getKey(),
+                                typeDefinitionNodeList);
                     } else {
                         Token type =
                                 AbstractNodeFactory.createToken(SyntaxKind.STRING_KEYWORD);
@@ -205,14 +205,16 @@ public class JsonToRecordConverter {
      * @throws ConverterException in case of bad schema entries
      */
     private static void addRecordFields(List<String> required, List<Node> recordFieldList,
-                                        Map.Entry<String, Schema> field) throws ConverterException {
+                                    Map.Entry<String, Schema> field, List<TypeDefinitionNode> typeDefinitionNodeList)
+            throws ConverterException {
 
         RecordFieldNode recordFieldNode;
         //FiledName
         IdentifierToken fieldName =
                 AbstractNodeFactory.createIdentifierToken(escapeIdentifier(field.getKey().trim()));
 
-        TypeDescriptorNode fieldTypeName = extractOpenApiSchema(field.getValue(), field.getKey());
+        TypeDescriptorNode fieldTypeName = extractOpenApiSchema(field.getValue(), field.getKey(),
+                typeDefinitionNodeList);
         Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
         Token questionMarkToken = (required != null && required.contains(field.getKey().trim()))
                 ? null
@@ -231,8 +233,9 @@ public class JsonToRecordConverter {
      * @param name Name of the field
      * @throws ConverterException in case of invalid schema
      */
-    private static TypeDescriptorNode extractOpenApiSchema(Schema schema, String name) throws
-            ConverterException {
+    private static TypeDescriptorNode extractOpenApiSchema(Schema schema, String name,
+                                                        List<TypeDefinitionNode> typeDefinitionNodeList)
+            throws ConverterException {
 
         if (schema.getType() != null || schema.getProperties() != null) {
             String schemaType = schema.getType();
@@ -255,9 +258,9 @@ public class JsonToRecordConverter {
                         type = StringUtils.capitalize(name) + "Item";
                         typeName = AbstractNodeFactory.createIdentifierToken(type);
                         memberTypeDesc = createBuiltinSimpleNameReferenceNode(null, typeName);
-                        extractOpenApiSchema(arraySchema.getItems(), type);
+                        extractOpenApiSchema(arraySchema.getItems(), type, typeDefinitionNodeList);
                     } else if (arraySchema.getItems() instanceof ArraySchema) {
-                        memberTypeDesc = extractOpenApiSchema(arraySchema.getItems(), name);
+                        memberTypeDesc = extractOpenApiSchema(arraySchema.getItems(), name, typeDefinitionNodeList);
                     } else {
                         type = arraySchema.getItems().getType();
                         typeName = AbstractNodeFactory.createIdentifierToken(convertOpenAPITypeToBallerina(type));
@@ -279,7 +282,7 @@ public class JsonToRecordConverter {
                 Token bodyEndDelimiter = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
                 List<Node> recordFList = new ArrayList<>();
                 for (Map.Entry<String, Schema> property: properties.entrySet()) {
-                    addRecordFields(required, recordFList, property);
+                    addRecordFields(required, recordFList, property, typeDefinitionNodeList);
                 }
                 NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFList);
                 TypeDescriptorNode typeDescriptorNode = NodeFactory.createRecordTypeDescriptorNode(recordKeyWord,
@@ -292,7 +295,7 @@ public class JsonToRecordConverter {
                 return createBuiltinSimpleNameReferenceNode(null, refTypeName);
 
             } else {
-                outStream.println("Encountered an unsupported type. Type `any` would be used for the field.");
+                System.err.println("Encountered an unsupported type. Type `any` would be used for the field.");
                 Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
                 return createBuiltinSimpleNameReferenceNode(null, typeName);
             }
@@ -302,7 +305,7 @@ public class JsonToRecordConverter {
         } else {
             //This contains a fallback to Ballerina common type `any` if the OpenApi specification type is not defined
             // or not compatible with any of the current Ballerina types.
-            outStream.println("Encountered an unsupported type. Type `any` would be used for the field.");
+            System.err.println("Encountered an unsupported type. Type `any` would be used for the field.");
             Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
             return createBuiltinSimpleNameReferenceNode(null, typeName);
         }
