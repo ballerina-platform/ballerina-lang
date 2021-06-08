@@ -118,6 +118,8 @@ public class PackageID {
             Lists.of(Names.OBSERVE), OBSERVE_VERSION);
 
     public Name orgName;
+    // A read-only variable is used to keep track of the Package Name.
+    public Name pkgName;
     public Name name;
     public Name version;
 
@@ -133,14 +135,28 @@ public class PackageID {
                 nameComps.stream()
                         .map(Name::getValue)
                         .collect(Collectors.joining(".")));
+        // TODO: The package name should be distinguishable when the pkgName != moduleName
+        this.pkgName = name;
         this.version = version;
         isUnnamed = false;
         sourceFileName = null;
     }
 
+    public PackageID(Name orgName, Name pkgName, Name name, Name version, Name sourceFileName) {
+        this.orgName = orgName;
+        this.name = name;
+        this.pkgName = pkgName;
+        this.version = version;
+        this.nameComps = createNameComps(name);
+        isUnnamed = false;
+        this.sourceFileName = sourceFileName;
+    }
+
     public PackageID(Name orgName, Name name, Name version) {
         this.orgName = orgName;
         this.name = name;
+        // TODO: The package name should be distinguishable when the pkgName != moduleName
+        this.pkgName = name;
         this.version = version;
         this.nameComps = createNameComps(name);
         isUnnamed = false;
@@ -150,6 +166,8 @@ public class PackageID {
     public PackageID(Name orgName, Name name, Name version, Name sourceFileName) {
         this.orgName = orgName;
         this.name = name;
+        // TODO: The package name should be distinguishable when the pkgName != moduleName
+        this.pkgName = name;
         this.version = version;
         this.nameComps = createNameComps(name);
         isUnnamed = false;
@@ -173,6 +191,8 @@ public class PackageID {
     public PackageID(Name orgName, String sourceFileName, Name version) {
         this.orgName = orgName;
         this.name = Names.DEFAULT_PACKAGE;
+        // TODO: The package name should be distinguishable when the pkgName != moduleName
+        this.pkgName = name;
         this.version = version;
         this.nameComps = Lists.of(Names.DEFAULT_PACKAGE);
         this.isUnnamed = true;
@@ -187,6 +207,8 @@ public class PackageID {
     public PackageID(String sourceFileName) {
         this.orgName = Names.ANON_ORG;
         this.name = Names.DEFAULT_PACKAGE;
+        // TODO: The package name should be distinguishable when the pkgName != moduleName
+        this.pkgName = name;
         this.nameComps = new ArrayList<>(1);
         nameComps.add(name);
         this.isUnnamed = true;
