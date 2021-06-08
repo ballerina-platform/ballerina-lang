@@ -65,7 +65,10 @@ import static io.ballerina.converters.util.ConverterUtils.extractReferenceType;
  * @since 2.0.0
  */
 public class JsonToRecordConverter {
-//    private static List<TypeDefinitionNode> typeDefinitionNodeList;
+
+    private JsonToRecordConverter() {
+        // not called
+    }
 
     /**
      * This method takes in a json Schema and returns the Ballerina record nodes.

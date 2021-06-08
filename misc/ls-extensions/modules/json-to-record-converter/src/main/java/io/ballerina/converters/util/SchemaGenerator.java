@@ -34,6 +34,9 @@ import java.util.Map;
  * Only handles features supported by OpenAPI schema.
  */
 public class SchemaGenerator {
+    private SchemaGenerator() {
+        // not called
+    }
     public static Map<String, Object> generate(JsonNode json) throws ConverterException {
         Map<String, Object> schema = new HashMap<>();
 
