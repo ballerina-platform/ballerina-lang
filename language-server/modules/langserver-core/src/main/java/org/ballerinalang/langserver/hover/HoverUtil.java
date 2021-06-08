@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -119,22 +120,27 @@ public class HoverUtil {
             params.add(header(3, ContextConstants.FIELD_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
 
             params.addAll(classSymbol.fieldDescriptors().entrySet().stream()
-                    .map(fieldEntry -> {
+                    .filter(fieldEntry -> paramsMap.containsKey(fieldEntry.getKey())
+                            && !fieldEntry.getValue().qualifiers().contains(Qualifier.PRIVATE)).map(fieldEntry -> {
                         String desc = paramsMap.get(fieldEntry.getKey());
                         String modifiedTypeName =
                                 CommonUtil.getModifiedTypeName(context, fieldEntry.getValue().typeDescriptor());
                         return quotedString(modifiedTypeName) + " " + italicString(boldString(fieldEntry.getKey()))
                                 + " : " + desc;
                     }).collect(Collectors.toList()));
-
-            hoverContent.add(String.join(CommonUtil.MD_LINE_SEPARATOR, params));
+            if (params.size() > 1) {
+                hoverContent.add(String.join(CommonUtil.MD_LINE_SEPARATOR, params));
+            }
         }
 
         List<String> methods = new ArrayList<>();
-        classSymbol.methods().forEach((name, method) -> {
+        classSymbol.methods().entrySet().stream()
+                .filter(methodEntry -> !methodEntry.getValue().qualifiers().contains(Qualifier.PRIVATE))
+                .collect(Collectors.toList()).forEach(methodEntry -> {
             StringBuilder methodInfo = new StringBuilder();
-            Optional<Documentation> methodDoc = method.documentation();
-            methodInfo.append(quotedString(CommonUtil.getModifiedTypeName(context, method.typeDescriptor())));
+            Optional<Documentation> methodDoc = methodEntry.getValue().documentation();
+            methodInfo.append(quotedString(CommonUtil.getModifiedTypeName(context,
+                    methodEntry.getValue().typeDescriptor())));
             if (methodDoc.isPresent() && methodDoc.get().description().isPresent()) {
                 methodInfo.append(CommonUtil.MD_LINE_SEPARATOR).append(methodDoc.get().description().get());
             }
