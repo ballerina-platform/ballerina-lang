@@ -738,10 +738,6 @@ types:
       - id: reciever
         type: reciever
         if: has_receiver != 0
-      - id: taint_table_length
-        type: s8
-      - id: taint_table
-        type: taint_table
       - id: doc
         type: markdown
       - id: dependent_global_var_length
@@ -855,28 +851,6 @@ types:
         type: s4
       - id: name_cp_index
         type: s4
-  taint_table:
-    seq:
-      - id: row_count
-        type: s2
-      - id: column_count
-        type: s2
-      - id: taint_table_size
-        type: s4
-      - id: taint_table_entries
-        type: taint_table_entry
-        repeat: expr
-        repeat-expr: taint_table_size
-  taint_table_entry:
-    seq:
-      - id: param_index
-        type: s2
-      - id: taint_record_size
-        type: s4
-      - id: taint_status
-        type: s1
-        repeat: expr
-        repeat-expr: taint_record_size
   scope_entry:
     seq:
       - id: current_scope_index

@@ -92,6 +92,29 @@
       ]
     },
     {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
@@ -134,29 +157,6 @@
             }
           },
           "newText": "import ballerina/jballerina.java;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -433,22 +433,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "proxyPort",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "D",
-      "insertText": "proxyPort",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "O",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ProxyClient",
       "kind": "Interface",
       "detail": "Class",
@@ -465,14 +449,27 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "N",
-      "insertText": "StrandData",
+      "label": "self.proxyClient",
+      "kind": "Field",
+      "detail": "module1:Client",
+      "sortText": "H",
+      "insertText": "self.proxyClient",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "proxyPort",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "D",
+      "insertText": "proxyPort",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "O",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -481,6 +478,17 @@
       "detail": "string",
       "sortText": "D",
       "insertText": "proxyHost",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "N",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {

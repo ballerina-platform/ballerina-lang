@@ -29,6 +29,10 @@
                         <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
                     </And>
                     <And>
+                        <Method name="terminateServer"/>
+                        <Bug pattern="DE_MIGHT_IGNORE"/>
+                    </And>
+                    <And>
                         <Or>
                             <Method name="attach"/>
                             <Method name="launch"/>

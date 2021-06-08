@@ -50,6 +50,7 @@ import io.ballerina.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
@@ -156,6 +157,11 @@ public class Generator {
                         ((EnumDeclarationNode) node).qualifier().isPresent() &&
                         ((EnumDeclarationNode) node).qualifier().get().kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
                     module.enums.add(getEnumModel((EnumDeclarationNode) node));
+                } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL &&
+                        ((ModuleVariableDeclarationNode) node).visibilityQualifier().isPresent() &&
+                        ((ModuleVariableDeclarationNode) node).visibilityQualifier().get().kind()
+                                .equals(SyntaxKind.PUBLIC_KEYWORD)) {
+                    module.variables.add(getModuleVariable((ModuleVariableDeclarationNode) node, semanticModel));
                 }
             }
         }
@@ -267,6 +273,16 @@ public class Generator {
             }
         }
         return false;
+    }
+
+    public static DefaultableVariable getModuleVariable(ModuleVariableDeclarationNode moduleVariableNode,
+                                                        SemanticModel semanticModel) {
+        String name = moduleVariableNode.typedBindingPattern().bindingPattern().toSourceCode().replace(" ", "");
+        String doc = getDocFromMetadata(moduleVariableNode.metadata());
+        String defaultValue = moduleVariableNode.initializer().isPresent() ?
+                moduleVariableNode.initializer().get().toSourceCode() : "";
+        Type type = Type.fromNode(moduleVariableNode.typedBindingPattern().typeDescriptor(), semanticModel);
+        return new DefaultableVariable(name, doc, false, type, defaultValue);
     }
 
     public static Enum getEnumModel(EnumDeclarationNode enumDeclaration) {

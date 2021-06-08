@@ -1,3 +1,3 @@
 ## Module Overview
 
-This module provides lang library operations on `int` values defined by the language specification 2020R1.
+The `lang.int` module corresponds to basic type int.
