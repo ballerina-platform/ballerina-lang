@@ -645,6 +645,10 @@ public class TomlProvider implements ConfigProvider {
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName, arrayType,
                     getTomlTypeString(tomlValue));
         }
+        if (hasDefaultField && arrayType.getElementType().getTag() == TypeTags.INTERSECTION_TAG) {
+            elementType = getMutableType(elementType);
+            arrayType = TypeCreator.createArrayType(elementType);
+        }
         visitedNodes.add(tomlValue);
         List<TomlTableNode> tableNodeList = ((TomlTableArrayNode) tomlValue).children();
         int arraySize = tableNodeList.size();
@@ -652,9 +656,6 @@ public class TomlProvider implements ConfigProvider {
         for (int i = 0; i < arraySize; i++) {
             Object value = retrieveValue(tableNodeList.get(i), variableName, elementType, hasDefaultField);
             entries[i] = new ListInitialValueEntry.ExpressionEntry(value);
-        }
-        if (hasDefaultField && arrayType.getElementType().getTag() == TypeTags.INTERSECTION_TAG) {
-            return new ArrayValueImpl((ArrayType) getMutableType(arrayType), entries.length, entries);
         }
         return new ArrayValueImpl(arrayType, entries.length, entries);
     }

@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import testOrg/configLib.mod1 as configLib;
+
 public type Student record {
     string name = "";
     int id = 444;
@@ -71,3 +73,25 @@ public type Place record {|
 
 public type IntMap map<int>;
 public type StudentMap map<Student>;
+
+configurable int num3 = ?;
+configurable string word4 = ?;
+
+final int num1 = 1;
+configurable int num2 = ?;
+
+public type Numbers record {|
+    int num1 = num1;
+    int num2 = num2;
+    int num3 = getNumber();
+    int num4 = configLib:getNumber();
+    int num5;
+|};
+
+public isolated function getWord() returns string {
+    return word4;
+}
+
+public isolated function getNumber() returns int {
+    return num3;
+}

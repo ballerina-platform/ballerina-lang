@@ -36,3 +36,29 @@ public enum HttpVersion {
 
 public type IntMap map<int>;
 public type ManagerMap map<Manager>;
+
+configurable int num4 = ?;
+configurable string word5 = ?;
+
+final string symbol1 = "!";
+configurable string symbol2 = ?;
+configurable string symbol3 = ?;
+
+public type Symbols record {|
+    string symbol1 = symbol1;
+    string symbol2 = symbol2;
+    string symbol3 = getSymbol();
+    string symbol4;
+|};
+
+public isolated function getWord() returns string {
+    return word5;
+}
+
+public isolated function getNumber() returns int {
+    return num4;
+}
+
+isolated function getSymbol() returns string {
+    return symbol3;
+}
