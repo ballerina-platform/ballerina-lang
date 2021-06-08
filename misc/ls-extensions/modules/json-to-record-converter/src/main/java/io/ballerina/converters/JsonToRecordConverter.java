@@ -52,7 +52,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-
 import static io.ballerina.compiler.syntax.tree.NodeFactory.createBuiltinSimpleNameReferenceNode;
 import static io.ballerina.converters.util.ConverterUtils.convertOpenAPITypeToBallerina;
 import static io.ballerina.converters.util.ConverterUtils.escapeIdentifier;
@@ -112,82 +111,87 @@ public class JsonToRecordConverter {
         // TypeDefinitionNodes their
         typeDefinitionNodeList = new LinkedList<>();
 
-        if (openApi.getComponents() != null) {
-            //Create typeDefinitionNode
-            Components components = openApi.getComponents();
-            if (components.getSchemas() != null) {
-                Map<String, Schema> schemas = components.getSchemas();
-                for (Map.Entry<String, Schema> schema: schemas.entrySet()) {
-                    List<String> required = schema.getValue().getRequired();
+        if (openApi.getComponents() == null) {
+            return new ArrayList<>(typeDefinitionNodeList);
+        }
 
+        //Create typeDefinitionNode
+        Components components = openApi.getComponents();
 
-                    Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
+        if (components.getSchemas() == null) {
+            return new ArrayList<>(typeDefinitionNodeList);
+        }
 
-                    IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(
-                            escapeIdentifier(schema.getKey().trim()));
+        Map<String, Schema> schemas = components.getSchemas();
+        for (Map.Entry<String, Schema> schema: schemas.entrySet()) {
+            List<String> required = schema.getValue().getRequired();
 
+            Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
 
-                    Token recordKeyWord = AbstractNodeFactory.createToken(SyntaxKind.RECORD_KEYWORD);
+            IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(
+                    escapeIdentifier(schema.getKey().trim()));
 
-                    Token bodyStartDelimiter = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN);
+            Token recordKeyWord = AbstractNodeFactory.createToken(SyntaxKind.RECORD_KEYWORD);
 
-                    //Generate RecordFiled
-                    List<Node> recordFieldList = new ArrayList<>();
-                    Schema schemaValue = schema.getValue();
-                    if (schema.getValue().getProperties() != null || schema.getValue() instanceof ObjectSchema) {
-                        Map<String, Schema> fields = schema.getValue().getProperties();
-                        if (fields != null) {
-                            for (Map.Entry<String, Schema> field : fields.entrySet()) {
-                                addRecordFields(required, recordFieldList, field);
-                            }
-                        }
-                        NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFieldList);
-                        Token bodyEndDelimiter = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
-                        RecordTypeDescriptorNode recordTypeDescriptorNode =
-                                NodeFactory.createRecordTypeDescriptorNode(recordKeyWord, bodyStartDelimiter,
-                                        fieldNodes, null, bodyEndDelimiter);
-                        Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
-                        TypeDefinitionNode typeDefinitionNode = NodeFactory.createTypeDefinitionNode(null,
-                                null, typeKeyWord, typeName, recordTypeDescriptorNode, semicolon);
-                        typeDefinitionNodeList.add(typeDefinitionNode);
-                    } else if (schema.getValue().getType().equals("array")) {
-                        if (schemaValue instanceof ArraySchema) {
-                            ArraySchema arraySchema = (ArraySchema) schemaValue;
-                            Token openSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN);
-                            Token closeSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
-                            IdentifierToken fieldName =
-                                    AbstractNodeFactory.createIdentifierToken(escapeIdentifier(
-                                            schema.getKey().trim().toLowerCase(Locale.ENGLISH)) + "list");
-                            Token semicolonToken = AbstractNodeFactory.createIdentifierToken(";");
-                            TypeDescriptorNode fieldTypeName;
-                            if (arraySchema.getItems() != null) {
-                                //Generate RecordFiled
-                                //FiledName
-                                fieldTypeName = extractOpenApiSchema(arraySchema.getItems(), schema.getKey());
-                            } else {
-                                Token type =
-                                        AbstractNodeFactory.createToken(SyntaxKind.STRING_KEYWORD);
-                                fieldTypeName =  NodeFactory.createBuiltinSimpleNameReferenceNode(null, type);
-                            }
-                            ArrayTypeDescriptorNode arrayField =
-                                    NodeFactory.createArrayTypeDescriptorNode(fieldTypeName, openSBracketToken,
-                                            null, closeSBracketToken);
-                            RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null,
-                                    null, arrayField, fieldName, null, semicolonToken);
-                            NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFieldNode);
-                            Token bodyEndDelimiter = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
-                            RecordTypeDescriptorNode recordTypeDescriptorNode =
-                                    NodeFactory.createRecordTypeDescriptorNode(recordKeyWord, bodyStartDelimiter,
-                                            fieldNodes, null, bodyEndDelimiter);
-                            Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
-                            TypeDefinitionNode typeDefinitionNode = NodeFactory.createTypeDefinitionNode(null,
-                                    null, typeKeyWord, typeName, recordTypeDescriptorNode, semicolon);
-                            typeDefinitionNodeList.add(typeDefinitionNode);
-                        }
+            Token bodyStartDelimiter = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN);
+
+            //Generate RecordFiled
+            List<Node> recordFieldList = new ArrayList<>();
+            Schema schemaValue = schema.getValue();
+            if (schema.getValue().getProperties() != null || schema.getValue() instanceof ObjectSchema) {
+                Map<String, Schema> fields = schema.getValue().getProperties();
+                if (fields != null) {
+                    for (Map.Entry<String, Schema> field : fields.entrySet()) {
+                        addRecordFields(required, recordFieldList, field);
                     }
+                }
+                NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFieldList);
+                Token bodyEndDelimiter = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
+                RecordTypeDescriptorNode recordTypeDescriptorNode =
+                        NodeFactory.createRecordTypeDescriptorNode(recordKeyWord, bodyStartDelimiter,
+                                fieldNodes, null, bodyEndDelimiter);
+                Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
+                TypeDefinitionNode typeDefinitionNode = NodeFactory.createTypeDefinitionNode(null,
+                        null, typeKeyWord, typeName, recordTypeDescriptorNode, semicolon);
+                typeDefinitionNodeList.add(typeDefinitionNode);
+            } else if (schema.getValue().getType().equals("array")) {
+                if (schemaValue instanceof ArraySchema) {
+                    ArraySchema arraySchema = (ArraySchema) schemaValue;
+                    Token openSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN);
+                    Token closeSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
+                    IdentifierToken fieldName =
+                            AbstractNodeFactory.createIdentifierToken(escapeIdentifier(
+                                    schema.getKey().trim().toLowerCase(Locale.ENGLISH)) + "list");
+                    Token semicolonToken = AbstractNodeFactory.createIdentifierToken(";");
+                    TypeDescriptorNode fieldTypeName;
+                    if (arraySchema.getItems() != null) {
+                        //Generate RecordFiled
+                        //FiledName
+                        fieldTypeName = extractOpenApiSchema(arraySchema.getItems(), schema.getKey());
+                    } else {
+                        Token type =
+                                AbstractNodeFactory.createToken(SyntaxKind.STRING_KEYWORD);
+                        fieldTypeName =  NodeFactory.createBuiltinSimpleNameReferenceNode(null, type);
+                    }
+                    ArrayTypeDescriptorNode arrayField =
+                            NodeFactory.createArrayTypeDescriptorNode(fieldTypeName, openSBracketToken,
+                                    null, closeSBracketToken);
+                    RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null,
+                            null, arrayField, fieldName, null, semicolonToken);
+                    NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFieldNode);
+                    Token bodyEndDelimiter = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
+                    RecordTypeDescriptorNode recordTypeDescriptorNode =
+                            NodeFactory.createRecordTypeDescriptorNode(recordKeyWord, bodyStartDelimiter,
+                                    fieldNodes, null, bodyEndDelimiter);
+                    Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
+                    TypeDefinitionNode typeDefinitionNode = NodeFactory.createTypeDefinitionNode(null,
+                            null, typeKeyWord, typeName, recordTypeDescriptorNode, semicolon);
+                    typeDefinitionNodeList.add(typeDefinitionNode);
                 }
             }
         }
+
+
         return new ArrayList<>(typeDefinitionNodeList);
     }
 
