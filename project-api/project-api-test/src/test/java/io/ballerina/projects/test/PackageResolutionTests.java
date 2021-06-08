@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.test;
 
+import com.sun.management.UnixOperatingSystemMXBean;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
@@ -43,6 +44,8 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -198,6 +201,12 @@ public class PackageResolutionTests extends BaseTest {
         BCompileUtil.compileAndCacheBala(
                 "projects_for_resolution_tests/ultimate_package_resolution/package_cache");
 
+        OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
+        long initialOpenCount = 0;
+        if (os instanceof UnixOperatingSystemMXBean) {
+            UnixOperatingSystemMXBean unixOperatingSystemMXBean = (UnixOperatingSystemMXBean) os;
+            initialOpenCount = unixOperatingSystemMXBean.getOpenFileDescriptorCount();
+        }
         Project project = BCompileUtil.loadProject(
                 "projects_for_resolution_tests/ultimate_package_resolution/package_http");
 
@@ -208,6 +217,10 @@ public class PackageResolutionTests extends BaseTest {
         diagnosticResult.errors().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
+        if (os instanceof UnixOperatingSystemMXBean) {
+            UnixOperatingSystemMXBean unixOperatingSystemMXBean = (UnixOperatingSystemMXBean) os;
+            Assert.assertEquals(initialOpenCount, unixOperatingSystemMXBean.getOpenFileDescriptorCount());
+        }
 
         Package currentPkg = project.currentPackage();
         Assert.assertEquals(currentPkg.packageDependencies().size(), 3);
