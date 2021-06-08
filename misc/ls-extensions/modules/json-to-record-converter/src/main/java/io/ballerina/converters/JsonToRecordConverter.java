@@ -256,19 +256,15 @@ public class JsonToRecordConverter {
                         typeName = AbstractNodeFactory.createIdentifierToken(type);
                         memberTypeDesc = createBuiltinSimpleNameReferenceNode(null, typeName);
                         extractOpenApiSchema(arraySchema.getItems(), type);
-                        return NodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, openSBracketToken,
-                                null, closeSBracketToken);
                     } else if (arraySchema.getItems() instanceof ArraySchema) {
                         memberTypeDesc = extractOpenApiSchema(arraySchema.getItems(), name);
-                        return NodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, openSBracketToken,
-                                null, closeSBracketToken);
                     } else {
                         type = arraySchema.getItems().getType();
                         typeName = AbstractNodeFactory.createIdentifierToken(convertOpenAPITypeToBallerina(type));
                         memberTypeDesc = createBuiltinSimpleNameReferenceNode(null, typeName);
-                        return NodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, openSBracketToken,
-                                null, closeSBracketToken);
                     }
+                    return NodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, openSBracketToken, null,
+                            closeSBracketToken);
                 }
             } else if (schemaType.equals("object") && schema.getProperties() != null) {
                 Map<String, Schema> properties = schema.getProperties();
