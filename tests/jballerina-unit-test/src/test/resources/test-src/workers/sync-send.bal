@@ -600,6 +600,7 @@ public function testNoFailureForReceiveWithError() returns boolean {
 }
 
 public function testFailureForReceiveWithError() returns boolean {
+    @strand{thread:"any"}
     worker w1 returns boolean|E1|E2? {
         if (getFalse()) {
             return error E1(R1);

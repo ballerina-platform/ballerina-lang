@@ -120,7 +120,7 @@ function workerSameThreadTest() returns any {
     return res;
 }
 
-function simpleSendActionWithCloneableType() returns string {
+function testSimpleSendActionWithCloneableType() {
     worker w1Cloneable returns boolean {
         value:Cloneable w1a = 10;
         value:Cloneable w1b = 11;
@@ -151,10 +151,9 @@ function simpleSendActionWithCloneableType() returns string {
     record { boolean w1Cloneable; boolean w2Cloneable; } x = wait {w1Cloneable, w2Cloneable};
     assertValueEquality(true, x.w1Cloneable);
     assertValueEquality(true, x.w2Cloneable);
-    return "done";
 }
 
-function simpleSendActionErrorType() returns string {
+function testSimpleSendActionErrorType() {
     @strand {thread: "parent"}
     worker w1Error returns error {
         error w1a = error("10");
@@ -182,10 +181,9 @@ function simpleSendActionErrorType() returns string {
     } x = wait {w1Error, w2Error};
     assertValueEquality("Completed", x.w1Error.message());
     assertValueEquality("Completed", x.w2Error.message());
-    return "done";
 }
 
-function simpleSendActionXMLType() returns string {
+function testSimpleSendActionXMLType() {
     @strand {thread: "parent"}
     worker w1Xml returns xml {
         xml w1a = xml `10`;
@@ -213,12 +211,6 @@ function simpleSendActionXMLType() returns string {
     } x = wait {w1Xml, w2Xml};
     assertValueEquality("Completed", x.w1Xml.toString());
     assertValueEquality("Completed", x.w2Xml.toString());
-    return "done";
-}
-
-
-function testSimpleSendActionWithCloneableType() {
-    assertValueEquality("done", simpleSendActionWithCloneableType());
 }
 
 type IntRec readonly & record {
@@ -226,18 +218,6 @@ type IntRec readonly & record {
                        };
 
 function testSimpleSendActionReadonlyRecord() {
-    assertValueEquality("done", simpleSendActionReadonlyRecord());
-}
-
-function testSimpleSendActionXMLType() {
-    assertValueEquality("done", simpleSendActionXMLType());
-}
-
-function testSimpleSendActionErrorType() {
-    assertValueEquality("done", simpleSendActionErrorType());
-}
-
-function simpleSendActionReadonlyRecord() returns string {
     @strand {thread: "parent"}
     worker w1readonlyRec returns string {
         IntRec w1a = {ID: 10};
@@ -265,14 +245,15 @@ function simpleSendActionReadonlyRecord() returns string {
     } x = wait {w1readonlyRec, w2readonlyRec};
     assertValueEquality("Completed", x.w1readonlyRec);
     assertValueEquality("Completed", x.w2readonlyRec);
-    return "done";
 }
 
 function simpleSendActionWithMapType() returns map<anydata> {
     @strand {thread: "parent"}
     worker w1 returns boolean {
-        map<int> a = { "a" : 1, "b" : 2};
-        map<int> b = { "c" : 40, "d" : 50};
+        map<int> x = { "a" : 1, "b" : 2};
+        map<int> y = { "c" : 40, "d" : 50};
+        map<value:Cloneable> a = x;
+        map<value:Cloneable> b = y;
         a -> w2;
         b ->> w2;
         return true;
@@ -280,13 +261,23 @@ function simpleSendActionWithMapType() returns map<anydata> {
 
     @strand {thread: "parent"}
     worker w2 returns boolean {
-        map<int> data = <- w1;
+        map<value:Cloneable> data = <- w1;
         sleep(10);
-        map<anydata> dataSet2 = <- w1;
-        assertValueEquality(1, data["a"]);
-        assertValueEquality(2, data["b"]);
-        assertValueEquality(40, dataSet2["c"]);
-        assertValueEquality(50, dataSet2["d"]);
+        map<value:Cloneable> dataSet2 = <- w1;
+        if (data is map<int>) {
+            map<int> intData = <map<int>>data;
+            assertValueEquality(1, intData["a"]);
+            assertValueEquality(2, intData["b"]);
+        } else {
+            return false;
+        }
+        if (dataSet2 is map<int>) {
+            map<int> intData = <map<int>>dataSet2;
+            assertValueEquality(40, intData["c"]);
+            assertValueEquality(50, intData["d"]);
+        } else {
+            return false;
+        }
         return true;
     }
 
@@ -309,8 +300,10 @@ function testSimpleSendActionWithMapType() {
 function simpleSendActionWithListType() returns map<anydata> {
     @strand {thread: "parent"}
     worker w1 returns boolean {
-        int[] a = [1, 2, 3];
-        int[2] b = [ 40, 50];
+        int[] x = [1, 2, 3];
+        int[2] y = [40, 50];
+        value:Cloneable[] a = x;
+        value:Cloneable[2] b = y;
         a -> w2;
         b ->> w2;
         return true;
@@ -318,13 +311,24 @@ function simpleSendActionWithListType() returns map<anydata> {
 
     @strand {thread: "parent"}
     worker w2 returns boolean {
-        int[] data = <- w1;
+        value:Cloneable[] data = <- w1;
         sleep(10);
-        int[] dataSet2 = <- w1;
-        assertValueEquality(1, data[0]);
-        assertValueEquality(2, data[1]);
-        assertValueEquality(40, dataSet2[0]);
-        assertValueEquality(50, dataSet2[1]);
+        value:Cloneable[] dataSet2 = <- w1;
+        if (data is int[]) {
+            int[] intData = <int[]>data;
+            assertValueEquality(1, intData[0]);
+            assertValueEquality(2, intData[1]);
+            assertValueEquality(3, intData[2]);
+        } else {
+            return false;
+        }
+        if (dataSet2 is int[]) {
+            int[] intData = <int[]>dataSet2;
+            assertValueEquality(40, intData[0]);
+            assertValueEquality(50, intData[1]);
+        } else {
+            return false;
+        }
         return true;
     }
 
