@@ -14,12 +14,48 @@
 // specific language governing permissions and limitations
 // under the License.
 
+public type ClientCredentialsGrantConfig record {|
+    string tokenUrl;
+    ClientConfiguration clientConfig = {};
+|};
+
+type AnydataConfig record {|
+    anydata auth?;
+|};
+   
+
 public type ClientConfiguration record {|
+    *AnydataConfig;
     ClientAuth auth?;
 |};
 
 public type ClientAuth ClientCredentialsGrantConfig;
 
-public type ClientCredentialsGrantConfig record {|
-    ClientConfiguration clientConfig = {};
-|};
+public function func(ClientAuth cl) {
+    anydata a = cl; // OK
+}
+
+function testCyclicRecordResolution() {
+    ClientAuth cl = {
+        tokenUrl : "Token@1",
+        clientConfig : {
+            auth : {
+                tokenUrl : "Token@2"
+            } 
+        }
+    };
+
+    assertValueEquality("Token@1", cl.tokenUrl);
+    assertValueEquality("Token@1", cl.clientConfig?.auth?.tokenUrl);
+}
+
+type AssertionError distinct error;
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertValueEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

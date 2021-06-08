@@ -3253,6 +3253,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Create typeDef type
         BStructureType structureType = (BStructureType) typeDef.symbol.type;
         BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDef.typeNode;
+
+        if (typeDef.symbol.kind == SymbolKind.RECORD) {
+            BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) structureTypeNode;
+            BRecordType recordType = (BRecordType) structureType;
+            // update this before resolving fields type checker to work properly for field resolution
+            recordType.sealed = recordTypeNode.sealed;
+        }
+
         SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(structureTypeNode, typeDef.symbol.scope, pkgEnv);
 
         // Define all the fields

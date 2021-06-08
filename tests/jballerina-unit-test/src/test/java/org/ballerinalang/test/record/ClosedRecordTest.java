@@ -321,13 +321,7 @@ public class ClosedRecordTest {
     @Test
     public void testCyclicRecordViaFields() {
         CompileResult cyclicBal = BCompileUtil.compile("test-src/record/cyclic_record_via_fields.bal");
-        Assert.assertEquals(cyclicBal.getErrorCount(), 0);
-    }
-
-    @Test
-    public void testCyclicRecordViaFields2() {
-        CompileResult cyclicBal = BCompileUtil.compile("test-src/record/cyclic_record_via_fields2.bal");
-        Assert.assertEquals(cyclicBal.getErrorCount(), 0);
+        BRunUtil.invoke(cyclicBal, "testCyclicRecordResolution");
     }
 
     @AfterClass
