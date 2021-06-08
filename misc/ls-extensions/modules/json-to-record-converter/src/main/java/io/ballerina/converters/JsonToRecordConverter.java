@@ -213,19 +213,13 @@ public class JsonToRecordConverter {
 
         TypeDescriptorNode fieldTypeName = extractOpenApiSchema(field.getValue(), field.getKey());
         Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
-        Token questionMarkToken = AbstractNodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
-        if (required != null) {
-            if (!required.contains(field.getKey().trim())) {
-                recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
-                        fieldTypeName, fieldName, questionMarkToken, semicolonToken);
-            } else {
-                recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
-                        fieldTypeName, fieldName, null, semicolonToken);
-            }
-        } else {
-            recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
-                    fieldTypeName, fieldName, questionMarkToken, semicolonToken);
-        }
+        Token questionMarkToken = (required != null && required.contains(field.getKey().trim()))
+                ? null
+                : AbstractNodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
+
+        recordFieldNode = NodeFactory.createRecordFieldNode(null, null, fieldTypeName, fieldName,
+                questionMarkToken, semicolonToken);
+
         recordFieldList.add(recordFieldNode);
     }
 
