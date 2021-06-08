@@ -34,12 +34,9 @@ public enum DiagnosticState {
      */
     REDECLARED,
     /**
-     * Indicates that the specified type of variable could not be resolved. i.e., specified type is not defined.
+     * Indicates that the specified type of variable could not be resolved (i.e., specified type is not defined) or that
+     * the compiler failed to determine the type of the variable using the context. This is applicable for variables
+     * declared using `var`.
      */
-    UNKNOWN_TYPE,
-    /**
-     * Indicates that the compiler failed to determine the type of the variable using the context. This is applicable
-     * for variables declared using `var`.
-     */
-    FAILED_TO_DETERMINE_TYPE
+    UNKNOWN_TYPE
 }

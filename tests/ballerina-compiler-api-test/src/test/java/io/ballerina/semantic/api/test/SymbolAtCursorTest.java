@@ -279,12 +279,12 @@ public class SymbolAtCursorTest {
         return new Object[][]{
                 {17, 8, INT, DiagnosticState.VALID},
                 {20, 10, COMPILATION_ERROR, DiagnosticState.REDECLARED},
-                {23, 8, COMPILATION_ERROR, DiagnosticState.FAILED_TO_DETERMINE_TYPE},
-                {24, 8, COMPILATION_ERROR, DiagnosticState.FAILED_TO_DETERMINE_TYPE},
-                {25, 8, COMPILATION_ERROR, DiagnosticState.FAILED_TO_DETERMINE_TYPE},
+                {23, 8, COMPILATION_ERROR, DiagnosticState.UNKNOWN_TYPE},
+                {24, 8, COMPILATION_ERROR, DiagnosticState.UNKNOWN_TYPE},
+                {25, 8, COMPILATION_ERROR, DiagnosticState.UNKNOWN_TYPE},
                 {26, 11, TYPE_REFERENCE, DiagnosticState.VALID},
-                {27, 8, COMPILATION_ERROR, DiagnosticState.FAILED_TO_DETERMINE_TYPE},
-                {30, 8, COMPILATION_ERROR, DiagnosticState.FAILED_TO_DETERMINE_TYPE},
+                {27, 8, COMPILATION_ERROR, DiagnosticState.UNKNOWN_TYPE},
+                {30, 8, COMPILATION_ERROR, DiagnosticState.UNKNOWN_TYPE},
                 {33, 8, COMPILATION_ERROR, DiagnosticState.UNKNOWN_TYPE},
                 {35, 8, INT, DiagnosticState.VALID},
         };

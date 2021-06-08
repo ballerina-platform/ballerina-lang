@@ -1251,7 +1251,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 simpleVariable.symbol.type = rhsType;
 
                 if (simpleVariable.symbol.type == symTable.semanticError) {
-                    simpleVariable.symbol.state = DiagnosticState.FAILED_TO_DETERMINE_TYPE;
+                    simpleVariable.symbol.state = DiagnosticState.UNKNOWN_TYPE;
                 }
                 break;
             case TUPLE_VARIABLE:
