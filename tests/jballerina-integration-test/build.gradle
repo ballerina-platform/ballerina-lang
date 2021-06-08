@@ -46,7 +46,6 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
-    implementation project(':ballerina-io')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-cli')
 //    implementation project(':ballerina-http')
@@ -61,7 +60,6 @@ dependencies {
     implementation 'io.netty:netty-tcnative-boringssl-static'
     implementation 'org.slf4j:slf4j-api'
     implementation 'com.google.protobuf:protobuf-java'
-    implementation 'commons-beanutils:commons-beanutils'
 
     balRuntime project(':ballerina-runtime')
 
@@ -70,7 +68,6 @@ dependencies {
     testRuntime project(path: ':ballerina-observability', configuration: 'distributionBirJar')
     testRuntime project(path: ':ballerina-observability-internal', configuration: 'distributionBirJar')
     testRuntime project(path: ':ballerina-lang:annotations', configuration: 'distributionBirJar')
-    testRuntime project(path: ':ballerina-io', configuration: 'distributionBirJar')
     testRuntime project(path: ':observability-test-utils', configuration: 'distributionBirJar')
 
     testCompile 'org.slf4j:slf4j-jdk14'

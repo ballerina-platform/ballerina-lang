@@ -839,7 +839,7 @@ class JvmValueGen {
 
     private String getFieldIsPresentFlagName(String fieldName) {
 
-        return String.format("%s$isPresent", fieldName);
+        return String.format("$%s$isPresent", fieldName);
     }
 
     private boolean isOptionalRecordField(BField field) {

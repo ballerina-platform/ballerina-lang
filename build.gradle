@@ -37,8 +37,8 @@ subprojects {
                 name = "GitHubPackages"
                 url = uri("https://maven.pkg.github.com/ballerina-platform/ballerina-lang")
                 credentials {
-                    username System.getenv("packageUser")
-                    password System.getenv("packagePAT")
+                    username System.getenv("publishUser")
+                    password System.getenv("publishPAT")
                 }
             }
         }
@@ -49,14 +49,13 @@ subprojects {
         failOnSnapshotDependencies = false
         failOnCommitNeeded = false
         tagTemplate = 'v${version}'
+        buildTasks = ['build']
         git {
             // To release from any branch
             requireBranch = null
         }
     }
 
-    afterReleaseBuild.dependsOn publishToMavenLocal
-    afterReleaseBuild.dependsOn publish
 }
 
 buildScan {

@@ -107,7 +107,7 @@ public isolated function getMapFunc(any func) returns function(Type) returns Typ
     name: "getMapFunc"
 } external;
 
-# Get the return type of a given function
+# Get the return type of a given function.
 #
 # + func - The input function
 # + return - The typedesc of the return type of the input function

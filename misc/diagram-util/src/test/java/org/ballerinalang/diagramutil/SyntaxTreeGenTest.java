@@ -39,7 +39,10 @@ import java.util.Optional;
 public class SyntaxTreeGenTest {
     private final Path emptyFile = TestUtil.RES_DIR.resolve("empty")
             .resolve("empty.bal");
-    private final Path mainHttpProject = TestUtil.RES_DIR.resolve("mainHttpCall");
+    private final Path documentLevelClientInit = TestUtil.RES_DIR.resolve("documentLevelClientInit");
+    private final Path externalClientInit = TestUtil.RES_DIR.resolve("externalClientInit");
+    private final Path documentLevelClientOnly = TestUtil.RES_DIR.resolve("documentLevelClientOnly");
+    private final Path externalClientInitOnly = TestUtil.RES_DIR.resolve("externalClientInitOnly");
 
     @Test(description = "Generate ST for empty bal file.")
     public void testEmptyBalST() throws IOException {
@@ -67,9 +70,9 @@ public class SyntaxTreeGenTest {
         Assert.assertEquals(stJson.getAsJsonObject().get("members").getAsJsonArray().size(), 0);
     }
 
-    @Test(description = "Generate ST for http invocation in a main bal file.")
+    @Test(description = "Generate ST for client invocation in a main bal file.")
     public void testHttpMainBalST() throws IOException {
-        Path inputFile = TestUtil.createTempProject(mainHttpProject);
+        Path inputFile = TestUtil.createTempProject(documentLevelClientInit);
         BuildProject project = BuildProject.load(inputFile);
         Optional<ModuleId> optionalModuleId = project.currentPackage().moduleIds().stream().findFirst();
         if (optionalModuleId.isEmpty()) {
@@ -108,6 +111,142 @@ public class SyntaxTreeGenTest {
             JsonObject endpoint = jsonElement.getAsJsonObject();
             if (endpoint.get("name").getAsString().equals("clientEndpoint")
                     || endpoint.get("name").getAsString().equals("myClient")) {
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail("Additional endpoint has been found");
+            }
+        });
+    }
+
+    @Test(description = "Generate ST for client outside a main bal file.")
+    public void testExternalClient() throws IOException {
+        Path inputFile = TestUtil.createTempProject(externalClientInit);
+        BuildProject project = BuildProject.load(inputFile);
+        Optional<ModuleId> optionalModuleId = project.currentPackage().moduleIds().stream().findFirst();
+        if (optionalModuleId.isEmpty()) {
+            Assert.fail("Failed to retrieve the module ID");
+        }
+        ModuleId moduleId = optionalModuleId.get();
+        Module module = project.currentPackage().module(moduleId);
+        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        SemanticModel semanticModel = packageCompilation.getSemanticModel(moduleId);
+        Optional<DocumentId> optionalDocumentId = module.documentIds().stream()
+                .filter(documentId -> module.document(documentId).name().equals("main.bal")).findFirst();
+        if (optionalDocumentId.isEmpty()) {
+            Assert.fail("Failed to retrieve the document ID");
+        }
+        DocumentId documentId = optionalDocumentId.get();
+        Document document = module.document(documentId);
+        JsonElement stJson = DiagramUtil.getSyntaxTreeJSON(document, semanticModel);
+        Assert.assertTrue(stJson.isJsonObject());
+        Assert.assertTrue(stJson.getAsJsonObject().get("kind").isJsonPrimitive());
+        Assert.assertEquals(stJson.getAsJsonObject().get("kind").getAsString(), "ModulePart");
+        Assert.assertTrue(stJson.getAsJsonObject().get("members").isJsonArray());
+        Assert.assertTrue(stJson.getAsJsonObject().get("members").getAsJsonArray().size() > 0);
+        JsonArray members = stJson.getAsJsonObject().get("members").getAsJsonArray();
+
+        // Validate local var is identified as an Endpoint.
+        JsonObject function = members.get(0).getAsJsonObject();
+        JsonObject functionBody = function.get("functionBody").getAsJsonObject();
+        JsonArray visibleEndpoints = functionBody.get("VisibleEndpoints").getAsJsonArray();
+
+        visibleEndpoints.forEach(jsonElement -> {
+            JsonObject endpoint = jsonElement.getAsJsonObject();
+            if (endpoint.get("name").getAsString().equals("clientEndpoint")
+                    || endpoint.get("name").getAsString().equals("myClient")) {
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail("Additional endpoint has been found");
+            }
+        });
+    }
+
+    @Test(description = "Generate ST for client in the document level of a main bal file.")
+    public void testDocumentLevelClientOnly() throws IOException {
+        Path inputFile = TestUtil.createTempProject(documentLevelClientOnly);
+        BuildProject project = BuildProject.load(inputFile);
+        Optional<ModuleId> optionalModuleId = project.currentPackage().moduleIds().stream().findFirst();
+        if (optionalModuleId.isEmpty()) {
+            Assert.fail("Failed to retrieve the module ID");
+        }
+        ModuleId moduleId = optionalModuleId.get();
+        Module module = project.currentPackage().module(moduleId);
+        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        SemanticModel semanticModel = packageCompilation.getSemanticModel(moduleId);
+        Optional<DocumentId> optionalDocumentId = module.documentIds().stream().findFirst();
+        if (optionalDocumentId.isEmpty()) {
+            Assert.fail("Failed to retrieve the document ID");
+        }
+        DocumentId documentId = optionalDocumentId.get();
+        Document document = module.document(documentId);
+        JsonElement stJson = DiagramUtil.getSyntaxTreeJSON(document, semanticModel);
+        Assert.assertTrue(stJson.isJsonObject());
+        Assert.assertTrue(stJson.getAsJsonObject().get("kind").isJsonPrimitive());
+        Assert.assertEquals(stJson.getAsJsonObject().get("kind").getAsString(), "ModulePart");
+        Assert.assertTrue(stJson.getAsJsonObject().get("members").isJsonArray());
+        Assert.assertTrue(stJson.getAsJsonObject().get("members").getAsJsonArray().size() > 0);
+        JsonArray members = stJson.getAsJsonObject().get("members").getAsJsonArray();
+
+        // Validate module var is identified as an Endpoint.
+        JsonObject moduleVar = members.get(1).getAsJsonObject();
+        Assert.assertTrue(moduleVar.has("typeData"));
+        Assert.assertTrue(moduleVar.get("typeData").getAsJsonObject().has("isEndpoint"));
+        Assert.assertTrue(moduleVar.get("typeData").getAsJsonObject().get("isEndpoint").getAsBoolean());
+
+        // Validate local var is identified as an Endpoint.
+        JsonObject function = members.get(2).getAsJsonObject();
+        JsonObject functionBody = function.get("functionBody").getAsJsonObject();
+        JsonArray visibleEndpoints = functionBody.get("VisibleEndpoints").getAsJsonArray();
+
+        Assert.assertEquals(visibleEndpoints.size(), 1, "No visible endpoints found.");
+
+        visibleEndpoints.forEach(jsonElement -> {
+            JsonObject endpoint = jsonElement.getAsJsonObject();
+            if (endpoint.get("name").getAsString().equals("myClient")) {
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail("Additional endpoint has been found");
+            }
+        });
+    }
+
+    @Test(description = "Generate ST for client outside a main bal file.")
+    public void testExternalClientOnly() throws IOException {
+        Path inputFile = TestUtil.createTempProject(externalClientInitOnly);
+        BuildProject project = BuildProject.load(inputFile);
+        Optional<ModuleId> optionalModuleId = project.currentPackage().moduleIds().stream().findFirst();
+        if (optionalModuleId.isEmpty()) {
+            Assert.fail("Failed to retrieve the module ID");
+        }
+        ModuleId moduleId = optionalModuleId.get();
+        Module module = project.currentPackage().module(moduleId);
+        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        SemanticModel semanticModel = packageCompilation.getSemanticModel(moduleId);
+        Optional<DocumentId> optionalDocumentId = module.documentIds().stream()
+                .filter(documentId -> module.document(documentId).name().equals("main.bal")).findFirst();
+        if (optionalDocumentId.isEmpty()) {
+            Assert.fail("Failed to retrieve the document ID");
+        }
+        DocumentId documentId = optionalDocumentId.get();
+        Document document = module.document(documentId);
+        JsonElement stJson = DiagramUtil.getSyntaxTreeJSON(document, semanticModel);
+        Assert.assertTrue(stJson.isJsonObject());
+        Assert.assertTrue(stJson.getAsJsonObject().get("kind").isJsonPrimitive());
+        Assert.assertEquals(stJson.getAsJsonObject().get("kind").getAsString(), "ModulePart");
+        Assert.assertTrue(stJson.getAsJsonObject().get("members").isJsonArray());
+        Assert.assertTrue(stJson.getAsJsonObject().get("members").getAsJsonArray().size() > 0);
+        JsonArray members = stJson.getAsJsonObject().get("members").getAsJsonArray();
+
+        // Validate local var is identified as an Endpoint.
+        JsonObject function = members.get(0).getAsJsonObject();
+        JsonObject functionBody = function.get("functionBody").getAsJsonObject();
+        JsonArray visibleEndpoints = functionBody.get("VisibleEndpoints").getAsJsonArray();
+
+        Assert.assertEquals(visibleEndpoints.size(), 1, "No visible endpoints found.");
+
+        visibleEndpoints.forEach(jsonElement -> {
+            JsonObject endpoint = jsonElement.getAsJsonObject();
+            if (endpoint.get("name").getAsString().equals("myClient")) {
                 Assert.assertTrue(true);
             } else {
                 Assert.fail("Additional endpoint has been found");

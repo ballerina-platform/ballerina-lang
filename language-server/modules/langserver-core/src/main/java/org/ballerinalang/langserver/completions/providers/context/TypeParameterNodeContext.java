@@ -80,8 +80,8 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
             QualifiedNameReferenceNode refNode = (QualifiedNameReferenceNode) nodeAtCursor;
             /*
             Covers the following
-            (1) [typedesc | map]<mod:*cursor*>
-            (2) [typedesc | map]<mod:x*cursor*>
+            (1) [typedesc | map | future]<mod:*cursor*>
+            (2) [typedesc | map | future]<mod:x*cursor*>
              */
             List<Symbol> moduleContent = QNameReferenceUtil.getTypesInModule(context, refNode);
             return this.getCompletionItemList(moduleContent, context);

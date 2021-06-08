@@ -2,7 +2,7 @@ cmdname,flags
 add, -t --template
 bal, -v -h --help --version add bindgen build clean dist doc encrypt format grpc help init new openapi pull push run search shell test update version
 bindgen, -cp -m -mvn -o --classpath --maven --modules --output --public
-build, -c -o --cloud --code-coverage --compile --debug --experimental --list-conflicted-classes --observability-included --offline --output --skiptests --taint-check --test-report
+build, -c -o --cloud --code-coverage --coverage-format --compile --debug --experimental --list-conflicted-classes --observability-included --offline --output --skiptests --test-report
 dist, list pull remove update use
 doc, -c -e -o --combine --exclude --output --experimental 
 encrypt, 
@@ -13,7 +13,7 @@ new, -t --template
 openapi, -i -m -o -s --input --mode --module --output --operation --service --service-name --tags --operation
 pull, --debug
 push, --debug --repository
-run, --debug --experimental --observability-included --offline --taint-check
-search, --debug
+run, --debug --experimental --observability-included --offline
+search,
 shell, -d -f -t --debug --force-dumb --time-out --file
-test, --code-coverage --debug --disable-groups --experimental --groups --list-groups --observability-included --offline --rerun-failed --taint-check --tests --test-report
+test, --code-coverage --coverage-format --debug --disable-groups --experimental --groups --list-groups --observability-included --offline --rerun-failed --tests --test-report
