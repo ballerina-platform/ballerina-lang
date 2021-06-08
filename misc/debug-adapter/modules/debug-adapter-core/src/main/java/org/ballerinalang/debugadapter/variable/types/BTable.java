@@ -29,6 +29,7 @@ import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -45,13 +46,10 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFro
 public class BTable extends IndexedCompoundVariable {
 
     private int tableSize = -1;
-    private ArrayReference tableKeys = null;
-    private ArrayList<Value> valueList = new ArrayList<>();
+    private final Map<String, Value> tableValues = new LinkedHashMap<>();
 
     private static final String FIELD_CONSTRAINT = "constraint";
     private static final String METHOD_SIZE = "size";
-    private static final String METHOD_GETKEYS = "getKeys";
-    private static final String METHOD_GET = "get";
     private static final String METHOD_GET_ITERATOR = "getIterator";
     private static final String METHOD_HAS_NEXT = "hasNext";
     private static final String METHOD_NEXT = "next";
@@ -79,8 +77,8 @@ public class BTable extends IndexedCompoundVariable {
             if (!(jvmValue instanceof ObjectReference)) {
                 return Either.forRight(new ArrayList<>());
             }
-            populateTableValues();
-            return Either.forRight(valueList);
+            populateTableValues(start, count);
+            return Either.forRight(getChildVariables(start, count));
         } catch (Exception ignored) {
             return Either.forRight(new ArrayList<>());
         }
@@ -138,21 +136,32 @@ public class BTable extends IndexedCompoundVariable {
         }
     }
 
-    private void populateTableValues() {
-        try {
-            Value iterator = getIterator();
-            while (hasNext(iterator)) {
-                Value next = nextElement(iterator);
+    private void populateTableValues(int start, int count) throws Exception {
+        int index = 0;
+        Value iterator = getIterator();
+        while (hasNext(iterator)) {
+            Value next = nextElement(iterator);
+            if (index >= start && index < start + count) {
+                if (tableValues.containsKey(String.valueOf(index))) {
+                    continue;
+                }
                 Value values = getValues(next);
-                if ( values == null) {
+                if (values == null) {
                     continue;
                 }
                 Value value = ((ArrayReference) values).getValue(1);
-                valueList.add(value);
+                tableValues.put(String.valueOf(index), value);
             }
-        } catch (Exception ignored) {
-            valueList = null;
+            index++;
         }
+    }
+
+    private ArrayList<Value> getChildVariables(int start, int count) {
+        ArrayList<Value> childVariables = new ArrayList<>();
+        for (int i = start; i < start + count; i++) {
+            childVariables.add(tableValues.get(String.valueOf(i)));
+        }
+        return childVariables;
     }
 
     private Value getIterator() throws Exception {

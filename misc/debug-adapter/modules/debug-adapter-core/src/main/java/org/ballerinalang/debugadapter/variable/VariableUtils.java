@@ -223,7 +223,7 @@ public class VariableUtils {
         if (signature.isEmpty()) {
             methods = parentRef.referenceType().methodsByName(methodName);
         } else {
-            List<Method> signatureMethods =  parentRef.referenceType().methodsByName(methodName);
+            List<Method> signatureMethods = parentRef.referenceType().methodsByName(methodName);
             for (Method method : signatureMethods) {
                 if (method.signature().matches(signature)) {
                     methods.add(method);
@@ -233,8 +233,7 @@ public class VariableUtils {
         if (methods.isEmpty()) {
             throw new DebugVariableException(String.format("No methods found for name: \"%s\", in %s",
                 methodName, parent));
-        }
-        else if (methods.size() > 1) {
+        } else if (methods.size() > 1) {
             throw new DebugVariableException(String.format("Overloaded methods found for name: \"%s\", in %s",
                 methodName, parent));
         }
