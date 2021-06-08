@@ -2398,12 +2398,25 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case QUESTION_MARK_TOKEN:
-                // If next token after a type descriptor is '?' then it is an optional type descriptor
+                // If next token after a type descriptor is '?' then it is a possible optional type descriptor
+                boolean isPossibleOptionalType = true;
+                STToken nextNextToken = getNextNextToken();
                 if (context == ParserRuleContext.TYPE_DESC_IN_EXPRESSION &&
-                        !isValidTypeContinuationToken(getNextNextToken()) &&
-                        isValidExprStart(getNextNextToken().kind)) {
+                        !isValidTypeContinuationToken(nextNextToken) && isValidExprStart(nextNextToken.kind)) {
+                    if (nextNextToken.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
+                        // TODO: support conditional expressions in which the middle expression starts with `{` #31033
+                        ParserRuleContext grandParentCtx = this.errorHandler.getGrandParentContext();
+                        isPossibleOptionalType = grandParentCtx == ParserRuleContext.IF_BLOCK ||
+                                grandParentCtx == ParserRuleContext.WHILE_BLOCK;
+                    } else {
+                        isPossibleOptionalType = false;
+                    }
+                }
+
+                if (!isPossibleOptionalType) {
                     return typeDesc;
                 }
+
                 return parseComplexTypeDescriptorInternal(parseOptionalTypeDescriptor(typeDesc), context,
                         isTypedBindingPattern, precedence);
             case OPEN_BRACKET_TOKEN:
@@ -7123,7 +7136,6 @@ public class BallerinaParser extends AbstractParser {
             case STRING_LITERAL_TOKEN:
                 readonlyKeyword = STNodeFactory.createEmptyNode();
                 return parseQualifiedSpecificField(readonlyKeyword);
-            // case FINAL_KEYWORD:
             case READONLY_KEYWORD:
                 readonlyKeyword = parseReadonlyKeyword();
                 return parseSpecificField(readonlyKeyword);
