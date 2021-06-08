@@ -156,7 +156,13 @@ public function main() {
 
     record {|string city; string country;|} anonRecord = {city: "London", country: "UK"};
 
-    EmployeeTable tableVar = table [
+    EmployeeTable tableWithKeyVar = table [
+      {id: 1, name: "John", salary: 300.50},
+      {id: 2, name: "Bella", salary: 500.50},
+      {id: 3, name: "Peter", salary: 750.0}
+    ];
+
+    table<Employee> tableWithoutKeyVar = table [
       {id: 1, name: "John", salary: 300.50},
       {id: 2, name: "Bella", salary: 500.50},
       {id: 3, name: "Peter", salary: 750.0}
