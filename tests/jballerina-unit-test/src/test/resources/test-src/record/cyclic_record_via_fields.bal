@@ -46,7 +46,7 @@ function testCyclicRecordResolution() {
     };
 
     assertValueEquality("Token@1", cl.tokenUrl);
-    assertValueEquality("Token@1", cl.clientConfig?.auth?.tokenUrl);
+    assertValueEquality("Token@2", cl.clientConfig?.auth?.tokenUrl);
 }
 
 type AssertionError distinct error;
