@@ -232,10 +232,10 @@ public class VariableUtils {
         }
         if (methods.isEmpty()) {
             throw new DebugVariableException(String.format("No methods found for name: \"%s\", in %s",
-                methodName, parent));
+                    methodName, parent));
         } else if (methods.size() > 1) {
             throw new DebugVariableException(String.format("Overloaded methods found for name: \"%s\", in %s",
-                methodName, parent));
+                    methodName, parent));
         }
         return Optional.of(methods.get(0));
     }
