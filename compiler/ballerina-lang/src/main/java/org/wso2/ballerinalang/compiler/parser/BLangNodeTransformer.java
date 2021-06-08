@@ -972,7 +972,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
         
         BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
-        refType.typeKind = getTypeKind(parameterizedTypeDescNode.kind());
+        refType.typeKind = getParameterizedTypeKind(parameterizedTypeDescNode.kind());
         refType.pos = getPosition(parameterizedTypeDescNode);
 
         Optional<TypeParameterNode> typeParam = parameterizedTypeDescNode.typeParamNode();
@@ -987,7 +987,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return refType;
     }
 
-    private TypeKind getTypeKind(SyntaxKind syntaxKind) {
+    private TypeKind getParameterizedTypeKind(SyntaxKind syntaxKind) {
         switch (syntaxKind) {
             case TYPEDESC_TYPE_DESC:
                 return TypeKind.TYPEDESC;

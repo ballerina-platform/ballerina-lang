@@ -161,11 +161,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.SIMPLE_TYPE_DESC_IDENTIFIER,
             ParserRuleContext.TYPE_REFERENCE, ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR,
             ParserRuleContext.OBJECT_TYPE_DESCRIPTOR, ParserRuleContext.RECORD_TYPE_DESCRIPTOR,
-            ParserRuleContext.MAP_TYPE_DESCRIPTOR, ParserRuleContext.TUPLE_TYPE_DESC_START,
-            ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.STREAM_KEYWORD, ParserRuleContext.TABLE_KEYWORD,
+            ParserRuleContext.MAP_TYPE_DESCRIPTOR, ParserRuleContext.PARAMETERIZED_TYPE,
+            ParserRuleContext.TUPLE_TYPE_DESC_START, ParserRuleContext.STREAM_KEYWORD, ParserRuleContext.TABLE_KEYWORD,
             ParserRuleContext.FUNC_TYPE_DESC, ParserRuleContext.PARENTHESISED_TYPE_DESC_START,
-            ParserRuleContext.CONSTANT_EXPRESSION, ParserRuleContext.TYPEDESC_TYPE_DESCRIPTOR,
-            ParserRuleContext.FUTURE_TYPE_DESCRIPTOR, ParserRuleContext.XML_TYPE_DESCRIPTOR };
+            ParserRuleContext.CONSTANT_EXPRESSION };
 
     private static final ParserRuleContext[] CLASS_DESCRIPTOR =
             { ParserRuleContext.TYPE_REFERENCE, ParserRuleContext.STREAM_KEYWORD };
@@ -733,9 +732,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] OPTIONAL_TYPE_PARAMETER =
             { ParserRuleContext.LT, ParserRuleContext.TYPE_DESC_RHS };
 
-    private static final ParserRuleContext[] ERROR_TYPE_OR_TYPE_REF =
-            { ParserRuleContext.COLON, ParserRuleContext.LT };
-
     private static final ParserRuleContext[] MAP_TYPE_OR_TYPE_REF =
             { ParserRuleContext.COLON, ParserRuleContext.LT };
 
@@ -748,7 +744,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] TABLE_TYPE_OR_TYPE_REF =
             { ParserRuleContext.COLON, ParserRuleContext.ROW_TYPE_PARAM };
 
-    private static final ParserRuleContext[] TYPEDESC_FUTURE_XML_TYPE_OR_TYPE_REF =
+    private static final ParserRuleContext[] PARAMETERIZED_TYPE_OR_TYPE_REF =
             { ParserRuleContext.COLON, ParserRuleContext.OPTIONAL_TYPE_PARAMETER };
 
     private static final ParserRuleContext[] TYPE_DESC_RHS_OR_TYPE_REF =
@@ -985,6 +981,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     break;
                 case RIGHT_ARROW:
                     hasMatch = nextToken.kind == SyntaxKind.RIGHT_ARROW_TOKEN;
+                    break;
+                case PARAMETERIZED_TYPE:
+                    hasMatch = isParameterizedTypeToken(nextToken.kind);
                     break;
                 case LT:
                 case STREAM_TYPE_PARAM_START_TOKEN:
@@ -1272,8 +1271,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case JOIN_KEYWORD:
             case OUTER_KEYWORD:
             case CLASS_KEYWORD:
-            case TYPEDESC_KEYWORD:
-            case FUTURE_KEYWORD:
             case MAP_KEYWORD:
                 return true;
             default:
@@ -1487,12 +1484,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case SERVICE_DECL_START:
             case ERROR_CONSTRUCTOR_RHS:
             case OPTIONAL_TYPE_PARAMETER:
-            case ERROR_TYPE_OR_TYPE_REF:
             case MAP_TYPE_OR_TYPE_REF:
             case OBJECT_TYPE_OR_TYPE_REF:
             case STREAM_TYPE_OR_TYPE_REF:
             case TABLE_TYPE_OR_TYPE_REF:
-            case TYPEDESC_FUTURE_XML_TYPE_OR_TYPE_REF:
+            case PARAMETERIZED_TYPE_OR_TYPE_REF:
             case TYPE_DESC_RHS_OR_TYPE_REF:
             case TRANSACTION_STMT_RHS_OR_TYPE_REF:
             case TABLE_CONS_OR_QUERY_EXPR_OR_VAR_REF:
@@ -1783,9 +1779,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OPTIONAL_TYPE_PARAMETER:
                 alternativeRules = OPTIONAL_TYPE_PARAMETER;
                 break;
-            case ERROR_TYPE_OR_TYPE_REF:
-                alternativeRules = ERROR_TYPE_OR_TYPE_REF;
-                break;
             case MAP_TYPE_OR_TYPE_REF:
                 alternativeRules = MAP_TYPE_OR_TYPE_REF;
                 break;
@@ -1798,8 +1791,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TABLE_TYPE_OR_TYPE_REF:
                 alternativeRules = TABLE_TYPE_OR_TYPE_REF;
                 break;
-            case TYPEDESC_FUTURE_XML_TYPE_OR_TYPE_REF:
-                alternativeRules = TYPEDESC_FUTURE_XML_TYPE_OR_TYPE_REF;
+            case PARAMETERIZED_TYPE_OR_TYPE_REF:
+                alternativeRules = PARAMETERIZED_TYPE_OR_TYPE_REF;
                 break;
             case TYPE_DESC_RHS_OR_TYPE_REF:
                 alternativeRules = TYPE_DESC_RHS_OR_TYPE_REF;
@@ -3235,12 +3228,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.MODULE_VAR_WITHOUT_SECOND_QUAL;
             case MODULE_VAR_THIRD_QUAL:
                 return ParserRuleContext.VAR_DECL_STMT;
-            case TYPEDESC_TYPE_DESCRIPTOR:
-                return ParserRuleContext.TYPEDESC_KEYWORD;
-            case FUTURE_TYPE_DESCRIPTOR:
-                return ParserRuleContext.FUTURE_KEYWORD;
-            case XML_TYPE_DESCRIPTOR:
-                return ParserRuleContext.XML_KEYWORD;
+            case PARAMETERIZED_TYPE:
+                return ParserRuleContext.OPTIONAL_TYPE_PARAMETER;
             case MAP_TYPE_DESCRIPTOR:
                 return ParserRuleContext.MAP_KEYWORD;
             case FUNC_TYPE_FUNC_KEYWORD_RHS:
@@ -3407,10 +3396,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case NEW_KEYWORD:
                 return ParserRuleContext.NEW_KEYWORD_RHS;
             case XML_KEYWORD:
-                if (isInTypeDescContext()) {
-                    return ParserRuleContext.OPTIONAL_TYPE_PARAMETER;
-                }
-                // else fall through
             case STRING_KEYWORD:
             case BASE16_KEYWORD:
             case BASE64_KEYWORD:
@@ -3499,9 +3484,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.JOIN_KEYWORD;
             case MAP_KEYWORD:
                 return ParserRuleContext.LT;
-            case TYPEDESC_KEYWORD:
-            case FUTURE_KEYWORD:
-                return ParserRuleContext.OPTIONAL_TYPE_PARAMETER;
             default:
                 throw new IllegalStateException("getNextRuleForKeywords found: " + currentCtx);
         }
@@ -5329,11 +5311,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MAP_KEYWORD:
             case MAP_TYPE_DESCRIPTOR:
                 return SyntaxKind.MAP_KEYWORD;
-            case FUTURE_KEYWORD:
-            case FUTURE_TYPE_DESCRIPTOR:
-                return SyntaxKind.FUTURE_KEYWORD;
-            case TYPEDESC_KEYWORD:
-                return SyntaxKind.TYPEDESC_KEYWORD;
+            case PARAMETERIZED_TYPE:
+                return SyntaxKind.ERROR_KEYWORD;
             case NULL_KEYWORD:
                 return SyntaxKind.NULL_KEYWORD;
             case LOCK_KEYWORD:
@@ -5413,7 +5392,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LET_KEYWORD:
                 return SyntaxKind.LET_KEYWORD;
             case XML_KEYWORD:
-            case XML_TYPE_DESCRIPTOR:
                 return SyntaxKind.XML_KEYWORD;
             case STRING_KEYWORD:
                 return SyntaxKind.STRING_KEYWORD;
@@ -5546,6 +5524,24 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RETURN_KEYWORD:
             case FIELD_KEYWORD:
             case CLASS_KEYWORD:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Check whether the given token is a parameterized type keyword.
+     *
+     * @param tokenKind Token to check
+     * @return <code>true</code> if the given token is a parameterized type keyword. <code>false</code> otherwise
+     */
+    public boolean isParameterizedTypeToken(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case TYPEDESC_KEYWORD:
+            case FUTURE_KEYWORD:
+            case XML_KEYWORD:
+            case ERROR_KEYWORD:
                 return true;
             default:
                 return false;

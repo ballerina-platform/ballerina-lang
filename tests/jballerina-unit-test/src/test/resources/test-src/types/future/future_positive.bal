@@ -129,7 +129,7 @@ function testCustomErrorFutureWithoutConstraint() {
     any|error x = getError();
     string str = (<error>x).toString();
 
-    assertEquality(getError().toString(), str.toString());
+    assertEquality(getError().toString(), str);
 }
 
 function add(int i, int j) returns int {
