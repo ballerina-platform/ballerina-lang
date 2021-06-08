@@ -177,6 +177,7 @@ public class SyntaxErrors {
             case PATH_SEGMENT_IDENT:
             case BINDING_PATTERN_OR_EXPR_RHS:
             case NAMED_ARG_BINDING_PATTERN:
+            case TYPE_DESC_RHS_OR_BP_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
@@ -257,6 +258,7 @@ public class SyntaxErrors {
             case ARG_LIST_OPEN_PAREN:
             case PARENTHESISED_TYPE_DESC_START:
             case ERROR_CONSTRUCTOR_RHS:
+            case ERROR_BINDING_PATTERN_ERROR_KEYWORD_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_PAREN_TOKEN;
             case SEMICOLON:
             case OBJECT_FIELD_RHS:
