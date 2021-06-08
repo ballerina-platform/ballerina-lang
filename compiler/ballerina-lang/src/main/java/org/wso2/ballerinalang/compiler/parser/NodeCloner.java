@@ -222,7 +222,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -752,8 +751,6 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.restMatchPattern = clone(source.restMatchPattern);
         clone.matchGuardIsAvailable = source.matchGuardIsAvailable;
         clone.matchPatterns = cloneList(source.matchPatterns);
-        // TODO: create cloneMap methods
-        clone.declaredVars = new HashMap<>(source.declaredVars);
     }
 
     @Override
