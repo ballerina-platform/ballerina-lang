@@ -20,9 +20,14 @@ package io.ballerina.runtime.internal.configurable.providers.toml;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
+import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlNode;
@@ -122,5 +127,25 @@ public class Utils {
                 lineRange.filePath(),
                 LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
                 LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
+    }
+
+    static Type getMutableType(Type type) {
+        switch (type.getTag()) {
+            case TypeTags.ARRAY_TAG:
+                Type elementType = ((ArrayType) type).getElementType();
+                return TypeCreator.createArrayType(getMutableType(elementType));
+            case TypeTags.MAP_TAG:
+                MapType mapType = (MapType) type;
+                return TypeCreator.createMapType(getMutableType(mapType.getConstrainedType()));
+            case TypeTags.TABLE_TAG:
+                TableType tableType = (TableType) type;
+                String[] keys = tableType.getFieldNames() == null ? new String[]{} : tableType.getFieldNames();
+                return TypeCreator.createTableType(getMutableType(tableType.getConstrainedType()), keys,
+                        false);
+            case TypeTags.INTERSECTION_TAG:
+                return getMutableType(((BIntersectionType) type).getConstituentTypes().get(0));
+            default:
+                return type;
+        }
     }
 }

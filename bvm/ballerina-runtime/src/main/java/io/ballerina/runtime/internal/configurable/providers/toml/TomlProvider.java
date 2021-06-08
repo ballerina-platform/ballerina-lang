@@ -76,6 +76,7 @@ import java.util.Set;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getEffectiveTomlType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getLineRange;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getModuleKey;
+import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getMutableType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getTomlTypeString;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.isPrimitiveType;
 import static io.ballerina.runtime.internal.util.RuntimeUtils.isByteLiteral;
@@ -299,8 +300,7 @@ public class TomlProvider implements ConfigProvider {
 
         }
         if (hasDefaultField && constrainedType.getTag() == TypeTags.INTERSECTION_TAG) {
-            Type type = ((BIntersectionType) constrainedType).getConstituentTypes().get(0);
-            return ValueCreator.createMapValue(TypeCreator.createMapType(type), keyValueEntries);
+            return ValueCreator.createMapValue(getMutableType(mapType), keyValueEntries);
         }
         return ValueCreator.createMapValue(mapType, keyValueEntries);
     }
@@ -653,6 +653,9 @@ public class TomlProvider implements ConfigProvider {
             Object value = retrieveValue(tableNodeList.get(i), variableName, elementType, hasDefaultField);
             entries[i] = new ListInitialValueEntry.ExpressionEntry(value);
         }
+        if (hasDefaultField && arrayType.getElementType().getTag() == TypeTags.INTERSECTION_TAG) {
+            return new ArrayValueImpl((ArrayType) getMutableType(arrayType), entries.length, entries);
+        }
         return new ArrayValueImpl(arrayType, entries.length, entries);
     }
 
@@ -782,12 +785,7 @@ public class TomlProvider implements ConfigProvider {
 
     private BTable<BString, Object> retrieveTableValue(TomlNode tomlValue, String variableName, TableType tableType,
                                                        boolean hasDefaultField) {
-        Type originalConstraintType = tableType.getConstrainedType();
-        Type constraintType = originalConstraintType;
-
-        if (originalConstraintType.getTag() == TypeTags.INTERSECTION_TAG) {
-            constraintType = ((BIntersectionType) originalConstraintType).getConstituentTypes().get(0);
-        }
+        Type constraintType = tableType.getConstrainedType();
 
         if (tomlValue.kind() != getEffectiveTomlType(tableType, variableName)) {
             invalidTomlLines.add(tomlValue.location().lineRange());
@@ -806,18 +804,27 @@ public class TomlProvider implements ConfigProvider {
             Object value = retrieveValue(tableNodeList.get(i), variableName, constraintType, hasDefaultField);
             tableEntries[i] = new ListInitialValueEntry.ExpressionEntry(value);
         }
-        ArrayValue tableData =
-                new ArrayValueImpl(TypeCreator.createArrayType(constraintType), tableSize, tableEntries);
         ArrayValue keyNames = keys == null ? (ArrayValue) ValueCreator.createArrayValue(new BString[]{}) :
                 (ArrayValue) StringUtils.fromStringArray(keys);
         if (hasDefaultField) {
-            TableType type = TypeCreator.createTableType(constraintType, false);
-            return new TableValueImpl<>(type, tableData, keyNames);
+            return getDefaultableTableValue(constraintType, tableSize, tableEntries, keys, keyNames);
         }
-        if (originalConstraintType.getTag() == TypeTags.INTERSECTION_TAG) {
-            constraintType = ((IntersectionType) originalConstraintType).getEffectiveType();
+        ArrayValue tableData =
+                new ArrayValueImpl(TypeCreator.createArrayType(constraintType), tableSize, tableEntries);
+        if (constraintType.getTag() == TypeTags.INTERSECTION_TAG) {
+            constraintType = ((IntersectionType) constraintType).getEffectiveType();
         }
-        TableType type = TypeCreator.createTableType(constraintType, true);
+        TableType type = TypeCreator.createTableType(constraintType, keys, true);
+        return new TableValueImpl<>(type, tableData, keyNames);
+    }
+
+    private BTable<BString, Object> getDefaultableTableValue(Type constraintType, int tableSize,
+                                                             ListInitialValueEntry.ExpressionEntry[] tableEntries,
+                                                             String[] keys, ArrayValue keyNames) {
+        constraintType = getMutableType(constraintType);
+        ArrayValue tableData =
+                new ArrayValueImpl(TypeCreator.createArrayType(constraintType), tableSize, tableEntries);
+        TableType type = TypeCreator.createTableType(constraintType, keys, false);
         return new TableValueImpl<>(type, tableData, keyNames);
     }
 
