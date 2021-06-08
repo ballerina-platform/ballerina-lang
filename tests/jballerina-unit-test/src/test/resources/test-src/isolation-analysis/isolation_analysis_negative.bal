@@ -272,3 +272,43 @@ isolated function testInvalidMutableServiceAccess() {
     any x2 = ser2;
     any x3 = ser3;
 }
+
+function testAnonIsolatedFuncAccessingImplicitlyFinalVarsNegative(int[] i) {
+   var fn1 = isolated function () returns int[] => i;
+
+   int[][] x = [];
+   foreach var j in x {
+      var fn2 = isolated function () returns int[] {
+         j.push(...i);
+         return j;
+      };
+   }
+
+   var fn3 = let int[] k = [i.length(), 1] in isolated function () returns int[] => k;
+
+   var fn4 = let int[] k = i in isolated function (int[] l) returns int[] {
+      k.push(...l);
+      return k;
+   };
+
+   (isolated function () returns int[])[] fn5 =
+      from var m in x
+      where m.length() > 10
+      let int[] n = []
+      select isolated function () returns int[] {
+         int[] y = m;
+         y.push(...n);
+         return y;
+      };
+
+
+   isolated function () returns int[] fn6 = () => i;
+
+   foreach var j in x {
+      isolated function () returns int[] fn7 = () => j;
+   }
+
+   isolated function () returns int[] fn8 = let int[] k = i in () => k;
+
+   isolated function (int[]) returns int[] fn9 = let int[] k = i in (l) => k;
+}

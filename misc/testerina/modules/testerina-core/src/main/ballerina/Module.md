@@ -1,6 +1,6 @@
 ## Module Overview
 
-This module facilitates developers to write automation tests for Ballerina code in a simple manner. It provides a number of capabilities such as configuring the setup and cleanup steps at different levels, ordering and grouping of tests, providing value-sets to tests, and independence from external functions and endpoints via mocking capabilities.
+This module facilitates writing tests for Ballerina code in a simple manner. It provides a number of capabilities such as configuring the setup and cleanup steps at different levels, ordering and grouping of tests, providing value-sets to tests, and independence from external functions and endpoints via mocking capabilities.
 
 ## Annotations
 A Ballerina testsuite can be implemented using a set of annotations. The available annotations enable executing instructions before and after the testsuite or a single test, organize a set of tests into a group, define data-driven tests, specify an order of execution, disable tests and mocking.

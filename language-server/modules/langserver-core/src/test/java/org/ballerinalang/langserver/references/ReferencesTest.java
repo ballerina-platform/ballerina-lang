@@ -22,7 +22,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.ballerinalang.langserver.exception.LSStdlibCacheException;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
@@ -60,7 +59,7 @@ public class ReferencesTest {
     }
 
     @Test(description = "Test reference", dataProvider = "testDataProvider")
-    public void test(String configPath, String configDir) throws IOException, LSStdlibCacheException {
+    public void test(String configPath, String configDir) throws IOException {
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configPath).toString());
         JsonObject source = configObject.getAsJsonObject("source");
         Path sourcePath = sourceRoot.resolve(source.get("file").getAsString());
@@ -91,7 +90,7 @@ public class ReferencesTest {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 
-    protected void alterExpectedUri(JsonArray expected, Path root) throws IOException, LSStdlibCacheException {
+    protected void alterExpectedUri(JsonArray expected, Path root) throws IOException {
         for (JsonElement jsonElement : expected) {
             JsonObject item = jsonElement.getAsJsonObject();
             String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");
