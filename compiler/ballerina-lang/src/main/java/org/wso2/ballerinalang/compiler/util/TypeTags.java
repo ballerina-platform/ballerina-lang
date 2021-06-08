@@ -17,6 +17,18 @@
 */
 package org.wso2.ballerinalang.compiler.util;
 
+import io.ballerina.runtime.api.flags.SymbolFlags;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+
+import java.util.Map;
+
 /**
  * @since 0.94
  */
@@ -143,5 +155,41 @@ public class TypeTags {
                 return true;
         }
         return false;
+    }
+
+    public static boolean containsDefaultableRecordType(BType type) {
+        switch (type.tag) {
+            case TypeTags.ARRAY:
+                BType elementType = ((BArrayType) type).eType;
+                return containsDefaultableRecordType(elementType);
+            case TypeTags.RECORD:
+                BRecordType recordType = (BRecordType) type;
+                for (Map.Entry<String, BField> field : recordType.fields.entrySet()) {
+                    long flags = field.getValue().symbol.flags;
+                    if (!SymbolFlags.isFlagOn(flags, SymbolFlags.OPTIONAL) && !SymbolFlags.isFlagOn(flags,
+                            SymbolFlags.REQUIRED)) {
+                        return true;
+                    }
+                }
+                return false;
+            case TypeTags.MAP:
+                BMapType mapType = (BMapType) type;
+                return containsDefaultableRecordType(mapType.constraint);
+            case TypeTags.TABLE:
+                BTableType tableType = (BTableType) type;
+                return containsDefaultableRecordType(tableType.constraint);
+            case TypeTags.INTERSECTION:
+                return containsDefaultableRecordType(((BIntersectionType) type).effectiveType);
+            case TypeTags.UNION:
+                BUnionType unionType = (BUnionType) type;
+                for (BType memberType : unionType.getMemberTypes()) {
+                    if (containsDefaultableRecordType(memberType)) {
+                        return true;
+                    }
+                }
+                return false;
+            default:
+                return false;
+        }
     }
 }

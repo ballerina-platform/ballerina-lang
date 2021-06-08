@@ -272,6 +272,11 @@ public class TypeConverter {
                     convertibleTypes.add(targetType);
                 }
                 break;
+            case TypeTags.INTERSECTION_TAG:
+                convertibleTypes
+                        .addAll(getConvertibleTypes(inputValue, ((BIntersectionType) targetType).getEffectiveType(),
+                                unresolvedValues));
+                break;
             default:
                 if (TypeChecker.checkIsLikeType(inputValue, targetType, true)) {
                     convertibleTypes.add(targetType);

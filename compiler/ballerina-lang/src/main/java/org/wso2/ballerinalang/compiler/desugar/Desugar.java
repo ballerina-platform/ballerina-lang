@@ -930,6 +930,10 @@ public class Desugar extends BLangNodeVisitor {
                             // If it is optional configuration create if else
                             simpleGlobalVar.expr = createIfElseFromConfigurable(simpleGlobalVar);
                         }
+                        //TODO: Add error check for clone with type
+                        if (TypeTags.containsDefaultableRecordType(simpleGlobalVar.getBType())) {
+                            rewriteGetValueInvocationForConfigurable(simpleGlobalVar);
+                        }
                     }
 
                     // Module init should fail if listener is a error value.
@@ -948,6 +952,15 @@ public class Desugar extends BLangNodeVisitor {
         this.env.enclPkg.topLevelNodes.addAll(desugaredGlobalVarList);
         return desugaredGlobalVarList;
     }
+
+    private void rewriteGetValueInvocationForConfigurable(BLangSimpleVariable configVar) {
+        BLangInvocation cloneWithTypeInvocation = generateCloneWithTypeInvocation(configVar.getBType(),
+                        Lists.of(configVar.expr));
+        BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckPanickedExpr(configVar.pos
+                , cloneWithTypeInvocation, configVar.getBType());
+        checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
+        configVar.expr = checkedExpr;
+}
 
     private void addToGlobalVariableList(BLangStatement bLangStatement, BLangBlockFunctionBody initFnBody,
                                          BLangVariable globalVar, List<BLangVariable> desugaredGlobalVarList) {
@@ -2168,9 +2181,11 @@ public class Desugar extends BLangNodeVisitor {
         return invocationNode;
     }
 
-    private BLangInvocation generateCloneWithTypeInvocation(Location pos,
-                                                            BType targetType,
-                                                            BVarSymbol source) {
+    private BLangInvocation generateCloneWithTypeInvocation(Location pos, BType targetType, BVarSymbol source) {
+        return generateCloneWithTypeInvocation(targetType, Lists.of(ASTBuilderUtil.createVariableRef(pos, source)));
+    }
+
+    private BLangInvocation generateCloneWithTypeInvocation(BType targetType, List<BLangExpression> requiredArgs) {
         BType typedescType = new BTypedescType(targetType, symTable.typeDesc.tsymbol);
         BLangInvocation invocationNode = createInvocationNode(CLONE_WITH_TYPE, new ArrayList<>(), typedescType);
 
@@ -2180,7 +2195,9 @@ public class Desugar extends BLangNodeVisitor {
 
         invocationNode.expr = typedescExpr;
         invocationNode.symbol = symResolver.lookupLangLibMethod(typedescType, names.fromString(CLONE_WITH_TYPE));
-        invocationNode.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, source), typedescExpr);
+
+        requiredArgs.add(typedescExpr);
+        invocationNode.requiredArgs = requiredArgs;
         invocationNode.setBType(BUnionType.create(null, targetType, symTable.errorType));
         return invocationNode;
     }
