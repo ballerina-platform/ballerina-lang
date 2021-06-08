@@ -276,7 +276,7 @@ function testCallExprWithCheck() {
 
 type Err distinct error;
 
-function trinaryCheck(boolean b) returns string|Err {
+function ternaryCheck(boolean b) returns string|Err {
     return check (b ? barOrErr() : bazOrErr());
 }
 
@@ -288,8 +288,8 @@ function bazOrErr() returns string|Err {
     return error("Err");
 }
 
-function testCheckWithTrinaryOperator() {
-    var a = trinaryCheck(false);
+function testCheckWithTernaryOperator() {
+    var a = ternaryCheck(false);
     if a is Err {
         return;
     }

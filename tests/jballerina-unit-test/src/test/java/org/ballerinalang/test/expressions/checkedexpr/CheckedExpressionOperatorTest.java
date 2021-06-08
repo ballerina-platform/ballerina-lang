@@ -229,8 +229,8 @@ public class CheckedExpressionOperatorTest {
     }
 
     @Test
-    public void testCheckWithTrinaryOperator() {
-        BRunUtil.invoke(result, "testCheckWithTrinaryOperator");
+    public void testCheckWithTernaryOperator() {
+        BRunUtil.invoke(result, "testCheckWithTernaryOperator");
     }
 
     @Test(description = "Test service resource that returns an error containing check expression")
