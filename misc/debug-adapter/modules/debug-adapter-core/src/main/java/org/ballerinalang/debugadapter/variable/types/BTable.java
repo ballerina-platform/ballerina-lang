@@ -152,6 +152,10 @@ public class BTable extends IndexedCompoundVariable {
                 Value value = ((ArrayReference) values).getValue(1);
                 tableValues.put(String.valueOf(index), value);
             }
+            // while loop termination condition
+            if (index >= start + count) {
+                break;
+            }
             index++;
         }
     }
