@@ -35,8 +35,8 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.Lists;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -96,9 +96,10 @@ import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
  * @since 2.0.0
  */
 public class ProjectUtils {
-    private static final String USER_HOME = "user.home";
+    public static final String USER_HOME = "user.home";
     private static final Pattern separatedIdentifierPattern = Pattern.compile("^[a-zA-Z0-9_.]*$");
     private static final Pattern orgNamePattern = Pattern.compile("^[a-zA-Z0-9_]*$");
+    private static final String UNKNOWN = "unknown";
 
     /**
      * Validates the org-name.
@@ -256,18 +257,8 @@ public class ProjectUtils {
         return Paths.get(System.getProperty(BALLERINA_HOME));
     }
 
-    public static String getBallerinaPackVersion() {
-        try (InputStream inputStream = ProjectUtils.class.getResourceAsStream(PROPERTIES_FILE)) {
-            Properties properties = new Properties();
-            properties.load(inputStream);
-            return properties.getProperty(BALLERINA_PACK_VERSION);
-        } catch (Throwable ignore) {
-        }
-        return "unknown";
-    }
-
     public static Path getBallerinaRTJarPath() {
-        String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
+        String ballerinaVersion = getBallerinaPackVersion();
         String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
         return getBalHomePath().resolve("bre").resolve("lib").resolve(runtimeJarName);
     }
@@ -276,7 +267,7 @@ public class ProjectUtils {
         List<JarLibrary> dependencies = new ArrayList<>();
         String testPkgName = "ballerina/test";
 
-        String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
+        String ballerinaVersion = getBallerinaPackVersion();
         Path homeLibPath = getBalHomePath().resolve(BALLERINA_HOME_BRE).resolve(LIB_DIR);
         String testRuntimeJarName = TEST_RUNTIME_JAR_PREFIX + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
         String testCoreJarName = TEST_CORE_JAR_PREFIX + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
@@ -680,6 +671,66 @@ public class ProjectUtils {
             }
         }
         return directory.delete();
+    }
+
+    /**
+     * Get the ballerina version the package is built with.
+     *
+     * @return ballerina version
+     */
+    public static String getBallerinaVersion() {
+        try (InputStream inputStream = ProjectUtils.class.getResourceAsStream(ProjectDirConstants.PROPERTIES_FILE)) {
+            var properties = new Properties();
+            properties.load(inputStream);
+            return properties.getProperty(ProjectDirConstants.BALLERINA_VERSION);
+        } catch (Throwable ignore) {
+        }
+        return UNKNOWN;
+    }
+
+    /**
+     * Get the ballerina pack version.
+     *
+     * @return ballerina pack version
+     */
+    public static String getBallerinaPackVersion() {
+        try (InputStream inputStream = ProjectUtils.class.getResourceAsStream(PROPERTIES_FILE)) {
+            var properties = new Properties();
+            properties.load(inputStream);
+            return properties.getProperty(BALLERINA_PACK_VERSION);
+        } catch (Throwable ignore) {
+        }
+        return UNKNOWN;
+    }
+
+    /**
+     * Get the ballerina short version.
+     *
+     * @return ballerina short version
+     */
+    public static String getBallerinaShortVersion() {
+        try (InputStream inputStream = ProjectUtils.class.getResourceAsStream(ProjectDirConstants.PROPERTIES_FILE)) {
+            var properties = new Properties();
+            properties.load(inputStream);
+            return properties.getProperty(ProjectDirConstants.BALLERINA_SHORT_VERSION);
+        } catch (Throwable ignore) {
+        }
+        return UNKNOWN;
+    }
+
+    /**
+     * Get the ballerina specification version.
+     *
+     * @return ballerina spec version
+     */
+    public static String getBallerinaSpecVersion() {
+        try (InputStream inputStream = ProjectUtils.class.getResourceAsStream(ProjectDirConstants.PROPERTIES_FILE)) {
+            var properties = new Properties();
+            properties.load(inputStream);
+            return properties.getProperty(ProjectDirConstants.BALLERINA_SPEC_VERSION);
+        } catch (Throwable ignore) {
+        }
+        return UNKNOWN;
     }
 
     /**

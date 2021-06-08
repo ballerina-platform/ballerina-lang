@@ -57,6 +57,7 @@ import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.langserver.LSClientLogger;
@@ -65,7 +66,6 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.exception.LSConnectorException;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -125,7 +125,8 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         Path rootBalaPath = STD_LIB_SOURCE_ROOT.resolve(org).resolve(module)
                 .resolve(version.isEmpty() ? ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version);
         if (!Files.exists(rootBalaPath)) {
-            Path homeRepoPath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BALA_CACHE_DIR_NAME);
+            Path homeRepoPath = ProjectUtils.createAndGetHomeReposPath()
+                    .resolve(ProjectDirConstants.BALA_CACHE_DIR_NAME);
             rootBalaPath = homeRepoPath.resolve(org).resolve(module)
                     .resolve(version.isEmpty() ? ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version);
         }

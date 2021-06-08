@@ -23,18 +23,22 @@ import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.central.client.CentralAPIClient;
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
-import org.wso2.ballerinalang.util.RepoUtils;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.util.ProjectUtils.USER_HOME;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
-import static org.wso2.ballerinalang.util.RepoUtils.SET_BALLERINA_DEV_CENTRAL;
-import static org.wso2.ballerinalang.util.RepoUtils.SET_BALLERINA_STAGE_CENTRAL;
+import static io.ballerina.projects.util.RepoUtils.SET_BALLERINA_DEV_CENTRAL;
+import static io.ballerina.projects.util.RepoUtils.SET_BALLERINA_STAGE_CENTRAL;
 
 /**
  * {@code CentralUtils} has utilities for central commands.
@@ -127,7 +131,7 @@ public class CentralUtils {
      * @return {@link Settings} settings object
      */
     public static Settings readSettings() throws SettingsTomlException {
-        Path settingsFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectConstants.SETTINGS_FILE_NAME);
+        Path settingsFilePath = createAndGetHomeReposPath().resolve(ProjectConstants.SETTINGS_FILE_NAME);
         try {
             TomlDocument settingsTomlDocument = TomlDocument
                     .from(String.valueOf(settingsFilePath.getFileName()), Files.readString(settingsFilePath));
@@ -163,5 +167,31 @@ public class CentralUtils {
             return BALLERINA_CENTRAL_DEV_URL + "/" + org + "/" + pkgName;
         }
         return BALLERINA_CENTRAL_PRODUCTION_URL + "/" + org + "/" + pkgName;
+    }
+
+    /**
+     * Create and get the home repository path.
+     *
+     * @return home repository path
+     */
+    public static Path createAndGetHomeReposPath() {
+        Path homeRepoPath;
+        String homeRepoDir = System.getenv(ProjectDirConstants.HOME_REPO_ENV_KEY);
+        if (homeRepoDir == null || homeRepoDir.isEmpty()) {
+            String userHomeDir = System.getProperty(USER_HOME);
+            if (userHomeDir == null || userHomeDir.isEmpty()) {
+                throw new BLangCompilerException("Error creating home repository: unable to get user home directory");
+            }
+            homeRepoPath = Paths.get(userHomeDir, ProjectDirConstants.HOME_REPO_DEFAULT_DIRNAME);
+        } else {
+            // User has specified the home repo path with env variable.
+            homeRepoPath = Paths.get(homeRepoDir);
+        }
+
+        homeRepoPath = homeRepoPath.toAbsolutePath();
+        if (Files.exists(homeRepoPath) && !Files.isDirectory(homeRepoPath, LinkOption.NOFOLLOW_LINKS)) {
+            throw new BLangCompilerException("Home repository is not a directory: " + homeRepoPath.toString());
+        }
+        return homeRepoPath;
     }
 }

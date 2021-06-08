@@ -24,12 +24,12 @@ import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.projects.util.RepoUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -189,7 +189,7 @@ public class PullCommand implements BLauncherCmd {
                                                                initializeProxy(settings.getProxy()),
                                                                getAccessTokenOfCLI(settings));
                 client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
-                                   RepoUtils.getBallerinaVersion(), false);
+                                   ProjectUtils.getBallerinaVersion(), false);
             } catch (PackageAlreadyExistsException e) {
                 errStream.println(e.getMessage());
                 CommandUtil.exitError(this.exitWhenFinish);
