@@ -15,15 +15,7 @@
  */
 package org.ballerinalang.langserver;
 
-import io.ballerina.compiler.syntax.tree.ChildNodeList;
-import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
-import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.tools.text.LinePosition;
@@ -52,7 +44,6 @@ import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.foldingrange.FoldingRangeProvider;
 import org.ballerinalang.langserver.hover.HoverUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
-import org.ballerinalang.langserver.util.TokensUtil;
 import org.ballerinalang.langserver.util.definition.DefinitionUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.rename.RenameUtil;
@@ -87,7 +78,6 @@ import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureHelpParams;
-import org.eclipse.lsp4j.SignatureInformation;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
@@ -196,67 +186,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     params.getPosition());
             try {
                 // Find token at cursor position
-                Optional<Token> cursorToken = TokensUtil.findTokenAtPosition(context, params.getPosition());
-                if (cursorToken.isEmpty()) {
-                    return null;
-                }
-                int activeParamIndex = 0;
-                //TODO: Once https://git.io/JJIFp fixed, can get docs directly from the node of syntaxTree
-                NonTerminalNode sNode = cursorToken.get().parent();
-                SyntaxKind sKind = (sNode != null) ? sNode.kind() : null;
-
-                // Find invocation node
-                while (sNode != null &&
-                        sKind != SyntaxKind.FUNCTION_CALL &&
-                        sKind != SyntaxKind.METHOD_CALL &&
-                        sKind != SyntaxKind.REMOTE_METHOD_CALL_ACTION &&
-                        sKind != SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
-                        sKind != SyntaxKind.EXPLICIT_NEW_EXPRESSION) {
-                    sNode = sNode.parent();
-                    sKind = (sNode != null) ? sNode.kind() : null;
-                }
-
-                if (sNode == null) {
-                    // Could not find a valid invocation node or the 
-                    return null;
-                }
-
-                // Find parameter index
-                int cLine = params.getPosition().getLine();
-                int cCol = params.getPosition().getCharacter();
-                ChildNodeList childrenInParen = sNode.children();
-                switch (sKind) {
-                    case IMPLICIT_NEW_EXPRESSION:
-                        Optional<ParenthesizedArgList> implicitArgList =
-                                ((ImplicitNewExpressionNode) sNode).parenthesizedArgList();
-                        if (implicitArgList.isPresent()) {
-                            childrenInParen = implicitArgList.get().children();
-                        }
-                        break;
-                    case EXPLICIT_NEW_EXPRESSION:
-                        childrenInParen = ((ExplicitNewExpressionNode) sNode).parenthesizedArgList().children();
-                        break;
-                }
-                for (Node child : childrenInParen) {
-                    int sLine = child.lineRange().startLine().line();
-                    int sCol = child.lineRange().startLine().offset();
-                    if ((cLine == sLine && cCol < sCol) || (cLine < sLine)) {
-                        break;
-                    }
-                    if (child.kind() == SyntaxKind.COMMA_TOKEN) {
-                        activeParamIndex++;
-                    }
-                }
-
-                // Search function invocation symbol
-                List<SignatureInformation> signatures = new ArrayList<>();
-                Optional<SignatureInformation> signatureInfo = SignatureHelpUtil.getSignatureInformation(context);
-                signatureInfo.ifPresent(signatures::add);
-                SignatureHelp signatureHelp = new SignatureHelp();
-                signatureHelp.setActiveParameter(activeParamIndex);
-                signatureHelp.setActiveSignature(0);
-                signatureHelp.setSignatures(signatures);
-                return signatureHelp;
+                return SignatureHelpUtil.getSignatureHelp(context);
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Signature Help", e);
                 return new SignatureHelp();
@@ -517,7 +447,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 this.clientLogger.logError(LSContextOperation.TXT_PREPARE_RENAME, msg, t, params.getTextDocument(),
                         params.getPosition());
             }
-            
+
             return null;
         });
     }

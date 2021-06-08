@@ -1,7 +1,7 @@
 {
     "position": {
         "line": 80,
-        "character": 10
+        "character": 11
     },
     "source": "statements/statements.bal",
     "expected": {

@@ -27,13 +27,18 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.ChildNodeList;
+import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
@@ -50,6 +55,7 @@ import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
 import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -80,13 +86,85 @@ public class SignatureHelpUtil {
     }
 
     /**
-     * Get the signature information for the given Ballerina function.
+     * Get Signature Help for a the invocation node in the given context.
+     *
+     * @param context Signature Help context.
+     * @return {@link SignatureHelp} SignatureHelp for the invocation node.
+     */
+    public static SignatureHelp getSignatureHelp(SignatureContext context) {
+        fillTokenInfoAtCursor(context);
+        Optional<NonTerminalNode> sNode = context.getNodeAtCursor();
+
+        if (sNode.isEmpty()) {
+            return null; //empty signatureHelp;
+        }
+
+        SyntaxKind sKind = sNode.get().kind();
+        NonTerminalNode evalNode = sNode.get();
+
+        // Find invocation node
+        while (evalNode != null &&
+                sKind != SyntaxKind.FUNCTION_CALL &&
+                sKind != SyntaxKind.METHOD_CALL &&
+                sKind != SyntaxKind.REMOTE_METHOD_CALL_ACTION &&
+                sKind != SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
+                sKind != SyntaxKind.EXPLICIT_NEW_EXPRESSION) {
+            evalNode = evalNode.parent();
+            sKind = (evalNode != null) ? evalNode.kind() : null;
+        }
+
+        if (evalNode == null) {
+            // Could not find a valid invocation node.
+            return null;
+        }
+
+        ChildNodeList childrenInParen = evalNode.children();
+        switch (sKind) {
+            case IMPLICIT_NEW_EXPRESSION:
+                Optional<ParenthesizedArgList> implicitArgList =
+                        ((ImplicitNewExpressionNode) evalNode).parenthesizedArgList();
+                if (implicitArgList.isPresent()) {
+                    childrenInParen = implicitArgList.get().children();
+                }
+                break;
+            case EXPLICIT_NEW_EXPRESSION:
+                childrenInParen = ((ExplicitNewExpressionNode) evalNode).parenthesizedArgList().children();
+                break;
+            default:
+                break;
+        }
+
+        // Find parameter index
+        int activeParamIndex = 0;
+        int cursorPosition = context.getCursorPositionInTree();
+        for (Node child : childrenInParen) {
+            int childPosition = child.textRange().endOffset();
+            if (cursorPosition < childPosition) {
+                break;
+            }
+            if (child.kind() == SyntaxKind.COMMA_TOKEN) {
+                activeParamIndex++;
+            }
+        }
+
+        // Search function invocation symbol
+        List<SignatureInformation> signatures = new ArrayList<>();
+        Optional<SignatureInformation> signatureInfo = SignatureHelpUtil.getSignatureInformation(context);
+        signatureInfo.ifPresent(signatures::add);
+        SignatureHelp signatureHelp = new SignatureHelp();
+        signatureHelp.setActiveParameter(activeParamIndex);
+        signatureHelp.setActiveSignature(0);
+        signatureHelp.setSignatures(signatures);
+        return signatureHelp;
+    }
+
+    /**
+     * Get the signature information for a given context.
      *
      * @param context Lang Server Signature Help Context
-     * @return {@link SignatureInformation}     Signature information for the function
+     * @return {@link SignatureInformation}     Signature information for the invocation node.
      */
-    public static Optional<SignatureInformation> getSignatureInformation(SignatureContext context) {
-        fillTokenInfoAtCursor(context);
+    private static Optional<SignatureInformation> getSignatureInformation(SignatureContext context) {
         Optional<FunctionSymbol> functionSymbol = getFunctionSymbol(context);
         if (functionSymbol.isEmpty()) {
             return Optional.empty();
@@ -190,7 +268,8 @@ public class SignatureHelpUtil {
             documentation.get().parameterMap().forEach(paramToDesc::put);
         }
         // Add parameters and rest params
-        parameters.addAll(functionSymbol.typeDescriptor().params().orElse(new ArrayList<>()).stream()
+        List<ParameterSymbol> parameterSymbols = functionSymbol.typeDescriptor().params().orElse(new ArrayList<>());
+        parameters.addAll(parameterSymbols.stream()
                 .map(param -> new Parameter(param, false, false, context)).collect(Collectors.toList()));
         Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();
         restParam.ifPresent(parameter -> parameters.add(new Parameter(parameter, false, true, context)));
