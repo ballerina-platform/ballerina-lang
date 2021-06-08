@@ -864,6 +864,34 @@ function testMutableJsonMappingToExclusiveRecordNegative() {
     assertEquality("incompatible types: 'map<json>' cannot be cast to 'Bar'", err.detail()["message"]);
 }
 
+function testTypeCastInConstructorMemberWithUnionCET() {
+    any[]|error v1 = [];
+    var fn1 = function () {
+        record {byte[] a;} x = {a: <byte[]> checkpanic v1};
+    };
+    assertErrorForTypeCastFailure(trap fn1());
+
+    var fn2 = function () {
+        record {byte[] a;}|int x = {a: <byte[]> checkpanic v1};
+    };
+    assertErrorForTypeCastFailure(trap fn2());
+
+    any[]|error v2 = <byte[]> [1, 2];
+
+    record {byte[] a;} x = {a: <byte[]> checkpanic v2};
+    assertEquality(<byte[]> [1, 2], x.a);
+
+    record {byte[] a;}|int y = {a: <byte[]> checkpanic v2};
+    assertEquality(<byte[]> [1, 2], (<record {byte[] a;}> y).a);
+}
+
+function assertErrorForTypeCastFailure(error? res) {
+    assertEquality(true, res is error);
+    error err1 = <error> res;
+    assertEquality("{ballerina}TypeCastError", err1.message());
+    assertEquality("incompatible types: 'any[]' cannot be cast to 'byte[]'", err1.detail()["message"]);
+}
+
 // Util functions
 
 const ASSERTION_ERROR_REASON = "AssertionError";
