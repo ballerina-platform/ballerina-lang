@@ -29,7 +29,7 @@ import org.eclipse.lsp4j.Position;
  *
  * @since 1.2.0
  */
-public class ReferencesContextImpl extends AbstractDocumentServiceContext implements ReferencesContext {
+public class ReferencesContextImpl extends PositionedOperationContextImpl implements ReferencesContext {
 
     private final Position cursorPos;
     private int cursorPosInTree = -1;
@@ -62,28 +62,16 @@ public class ReferencesContextImpl extends AbstractDocumentServiceContext implem
     }
 
     /**
-     * Represents Language server signature help context Builder.
+     * Represents Language server references context Builder.
      *
      * @since 2.0.0
      */
-    protected static class ReferencesContextBuilder extends AbstractContextBuilder<ReferencesContextBuilder> {
-
-        private Position position;
+    protected static class ReferencesContextBuilder extends PositionedOperationContextBuilder<ReferencesContext> {
 
         public ReferencesContextBuilder(LanguageServerContext serverContext) {
             super(LSContextOperation.TXT_REFERENCES, serverContext);
         }
-
-        /**
-         * Setter for the cursor position.
-         *
-         * @param position cursor position
-         */
-        public ReferencesContextBuilder withPosition(Position position) {
-            this.position = position;
-            return self();
-        }
-
+        
         public ReferencesContext build() {
             return new ReferencesContextImpl(this.operation,
                     this.fileUri,
