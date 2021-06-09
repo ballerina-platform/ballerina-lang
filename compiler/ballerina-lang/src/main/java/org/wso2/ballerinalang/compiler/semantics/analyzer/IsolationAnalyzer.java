@@ -257,9 +257,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean inferredIsolated = true;
     private boolean inLockStatement = false;
-    private final Stack<PotentiallyInvalidExpressionInfo> copyInLockInfoStack = new Stack<>();
+    private final Stack<LockInfo> copyInLockInfoStack = new Stack<>();
     private final Stack<Set<BSymbol>> isolatedLetVarStack = new Stack<>();
-    private final Map<BInvokableSymbol, IsolationInferenceInfo> isolationInferenceInfoMap = new HashMap<>();
+    private final Map<BSymbol, IsolationInferenceInfo> isolationInferenceInfoMap = new HashMap<>();
+    private final Map<BSymbol, VarIsolationInferenceInfo> mutableOrNonIsolatedVarAccessInfo = new HashMap<>();
 
     private IsolationAnalyzer(CompilerContext context) {
         context.put(ISOLATION_ANALYZER_KEY, this);
@@ -290,9 +291,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public BLangPackage analyze(BLangPackage pkgNode) {
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+
+        Set<BSymbol> moduleLevelVarSymbols = getModuleLevelVarSymbols(pkgNode.globalVars);
+        populateMutableOrNonIsolatedVars(moduleLevelVarSymbols);
+
         analyzeNode(pkgNode, pkgEnv);
-        inferFunctionIsolation();
+
+        inferIsolation(moduleLevelVarSymbols);
         logServiceIsolationWarnings(pkgNode.classDefinitions);
+
         return pkgNode;
     }
 
@@ -892,16 +899,17 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangLock lockNode) {
         boolean prevInLockStatement = this.inLockStatement;
         this.inLockStatement = true;
-        copyInLockInfoStack.push(new PotentiallyInvalidExpressionInfo(lockNode));
+        copyInLockInfoStack.push(new LockInfo(lockNode));
 
         analyzeNode(lockNode.body, SymbolEnv.createLockEnv(lockNode, env));
 
-        PotentiallyInvalidExpressionInfo copyInLockInfo = copyInLockInfoStack.pop();
+        LockInfo copyInLockInfo = copyInLockInfoStack.pop();
 
         this.inLockStatement = prevInLockStatement;
 
         Map<BSymbol, List<BLangSimpleVarRef>> accessedRestrictedVars = copyInLockInfo.accessedRestrictedVars;
         Set<BSymbol> accessedRestrictedVarKeys = accessedRestrictedVars.keySet();
+        Set<BSymbol> accessedNonImmutableAndNonIsolatedVars = copyInLockInfo.accessedPotentiallyIsolatedVars;
 
         if (!accessedRestrictedVarKeys.isEmpty()) {
             if (accessedRestrictedVarKeys.size() > 1) {
@@ -937,7 +945,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         BLangLock lastCheckedLockNode = lockNode;
 
         for (int i = copyInLockInfoStack.size() - 1; i >= 0; i--) {
-            PotentiallyInvalidExpressionInfo prevCopyInLockInfo = copyInLockInfoStack.get(i);
+            LockInfo prevCopyInLockInfo = copyInLockInfoStack.get(i);
 
             BLangLock outerLockNode = prevCopyInLockInfo.lockNode;
 
@@ -960,6 +968,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
                 prevLockAccessedRestrictedVars.put(key, entry.getValue());
             }
+
+            prevCopyInLockInfo.accessedPotentiallyIsolatedVars.addAll(accessedNonImmutableAndNonIsolatedVars);
 
             if (!accessedRestrictedVars.isEmpty()) {
                 continue;
@@ -1127,8 +1137,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         BLangNode parent = varRefExpr.parent;
         boolean isolatedModuleVariableReference = isIsolatedModuleVariableSymbol(symbol);
 
+        boolean accessOfIsolationInferableModuleLevelVar =
+                (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE && isVarRequiringInference(symbol);
+
         if (inLockStatement) {
-            PotentiallyInvalidExpressionInfo exprInfo = copyInLockInfoStack.peek();
+            LockInfo exprInfo = copyInLockInfoStack.peek();
 
             if (isolatedModuleVariableReference || isMethodCallOnSelfInIsolatedObject(varRefExpr, parent)) {
                 addToAccessedRestrictedVars(exprInfo.accessedRestrictedVars, varRefExpr);
@@ -1144,6 +1157,16 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     isInvalidCopyIn(varRefExpr, env)) {
                 exprInfo.copyInVarRefs.add(varRefExpr);
             }
+
+            if (accessOfIsolationInferableModuleLevelVar &&
+                    this.mutableOrNonIsolatedVarAccessInfo.containsKey(symbol)) {
+                this.mutableOrNonIsolatedVarAccessInfo.get(symbol).accessedLockInfo.add(exprInfo);
+                accessOfIsolationInferableModuleLevelVar = true;
+                exprInfo.accessedPotentiallyIsolatedVars.add(symbol);
+            }
+        } else if (accessOfIsolationInferableModuleLevelVar &&
+                this.mutableOrNonIsolatedVarAccessInfo.containsKey(symbol)) {
+            this.mutableOrNonIsolatedVarAccessInfo.get(symbol).accessedOutsideLockStatement = true;
         }
 
         boolean inIsolatedFunction = isInIsolatedFunction(enclInvokable);
@@ -1199,7 +1222,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        markDependsOnIsolationNonInferableConstructs();
+        if (accessOfIsolationInferableModuleLevelVar) {
+            markDependentlyIsolatedOnVar(symbol);
+        } else {
+            markDependsOnIsolationNonInferableConstructs();
+        }
+
         inferredIsolated = false;
 
         if (inIsolatedFunction) {
@@ -2964,7 +2992,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnlyOnFunctionsWithModuleLevelVisibility = false;
+        isolationInferenceInfoMap.get(enclInvokableSymbol)
+                .dependsOnlyOnFunctionsAndModuleLevelVariablesWithModuleLevelVisibility = false;
     }
 
     private void analyzeFunctionForInference(BInvokableSymbol symbol) {
@@ -2972,10 +3001,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             markDependsOnIsolationNonInferableConstructs();
             return;
         }
-        markDependentlyIsolated(symbol);
+        markDependentlyIsolatedOnFunction(symbol);
     }
 
-    private void markDependentlyIsolated(BInvokableSymbol symbol) {
+    private void markDependentlyIsolatedOnFunction(BInvokableSymbol symbol) {
         BLangInvokableNode enclInvokable = env.enclInvokable;
         if (enclInvokable == null) {
             return;
@@ -2986,26 +3015,112 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOn.add(symbol);
+        isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnFunctions.add(symbol);
     }
 
-    private void inferFunctionIsolation() {
-        for (Map.Entry<BInvokableSymbol, IsolationInferenceInfo> entry : this.isolationInferenceInfoMap.entrySet()) {
-            BInvokableSymbol key = entry.getKey();
+    private void markDependentlyIsolatedOnVar(BSymbol symbol) {
+        BLangInvokableNode enclInvokable = env.enclInvokable;
+        if (enclInvokable == null) {
+            return;
+        }
+
+        BInvokableSymbol enclInvokableSymbol = enclInvokable.symbol;
+        if (!isolationInferenceInfoMap.containsKey(enclInvokableSymbol)) {
+            return;
+        }
+
+        isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnVariables.add(symbol);
+    }
+
+    private Set<BSymbol> getModuleLevelVarSymbols(List<BLangVariable> moduleLevelVars) {
+        Set<BSymbol> symbols = new HashSet<>(moduleLevelVars.size());
+        for (BLangVariable globalVar : moduleLevelVars) {
+            symbols.add(globalVar.symbol);
+        }
+        return symbols;
+    }
+
+    private void populateMutableOrNonIsolatedVars(Set<BSymbol> moduleLevelVarSymbols) {
+        for (BSymbol moduleLevelVarSymbol : moduleLevelVarSymbols) {
+            if (!isVarRequiringInference(moduleLevelVarSymbol)) {
+                continue;
+            }
+
+            this.mutableOrNonIsolatedVarAccessInfo.put(moduleLevelVarSymbol, new VarIsolationInferenceInfo());
+        }
+    }
+
+    private boolean isVarRequiringInference(BSymbol moduleLevelVarSymbol) {
+        long symbolFlags = moduleLevelVarSymbol.flags;
+        if (Symbols.isFlagOn(symbolFlags, Flags.PUBLIC)) {
+            return false;
+        }
+
+        if (Symbols.isFlagOn(symbolFlags, Flags.ISOLATED)) {
+            return false;
+        }
+
+        BType type = moduleLevelVarSymbol.type;
+        return !Symbols.isFlagOn(symbolFlags, Flags.FINAL) ||
+                !(types.isInherentlyImmutableType(type) || Symbols.isFlagOn(type.flags, Flags.READONLY));
+    }
+
+    private void inferIsolation(Set<BSymbol> moduleLevelVarSymbols) {
+        for (Map.Entry<BSymbol, VarIsolationInferenceInfo> entry : this.mutableOrNonIsolatedVarAccessInfo.entrySet()) {
+            VarIsolationInferenceInfo varIsolationInferenceInfo = entry.getValue();
+
+            if (varIsolationInferenceInfo.accessedOutsideLockStatement) {
+                continue;
+            }
+
+            boolean inferredIsolated = true;
+
+            BSymbol symbol = entry.getKey();
+            for (LockInfo lockInfo : varIsolationInferenceInfo.accessedLockInfo) {
+                if (!lockInfo.accessedRestrictedVars.isEmpty() ||
+                        lockInfo.accessedPotentiallyIsolatedVars.size() > 1) {
+                    inferredIsolated = false;
+                    break;
+                }
+
+                for (BLangSimpleVarRef potentiallyInvalidTransferInRef : lockInfo.copyInVarRefs) {
+                    if (potentiallyInvalidTransferInRef.symbol == symbol) {
+                        continue;
+                    }
+
+                    inferredIsolated = false;
+                    break;
+                }
+
+                if (!lockInfo.nonIsolatedCopyOutLocations.isEmpty()) {
+                    inferredIsolated = false;
+                }
+            }
+
+            if (inferredIsolated) {
+                symbol.flags |= Flags.ISOLATED;
+            }
+        }
+
+        for (Map.Entry<BSymbol, IsolationInferenceInfo> entry : this.isolationInferenceInfoMap.entrySet()) {
+            BSymbol key = entry.getKey();
             if (inferredIsolated(key, entry.getValue(), new HashSet<>())) {
                 key.flags |= Flags.ISOLATED;
-                key.type.flags |= Flags.ISOLATED;
+
+                if (!moduleLevelVarSymbols.contains(key)) {
+                    key.type.flags |= Flags.ISOLATED;
+                }
             }
         }
     }
 
-    private boolean inferredIsolated(BInvokableSymbol symbol, IsolationInferenceInfo isolationInferenceInfo,
-                                     Set<BInvokableSymbol> unresolvedSymbols) {
+    private boolean inferredIsolated(BSymbol symbol, IsolationInferenceInfo isolationInferenceInfo,
+                                     Set<BSymbol> unresolvedSymbols) {
         if (!unresolvedSymbols.add(symbol)) {
             return true;
         }
 
-        if (!isolationInferenceInfo.dependsOnlyOnFunctionsWithModuleLevelVisibility) {
+        if (!isolationInferenceInfo.dependsOnlyOnFunctionsAndModuleLevelVariablesWithModuleLevelVisibility) {
             return false;
         }
 
@@ -3013,7 +3128,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
-        for (BInvokableSymbol bInvokableSymbol : isolationInferenceInfo.dependsOn) {
+        for (BInvokableSymbol bInvokableSymbol : isolationInferenceInfo.dependsOnFunctions) {
             if (!this.isolationInferenceInfoMap.containsKey(bInvokableSymbol)) {
                 return false;
             }
@@ -3023,7 +3138,18 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return false;
             }
         }
-        isolationInferenceInfo.inferredIsolated = true;
+
+        for (BSymbol dependsOnVariable : isolationInferenceInfo.dependsOnVariables) {
+            if (!Symbols.isFlagOn(dependsOnVariable.flags, Flags.ISOLATED)) {
+                return false;
+            }
+        }
+
+        if (unresolvedSymbols.size() == 1) {
+            // Mark as isolated only when the function is directly being analyzed as opposed to analysis due to calls
+            // from other functions for which inference is attempted.
+            isolationInferenceInfo.inferredIsolated = true;
+        }
         return true;
     }
 
@@ -3079,9 +3205,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     /**
      * For lock statements with restricted var usage, invalid transfers and non-isolated invocations should result in
      * compilation errors. This class holds potentially erroneous expression per lock statement, and the protected
-     * variables accessed in the lock statement.
+     * variables accessed in the lock statement, and information required for isolated inference.
      */
-    private static class PotentiallyInvalidExpressionInfo {
+    private static class LockInfo {
         BLangLock lockNode;
 
         Map<BSymbol, List<BLangSimpleVarRef>> accessedRestrictedVars = new HashMap<>();
@@ -3090,14 +3216,22 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         List<Location> nonIsolatedCopyOutLocations = new ArrayList<>();
         List<BLangInvocation> nonIsolatedInvocations = new ArrayList<>();
 
-        private PotentiallyInvalidExpressionInfo(BLangLock lockNode) {
+        Set<BSymbol> accessedPotentiallyIsolatedVars = new HashSet<>();
+
+        private LockInfo(BLangLock lockNode) {
             this.lockNode = lockNode;
         }
     }
 
+    private static class VarIsolationInferenceInfo {
+        List<LockInfo> accessedLockInfo = new ArrayList<>();
+        boolean accessedOutsideLockStatement = false;
+    }
+
     private static class IsolationInferenceInfo {
         boolean inferredIsolated = false;
-        boolean dependsOnlyOnFunctionsWithModuleLevelVisibility = true;
-        List<BInvokableSymbol> dependsOn = new ArrayList<>();
+        boolean dependsOnlyOnFunctionsAndModuleLevelVariablesWithModuleLevelVisibility = true;
+        List<BInvokableSymbol> dependsOnFunctions = new ArrayList<>();
+        List<BSymbol> dependsOnVariables = new ArrayList<>();
     }
 }
