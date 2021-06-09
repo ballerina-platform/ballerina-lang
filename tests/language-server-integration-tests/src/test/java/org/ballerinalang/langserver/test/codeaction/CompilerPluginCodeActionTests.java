@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.test.codeaction;
 import org.ballerinalang.langserver.codeaction.AbstractCodeActionTest;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.test.BCompileUtil;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -29,10 +29,9 @@ import java.io.IOException;
  */
 public class CompilerPluginCodeActionTests extends AbstractCodeActionTest {
 
-    @BeforeClass
-    public void init() throws Exception {
+    @BeforeSuite
+    public void compilePlugins() {
         BCompileUtil.compileAndCacheBala("compiler_plugin_tests/package_comp_plugin_with_codeactions");
-        super.init();
     }
 
     @Test(dataProvider = "codeaction-data-provider")
