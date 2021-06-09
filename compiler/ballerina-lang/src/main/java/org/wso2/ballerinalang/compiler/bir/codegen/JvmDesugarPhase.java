@@ -354,21 +354,17 @@ public class JvmDesugarPhase {
 
     private static void replaceEncodedPackageIdentifiers(PackageID packageID, Names names,
                                                          HashMap<String, String> encodedVsInitialIds) {
-        packageID.orgName = names.fromString(getInitialIdString(packageID.orgName.value, encodedVsInitialIds));
-        packageID.name = names.fromString(getInitialIdString(packageID.name.value, encodedVsInitialIds));
+        packageID.orgName = getInitialIdString(packageID.orgName, names, encodedVsInitialIds);
+        packageID.name = getInitialIdString(packageID.name, names, encodedVsInitialIds);
     }
 
     private static void replaceEncodedTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs, Names names,
                                                          HashMap<String, String> encodedVsInitialIds) {
         for (BIRTypeDefinition typeDefinition : typeDefs) {
-            typeDefinition.type.tsymbol.name =
-                    names.fromString(getInitialIdString(typeDefinition.type.tsymbol.name.value,
-                                                        encodedVsInitialIds));
-            typeDefinition.internalName =
-                    names.fromString(getInitialIdString(typeDefinition.internalName.value, encodedVsInitialIds));
-
-            replaceEncodedFunctionIdentifiers(typeDefinition.attachedFuncs, names, encodedVsInitialIds
-                                             );
+            typeDefinition.type.tsymbol.name = getInitialIdString(typeDefinition.type.tsymbol.name, names,
+                                                                  encodedVsInitialIds);
+            typeDefinition.internalName = getInitialIdString(typeDefinition.internalName, names, encodedVsInitialIds);
+            replaceEncodedFunctionIdentifiers(typeDefinition.attachedFuncs, names, encodedVsInitialIds);
             BType bType = typeDefinition.type;
             if (bType.tag == TypeTags.OBJECT) {
                 BObjectType objectType = (BObjectType) bType;
@@ -378,13 +374,13 @@ public class JvmDesugarPhase {
                                                               encodedVsInitialIds);
                 }
                 for (BField field : objectType.fields.values()) {
-                    field.name = names.fromString(getInitialIdString(field.name.value, encodedVsInitialIds));
+                    field.name = getInitialIdString(field.name, names, encodedVsInitialIds);
                 }
             }
             if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
                 for (BField field : recordType.fields.values()) {
-                    field.name = names.fromString(getInitialIdString(field.name.value, encodedVsInitialIds));
+                    field.name = getInitialIdString(field.name, names, encodedVsInitialIds);
                 }
             }
         }
@@ -393,7 +389,7 @@ public class JvmDesugarPhase {
     private static void replaceEncodedFunctionIdentifiers(List<BIRFunction> functions, Names names,
                                                           HashMap<String, String> encodedVsInitialIds) {
         for (BIRFunction function : functions) {
-            function.name = names.fromString(getInitialIdString(function.name.value, encodedVsInitialIds));
+            function.name = getInitialIdString(function.name, names, encodedVsInitialIds);
             for (BIRNode.BIRVariableDcl localVar : function.localVars) {
                 if (localVar.metaVarName == null) {
                     continue;
@@ -404,7 +400,7 @@ public class JvmDesugarPhase {
                 if (parameter.name == null) {
                     continue;
                 }
-                parameter.name = names.fromString(getInitialIdString(parameter.name.value, encodedVsInitialIds));
+                parameter.name = getInitialIdString(parameter.name, names, encodedVsInitialIds);
             }
             replaceEncodedWorkerName(function, names, encodedVsInitialIds);
         }
@@ -413,15 +409,14 @@ public class JvmDesugarPhase {
     private static void replaceEncodedWorkerName(BIRFunction function, Names names,
                                                  HashMap<String, String> encodedVsInitialIds) {
         if (function.workerName != null) {
-            function.workerName = names.fromString(getInitialIdString(function.workerName.value,
-                                                                      encodedVsInitialIds));
+            function.workerName = getInitialIdString(function.workerName, names, encodedVsInitialIds);
         }
     }
 
     private static void replaceEncodedAttachedFunctionIdentifiers(List<BAttachedFunction> functions, Names names,
                                                                   HashMap<String, String> encodedVsInitialIds) {
         for (BAttachedFunction function : functions) {
-            function.funcName = names.fromString(getInitialIdString(function.funcName.value, encodedVsInitialIds));
+            function.funcName = getInitialIdString(function.funcName, names, encodedVsInitialIds);
         }
     }
 
@@ -432,7 +427,7 @@ public class JvmDesugarPhase {
             if (globalVar == null) {
                 continue;
             }
-            globalVar.name = names.fromString(getInitialIdString(globalVar.name.value, encodedVsInitialIds));
+            globalVar.name = getInitialIdString(globalVar.name, names, encodedVsInitialIds);
         }
     }
 
@@ -460,6 +455,15 @@ public class JvmDesugarPhase {
         String initialString = encodedVsInitialIds.get(encodedIdString);
         if (initialString != null) {
             return initialString;
+        }
+        return encodedIdString;
+    }
+
+    private static Name getInitialIdString(Name encodedIdString, Names names,
+                                           HashMap<String, String> encodedVsInitialIds) {
+        String initialString = encodedVsInitialIds.get(encodedIdString.value);
+        if (initialString != null) {
+            return names.fromString(initialString);
         }
         return encodedIdString;
     }
