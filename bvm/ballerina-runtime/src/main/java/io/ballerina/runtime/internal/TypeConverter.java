@@ -153,8 +153,8 @@ public class TypeConverter {
                 Double doubleValue = (Double) value;
                 return isFloatWithinIntRange(doubleValue) && TypeChecker.isByteLiteral(doubleValue.longValue());
             case TypeTags.DECIMAL_TAG:
-                return isDecimalWithinIntRange((BigDecimal) value)
-                        && TypeChecker.isByteLiteral(((BigDecimal) value).longValue());
+                return isDecimalWithinIntRange((DecimalValue) value)
+                        && TypeChecker.isByteLiteral(((DecimalValue) value).value().longValue());
             default:
                 return false;
         }
@@ -169,7 +169,7 @@ public class TypeConverter {
             case TypeTags.FLOAT_TAG:
                 return isFloatWithinIntRange((double) value);
             case TypeTags.DECIMAL_TAG:
-                return isDecimalWithinIntRange((BigDecimal) value);
+                return isDecimalWithinIntRange((DecimalValue) value);
             default:
                 return false;
         }
@@ -190,7 +190,7 @@ public class TypeConverter {
                 val = floatToInt((Double) value);
                 break;
             case TypeTags.DECIMAL_TAG:
-                if (!isDecimalWithinIntRange((BigDecimal) value)) {
+                if (!isDecimalWithinIntRange((DecimalValue) value)) {
                     return false;
                 }
                 val = ((BigDecimal) value).intValue();

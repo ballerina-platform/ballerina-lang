@@ -699,6 +699,23 @@ function testCloneWithTypeNumeric7() {
     assert(a2[2], <decimal> 3);
 }
 
+function testCloneWithTypeDecimalToInt() {
+    decimal a = 12.3456;
+    int|error result = a.cloneWithType(int);
+    assert(result is int, true);
+    assert(checkpanic result, 12);
+
+    decimal[] a1 = [1.23, 2.34, 3.45];
+    int[]|error a2e = a1.cloneWithType(IntArray);
+    assert(a2e is int[], true);
+
+    int[] a2 = checkpanic a2e;
+    assert(a2.length(), a1.length());
+    assert(a2[0], 1);
+    assert(a2[1], 2);
+    assert(a2[2], 3);
+}
+
 type StringArray string[];
 function testCloneWithTypeStringArray() {
    string anArray = "[\"hello\", \"world\"]";
