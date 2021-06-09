@@ -4811,6 +4811,7 @@ public class BallerinaParser extends AbstractParser {
         if (isQualifiedIdentifierPredeclaredPrefix(nextToken.kind)) {
             return parseQualifiedIdentifierOrExpression(isInConditionalExpr, isRhsExpr);
         }
+
         switch (nextToken.kind) {
             case DECIMAL_INTEGER_LITERAL_TOKEN:
             case HEX_INTEGER_LITERAL_TOKEN:
@@ -4895,21 +4896,17 @@ public class BallerinaParser extends AbstractParser {
                     return parseSimpleTypeDescriptor();
                 }
 
-                break;
-        }
+                if (isRecoveryAtFuncBodyEnd(nextToken)) {
+                    // Special case the func-body-block end.
+                    // e.g. function foo() { if <cursor> }
+                    STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                            ParserRuleContext.VARIABLE_REF);
+                    return STNodeFactory.createSimpleNameReferenceNode(identifier);
+                }
 
-        nextToken = peek();
-        if (isRecoveryAtFuncBodyEnd(nextToken)) {
-            // Special case the func-body-block end.
-            // e.g. function foo() { if <cursor> }
-            STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
-                    ParserRuleContext.VARIABLE_REF);
-            return STNodeFactory.createSimpleNameReferenceNode(identifier);
+                recover(nextToken, ParserRuleContext.TERMINAL_EXPRESSION);
+                return parseTerminalExpression(annots, qualifiers, isRhsExpr, allowActions, isInConditionalExpr);
         }
-
-        recover(nextToken, ParserRuleContext.TERMINAL_EXPRESSION, annots, qualifiers, isRhsExpr, allowActions,
-                isInConditionalExpr);
-        return parseTerminalExpression(annots, qualifiers, isRhsExpr, allowActions, isInConditionalExpr);
     }
 
     private boolean isRecoveryAtFuncBodyEnd(STToken nextToken) {
