@@ -65,26 +65,26 @@ public class MathUtils {
     }
 
     public static long addExact(long num1, long num2) {
-        try {
-            return Math.addExact(num1, num2);
-        } catch (ArithmeticException e) {
-            throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_OVERFLOW, INT_RANGE_OVERFLOW_ERROR);
+        long r = num1 + num2;
+        if (((num1 ^ r) & (num2 ^ r)) < 0) {
+            throw  ErrorCreator.createError(BallerinaErrorReasons.NUMBER_OVERFLOW, INT_RANGE_OVERFLOW_ERROR);
         }
+        return r;
     }
 
     public static long subtractExact(long num1, long num2) {
-        try {
-            return Math.subtractExact(num1, num2);
-        } catch (ArithmeticException e) {
-            throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_OVERFLOW, INT_RANGE_OVERFLOW_ERROR);
+        long r = num1 - num2;
+        if (((num1 ^ num2) & (num1 ^ r)) < 0) {
+            throw  ErrorCreator.createError(BallerinaErrorReasons.NUMBER_OVERFLOW, INT_RANGE_OVERFLOW_ERROR);
         }
+        return r;
     }
 
     public static long multiplyExact(long num1, long num2) {
-        try {
-            return Math.multiplyExact(num1, num2);
-        } catch (ArithmeticException e) {
-            throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_OVERFLOW, INT_RANGE_OVERFLOW_ERROR);
+        long r = num1 * num2;
+        if (num1 != 0 && r / num1 != num2) {
+            throw  ErrorCreator.createError(BallerinaErrorReasons.NUMBER_OVERFLOW, INT_RANGE_OVERFLOW_ERROR);
         }
+        return r;
     }
 }
