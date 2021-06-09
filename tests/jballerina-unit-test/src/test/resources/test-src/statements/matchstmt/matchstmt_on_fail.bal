@@ -225,6 +225,54 @@ function barWithCheck(string | int | boolean a, string | int | boolean b) return
         return "Value is 'Default'";
 }
 
+const DECIMAL_NUMBER = 2;
+
+function testVarInMatchPatternWithinOnfail() {
+    string res1 = getDetailErrorWithMatchedInput([2, "10"]);
+    assertEquals("Error caught at onfail; input received: 2, 10", res1);
+    string res2 = getDetailErrorWithMatchedInput([10, "50"]);
+    assertEquals("Error caught at onfail; input received: 10, 50", res2);
+    string res3 = getDetailErrorWithMatchedInput([20, "100"]);
+    assertEquals("Error caught at onfail; input received: 20, 100", res3);
+}
+
+function getDetailErrorWithMatchedInput([int, string] dataEntry) returns string {
+    string str = "";
+    match dataEntry {
+        [DECIMAL_NUMBER, var digits] => {
+            do {
+                string val = check getError();
+            } on fail error cause {
+                str += "Error caught at onfail; input received: " + DECIMAL_NUMBER.toString() + ", " + digits;
+            }
+        }
+
+        [10, var digits] => {
+            do {
+                string val = check getError();
+            } on fail error cause {
+                str += "Error caught at onfail; input received: 10, " + digits;
+            }
+        }
+
+        [20, var digits] => {
+            do {
+                string val = check getError();
+            } on fail error cause {
+                str += "Error caught at onfail; input received: 20, " + digits;
+            }
+        }
+    }
+    return str;
+}
+
 public function println(any|error... values) = @java:Method {
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
+
+function assertEquals(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}
