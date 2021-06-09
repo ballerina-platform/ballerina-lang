@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
+import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -38,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -366,7 +368,7 @@ public class BallerinaSemanticModel implements SemanticModel {
                                       Scope.ScopeEntry scopeEntry,
                                       Location cursorPos,
                                       Name name) {
-        if (scopeEntry == null || scopeEntry.symbol == null) {
+        if (scopeEntry == null || scopeEntry.symbol == null || isRedeclaredSymbol(scopeEntry.symbol)) {
             return;
         }
 
@@ -384,5 +386,9 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private boolean isServiceDeclSymbol(BSymbol symbol) {
         return symbol.kind == SymbolKind.SERVICE;
+    }
+
+    private boolean isRedeclaredSymbol(BSymbol symbol) {
+        return symbol instanceof BVarSymbol && ((BVarSymbol) symbol).state == DiagnosticState.REDECLARED;
     }
 }
