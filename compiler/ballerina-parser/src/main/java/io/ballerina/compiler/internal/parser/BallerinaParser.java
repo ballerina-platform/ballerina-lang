@@ -6341,8 +6341,13 @@ public class BallerinaParser extends AbstractParser {
                 STNode type = parseTypeReferenceInTypeInclusion();
                 STNode semicolonToken = parseSemicolon();
                 return STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
+            case IDENTIFIER_TOKEN:
+                if (isObjectFieldStart()) {
+                    return parseObjectField(metadata, STNodeFactory.createEmptyNode(), qualifiers, isObjectTypeDesc);
+                }
+                // Else fall through
             default:
-                if (isTypeStartingToken(nextToken.kind)) {
+                if (isTypeStartingToken(nextToken.kind) && nextToken.kind != SyntaxKind.IDENTIFIER_TOKEN) {
                     return parseObjectField(metadata, STNodeFactory.createEmptyNode(), qualifiers, isObjectTypeDesc);
                 }
 
@@ -6356,6 +6361,23 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    /**
+     * Check whether the cursor is at the start of a object field.
+     *
+     * @return <code>true</code> if the cursor is at the start of a object field.
+     * <code>false</code> otherwise.
+     */
+    private boolean isObjectFieldStart() {
+        STToken nextNextToken = getNextNextToken();
+        switch (nextNextToken.kind) {
+            case ERROR_KEYWORD: // error-binding-pattern not allowed in fields
+            case OPEN_BRACE_TOKEN: // mapping-binding-pattern not allowed in fields
+                return false;
+            default:
+                return isModuleVarDeclStart(1);
+        }
+    }
+    
     /**
      * Parse an object member, given the visibility modifier. Object member can have
      * only one visibility qualifier. This mean the methodQualifiers list can have
