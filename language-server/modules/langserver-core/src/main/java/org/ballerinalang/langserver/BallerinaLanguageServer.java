@@ -48,6 +48,7 @@ import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.InitializedParams;
 import org.eclipse.lsp4j.Registration;
 import org.eclipse.lsp4j.RegistrationParams;
+import org.eclipse.lsp4j.RenameOptions;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.SignatureHelpOptions;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
@@ -99,8 +100,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         this.ballerinaExampleService = new BallerinaExampleServiceImpl(this.serverContext);
         this.ballerinaSymbolService = new BallerinaSymbolServiceImpl(workspaceManager, this.serverContext);
         this.ballerinaPackageService = new BallerinaPackageServiceImpl(workspaceManager, this.serverContext);
-
-        LSAnnotationCache.getInstance(this.serverContext).initiate();
     }
 
     public ExtendedLanguageClient getClient() {
@@ -129,12 +128,20 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setCodeActionProvider(true);
         res.getCapabilities().setDocumentFormattingProvider(true);
         res.getCapabilities().setDocumentRangeFormattingProvider(true);
-        res.getCapabilities().setRenameProvider(true);
         res.getCapabilities().setWorkspaceSymbolProvider(false);
         res.getCapabilities().setImplementationProvider(false);
         res.getCapabilities().setFoldingRangeProvider(true);
         res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
 
+        // Check and set prepare rename provider
+        if (Boolean.TRUE.equals(params.getCapabilities().getTextDocument().getRename().getPrepareSupport())) {
+            RenameOptions renameOptions = new RenameOptions();
+            renameOptions.setPrepareProvider(true);
+            res.getCapabilities().setRenameProvider(renameOptions);
+        } else {
+            res.getCapabilities().setRenameProvider(true);
+        }
+        
         // We are not registering commands here because they need to be registered/unregistered dynamically.
         // Only if the client doesn't support dynamic command registration, we do registration here
         if (!LSClientUtil.isDynamicCommandRegistrationSupported(params.getCapabilities())) {

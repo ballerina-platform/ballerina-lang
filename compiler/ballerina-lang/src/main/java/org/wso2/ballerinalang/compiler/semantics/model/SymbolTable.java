@@ -578,18 +578,26 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.OR, booleanType, booleanType, booleanType);
 
         // Unary operator symbols
+        defineIntegerUnaryOperations();
+
         defineUnaryOperator(OperatorKind.ADD, floatType, floatType);
         defineUnaryOperator(OperatorKind.ADD, decimalType, decimalType);
-        defineUnaryOperator(OperatorKind.ADD, intType, intType);
 
         defineUnaryOperator(OperatorKind.SUB, floatType, floatType);
         defineUnaryOperator(OperatorKind.SUB, decimalType, decimalType);
-        defineUnaryOperator(OperatorKind.SUB, intType, intType);
 
         defineUnaryOperator(OperatorKind.NOT, booleanType, booleanType);
         defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, byteType, byteType);
-        defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, intType, intType);
+    }
 
+    private void defineIntegerUnaryOperations() {
+        BType[] intTypes = {intType, byteType, signed32IntType, signed16IntType, signed8IntType, unsigned32IntType,
+                unsigned16IntType, unsigned8IntType};
+        for (BType type : intTypes) {
+            defineUnaryOperator(OperatorKind.ADD, type, intType);
+            defineUnaryOperator(OperatorKind.SUB, type, intType);
+            defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, type, intType);
+        }
     }
 
     private void defineXmlStringConcatanationOperations() {

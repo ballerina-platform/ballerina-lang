@@ -127,6 +127,11 @@ public class IntersectionTypeTest {
     }
 
     @Test
+    public void testDistinctErrorWithSameTypeIdsButDifferentTypes() {
+        BRunUtil.invoke(errorIntersectionResults, "testDistinctErrorWithSameTypeIdsButDifferentTypes");
+    }
+
+    @Test
     public void testErrorIntersectionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/intersection/error_intersection_type_negative.bal");
 

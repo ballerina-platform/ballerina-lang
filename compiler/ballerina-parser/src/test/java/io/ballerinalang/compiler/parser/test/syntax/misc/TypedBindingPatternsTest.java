@@ -164,5 +164,9 @@ public class TypedBindingPatternsTest extends AbstractMiscTest {
     public void testBindingPatternRecoveryAtEOF() {
         testFile("typed-binding-patterns/typed_binding_patterns_source_23.bal",
                 "typed-binding-patterns/typed_binding_patterns_assert_23.json");
+        testFile("typed-binding-patterns/typed_binding_patterns_source_24.bal",
+                "typed-binding-patterns/typed_binding_patterns_assert_24.json");
+        testFile("typed-binding-patterns/typed_binding_patterns_source_25.bal",
+                "typed-binding-patterns/typed_binding_patterns_assert_25.json");
     }
 }

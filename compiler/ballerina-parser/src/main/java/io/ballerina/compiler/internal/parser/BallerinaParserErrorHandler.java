@@ -5006,8 +5006,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FUNC_TYPE_DESC:
             case FUNC_TYPE_DESC_OR_ANON_FUNC:
                 return SyntaxKind.FUNCTION_KEYWORD;
-            case VAR_DECL_STMT_RHS:
-                return SyntaxKind.SEMICOLON_TOKEN;
             case SIMPLE_TYPE_DESCRIPTOR:
                 return SyntaxKind.ANY_KEYWORD;
             case REQUIRED_PARAM:
@@ -5065,16 +5063,18 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case BINDING_PATTERN_OR_EXPR_RHS:
             case TYPE_DESCRIPTOR:
             case NAMED_ARG_BINDING_PATTERN:
+            case TYPE_DESC_RHS_OR_BP_RHS:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
             case MINOR_VERSION:
             case PATCH_VERSION:
+            case ARRAY_LENGTH:
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+            case SIGNED_INT_OR_FLOAT_RHS:
                 return SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN;
-            case IMPORT_DECL_ORG_OR_MODULE_NAME_RHS:
-            case IMPORT_SUB_VERSION:
-                return SyntaxKind.SEMICOLON_TOKEN;
             case STRING_LITERAL_TOKEN:
+            case CONSTANT_EXPRESSION:
                 return SyntaxKind.STRING_LITERAL_TOKEN;
             case OPTIONAL_TYPE_DESCRIPTOR:
                 return SyntaxKind.OPTIONAL_TYPE_DESC;
@@ -5084,28 +5084,22 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_MEMBER_WITHOUT_METADATA:
             case RECORD_FIELD_WITHOUT_METADATA:
                 return SyntaxKind.TYPE_DESC;
-            case ARRAY_LENGTH:
-                return SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN;
             case HEX_INTEGER_LITERAL_TOKEN:
                 return SyntaxKind.HEX_INTEGER_LITERAL_TOKEN;
-            case CONSTANT_EXPRESSION:
-                return SyntaxKind.STRING_LITERAL_TOKEN;
+            case VAR_DECL_STMT_RHS:
+            case IMPORT_DECL_ORG_OR_MODULE_NAME_RHS:
+            case IMPORT_SUB_VERSION:
             case CONSTANT_EXPRESSION_START:
             case XML_NAMESPACE_PREFIX_DECL:
             case OBJECT_FIELD_RHS:
+            case FUNC_DEF_OR_TYPE_DESC_RHS:
                 return SyntaxKind.SEMICOLON_TOKEN;
-            case NIL_LITERAL:
-                return SyntaxKind.OPEN_PAREN_TOKEN;
             case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
                 return SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN;
             case HEX_FLOATING_POINT_LITERAL_TOKEN:
                 return SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN;
             case STATEMENT:
             case STATEMENT_WITHOUT_ANNOTS:
-                return SyntaxKind.CLOSE_BRACE_TOKEN;
-            case DECIMAL_INTEGER_LITERAL_TOKEN:
-            case SIGNED_INT_OR_FLOAT_RHS:
-                return SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN;
             case ENUM_MEMBER_RHS:
             case ENUM_MEMBER_END:
                 return SyntaxKind.CLOSE_BRACE_TOKEN;
@@ -5113,12 +5107,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OPTIONAL_MATCH_GUARD:
                 return SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN;
             case ERROR_MATCH_PATTERN:
+            case NIL_LITERAL:
+            case ERROR_BINDING_PATTERN_ERROR_KEYWORD_RHS:
                 return SyntaxKind.OPEN_PAREN_TOKEN;
             case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
             case TOP_LEVEL_NODE_WITHOUT_METADATA:
                 return SyntaxKind.EOF_TOKEN;
-            case FUNC_DEF_OR_TYPE_DESC_RHS:
-                return SyntaxKind.SEMICOLON_TOKEN;
             default:
                 return getExpectedSeperatorTokenKind(ctx);
         }

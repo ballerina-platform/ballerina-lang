@@ -66,7 +66,7 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
     protected static final String ANYDATA_VAR = "anydataVar";
     protected static final String BYTE_VAR = "byteVar";
     protected static final String JSON_VAR = "jsonVar";
-    protected static final String TABLE_VAR = "tableVar";
+    protected static final String TABLE_VAR = "tableWithKeyVar";
     protected static final String STREAM_VAR = "oddNumberStream";
     protected static final String NEVER_VAR = "neverVar";
 
