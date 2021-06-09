@@ -4121,7 +4121,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = new BTypedescType(exprType, null);
             }
         } else {
-            exprType = OperatorKind.ADD.equals(unaryExpr.operator) ? checkExpr(unaryExpr.expr, env, expType) :
+//            allow both addition and subtraction operators to get expected type as Decimal
+            boolean decimalNegation = OperatorKind.SUB.equals(unaryExpr.operator) && expType.tag == TypeTags.DECIMAL;
+            boolean isAdd = OperatorKind.ADD.equals(unaryExpr.operator);
+            exprType = (decimalNegation || isAdd) ? checkExpr(unaryExpr.expr, env, expType) :
                     checkExpr(unaryExpr.expr, env);
             if (exprType != symTable.semanticError) {
                 BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, exprType);
