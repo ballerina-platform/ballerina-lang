@@ -887,6 +887,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private boolean isSupportedConfigType(BType type, List<String> errors, String varName) {
         switch (type.getKind()) {
+            case ANYDATA:
+                break;
             case FINITE:
                 return ((BFiniteType) type).isAnyData;
             case ARRAY:
@@ -898,7 +900,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (elementType.tag == TypeTags.TABLE || !isSupportedConfigType(elementType, errors, varName)) {
                     errors.add("array element type '" + elementType + "' is not supported");
                 }
-                return true;
+                break;
             case RECORD:
                 BRecordType recordType = (BRecordType) type;
                 for (Field field : recordType.getFields().values()) {
@@ -909,19 +911,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                 " supported");
                     }
                 }
-                return true;
+                break;
             case MAP:
                 BMapType mapType = (BMapType) type;
                 if (!isSupportedConfigType(mapType.constraint, errors, varName)) {
                     errors.add("map constraint type '" + mapType.constraint + "' is not supported");
                 }
-                return true;
+                break;
             case TABLE:
                 BTableType tableType = (BTableType) type;
                 if (!isSupportedConfigType(tableType.constraint, errors, varName)) {
                     errors.add("table constraint type '" + tableType.constraint + "' is not supported");
                 }
-                return true;
+                break;
             case INTERSECTION:
                 return isSupportedConfigType(((BIntersectionType) type).effectiveType, errors, varName);
             case UNION:
@@ -931,7 +933,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         errors.add("union member type '" + memberType + "' is not supported");
                     }
                 }
-                return true;
+                break;
             default:
                 return  types.isAssignable(type, symTable.intType) ||
                         types.isAssignable(type, symTable.floatType) ||
@@ -940,6 +942,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         types.isAssignable(type, symTable.decimalType) ||
                         types.isAssignable(type, symTable.xmlType);
         }
+        return true;
     }
 
     private void analyzeTypeNode(BLangType typeNode, SymbolEnv env) {

@@ -43,16 +43,17 @@ type Person record {|
 |};
 
 type Person1 record {|
+    json jsonField;
     anydata anydataField;
 |};
 
 type Person2 record {|
-    int|anydata unionField;
-    anydata anydataField;
+    int|json unionField;
+    json jsonField;
 |};
 
 type Person3 record {|
-    anydata[] anyArr;
+    json[] jsonArr;
 |};
 
 type Person4 record {|
@@ -73,19 +74,19 @@ configurable Person3 person3 = ?;
 configurable Person4 person4 = ?;
 
 // Unsupported table constraint
-configurable table<map<anydata>> tableVar1 = ?;
+configurable table<map<json>> tableVar1 = ?;
 configurable table<Person1> tableVar2 = ?;
-configurable table<anydata> tableVar3 = ?;
+configurable table<json> tableVar3 = ?;
 
 // Unsupported array constraint
-configurable anydata[] arrayVar = ?;
+configurable json[] arrayVar = ?;
 
 // Unsupported map constraint
-configurable map<anydata> & readonly mapVar = ?;
+configurable map<json> & readonly mapVar = ?;
 
 // Unsupported union types
-configurable string|anydata unionVar1 = ?;
-configurable anydata unionVar2 = ?;
+configurable string|json unionVar1 = ?;
+configurable json unionVar2 = ?;
 
 // Unsupported tuple type
 configurable [int, string] tupleVar = ?;

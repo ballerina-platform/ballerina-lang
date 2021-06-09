@@ -92,46 +92,45 @@ public class GlobalVarNegativeTest {
                 "implicitly final", 37, 7);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(table<Person> key" +
                 "(name)[] & readonly)'\n\t" +
-                "array element type 'table<Person> key(name) & readonly' is not supported", 66, 1);
+                "array element type 'table<Person> key(name) & readonly' is not supported", 67, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '((table<Person> " +
                         "key(name) & readonly)[] & readonly)'\n\t" +
-                "array element type 'table<Person> key(name) & readonly' is not supported", 67, 1);
+                "array element type 'table<Person> key(name) & readonly' is not supported", 68, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(Person1 & " +
                 "readonly)'\n\t" +
-                "record field type '(anydata & readonly)' of field 'person1.anydataField' is not supported", 70, 1);
+                "record field type '(json & readonly)' of field 'person1.jsonField' is not supported", 71, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(Person2 & " +
                 "readonly)'\n\t" +
-                "union member type '(anydata & readonly)' is not supported\n\t" +
-                "record field type '(anydata & readonly)' of field 'person2.anydataField' is not supported", 71, 1);
+                "union member type '(json & readonly)' is not supported\n\t" +
+                "record field type '(json & readonly)' of field 'person2.jsonField' is not supported", 72, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(Person3 & " +
                 "readonly)'\n\t" +
-                "array element type 'anydata & readonly' is not supported", 72, 1);
+                "array element type 'json & readonly' is not supported", 73, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(Person4 & " +
                 "readonly)'\n\t" +
-                "record field type '(anydata & readonly)' of field 'person4.person.anydataField' is not supported", 73
-                , 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '" +
-                "(table<map<anydata>> & readonly)'\n\t" +
-                "map constraint type '(anydata & readonly)' is not supported", 76, 1);
+                "record field type '(json & readonly)' of field 'person4.person.jsonField' is not supported", 74, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(table<map<json>> " +
+                "& readonly)'\n\t" +
+                "map constraint type '(json & readonly)' is not supported", 77, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(table<Person1> & " +
                 "readonly)'\n\t" +
-                "record field type '(anydata & readonly)' of field 'tableVar2.anydataField' is not supported", 77, 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(table<anydata> & " +
+                "record field type '(json & readonly)' of field 'tableVar2.jsonField' is not supported", 78, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(table<json> & " +
                 "readonly)'\n\t" +
-                "table constraint type '(anydata & readonly)' is not supported", 78, 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(anydata[] & " +
+                "table constraint type '(json & readonly)' is not supported", 79, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(json[] & " +
                 "readonly)'\n\t" +
-                "array element type 'anydata & readonly' is not supported", 81, 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(map<anydata> & " +
+                "array element type 'json & readonly' is not supported", 82, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(map<json> & " +
                 "readonly)'\n\t" +
-                "map constraint type '(anydata & readonly)' is not supported", 84, 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '((string|anydata) " +
-                "& readonly)'\n\t" +
-                "union member type '(anydata & readonly)' is not supported", 87, 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(anydata & " +
-                "readonly)'", 88, 1);
+                "map constraint type '(json & readonly)' is not supported", 85, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '((string|json) & " +
+                "readonly)'\n\t" +
+                "union member type '(json & readonly)' is not supported", 88, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(json & readonly)" +
+                "'", 89, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '([int,string] & " +
-                "readonly)'", 91, 1);
+                "readonly)'", 92, 1);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
