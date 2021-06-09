@@ -92,14 +92,16 @@ public class JsonToRecordConverterTests {
     private final Path sample6Bal = RES_DIR.resolve("ballerina")
             .resolve("sample_6.bal");
 
+    private final Path crlfJson = RES_DIR.resolve("json")
+            .resolve("crlf.json");
+    private final Path crlfBal = RES_DIR.resolve("ballerina")
+            .resolve("from_crlf.bal");
+
     private final Path emptyBal = RES_DIR.resolve("ballerina")
             .resolve("empty.bal");
 
-    @Test(description = "Write output to empty bal file")
-    public void writeToEmpty() throws ConverterException, IOException {
-        String jsonFileContent = Files.readString(sample6Json);
-        records = JsonToRecordConverter.fromJSON(jsonFileContent);
-        String codeBlock = ConverterUtils.typeNodesToFormattedString(records);
+    // write the codeblock to an empty .bal file
+    public void writeToEmpty(String codeBlock) {
         Charset charset = StandardCharsets.US_ASCII;
         try (BufferedWriter writer = Files.newBufferedWriter(emptyBal, charset)) {
             writer.write(codeBlock, 0, codeBlock.length());
@@ -153,6 +155,16 @@ public class JsonToRecordConverterTests {
         String refString = "#/definitions/address/state";
         String extracted = ConverterUtils.extractReferenceType(refString);
         Assert.assertEquals(extracted, "state");
+    }
+
+    @Test(description = "Test with CRLF formatted json file")
+    public void testCRLFJson() throws ConverterException, IOException {
+        String jsonFileContent = Files.readString(crlfJson);
+        records = JsonToRecordConverter.fromJSON(jsonFileContent);
+        String generatedCodeBlock = records.stream().map(Object::toString)
+                .collect(Collectors.joining(""));
+        String expectedCodeBlock = Files.readString(crlfBal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 
     @Test(description = "Test with sample json objects")
