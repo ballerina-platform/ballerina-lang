@@ -431,23 +431,21 @@ public class JvmDesugarPhase {
         }
     }
 
-    private static String encodeFunctionIdentifier(String initialIdString,
-                                                   HashMap<String, String> encodedVsInitialIds) {
-        if (encodedVsInitialIds.containsKey(initialIdString)) {
-            return initialIdString;
+    private static String encodeFunctionIdentifier(String identifier, HashMap<String, String> encodedVsInitialIds) {
+        if (encodedVsInitialIds.containsKey(identifier)) {
+            return identifier;
         }
-        String encodedString = IdentifierUtils.encodeFunctionIdentifier(initialIdString);
-        encodedVsInitialIds.putIfAbsent(encodedString, initialIdString);
+        String encodedString = IdentifierUtils.encodeFunctionIdentifier(identifier);
+        encodedVsInitialIds.putIfAbsent(encodedString, identifier);
         return encodedString;
     }
 
-    private static String encodeNonFunctionIdentifier(String encodedIdString,
-                                                      HashMap<String, String> encodedVsInitialIds) {
-        if (encodedVsInitialIds.containsKey(encodedIdString)) {
-            return encodedIdString;
+    private static String encodeNonFunctionIdentifier(String identifier, HashMap<String, String> encodedVsInitialIds) {
+        if (encodedVsInitialIds.containsKey(identifier)) {
+            return identifier;
         }
-        String encodedString = IdentifierUtils.encodeNonFunctionIdentifier(encodedIdString);
-        encodedVsInitialIds.putIfAbsent(encodedString, encodedIdString);
+        String encodedString = IdentifierUtils.encodeNonFunctionIdentifier(identifier);
+        encodedVsInitialIds.putIfAbsent(encodedString, identifier);
         return encodedString;
     }
 
