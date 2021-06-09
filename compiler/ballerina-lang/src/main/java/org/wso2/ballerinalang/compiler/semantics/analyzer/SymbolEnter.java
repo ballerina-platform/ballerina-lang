@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -38,7 +37,6 @@ import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
@@ -208,7 +206,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final SymbolResolver symResolver;
     private final BLangDiagnosticLog dlog;
     private final Types types;
-    private final SourceDirectory sourceDirectory;
     private List<BLangNode> unresolvedTypes;
     private List<BLangClassDefinition> unresolvedClasses;
     private HashSet<LocationData> unknownTypeRefs;
@@ -221,7 +218,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     private List<BLangNode> intersectionTypes;
 
     private SymbolEnv env;
-    private final boolean projectAPIInitiatedCompilation;
 
     private static final String DEPRECATION_ANNOTATION = "deprecated";
     private static final String ANONYMOUS_RECORD_NAME = "anonymous-record";
@@ -245,7 +241,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
-        this.sourceDirectory = context.get(SourceDirectory.class);
         this.importedPackages = new ArrayList<>();
         this.unknownTypeRefs = new HashSet<>();
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
@@ -253,8 +248,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.intersectionTypes = new ArrayList<>();
 
         CompilerOptions options = CompilerOptions.getInstance(context);
-        projectAPIInitiatedCompilation = Boolean.parseBoolean(
-                options.get(CompilerOptionName.PROJECT_API_INITIATED_COMPILATION));
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
@@ -885,19 +878,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 version = names.fromIdNode(importPkgNode.version);
             } else {
                 // TODO We are removing the version in the import declaration anyway
-                if (projectAPIInitiatedCompilation) {
-                    version = Names.EMPTY;
-                } else {
-                    String pkgName = importPkgNode.getPackageName().stream()
-                            .map(id -> id.value)
-                            .collect(Collectors.joining("."));
-                    if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)
-                            && orgName.value.equals(enclPackageID.orgName.value)) {
-                        version = enclPackageID.version;
-                    } else {
-                        version = Names.EMPTY;
-                    }
-                }
+                version = Names.EMPTY;
             }
         } else {
             orgName = enclPackageID.orgName;
