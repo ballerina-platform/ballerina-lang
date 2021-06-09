@@ -251,9 +251,10 @@ public class TesterinaUtils {
     }
 
     private static void handleWildCards(List<String> filteredList, List<Test> suiteTests, String function) {
-        if (function.contains("*")) {
+        if (function.contains(TesterinaConstants.WILDCARD)) {
             for (Test test: suiteTests) {
-                if (Pattern.matches(function.replace("*", ".*"), test.getTestName())) {
+                if (Pattern.matches(function.replace(TesterinaConstants.WILDCARD, DOT + TesterinaConstants.WILDCARD),
+                        test.getTestName())) {
                     filteredList.add(test.getTestName());
                 }
             }
