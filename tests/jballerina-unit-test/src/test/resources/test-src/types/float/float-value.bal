@@ -81,3 +81,24 @@ function testDiscriminatedFloatLiteral() returns [float, float, float] {
     float d = 2.2e3f;
     return [a, b, d];
 }
+
+function testHexaDecimalLiteralsWithFloat() {
+    float f1 = 0x5;
+    float f2 = 0x555;
+    assertEqual(5.0, f1);
+    assertEqual(1365.0, f2);
+}
+
+function assertEqual(any expected, any actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected.toString();
+    string actualValAsString = actual.toString();
+    panic error(string `Assertion error: expected ${expectedValAsString} found ${actualValAsString}`);
+}

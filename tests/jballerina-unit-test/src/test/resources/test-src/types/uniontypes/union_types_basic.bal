@@ -229,6 +229,91 @@ function testCastToImmutableUnion() {
                    <string> checkpanic err.detail()["message"]);
 }
 
+type SomeTypes1 int:Unsigned32|object{};
+type SomeTypes2 string:Char|object{};
+
+type AA record {
+    int:Unsigned32|object{} a = 0;
+    string:Char|int b = "A";
+};
+
+class BB {
+    int:Unsigned32|object{} a = 0;
+    string:Char|int b = "A";
+}
+
+function testUnionWithIntegerSubTypes() {
+    int:Unsigned32|object{} v1 = 0;
+    SomeTypes1 v2 = 1;
+    SomeTypes1|string v3 = 2;
+    int:Unsigned32|string v4 = 3;
+    (int:Unsigned32|object{})[] v5 = [12];
+    [int:Unsigned32|object{}] v6 = [12];
+    map<int:Unsigned32|object{}> v7 = {"a": 12};
+    AA v8 = {};
+    BB v9 = new;
+    any|byte v10 = 1;
+    any|byte v11 = 1000;
+    byte|anydata v12 = 1;
+    byte|anydata v13 = 1000;
+    int:Unsigned32|json v14 = 6500;
+
+    assertEquality(0, v1);
+    assertEquality(1, v2);
+    assertEquality(2, v3);
+    assertEquality(3, v4);
+    assertEquality(12, v5[0]);
+    assertEquality(12, v6[0]);
+    assertEquality(12, v7["a"]);
+    assertEquality(0, v8.a);
+    assertEquality(1, foo1());
+    assertEquality(0, v9.a);
+    assertEquality(1, v10);
+    assertEquality(1000, v11);
+    assertEquality(1, v12);
+    assertEquality(1000, v13);
+    assertEquality(6500, v14);
+}
+
+function testUnionWithStringSubTypes() {
+    string:Char|object{} v1 = "A";
+    SomeTypes2 v2 = "A";
+    SomeTypes2|int v3 = "A";
+    string:Char|int v4 = "A";
+    (string:Char|object{})[] v5 = ["A"];
+    [string:Char|object{}] v6 = ["A"];
+    map<string:Char|object{}> v7 = {"a": "A"};
+    AA v8 = {};
+    BB v9 = new;
+    any|string:Char v10 = "A";
+    any|string:Char v11 = "A";
+    string:Char|anydata v12 = "A";
+    string:Char|anydata v13 = "A";
+
+    assertEquality("A", v1);
+    assertEquality("A", v2);
+    assertEquality("A", v3);
+    assertEquality("A", v4);
+    assertEquality("A", v5[0]);
+    assertEquality("A", v6[0]);
+    assertEquality("A", v7["a"]);
+    assertEquality("A", v8.b);
+    assertEquality("A", foo2());
+    assertEquality("A", v9.b);
+    assertEquality("A", v10);
+    assertEquality("A", v11);
+    assertEquality("A", v12);
+    assertEquality("A", v13);
+}
+
+function foo1() returns int:Unsigned32|object{} {
+    return 1;
+}
+
+function foo2() returns string:Char|object{} {
+    return "A";
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
