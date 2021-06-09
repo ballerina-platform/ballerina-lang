@@ -96,96 +96,46 @@ public class HttpFiltersDesugar {
     }
 
     void desugarFunction(BLangFunction functionNode, SymbolEnv env, List<BType> expressionTypes) {
-        if (isValidPackage(expressionTypes, HTTP_PACKAGE_NAME)) {
-            addHttpAuthDesugarFunctionInvocation(functionNode, env);
-        } else if (isValidPackage(expressionTypes, WEBSOCKET_PACKAGE_NAME)) {
-            addWebSocketAuthDesugarFunctionInvocation(functionNode, env);
+        if (isDefinedInStdLibPackage(expressionTypes, HTTP_PACKAGE_NAME)) {
+            addAuthDesugarFunctionInvocation(functionNode, env, HTTP_PACKAGE_NAME);
+        } else if (isDefinedInStdLibPackage(expressionTypes, WEBSOCKET_PACKAGE_NAME)) {
+            addAuthDesugarFunctionInvocation(functionNode, env, WEBSOCKET_PACKAGE_NAME);
         }
     }
 
-    boolean isValidPackage(List<BType> expressionTypes, String packageName) {
+    boolean isDefinedInStdLibPackage(List<BType> expressionTypes, String packageName) {
         for (BType expressionType : expressionTypes) {
             if (expressionType.tag == TypeTags.UNION) {
                 for (BType memberType : ((BUnionType) expressionType).getMemberTypes()) {
-                    if (memberType.tag == TypeTags.OBJECT && isValidPackage((BObjectType) memberType, packageName)) {
+                    if (memberType.tag == TypeTags.OBJECT && isDefinedInStdLibPackage((BObjectType) memberType, packageName)) {
                         return true;
                     }
                 }
             } else if (expressionType.tag == TypeTags.OBJECT &&
-                    isValidPackage((BObjectType) expressionType, packageName)) {
+                    isDefinedInStdLibPackage((BObjectType) expressionType, packageName)) {
                 return true;
             }
         }
         return false;
     }
 
-    private boolean isValidPackage(BObjectType type, String packageName) {
+    private boolean isDefinedInStdLibPackage(BObjectType type, String packageName) {
         return type.tsymbol.pkgID.orgName.value.equals(ORG_NAME) && type.tsymbol.pkgID.name.value.equals(packageName);
     }
 
-    void addHttpAuthDesugarFunctionInvocation(BLangFunction functionNode, SymbolEnv env) {
-        BPackageSymbol packageSymbol = getPackageSymbol(env, HTTP_PACKAGE_NAME);
+    void addAuthDesugarFunctionInvocation(BLangFunction functionNode, SymbolEnv env, String packageName) {
+        BPackageSymbol packageSymbol = getPackageSymbol(env, packageName);
         if (packageSymbol == null) {
             // Couldn't find http package in imports list or symbols list.
             return;
         }
-        // Expected method type:
+
+        // Expected method type for HTTP:
         // `function authenticateResource(service object {} serviceRef, string methodName, string[] resourcePath)`
-        // The function is expected to panic with a distinct error when fail to authenticate.
-        // HTTP listener will handle this error.
-        BSymbol methodSym = symResolver.lookupMethodInModule(packageSymbol, names.fromString(AUTHENTICATE_RESOURCE),
-                                                             env);
-        if (methodSym == symTable.notFoundSymbol || !(methodSym instanceof BInvokableSymbol)) {
-            return;
-        }
-        BInvokableSymbol invocationSymbol = (BInvokableSymbol) methodSym;
-        BLangResourceFunction resourceNode = (BLangResourceFunction) functionNode;
-        Location pos = resourceNode.getPosition();
-
-        // Create method invocation.
-        BLangSimpleVarRef selfRef = ASTBuilderUtil.createVariableRef(
-                pos, resourceNode.symbol.receiverSymbol);
-
-        BLangLiteral methodNameLiteral = ASTBuilderUtil.createLiteral(
-                pos, symTable.stringType, resourceNode.methodName.value);
-
-        ArrayList<BLangExpression> pathLiterals = new ArrayList<>();
-        for (BLangIdentifier path : resourceNode.resourcePath) {
-            pathLiterals.add(ASTBuilderUtil.createLiteral(pos, symTable.stringType, path.value));
-        }
-        BLangListConstructorExpr.BLangArrayLiteral resourcePathLiteral = ASTBuilderUtil.createEmptyArrayLiteral(
-                pos, (BArrayType) symTable.stringArrayType);
-        resourcePathLiteral.exprs = pathLiterals;
-
-        ArrayList<BLangExpression> args = new ArrayList<>();
-        args.add(selfRef);
-        args.add(methodNameLiteral);
-        args.add(resourcePathLiteral);
-
-        BLangInvocation invocationExpr =
-                ASTBuilderUtil.createInvocationExprForMethod(pos, invocationSymbol, args, symResolver);
-        BLangSimpleVariableDef result = ASTBuilderUtil.createVariableDef(pos,
-                 ASTBuilderUtil.createVariable(pos, "$temp$http$desugar$result",
-                                               symTable.anyType, invocationExpr, null));
-        List<BLangStatement> statements = getFunctionBodyStatementList(functionNode);
-        statements.add(0, result);
-
-        BVarSymbol resultSymbol = new BVarSymbol(0, names.fromIdNode(result.var.name), env.enclPkg.packageID,
-                                                 result.var.type, resourceNode.symbol, pos, VIRTUAL);
-        resourceNode.symbol.scope.define(resultSymbol.name, resultSymbol);
-        result.var.symbol = resultSymbol;
-    }
-
-    void addWebSocketAuthDesugarFunctionInvocation(BLangFunction functionNode, SymbolEnv env) {
-        BPackageSymbol packageSymbol = getPackageSymbol(env, "websocket");
-        if (packageSymbol == null) {
-            // Couldn't find websocket package in imports list or symbols list.
-            return;
-        }
-        // Expected method type:
+        // Expected method type for WebSocket:
         // `function authenticateResource(service object {} serviceRef)`
         // The function is expected to panic with a distinct error when fail to authenticate.
-        // WebSocket listener will handle this error.
+        // Relevant listener will handle this error.
         BSymbol methodSym = symResolver.lookupMethodInModule(packageSymbol, names.fromString(AUTHENTICATE_RESOURCE),
                                                              env);
         if (methodSym == symTable.notFoundSymbol || !(methodSym instanceof BInvokableSymbol)) {
@@ -193,21 +143,35 @@ public class HttpFiltersDesugar {
         }
         BInvokableSymbol invocationSymbol = (BInvokableSymbol) methodSym;
         BLangResourceFunction resourceNode = (BLangResourceFunction) functionNode;
-
         Location pos = resourceNode.getPosition();
 
         // Create method invocation.
-        BLangSimpleVarRef selfRef = ASTBuilderUtil.createVariableRef(
-                pos, resourceNode.symbol.receiverSymbol);
+        BLangSimpleVarRef selfRef = ASTBuilderUtil.createVariableRef(pos, resourceNode.symbol.receiverSymbol);
 
         ArrayList<BLangExpression> args = new ArrayList<>();
         args.add(selfRef);
 
+        if (packageName.equals(HTTP_PACKAGE_NAME)) {
+            BLangLiteral methodNameLiteral = ASTBuilderUtil.createLiteral(
+                    pos, symTable.stringType, resourceNode.methodName.value);
+
+            ArrayList<BLangExpression> pathLiterals = new ArrayList<>();
+            for (BLangIdentifier path : resourceNode.resourcePath) {
+                pathLiterals.add(ASTBuilderUtil.createLiteral(pos, symTable.stringType, path.value));
+            }
+            BLangListConstructorExpr.BLangArrayLiteral resourcePathLiteral = ASTBuilderUtil.createEmptyArrayLiteral(
+                    pos, (BArrayType) symTable.stringArrayType);
+            resourcePathLiteral.exprs = pathLiterals;
+
+            args.add(methodNameLiteral);
+            args.add(resourcePathLiteral);
+        }
+
         BLangInvocation invocationExpr =
                 ASTBuilderUtil.createInvocationExprForMethod(pos, invocationSymbol, args, symResolver);
         BLangSimpleVariableDef result = ASTBuilderUtil.createVariableDef(pos,
-                ASTBuilderUtil.createVariable(pos, "$temp$websocket$desugar$result",
-                                              symTable.anyType, invocationExpr, null));
+                 ASTBuilderUtil.createVariable(pos, "$temp$auth$desugar$result",
+                                               symTable.anyType, invocationExpr, null));
         List<BLangStatement> statements = getFunctionBodyStatementList(functionNode);
         statements.add(0, result);
 
@@ -224,8 +188,8 @@ public class HttpFiltersDesugar {
                 return pkg.symbol;
             }
         }
-        // This resolves the package symbol when the code is at a submodule of the module which have the service
-        // definition. In that case there is no any import relevant to the particular service.
+        // This resolves the package symbol when the code is at a submodule of the module which have the listener
+        // definition. In that case, there is no any import relevant to the particular service.
         while (env.enclEnv != null) {
             if (env.enclEnv.scope.owner.pkgID.orgName.value.equals(ORG_NAME) &&
                     env.enclEnv.scope.owner.pkgID.name.value.equals(packageName)) {
