@@ -249,7 +249,8 @@ public class PackageID {
             samePkg = (!this.isUnnamed) || (this.sourceFileName.equals(other.sourceFileName));
         }
 
-        return samePkg && orgName.equals(other.orgName) && name.equals(other.name) && version.equals(other.version);
+        return samePkg && orgName.equals(other.orgName) && pkgName.equals(other.pkgName) && name.equals(other.name)
+                && version.equals(other.version);
     }
 
     @Override
