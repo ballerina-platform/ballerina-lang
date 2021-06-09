@@ -96,7 +96,6 @@ import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
  * @since 2.0.0
  */
 public class ProjectUtils {
-    public static final String USER_HOME = "user.home";
     private static final Pattern separatedIdentifierPattern = Pattern.compile("^[a-zA-Z0-9_.]*$");
     private static final Pattern orgNamePattern = Pattern.compile("^[a-zA-Z0-9_]*$");
     private static final String UNKNOWN = "unknown";
@@ -438,7 +437,7 @@ public class ProjectUtils {
         Path homeRepoPath;
         String homeRepoDir = System.getenv(ProjectConstants.HOME_REPO_ENV_KEY);
         if (homeRepoDir == null || homeRepoDir.isEmpty()) {
-            String userHomeDir = System.getProperty(USER_HOME);
+            String userHomeDir = System.getProperty(ProjectConstants.USER_HOME);
             if (userHomeDir == null || userHomeDir.isEmpty()) {
                 throw new BLangCompilerException("Error creating home repository: unable to get user home directory");
             }
