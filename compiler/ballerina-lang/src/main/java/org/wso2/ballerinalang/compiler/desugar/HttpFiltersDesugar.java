@@ -107,7 +107,8 @@ public class HttpFiltersDesugar {
         for (BType expressionType : expressionTypes) {
             if (expressionType.tag == TypeTags.UNION) {
                 for (BType memberType : ((BUnionType) expressionType).getMemberTypes()) {
-                    if (memberType.tag == TypeTags.OBJECT && isDefinedInStdLibPackage((BObjectType) memberType, packageName)) {
+                    if (memberType.tag == TypeTags.OBJECT &&
+                            isDefinedInStdLibPackage((BObjectType) memberType, packageName)) {
                         return true;
                     }
                 }
