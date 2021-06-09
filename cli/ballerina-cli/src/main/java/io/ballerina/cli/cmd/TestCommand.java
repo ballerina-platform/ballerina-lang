@@ -170,9 +170,9 @@ public class TestCommand implements BLauncherCmd {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
         //Display warning if any other options are provided with list-groups flag.
-        boolean displayWarning = false;
-        if (listGroups && (rerunTests || groupList != null || disableGroupList != null || testList != null)) {
-            displayWarning = true;
+        if (listGroups && (rerunTests || coverage || testReport || groupList != null || disableGroupList != null
+                || testList != null)) {
+            this.outStream.println("\nWarning: Other flags are skipped when list-groups flag is provided.\n");
         }
 
         if (project.buildOptions().codeCoverage()) {
@@ -202,7 +202,7 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
-                .addTask(new ListTestGroupsTask(outStream, displayWarning), !listGroups) // list available test groups
+                .addTask(new ListTestGroupsTask(outStream), !listGroups) // list available test groups
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
                         testList, includes, coverageFormat), listGroups)
                 .build();
