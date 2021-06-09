@@ -31,7 +31,7 @@ public class BasicWorkerActionsNegativeTest {
     public void testWorkerActionsSemanticsNegative() {
         int index = 0;
         CompileResult resultSemanticsNegative = BCompileUtil.compile("test-src/workers/actions-semantics-negative.bal");
-        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 8, "Worker actions semantics negative test error" +
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 9, "Worker actions semantics negative test error" +
                 " count");
         BAssertUtil.validateError(resultSemanticsNegative, index++,
                 "invalid type for worker send 'Person', expected value:Cloneable", 44, 22);
@@ -46,8 +46,10 @@ public class BasicWorkerActionsNegativeTest {
                 "missing identifier", 139, 13);
         BAssertUtil.validateError(resultSemanticsNegative, index++,
                 "missing identifier", 143, 12);
-        BAssertUtil.validateError(resultSemanticsNegative, index,
+        BAssertUtil.validateError(resultSemanticsNegative, index++,
                 "invalid token 'int'", 143, 16);
+        BAssertUtil.validateError(resultSemanticsNegative, index,
+                "incomplete quoted identifier", 147, 12);
     }
 
     @Test(description = "Test negative scenarios of worker actions")
