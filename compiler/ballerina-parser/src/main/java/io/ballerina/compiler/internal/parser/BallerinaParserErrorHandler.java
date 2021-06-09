@@ -983,7 +983,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.RIGHT_ARROW_TOKEN;
                     break;
                 case PARAMETERIZED_TYPE:
-                    hasMatch = isParameterizedTypeToken(nextToken.kind);
+                    hasMatch = BallerinaParser.isParameterizedTypeToken(nextToken.kind);
                     break;
                 case LT:
                 case STREAM_TYPE_PARAM_START_TOKEN:
@@ -5524,24 +5524,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RETURN_KEYWORD:
             case FIELD_KEYWORD:
             case CLASS_KEYWORD:
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    /**
-     * Check whether the given token is a parameterized type keyword.
-     *
-     * @param tokenKind Token to check
-     * @return <code>true</code> if the given token is a parameterized type keyword. <code>false</code> otherwise
-     */
-    public boolean isParameterizedTypeToken(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case TYPEDESC_KEYWORD:
-            case FUTURE_KEYWORD:
-            case XML_KEYWORD:
-            case ERROR_KEYWORD:
                 return true;
             default:
                 return false;

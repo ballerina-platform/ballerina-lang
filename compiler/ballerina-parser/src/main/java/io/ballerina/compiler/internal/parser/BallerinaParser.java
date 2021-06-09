@@ -2452,12 +2452,6 @@ public class BallerinaParser extends AbstractParser {
             case MAP_KEYWORD: // map type desc
                 reportInvalidQualifierList(qualifiers);
                 return parseMapTypeDescriptor(consume());
-            case TYPEDESC_KEYWORD:
-            case FUTURE_KEYWORD:
-            case XML_KEYWORD:
-            case ERROR_KEYWORD:
-                reportInvalidQualifierList(qualifiers);
-                return parseParameterizedTypeDescriptor(consume());
             case STREAM_KEYWORD:
                 reportInvalidQualifierList(qualifiers);
                 return parseStreamTypeDescriptor(consume());
@@ -2477,6 +2471,11 @@ public class BallerinaParser extends AbstractParser {
                 reportInvalidQualifierList(qualifiers);
                 return parseQualifiedIdentWithTransactionPrefix(context);
             default:
+                if (isParameterizedTypeToken(nextToken.kind)) {
+                    reportInvalidQualifierList(qualifiers);
+                    return parseParameterizedTypeDescriptor(consume());
+                }
+                
                 if (isSingletonTypeDescStart(nextToken.kind)) {
                     reportInvalidQualifierList(qualifiers);
                     return parseSingletonTypeDesc();
@@ -2505,6 +2504,24 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 return parseTypeDescriptorInternal(qualifiers, context, isInConditionalExpr);
+        }
+    }
+
+    /**
+     * Check whether the given token is a parameterized type keyword.
+     *
+     * @param tokenKind Token to check
+     * @return <code>true</code> if the given token is a parameterized type keyword. <code>false</code> otherwise
+     */
+    static boolean isParameterizedTypeToken(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case TYPEDESC_KEYWORD:
+            case FUTURE_KEYWORD:
+            case XML_KEYWORD:
+            case ERROR_KEYWORD:
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -2541,14 +2558,12 @@ public class BallerinaParser extends AbstractParser {
             case TABLE_KEYWORD:
                 context = ParserRuleContext.TABLE_TYPE_OR_TYPE_REF;
                 break;
-            case TYPEDESC_KEYWORD:
-            case FUTURE_KEYWORD:
-            case XML_KEYWORD:
-            case ERROR_KEYWORD:
-                context = ParserRuleContext.PARAMETERIZED_TYPE_OR_TYPE_REF;
-                break;
             default:
-                context = ParserRuleContext.TYPE_DESC_RHS_OR_TYPE_REF;
+                if (isParameterizedTypeToken(preDeclaredPrefix.kind)) {
+                    context = ParserRuleContext.PARAMETERIZED_TYPE_OR_TYPE_REF;
+                } else {
+                    context = ParserRuleContext.TYPE_DESC_RHS_OR_TYPE_REF;
+                }
         }
 
         Solution solution = recover(peek(), context);
@@ -2565,12 +2580,6 @@ public class BallerinaParser extends AbstractParser {
             case MAP_KEYWORD:
                 reportInvalidQualifierList(qualifiers);
                 return parseMapTypeDescriptor(preDeclaredPrefix);
-            case TYPEDESC_KEYWORD:
-            case FUTURE_KEYWORD:
-            case XML_KEYWORD:
-            case ERROR_KEYWORD:
-                reportInvalidQualifierList(qualifiers);
-                return parseParameterizedTypeDescriptor(preDeclaredPrefix);
             case OBJECT_KEYWORD:
                 STNode objectTypeQualifiers = createObjectTypeQualNodeList(qualifiers);
                 return parseObjectTypeDescriptor(preDeclaredPrefix, objectTypeQualifiers);
@@ -2581,6 +2590,11 @@ public class BallerinaParser extends AbstractParser {
                 reportInvalidQualifierList(qualifiers);
                 return parseTableTypeDescriptor(preDeclaredPrefix);
             default:
+                if (isParameterizedTypeToken(preDeclaredPrefix.kind)) {
+                    reportInvalidQualifierList(qualifiers);
+                    return parseParameterizedTypeDescriptor(preDeclaredPrefix);
+                }
+                
                 return createBuiltinSimpleNameReference(preDeclaredPrefix);
         }
     }
@@ -9404,10 +9418,6 @@ public class BallerinaParser extends AbstractParser {
             case CLIENT_KEYWORD:
             case OPEN_PAREN_TOKEN: // nil type descriptor '()'
             case MAP_KEYWORD: // map type desc
-            case FUTURE_KEYWORD: // future type desc
-            case TYPEDESC_KEYWORD: // typedesc type desc
-            case ERROR_KEYWORD: // error type desc
-            case XML_KEYWORD: // xml type desc
             case STREAM_KEYWORD: // stream type desc
             case TABLE_KEYWORD: // table type
             case FUNCTION_KEYWORD:
@@ -9418,6 +9428,10 @@ public class BallerinaParser extends AbstractParser {
             case TRANSACTION_KEYWORD:
                 return true;
             default:
+                if (isParameterizedTypeToken(nodeKind)) {
+                    return true;
+                }
+                
                 if (isSingletonTypeDescStart(nodeKind)) {
                     return true;
                 }

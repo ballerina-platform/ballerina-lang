@@ -126,7 +126,7 @@ function testCustomErrorFuture() {
 function testCustomErrorFutureWithoutConstraint() {
     future te = start getError();
 
-    any|error x = getError();
+    any|error x = wait te;
     string str = (<error>x).toString();
 
     assertEquality(getError().toString(), str);
