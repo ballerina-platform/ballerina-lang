@@ -43,6 +43,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static io.ballerina.compiler.api.symbols.DiagnosticState.REDECLARED;
+import static io.ballerina.compiler.api.symbols.DiagnosticState.UNKNOWN_TYPE;
+import static io.ballerina.compiler.api.symbols.DiagnosticState.VALID;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertList;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getSymbolNames;
@@ -396,7 +399,54 @@ public class SymbolLookupTest {
         assertEquals(symbol.kind(), SymbolKind.VARIABLE);
         assertEquals(symbol.getName().get(), "b");
         assertEquals(((VariableSymbol) symbol).typeDescriptor().typeKind(), TypeDescKind.COMPILATION_ERROR);
-        assertEquals(((VariableSymbol) symbol).diagnosticState(), DiagnosticState.REDECLARED);
+        assertEquals(((VariableSymbol) symbol).diagnosticState(), REDECLARED);
+    }
+
+    @Test
+    public void testRedeclaredSymbolLookup2() {
+        Project project = BCompileUtil.loadProject("test-src/errored_symbol_lookup_test_2.bal");
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+
+        List<Symbol> allInScopeSymbols = model.visibleSymbols(srcFile, LinePosition.from(25, 8), VALID, REDECLARED,
+                                                              UNKNOWN_TYPE);
+        List<Symbol> symbols = new ArrayList<>();
+        for (Symbol symbol : allInScopeSymbols) {
+            if (symbol.getModule().get().id().equals(moduleID) && symbol.kind() == SymbolKind.VARIABLE) {
+                symbols.add(symbol);
+            }
+        }
+
+        assertEquals(symbols.size(), 4);
+
+        for (Symbol symbol : symbols) {
+            switch (symbol.getName().get()) {
+                case "b":
+                    assertVarSymbol(symbol, "b", REDECLARED);
+                    break;
+                case "p":
+                    assertVarSymbol(symbol, "p", UNKNOWN_TYPE);
+                    break;
+                case "x":
+                    assertVarSymbol(symbol, "x", UNKNOWN_TYPE);
+                    break;
+                default:
+                    throw new AssertionError("Unexpected symbol: " + symbol.getName().get());
+            }
+        }
+    }
+
+    private void assertVarSymbol(Symbol symbol, String name, DiagnosticState state) {
+        assertEquals(symbol.kind(), SymbolKind.VARIABLE);
+        assertEquals(symbol.getName().get(), name);
+        assertEquals(((VariableSymbol) symbol).typeDescriptor().typeKind(), TypeDescKind.COMPILATION_ERROR);
+        assertEquals(((VariableSymbol) symbol).diagnosticState(), state);
     }
 
     private String createSymbolString(Symbol symbol) {
