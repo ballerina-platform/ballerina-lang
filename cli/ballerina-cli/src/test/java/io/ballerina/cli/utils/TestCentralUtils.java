@@ -31,7 +31,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static io.ballerina.cli.utils.CentralUtils.readSettings;
-import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 
 /**
  * Test cases to test utilities.
@@ -50,7 +49,6 @@ public class TestCentralUtils extends PowerMockTestCase {
         PowerMockito.when(ProjectUtils.createAndGetHomeReposPath()).thenReturn(VALID_BAL_HOME);
         Settings settings = readSettings();
         Assert.assertEquals(settings.getCentral().getAccessToken(), EXPECTED_ACCESS_TOKEN);
-        Assert.assertEquals(getAccessTokenOfCLI(settings), EXPECTED_ACCESS_TOKEN);
     }
 
     @Test(description = "Test get access token from invalid, but recoverable Settings.toml")
@@ -58,6 +56,6 @@ public class TestCentralUtils extends PowerMockTestCase {
         PowerMockito.mockStatic(ProjectUtils.class);
         PowerMockito.when(ProjectUtils.createAndGetHomeReposPath()).thenReturn(INVALID_BAL_HOME);
         Settings settings = readSettings();
-        Assert.assertEquals(getAccessTokenOfCLI(settings), EXPECTED_ACCESS_TOKEN);
+        Assert.assertEquals(settings.getCentral().getAccessToken(), EXPECTED_ACCESS_TOKEN);
     }
 }
