@@ -494,7 +494,7 @@ public class ProjectUtils {
         // The access token can be specified as an environment variable or in 'Settings.toml'. First we would check if
         // the access token was specified as an environment variable. If not we would read it from 'Settings.toml'
         String tokenAsEnvVar = System.getenv(ProjectConstants.BALLERINA_CENTRAL_ACCESS_TOKEN);
-        if (tokenAsEnvVar != null) {
+        if (tokenAsEnvVar != null && !tokenAsEnvVar.isEmpty()) {
             return tokenAsEnvVar;
         }
         if (settings.getCentral() != null) {

@@ -35,7 +35,6 @@ import io.ballerina.projects.util.RepoUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -164,7 +163,7 @@ public class PushCommand implements BLauncherCmd {
                         return;
                     }
                 }
-            } catch (ProjectException | SettingsTomlException e) {
+            } catch (ProjectException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
@@ -340,13 +339,7 @@ public class PushCommand implements BLauncherCmd {
 
             Path ballerinaHomePath = ProjectUtils.createAndGetHomeReposPath();
             Path settingsTomlFilePath = ballerinaHomePath.resolve(SETTINGS_FILE_NAME);
-
-            try {
-                authenticate(errStream, getBallerinaCentralCliTokenUrl(), settingsTomlFilePath, client);
-            } catch (SettingsTomlException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
-                return;
-            }
+            authenticate(errStream, getBallerinaCentralCliTokenUrl(), settingsTomlFilePath, client);
 
             try {
                 client.pushPackage(balaPath, org, name, version, JvmTarget.JAVA_11.code(),

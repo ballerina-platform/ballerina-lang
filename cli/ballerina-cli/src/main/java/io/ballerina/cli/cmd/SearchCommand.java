@@ -27,7 +27,6 @@ import io.ballerina.projects.util.RepoUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.model.PackageSearchResult;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -133,14 +132,7 @@ public class SearchCommand implements BLauncherCmd {
      */
     private void searchInCentral(String query) {
         try {
-            Settings settings;
-            try {
-                settings = readSettings();
-                // Ignore Settings.toml diagnostics in the search command
-            } catch (SettingsTomlException e) {
-                // Ignore 'Settings.toml' parsing errors and return empty Settings object
-                settings = Settings.from();
-            }
+            Settings settings = readSettings();
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                                                            initializeProxy(settings.getProxy()),
                                                            getAccessTokenOfCLI(settings));

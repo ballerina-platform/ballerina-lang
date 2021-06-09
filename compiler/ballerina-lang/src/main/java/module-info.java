@@ -19,7 +19,6 @@ module io.ballerina.lang {
     exports io.ballerina.compiler.api.symbols.resourcepath;
     exports io.ballerina.compiler.api.symbols.resourcepath.util;
     exports org.wso2.ballerinalang.compiler.util;
-    exports org.ballerinalang.toml.model;
     exports org.wso2.ballerinalang.util;
     exports org.ballerinalang.model.types;
     exports org.wso2.ballerinalang.compiler.tree;
@@ -49,7 +48,6 @@ module io.ballerina.lang {
     exports org.ballerinalang.repository;
     exports org.wso2.ballerinalang.compiler.bir;
     exports org.wso2.ballerinalang.compiler.bir.model;
-    exports org.ballerinalang.toml.exceptions;
     exports org.ballerinalang.model.tree.types;
     exports org.wso2.ballerinalang.compiler.parser;
     exports org.ballerinalang.model.symbols;

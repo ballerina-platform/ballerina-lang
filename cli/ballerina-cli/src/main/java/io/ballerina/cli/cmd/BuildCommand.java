@@ -33,7 +33,6 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -264,12 +263,8 @@ public class BuildCommand implements BLauncherCmd {
                         "enabled");
             }
         }
-        // Validate Settings.toml file
-        try {
-            readSettings();
-        } catch (SettingsTomlException e) {
-            this.outStream.println("warning: " + e.getMessage());
-        }
+        // Read Settings.toml file
+        readSettings();
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean the target directory(projects only)
