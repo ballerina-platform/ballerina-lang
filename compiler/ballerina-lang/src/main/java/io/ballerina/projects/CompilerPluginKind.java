@@ -17,28 +17,16 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.projects.plugins.CompilerPlugin;
-
 /**
- * This is an abstract class that represents a Compiler Plugin.
+ * Represents the kind of the {@code CompilerPluginInfo} instance.
+ * <p>
+ * There are two known kinds of compiler plugins: {@code PackageProvidedCompilerPluginInfo},
+ * {@code SingleFileProject} and {@code BuiltInCompilerPluginInfo}.
  *
  * @since 2.0.0
  */
-class CompilerPluginInfo {
-
-    protected final CompilerPlugin compilerPlugin;
-    private CompilerPluginKind kind;
-
-    protected CompilerPluginInfo(CompilerPlugin compilerPlugin, CompilerPluginKind kind) {
-        this.compilerPlugin = compilerPlugin;
-        this.kind = kind;
-    }
-
-    CompilerPlugin compilerPlugin() {
-        return compilerPlugin;
-    }
-
-    CompilerPluginKind kind() {
-        return kind;
-    }
+enum CompilerPluginKind {
+    BUILT_IN,
+    PACKAGE_PROVIDED,
+    ;
 }
