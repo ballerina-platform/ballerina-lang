@@ -143,6 +143,7 @@ public class TestCommand implements BLauncherCmd {
                         "and continuing the test run...");
             }
             coverage = false;
+            testReport = false;
         }
         BuildOptions buildOptions = constructBuildOptions();
         boolean isSingleFile = false;
