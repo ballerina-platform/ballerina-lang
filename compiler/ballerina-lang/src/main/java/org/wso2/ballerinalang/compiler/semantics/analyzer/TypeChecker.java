@@ -3723,7 +3723,6 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(expression.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR_WAIT_FIELD,
                     currentExpectedType, eventualType, varName);
         }
-        futureType.constraint = eventualType;
     }
 
     private void setEventualTypeForWaitExpression(BLangSimpleVarRef expression,

@@ -65,7 +65,7 @@ public class CallStackDebugTest extends BaseTestCase {
         debugTestRunner.assertCallStack(frames[2], "func2", 23, "main.bal");
         debugTestRunner.assertCallStack(frames[3], "func1", 19, "main.bal");
         debugTestRunner.assertCallStack(frames[4], "addition", 14, "main.bal");
-        debugTestRunner.assertCallStack(frames[5], "start:anonymous", 2, "main.bal");
+        debugTestRunner.assertCallStack(frames[5], "start:f1", 2, "main.bal");
 
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
