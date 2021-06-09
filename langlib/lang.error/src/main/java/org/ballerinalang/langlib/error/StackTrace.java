@@ -43,6 +43,7 @@ import java.util.Map;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_ERROR_PKG_ID;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.EMPTY;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERIOD_SEPARATOR;
 import static io.ballerina.runtime.api.values.BError.CALL_STACK_ELEMENT;
 
@@ -81,36 +82,25 @@ public class StackTrace {
     }
 
     static BMap<BString, Object> getStackFrame(StackTraceElement stackTraceElement) {
-        String methodName = stackTraceElement.getMethodName();
-        String moduleName = IdentifierUtils.decodeIdentifier(stackTraceElement.getClassName());
-        String fileName = stackTraceElement.getFileName();
-        int lineNumber = stackTraceElement.getLineNumber();
 
         Object[] values = new Object[4];
-        values[0] = methodName;
-        values[2] = fileName;
-        values[3] = lineNumber;
-        if (!isSingleBalFile(moduleName, fileName)) {
-            values[1] = getModuleName(moduleName, fileName);
+        values[0] = stackTraceElement.getMethodName();
+        values[2] = stackTraceElement.getFileName();
+        values[3] = stackTraceElement.getLineNumber();
+
+        String moduleName = IdentifierUtils.decodeIdentifier(stackTraceElement.getClassName())
+                .replace(FILE_NAME_PERIOD_SEPARATOR, DOT);
+        String fileName = stackTraceElement.getFileName().replace(BLANG_SRC_FILE_SUFFIX, EMPTY);
+        if (!moduleName.equals(fileName)) {
+            int index = moduleName.lastIndexOf(DOT + fileName);
+            if (index != -1) {
+                values[1] = moduleName.substring(0, index);
+            } else {
+                values[1] = moduleName;
+            }
         }
         return ValueCreator.createRecordValue(
                 ValueCreator.createRecordValue(BALLERINA_LANG_ERROR_PKG_ID, CALL_STACK_ELEMENT), values);
-    }
-
-    private static String getModuleName(String moduleName, String fileName) {
-        fileName = fileName.replace(BLANG_SRC_FILE_SUFFIX, "");
-        moduleName = moduleName.replace(FILE_NAME_PERIOD_SEPARATOR, DOT);
-        int index = moduleName.lastIndexOf("." + fileName);
-        if (index != -1) {
-            moduleName = moduleName.substring(0, index);
-        }
-        return moduleName;
-    }
-
-    private static boolean isSingleBalFile(String moduleName, String fileName) {
-        moduleName = moduleName.replace(FILE_NAME_PERIOD_SEPARATOR, DOT);
-        fileName = fileName.replace(BLANG_SRC_FILE_SUFFIX, "");
-        return moduleName.equals(fileName) ? true : false;
     }
 
     /**
