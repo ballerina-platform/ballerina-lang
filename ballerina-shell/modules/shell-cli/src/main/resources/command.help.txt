@@ -1,8 +1,5 @@
 Ballerina Shell Help
 
-Ballerina version : Ballerina Swan Lake Beta 1
-Language specification 2021R1
-
 Type a Ballerina language expression, statement, or declaration.
 Or type one of the following commands:
 
