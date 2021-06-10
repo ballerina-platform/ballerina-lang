@@ -45,9 +45,6 @@ public class BadSadTests extends BaseTest {
         Path dependencyPackage = Paths.get("logging/projects-for-badsad-tests/hello");
         CompileResult compileResult = BCompileUtil.compileAndCacheBala(
                 dependencyPackage.toString(), Paths.get(balServer.getServerHome(), "repo"));
-        if (compileResult.getDiagnosticResult().hasErrors()) {
-
-        }
         Path distRepo = Paths.get(balServer.getServerHome()).resolve("repo");
         Path dependencyBir = Paths.get("build/repo/cache/badsad/hello/0.1.0/bir/hello.bir");
         Files.createDirectories(distRepo.resolve("cache/badsad/hello/0.1.0/bir"));
@@ -58,8 +55,10 @@ public class BadSadTests extends BaseTest {
         String output = bMainInstance.runMainAndReadStdOut("build", new String[] {}, new HashMap<>(),
                 Paths.get("src/test/resources/logging/projects-for-badsad-tests/buildCmdBadSad")
                         .toAbsolutePath().toString(), true);
-        Assert.assertTrue(output.contains(Files.readString(
-                Paths.get("src/test/resources/logging/projects-for-badsad-tests/output-build.txt"))));
+        Assert.assertTrue(output.contains("ballerina: Oh no, something really went wrong."));
+
+        String expected = "java.lang.IllegalStateException: Cannot find the generated jar library for module: hello\n";
+        Assert.assertTrue(output.contains(expected), "\nActual:\n" + output + "\nExpected:\n" + expected);
         Assert.assertFalse(Files.exists(
                 Paths.get("src/test/resources/logging/projects-for-badsad-tests/buildCmdBadSad")
                         .toAbsolutePath().resolve("ballerina-internal.log")));
@@ -71,8 +70,14 @@ public class BadSadTests extends BaseTest {
         String output = bMainInstance.runMainAndReadStdOut("run", new String[] {}, new HashMap<>(),
                 Paths.get("src/test/resources/logging/projects-for-badsad-tests/runCmdBadSad")
                         .toAbsolutePath().toString(), true);
-        Assert.assertTrue(output.contains(Files.readString(
-                Paths.get("src/test/resources/logging/projects-for-badsad-tests/output-run.txt"))));
+        Assert.assertTrue(output.contains("ballerina: Oh no, something really went wrong."));
+
+        String expected = "java.lang.ClassCastException: class io.ballerina.runtime.internal.values.ErrorValue cannot" +
+                " be cast to class io.ballerina.runtime.internal.values.ArrayValue " +
+                "(io.ballerina.runtime.internal.values.ErrorValue and " +
+                "io.ballerina.runtime.internal.values.ArrayValue are in unnamed module of loader 'app')\n";
+        Assert.assertTrue(output.contains(expected),
+                "\nActual:\n" + output + "\nExpected:\n" + expected);
         Assert.assertFalse(Files.exists(
                 Paths.get("src/test/resources/logging/projects-for-badsad-tests/buildCmdBadSad")
                         .toAbsolutePath().resolve("ballerina-internal.log")));
@@ -84,15 +89,18 @@ public class BadSadTests extends BaseTest {
         String output = bMainInstance.runMainAndReadStdOut("build", new String[] {}, new HashMap<>(),
                 Paths.get("src/test/resources/logging/projects-for-badsad-tests/runCmdBadSad")
                         .toAbsolutePath().toString(), false);
-        Assert.assertTrue(output.contains(Files.readString(
-                Paths.get("src/test/resources/logging/projects-for-badsad-tests/output-test.txt"))));
+
+        String expected = "java.lang.ClassCastException: class io.ballerina.runtime.internal.values.ErrorValue cannot" +
+                " be cast to class io.ballerina.runtime.internal.values.ArrayValue " +
+                "(io.ballerina.runtime.internal.values.ErrorValue and " +
+                "io.ballerina.runtime.internal.values.ArrayValue are in unnamed module of loader 'app')\n";
+        Assert.assertTrue(output.contains(expected), "\nActual:\n" + output + "\nExpected:\n" + expected);
 
         output = bMainInstance.runMainAndReadStdOut("test", new String[] {}, new HashMap<>(),
                 Paths.get("src/test/resources/logging/projects-for-badsad-tests/runCmdBadSad")
                         .toAbsolutePath().toString(), false);
-        Assert.assertTrue(output.contains(Files.readString(
-                Paths.get("src/test/resources/logging/projects-for-badsad-tests/output-test.txt"))));
 
+        Assert.assertTrue(output.contains(expected), "\nActual:\n" + output + "\nExpected:\n" + expected);
         Assert.assertFalse(Files.exists(
                 Paths.get("src/test/resources/logging/projects-for-badsad-tests/buildCmdBadSad")
                         .toAbsolutePath().resolve("ballerina-internal.log")));
