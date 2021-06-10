@@ -137,6 +137,31 @@ public class LangLibArrayTest {
         assertEquals(((BInteger) result.getRefValue(5)).intValue(), 2);
     }
 
+    @Test(dataProvider = "testSliceOfReadonlyArrays")
+    public void testSliceOfReadonlyArray(String funcName) {
+        BRunUtil.invoke(compileResult, funcName);
+    }
+
+    @DataProvider(name = "testSliceOfReadonlyArrays")
+    public Object[] testSliceOfReadonlyArrays() {
+        return new Object[][]{
+                {"testModificationAfterSliceOfReadonlyIntArray"},
+                {"testModificationAfterSliceOfReadonlyStringArray"},
+                {"testModificationAfterSliceOfReadonlyBooleanArray"},
+                {"testModificationAfterSliceOfReadonlyByteArray"},
+                {"testModificationAfterSliceOfReadonlyFloatArray"},
+                {"testSliceOfIntersectionOfReadonlyRecordArray"}
+        };
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InherentTypeViolation " +
+                    "\\{\"message\":\"incompatible types: expected '\\(Employee & readonly\\)', found 'Employee'\"}.*")
+    public void testModificationAfterSliceOfReadonlyRecordArray() {
+        BRunUtil.invoke(compileResult, "testModificationAfterSliceOfReadonlyRecordArray");
+        Assert.fail();
+    }
+
     @Test
     public void testPushAfterSlice() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testPushAfterSlice");
@@ -168,6 +193,15 @@ public class LangLibArrayTest {
         assertEquals(arr.getInt(0), 4);
         assertEquals(arr.getInt(1), 5);
         assertEquals(arr.getInt(2), 88);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InherentTypeViolation " +
+                    "\\{\"message\":\"incompatible types: expected '\\(map<string> & readonly\\)', " +
+                    "found 'map<string>'\"}.*")
+    public void testPushAfterSliceOfReadonlyMapArray() {
+        BRunUtil.invoke(compileResult, "testPushAfterSliceOfReadonlyMapArray");
+        Assert.fail();
     }
 
     @Test

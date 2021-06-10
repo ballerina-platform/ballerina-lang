@@ -1168,11 +1168,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (Symbols.isFlagOn(symbol.flags, Flags.CONSTANT)) {
+        long flags = symbol.flags;
+        if (Symbols.isFlagOn(flags, Flags.CONSTANT)) {
             return;
         }
 
-        if (Symbols.isFlagOn(symbol.flags, Flags.FINAL) && types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(accessType)) {
+        if ((Symbols.isFlagOn(flags, Flags.FINAL) || Symbols.isFlagOn(flags, Flags.FUNCTION_FINAL)) &&
+                types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(accessType)) {
             return;
         }
 
@@ -1190,15 +1192,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        markDependsOnIsolationNonInferableConstructs();
-        inferredIsolated = false;
-
         if (isolatedModuleVariableReference) {
             if (!inLockStatement) {
                 dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_ISOLATED_VARIABLE_ACCESS_OUTSIDE_LOCK);
             }
             return;
         }
+
+        markDependsOnIsolationNonInferableConstructs();
+        inferredIsolated = false;
 
         if (inIsolatedFunction) {
             dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_MUTABLE_ACCESS_IN_ISOLATED_FUNCTION);
