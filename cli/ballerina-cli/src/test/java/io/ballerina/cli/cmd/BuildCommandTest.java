@@ -227,7 +227,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
-                .resolve("winery.jar").toFile().exists());
+                .resolve("foo-winery-0.1.0.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("bir")
                 .resolve("winery.bir").toFile().exists());
@@ -249,7 +249,7 @@ public class BuildCommandTest extends BaseCommandTest {
                 projectPath.resolve("target").resolve("bin").resolve("conflictProject.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("pramodya")
                                   .resolve("conflictProject").resolve("0.1.7").resolve("java11")
-                                  .resolve("conflictProject.jar").toFile().exists());
+                                  .resolve("pramodya-conflictProject-0.1.7.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("pramodya")
                                   .resolve("conflictProject").resolve("0.1.7").resolve("bir")
                                   .resolve("conflictProject.bir").toFile().exists());
@@ -270,7 +270,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                                   .resolve("winery").resolve("0.1.0").resolve("java11")
-                                  .resolve("winery.jar").toFile().exists());
+                                  .resolve("foo-winery-0.1.0.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                                   .resolve("winery").resolve("0.1.0").resolve("bir")
                                   .resolve("winery.bir").toFile().exists());
@@ -289,7 +289,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
-                .resolve("winery.jar").toFile().exists());
+                .resolve("foo-winery-0.1.0.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("bir")
                 .resolve("winery.bir").toFile().exists());
@@ -309,7 +309,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
-                .resolve("winery.jar").toFile().exists());
+                .resolve("foo-winery-0.1.0.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("bir")
                 .resolve("winery.bir").toFile().exists());
@@ -347,14 +347,14 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
-                .resolve("winery.jar").toFile().exists());
+                .resolve("foo-winery-0.1.0.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("bir")
                 .resolve("winery.bir").toFile().exists());
 
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
-                .resolve("winery.storage.jar").toFile().exists());
+                .resolve("foo-winery.storage-0.1.0.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("bir")
                 .resolve("winery.storage.bir").toFile().exists());
@@ -375,10 +375,10 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
-                .resolve("winery.jar").toFile().exists());
+                .resolve("foo-winery-0.1.0.jar").toFile().exists());
         Assert.assertFalse(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
-                .resolve("winery-testable.jar").toFile().exists());
+                .resolve("foo-winery-testable-0.1.0.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("bir")
                 .resolve("winery.bir").toFile().exists());
@@ -406,10 +406,10 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
-                .resolve("winery.jar").toFile().exists());
+                .resolve("foo-winery-0.1.0.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
-                .resolve("winery-testable.jar").toFile().exists());
+                .resolve("foo-winery-0.1.0-testable.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("bir")
                 .resolve("winery.bir").toFile().exists());
@@ -534,7 +534,7 @@ public class BuildCommandTest extends BaseCommandTest {
                 projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
-                .resolve("winery.jar").toFile().exists());
+                .resolve("foo-winery-0.1.0.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("bir")
                 .resolve("winery.bir").toFile().exists());

@@ -344,7 +344,9 @@ public class JBallerinaBackend extends CompilerBackend {
             String documentName = moduleContext.documentContext(documentId).name();
             jarName = getFileNameWithoutExtension(documentName);
         } else {
-            jarName = moduleContext.moduleName().toString();
+            jarName = moduleContext.descriptor().org().value() + "-" +
+                    moduleContext.moduleName().toString() + "-" +
+                    moduleContext.descriptor().version().value().toString();
         }
 
         return jarName;
