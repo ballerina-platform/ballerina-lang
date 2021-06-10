@@ -283,7 +283,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
-import org.wso2.ballerinalang.compiler.util.BreakableMode;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -2767,7 +2766,7 @@ public class Desugar extends BLangNodeVisitor {
             // wrap user defined on fail within a do statement
             BLangOnFailClause onFailClause = retryNode.onFailClause;
             retryNode.onFailClause = null;
-            retryNode.retryBody.breakableMode = BreakableMode.NOT_BREAKABLE;
+            retryNode.retryBody.failureBreakMode = BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
             BLangDo doStmt = wrapStatementWithinDo(retryNode.pos, retryNode, onFailClause);
             result = rewrite(doStmt, env);
         } else {
@@ -3321,8 +3320,8 @@ public class Desugar extends BLangNodeVisitor {
 
         // First create a block statement to hold generated statements
         BLangBlockStmt matchBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
-        matchBlockStmt.breakableMode = matchStmt.onFailClause != null ?
-                BreakableMode.BREAK_TO_OUTER_BLOCK : BreakableMode.NOT_BREAKABLE;
+        matchBlockStmt.failureBreakMode = matchStmt.onFailClause != null ?
+                BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
         matchBlockStmt.pos = matchStmt.pos;
 
         if (matchStmt.onFailClause != null) {
@@ -3359,8 +3358,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
         BLangBlockStmt matchBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
         matchBlockStmt.pos = matchStatement.pos;
-        matchBlockStmt.breakableMode = matchStatement.onFailClause != null ?
-                BreakableMode.BREAK_TO_OUTER_BLOCK : BreakableMode.NOT_BREAKABLE;
+        matchBlockStmt.failureBreakMode = matchStatement.onFailClause != null ?
+                BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
         if (matchStatement.onFailClause != null) {
             rewrite(matchStatement.onFailClause, env);
         }
@@ -4694,7 +4693,7 @@ public class Desugar extends BLangNodeVisitor {
         if (foreach.onFailClause != null) {
             BLangOnFailClause onFailClause = foreach.onFailClause;
             foreach.onFailClause = null;
-            foreach.body.breakableMode = BreakableMode.NOT_BREAKABLE;
+            foreach.body.failureBreakMode = BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
             BLangDo doStmt = wrapStatementWithinDo(foreach.pos, foreach, onFailClause);
             result = rewrite(doStmt, env);
         } else {
@@ -4765,9 +4764,9 @@ public class Desugar extends BLangNodeVisitor {
             this.onFailClause = onFailClause;
             if (onFailClause.bodyContainsFail) {
                 if (onFailClause.isInternal) {
-                    blockStmt.breakableMode = BreakableMode.NOT_BREAKABLE;
+                    blockStmt.failureBreakMode = BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
                 } else {
-                    blockStmt.breakableMode = BreakableMode.BREAK_WITHIN_BLOCK;
+                    blockStmt.failureBreakMode = BLangBlockStmt.FailureBreakMode.BREAK_WITHIN_BLOCK;
                 }
             } else {
                 onFailClause.possibleClosureSymbols.forEach(symbol -> symbol.closure = true);
@@ -4784,7 +4783,7 @@ public class Desugar extends BLangNodeVisitor {
         onFailBody.stmts.addAll(onFailClause.body.stmts);
         onFailBody.scope = onFailClause.body.scope;
         onFailBody.mapSymbol = onFailClause.body.mapSymbol;
-        onFailBody.breakableMode = onFailClause.body.breakableMode;
+        onFailBody.failureBreakMode = onFailClause.body.failureBreakMode;
 
         BVarSymbol onFailErrorVariableSymbol =
                 ((BLangSimpleVariableDef) onFailClause.variableDefinitionNode).var.symbol;
@@ -5036,7 +5035,7 @@ public class Desugar extends BLangNodeVisitor {
         if (whileNode.onFailClause != null) {
             BLangOnFailClause onFailClause = whileNode.onFailClause;
             whileNode.onFailClause = null;
-            whileNode.body.breakableMode = BreakableMode.NOT_BREAKABLE;
+            whileNode.body.failureBreakMode = BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
             BLangDo doStmt = wrapStatementWithinDo(whileNode.pos, whileNode, onFailClause);
             result = rewrite(doStmt, env);
         } else {
@@ -5054,7 +5053,7 @@ public class Desugar extends BLangNodeVisitor {
         bLDo.body = doBlock;
         bLDo.pos = location;
         bLDo.onFailClause = onFailClause;
-        bLDo.body.breakableMode = BreakableMode.BREAK_TO_OUTER_BLOCK;
+        bLDo.body.failureBreakMode = BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK;
         doBlock.stmts.add(statement);
         return bLDo;
     }
@@ -5080,7 +5079,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(lockNode.pos);
         if (lockNode.onFailClause != null) {
-            blockStmt.breakableMode = BreakableMode.BREAK_TO_OUTER_BLOCK;
+            blockStmt.failureBreakMode = BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK;
             rewrite(lockNode.onFailClause, env);
         }
         BLangLockStmt lockStmt = new BLangLockStmt(lockNode.pos);
@@ -5211,7 +5210,7 @@ public class Desugar extends BLangNodeVisitor {
             //rewrite user defined on fail within a do statement
             BLangOnFailClause onFailClause = transactionNode.onFailClause;
             transactionNode.onFailClause = null;
-            transactionNode.transactionBody.breakableMode = BreakableMode.NOT_BREAKABLE;
+            transactionNode.transactionBody.failureBreakMode = BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
             BLangDo doStmt = wrapStatementWithinDo(transactionNode.pos, transactionNode, onFailClause);
             // at this point;
             // do {
@@ -5268,8 +5267,8 @@ public class Desugar extends BLangNodeVisitor {
 
             transactionStmtBlock.stmts.add(0, shouldPanicDef);
             transactionStmtBlock.scope.define(shouldPanicVarSymbol.name, shouldPanicVarSymbol);
-            transactionStmtBlock.breakableMode = userDefinedOnFailAvbl ?
-                    BreakableMode.NOT_BREAKABLE : BreakableMode.BREAK_TO_OUTER_BLOCK;
+            transactionStmtBlock.failureBreakMode = userDefinedOnFailAvbl ?
+                    BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE : BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK;
 
             // at this point;
             //

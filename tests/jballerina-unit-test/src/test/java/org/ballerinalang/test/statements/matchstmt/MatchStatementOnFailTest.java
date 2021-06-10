@@ -121,16 +121,6 @@ public class MatchStatementOnFailTest {
         Assert.assertEquals(results.getString(++i), msg + "'true'");
     }
 
-    @Test(description = "Test on fail clause within match clause")
-    public void testDoOnfailWithinMatch() {
-
-        BValue[] returns = BRunUtil.invoke(result, "testDoOnfailWithinMatch", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "-> error caught at inner onfail "
-                + "because of Custom Error, -> error caught at outer onfail because of re-throw");
-    }
-
     @Test(description = "Check not incompatible types and reachable statements.")
     public void testNegative1() {
         Assert.assertEquals(resultNegative.getErrorCount(), 5);

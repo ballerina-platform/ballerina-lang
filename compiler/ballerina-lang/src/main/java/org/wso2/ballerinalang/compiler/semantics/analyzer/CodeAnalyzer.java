@@ -236,7 +236,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
-import org.wso2.ballerinalang.compiler.util.BreakableMode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -716,8 +715,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.failureHandled = failureHandled;
         this.resetLastStatement();
         this.resetErrorThrown();
-        retryNode.retryBody.breakableMode = retryNode.onFailClause != null ?
-                BreakableMode.BREAK_TO_OUTER_BLOCK : BreakableMode.NOT_BREAKABLE;
+        retryNode.retryBody.failureBreakMode = retryNode.onFailClause != null ?
+                BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
         analyzeOnFailClause(retryNode.onFailClause);
         this.errorTypes.pop();
     }
@@ -2101,8 +2100,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.resetLastStatement();
         this.loopWithinTransactionCheckStack.pop();
         analyzeExpr(foreach.collection);
-        foreach.body.breakableMode = foreach.onFailClause != null ?
-                BreakableMode.BREAK_TO_OUTER_BLOCK : BreakableMode.NOT_BREAKABLE;
+        foreach.body.failureBreakMode = foreach.onFailClause != null ?
+                BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
         analyzeOnFailClause(foreach.onFailClause);
         this.errorTypes.pop();
     }
@@ -2139,8 +2138,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         analyzeNode(doNode.body, env);
         this.failureHandled = failureHandled;
-        doNode.body.breakableMode = doNode.onFailClause != null ?
-                BreakableMode.BREAK_TO_OUTER_BLOCK : BreakableMode.NOT_BREAKABLE;
+        doNode.body.failureBreakMode = doNode.onFailClause != null ?
+                BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
         analyzeOnFailClause(doNode.onFailClause);
         this.errorTypes.pop();
     }
@@ -2183,8 +2182,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         lockNode.body.stmts.forEach(e -> analyzeNode(e, env));
         this.withinLockBlock = previousWithinLockBlock;
         this.failureHandled = failureHandled;
-        lockNode.body.breakableMode = lockNode.onFailClause != null ?
-                BreakableMode.BREAK_TO_OUTER_BLOCK : BreakableMode.NOT_BREAKABLE;
+        lockNode.body.failureBreakMode = lockNode.onFailClause != null ?
+                BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
         analyzeOnFailClause(lockNode.onFailClause);
         this.errorTypes.pop();
     }

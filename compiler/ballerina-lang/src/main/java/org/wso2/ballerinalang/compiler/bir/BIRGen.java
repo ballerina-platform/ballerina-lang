@@ -173,7 +173,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
-import org.wso2.ballerinalang.compiler.util.BreakableMode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -750,7 +749,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.currentBlock = prevBlock;
     }
 
-    private BIRBasicBlock beginBreakableBlock(Location pos, BreakableMode mode) {
+    private BIRBasicBlock beginBreakableBlock(Location pos, BLangBlockStmt.FailureBreakMode mode) {
         BIRBasicBlock blockBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(blockBB);
         this.env.enclBasicBlocks.add(blockBB);
@@ -764,7 +763,7 @@ public class BIRGen extends BLangNodeVisitor {
         blockBB.terminator = new BIRTerminator.GOTO(pos, blockEndBB);
 
         this.env.enclBB = blockBB;
-        if (mode == BreakableMode.BREAK_WITHIN_BLOCK) {
+        if (mode == BLangBlockStmt.FailureBreakMode.BREAK_WITHIN_BLOCK) {
             this.env.enclInnerOnFailEndBB = blockEndBB;
         } else {
             this.env.enclOnFailEndBB = blockEndBB;
@@ -1113,13 +1112,13 @@ public class BIRGen extends BLangNodeVisitor {
         BlockNode prevBlock = this.currentBlock;
         this.currentBlock = astBlockStmt;
         this.varDclsByBlock.computeIfAbsent(astBlockStmt, k -> new ArrayList<>());
-        if (astBlockStmt.breakableMode != BreakableMode.NOT_BREAKABLE) {
-            blockEndBB = beginBreakableBlock(astBlockStmt.pos, astBlockStmt.breakableMode);
+        if (astBlockStmt.failureBreakMode != BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE) {
+            blockEndBB = beginBreakableBlock(astBlockStmt.pos, astBlockStmt.failureBreakMode);
         }
         for (BLangStatement astStmt : astBlockStmt.stmts) {
             astStmt.accept(this);
         }
-        if (astBlockStmt.breakableMode != BreakableMode.NOT_BREAKABLE) {
+        if (astBlockStmt.failureBreakMode != BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE) {
             endBreakableBlock(blockEndBB);
         }
         this.varDclsByBlock.get(astBlockStmt).forEach(birVariableDcl ->
