@@ -1,4 +1,4 @@
- // Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,11 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/test;
- 
-configurable map<string> invalidMap = ?;
+type UserInfo record {|
+    string username;
+    anydata password;
+|};
 
-@test:Config {}
- function testVariable() {
-    test:assertEquals(invalidMap["name"], "waruna");
- }
+type Person record {|
+    UserInfo user;
+|};
+
+configurable anydata var1 = 2;
+configurable anydata[] arrayVar = ?;
+
+configurable UserInfo admin = ?;
+configurable Person person = ?;
+
+configurable map<anydata> & readonly mapVar = ?;
+
+configurable table<map<anydata>> tableVar1 = ?;
+configurable table<Person> key(name) tableVar2 = ?;
+
+configurable string|int|Person unionVar1 = ?;
+configurable anydata|Person unionVar2 = ?;
