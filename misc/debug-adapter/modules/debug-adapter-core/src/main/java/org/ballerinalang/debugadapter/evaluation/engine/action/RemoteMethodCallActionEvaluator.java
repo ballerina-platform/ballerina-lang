@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine.action;
 
+import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
@@ -27,6 +28,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.engine.ClassDefinitionResolver;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.MethodCallExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedInstanceMethod;
@@ -86,46 +88,67 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
     }
 
     private Value invokeRemoteMethod(BVariable resultVar) throws EvaluationException {
-        boolean isFoundObjectMethod = false;
-        try {
-            String className = resultVar.getDapVariable().getValue();
-            Optional<ClassSymbol> classDef = findClassDefWithinModule(className);
-            if (classDef.isEmpty()) {
+
+        ClassDefinitionResolver classDefResolver = new ClassDefinitionResolver(context);
+        String className = resultVar.getDapVariable().getValue();
+        Optional<ClassSymbol> classDef = classDefResolver.findBalClassDefWithinModule(className);
+        if (classDef.isEmpty()) {
+            // Resolves the JNI signature to see if the the object/class is defined with a dependency module.
+            String signature = resultVar.getJvmValue().type().signature();
+            if (!signature.startsWith("L")) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_NOT_FOUND.getString(),
                         className));
             }
 
-            Optional<MethodSymbol> objectMethodDef = findObjectMethodInClass(classDef.get(), methodName);
-            if (objectMethodDef.isEmpty()) {
-                throw new EvaluationException(
-                        String.format(EvaluationExceptionKind.REMOTE_METHOD_NOT_FOUND.getString(),
-                                syntaxNode.methodName().toString().trim(), className));
+            String[] signatureParts = signature.substring(1).split("/");
+            if (signatureParts.length < 2) {
+                throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_NOT_FOUND.getString(),
+                        className));
             }
-
-            isFoundObjectMethod = true;
-            GeneratedInstanceMethod objectMethod = getRemoteMethodByName(resultVar, methodName);
-            objectMethod.setNamedArgValues(generateNamedArgs(context, methodName, objectMethodDef.get().
-                    typeDescriptor(), argEvaluators));
-            return objectMethod.invokeSafely();
-        } catch (EvaluationException e) {
-            // If the object method is not found, we have to ignore the Evaluation Exception and try find any
-            // matching lang library functions.
-            if (isFoundObjectMethod) {
-                throw e;
-            }
+            String orgName = signatureParts[0];
+            String packageName = signatureParts[1];
+            classDef = classDefResolver.findBalClassDefWithinDependencies(orgName, packageName, className);
         }
-        return null;
+
+        if (classDef.isEmpty()) {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_NOT_FOUND.getString(),
+                    className));
+        }
+
+        Optional<MethodSymbol> objectMethodDef = findObjectMethodInClass(classDef.get(), methodName);
+        if (objectMethodDef.isEmpty()) {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.REMOTE_METHOD_NOT_FOUND.getString(),
+                    syntaxNode.methodName().toString().trim(), className));
+        }
+
+        GeneratedInstanceMethod objectMethod = getRemoteMethodByName(resultVar, objectMethodDef.get());
+        objectMethod.setNamedArgValues(generateNamedArgs(context, methodName, objectMethodDef.get().
+                typeDescriptor(), argEvaluators));
+        return objectMethod.invokeSafely();
     }
 
-    private GeneratedInstanceMethod getRemoteMethodByName(BVariable objectVar, String methodName)
+    private GeneratedInstanceMethod getRemoteMethodByName(BVariable objectVar, MethodSymbol methodDefinition)
             throws EvaluationException {
+        try {
+            ReferenceType objectRef = ((ObjectReference) objectVar.getJvmValue()).referenceType();
+            int argsCountInDefinition = methodDefinition.typeDescriptor().params().get().size() +
+                    (methodDefinition.typeDescriptor().restParam().isPresent() ? 1 : 0);
 
-        ReferenceType objectRef = ((ObjectReference) objectVar.getJvmValue()).referenceType();
-        List<Method> methods = objectRef.methodsByName(methodName);
-        if (methods == null || methods.size() != 1) {
+            List<Method> methods = objectRef.methodsByName(methodName);
+            for (Method method : methods) {
+                // Since Ballerina codegen phase introduces an additional boolean helper parameter for every
+                // method parameter except for the `strand` parameter, total number of parameters defined in the runtime
+                // method will be 2n + 1.
+                int expectedArgsCountInRuntime = 2 * argsCountInDefinition + 1;
+                if (method.argumentTypes().size() == expectedArgsCountInRuntime) {
+                    return new GeneratedInstanceMethod(context, objectVar.getJvmValue(), methods.get(0));
+                }
+            }
+            throw new EvaluationException(String.format(EvaluationExceptionKind.REMOTE_METHOD_NOT_FOUND.getString(),
+                    syntaxNode.methodName().toString().trim(), objectVar.computeValue()));
+        } catch (ClassNotLoadedException e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.REMOTE_METHOD_NOT_FOUND.getString(),
                     syntaxNode.methodName().toString().trim(), objectVar.computeValue()));
         }
-        return new GeneratedInstanceMethod(context, objectVar.getJvmValue(), methods.get(0));
     }
 }
