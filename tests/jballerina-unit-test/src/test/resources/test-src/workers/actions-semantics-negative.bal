@@ -143,4 +143,8 @@ function testWorkerIdentifiers() {
     worker int {
 
     }
+    
+    worker ' {
+    
+    }
 }

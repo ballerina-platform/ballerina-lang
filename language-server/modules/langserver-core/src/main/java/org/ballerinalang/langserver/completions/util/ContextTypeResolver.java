@@ -41,6 +41,7 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -113,7 +114,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (typeDesc.isEmpty()) {
             return Optional.empty();
         }
-        
+
         return typeDesc.get().apply(this);
     }
 
@@ -372,6 +373,21 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     }
 
     @Override
+    public Optional<TypeSymbol> transform(ListConstructorExpressionNode node) {
+        Optional<TypeSymbol> typeSymbol = this.visit(node.parent());
+        if (typeSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        TypeSymbol rawType = CommonUtil.getRawType(typeSymbol.get());
+
+        if (rawType.typeKind() == TypeDescKind.ARRAY) {
+            return Optional.of(((ArrayTypeSymbol) rawType).memberTypeDescriptor());
+        }
+        
+        return Optional.empty();
+    }
+
+    @Override
     protected Optional<TypeSymbol> transformSyntaxNode(Node node) {
         return this.visit(node.parent());
     }
@@ -412,8 +428,6 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         switch (rawType.typeKind()) {
             case MAP:
                 return ((MapTypeSymbol) rawType).typeParam();
-            case ARRAY:
-                return ((ArrayTypeSymbol) rawType).memberTypeDescriptor();
             case TABLE:
                 return ((TableTypeSymbol) rawType).rowTypeParameter();
             default:

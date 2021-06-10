@@ -176,6 +176,12 @@ public class BFloatValueTest {
                 18, 15);
     }
 
+    @Test(description = "Test hexa decimal literal with float type")
+    public void testHexaDecimalLiteralsWithFloat() {
+        BRunUtil.invoke(result, "testHexaDecimalLiteralsWithFloat");
+    }
+
+
     @AfterClass
     public void tearDown() {
         result = null;

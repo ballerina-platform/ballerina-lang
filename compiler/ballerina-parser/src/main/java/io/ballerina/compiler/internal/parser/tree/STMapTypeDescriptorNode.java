@@ -17,10 +17,10 @@
  */
 package io.ballerina.compiler.internal.parser.tree;
 
+import io.ballerina.compiler.syntax.tree.MapTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -30,56 +30,56 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STXmlTypeDescriptorNode extends STTypeDescriptorNode {
-    public final STNode xmlKeywordToken;
-    public final STNode xmlTypeParamsNode;
+public class STMapTypeDescriptorNode extends STTypeDescriptorNode {
+    public final STNode mapKeywordToken;
+    public final STNode mapTypeParamsNode;
 
-    STXmlTypeDescriptorNode(
-            STNode xmlKeywordToken,
-            STNode xmlTypeParamsNode) {
+    STMapTypeDescriptorNode(
+            STNode mapKeywordToken,
+            STNode mapTypeParamsNode) {
         this(
-                xmlKeywordToken,
-                xmlTypeParamsNode,
+                mapKeywordToken,
+                mapTypeParamsNode,
                 Collections.emptyList());
     }
 
-    STXmlTypeDescriptorNode(
-            STNode xmlKeywordToken,
-            STNode xmlTypeParamsNode,
+    STMapTypeDescriptorNode(
+            STNode mapKeywordToken,
+            STNode mapTypeParamsNode,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.XML_TYPE_DESC, diagnostics);
-        this.xmlKeywordToken = xmlKeywordToken;
-        this.xmlTypeParamsNode = xmlTypeParamsNode;
+        super(SyntaxKind.MAP_TYPE_DESC, diagnostics);
+        this.mapKeywordToken = mapKeywordToken;
+        this.mapTypeParamsNode = mapTypeParamsNode;
 
         addChildren(
-                xmlKeywordToken,
-                xmlTypeParamsNode);
+                mapKeywordToken,
+                mapTypeParamsNode);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STXmlTypeDescriptorNode(
-                this.xmlKeywordToken,
-                this.xmlTypeParamsNode,
+        return new STMapTypeDescriptorNode(
+                this.mapKeywordToken,
+                this.mapTypeParamsNode,
                 diagnostics);
     }
 
-    public STXmlTypeDescriptorNode modify(
-            STNode xmlKeywordToken,
-            STNode xmlTypeParamsNode) {
+    public STMapTypeDescriptorNode modify(
+            STNode mapKeywordToken,
+            STNode mapTypeParamsNode) {
         if (checkForReferenceEquality(
-                xmlKeywordToken,
-                xmlTypeParamsNode)) {
+                mapKeywordToken,
+                mapTypeParamsNode)) {
             return this;
         }
 
-        return new STXmlTypeDescriptorNode(
-                xmlKeywordToken,
-                xmlTypeParamsNode,
+        return new STMapTypeDescriptorNode(
+                mapKeywordToken,
+                mapTypeParamsNode,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new XmlTypeDescriptorNode(this, position, parent);
+        return new MapTypeDescriptorNode(this, position, parent);
     }
 
     @Override
