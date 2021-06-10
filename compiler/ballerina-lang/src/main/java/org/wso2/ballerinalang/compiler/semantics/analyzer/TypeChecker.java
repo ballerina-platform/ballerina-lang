@@ -466,7 +466,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType literalType = symTable.getTypeFromTag(literalExpr.type.tag);
         Object literalValue = literalExpr.value;
 
-        if (literalType.tag == TypeTags.INT) {
+        if (literalType.tag == TypeTags.INT || literalType.tag == TypeTags.BYTE) {
             if (expType.tag == TypeTags.FLOAT) {
                 literalType = symTable.floatType;
                 literalExpr.value = ((Long) literalValue).doubleValue();
@@ -524,10 +524,22 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             } else if (expType.tag == TypeTags.UNION) {
                 Set<BType> memberTypes = ((BUnionType) expType).getMemberTypes();
-                if (memberTypes.stream()
-                        .anyMatch(memType -> memType.tag == TypeTags.INT || memType.tag == TypeTags.JSON ||
-                                memType.tag == TypeTags.ANYDATA || memType.tag == TypeTags.ANY)) {
+                BType intSubType = null;
+                boolean intOrIntCompatibleTypeFound = false;
+                for (BType memType : memberTypes) {
+                    if ((memType.tag != TypeTags.INT && TypeTags.isIntegerTypeTag(memType.tag)) ||
+                            memType.tag == TypeTags.BYTE) {
+                        intSubType = memType;
+                    } else if (memType.tag == TypeTags.INT || memType.tag == TypeTags.JSON ||
+                            memType.tag == TypeTags.ANYDATA || memType.tag == TypeTags.ANY) {
+                        intOrIntCompatibleTypeFound = true;
+                    }
+                }
+                if (intOrIntCompatibleTypeFound) {
                     return setLiteralValueAndGetType(literalExpr, symTable.intType);
+                }
+                if (intSubType != null) {
+                    return setLiteralValueAndGetType(literalExpr, intSubType);
                 }
 
                 BType finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.intType);
@@ -617,9 +629,30 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         } else if (literalType.tag == TypeTags.DECIMAL) {
             return decimalLiteral(literalValue, literalExpr, expType);
-        } else if (literalType.tag == TypeTags.STRING && this.expType.tag == TypeTags.CHAR_STRING &&
-                types.isCharLiteralValue((String) literalValue)) {
-            return symTable.charStringType;
+        } else if (literalType.tag == TypeTags.STRING && types.isCharLiteralValue((String) literalValue)) {
+            if (expType.tag == TypeTags.CHAR_STRING) {
+                return symTable.charStringType;
+            }
+            if (expType.tag == TypeTags.UNION) {
+                Set<BType> memberTypes = ((BUnionType) expType).getMemberTypes();
+                for (BType memType : memberTypes) {
+                    if (TypeTags.isStringTypeTag(memType.tag)) {
+                        return setLiteralValueAndGetType(literalExpr, memType);
+                    } else if (memType.tag == TypeTags.JSON || memType.tag == TypeTags.ANYDATA ||
+                            memType.tag == TypeTags.ANY) {
+                        return setLiteralValueAndGetType(literalExpr, symTable.charStringType);
+                    } else if (memType.tag == TypeTags.FINITE && types.isAssignableToFiniteType(memType,
+                            literalExpr)) {
+                        setLiteralValueForFiniteType(literalExpr, symTable.charStringType);
+                        return literalType;
+                    }
+                }
+            }
+            boolean foundMember = types.isAssignableToFiniteType(expType, literalExpr);
+            if (foundMember) {
+                setLiteralValueForFiniteType(literalExpr, literalType);
+                return literalType;
+            }
         } else {
             if (this.expType.tag == TypeTags.FINITE) {
                 boolean foundMember = types.isAssignableToFiniteType(this.expType, literalExpr);
@@ -2008,7 +2041,7 @@ public class TypeChecker extends BLangNodeVisitor {
         syncSendExpr.env = this.env;
         checkExpr(syncSendExpr.expr, this.env);
 
-        // Validate if the send expression type is anydata
+        // Validate if the send expression type is cloneableType
         if (!types.isAssignable(syncSendExpr.expr.type, symTable.cloneableType)) {
             this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.INVALID_TYPE_FOR_SEND,
                     syncSendExpr.expr.type);
@@ -2425,7 +2458,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     fieldAccessExpr.isCompoundAssignmentLValue;
         }
 
-        BType varRefType = getTypeOfExprInFieldAccess(containerExpression);
+        BType varRefType = types.getTypeWithEffectiveIntersectionTypes(getTypeOfExprInFieldAccess(containerExpression));
 
         // Disallow `expr.ns:attrname` syntax on non xml expressions.
         if (fieldAccessExpr instanceof BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess
@@ -4121,7 +4154,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = new BTypedescType(exprType, null);
             }
         } else {
-            exprType = OperatorKind.ADD.equals(unaryExpr.operator) ? checkExpr(unaryExpr.expr, env, expType) :
+//            allow both addition and subtraction operators to get expected type as Decimal
+            boolean decimalNegation = OperatorKind.SUB.equals(unaryExpr.operator) && expType.tag == TypeTags.DECIMAL;
+            boolean isAdd = OperatorKind.ADD.equals(unaryExpr.operator);
+            exprType = (decimalNegation || isAdd) ? checkExpr(unaryExpr.expr, env, expType) :
                     checkExpr(unaryExpr.expr, env);
             if (exprType != symTable.semanticError) {
                 BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, exprType);
@@ -4168,14 +4204,8 @@ public class TypeChecker extends BLangNodeVisitor {
         this.dlog.resetErrorCount();
         this.dlog.mute();
 
-        BLangExpression exprToCheck = expr;
-
-        if (!prevNonErrorLoggingCheck) {
-            expr.cloneAttempt++;
-            exprToCheck = nodeCloner.clone(expr);
-        }
-
-        BType exprCompatibleType = checkExpr(exprToCheck, env, targetType);
+        expr.cloneAttempt++;
+        BType exprCompatibleType = checkExpr(nodeCloner.clone(expr), env, targetType);
 
         this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
         int errorCount = this.dlog.errorCount();
@@ -4780,11 +4810,11 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangQueryExpr queryExpr) {
         if (prevEnvs.empty()) {
-            prevEnvs.push(env.createClone());
+            prevEnvs.push(env);
         } else {
             prevEnvs.push(prevEnvs.peek());
         }
-        queryEnvs.push(prevEnvs.peek().createClone());
+        queryEnvs.push(prevEnvs.peek());
         selectClauses.push(queryExpr.getSelectClause());
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         BLangExpression collectionNode = (BLangExpression) ((BLangFromClause) clauses.get(0)).getCollection();
@@ -4960,11 +4990,11 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangQueryAction queryAction) {
         if (prevEnvs.empty()) {
-            prevEnvs.push(env.createClone());
+            prevEnvs.push(env);
         } else {
             prevEnvs.push(prevEnvs.peek());
         }
-        queryEnvs.push(prevEnvs.peek().createClone());
+        queryEnvs.push(prevEnvs.peek());
         selectClauses.push(null);
         BLangDoClause doClause = queryAction.getDoClause();
         List<BLangNode> clauses = queryAction.getQueryClauses();
@@ -6979,7 +7009,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkIndexAccessExpr(BLangIndexBasedAccess indexBasedAccessExpr) {
-        BType varRefType = indexBasedAccessExpr.expr.type;
+        BType varRefType = types.getTypeWithEffectiveIntersectionTypes(indexBasedAccessExpr.expr.type);
 
         boolean nillableExprType = false;
 

@@ -36,6 +36,23 @@ public type TTrail record {|
     boolean night;
 |};
 
+type LiftRecord record {
+    int id;
+    anydata status;
+};
+
+class Lift {
+    int id;
+    anydata status;
+
+    function init(LiftRecord lr) {
+        self.id = lr.id;
+        self.status = lr.status;
+    }
+}
+
+type Status boolean;
+
 service class TestService {
 
     resource function get closureTest1(string status) returns string {
@@ -69,15 +86,35 @@ service class TestService {
         return tLifts;
     }
 
+    resource function get closureTest3(Status? status) returns Lift[] {
+        table<LiftRecord> liftTable = table [
+            {id: 1, status: false},
+            {id: 2, status: true},
+            {id: 3, status: false},
+            {id: 4, status: true}
+        ];
+        LiftRecord[] lifts;
+        if status is () {
+            lifts = from var lift in liftTable select lift;
+        } else {
+            lifts = from var lift in liftTable where lift.status == status select lift;
+        }
+        return lifts.map(function (LiftRecord liftRecord) returns Lift => new Lift(liftRecord));
+    }
+
 }
 
 public function testClosureWithinResource() {
     TestService t = new;
     string str = <string> (checkpanic (wait callMethodWithParams(t, "$get$closureTest1", ["foobar"])));
     TLift[] tLifts = <TLift[]> (checkpanic (wait callMethodWithParams(t, "$get$closureTest2", ["OPEN"])));
+    Lift[] lifts = <Lift[]> (checkpanic (wait callMethodWithParams(t, "$get$closureTest3", [true])));
     assertEquality(str, "foobar");
     assertEquality(tLifts.length(), 1);
     assertEquality(tLifts[0]["name"], "Lift1");
+    assertEquality(lifts.length(), 2);
+    assertEquality(lifts[0].id, 2);
+    assertEquality(lifts[1].id, 4);
 }
 
 public function callMethodWithParams(service object {} s, string name, (any|error)[] ar)

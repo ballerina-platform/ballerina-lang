@@ -44,7 +44,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.ConstValue;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.TaintTable;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
@@ -71,7 +70,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -458,7 +456,7 @@ public class BIRGen extends BLangNodeVisitor {
 
             BInvokableSymbol funcSymbol = func.symbol;
             BIRFunction birFunc = new BIRFunction(astTypeDefinition.pos, func.funcName, funcSymbol.flags, func.type,
-                                                  names.fromString(DEFAULT_WORKER_NAME), 0, new TaintTable(),
+                                                  names.fromString(DEFAULT_WORKER_NAME), 0,
                                                   funcSymbol.origin.toBIROrigin());
 
             if (funcSymbol.receiverSymbol != null) {
@@ -520,7 +518,7 @@ public class BIRGen extends BLangNodeVisitor {
             BInvokableSymbol funcSymbol = func.symbol;
 
             BIRFunction birFunc = new BIRFunction(classDefinition.pos, func.funcName, funcSymbol.flags, func.type,
-                    names.fromString(DEFAULT_WORKER_NAME), 0, new TaintTable(), funcSymbol.origin.toBIROrigin());
+                    names.fromString(DEFAULT_WORKER_NAME), 0, funcSymbol.origin.toBIROrigin());
 
             if (funcSymbol.receiverSymbol != null) {
                 birFunc.receiver = getSelf(funcSymbol.receiverSymbol);
@@ -612,16 +610,14 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.unlockVars.push(new BIRLockDetailsHolder());
         BIRFunction birFunc;
 
-        TaintTable taintTable = populateTaintTable(astFunc.symbol.taintTable);
-
         if (isTypeAttachedFunction) {
             Name funcName = names.fromString(astFunc.symbol.name.value);
             birFunc = new BIRFunction(astFunc.pos, funcName, astFunc.symbol.flags, type, workerName,
-                                      astFunc.sendsToThis.size(), taintTable, astFunc.symbol.origin.toBIROrigin());
+                                      astFunc.sendsToThis.size(), astFunc.symbol.origin.toBIROrigin());
         } else {
             Name funcName = getFuncName(astFunc.symbol);
             birFunc = new BIRFunction(astFunc.pos, funcName, astFunc.symbol.flags, type, workerName,
-                                      astFunc.sendsToThis.size(), taintTable, astFunc.symbol.origin.toBIROrigin());
+                                      astFunc.sendsToThis.size(), astFunc.symbol.origin.toBIROrigin());
         }
         this.currentScope = new BirScope(0, null);
         if (astFunc.receiver != null) {
@@ -925,41 +921,6 @@ public class BIRGen extends BLangNodeVisitor {
 
     private BIRNode.BIRAnnotationLiteralValue createAnnotationLiteralValue(BLangLiteral literalValue) {
         return new BIRNode.BIRAnnotationLiteralValue(literalValue.type, literalValue.value);
-    }
-
-    private TaintTable populateTaintTable(Map<Integer, TaintRecord> taintRecords) {
-        TaintTable taintTable = new TaintTable();
-        if (taintRecords == null) {
-            return taintTable;
-        }
-        int rowCount = 0;
-        for (Map.Entry<Integer, TaintRecord> entry : taintRecords.entrySet()) {
-            TaintRecord taintRecord = entry.getValue();
-            boolean added = addTaintTableEntry(taintTable, entry.getKey(), taintRecord);
-            if (added) {
-                // Number of columns required is: One column per parameter and one column for return tainted status.
-                taintTable.columnCount = taintRecord.parameterTaintedStatusList.size() + 1;
-                rowCount++;
-            }
-        }
-        taintTable.rowCount = rowCount;
-        return taintTable;
-    }
-
-    private boolean addTaintTableEntry(TaintTable taintTable, int index,
-                                       TaintRecord taintRecord) {
-        // Add to attribute info only if the current record has tainted status of return, but not taint errors.
-        // It is not useful to preserve the propagated taint errors, since user will not be able to correct the compiled
-        // code and will not need to know internals of the already compiled code.
-        if (taintRecord.taintError == null || taintRecord.taintError.isEmpty()) {
-            List<Byte> storedTaintTableValue = new ArrayList<>();
-            storedTaintTableValue.add(taintRecord.returnTaintedStatus.getByteValue());
-            storedTaintTableValue.addAll(taintRecord.parameterTaintedStatusList.stream().map(
-                    TaintRecord.TaintedStatus::getByteValue).collect(Collectors.toList()));
-            taintTable.taintTable.put(index, storedTaintTableValue);
-            return true;
-        }
-        return false;
     }
 
     @Override

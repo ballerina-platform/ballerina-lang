@@ -56,9 +56,8 @@ public class LangLibDebugTest {
         // Steps into `int` language library.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_IN);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        Assert.assertTrue(debugHitInfo.getLeft().getSource().getPath().endsWith("ballerina/lang.int/1.1.0/any/" +
-                "modules/lang.int/int.bal"));
-        Assert.assertEquals(debugHitInfo.getLeft().getDAPBreakPoint().getLine(), 86);
+        Assert.assertTrue(debugHitInfo.getLeft().getSource().getPath().replaceAll("\\\\", "/")
+                .endsWith("ballerina/lang.int/1.1.0/any/modules/lang.int/int.bal"));
 
         // Next breakpoint.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
@@ -68,9 +67,8 @@ public class LangLibDebugTest {
         // Steps into `float` language library.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_IN);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        Assert.assertTrue(debugHitInfo.getLeft().getSource().getPath().endsWith("ballerina/lang.float/1.0.0/any/" +
-                "modules/lang.float/float.bal"));
-        Assert.assertEquals(debugHitInfo.getLeft().getDAPBreakPoint().getLine(), 123);
+        Assert.assertTrue(debugHitInfo.getLeft().getSource().getPath().replaceAll("\\\\", "/")
+                .endsWith("ballerina/lang.float/1.0.0/any/modules/lang.float/float.bal"));
     }
 
     @AfterMethod(alwaysRun = true)

@@ -19,3 +19,7 @@ public enum CountryCodes {
     SL = "Sri Lanka",
     US = "United States"
 }
+
+public type Country record {|
+    CountryCodes countryCode;
+|};

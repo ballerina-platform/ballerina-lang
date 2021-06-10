@@ -198,6 +198,64 @@ function testErrorMatchPattern10() {
     assertEquals("Not Matched", result);
 }
 
+function testErrorMatchPattern11() {
+    any|error e = error("Message1", det1 = "detail1", det2 = "detail2");
+    string result = "Not Matched";
+    match e {
+        error("Message1", det1 = var det1, det2 = var det2) => {
+            result = "Matched";
+        }
+        _ => {
+            result = "Default";
+        }
+    }
+    assertEquals("Matched", result);
+}
+
+function testErrorMatchPattern12() {
+    any|error e = error("Message1", det1 = "detail1", det3 = "detail3");
+    string result = "Not Matched";
+    match e {
+        error("Message1", det1 = var det1, det2 = var det2) => {
+            result = "Matched";
+        }
+        _ => {
+            result = "Default";
+        }
+    }
+    assertEquals("Not Matched", result);
+}
+
+function testErrorMatchPattern13() {
+    any|error e = error("Message1", det1 = "detail1", det3 = "detail3");
+    string result = "Not Matched";
+    match e {
+        error("Message1", det1 = var det1, ...var rest) => {
+            if (rest["det3"] == "detail3") {
+                result = "Matched";
+            }
+        }
+        _ => {
+            result = "Default";
+        }
+    }
+    assertEquals("Matched", result);
+}
+
+function testErrorMatchPattern14() {
+    any|error e = error("Message1");
+    string result = "Not Matched";
+    match e {
+        error("Message1", det1 = var det1) => {
+            result = "Matched with incorrect error";
+        }
+        error("Message1") => {
+            result = "Matched";
+        }
+    }
+    assertEquals("Matched", result);
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
