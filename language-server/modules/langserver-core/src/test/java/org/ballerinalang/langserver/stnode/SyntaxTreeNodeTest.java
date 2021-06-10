@@ -81,7 +81,7 @@ public class SyntaxTreeNodeTest {
                 {19, 30, STRING_LITERAL},
                 {16, 5, "SERVICE_DECLARATION"},
                 {12, 5, "RECORD_TYPE_DESC"},
-                {8, 3, "PARAMETERIZED_TYPE_DESC"},
+                {8, 3, "MAP_TYPE_DESC"},
                 {2, 5, "CONST_DECLARATION"},
                 {18, 45, "RETURN_TYPE_DESCRIPTOR"},
                 {9, 40, MINUTIAE},

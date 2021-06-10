@@ -19,3 +19,7 @@ public function f1() returns MyError? {
 public function f2() returns error? {
     return error lsmod1:Mod1Error("message");
 }
+
+function test1() returns error? {
+    error er = error error:Retriable("");
+}

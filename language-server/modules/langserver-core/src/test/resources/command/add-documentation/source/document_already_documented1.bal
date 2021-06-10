@@ -19,3 +19,14 @@ public class Encryptor {
         return "<encrypted>";
     }
 }
+
+# Returns a value given some string
+#
+# + content - Parameter Description
+# + round - Parameter Description
+# + return - Return Value Description
+# # Deprecated
+# Deprecated Description
+function getValue(string content, boolean round) returns float {
+    return 1.1;
+}

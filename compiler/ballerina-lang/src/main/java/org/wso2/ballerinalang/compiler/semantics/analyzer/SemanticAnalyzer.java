@@ -929,6 +929,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (errorType.detailType != null) {
                     analyzeTypeNode(errorType.detailType, env);
                 }
+                analyzeDef(errorType, env);
                 break;
             case FUNCTION_TYPE:
                 if (typeNode.getKind() == NodeKind.FUNCTION_TYPE) {
