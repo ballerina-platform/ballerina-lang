@@ -269,6 +269,9 @@ function errorMatchPattern15(error x) returns string {
         error("Error One", data=[11, 12]) => {
             return "Matched with Error One";
         }
+        error("Error One", data={a: "A", b: "B"}) => {
+            return "Some Other Error";
+        }
         error("Error Two", data=[11, {a: "A", b: "B"}]) => {
             return "Matched with Error Two";
         }
