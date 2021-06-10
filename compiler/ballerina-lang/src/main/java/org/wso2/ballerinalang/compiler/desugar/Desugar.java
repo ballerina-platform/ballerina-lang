@@ -1215,7 +1215,25 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorType errorType) {
         errorType.detailType = rewrite(errorType.detailType, env);
+
+        boolean isDistinctError = errorType.flagSet.contains(Flag.DISTINCT);
+        boolean hasTypeParam = errorType.getDetailsTypeNode() != null;
+        // Distinct errors already have type-def.
+        // Error without type param is either a user-defined-type or a default error, they don't need a type-def.
+        // We need to create type-defs for local anonymous types with type param.
+        if (!isDistinctError && errorType.isLocal && errorType.isAnonymous && hasTypeParam) {
+            BLangUserDefinedType userDefinedType = desugarLocalAnonRecordTypeNode(errorType);
+            TypeDefBuilderHelper.addTypeDefinition(errorType.type, errorType.type.tsymbol, errorType, env);
+            errorType.desugared = true;
+            result = userDefinedType;
+            return;
+        }
         result = errorType;
+    }
+
+    private BLangUserDefinedType desugarLocalAnonRecordTypeNode(BLangErrorType errorTypeNode) {
+        return ASTBuilderUtil.createUserDefineTypeNode(errorTypeNode.type.tsymbol.name.value, errorTypeNode.type,
+                errorTypeNode.pos);
     }
 
     @Override
