@@ -4640,7 +4640,7 @@ public class Desugar extends BLangNodeVisitor {
                 ASTBuilderUtil.createAssignmentStmt(pos, resultVarRef, getBooleanLiteral(true));
         mainBlockStmt.addStatement(failureResult);
 
-        BLangExpression condition = null;
+        BLangExpression condition = createLiteral(pos, symTable.booleanType, true);
         for (int i = 0; i < errorFieldBindingPatterns.namedArgBindingPatterns.size(); i++) {
             BLangNamedArgBindingPattern namedArgBindingPattern =
                     errorFieldBindingPatterns.namedArgBindingPatterns.get(i);
