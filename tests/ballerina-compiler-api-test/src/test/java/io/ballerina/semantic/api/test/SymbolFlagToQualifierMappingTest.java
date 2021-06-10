@@ -33,7 +33,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -81,12 +80,12 @@ public class SymbolFlagToQualifierMappingTest {
     public Object[][] getPositionsAndQualifiers() {
         return new Object[][]{
                 {16, 27, Set.of(LISTENER, FINAL)},
-                {18, 13, new HashSet<Qualifier>()},
+                {18, 13, Set.of(ISOLATED)},
                 {19, 20, Set.of(PUBLIC)},
                 {35, 19, Set.of(READONLY)},
                 {49, 20, Set.of(ISOLATED)},
                 {52, 22, Set.of(READONLY)},
-                {56, 16, Set.of(CLIENT)},
+                {56, 16, Set.of(CLIENT, ISOLATED)},
                 {57, 22, Set.of(REMOTE, ISOLATED)},
                 {65, 17, Set.of(LISTENER, FINAL)},
                 {66, 24, Set.of(RESOURCE, ISOLATED)},
