@@ -85,7 +85,7 @@ public class RunCommand implements BLauncherCmd {
 
     public RunCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
-        this.outStream = System.err;
+        this.outStream = System.out;
         this.errStream = System.err;
     }
 
