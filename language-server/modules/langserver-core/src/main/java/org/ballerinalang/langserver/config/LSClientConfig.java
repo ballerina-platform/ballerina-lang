@@ -24,7 +24,6 @@ public class LSClientConfig {
     private final boolean debugLog;
     private final CodeLensConfig codeLens;
     private final boolean traceLog;
-    private final GoToDefinitionConfig goToDefinition;
     private final boolean enableFileWatcher;
     private final boolean enableTelemetry;
 
@@ -35,7 +34,6 @@ public class LSClientConfig {
         String balDebugLog = System.getenv("BAL_DEBUG_LOG");
         String balTraceLog = System.getenv("BAL_TRACE_LOG");
         String balExperimental = System.getenv("BAL_EXPERIMENTAL");
-        String balDefStdLibs = System.getenv("BAL_DEF_STD_LIBS");
         String balFileWatcher = System.getenv("BAL_FILE_WATCHER");
         String balTelemetry = System.getenv("BAL_TELEMETRY");
 
@@ -43,8 +41,6 @@ public class LSClientConfig {
         this.debugLog = Boolean.parseBoolean(balDebugLog);
         this.traceLog = Boolean.parseBoolean(balTraceLog);
         this.codeLens = new CodeLensConfig();
-        this.goToDefinition = (balDefStdLibs != null) ? new GoToDefinitionConfig(Boolean.parseBoolean(balDefStdLibs)) :
-                new GoToDefinitionConfig(true);
         this.enableFileWatcher = balFileWatcher == null || Boolean.parseBoolean(balFileWatcher);
         this.enableTelemetry = balTelemetry == null || Boolean.parseBoolean(balTelemetry);
     }
@@ -102,16 +98,7 @@ public class LSClientConfig {
     public boolean isTraceLogEnabled() {
         return traceLog;
     }
-
-    /**
-     * Returns Goto Definition Config.
-     *
-     * @return {@link GoToDefinitionConfig}
-     */
-    public GoToDefinitionConfig getGoToDefinition() {
-        return goToDefinition;
-    }
-
+    
     /**
      * Returns True if file watcher enabled, False otherwise.
      *

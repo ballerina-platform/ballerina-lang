@@ -274,14 +274,6 @@ public class Main {
 
             if (versionCommands == null) {
                 printVersionInfo();
-                return;
-            } else if (versionCommands.size() > 1) {
-                throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");
-            }
-
-            String userCommand = versionCommands.get(0);
-            if (parentCmdParser.getSubcommands().get(userCommand) == null) {
-                throw LauncherUtils.createUsageExceptionWithHelp("unknown command " + userCommand);
             }
         }
 

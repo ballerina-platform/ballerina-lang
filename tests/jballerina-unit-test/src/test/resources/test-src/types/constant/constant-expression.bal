@@ -114,7 +114,27 @@ function testBitwiseConstExpressions() {
     assertEqual(ZERO_EXT_5, 0x0);
 }
 
-function assertEqual(int actual, int expected) {
+const int CUI1 = -(10);
+const int CUI2 = (-(+(5+10)));
+const int CUI3 = ~2;
+const int CUI4 = ~(-36);
+const float CUF1 = -(10.0 * 2.0);
+const float CUF2 = +(10.0 + 2.0);
+const decimal CUD = -(11.5 + 4);
+const boolean CUB = !(true);
+
+function testConstUnaryExpressions() {
+    assertEqual(CUI1, -10);
+    assertEqual(CUI2, -15);
+    assertEqual(CUI3, -3);
+    assertEqual(CUI4, 35);
+    assertEqual(CUF1, -20.0);
+    assertEqual(CUF2, 12.0);
+    assertEqual(CUD, -15.5d);
+    assertEqual(CUB, false);
+}
+
+function assertEqual(int|float|decimal|boolean actual, int|float|decimal|boolean expected) {
     if (actual != expected) {
         panic error(string `Assertion error: expected ${expected} found ${actual}`);
     }

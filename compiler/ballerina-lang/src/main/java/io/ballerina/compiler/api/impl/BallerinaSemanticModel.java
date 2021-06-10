@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
+import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -38,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -48,6 +50,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -89,7 +92,12 @@ public class BallerinaSemanticModel implements SemanticModel {
      */
     @Override
     public List<Symbol> visibleSymbols(Document srcFile, LinePosition linePosition) {
-        BLangCompilationUnit compilationUnit = getCompilationUnit(srcFile);
+        return visibleSymbols(srcFile, linePosition, DiagnosticState.VALID, DiagnosticState.UNKNOWN_TYPE);
+    }
+
+    @Override
+    public List<Symbol> visibleSymbols(Document sourceFile, LinePosition position, DiagnosticState... states) {
+        BLangCompilationUnit compilationUnit = getCompilationUnit(sourceFile);
         BPackageSymbol moduleSymbol = getModuleSymbol(compilationUnit);
         SymbolTable symbolTable = SymbolTable.getInstance(this.compilerContext);
         SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(moduleSymbol);
@@ -97,19 +105,20 @@ public class BallerinaSemanticModel implements SemanticModel {
 
         SymbolResolver symbolResolver = SymbolResolver.getInstance(this.compilerContext);
         Map<Name, List<Scope.ScopeEntry>> scopeSymbols =
-                symbolResolver.getAllVisibleInScopeSymbols(envResolver.lookUp(compilationUnit, linePosition));
+                symbolResolver.getAllVisibleInScopeSymbols(envResolver.lookUp(compilationUnit, position));
 
         Location cursorPos = new BLangDiagnosticLocation(compilationUnit.name,
-                                                         linePosition.line(), linePosition.line(),
-                                                         linePosition.offset(), linePosition.offset());
+                                                         position.line(), position.line(),
+                                                         position.offset(), position.offset());
 
+        Set<DiagnosticState> statesSet = new HashSet<>(Arrays.asList(states));
         Set<Symbol> compiledSymbols = new HashSet<>();
         for (Map.Entry<Name, List<Scope.ScopeEntry>> entry : scopeSymbols.entrySet()) {
             Name name = entry.getKey();
             List<Scope.ScopeEntry> scopeEntries = entry.getValue();
 
             for (Scope.ScopeEntry scopeEntry : scopeEntries) {
-                addToCompiledSymbols(compiledSymbols, scopeEntry, cursorPos, name);
+                addToCompiledSymbols(compiledSymbols, scopeEntry, cursorPos, name, statesSet);
             }
         }
 
@@ -362,11 +371,9 @@ public class BallerinaSemanticModel implements SemanticModel {
                 startOffset >= specifiedStartOffset && startOffset <= specifiedEndOffset;
     }
 
-    private void addToCompiledSymbols(Set<Symbol> compiledSymbols,
-                                      Scope.ScopeEntry scopeEntry,
-                                      Location cursorPos,
-                                      Name name) {
-        if (scopeEntry == null || scopeEntry.symbol == null) {
+    private void addToCompiledSymbols(Set<Symbol> compiledSymbols, Scope.ScopeEntry scopeEntry, Location cursorPos,
+                                      Name name, Set<DiagnosticState> states) {
+        if (scopeEntry == null || scopeEntry.symbol == null || isFilteredVarSymbol(scopeEntry.symbol, states)) {
             return;
         }
 
@@ -379,10 +386,14 @@ public class BallerinaSemanticModel implements SemanticModel {
             }
             compiledSymbols.add(compiledSymbol);
         }
-        addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name);
+        addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name, states);
     }
 
     private boolean isServiceDeclSymbol(BSymbol symbol) {
         return symbol.kind == SymbolKind.SERVICE;
+    }
+
+    private boolean isFilteredVarSymbol(BSymbol symbol, Set<DiagnosticState> states) {
+        return symbol instanceof BVarSymbol && !states.contains(((BVarSymbol) symbol).state);
     }
 }

@@ -95,8 +95,18 @@ public class DocAttachmentInfo implements Documentation {
         if (!this.parameters.isEmpty()) {
             parameters.forEach((key, value) -> newParamsMap.put(key, other.parameterMap().getOrDefault(key, value)));
         }
-        String returnValueDescription = other.returnDescription().orElse(this.returnDesc);
-        String deprecatedDescription = other.deprecatedDescription().orElse(this.deprecatedDesc);
+
+        // Check if no return type present -> handles removal of return type descriptor
+        String returnValueDescription = null;
+        if (this.returnDesc != null) {
+            returnValueDescription = other.returnDescription().orElse(this.returnDesc);
+        }
+
+        // Check if deprecated description is present -> handles removal of deprecated description
+        String deprecatedDescription = null;
+        if (this.deprecatedDesc != null) {
+            deprecatedDescription = other.deprecatedDescription().orElse(this.deprecatedDesc);
+        }
 
         return new DocAttachmentInfo(description, newParamsMap, returnValueDescription, deprecatedDescription, 
                 docStart, padding);

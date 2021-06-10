@@ -285,8 +285,8 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(remoteMethodCallActionNode);
     }
 
-    public void visit(STParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
-        visitSyntaxNode(parameterizedTypeDescriptorNode);
+    public void visit(STMapTypeDescriptorNode mapTypeDescriptorNode) {
+        visitSyntaxNode(mapTypeDescriptorNode);
     }
 
     public void visit(STNilLiteralNode nilLiteralNode) {
@@ -365,10 +365,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(keySpecifierNode);
     }
 
-    public void visit(STErrorTypeDescriptorNode errorTypeDescriptorNode) {
-        visitSyntaxNode(errorTypeDescriptorNode);
-    }
-
     public void visit(STStreamTypeDescriptorNode streamTypeDescriptorNode) {
         visitSyntaxNode(streamTypeDescriptorNode);
     }
@@ -377,16 +373,8 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(streamTypeParamsNode);
     }
 
-    public void visit(STTypedescTypeDescriptorNode typedescTypeDescriptorNode) {
-        visitSyntaxNode(typedescTypeDescriptorNode);
-    }
-
     public void visit(STLetExpressionNode letExpressionNode) {
         visitSyntaxNode(letExpressionNode);
-    }
-
-    public void visit(STXmlTypeDescriptorNode xmlTypeDescriptorNode) {
-        visitSyntaxNode(xmlTypeDescriptorNode);
     }
 
     public void visit(STLetVariableDeclarationNode letVariableDeclarationNode) {
@@ -815,6 +803,10 @@ public abstract class STNodeVisitor {
 
     public void visit(STErrorConstructorExpressionNode errorConstructorExpressionNode) {
         visitSyntaxNode(errorConstructorExpressionNode);
+    }
+
+    public void visit(STParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
+        visitSyntaxNode(parameterizedTypeDescriptorNode);
     }
 
     // STNodeList
