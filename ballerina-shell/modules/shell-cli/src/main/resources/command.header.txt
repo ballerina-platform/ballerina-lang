@@ -1,2 +1,3 @@
 Welcome to Ballerina Shell REPL.
+Ballerina version : Ballerina Swan Lake Beta 1
 Type /exit to exit and /help to list available commands.
