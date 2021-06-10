@@ -45,14 +45,14 @@ public class MultiplyOperationTest {
 
     @Test(description = "Test two int multiply expression")
     public void testIntMultiplyExpr() {
-        BValue[] args = { new BInteger(100), new BInteger(50) };
+        BValue[] args = { new BInteger(4611686018427387904L), new BInteger(-2L) };
         BValue[] returns = BRunUtil.invoke(result, "intMultiply", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
         long actual = ((BInteger) returns[0]).intValue();
-        long expected = 5000;
+        long expected = -9223372036854775808L;
         Assert.assertEquals(actual, expected);
     }
 

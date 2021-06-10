@@ -2,10 +2,10 @@ function intAdd(int a, int b) returns (int) {
     return a + b;
 }
 
-public function overflowByAddition() {
- int val = 9223372036854775807;
- int val1 = 1;
- int k = val1 + val;
+function overflowByAddition() {
+    int num1 = 9223372036854775807;
+    int num2 = 1;
+    int ans = num1 + num2;
 }
 
 function floatAdd(float a, float b) returns (float) {

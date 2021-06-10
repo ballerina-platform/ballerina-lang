@@ -45,13 +45,13 @@ public class SubtractOperationTest {
 
     @Test(description = "Test two int subtract expression")
     public void testIntAddExpr() {
-        BValue[] args = { new BInteger(100), new BInteger(200)};
+        BValue[] args = { new BInteger(1234567891011L), new BInteger(9876543211110L)};
 
         BValue[]  returns = BRunUtil.invoke(result, "intSubtract", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         long actual = ((BInteger) returns[0]).intValue();
-        long expected = -100;
+        long expected = -8641975320099L;
         Assert.assertEquals(actual, expected);
     }
 

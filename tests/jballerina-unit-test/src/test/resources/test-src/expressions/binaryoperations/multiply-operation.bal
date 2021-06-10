@@ -2,10 +2,10 @@ function intMultiply(int a, int b) returns (int) {
     return a * b;
 }
 
-public function overflowByMultiplication() {
- int val = 9223372036854775807;
- int val1 = -2;
- int k = val1 * val;
+function overflowByMultiplication() {
+    int num1 = -1;
+    int num2 = -9223372036854775808;
+    int ans = num1 * num2;
 }
 
 function floatMultiply(float a, float b) returns (float) {
