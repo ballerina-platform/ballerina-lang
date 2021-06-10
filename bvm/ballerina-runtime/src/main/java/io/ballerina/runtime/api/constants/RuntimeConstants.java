@@ -120,7 +120,7 @@ public class RuntimeConstants {
             "If you are able to share with us the code that broke Ballerina then\n" +
             "we would REALLY appreciate if you would report this to us:\n" +
             "go to https://github.com/ballerina-platform/ballerina-lang/issues and\n" +
-            "create a bug report with both this log file and the sample code.\n";
+            "create a bug report with both this log and the sample code.\n";
 
     public static final String DEFAULT_LOG_FILE_HANDLER_PATTERN =
             "org.ballerinalang.logging.handlers.DefaultLogFileHandler.pattern";
