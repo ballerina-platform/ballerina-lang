@@ -267,6 +267,11 @@ public class TypeConverter {
                     convertibleTypes.add(matchingType);
                 }
                 break;
+            case TypeTags.MAP_TAG:
+                if (isConvertibleToMapType(inputValue, (BMapType) targetType, unresolvedValues)) {
+                    convertibleTypes.add(targetType);
+                }
+                break;
             default:
                 if (TypeChecker.checkIsLikeType(inputValue, targetType, true)) {
                     convertibleTypes.add(targetType);
@@ -388,6 +393,20 @@ public class TypeConverter {
                 return isConvertibleToTableType(((BIntersectionType) tableConstrainedType).getEffectiveType());
         }
         return false;
+    }
+
+    private static boolean isConvertibleToMapType(Object sourceValue, BMapType targetType,
+                                                  List<TypeValuePair> unresolvedValues) {
+        if (!(sourceValue instanceof MapValueImpl)) {
+            return false;
+        }
+
+        for (Object mapEntry : ((MapValueImpl) sourceValue).values()) {
+            if (getConvertibleTypes(mapEntry, targetType.getConstrainedType(), unresolvedValues).size() != 1) {
+                return false;
+            }
+        }
+        return true;
     }
 
     static long anyToInt(Object sourceVal, Supplier<BError> errorFunc) {
