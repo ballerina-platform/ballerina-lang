@@ -126,3 +126,7 @@ class Foo {
     function testForwardReferencingParams1(int x, int y = z, int z = 12) { } // undefined symbol 'z'
     function testForwardReferencingParams2(float y = z * 2, float z = getFloat()) { } // undefined symbol 'z'
 }
+
+function foobar(string ')  {
+
+}

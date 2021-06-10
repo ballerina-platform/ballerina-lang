@@ -1903,12 +1903,18 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangQueryExpr queryExpr) {
+        queryExpr.getQueryClauses().forEach(clause -> clause.accept(this));
+    }
+
+    @Override
     public void visit(BLangForeach foreach) {
-        throw new AssertionError();
+        foreach.collection.accept(this);
     }
 
     @Override
     public void visit(BLangFromClause fromClause) {
+        fromClause.collection.accept(this);
     }
 
     @Override
@@ -1917,18 +1923,22 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSelectClause selectClause) {
+        selectClause.expression.accept(this);
     }
 
     @Override
     public void visit(BLangWhereClause whereClause) {
+        whereClause.expression.accept(this);
     }
 
     @Override
     public void visit(BLangDoClause doClause) {
+        doClause.body.getStatements().forEach(statement -> statement.accept(this));
     }
 
     @Override
     public void visit(BLangLimitClause limitClause) {
+        limitClause.expression.accept(this);
     }
 
     @Override

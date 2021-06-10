@@ -37,6 +37,7 @@ public enum LSContextOperation implements LSOperation {
     TXT_FORMATTING("text/formatting"),
     TXT_RANGE_FORMATTING("text/rangeFormatting"),
     TXT_CODE_LENS("text/codeLens"),
+    TXT_PREPARE_RENAME("text/prepareRename"),
     TXT_RENAME("text/rename"),
     TXT_IMPL("text/implementation"),
     TXT_FOLDING_RANGE("text/foldingRange"),

@@ -1839,6 +1839,8 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.detailType = clone(source.detailType);
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
+        clone.isAnonymous = source.isAnonymous;
+        clone.isLocal = source.isLocal;
         cloneBLangType(source, clone);
     }
 

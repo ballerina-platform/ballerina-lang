@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -2296,6 +2297,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 BTypeSymbol parameterizedType = ((BParameterizedType) symbol.type).paramValueType.tsymbol;
                 checkForExportableType(parameterizedType, pos);
                 return;
+            case TypeTags.ERROR:
+                if (Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
+                    checkForExportableType((((BErrorType) symbol.type).detailType.tsymbol), pos);
+                    return;
+                }
             // TODO : Add support for other types. such as union and objects
         }
         if (!Symbols.isPublic(symbol)) {

@@ -36,7 +36,9 @@ import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.FoldingRangeContext;
 import org.ballerinalang.langserver.commons.HoverContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.PrepareRenameContext;
 import org.ballerinalang.langserver.commons.ReferencesContext;
+import org.ballerinalang.langserver.commons.RenameContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -74,6 +76,8 @@ import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.PrepareRenameParams;
+import org.eclipse.lsp4j.PrepareRenameResult;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
@@ -187,10 +191,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     params.getPosition());
             try {
                 // Find token at cursor position
-                Token cursorToken = TokensUtil.findTokenAtPosition(context, params.getPosition());
+                Optional<Token> cursorToken = TokensUtil.findTokenAtPosition(context, params.getPosition());
+                if (cursorToken.isEmpty()) {
+                    return null;
+                }
                 int activeParamIndex = 0;
                 //TODO: Once https://git.io/JJIFp fixed, can get docs directly from the node of syntaxTree
-                NonTerminalNode sNode = cursorToken.parent();
+                NonTerminalNode sNode = cursorToken.get().parent();
                 SyntaxKind sKind = (sNode != null) ? sNode.kind() : null;
 
                 // Find invocation node
@@ -473,12 +480,37 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     @Override
+    public CompletableFuture<Either<Range, PrepareRenameResult>> prepareRename(PrepareRenameParams params) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                PrepareRenameContext context = ContextBuilder.buildPrepareRenameContext(
+                        params.getTextDocument().getUri(),
+                        this.workspaceManager,
+                        this.serverContext,
+                        params.getPosition());
+                Optional<Range> range = RenameUtil.prepareRename(context);
+                if (range.isPresent()) {
+                    return Either.forLeft(range.get());
+                }
+            } catch (UserErrorException e) {
+                this.clientLogger.notifyUser("Rename", e);
+            } catch (Throwable t) {
+                String msg = "Operation 'text/prepareRename' failed!";
+                this.clientLogger.logError(LSContextOperation.TXT_PREPARE_RENAME, msg, t, params.getTextDocument(),
+                        params.getPosition());
+            }
+            
+            return null;
+        });
+    }
+
+    @Override
     public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
         return CompletableFuture.supplyAsync(() -> {
             WorkspaceEdit workspaceEdit = new WorkspaceEdit();
 
             try {
-                ReferencesContext context = ContextBuilder.buildReferencesContext(params.getTextDocument().getUri(),
+                RenameContext context = ContextBuilder.buildRenameContext(params.getTextDocument().getUri(),
                         this.workspaceManager,
                         this.serverContext,
                         params.getPosition());

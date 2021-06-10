@@ -66,7 +66,7 @@ public class LineFoldingOnlyTest {
                 FileUtils.fileContentAsObject(expectedPath.toAbsolutePath().toString()).getAsJsonArray("result");
         JsonArray responseJsonArray = JSON_PARSER.parse(response).getAsJsonObject().getAsJsonArray("result");
         Assert.assertEquals(responseJsonArray, expectedJsonArray, "LineFoldingOnlyTest fails with " + expected
-                + "test case.");
+                + " test case.");
     }
 
     @AfterClass
