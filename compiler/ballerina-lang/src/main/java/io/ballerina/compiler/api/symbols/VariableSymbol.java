@@ -30,4 +30,12 @@ public interface VariableSymbol extends Symbol, Qualifiable, Deprecatable, Annot
      * @return {@link TypeSymbol} of the variable
      */
     TypeSymbol typeDescriptor();
+
+    /**
+     * Gets the diagnostic state of the variable. If the type of the variable is set as $CompilationError$, this will
+     * provide an additional bit of insight in to what type of error caused the type to be set as $CompilationError$.
+     *
+     * @return The state of the variable symbol
+     */
+    DiagnosticState diagnosticState();
 }

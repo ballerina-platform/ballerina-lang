@@ -103,6 +103,7 @@ public class FunctionSignatureNegativeTest {
         BAssertUtil.validateError(result, i++, "undefined symbol 'z'", 123, 50);
         BAssertUtil.validateError(result, i++, "undefined symbol 'z'", 126, 59);
         BAssertUtil.validateError(result, i++, "undefined symbol 'z'", 127, 54);
+        BAssertUtil.validateError(result, i++, "incomplete quoted identifier", 130, 24);
 
         Assert.assertEquals(i, result.getErrorCount());
     }
