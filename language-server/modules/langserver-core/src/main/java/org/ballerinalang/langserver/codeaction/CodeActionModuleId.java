@@ -68,7 +68,7 @@ public class CodeActionModuleId implements ModuleID {
     }
 
     /**
-     * Get the Package name of this module ID
+     * Get the Package name of this module ID.
      *
      * @return Package name
      */
