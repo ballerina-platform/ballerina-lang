@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,26 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public class Foo {
-    public future<int> intFuture = getFuture();
+type UserInfo record {|
+    string username;
+    anydata password;
+|};
 
-    function init() {
-    }
-}
+type Person record {|
+    UserInfo user;
+|};
 
-Foo globalFoo = new;
+configurable anydata var1 = 2;
+configurable anydata[] arrayVar = ?;
 
-public function getIntFromFutureField() returns int {
-    Foo foo = new;
-    int a = checkpanic wait foo.intFuture;
-    int b = checkpanic wait globalFoo.intFuture;
-    return a + b;
-}
+configurable UserInfo admin = ?;
+configurable Person person = ?;
 
-public function getIntValue() returns int {
-    return 10;
-}
+configurable map<anydata> & readonly mapVar = ?;
 
-public function getFuture() returns future<int> {
-    return start getIntValue();
-}
+configurable table<map<anydata>> tableVar1 = ?;
+configurable table<Person> key(name) tableVar2 = ?;
+
+configurable string|int|Person unionVar1 = ?;
+configurable anydata|Person unionVar2 = ?;
