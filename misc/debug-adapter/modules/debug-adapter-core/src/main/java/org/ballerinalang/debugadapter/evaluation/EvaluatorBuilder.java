@@ -386,7 +386,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void prepareForEvaluation() {
-        // Adds expression syntax
+        // Adds expression syntax.
         addLiteralExpressionSyntax();
         addStringTemplateExpressionSyntax();
         addXmlTemplateExpressionSyntax();
@@ -421,7 +421,7 @@ public class EvaluatorBuilder extends NodeVisitor {
         addXmlNavigationExpressionSyntax();
         addMiscellaneousSyntax();
 
-        // Adds action syntax
+        // Adds action syntax.
         addRemoteMethodCallAction();
     }
 

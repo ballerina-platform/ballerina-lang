@@ -35,7 +35,7 @@ import static org.ballerinalang.debugadapter.evaluation.engine.expression.Functi
  */
 public class ClassDefinitionResolver {
 
-    SuspendedContext context;
+    private final SuspendedContext context;
 
     public ClassDefinitionResolver(SuspendedContext context) {
         this.context = context;
