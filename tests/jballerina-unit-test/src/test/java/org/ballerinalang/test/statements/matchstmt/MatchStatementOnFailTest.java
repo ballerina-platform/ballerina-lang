@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.statements.matchstmt;
 
-import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.BAssertUtil;

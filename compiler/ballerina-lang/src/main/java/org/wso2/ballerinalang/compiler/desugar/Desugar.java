@@ -5316,7 +5316,8 @@ public class Desugar extends BLangNodeVisitor {
             transactionStmtBlock.stmts.add(0, shouldPanicDef);
             transactionStmtBlock.scope.define(shouldPanicVarSymbol.name, shouldPanicVarSymbol);
             transactionStmtBlock.failureBreakMode = userDefinedOnFailAvbl ?
-                    BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE : BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK;
+                    BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE :
+                    BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK;
 
             // at this point;
             //
