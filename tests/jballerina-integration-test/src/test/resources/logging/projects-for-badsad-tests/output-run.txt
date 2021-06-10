@@ -1,0 +1,8 @@
+java.lang.ClassCastException: class io.ballerina.runtime.internal.values.ErrorValue cannot be cast to class io.ballerina.runtime.internal.values.ArrayValue (io.ballerina.runtime.internal.values.ErrorValue and io.ballerina.runtime.internal.values.ArrayValue are in unnamed module of loader 'app')
+	at asmaj.runCmdBadSad.0_1_0.main.testArray(main.bal:6)
+	at asmaj.runCmdBadSad.0_1_0.main.main(main.bal:2)
+	at asmaj.runCmdBadSad.0_1_0.$_init.$lambda$main$(runCmdBadSad)
+	at io.ballerina.runtime.internal.scheduling.SchedulerItem.execute(Scheduler.java:571)
+	at io.ballerina.runtime.internal.scheduling.Scheduler.run(Scheduler.java:301)
+	at io.ballerina.runtime.internal.scheduling.Scheduler.runSafely(Scheduler.java:269)
+	at java.base/java.lang.Thread.run(Thread.java:834)
