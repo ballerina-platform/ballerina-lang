@@ -3725,8 +3725,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (types.containsErrorType(resultType)) {
             return;
         }
-        String workerName = isReferencingNonWorker((BLangBinaryExpr) expression);
-        if (workerName != null && !workerName.isEmpty()) {
+        if (!isReferencingNonWorker((BLangBinaryExpr) expression)) {
             return;
         }
 
@@ -3765,17 +3764,16 @@ public class TypeChecker extends BLangNodeVisitor {
         return false;
     }
 
-    private String isReferencingNonWorker(BLangBinaryExpr binaryExpr) {
+    private boolean isReferencingNonWorker(BLangBinaryExpr binaryExpr) {
         BLangExpression lhsExpr = binaryExpr.lhsExpr;
         BLangExpression rhsExpr = binaryExpr.rhsExpr;
-        String lhsWorkerName = isReferencingNonWorker(lhsExpr);
-        if (lhsWorkerName != null && lhsWorkerName.isEmpty()) {
-            return lhsWorkerName;
+        if (isReferencingNonWorker(lhsExpr)) {
+            return true;
         }
         return isReferencingNonWorker(rhsExpr);
     }
 
-    private String isReferencingNonWorker(BLangExpression expression) {
+    private boolean isReferencingNonWorker(BLangExpression expression) {
         if (expression.getKind() == NodeKind.BINARY_EXPR) {
             return isReferencingNonWorker((BLangBinaryExpr) expression);
         } else if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -3783,10 +3781,10 @@ public class TypeChecker extends BLangNodeVisitor {
             BSymbol varRefSymbol = simpleVarRef.symbol;
             String varRefSymbolName = varRefSymbol.getName().value;
             if (workerExists(env, varRefSymbolName)) {
-                return varRefSymbolName;
+                return false;
             }
         }
-        return "";
+        return true;
     }
 
 
