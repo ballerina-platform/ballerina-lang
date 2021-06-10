@@ -238,6 +238,8 @@ function testVarInMatchPatternWithinOnfail() {
     assertEquals("Error caught at onfail; input received: 2, 100-> Error caught at outer onfail.", res4);
     string res5 = getErrorDetailFromMultipleThrow([10, "100"]);
     assertEquals("Error caught at onfail; input received: 10, 100-> Error caught at outer onfail.", res5);
+    string res6 = getErrorDetailNestedMatch([DECIMAL_NUMBER, "10"]);
+    assertEquals("Error caught at onfail; input received: 10-> Error caught at outer onfail.", res6);
 }
 
 function getDetailErrorWithMatchedInput([int, string] dataEntry) returns string {
@@ -288,6 +290,36 @@ function getErrorDetailFromMultipleThrow([int, string] dataEntry) returns string
             } on fail error cause {
                 str += "Error caught at onfail; input received: 10, " + digits;
                 fail cause;
+            }
+        }
+    } on fail error e {
+        str += "-> Error caught at outer onfail.";
+    }
+    return str;
+}
+
+function getErrorDetailNestedMatch([int, string] dataEntry) returns string {
+    string str = "";
+    match dataEntry {
+        [DECIMAL_NUMBER, var digits] => {
+            match digits {
+                "10" => {
+                    do {
+                        string val = check getError();
+                    } on fail error cause {
+                        str += "Error caught at onfail; input received: 10";
+                        fail cause;
+                    }
+                }
+
+                "20" => {
+                    do {
+                        string val = check getError();
+                    } on fail error cause {
+                        str += "Error caught at onfail; input received: 20";
+                        fail cause;
+                    }
+                }
             }
         }
     } on fail error e {
