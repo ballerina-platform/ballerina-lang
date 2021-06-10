@@ -49,7 +49,6 @@ public class RuntimeUtils {
 
     private static final String CRASH_LOGGER = "b7a.log.crash";
     private static final String DEFAULT_CRASH_LOG_FILE = "ballerina-internal.log";
-    private static final String ENCODING_PATTERN = "\\$(\\d{4})";
     private static PrintStream errStream = System.err;
     public static final String USER_DIR = System.getProperty("user.dir");
     public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
@@ -94,7 +93,7 @@ public class RuntimeUtils {
                 array.add(array.size(), (int) TypeConverter.convertValues(type, value));
                 break;
             default:
-                array.append((Object) value);
+                array.append(value);
         }
     }
 
@@ -125,34 +124,42 @@ public class RuntimeUtils {
         }
     }
 
-    public static void handleRuntimeErrorsAndExit(Throwable throwable) {
-        handleRuntimeErrors(throwable);
+    public static void handleBErrorAndExit(Throwable throwable) {
+        if (throwable instanceof ErrorValue) {
+            printToConsole((ErrorValue) throwable);
+        }
         Runtime.getRuntime().exit(1);
     }
 
-    public static void handleRuntimeErrors(Throwable throwable) {
+    public static void handleAllRuntimeErrorsAndExit(Throwable throwable) {
+        handleAllRuntimeErrors(throwable);
+        Runtime.getRuntime().exit(1);
+    }
+
+    public static void handleAllRuntimeErrors(Throwable throwable) {
         if (throwable instanceof ErrorValue) {
-            errStream.println("error: " + ((ErrorValue) throwable).getPrintableStackTrace());
+            printToConsole((ErrorValue) throwable);
         } else {
-            // These errors are unhandled errors in JVM, hence logging them to bre log.
-            errStream.println(RuntimeConstants.INTERNAL_ERROR_MESSAGE);
             logBadSad(throwable);
         }
+    }
+
+    private static void printToConsole(ErrorValue throwable) {
+        errStream.println("error: " + throwable.getPrintableStackTrace());
     }
 
     public static void handleRuntimeReturnValues(Object returnValue) {
         if (returnValue instanceof ErrorValue) {
             ErrorValue errorValue = (ErrorValue) returnValue;
             errStream.println("error: " + errorValue.getMessage() +
-                    Optional.ofNullable(errorValue.getDetails()).map(details -> " " + details).orElse(""));
+                                      Optional.ofNullable(errorValue.getDetails()).map(details -> " " + details)
+                                              .orElse(""));
             Runtime.getRuntime().exit(1);
         }
     }
 
     public static void handleDiagnosticErrors(RuntimeDiagnosticLog diagnosticLog) {
-        diagnosticLog.getDiagnosticList().forEach(diagnostic -> {
-            errStream.println(diagnostic.toString());
-        });
+        diagnosticLog.getDiagnosticList().forEach(diagnostic -> errStream.println(diagnostic.toString()));
         if (diagnosticLog.getErrorCount() > 0) {
             Runtime.getRuntime().exit(1);
         }
@@ -204,5 +211,8 @@ public class RuntimeUtils {
         } else {
             return Paths.get(TEMP_DIR, fileName).toString();
         }
+    }
+
+    private RuntimeUtils() {
     }
 }
