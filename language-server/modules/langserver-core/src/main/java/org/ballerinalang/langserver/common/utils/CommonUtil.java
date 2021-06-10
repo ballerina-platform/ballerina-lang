@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.common.utils;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
@@ -27,16 +28,19 @@ import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -148,6 +152,8 @@ public class CommonUtil {
 
     public static final List<String> BALLERINA_KEYWORDS;
 
+    private static final String SELF_KW = "self";
+
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
         BALLERINA_CMD = BALLERINA_HOME + File.separator + "bin" + File.separator + "bal" +
@@ -258,7 +264,7 @@ public class CommonUtil {
                 typeString = Boolean.toString(false);
                 break;
             case TUPLE:
-                TupleTypeSymbol tupleType = (TupleTypeSymbol) bType;
+                TupleTypeSymbol tupleType = (TupleTypeSymbol) rawType;
                 String memberTypes = tupleType.memberTypeDescriptors().stream()
                         .map(CommonUtil::getDefaultValueForType)
                         .collect(Collectors.joining(", "));
@@ -266,7 +272,7 @@ public class CommonUtil {
                 break;
             case ARRAY:
                 // Filler value of an array is []
-                ArrayTypeSymbol arrayType = (ArrayTypeSymbol) bType;
+                ArrayTypeSymbol arrayType = (ArrayTypeSymbol) rawType;
                 if (arrayType.memberTypeDescriptor().typeKind() == TypeDescKind.ARRAY) {
                     typeString = "[" + getDefaultValueForType(arrayType.memberTypeDescriptor()) + "]";
                 } else {
@@ -304,19 +310,9 @@ public class CommonUtil {
                     typeString = "object {}";
                 }
                 break;
-            // Fixme
-//            case FINITE:
-//                List<BLangExpression> valueSpace = new ArrayList<>(((BFiniteType) bType).getValueSpace());
-//                String value = valueSpace.get(0).toString();
-//                BType type = valueSpace.get(0).type;
-//                typeString = value;
-//                if (type.toString().equals("string")) {
-//                    typeString = "\"" + typeString + "\"";
-//                }
-//                break;
             case UNION:
                 List<TypeSymbol> members =
-                        new ArrayList<>(((UnionTypeSymbol) bType).memberTypeDescriptors());
+                        new ArrayList<>(((UnionTypeSymbol) rawType).memberTypeDescriptors());
                 typeString = getDefaultValueForType(members.get(0));
                 break;
             case INTERSECTION:
@@ -334,8 +330,29 @@ public class CommonUtil {
                     typeString = getDefaultValueForType(memberType.get());
                 }
                 break;
+            case TABLE:
+                TypeSymbol rowType = ((TableTypeSymbol) rawType).rowTypeParameter();
+                typeString = "table [" + getDefaultValueForType(rowType) + "]";
+                break;
+            case ERROR:
+                TypeSymbol errorType = CommonUtil.getRawType(((ErrorTypeSymbol) rawType).detailTypeDescriptor());
+                StringBuilder errorString = new StringBuilder("error (\"\"");
+                if (errorType.typeKind() == TypeDescKind.RECORD) {
+                    errorString.append(", ");
+                    errorString.append(getMandatoryRecordFields((RecordTypeSymbol) errorType).stream()
+                            .map(recordFieldSymbol -> recordFieldSymbol.getName().get()
+                                    + " = " + getDefaultValueForType(recordFieldSymbol.typeDescriptor()))
+                            .collect(Collectors.joining(", ")));
+                }
+                errorString.append(")");
+                typeString = errorString.toString();
+                break;
             case STREAM:
-//            case TABLE:
+                typeString = "new ()";
+                break;
+            case XML:
+                typeString = "xml ``";
+                break;
             default:
                 if (typeKind.isIntegerType()) {
                     typeString = Integer.toString(0);
@@ -845,7 +862,7 @@ public class CommonUtil {
             }
 
             if (importsAcceptor != null && !preDeclaredLangLib) {
-                importsAcceptor.getAcceptor().accept(orgName, alias);
+                importsAcceptor.getAcceptor(context).accept(orgName, alias);
             }
         }
         return pkgPrefix;
@@ -971,6 +988,19 @@ public class CommonUtil {
                 pos.getLine() == eLine && pos.getCharacter() <= eCol ||
                 pos.getLine() == sLine && pos.getCharacter() >= sCol
         ));
+    }
+
+    /**
+     * Check if the provided line range is within the enclosing line range.
+     *
+     * @param lineRange      Line range to be checked for inclusion
+     * @param enclosingRange Enclosing line range in which the #lineRange reside
+     * @return True if the provided line range resides within the provided enclosing line range
+     */
+    public static boolean isWithinLineRange(LineRange lineRange, LineRange enclosingRange) {
+        Position start = CommonUtil.toPosition(lineRange.startLine());
+        Position end = CommonUtil.toPosition(lineRange.endLine());
+        return CommonUtil.isWithinLineRange(start, enclosingRange) && CommonUtil.isWithinLineRange(end, enclosingRange);
     }
 
     /**
@@ -1137,6 +1167,10 @@ public class CommonUtil {
         return symbolName;
     }
 
+    public static boolean isKeyword(String token) {
+        return CommonUtil.BALLERINA_KEYWORDS.contains(token);
+    }
+
     /**
      * Escape a given value.
      *
@@ -1144,7 +1178,7 @@ public class CommonUtil {
      * @return {@link String}
      */
     public static String escapeReservedKeyword(String value) {
-        if (CommonUtil.BALLERINA_KEYWORDS.contains(value)) {
+        if (isKeyword(value)) {
             return "'" + value;
         }
 
@@ -1249,6 +1283,39 @@ public class CommonUtil {
     }
 
     /**
+     * Check if the symbol is a class symbol with self as the name.
+     *
+     * @param symbol  Symbol
+     * @param context PositionedOperationContext
+     * @param enclosedModuleMember ModuleMemberDeclarationNode
+     * @return {@link Boolean} whether the symbol is a self class symbol.
+     */
+    public static boolean isSelfClassSymbol(Symbol symbol, PositionedOperationContext context,
+                                            ModuleMemberDeclarationNode enclosedModuleMember) {
+
+        Optional<String> name = symbol.getName();
+
+        if (enclosedModuleMember != null) {
+            if (enclosedModuleMember.kind() != SyntaxKind.CLASS_DEFINITION || symbol.kind() != SymbolKind.VARIABLE
+                    || name.isEmpty() || !name.get().equals(SELF_KW)) {
+                return false;
+            }
+        }
+
+        Optional<Symbol> memberSymbol = context.workspace().semanticModel(context.filePath())
+                .flatMap(semanticModel -> semanticModel.symbol(enclosedModuleMember));
+
+        if (memberSymbol.isEmpty() || memberSymbol.get().kind() != SymbolKind.CLASS) {
+            return false;
+        }
+        ClassSymbol classSymbol = (ClassSymbol) memberSymbol.get();
+        VariableSymbol selfSymbol = (VariableSymbol) symbol;
+        TypeSymbol varTypeSymbol = CommonUtil.getRawType(selfSymbol.typeDescriptor());
+
+        return classSymbol.equals(varTypeSymbol);
+    }
+
+   /**
      * Check if the cursor is positioned in a lock statement node context.
      *
      * @param context Completion context.

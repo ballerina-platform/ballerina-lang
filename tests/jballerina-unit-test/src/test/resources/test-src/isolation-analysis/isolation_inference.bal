@@ -376,6 +376,104 @@ class Listener {
     public function immediateStop() returns error? { }
 }
 
+isolated int isolatedVar = 1;
+int nonIsolatedVar = 1;
+
+service on new ListenerTwo() {
+    resource function get a() {
+        lock {
+            isolatedVar += 1;
+        }
+    }
+
+    resource function get b() {
+        lock {
+            nonIsolatedVar += 1;
+        }
+    }
+
+    resource function get c() {
+        nonIsolatedVar += 1;
+    }
+
+    remote function d() {
+        lock {
+            isolatedVar += 1;
+        }
+    }
+
+    remote function e() {
+        lock {
+            nonIsolatedVar += 1;
+        }
+    }
+
+    remote function f() {
+        nonIsolatedVar += 1;
+    }
+}
+
+function funcAccessingIsolatedVar() {
+    lock {
+        isolatedVar += 1;
+    }
+}
+
+function funcAccessingNonIsolatedVarInLockStmt() {
+    lock {
+        nonIsolatedVar += 1;
+    }
+}
+
+function funcAccessingNonIsolatedVar() {
+    nonIsolatedVar += 1;
+}
+
+public function publicFuncAccessingIsolatedVar() {
+    lock {
+        isolatedVar += 1;
+    }
+}
+
+public function publicFuncAccessingNonIsolatedVarInLockStmt() {
+    lock {
+        nonIsolatedVar += 1;
+    }
+}
+
+public function publicFuncAccessingNonIsolatedVar() {
+    nonIsolatedVar += 1;
+}
+
+function testFunctionsAccessingModuleLevelVarsIsolatedInference() {
+    assertTrue(funcAccessingIsolatedVar is isolated function ());
+    assertFalse(funcAccessingNonIsolatedVarInLockStmt is isolated function ());
+    assertFalse(funcAccessingNonIsolatedVar is isolated function ());
+    assertFalse(publicFuncAccessingIsolatedVar is isolated function ());
+    assertFalse(publicFuncAccessingNonIsolatedVarInLockStmt is isolated function ());
+    assertFalse(publicFuncAccessingNonIsolatedVar is isolated function ());
+}
+
+class ListenerTwo {
+
+    public function attach(service object {} s, string|string[]? name = ()) returns error?  {
+        assertTrue(isResourceIsolated(s, "get", "a"));
+        assertFalse(isResourceIsolated(s, "get", "b"));
+        assertFalse(isResourceIsolated(s, "get", "c"));
+        assertTrue(isRemoteMethodIsolated(s, "d"));
+        assertFalse(isRemoteMethodIsolated(s, "e"));
+        assertFalse(isRemoteMethodIsolated(s, "f"));
+    }
+
+    public function detach(service object {} s) returns error? { }
+
+    public function 'start() returns error? { }
+
+    public function gracefulStop() returns error? { }
+
+    public function immediateStop() returns error? { }
+}
+
 isolated function isResourceIsolated(service object {}|typedesc val, string resourceMethodName,
      string resourcePath) returns boolean = @java:Method {
                         'class: "org.ballerinalang.test.isolation.IsolationInferenceTest",

@@ -20,6 +20,7 @@ package io.ballerina.compiler.syntax.tree;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -32,12 +33,12 @@ public class ParameterizedTypeDescriptorNode extends TypeDescriptorNode {
         super(internalNode, position, parent);
     }
 
-    public Token parameterizedType() {
+    public Token keywordToken() {
         return childInBucket(0);
     }
 
-    public TypeParameterNode typeParameter() {
-        return childInBucket(1);
+    public Optional<TypeParameterNode> typeParamNode() {
+        return optionalChildInBucket(1);
     }
 
     @Override
@@ -53,22 +54,24 @@ public class ParameterizedTypeDescriptorNode extends TypeDescriptorNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "parameterizedType",
-                "typeParameter"};
+                "keywordToken",
+                "typeParamNode"};
     }
 
     public ParameterizedTypeDescriptorNode modify(
-            Token parameterizedType,
-            TypeParameterNode typeParameter) {
+            SyntaxKind kind,
+            Token keywordToken,
+            TypeParameterNode typeParamNode) {
         if (checkForReferenceEquality(
-                parameterizedType,
-                typeParameter)) {
+                keywordToken,
+                typeParamNode)) {
             return this;
         }
 
         return NodeFactory.createParameterizedTypeDescriptorNode(
-                parameterizedType,
-                typeParameter);
+                kind,
+                keywordToken,
+                typeParamNode);
     }
 
     public ParameterizedTypeDescriptorNodeModifier modify() {
@@ -82,33 +85,33 @@ public class ParameterizedTypeDescriptorNode extends TypeDescriptorNode {
      */
     public static class ParameterizedTypeDescriptorNodeModifier {
         private final ParameterizedTypeDescriptorNode oldNode;
-        private Token parameterizedType;
-        private TypeParameterNode typeParameter;
+        private Token keywordToken;
+        private TypeParameterNode typeParamNode;
 
         public ParameterizedTypeDescriptorNodeModifier(ParameterizedTypeDescriptorNode oldNode) {
             this.oldNode = oldNode;
-            this.parameterizedType = oldNode.parameterizedType();
-            this.typeParameter = oldNode.typeParameter();
+            this.keywordToken = oldNode.keywordToken();
+            this.typeParamNode = oldNode.typeParamNode().orElse(null);
         }
 
-        public ParameterizedTypeDescriptorNodeModifier withParameterizedType(
-                Token parameterizedType) {
-            Objects.requireNonNull(parameterizedType, "parameterizedType must not be null");
-            this.parameterizedType = parameterizedType;
+        public ParameterizedTypeDescriptorNodeModifier withKeywordToken(
+                Token keywordToken) {
+            Objects.requireNonNull(keywordToken, "keywordToken must not be null");
+            this.keywordToken = keywordToken;
             return this;
         }
 
-        public ParameterizedTypeDescriptorNodeModifier withTypeParameter(
-                TypeParameterNode typeParameter) {
-            Objects.requireNonNull(typeParameter, "typeParameter must not be null");
-            this.typeParameter = typeParameter;
+        public ParameterizedTypeDescriptorNodeModifier withTypeParamNode(
+                TypeParameterNode typeParamNode) {
+            this.typeParamNode = typeParamNode;
             return this;
         }
 
         public ParameterizedTypeDescriptorNode apply() {
             return oldNode.modify(
-                    parameterizedType,
-                    typeParameter);
+                    oldNode.kind(),
+                    keywordToken,
+                    typeParamNode);
         }
     }
 }

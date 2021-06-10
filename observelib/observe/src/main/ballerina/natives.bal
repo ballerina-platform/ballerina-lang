@@ -75,7 +75,7 @@ public function finishSpan(int spanId) returns error? = @java:Method {
 # Retrieve a map of span context data.
 #
 # + return - Map of span context data (traceId and spanId).
-public function getSpanContext() returns map<string> = @java:Method {
+public isolated function getSpanContext() returns map<string> = @java:Method {
     'class: "org.ballerinalang.observe.nativeimpl.GetSpanContext",
     name: "getSpanContext"
 } external;

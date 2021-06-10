@@ -208,6 +208,18 @@ function testIntersectionOfSameSetOfErrorShapes() {
     assertEquality(m.detail().s, "s");
 }
 
+type FreeError distinct error;
+
+type E1 distinct FreeError;
+
+type E2 FreeError & error<Detail>;
+
+public function testDistinctErrorWithSameTypeIdsButDifferentTypes() {
+    E1 x = error E1("");
+    // E1 and E2 have matching type-ids.
+    assertEquality(x is E2, false);
+}
+
 function assertEquality(any|error actual, any|error expected) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
