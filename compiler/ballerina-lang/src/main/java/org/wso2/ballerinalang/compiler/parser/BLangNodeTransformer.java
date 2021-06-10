@@ -1014,7 +1014,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             parent = parent.parent();
         }
 
-        errorType.isAnonymous = checkIfAnonymous(errorTypeDescriptorNode);
+        errorType.isAnonymous = checkIfAnonymous(parameterizedTypeDescNode);
         errorType.isLocal = this.isInLocalContext;
 
         if (parent.kind() != SyntaxKind.TYPE_DEFINITION
