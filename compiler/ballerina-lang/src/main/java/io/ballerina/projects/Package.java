@@ -420,9 +420,9 @@ public class Package {
 
             DependencyGraph<ResolvedPackageDependency> newDepGraph = this.project.currentPackage().getResolution()
                     .dependencyGraph();
-            if (this.dependencyGraph.compareTo(newDepGraph).equals(DependencyGraph.Compatibility.INCOMPATIBLE)) {
-                // Old graph being incompatible with the new graph means there are dependency packages that
-                // that needs to removed. Hence we flush out the package cache.
+            if (!this.dependencyGraph.difference(newDepGraph).isEmpty()) {
+                // A non-empty diff means deletion of nodes from the old graph is
+                // required to get the new graph, hence we flush out the package cache.
                 CompilerContext compilerContext = project.projectEnvironmentContext()
                         .getService(CompilerContext.class);
                 PackageCache packageCache = PackageCache.getInstance(compilerContext);

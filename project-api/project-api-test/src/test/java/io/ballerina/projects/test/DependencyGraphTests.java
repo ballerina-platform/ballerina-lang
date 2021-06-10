@@ -24,11 +24,16 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.BuildProject;
+import org.ballerinalang.model.elements.PackageID;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Collectors;
 
 /**
  * Contains cases to test dependency graph changes with package edits.
@@ -45,8 +50,20 @@ public class DependencyGraphTests extends BaseTest {
         BuildProject project = BuildProject.load(projectPath);
         DependencyGraph<ResolvedPackageDependency> dependencyGraphOld =
                 project.currentPackage().getResolution().dependencyGraph();
-        // dependency graph should contain self and package_c
+        // dependency graph should contain self and package_dep
         Assert.assertEquals(dependencyGraphOld.getNodes().size(), 2);
+
+        // verify that the compiler package cache contains package_dep
+        PackageCache packageCache = PackageCache.getInstance(
+                project.projectEnvironmentContext().getService(CompilerContext.class));
+        project.currentPackage().getCompilation();
+        ResolvedPackageDependency packageC = dependencyGraphOld.getNodes().stream().filter(resolvedPackageDependency ->
+                resolvedPackageDependency.packageInstance().packageName().toString()
+                        .equals("package_dep")).collect(Collectors.toList()).get(0);
+        PackageID packageID = new PackageID(new Name(packageC.packageInstance().packageOrg().value()),
+                new Name(packageC.packageInstance().getDefaultModule().moduleName().toString()),
+                new Name(packageC.packageInstance().packageVersion().toString()));
+        Assert.assertNotNull(packageCache.getSymbol(packageID));
 
         // 2) update version of the package_c dependency in Dependencies.toml
         project.currentPackage().dependenciesToml().get().modify().withContent(
@@ -60,8 +77,9 @@ public class DependencyGraphTests extends BaseTest {
                 project.currentPackage().getResolution().dependencyGraph();
         // dependency graph should contain self and package_c
         Assert.assertEquals(dependencyGraphNew.getNodes().size(), 2);
-        DependencyGraph.Compatibility compatibility = dependencyGraphOld.compareTo(dependencyGraphNew);
-        Assert.assertEquals(compatibility, DependencyGraph.Compatibility.INCOMPATIBLE);
+
+        // verify that the package cache is flushed
+        Assert.assertNull(packageCache.getSymbol(packageID));
     }
 
     @Test
@@ -74,6 +92,18 @@ public class DependencyGraphTests extends BaseTest {
         // dependency graph should contain self and package_c
         Assert.assertEquals(dependencyGraphOld.getNodes().size(), 2);
 
+        // verify that the compiler package cache contains package_c
+        PackageCache packageCache = PackageCache.getInstance(
+                project.projectEnvironmentContext().getService(CompilerContext.class));
+        project.currentPackage().getCompilation();
+        ResolvedPackageDependency packageC = dependencyGraphOld.getNodes().stream().filter(resolvedPackageDependency ->
+                resolvedPackageDependency.packageInstance().packageName().toString().equals("package_c"))
+                .collect(Collectors.toList()).get(0);
+        PackageID packageID = new PackageID(new Name(packageC.packageInstance().packageOrg().value()),
+                new Name(packageC.packageInstance().getDefaultModule().moduleName().toString()),
+                new Name(packageC.packageInstance().packageVersion().toString()));
+        Assert.assertNotNull(packageCache.getSymbol(packageID));
+
         // 2) update the mod_b2/mod2.bal file to remove package_c dependency
         Module modB2 = project.currentPackage().module(ModuleName.from(PackageName.from("package_b"), "mod_b2"));
         Document document = modB2.document(modB2.documentIds().stream().findFirst().get());
@@ -84,8 +114,9 @@ public class DependencyGraphTests extends BaseTest {
                 project.currentPackage().getResolution().dependencyGraph();
         // dependency graph should contain only self
         Assert.assertEquals(dependencyGraphNew.getNodes().size(), 1);
-        DependencyGraph.Compatibility compatibility = dependencyGraphOld.compareTo(dependencyGraphNew);
-        Assert.assertEquals(compatibility, DependencyGraph.Compatibility.INCOMPATIBLE);
+
+        // verify that the package cache is flushed
+        Assert.assertNull(packageCache.getSymbol(packageID));
     }
 
     @Test
@@ -97,6 +128,19 @@ public class DependencyGraphTests extends BaseTest {
                 project.currentPackage().getResolution().dependencyGraph();
         // dependency graph should contain self and package_c
         Assert.assertEquals(dependencyGraphOld.getNodes().size(), 2);
+
+        // verify that the compiler package cache contains package_c
+        PackageCache packageCache = PackageCache.getInstance(
+                project.projectEnvironmentContext().getService(CompilerContext.class));
+        project.currentPackage().getCompilation();
+
+        ResolvedPackageDependency packageC = dependencyGraphOld.getNodes().stream().filter(resolvedPackageDependency ->
+                resolvedPackageDependency.packageInstance().packageName().toString().equals("package_c"))
+                .collect(Collectors.toList()).get(0);
+        PackageID packageID = new PackageID(new Name(packageC.packageInstance().packageOrg().value()),
+                new Name(packageC.packageInstance().getDefaultModule().moduleName().toString()),
+                new Name(packageC.packageInstance().packageVersion().toString()));
+        Assert.assertNotNull(packageCache.getSymbol(packageID));
 
         // 2) update the mod_b2/mod2.bal file to add a new dependency
         Module modB2 = project.currentPackage().module(ModuleName.from(PackageName.from("package_b"), "mod_b2"));
@@ -116,8 +160,8 @@ public class DependencyGraphTests extends BaseTest {
         // dependency graph should contain self, package_c and package_e
         Assert.assertEquals(dependencyGraphNew.getNodes().size(), 3);
 
-        DependencyGraph.Compatibility compatibility = dependencyGraphOld.compareTo(dependencyGraphNew);
-        Assert.assertEquals(compatibility, DependencyGraph.Compatibility.COMPATIBLE);
+        // verify that the package cache is not flushed
+        Assert.assertNotNull(packageCache.getSymbol(packageID));
     }
 
     @Test
@@ -130,6 +174,18 @@ public class DependencyGraphTests extends BaseTest {
         // dependency graph should contain self and package_c
         Assert.assertEquals(dependencyGraphOld.getNodes().size(), 2);
 
+        // verify that the compiler package cache contains package_c
+        PackageCache packageCache = PackageCache.getInstance(
+                project.projectEnvironmentContext().getService(CompilerContext.class));
+        project.currentPackage().getCompilation();
+        ResolvedPackageDependency packageC = dependencyGraphOld.getNodes().stream().filter(resolvedPackageDependency ->
+                resolvedPackageDependency.packageInstance().packageName().toString().equals("package_c"))
+                .collect(Collectors.toList()).get(0);
+        PackageID packageID = new PackageID(new Name(packageC.packageInstance().packageOrg().value()),
+                new Name(packageC.packageInstance().getDefaultModule().moduleName().toString()),
+                new Name(packageC.packageInstance().packageVersion().toString()));
+        Assert.assertNotNull(packageCache.getSymbol(packageID));
+
         // 2) update the mod_b2/mod2.bal file to remove package_c dependency
         Module modB2 = project.currentPackage().module(ModuleName.from(PackageName.from("package_b"), "mod_b2"));
         Document document = modB2.document(modB2.documentIds().stream().findFirst().get());
@@ -141,8 +197,8 @@ public class DependencyGraphTests extends BaseTest {
                 project.currentPackage().getResolution().dependencyGraph();
         // dependency graph should contain self and package_e
         Assert.assertEquals(dependencyGraphNew.getNodes().size(), 2);
-        DependencyGraph.Compatibility compatibility = dependencyGraphOld.compareTo(dependencyGraphNew);
-        Assert.assertEquals(compatibility, DependencyGraph.Compatibility.INCOMPATIBLE);
+        // verify that the package cache is flushed
+        Assert.assertNull(packageCache.getSymbol(packageID));
     }
 
     @Test
@@ -155,6 +211,18 @@ public class DependencyGraphTests extends BaseTest {
         // dependency graph should contain self and package_c
         Assert.assertEquals(dependencyGraphOld.getNodes().size(), 2);
 
+        // verify that the compiler package cache contains the dependency
+        PackageCache packageCache = PackageCache.getInstance(
+                project.projectEnvironmentContext().getService(CompilerContext.class));
+        project.currentPackage().getCompilation();
+        ResolvedPackageDependency packageC = dependencyGraphOld.getNodes().stream().filter(resolvedPackageDependency ->
+                resolvedPackageDependency.packageInstance().packageName().toString().equals("package_c"))
+                .collect(Collectors.toList()).get(0);
+        PackageID packageID = new PackageID(new Name(packageC.packageInstance().packageOrg().value()),
+                new Name(packageC.packageInstance().getDefaultModule().moduleName().toString()),
+                new Name(packageC.packageInstance().packageVersion().toString()));
+        Assert.assertNotNull(packageCache.getSymbol(packageID));
+
         // 2) update the mod_b2/mod2.bal file to remove package_c dependency
         Module defaultModule = project.currentPackage().getDefaultModule();
         Document document = defaultModule.document(defaultModule.documentIds().stream().findFirst().get());
@@ -165,7 +233,8 @@ public class DependencyGraphTests extends BaseTest {
                 project.currentPackage().getResolution().dependencyGraph();
         // dependency graph should contain self and package_e
         Assert.assertEquals(dependencyGraphNew.getNodes().size(), 2);
-        DependencyGraph.Compatibility compatibility = dependencyGraphOld.compareTo(dependencyGraphNew);
-        Assert.assertEquals(compatibility, DependencyGraph.Compatibility.COMPATIBLE);
+
+        // verify that the package cache is not flushed
+        Assert.assertNotNull(packageCache.getSymbol(packageID));
     }
 }

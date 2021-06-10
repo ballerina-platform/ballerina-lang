@@ -64,24 +64,17 @@ public class DependencyGraph<T> {
      * Compares two instances of {@code DependencyGraph}.
      *
      * @param other other dependency graph to compare with
-     * @return DependencyGraph.Compatibility.COMPATIBLE if graphs are compatible;
-     *         DependencyGraph.Compatibility.INCOMPATIBLE otherwise
+     * @return the set of nodes that needs to be deleted from this graph to
+     *          to get the other graph
      */
-    public Compatibility compareTo(DependencyGraph<T> other) {
-        // If this graph can be converted to the other graph without removing
-        // any nodes, we consider the graphs to be Compatible. Else if, deletion
-        // of nodes is required, they are considered Incompatible.
+    Set<T> difference(DependencyGraph<T> other) {
+        // If the diff is empty, either this graph is equivalent to or a subset
+        // of the other graph, no deletion of nodes required to convert this to the other.
+        // Else, the node set in diff should be removed from this graph to convert it to
+        // the other.
         Set<T> diff = new HashSet<>(this.getNodes());
         diff.removeAll(other.getNodes());
-
-        // If the diff is empty, either this graph is equivalent to or a subset of the other graph.
-        // No deletion of nodes required to convert this to the other, hence Compatible.
-        if (diff.isEmpty()) {
-            return Compatibility.COMPATIBLE;
-        } else {
-            // Deletion of nodes required to convert this to the other, hence Incompatible.
-            return Compatibility.INCOMPATIBLE;
-        }
+        return diff;
     }
 
     public DependencyGraph<T> add(T node) {
@@ -217,16 +210,5 @@ public class DependencyGraph<T> {
             }
             return currentDependencies;
         }
-    }
-
-    /**
-     * Represents the compatibility between two dependency graphs {@code DependencyGraph} instances.
-     *
-     * @since 2.0.0
-     */
-    public enum Compatibility {
-        INCOMPATIBLE,
-        COMPATIBLE,
-        ;
     }
 }
