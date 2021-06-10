@@ -139,7 +139,9 @@ public class BuildLangLib {
 
             // Copy generated jar to the target dir
             Path cacheDirPath = pkgTargetPath.resolve("cache");
-            String jarFileName = pkgDesc.org().value() + "-" + pkgDesc.name().value() + "-" + pkgDesc.version().value() + ".jar";
+            String jarFileName = pkgDesc.org().value() + "-"
+                    + pkgDesc.name().value() + "-"
+                    + pkgDesc.version().value() + ".jar";
             Path generatedJarFilePath = cacheDirPath.resolve(pkgDesc.org().toString())
                     .resolve(pkgDesc.name().value())
                     .resolve(pkgDesc.version().toString())
