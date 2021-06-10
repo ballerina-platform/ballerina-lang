@@ -1005,11 +1005,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         errorType.pos = getPosition(parameterizedTypeDescNode);
         if (typeParam.isPresent()) {
             TypeParameterNode typeNode = typeParam.get();
-            if (isAnonymousTypeNode(typeNode)) {
-                errorType.detailType = deSugarTypeAsUserDefType(createTypeNode(typeNode));
-            } else {
-                errorType.detailType = createTypeNode(typeNode);
-            }
+            errorType.detailType = createTypeNode(typeNode);
         }
 
         NonTerminalNode parent = parameterizedTypeDescNode.parent();
@@ -1017,7 +1013,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (isDistinctError) {
             parent = parent.parent();
         }
-        if ((typeParam.isPresent() || isDistinctError) && parent.kind() != SyntaxKind.TYPE_DEFINITION) {
+
+        errorType.isAnonymous = checkIfAnonymous(errorTypeDescriptorNode);
+        errorType.isLocal = this.isInLocalContext;
+
+        if (parent.kind() != SyntaxKind.TYPE_DEFINITION
+                && (isDistinctError || (!errorType.isLocal && typeParam.isPresent()))) {
             return deSugarTypeAsUserDefType(errorType);
         }
 
