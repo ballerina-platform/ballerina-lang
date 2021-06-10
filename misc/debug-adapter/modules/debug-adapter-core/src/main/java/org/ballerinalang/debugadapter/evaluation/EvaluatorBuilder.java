@@ -335,14 +335,14 @@ public class EvaluatorBuilder extends NodeVisitor {
         result = new UnaryExpressionEvaluator(context, unaryExpressionNode, subExprEvaluator);
     }
 
-    public void visit(RemoteMethodCallActionNode remoteMethodCallActionNode) {
-        visitSyntaxNode(remoteMethodCallActionNode);
+    public void visit(RemoteMethodCallActionNode methodCallActionNode) {
+        visitSyntaxNode(methodCallActionNode);
         try {
             // visits object expression.
-            remoteMethodCallActionNode.expression().accept(this);
+            methodCallActionNode.expression().accept(this);
             Evaluator expression = result;
-            List<Map.Entry<String, Evaluator>> argEvaluators = processArgs(remoteMethodCallActionNode.arguments());
-            result = new RemoteMethodCallActionEvaluator(context, remoteMethodCallActionNode, expression, argEvaluators);
+            List<Map.Entry<String, Evaluator>> argEvaluators = processArgs(methodCallActionNode.arguments());
+            result = new RemoteMethodCallActionEvaluator(context, methodCallActionNode, expression, argEvaluators);
         } catch (EvaluationException e) {
             builderException = e;
         }

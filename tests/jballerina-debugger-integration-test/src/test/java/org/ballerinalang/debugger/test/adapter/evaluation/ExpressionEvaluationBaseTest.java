@@ -59,6 +59,7 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
     protected static final String FUTURE_VAR = "futureVar";
     protected static final String OBJECT_VAR = "objectVar";
     protected static final String ANON_OBJECT_VAR = "anonObjectVar";
+    protected static final String CLIENT_OBJECT_VAR = "clientObjectVar";
     protected static final String TYPEDESC_VAR = "typedescVar";
     protected static final String UNION_VAR = "unionVar";
     protected static final String OPTIONAL_VAR = "optionalVar";
@@ -103,7 +104,7 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
         String testModuleFileName = "main.bal";
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
 
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 197));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 199));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
         this.context = debugHitInfo.getRight();
@@ -212,4 +213,7 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
 
     // 33. XML navigation expressions
     public abstract void xmlNavigationEvaluationTest() throws BallerinaTestException;
+
+    // 33. XML navigation expressions
+    public abstract void remoteCallActionEvaluationTest() throws BallerinaTestException;
 }
