@@ -425,6 +425,29 @@ function testGroupExprAsKeyValue() {
     }
 }
 
+type A record {
+    readonly int a;
+};
+
+type Row8 record {
+    readonly table<A>|A k;
+    int value;
+};
+
+function testKeyCollision() {
+    table<Row8> key(k) tbl = table [
+       {k: table [{a: 1}], value: 17},
+       {k: {a: 1}, value: 17}
+    ];
+
+    error? err = trap tbl.add({k: table [{a: 1}], value: 17});
+    assertEqual(true, err is error);
+    if (err is error) {
+        map<string> msg = {"message":"A value found for key '[{\"a\":1}]'"};
+        assertEqual(msg, err.detail());
+    }
+}
+
 function assertEqual(any expected, any actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

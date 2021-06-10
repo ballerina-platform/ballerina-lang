@@ -64,7 +64,8 @@ public class TableKeyFieldValueTest {
                 "testBinaryBitwiseExprAsKeyValue",
                 "testLogicalExprAsKeyValue",
                 "testConditionalExprAsKeyValue",
-                "testGroupExprAsKeyValue"
+                "testGroupExprAsKeyValue",
+                "testKeyCollision"
         };
     }
 }

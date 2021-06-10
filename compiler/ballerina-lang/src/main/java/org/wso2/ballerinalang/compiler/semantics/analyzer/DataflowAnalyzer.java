@@ -917,17 +917,17 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         } else if (node.getKind() == NodeKind.STRING_TEMPLATE_LITERAL) {
             BLangStringTemplateLiteral stringTemplateLiteral = (BLangStringTemplateLiteral) node;
             for (BLangExpression expr : stringTemplateLiteral.exprs) {
-                result = result * 31 + hash(expr);
+                result = result * 31 + getTypeHash(stringTemplateLiteral.type) + hash(expr);
             }
         } else if (node.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
             BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr) node;
             for (BLangExpression expr : listConstructorExpr.exprs) {
-                result = result * 31 + hash(expr);
+                result = result * 31 + getTypeHash(listConstructorExpr.type) + hash(expr);
             }
         } else if (node.getKind() == NodeKind.TABLE_CONSTRUCTOR_EXPR) {
             BLangTableConstructorExpr tableConstructorExpr = (BLangTableConstructorExpr) node;
             for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
-                result = result * 31 + hash(recordLiteral);
+                result = result * 31 + getTypeHash(tableConstructorExpr.type) + hash(recordLiteral);
             }
         } else if (node.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
             BLangTypeConversionExpr typeConversionExpr = (BLangTypeConversionExpr) node;
@@ -951,6 +951,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             dlog.error(((BLangExpression) node).pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
         }
         return result;
+    }
+
+    private Integer getTypeHash(BType type) {
+        return Objects.hash(type.tag, type.name);
     }
 
     private List<BLangExpression> createKeyArray(BLangRecordLiteral literal, List<String> fieldNames) {
