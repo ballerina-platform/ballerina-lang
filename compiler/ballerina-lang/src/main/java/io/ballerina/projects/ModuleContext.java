@@ -440,8 +440,7 @@ class ModuleContext {
         BIRPackageSymbolEnter birPackageSymbolEnter = BIRPackageSymbolEnter.getInstance(compilerContext);
 
         PackageID moduleCompilationId = moduleContext.descriptor().moduleCompilationId();
-        moduleContext.bPackageSymbol = birPackageSymbolEnter.definePackage(
-                moduleCompilationId, null, moduleContext.birBytes);
+        moduleContext.bPackageSymbol = birPackageSymbolEnter.definePackage(moduleCompilationId, moduleContext.birBytes);
         moduleContext.bPackageSymbol.exported = moduleContext.isExported();
         moduleContext.bPackageSymbol.descriptor = moduleContext.descriptor();
         packageCache.putSymbol(moduleCompilationId, moduleContext.bPackageSymbol);

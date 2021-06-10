@@ -15,15 +15,26 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.syntax.tree.EnumMemberNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link EnumMemberNode} context.
@@ -32,6 +43,7 @@ import java.util.List;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class EnumMemberNodeContext extends AbstractCompletionProvider<EnumMemberNode> {
+
     public EnumMemberNodeContext() {
         super(EnumMemberNode.class);
     }
@@ -39,6 +51,33 @@ public class EnumMemberNodeContext extends AbstractCompletionProvider<EnumMember
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, EnumMemberNode node)
             throws LSCompletionException {
-        return Collections.emptyList();
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
+        List<Symbol> visibleSymbols = new ArrayList<>();
+        Predicate<Symbol> filter = symbol -> symbol.kind() == SymbolKind.CONSTANT
+                && ((ConstantSymbol) symbol).broaderTypeDescriptor().typeKind() == TypeDescKind.STRING;
+        if (!inEnumMemberValueContext(ctx, node)) {
+            return completionItems;
+        }
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
+            QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
+            visibleSymbols.addAll(QNameReferenceUtil.getModuleContent(ctx, nameRef, filter));
+        } else {
+            completionItems.addAll(this.getModuleCompletionItems(ctx));
+            List<Symbol> filteredSymbols = ctx.visibleSymbols(ctx.getCursorPosition()).stream()
+                    .filter(filter)
+                    .collect(Collectors.toList());
+            visibleSymbols.addAll(filteredSymbols);
+        }
+        completionItems.addAll(this.getCompletionItemList(visibleSymbols, ctx));
+        return completionItems;
+    }
+
+    private boolean inEnumMemberValueContext(BallerinaCompletionContext ctx, EnumMemberNode node) {
+        Optional<Token> equalToken = node.equalToken();
+        if (equalToken.isEmpty()) {
+            return false;
+        }
+        return equalToken.get().position() < ctx.getCursorPositionInTree();
     }
 }

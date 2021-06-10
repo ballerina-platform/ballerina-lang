@@ -101,6 +101,14 @@ public class IsolationAnalysisTest {
     }
 
     @Test
+    public void testAnonIsolatedFuncAccessingImplicitlyFinalVars() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/isolation-analysis/implicitly_final_var_access_in_anon_isolated_functions.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+        Assert.assertEquals(result.getWarnCount(), 0);
+    }
+
+    @Test
     public void testIsolatedFunctionsSemanticNegative() {
         CompileResult result =
                 BCompileUtil.compile("test-src/isolation-analysis/isolation_analysis_semantic_negative.bal");
@@ -197,6 +205,19 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 271, 14);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 272, 14);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 273, 14);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 277, 52);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 282, 10);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 282, 20);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 283, 17);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 287, 85);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 290, 7);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 291, 14);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 299, 20);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 300, 20);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 305, 51);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 308, 54);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 311, 70);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 313, 76);
         Assert.assertEquals(result.getErrorCount(), i - 2);
         Assert.assertEquals(result.getDiagnostics().length, i);
     }

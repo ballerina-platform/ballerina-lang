@@ -65,12 +65,12 @@ public class TypeGuardCompletionUtil {
                                                               BallerinaCompletionContext ctx,
                                                               FieldAccessExpressionNode expr) {
         String symbolName;
-        if (expr.expression().kind() == SyntaxKind.FUNCTION_CALL) {
-            symbolName = expr.expression().toSourceCode().trim();
-            //todo: Trim for argument names as well
-        } else {
+        if (expr.expression().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             symbolName = ((SimpleNameReferenceNode) expr.expression()).name().text();
+        } else {
+            symbolName = expr.expression().toSourceCode().trim();
         }
+
         List<TypeSymbol> members = new ArrayList<>(symbol.memberTypeDescriptors());
         String detail = "Destructure the variable " + symbolName + " with typeguard";
         String snippet = "";
@@ -107,22 +107,23 @@ public class TypeGuardCompletionUtil {
                                                                      FieldAccessExpressionNode expr,
                                                                      TypeSymbol typeSymbol) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (TypeGuardCompletionUtil.isInFunctionBlockBodyContext(expr)
+        if (TypeGuardCompletionUtil.isInBlockContext(expr)
                 && typeSymbol.typeKind() == TypeDescKind.UNION
                 && (expr.expression().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
-                expr.expression().kind() == SyntaxKind.FUNCTION_CALL)) {
+                expr.expression().kind() == SyntaxKind.FUNCTION_CALL ||
+                expr.expression().kind() == SyntaxKind.FIELD_ACCESS)) {
             completionItems.add(getTypeGuardDestructedItem((UnionTypeSymbol) typeSymbol, ctx, expr));
         }
         return completionItems;
     }
 
     /**
-     * Check if the given node is within a FunctionBodyBlockNode context.
+     * Check if the given node is within a FunctionBodyNode or BlockStatementNode.
      *
      * @param node Expression node of which the context is checked
      * @return
      */
-    public static boolean isInFunctionBlockBodyContext(FieldAccessExpressionNode node) {
+    public static boolean isInBlockContext(FieldAccessExpressionNode node) {
         return node.parent() instanceof ExpressionStatementNode &&
                 (node.parent().parent() instanceof FunctionBodyNode ||
                         node.parent().parent() instanceof BlockStatementNode);

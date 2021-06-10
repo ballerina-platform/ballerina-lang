@@ -1216,7 +1216,25 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorType errorType) {
         errorType.detailType = rewrite(errorType.detailType, env);
+
+        boolean isDistinctError = errorType.flagSet.contains(Flag.DISTINCT);
+        boolean hasTypeParam = errorType.getDetailsTypeNode() != null;
+        // Distinct errors already have type-def.
+        // Error without type param is either a user-defined-type or a default error, they don't need a type-def.
+        // We need to create type-defs for local anonymous types with type param.
+        if (!isDistinctError && errorType.isLocal && errorType.isAnonymous && hasTypeParam) {
+            BLangUserDefinedType userDefinedType = desugarLocalAnonRecordTypeNode(errorType);
+            TypeDefBuilderHelper.addTypeDefinition(errorType.type, errorType.type.tsymbol, errorType, env);
+            errorType.desugared = true;
+            result = userDefinedType;
+            return;
+        }
         result = errorType;
+    }
+
+    private BLangUserDefinedType desugarLocalAnonRecordTypeNode(BLangErrorType errorTypeNode) {
+        return ASTBuilderUtil.createUserDefineTypeNode(errorTypeNode.type.tsymbol.name.value, errorTypeNode.type,
+                errorTypeNode.pos);
     }
 
     @Override
@@ -4615,6 +4633,11 @@ public class Desugar extends BLangNodeVisitor {
                             .resolveBinaryOperator(OperatorKind.AND, symTable.booleanType, symTable.booleanType));
         }
 
+        BType matchingType = createMatchingRecordType(errorFieldMatchPatterns);
+        BLangExpression isLikeExpr = createIsLikeExpression(errorFieldMatchPatterns.pos, matchExprVarRef, matchingType);
+        condition = ASTBuilderUtil.createBinaryExpr(errorFieldMatchPatterns.pos, condition, isLikeExpr,
+                symTable.booleanType, OperatorKind.AND, (BOperatorSymbol) symResolver
+                        .resolveBinaryOperator(OperatorKind.AND, symTable.booleanType, symTable.booleanType));
         BLangBlockStmt tempBLock = ASTBuilderUtil.createBlockStmt(pos);
         tempBLock.addStatement(successResult);
         BLangIf ifStmtForFieldMatchPatterns = ASTBuilderUtil.createIfElseStmt(pos, condition, tempBLock, null);
@@ -4624,6 +4647,31 @@ public class Desugar extends BLangNodeVisitor {
                 resultVarRef);
         statementExpression.type = symTable.booleanType;
         return statementExpression;
+    }
+
+    private BType createMatchingRecordType(BLangErrorFieldMatchPatterns errorFieldMatchPatterns) {
+        BRecordType detailRecordType = createAnonRecordType(errorFieldMatchPatterns.pos);
+        List<BLangSimpleVariable> typeDefFields = new ArrayList<>();
+        for (BLangNamedArgMatchPattern bindingPattern : errorFieldMatchPatterns.namedArgMatchPatterns) {
+            Name fieldName = names.fromIdNode(bindingPattern.argName);
+            BVarSymbol declaredVarSym = bindingPattern.declaredVars.get(fieldName.value);
+            if (declaredVarSym == null) {
+                // constant match pattern expr, not needed for detail record type
+                continue;
+            }
+            BType fieldType = declaredVarSym.type;
+            BVarSymbol fieldSym = new BVarSymbol(Flags.PUBLIC, fieldName, detailRecordType.tsymbol.pkgID, fieldType,
+                    detailRecordType.tsymbol, bindingPattern.pos, VIRTUAL);
+            detailRecordType.fields.put(fieldName.value, new BField(fieldName, bindingPattern.pos, fieldSym));
+            detailRecordType.tsymbol.scope.define(fieldName, fieldSym);
+            typeDefFields.add(ASTBuilderUtil.createVariable(null, fieldName.value, fieldType, null, fieldSym));
+        }
+        BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(typeDefFields, detailRecordType,
+                errorFieldMatchPatterns.pos);
+        recordTypeNode.initFunction = TypeDefBuilderHelper
+                .createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
+        TypeDefBuilderHelper.addTypeDefinition(detailRecordType, detailRecordType.tsymbol, recordTypeNode, env);
+        return detailRecordType;
     }
 
     private BLangExpression createConditionForErrorFieldBindingPatterns(
@@ -8809,10 +8857,29 @@ public class Desugar extends BLangNodeVisitor {
 
     private BType createDetailType(List<BLangErrorVariable.BLangErrorDetailEntry> detail,
                                    BLangSimpleVariable restDetail, int errorNo, Location pos) {
+        BRecordType detailRecordType = createAnonRecordType(pos);
+
+        if (restDetail == null) {
+            detailRecordType.sealed = true;
+        }
+
+        for (BLangErrorVariable.BLangErrorDetailEntry detailEntry : detail) {
+            Name fieldName = names.fromIdNode(detailEntry.key);
+            BType fieldType = getStructuredBindingPatternType(detailEntry.valueBindingPattern);
+            BVarSymbol fieldSym = new BVarSymbol(Flags.PUBLIC, fieldName, detailRecordType.tsymbol.pkgID, fieldType,
+                    detailRecordType.tsymbol, detailEntry.key.pos, VIRTUAL);
+            detailRecordType.fields.put(fieldName.value, new BField(fieldName, detailEntry.key.pos, fieldSym));
+            detailRecordType.tsymbol.scope.define(fieldName, fieldSym);
+        }
+
+        return detailRecordType;
+    }
+
+    private BRecordType createAnonRecordType(Location pos) {
         BRecordTypeSymbol detailRecordTypeSymbol = new BRecordTypeSymbol(
                 SymTag.RECORD,
                 Flags.PUBLIC,
-                names.fromString("$anonErrorType$" + UNDERSCORE + errorNo + "$detailType"),
+                names.fromString(anonModelHelper.getNextRecordVarKey(env.enclPkg.packageID)),
                 env.enclPkg.symbol.pkgID, null, null, pos, VIRTUAL);
 
         detailRecordTypeSymbol.initializerFunc = createRecordInitFunc();
@@ -8824,20 +8891,6 @@ public class Desugar extends BLangNodeVisitor {
 
         BRecordType detailRecordType = new BRecordType(detailRecordTypeSymbol);
         detailRecordType.restFieldType = symTable.anydataType;
-
-        if (restDetail == null) {
-            detailRecordType.sealed = true;
-        }
-
-        for (BLangErrorVariable.BLangErrorDetailEntry detailEntry : detail) {
-            Name fieldName = names.fromIdNode(detailEntry.key);
-            BType fieldType = getStructuredBindingPatternType(detailEntry.valueBindingPattern);
-            BVarSymbol fieldSym = new BVarSymbol(Flags.PUBLIC, fieldName, detailRecordTypeSymbol.pkgID, fieldType,
-                                                 detailRecordTypeSymbol, detailEntry.key.pos, VIRTUAL);
-            detailRecordType.fields.put(fieldName.value, new BField(fieldName, detailEntry.key.pos, fieldSym));
-            detailRecordTypeSymbol.scope.define(fieldName, fieldSym);
-        }
-
         return detailRecordType;
     }
 

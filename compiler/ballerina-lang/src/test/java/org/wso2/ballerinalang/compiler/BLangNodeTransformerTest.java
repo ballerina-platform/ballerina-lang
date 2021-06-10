@@ -17,24 +17,18 @@ package org.wso2.ballerinalang.compiler;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.directory.ProjectLoader;
 import org.apache.commons.lang3.ClassUtils;
-import org.ballerinalang.compiler.CompilerOptionName;
-import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.model.elements.PackageID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -49,12 +43,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
 
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
-import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
-import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
-
 /**
  * Node Transformer Tests for the {@link @BLangCompUnitGen} class.
  *
@@ -65,31 +53,7 @@ public class BLangNodeTransformerTest {
     private static final JsonParser JSON_PARSER = new JsonParser();
     public static final Path RES_DIR = Paths.get("src/test/resources/node-tree/").toAbsolutePath();
 
-    private CompilerContext context;
-    private SourceDirectoryManager sourceDirectoryManager;
-    private SourceDirectory sourceDirectory;
-    private PackageLoader packageLoader;
     private final JsonParser jsonParser = new JsonParser();
-
-    @BeforeClass
-    public void init() {
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(COMPILER_PHASE, CompilerPhase.COMPILER_PLUGIN.toString());
-        options.put(PRESERVE_WHITESPACE, Boolean.TRUE.toString());
-        options.put(OFFLINE, String.valueOf(true));
-        options.put(TEST_ENABLED, String.valueOf(true));
-        options.put(SKIP_TESTS, String.valueOf(false));
-        options.put(CompilerOptionName.PROJECT_DIR, RES_DIR.resolve("src").toString());
-
-        this.context = context;
-        this.sourceDirectoryManager = SourceDirectoryManager.getInstance(context);
-        this.sourceDirectory = context.get(SourceDirectory.class);
-        if (this.sourceDirectory == null) {
-            throw new IllegalArgumentException("source directory has not been initialized");
-        }
-        this.packageLoader = PackageLoader.getInstance(this.context);
-    }
 
     @Test(dataProvider = "testTransformationTestProvider", enabled = false)
     public void testTransformation(String configName, String sourcePackage)
@@ -98,8 +62,9 @@ public class BLangNodeTransformerTest {
         JsonObject expJsonObj = fileContentAsObject(configName);
 
         // Get actual result json
-        PackageID packageID = this.sourceDirectoryManager.getPackageID(sourcePackage);
-        BLangPackage bLangPackage = this.packageLoader.loadEntryPackage(packageID, null, new EmptyPrintStream());
+        Project project = loadProject("src/" + sourcePackage);
+        Package pkg = project.currentPackage();
+        BLangPackage bLangPackage = pkg.getCompilation().defaultModuleBLangPackage();
         Set<Class<?>> skipList = new HashSet<>();
         String jsonStr = generateFieldJson(bLangPackage.getClass(), bLangPackage, skipList, bLangPackage);
         JsonObject actualJsonObj = jsonParser.parse(jsonStr).getAsJsonObject();
@@ -280,16 +245,11 @@ public class BLangNodeTransformerTest {
         return JSON_PARSER.parse(contentAsString).getAsJsonObject();
     }
 
-    /**
-     * Represents an empty print stream to avoid writing to the standard print stream.
-     */
-    private static class EmptyPrintStream extends PrintStream {
-        public EmptyPrintStream() throws UnsupportedEncodingException {
-            super(new OutputStream() {
-                @Override
-                public void write(int b) {
-                }
-            }, true, "UTF-8");
-        }
+    private static Project loadProject(String sourceFilePath) {
+        Path sourcePath = Paths.get(sourceFilePath);
+        String sourceFileName = sourcePath.getFileName().toString();
+        Path sourceRoot = RES_DIR.resolve(sourcePath.getParent());
+        Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
+        return ProjectLoader.loadProject(projectPath);
     }
 }
