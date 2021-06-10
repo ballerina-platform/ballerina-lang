@@ -35,14 +35,14 @@ function testIterator() returns string[] {
     string str = "Foo Bar";
 
     object {
-         public isolated function next() returns record {| string value; |}?;
+         public isolated function next() returns record {| string:Char value; |}?;
     } itr = str.iterator();
 
     string[] chars = [];
     int i = 0;
-    record {| string value; |}|() elem = itr.next();
+    record {| string:Char value; |}|() elem = itr.next();
 
-    while (elem is record {| string value; |}) {
+    while (elem is record {| string:Char value; |}) {
         chars[i] = elem.value;
         elem = itr.next();
         i += 1;

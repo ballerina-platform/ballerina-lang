@@ -79,6 +79,7 @@ public class LangLibStringTest {
         BValueArray arr = (BValueArray) returns[0];
         long size = arr.size();
 
+
         for (int i = 0; i < size; i++) {
             assertEquals(arr.getString(i), expected[i]);
         }
