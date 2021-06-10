@@ -21,7 +21,6 @@ import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
-import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.eclipse.lsp4j.Position;
 
 import java.util.Optional;
@@ -41,21 +40,15 @@ public class TokensUtil {
      *
      * @return Token at position
      */
-    public static Token findTokenAtPosition(DocumentServiceContext context, Position position)
-            throws TokenOrSymbolNotFoundException {
+    public static Optional<Token> findTokenAtPosition(DocumentServiceContext context, Position position) {
         Optional<Document> document = context.currentDocument();
         if (document.isEmpty()) {
-            throw new TokenOrSymbolNotFoundException("Couldn't find a valid document!");
+            return Optional.empty();
         }
         TextDocument textDocument = document.get().textDocument();
 
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
         Token tokenAtPosition = ((ModulePartNode) document.get().syntaxTree().rootNode()).findToken(txtPos, true);
-
-        if (tokenAtPosition == null) {
-            throw new TokenOrSymbolNotFoundException("Couldn't find a valid identifier token at position!");
-        }
-
-        return tokenAtPosition;
+        return Optional.ofNullable(tokenAtPosition);
     }
 }

@@ -45,6 +45,7 @@ import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DocumentFormattingParams;
+import org.eclipse.lsp4j.DocumentRangeFormattingParams;
 import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.FoldingRangeCapabilities;
@@ -52,9 +53,11 @@ import org.eclipse.lsp4j.FoldingRangeRequestParams;
 import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.PrepareRenameParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.ReferenceParams;
+import org.eclipse.lsp4j.RenameCapabilities;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
 import org.eclipse.lsp4j.SignatureHelpParams;
@@ -98,6 +101,8 @@ public class TestUtil {
 
     private static final String REFERENCES = "textDocument/references";
 
+    private static final String PREPARE_RENAME = "textDocument/prepareRename";
+    
     private static final String RENAME = "textDocument/rename";
 
     private static final String EXECUTE_COMMAND = "workspace/executeCommand";
@@ -105,6 +110,8 @@ public class TestUtil {
     private static final String CODE_ACTION = "textDocument/codeAction";
 
     private static final String FORMATTING = "textDocument/formatting";
+
+    private static final String RANGE_FORMATTING = "textDocument/rangeFormatting";
 
     private static final String IMPLEMENTATION = "textDocument/implementation";
 
@@ -216,6 +223,24 @@ public class TestUtil {
     }
 
     /**
+     * Get the textDocument/prepareRename response.
+     *
+     * @param filePath        Path of the Bal file
+     * @param position        Cursor Position
+     * @param serviceEndpoint Service Endpoint to Language Server
+     * @return {@link String}   Response as String
+     */
+    public static String getPrepareRenameResponse(String filePath, Position position, Endpoint serviceEndpoint) {
+        PrepareRenameParams renameParams = new PrepareRenameParams();
+
+        renameParams.setTextDocument(getTextDocumentIdentifier(filePath));
+        renameParams.setPosition(new Position(position.getLine(), position.getCharacter()));
+
+        CompletableFuture result = serviceEndpoint.request(PREPARE_RENAME, renameParams);
+        return getResponseString(result);
+    } 
+    
+    /**
      * Get the textDocument/rename response.
      *
      * @param filePath        Path of the Bal file
@@ -287,6 +312,18 @@ public class TestUtil {
      */
     public static String getFormattingResponse(DocumentFormattingParams params, Endpoint serviceEndpoint) {
         CompletableFuture result = serviceEndpoint.request(FORMATTING, params);
+        return getResponseString(result);
+    }
+
+    /**
+     * Get formatting response.
+     *
+     * @param params          Document range formatting parameters
+     * @param serviceEndpoint Service endpoint to language server
+     * @return {@link String} Language server response as String
+     */
+    public static String getRangeFormatResponse(DocumentRangeFormattingParams params, Endpoint serviceEndpoint) {
+        CompletableFuture result = serviceEndpoint.request(RANGE_FORMATTING, params);
         return getResponseString(result);
     }
 
@@ -527,6 +564,9 @@ public class TestUtil {
         FoldingRangeCapabilities foldingRangeCapabilities = new FoldingRangeCapabilities();
         foldingRangeCapabilities.setLineFoldingOnly(true);
         textDocumentClientCapabilities.setFoldingRange(foldingRangeCapabilities);
+        RenameCapabilities renameCapabilities = new RenameCapabilities();
+        renameCapabilities.setPrepareSupport(true);
+        textDocumentClientCapabilities.setRename(renameCapabilities);
 
         capabilities.setTextDocument(textDocumentClientCapabilities);
         params.setCapabilities(capabilities);

@@ -29,3 +29,8 @@ function testNotOperator() returns int {
     int i = !10;
     return i;
 }
+
+function testIncompatibleSubtypesWithUnaryOpertaors() {
+    int:Unsigned8 x1 = -7;
+    int:Signed8 x2 = +1000;
+}

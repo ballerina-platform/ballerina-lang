@@ -17,6 +17,8 @@
 
 package org.ballerinalang.test.types.future;
 
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -25,6 +27,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
 
@@ -51,9 +56,8 @@ public class FutureNegativeTests {
         validateError(errors, index++,
                       "incompatible types: expected 'future<(int|string)>', found 'future<(int|string|error)>'",
                       22, 29);
-        // https://github.com/ballerina-platform/ballerina-lang/issues/28758
-        // validateError(errors, index++, "incompatible types: expected 'future<Bar>', found 'future<(any|error)>'",
-        //              25, 22);
+        validateError(errors, index++, "incompatible types: expected 'future<Bar>', found 'future<(any|error)>'",
+                      25, 22);
         Assert.assertEquals(errors.getErrorCount(), index);
     }
 
@@ -67,6 +71,21 @@ public class FutureNegativeTests {
     @Test(dataProvider = "multipleWait")
     public void testFutureNegatives(String functionName) {
         BRunUtil.invoke(result, functionName);
+    }
+
+    @Test
+    public void testStrand() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/types/future/strand_error.bal");
+        BValue[] result = BRunUtil.invoke(compileResult, "testStrand");
+        var mapResult = (BMap<String, BMap<String, BValue>>) result[0];
+        Set<String> set = new HashSet<>();
+        set.add(mapResult.get("f1").get("f0").stringValue());
+        set.add(mapResult.get("f1").get("f00").stringValue());
+        set.add(mapResult.get("f2").get("f0").stringValue());
+        set.add(mapResult.get("f2").get("f00").stringValue());
+        Assert.assertEquals(set.size(), 2);
+        Assert.assertTrue(set.contains("3"));
+        Assert.assertTrue(set.contains("multiple waits on the same future is not allowed {}"));
     }
 
     @AfterClass

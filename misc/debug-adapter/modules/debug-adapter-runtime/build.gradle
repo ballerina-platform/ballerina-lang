@@ -20,7 +20,6 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:jballerina.java')
     implementation project(':ballerina-lang:annotations')
-    implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
 }

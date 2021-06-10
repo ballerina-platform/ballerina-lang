@@ -17,10 +17,12 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.Annotatable;
 import org.ballerinalang.model.symbols.AnnotationSymbol;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.symbols.VariableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -39,24 +41,20 @@ public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
     private List<BAnnotationSymbol> annots;
     public boolean isDefaultable = false;
     public boolean isWildcard = false;
+    public DiagnosticState state = DiagnosticState.VALID;
 
     // Only used for type-narrowing. Cache of the original symbol.
     public BVarSymbol originalSymbol;
-
-    /**
-     * This indicate the indicated (by programmer) taintedness of a variable.
-     */
-    public TaintabilityAllowance taintabilityAllowance = TaintabilityAllowance.IGNORED;
 
     public BVarSymbol(long flags, Name name, PackageID pkgID, BType type, BSymbol owner, Location pos,
                       SymbolOrigin origin) {
         super(VARIABLE, flags, name, pkgID, type, owner, pos, origin);
         this.annots = new ArrayList<>();
+        this.kind = SymbolKind.VARIABLE;
     }
 
     public BVarSymbol(long flags, boolean isIgnorable, Name name, PackageID pkgID, BType type, BSymbol owner,
-                      Location pos,
-                      SymbolOrigin origin) {
+                      Location pos, SymbolOrigin origin) {
         this(flags, name, pkgID, type, owner, pos, origin);
         this.isWildcard = isIgnorable;
     }
@@ -79,10 +77,8 @@ public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
         return null;
     }
 
-    /**
-     * Indicate the allowed taintedness marked for a given variable.
-     */
-    public enum TaintabilityAllowance {
-        TAINTED, UNTAINTED, IGNORED
+    @Override
+    public SymbolKind getKind() {
+        return this.kind;
     }
 }

@@ -1589,16 +1589,16 @@
       ]
     },
     {
-      "name": "ParameterizedTypeDescriptorNode",
+      "name": "MapTypeDescriptorNode",
       "base": "TypeDescriptorNode",
-      "kind": "PARAMETERIZED_TYPE_DESC",
+      "kind": "MAP_TYPE_DESC",
       "attributes": [
         {
-          "name": "parameterizedType",
+          "name": "mapKeywordToken",
           "type": "Token"
         },
         {
-          "name": "typeParameter",
+          "name": "mapTypeParamsNode",
           "type": "TypeParameterNode"
         }
       ]
@@ -2025,22 +2025,6 @@
       ]
     },
     {
-      "name": "ErrorTypeDescriptorNode",
-      "base": "TypeDescriptorNode",
-      "kind": "ERROR_TYPE_DESC",
-      "attributes": [
-        {
-          "name": "errorKeywordToken",
-          "type": "Token"
-        },
-        {
-          "name": "errorTypeParamsNode",
-          "type": "TypeParameterNode",
-          "isOptional": true
-        }
-      ]
-    },
-    {
       "name": "StreamTypeDescriptorNode",
       "base": "TypeDescriptorNode",
       "kind": "STREAM_TYPE_DESC",
@@ -2086,22 +2070,6 @@
       ]
     },
     {
-      "name": "TypedescTypeDescriptorNode",
-      "base": "TypeDescriptorNode",
-      "kind": "TYPEDESC_TYPE_DESC",
-      "attributes": [
-        {
-          "name": "typedescKeywordToken",
-          "type": "Token"
-        },
-        {
-          "name": "typedescTypeParamsNode",
-          "type": "TypeParameterNode",
-          "isOptional": true
-        }
-      ]
-    },
-    {
       "name": "LetExpressionNode",
       "base": "ExpressionNode",
       "kind": "LET_EXPRESSION",
@@ -2122,22 +2090,6 @@
         {
           "name": "expression",
           "type": "ExpressionNode"
-        }
-      ]
-    },
-    {
-      "name": "XmlTypeDescriptorNode",
-      "base": "TypeDescriptorNode",
-      "kind": "XML_TYPE_DESC",
-      "attributes": [
-        {
-          "name": "xmlKeywordToken",
-          "type": "Token"
-        },
-        {
-          "name": "xmlTypeParamsNode",
-          "type": "TypeParameterNode",
-          "isOptional": true
         }
       ]
     },
@@ -4355,6 +4307,21 @@
         {
           "name": "closeParenToken",
           "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "ParameterizedTypeDescriptorNode",
+      "base": "TypeDescriptorNode",
+      "attributes": [
+        {
+          "name": "keywordToken",
+          "type": "Token"
+        },
+        {
+          "name": "typeParamNode",
+          "type": "TypeParameterNode",
+          "isOptional": true
         }
       ]
     }
