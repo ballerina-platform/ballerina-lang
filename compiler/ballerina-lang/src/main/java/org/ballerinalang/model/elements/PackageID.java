@@ -216,6 +216,10 @@ public class PackageID {
         this.version = DEFAULT_VERSION;
     }
 
+    public Name getPkgName() {
+        return pkgName;
+    }
+
     public Name getName() {
         return name;
     }

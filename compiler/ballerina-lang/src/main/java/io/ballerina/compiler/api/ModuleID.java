@@ -32,6 +32,13 @@ public interface ModuleID {
     String orgName();
 
     /**
+     * Get the Package name of this module ID
+     *
+     * @return Package name
+     */
+    String packageName();
+
+    /**
      * Get module name component of this module ID.
      * 
      * @return Module name
