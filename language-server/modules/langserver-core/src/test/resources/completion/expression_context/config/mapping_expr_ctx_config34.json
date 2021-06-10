@@ -14,27 +14,28 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Ba1",
-      "kind": "Field",
-      "detail": "int",
-      "sortText": "G",
-      "insertText": "Ba1: ${1:0}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Ba2",
       "kind": "Field",
-      "detail": "string",
+      "detail": "(record {| int Ba1; string Ba2; |}).Ba2",
       "sortText": "G",
-      "insertText": "Ba2: \"${2}\"",
+      "insertText": "Ba2: \"${1}\"",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Add All Attributes",
+      "label": "Ba1",
+      "kind": "Field",
+      "detail": "(record {| int Ba1; string Ba2; |}).Ba1",
+      "sortText": "G",
+      "insertText": "Ba1: ${2:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill record {| int Ba1; string Ba2; |} Required Fields",
       "kind": "Property",
-      "detail": "none",
+      "detail": "record {| int Ba1; string Ba2; |}",
       "sortText": "Q",
-      "insertText": "Ba1: 0,\nBa2: \"\"",
+      "filterText": "fill",
+      "insertText": "Ba2: \"\",\nBa1: 0",
       "insertTextFormat": "Snippet"
     }
   ]

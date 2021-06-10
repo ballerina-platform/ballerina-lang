@@ -14,27 +14,28 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fField1",
-      "kind": "Field",
-      "detail": "int",
-      "sortText": "G",
-      "insertText": "fField1: ${1:0}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "fField2",
       "kind": "Field",
-      "detail": "int",
+      "detail": "(record {| int fField1; int fField2; anydata...; |}).fField2",
       "sortText": "G",
-      "insertText": "fField2: ${2:0}",
+      "insertText": "fField2: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Add All Attributes",
+      "label": "fField1",
+      "kind": "Field",
+      "detail": "(record {| int fField1; int fField2; anydata...; |}).fField1",
+      "sortText": "G",
+      "insertText": "fField1: ${2:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill record {| int fField1; int fField2; anydata...; |} Required Fields",
       "kind": "Property",
-      "detail": "none",
+      "detail": "record {| int fField1; int fField2; anydata...; |}",
       "sortText": "Q",
-      "insertText": "fField1: 0,\nfField2: 0",
+      "filterText": "fill",
+      "insertText": "fField2: 0,\nfField1: 0",
       "insertTextFormat": "Snippet"
     }
   ]

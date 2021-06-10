@@ -14,107 +14,108 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "record1",
-      "kind": "Field",
-      "detail": "module1:TestRecord1",
-      "sortText": "G",
-      "insertText": "record1: {${1}}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "err1",
-      "kind": "Field",
-      "detail": "Err",
-      "sortText": "G",
-      "insertText": "err1: ${2:error (\"\", message = \"\")}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "record2",
-      "kind": "Field",
-      "detail": "Foo",
-      "sortText": "G",
-      "insertText": "record2: {\n\tf1: ${1:0}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myTable",
-      "kind": "Field",
-      "detail": "table<Foo> key(f1)",
-      "sortText": "G",
-      "insertText": "myTable: ${4:table [{f1: 0}]}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myXML",
-      "kind": "Field",
-      "detail": "xml",
-      "sortText": "G",
-      "insertText": "myXML: ${5:xml ``}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myMap",
-      "kind": "Field",
-      "detail": "map<string>",
-      "sortText": "G",
-      "insertText": "myMap: ${6:{}}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myError",
-      "kind": "Field",
-      "detail": "error",
-      "sortText": "G",
-      "insertText": "myError: ${7:error (\"\")}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "credentials",
-      "kind": "Field",
-      "detail": "NodeCredential",
-      "sortText": "G",
-      "insertText": "credentials: {\n\tip: \"${1}\",\n\tport: ${2:0},\n\tusername: \"${3}\",\n\tfiles: ${4:new ()}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "node",
       "kind": "Field",
-      "detail": "Node",
+      "detail": "(record {| ballerina/module1:0.1.0:TestRecord1 record1; Err err1; Foo record2; table<Foo> key(f1) myTable; xml myXML; map<string> myMap; error myError; NodeCredential credentials; Node node; error|float randomNum; boolean isAlive; string[][] keywords; |}).node",
       "sortText": "G",
-      "insertText": "node: ${9:new ({ip: \"\", port: 0, username: \"\", files: new ()}, 0, \"\")}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "randomNum",
-      "kind": "Field",
-      "detail": "error|float",
-      "sortText": "G",
-      "insertText": "randomNum: ${10:error (\"\")}",
+      "insertText": "node: ${1:new ({ip: \"\", port: 0, username: \"\", files: new ()}, 0, \"\")}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "isAlive",
       "kind": "Field",
-      "detail": "boolean",
+      "detail": "(record {| ballerina/module1:0.1.0:TestRecord1 record1; Err err1; Foo record2; table<Foo> key(f1) myTable; xml myXML; map<string> myMap; error myError; NodeCredential credentials; Node node; error|float randomNum; boolean isAlive; string[][] keywords; |}).isAlive",
       "sortText": "G",
-      "insertText": "isAlive: ${11:false}",
+      "insertText": "isAlive: ${2:false}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "err1",
+      "kind": "Field",
+      "detail": "(record {| ballerina/module1:0.1.0:TestRecord1 record1; Err err1; Foo record2; table<Foo> key(f1) myTable; xml myXML; map<string> myMap; error myError; NodeCredential credentials; Node node; error|float randomNum; boolean isAlive; string[][] keywords; |}).err1",
+      "sortText": "G",
+      "insertText": "err1: ${3:error (\"\", message = \"\")}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myXML",
+      "kind": "Field",
+      "detail": "(record {| ballerina/module1:0.1.0:TestRecord1 record1; Err err1; Foo record2; table<Foo> key(f1) myTable; xml myXML; map<string> myMap; error myError; NodeCredential credentials; Node node; error|float randomNum; boolean isAlive; string[][] keywords; |}).myXML",
+      "sortText": "G",
+      "insertText": "myXML: ${4:xml ``}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "keywords",
       "kind": "Field",
-      "detail": "string[][]",
+      "detail": "(record {| ballerina/module1:0.1.0:TestRecord1 record1; Err err1; Foo record2; table<Foo> key(f1) myTable; xml myXML; map<string> myMap; error myError; NodeCredential credentials; Node node; error|float randomNum; boolean isAlive; string[][] keywords; |}).keywords",
       "sortText": "G",
-      "insertText": "keywords: [${12}]",
+      "insertText": "keywords: [${5}]",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Add All Attributes",
+      "label": "credentials",
+      "kind": "Field",
+      "detail": "(record {| ballerina/module1:0.1.0:TestRecord1 record1; Err err1; Foo record2; table<Foo> key(f1) myTable; xml myXML; map<string> myMap; error myError; NodeCredential credentials; Node node; error|float randomNum; boolean isAlive; string[][] keywords; |}).credentials",
+      "sortText": "G",
+      "insertText": "credentials: {\n\tip: \"${1}\",\n\tport: ${2:0},\n\tusername: \"${3}\",\n\tfiles: ${4:new ()}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record2",
+      "kind": "Field",
+      "detail": "(record {| ballerina/module1:0.1.0:TestRecord1 record1; Err err1; Foo record2; table<Foo> key(f1) myTable; xml myXML; map<string> myMap; error myError; NodeCredential credentials; Node node; error|float randomNum; boolean isAlive; string[][] keywords; |}).record2",
+      "sortText": "G",
+      "insertText": "record2: {\n\tf1: ${1:0}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record1",
+      "kind": "Field",
+      "detail": "(record {| ballerina/module1:0.1.0:TestRecord1 record1; Err err1; Foo record2; table<Foo> key(f1) myTable; xml myXML; map<string> myMap; error myError; NodeCredential credentials; Node node; error|float randomNum; boolean isAlive; string[][] keywords; |}).record1",
+      "sortText": "G",
+      "insertText": "record1: {${8}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myMap",
+      "kind": "Field",
+      "detail": "(record {| ballerina/module1:0.1.0:TestRecord1 record1; Err err1; Foo record2; table<Foo> key(f1) myTable; xml myXML; map<string> myMap; error myError; NodeCredential credentials; Node node; error|float randomNum; boolean isAlive; string[][] keywords; |}).myMap",
+      "sortText": "G",
+      "insertText": "myMap: ${9:{}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myTable",
+      "kind": "Field",
+      "detail": "(record {| ballerina/module1:0.1.0:TestRecord1 record1; Err err1; Foo record2; table<Foo> key(f1) myTable; xml myXML; map<string> myMap; error myError; NodeCredential credentials; Node node; error|float randomNum; boolean isAlive; string[][] keywords; |}).myTable",
+      "sortText": "G",
+      "insertText": "myTable: ${10:table [{f1: 0}]}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myError",
+      "kind": "Field",
+      "detail": "(record {| ballerina/module1:0.1.0:TestRecord1 record1; Err err1; Foo record2; table<Foo> key(f1) myTable; xml myXML; map<string> myMap; error myError; NodeCredential credentials; Node node; error|float randomNum; boolean isAlive; string[][] keywords; |}).myError",
+      "sortText": "G",
+      "insertText": "myError: ${11:error (\"\")}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "randomNum",
+      "kind": "Field",
+      "detail": "(record {| ballerina/module1:0.1.0:TestRecord1 record1; Err err1; Foo record2; table<Foo> key(f1) myTable; xml myXML; map<string> myMap; error myError; NodeCredential credentials; Node node; error|float randomNum; boolean isAlive; string[][] keywords; |}).randomNum",
+      "sortText": "G",
+      "insertText": "randomNum: ${12:error (\"\")}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill record {| ballerina/module1:0.1.0:TestRecord1 record1; Err err1; Foo record2; table<Foo> key(f1) myTable; xml myXML; map<string> myMap; error myError; NodeCredential credentials; Node node; error|float randomNum; boolean isAlive; string[][] keywords; |} Required Fields",
       "kind": "Property",
-      "detail": "none",
+      "detail": "record {| ballerina/module1:0.1.0:TestRecord1 record1; Err err1; Foo record2; table<Foo> key(f1) myTable; xml myXML; map<string> myMap; error myError; NodeCredential credentials; Node node; error|float randomNum; boolean isAlive; string[][] keywords; |}",
       "sortText": "Q",
-      "insertText": "record1: {},\nerr1: error (\"\", message = \"\"),\nrecord2: {f1: 0},\nmyTable: table [{f1: 0}],\nmyXML: xml ``,\nmyMap: {},\nmyError: error (\"\"),\ncredentials: {ip: \"\", port: 0, username: \"\", files: new ()},\nnode: new ({ip: \"\", port: 0, username: \"\", files: new ()}, 0, \"\"),\nrandomNum: error (\"\"),\nisAlive: false,\nkeywords: [[]]",
+      "filterText": "fill",
+      "insertText": "node: new ({ip: \"\", port: 0, username: \"\", files: new ()}, 0, \"\"),\nisAlive: false,\nerr1: error (\"\", message = \"\"),\nmyXML: xml ``,\nkeywords: [[]],\ncredentials: {ip: \"\", port: 0, username: \"\", files: new ()},\nrecord2: {f1: 0},\nrecord1: {},\nmyMap: {},\nmyTable: table [{f1: 0}],\nmyError: error (\"\"),\nrandomNum: error (\"\")",
       "insertTextFormat": "Snippet"
     }
   ]
