@@ -1,1 +1,5 @@
+[package]
+org = "badsad"
+name = "runCmdBadSad"
+version = "0.1.0"
 
