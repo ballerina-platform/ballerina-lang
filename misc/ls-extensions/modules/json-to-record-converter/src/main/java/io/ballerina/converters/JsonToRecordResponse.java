@@ -19,6 +19,8 @@ package io.ballerina.converters;
 
 /**
  * Response format for JsonToBalRecord endpoint.
+ *
+ * @since 2.0.0
  */
 public class JsonToRecordResponse {
     private String codeBlock;

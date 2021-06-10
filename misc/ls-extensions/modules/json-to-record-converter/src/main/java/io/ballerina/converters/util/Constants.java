@@ -23,6 +23,8 @@ import java.util.List;
 
 /**
  * Contains keywords and other constants.
+ *
+ * @since 2.0.0
  */
 public class Constants {
     public static final String INTEGER = "integer";

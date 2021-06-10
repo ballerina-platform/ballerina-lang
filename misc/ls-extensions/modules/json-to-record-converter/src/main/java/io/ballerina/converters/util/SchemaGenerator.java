@@ -32,6 +32,8 @@ import java.util.Map;
  * Infers the json schema for a given json object.
  *
  * Only handles features supported by OpenAPI schema.
+ *
+ * @since 2.0.0
  */
 public class SchemaGenerator {
     private SchemaGenerator() {

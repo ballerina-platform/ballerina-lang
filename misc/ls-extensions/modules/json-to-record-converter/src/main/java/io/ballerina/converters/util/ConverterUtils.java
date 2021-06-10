@@ -29,6 +29,8 @@ import java.util.Optional;
 
 /**
  * Util methods for JSON to record converter.
+ *
+ * @since 2.0.0
  */
 public class ConverterUtils {
     /**
@@ -156,7 +158,7 @@ public class ConverterUtils {
 
             for (Node field : fieldNodes) {
                 if (!(field instanceof RecordFieldNode)) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException(); //TODO: Change to ConverterException
                 }
                 RecordFieldNode recordField = (RecordFieldNode) field;
                 sourceCodeString.append("\t");

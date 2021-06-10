@@ -19,6 +19,8 @@ package io.ballerina.converters.exception;
 
 /**
  * JSON converter exception.
+ *
+ * @since 2.0.0
  */
 public class ConverterException extends Exception {
     public ConverterException(String message, Throwable e) {

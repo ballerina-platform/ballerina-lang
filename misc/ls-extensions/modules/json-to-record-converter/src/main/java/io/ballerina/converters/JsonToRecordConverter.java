@@ -110,14 +110,12 @@ public class JsonToRecordConverter {
      * @throws ConverterException in case of bad record fields
      */
     public static ArrayList<TypeDefinitionNode> generateRecords(OpenAPI openApi) throws ConverterException {
-        // TypeDefinitionNodes their
         List<TypeDefinitionNode> typeDefinitionNodeList = new LinkedList<>();
 
         if (openApi.getComponents() == null) {
             return new ArrayList<>(typeDefinitionNodeList);
         }
 
-        //Create typeDefinitionNode
         Components components = openApi.getComponents();
 
         if (components.getSchemas() == null) {
@@ -137,9 +135,8 @@ public class JsonToRecordConverter {
 
             Token bodyStartDelimiter = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN);
 
-            //Generate RecordFiled
             List<Node> recordFieldList = new ArrayList<>();
-            Schema schemaValue = schema.getValue();
+            Schema<?> schemaValue = schema.getValue();
             String schemaType = schemaValue.getType();
             if (schema.getValue().getProperties() != null || schema.getValue() instanceof ObjectSchema) {
                 Map<String, Schema> fields = schema.getValue().getProperties();
@@ -168,8 +165,6 @@ public class JsonToRecordConverter {
                     Token semicolonToken = AbstractNodeFactory.createIdentifierToken(";");
                     TypeDescriptorNode fieldTypeName;
                     if (arraySchema.getItems() != null) {
-                        //Generate RecordFiled
-                        //FiledName
                         fieldTypeName = extractOpenApiSchema(arraySchema.getItems(), schema.getKey(),
                                 typeDefinitionNodeList);
                     } else {
@@ -200,7 +195,7 @@ public class JsonToRecordConverter {
     }
 
     /**
-     * method for generating record fields with given schema properties.
+     * Method for generating record fields with given schema properties.
      *
      * @param field schema entry of the field
      * @param recordFieldList record field list
@@ -212,7 +207,6 @@ public class JsonToRecordConverter {
             throws ConverterException {
 
         RecordFieldNode recordFieldNode;
-        //FiledName
         IdentifierToken fieldName =
                 AbstractNodeFactory.createIdentifierToken(escapeIdentifier(field.getKey().trim()));
 
@@ -236,7 +230,7 @@ public class JsonToRecordConverter {
      * @param name Name of the field
      * @throws ConverterException in case of invalid schema
      */
-    private static TypeDescriptorNode extractOpenApiSchema(Schema schema, String name,
+    private static TypeDescriptorNode extractOpenApiSchema(Schema<?> schema, String name,
                                                         List<TypeDefinitionNode> typeDefinitionNodeList)
             throws ConverterException {
 
@@ -251,7 +245,6 @@ public class JsonToRecordConverter {
                 final ArraySchema arraySchema = (ArraySchema) schema;
 
                 if (arraySchema.getItems() != null) {
-                    //single array
                     Token openSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN);
                     Token closeSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
                     String type;
@@ -275,9 +268,7 @@ public class JsonToRecordConverter {
             } else if (schemaType.equals("object") && schema.getProperties() != null) {
                 Map<String, Schema> properties = schema.getProperties();
                 List<String> required = schema.getRequired();
-                //1.typeKeyWord
                 Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
-                //2.typeName
                 IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(
                         escapeIdentifier(StringUtils.capitalize(name)));
                 Token recordKeyWord = AbstractNodeFactory.createToken(SyntaxKind.RECORD_KEYWORD);
