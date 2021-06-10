@@ -52,13 +52,7 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
             JsonToRecordResponse response = new JsonToRecordResponse();
             try {
                 String jsonString = request.getJsonString();
-                ObjectMapper objectMapper = new ObjectMapper();
-                JsonNode inputJson = objectMapper.readTree(jsonString);
-                if (inputJson.has("$schema")) {
-                    nodes = JsonToRecordConverter.fromSchema(jsonString);
-                } else {
-                    nodes = JsonToRecordConverter.fromJSON(jsonString);
-                }
+                nodes = JsonToRecordConverter.convert(jsonString);
                 String codeBlock = ConverterUtils.typeNodesToFormattedString(nodes);
                 response.setCodeBlock(codeBlock);
             } catch (IOException | ConverterException e) {

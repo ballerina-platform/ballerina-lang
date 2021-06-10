@@ -71,34 +71,25 @@ public class JsonToRecordConverter {
     }
 
     /**
-     * This method takes in a json Schema and returns the Ballerina record nodes.
+     * This method takes in a json string and returns the Ballerina record nodes.
      *
-     * @param jsonSchema json string for the schema
+     * @param jsonString json string for the schema
      * @return {@link ArrayList<TypeDefinitionNode>} arraylist of type nodes
      * @throws IOException in case of Json parse error
      * @throws ConverterException in case of invalid schema
      */
-    public static ArrayList<TypeDefinitionNode> fromSchema(String jsonSchema) throws IOException,
+    public static ArrayList<TypeDefinitionNode> convert(String jsonString) throws IOException,
             ConverterException {
-        OpenAPI model = parseJSONSchema(jsonSchema);
-        return generateRecords(model);
-    }
-
-    /**
-     * This method takes in a json object and returns the Ballerina record nodes.
-     *
-     * @param jsonString json object string
-     * @return {@link ArrayList<TypeDefinitionNode>} arraylist of type nodes
-     * @throws IOException in case of Json parse error
-     * @throws ConverterException in case of invalid schema
-     */
-    public static ArrayList<TypeDefinitionNode> fromJSON(String jsonString) throws ConverterException, IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-
-        JsonNode inputJsonObject = objectMapper.readTree(jsonString);
-        Map<String, Object> schema = SchemaGenerator.generate(inputJsonObject);
-        String schemaJson = objectMapper.writeValueAsString(schema);
-        OpenAPI model = parseJSONSchema(schemaJson);
+        OpenAPI model;
+        JsonNode inputJson = objectMapper.readTree(jsonString);
+        if (inputJson.has("$schema")) {
+            model = parseJSONSchema(jsonString);
+        } else {
+            Map<String, Object> schema = SchemaGenerator.generate(inputJson);
+            String schemaJson = objectMapper.writeValueAsString(schema);
+            model = parseJSONSchema(schemaJson);
+        }
         return generateRecords(model);
     }
 
@@ -109,7 +100,7 @@ public class JsonToRecordConverter {
      * @return {@link ArrayList<TypeDefinitionNode>}  List of Record Nodes
      * @throws ConverterException in case of bad record fields
      */
-    public static ArrayList<TypeDefinitionNode> generateRecords(OpenAPI openApi) throws ConverterException {
+    private static ArrayList<TypeDefinitionNode> generateRecords(OpenAPI openApi) throws ConverterException {
         List<TypeDefinitionNode> typeDefinitionNodeList = new LinkedList<>();
 
         if (openApi.getComponents() == null) {
@@ -315,7 +306,7 @@ public class JsonToRecordConverter {
      * @throws ConverterException in case of invalid schema
      * @throws IOException in case of Json parse error
      */
-    public static OpenAPI parseJSONSchema(String schemaString) throws ConverterException, IOException {
+    private static OpenAPI parseJSONSchema(String schemaString) throws ConverterException, IOException {
         final String prefix = "{\n" +
                 "  \"openapi\" : \"3.0.1\",\n" +
                 "  \"info\" : {\n" +
@@ -353,7 +344,7 @@ public class JsonToRecordConverter {
      * @return {@link Map}  cleaned json schema
      * @throws ConverterException in case of multiple types
      */
-    public static Map<String, Object> cleanSchema(Map<String, Object> schemaMap) throws ConverterException {
+    private static Map<String, Object> cleanSchema(Map<String, Object> schemaMap) throws ConverterException {
         Map<String, Object> cleanedMap = removeUnsupportedKeywords(schemaMap);
         // check for multiple or null types
         if (!(cleanedMap.get("type") instanceof String)) {
@@ -384,7 +375,7 @@ public class JsonToRecordConverter {
      * @param jsonMap   Json Schema as a map
      * @return {@link Map}  cleaned json schema
      */
-    public static Map<String, Object> removeUnsupportedKeywords(Map<String, Object> jsonMap) {
+    private static Map<String, Object> removeUnsupportedKeywords(Map<String, Object> jsonMap) {
         final List<String> unsupportedKeywords = Arrays.asList("$schema", "$id", "id", "additionalItems", "const",
                 "contains", "dependencies", "patternProperties", "propertyNames", "format", "examples", "title",
                 "description", "allOf", "oneOf", "anyOf", "not");

@@ -113,7 +113,7 @@ public class JsonToRecordConverterTests {
     @Test(description = "Test with basic json schema string")
     public void testBasicSchema() throws ConverterException, IOException {
         String jsonFileContent = Files.readString(basicSchemaJson);
-        records = JsonToRecordConverter.fromSchema(jsonFileContent);
+        records = JsonToRecordConverter.convert(jsonFileContent);
         String generatedCodeBlock = records.stream().map(Object::toString)
                 .collect(Collectors.joining(""));
         String expectedCodeBlock = Files.readString(basicSchemaBal).replaceAll("\\s+", "");
@@ -123,7 +123,7 @@ public class JsonToRecordConverterTests {
     @Test(description = "Test with basic json object")
     public void testBasicJson() throws ConverterException, IOException {
         String jsonFileContent = Files.readString(basicObjectJson);
-        records = JsonToRecordConverter.fromJSON(jsonFileContent);
+        records = JsonToRecordConverter.convert(jsonFileContent);
         String generatedCodeBlock = records.stream().map(Object::toString)
                 .collect(Collectors.joining(""));
         String expectedCodeBlock = Files.readString(basicObjectBal).replaceAll("\\s+", "");
@@ -133,7 +133,7 @@ public class JsonToRecordConverterTests {
     @Test(description = "Test schema with nested objects")
     public void testNestedSchema() throws ConverterException, IOException {
         String jsonFileContent = Files.readString(nestedSchemaJson);
-        records = JsonToRecordConverter.fromSchema(jsonFileContent);
+        records = JsonToRecordConverter.convert(jsonFileContent);
         String generatedCodeBlock = records.stream().map(Object::toString)
                 .collect(Collectors.joining(""));
         String expectedCodeBlock = Files.readString(nestedSchemaBal).replaceAll("\\s+", "");
@@ -143,7 +143,7 @@ public class JsonToRecordConverterTests {
     @Test(description = "Test json with nested objects")
     public void testNestedJson() throws ConverterException, IOException {
         String jsonFileContent = Files.readString(nestedObjectJson);
-        records = JsonToRecordConverter.fromJSON(jsonFileContent);
+        records = JsonToRecordConverter.convert(jsonFileContent);
         String generatedCodeBlock = records.stream().map(Object::toString)
                 .collect(Collectors.joining(""));
         String expectedCodeBlock = Files.readString(nestedObjectBal).replaceAll("\\s+", "");
@@ -160,7 +160,7 @@ public class JsonToRecordConverterTests {
     @Test(description = "Test with CRLF formatted json file")
     public void testCRLFJson() throws ConverterException, IOException {
         String jsonFileContent = Files.readString(crlfJson);
-        records = JsonToRecordConverter.fromJSON(jsonFileContent);
+        records = JsonToRecordConverter.convert(jsonFileContent);
         String generatedCodeBlock = records.stream().map(Object::toString)
                 .collect(Collectors.joining(""));
         String expectedCodeBlock = Files.readString(crlfBal).replaceAll("\\s+", "");
@@ -178,7 +178,7 @@ public class JsonToRecordConverterTests {
         samples.put(sample6Json, sample6Bal);
         for (Map.Entry<Path, Path> sample : samples.entrySet()) {
             String jsonFileContent = Files.readString(sample.getKey());
-            records = JsonToRecordConverter.fromJSON(jsonFileContent);
+            records = JsonToRecordConverter.convert(jsonFileContent);
             String generatedCodeBlock = records.stream().map(Object::toString)
                     .collect(Collectors.joining(""));
             String expectedCodeBlock = Files.readString(sample.getValue()).replaceAll("\\s+", "");
