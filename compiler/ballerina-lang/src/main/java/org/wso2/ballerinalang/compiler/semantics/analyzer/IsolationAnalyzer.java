@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -55,6 +56,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -260,7 +262,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private final Stack<LockInfo> copyInLockInfoStack = new Stack<>();
     private final Stack<Set<BSymbol>> isolatedLetVarStack = new Stack<>();
     private final Map<BSymbol, IsolationInferenceInfo> isolationInferenceInfoMap = new HashMap<>();
-    private final Map<BSymbol, VarIsolationInferenceInfo> mutableOrNonIsolatedVarAccessInfo = new HashMap<>();
+    private final Map<BSymbol, AccessInfo> nonPublicPotentiallyIsolatedConstructs = new HashMap<>();
 
     private IsolationAnalyzer(CompilerContext context) {
         context.put(ISOLATION_ANALYZER_KEY, this);
@@ -293,7 +295,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
         Set<BSymbol> moduleLevelVarSymbols = getModuleLevelVarSymbols(pkgNode.globalVars);
-        populateMutableOrNonIsolatedVars(moduleLevelVarSymbols);
+        populateNonPublicMutableOrNonIsolatedVars(moduleLevelVarSymbols);
+        populateNonPublicIsolatedInferableClasses(pkgNode.classDefinitions);
 
         analyzeNode(pkgNode, pkgEnv);
 
@@ -1137,8 +1140,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         BLangNode parent = varRefExpr.parent;
         boolean isolatedModuleVariableReference = isIsolatedModuleVariableSymbol(symbol);
 
-        boolean accessOfIsolationInferableModuleLevelVar =
-                (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE && isVarRequiringInference(symbol);
+        boolean accessOfIsolationInferableConstruct =
+                (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE &&
+                        this.nonPublicPotentiallyIsolatedConstructs.containsKey(symbol);
 
         if (inLockStatement) {
             LockInfo exprInfo = copyInLockInfoStack.peek();
@@ -1158,15 +1162,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 exprInfo.copyInVarRefs.add(varRefExpr);
             }
 
-            if (accessOfIsolationInferableModuleLevelVar &&
-                    this.mutableOrNonIsolatedVarAccessInfo.containsKey(symbol)) {
-                this.mutableOrNonIsolatedVarAccessInfo.get(symbol).accessedLockInfo.add(exprInfo);
-                accessOfIsolationInferableModuleLevelVar = true;
+            if (accessOfIsolationInferableConstruct) {
+                this.nonPublicPotentiallyIsolatedConstructs.get(symbol).accessedLockInfo.add(exprInfo);
+                accessOfIsolationInferableConstruct = true;
                 exprInfo.accessedPotentiallyIsolatedVars.add(symbol);
             }
-        } else if (accessOfIsolationInferableModuleLevelVar &&
-                this.mutableOrNonIsolatedVarAccessInfo.containsKey(symbol)) {
-            this.mutableOrNonIsolatedVarAccessInfo.get(symbol).accessedOutsideLockStatement = true;
+        } else if (accessOfIsolationInferableConstruct) {
+            this.nonPublicPotentiallyIsolatedConstructs.get(symbol).accessedOutsideLockStatement = true;
         }
 
         boolean inIsolatedFunction = isInIsolatedFunction(enclInvokable);
@@ -1222,7 +1224,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (accessOfIsolationInferableModuleLevelVar) {
+        if (accessOfIsolationInferableConstruct) {
             markDependentlyIsolatedOnVar(symbol);
         } else {
             markDependsOnIsolationNonInferableConstructs();
@@ -1246,15 +1248,28 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        analyzeNode(fieldAccessExpr.expr, env);
+        BLangExpression expr = fieldAccessExpr.expr;
+        analyzeNode(expr, env);
 
         if (!isInvalidIsolatedObjectFieldOrMethodAccessViaSelfIfOutsideLock(fieldAccessExpr, true)) {
+            BTypeSymbol tsymbol = expr.type.tsymbol;
+            if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && isSelfOfObject((BLangSimpleVarRef) expr) &&
+                    this.nonPublicPotentiallyIsolatedConstructs.containsKey(tsymbol) &&
+                    !inClassInitMethod()) {
+                if (inLockStatement) {
+                    LockInfo lockInfo = copyInLockInfoStack.peek();
+                    this.nonPublicPotentiallyIsolatedConstructs.get(tsymbol).accessedLockInfo.add(lockInfo);
+                    lockInfo.accessedPotentiallyIsolatedVars.add(tsymbol);
+                } else if (((ClassAccessInfo) this.nonPublicPotentiallyIsolatedConstructs.get(tsymbol))
+                        .protectedFields.contains(fieldAccessExpr.field)) {
+                    this.nonPublicPotentiallyIsolatedConstructs.get(tsymbol).accessedOutsideLockStatement = true;
+                }
+            }
             return;
         }
 
         if (inLockStatement) {
-            addToAccessedRestrictedVars(copyInLockInfoStack.peek().accessedRestrictedVars,
-                                        (BLangSimpleVarRef) fieldAccessExpr.expr);
+            addToAccessedRestrictedVars(copyInLockInfoStack.peek().accessedRestrictedVars, (BLangSimpleVarRef) expr);
             return;
         }
 
@@ -3040,14 +3055,30 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return symbols;
     }
 
-    private void populateMutableOrNonIsolatedVars(Set<BSymbol> moduleLevelVarSymbols) {
+    private void populateNonPublicMutableOrNonIsolatedVars(Set<BSymbol> moduleLevelVarSymbols) {
         for (BSymbol moduleLevelVarSymbol : moduleLevelVarSymbols) {
             if (!isVarRequiringInference(moduleLevelVarSymbol)) {
                 continue;
             }
 
-            this.mutableOrNonIsolatedVarAccessInfo.put(moduleLevelVarSymbol, new VarIsolationInferenceInfo());
+            this.nonPublicPotentiallyIsolatedConstructs.put(moduleLevelVarSymbol, new AccessInfo());
         }
+    }
+
+    private void populateNonPublicIsolatedInferableClasses(List<BLangClassDefinition> classDefinitions) {
+        for (BLangClassDefinition classDefinition : classDefinitions) {
+            populateInferableClass(classDefinition);
+        }
+    }
+
+    private boolean inClassInitMethod() {
+        BLangInvokableNode enclInvokable = env.enclInvokable;
+
+        if (enclInvokable == null || enclInvokable.getKind() != NodeKind.FUNCTION) {
+            return false;
+        }
+
+        return ((BLangFunction) enclInvokable).objInitFunction;
     }
 
     private boolean isVarRequiringInference(BSymbol moduleLevelVarSymbol) {
@@ -3065,18 +3096,100 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 !(types.isInherentlyImmutableType(type) || Symbols.isFlagOn(type.flags, Flags.READONLY));
     }
 
-    private void inferIsolation(Set<BSymbol> moduleLevelVarSymbols) {
-        for (Map.Entry<BSymbol, VarIsolationInferenceInfo> entry : this.mutableOrNonIsolatedVarAccessInfo.entrySet()) {
-            VarIsolationInferenceInfo varIsolationInferenceInfo = entry.getValue();
+    private void populateInferableClass(BLangClassDefinition classDefinition) {
+        if (Symbols.isFlagOn(classDefinition.symbol.flags, Flags.PUBLIC)) {
+            return;
+        }
 
-            if (varIsolationInferenceInfo.accessedOutsideLockStatement) {
+        BType type = classDefinition.type;
+        if (Symbols.isFlagOn(type.flags, Flags.ISOLATED)) {
+            return;
+        }
+
+        Set<BLangIdentifier> protectedFields = new HashSet<>();
+
+        for (BLangSimpleVariable field : classDefinition.fields) {
+            BType fieldType = field.type;
+            if (field.flagSet.contains(Flag.FINAL) && types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(fieldType)) {
+                continue;
+            }
+
+            if (!field.flagSet.contains(Flag.PRIVATE)) {
+                return;
+            }
+
+            protectedFields.add(field.name);
+
+            BLangExpression expr = field.expr;
+            if (expr == null) {
+                continue;
+            }
+
+            if (!isIsolatedExpression(expr)) {
+                return;
+            }
+        }
+
+        BLangFunction initFunction = classDefinition.initFunction;
+        if (initFunction == null) {
+            this.nonPublicPotentiallyIsolatedConstructs.put(classDefinition.symbol,
+                                                            new ClassAccessInfo(protectedFields));
+            return;
+        }
+
+        BLangFunctionBody body = initFunction.body;
+
+        if (body.getKind() != NodeKind.BLOCK_FUNCTION_BODY) {
+            return;
+        }
+
+        for (BLangStatement stmt : ((BLangBlockFunctionBody) body).stmts) {
+            if (stmt.getKind() != NodeKind.ASSIGNMENT) {
+                continue;
+            }
+
+            BLangAssignment assignmentStmt = (BLangAssignment) stmt;
+            BLangExpression lhs = assignmentStmt.varRef;
+
+            if (lhs.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                continue;
+            }
+
+            BLangFieldBasedAccess fieldAccessExpr = (BLangFieldBasedAccess) lhs;
+
+            BLangExpression calledOnExpr = fieldAccessExpr.expr;
+            if (calledOnExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                continue;
+            }
+
+            if (!isSelfOfObject((BLangSimpleVarRef) calledOnExpr)) {
+                continue;
+            }
+
+            if (!protectedFields.contains(fieldAccessExpr.field)) {
+                continue;
+            }
+
+            if (!isIsolatedExpression(assignmentStmt.expr)) {
+                return;
+            }
+        }
+
+        this.nonPublicPotentiallyIsolatedConstructs.put(classDefinition.symbol, new ClassAccessInfo(protectedFields));
+    }
+
+    private void inferIsolation(Set<BSymbol> moduleLevelVarSymbols) {
+        for (Map.Entry<BSymbol, AccessInfo> entry : this.nonPublicPotentiallyIsolatedConstructs.entrySet()) {
+            AccessInfo accessInfo = entry.getValue();
+
+            if (accessInfo.accessedOutsideLockStatement) {
                 continue;
             }
 
             boolean inferredIsolated = true;
 
             BSymbol symbol = entry.getKey();
-            for (LockInfo lockInfo : varIsolationInferenceInfo.accessedLockInfo) {
+            for (LockInfo lockInfo : accessInfo.accessedLockInfo) {
                 if (!lockInfo.accessedRestrictedVars.isEmpty() ||
                         lockInfo.accessedPotentiallyIsolatedVars.size() > 1) {
                     inferredIsolated = false;
@@ -3084,7 +3197,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 }
 
                 for (BLangSimpleVarRef potentiallyInvalidTransferInRef : lockInfo.copyInVarRefs) {
-                    if (potentiallyInvalidTransferInRef.symbol == symbol) {
+                    if (potentiallyInvalidTransferInRef.symbol == symbol ||
+                            isSelfOfObject(potentiallyInvalidTransferInRef)) {
                         continue;
                     }
 
@@ -3099,6 +3213,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
             if (inferredIsolated) {
                 symbol.flags |= Flags.ISOLATED;
+
+                if (symbol.kind == SymbolKind.OBJECT) {
+                    symbol.type.flags |= Flags.ISOLATED;
+                }
             }
         }
 
@@ -3223,9 +3341,17 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private static class VarIsolationInferenceInfo {
+    private static class AccessInfo {
         List<LockInfo> accessedLockInfo = new ArrayList<>();
         boolean accessedOutsideLockStatement = false;
+    }
+
+    private static class ClassAccessInfo extends AccessInfo {
+        Set<BLangIdentifier> protectedFields;
+
+        ClassAccessInfo(Set<BLangIdentifier> protectedFields) {
+            this.protectedFields = protectedFields;
+        }
     }
 
     private static class IsolationInferenceInfo {
