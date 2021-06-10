@@ -53,6 +53,14 @@ public class Constants {
 
     public static final List<String> BAL_KEYWORDS;
     static {
-        BAL_KEYWORDS = Collections.unmodifiableList(Arrays.asList(KEYWORDS));
+        BAL_KEYWORDS = List.of(KEYWORDS);
+    }
+
+    private static final String[] UNSUPPORTED_KEYWORDS = new String[]{"$schema", "$id", "id", "additionalItems",
+            "const", "contains", "dependencies", "patternProperties", "propertyNames", "format", "examples", "title",
+            "description", "allOf", "oneOf", "anyOf", "not"};
+    public static final List<String> OPEN_API_UNSUPPORTED_KEYWORDS;
+    static {
+        OPEN_API_UNSUPPORTED_KEYWORDS = List.of(UNSUPPORTED_KEYWORDS);
     }
 }

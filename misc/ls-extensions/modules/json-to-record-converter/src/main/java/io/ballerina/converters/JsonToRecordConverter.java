@@ -33,6 +33,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.converters.exception.ConverterException;
+import io.ballerina.converters.util.Constants;
 import io.ballerina.converters.util.ErrorMessages;
 import io.ballerina.converters.util.SchemaGenerator;
 import io.swagger.v3.oas.models.Components;
@@ -376,10 +377,7 @@ public class JsonToRecordConverter {
      * @return {@link Map}  cleaned json schema
      */
     private static Map<String, Object> removeUnsupportedKeywords(Map<String, Object> jsonMap) {
-        final List<String> unsupportedKeywords = Arrays.asList("$schema", "$id", "id", "additionalItems", "const",
-                "contains", "dependencies", "patternProperties", "propertyNames", "format", "examples", "title",
-                "description", "allOf", "oneOf", "anyOf", "not");
-        for (String keyword : unsupportedKeywords) {
+        for (String keyword : Constants.OPEN_API_UNSUPPORTED_KEYWORDS) {
             jsonMap.remove(keyword);
         }
         return jsonMap;
