@@ -73,7 +73,8 @@ public class Main {
             Runtime.getRuntime().exit(e.getExitCode());
         } catch (Throwable e) {
             errStream.println(getMessageForInternalErrors());
-            RuntimeUtils.silentlyLogBadSad(e);
+            errStream.println();
+            RuntimeUtils.logBadSad(e);
             Runtime.getRuntime().exit(1);
         }
     }
