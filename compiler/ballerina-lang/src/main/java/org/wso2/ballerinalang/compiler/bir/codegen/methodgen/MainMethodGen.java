@@ -143,7 +143,7 @@ public class MainMethodGen {
         mv.visitLabel(tryCatchEnd);
         mv.visitInsn(RETURN);
         mv.visitLabel(tryCatchHandle);
-        mv.visitMethodInsn(INVOKESTATIC, JvmConstants.RUNTIME_UTILS, JvmConstants.HANDLE_THROWABLE_METHOD,
+        mv.visitMethodInsn(INVOKESTATIC, JvmConstants.RUNTIME_UTILS, JvmConstants.HANDLE_ALL_THROWABLE_METHOD,
                            String.format("(L%s;)V", JvmConstants.THROWABLE), false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
