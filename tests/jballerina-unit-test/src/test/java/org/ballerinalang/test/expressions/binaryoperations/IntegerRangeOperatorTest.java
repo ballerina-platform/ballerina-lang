@@ -34,11 +34,14 @@ import org.testng.annotations.Test;
 public class IntegerRangeOperatorTest {
 
     private CompileResult result;
+    private CompileResult runtimeResult;
     private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/binaryoperations/integer_range_operators.bal");
+        runtimeResult = BCompileUtil.
+                compile("test-src/expressions/binaryoperations/integer-range-operators-runtime.bal");
         negativeResult = BCompileUtil.
                 compile("test-src/expressions/binaryoperations/integer_range_operators_negative.bal");
     }
@@ -168,6 +171,11 @@ public class IntegerRangeOperatorTest {
         for (int i = 0; i < expectedSize; i++) {
             Assert.assertEquals(returnArray.getInt(i), startValue + i, "Incorrect value found at index: " + i);
         }
+    }
+
+    @Test(description = "Test runtime anon type generation of int ranges")
+    public void testIntRangeRuntime() {
+        BRunUtil.invoke(runtimeResult, "testClosedIntRange");
     }
 
     @Test(description = "Test closed int range operator on int sub types")

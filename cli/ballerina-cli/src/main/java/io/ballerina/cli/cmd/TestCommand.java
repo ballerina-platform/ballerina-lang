@@ -107,9 +107,6 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
     private Boolean coverage;
 
-    @CommandLine.Option(names = "--jacoco-xml", description = "enable Jacoco XML generation")
-    private boolean enableJacocoXML;
-
     @CommandLine.Option(names = "--coverage-format", description = "list of supported coverage report formats")
     private String coverageFormat;
 
@@ -146,6 +143,7 @@ public class TestCommand implements BLauncherCmd {
                         "and continuing the test run...");
             }
             coverage = false;
+            testReport = false;
         }
         BuildOptions buildOptions = constructBuildOptions();
         boolean isSingleFile = false;
@@ -173,9 +171,9 @@ public class TestCommand implements BLauncherCmd {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
         //Display warning if any other options are provided with list-groups flag.
-        boolean displayWarning = false;
-        if (listGroups && (rerunTests || groupList != null || disableGroupList != null || testList != null)) {
-            displayWarning = true;
+        if (listGroups && (rerunTests || coverage || testReport || groupList != null || disableGroupList != null
+                || testList != null)) {
+            this.outStream.println("\nWarning: Other flags are skipped when list-groups flag is provided.\n");
         }
 
         if (project.buildOptions().codeCoverage()) {
@@ -198,10 +196,6 @@ public class TestCommand implements BLauncherCmd {
                 this.outStream.println("warning: ignoring --coverage-format flag since code coverage is not " +
                         "enabled");
             }
-            // Skip --jacoco-xml flag if it is set without code coverage
-            if (enableJacocoXML) {
-                this.outStream.println("warning: ignoring --jacoco-xml flag since code coverage is not enabled");
-            }
         }
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
@@ -209,9 +203,9 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
-                .addTask(new ListTestGroupsTask(outStream, displayWarning), !listGroups) // list available test groups
+                .addTask(new ListTestGroupsTask(outStream), !listGroups) // list available test groups
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
-                        testList, includes, enableJacocoXML, coverageFormat), listGroups)
+                        testList, includes, coverageFormat), listGroups)
                 .build();
 
         taskExecutor.executeTasks(project);

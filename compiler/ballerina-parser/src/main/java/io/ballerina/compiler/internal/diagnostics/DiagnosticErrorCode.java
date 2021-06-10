@@ -187,12 +187,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_NEVER_KEYWORD("BCE0288", "error.missing.never.keyword"),
     ERROR_MISSING_VAR_KEYWORD("BCE0289", "error.missing.var.keyword"),
     ERROR_MISSING_MAP_KEYWORD("BCE0290", "error.missing.map.keyword"),
-    ERROR_MISSING_FUTURE_KEYWORD("BCE0291", "error.missing.future.keyword"),
-    ERROR_MISSING_TYPEDESC_KEYWORD("BCE0292", "error.missing.typedesc.keyword"),
-    ERROR_MISSING_ERROR_KEYWORD("BCE0293", "error.missing.error.keyword"),
-    ERROR_MISSING_STREAM_KEYWORD("BCE0294", "error.missing.stream.keyword"),
-    ERROR_MISSING_READONLY_KEYWORD("BCE0295", "error.missing.readonly.keyword"),
-    ERROR_MISSING_DISTINCT_KEYWORD("BCE0296", "error.missing.distinct.keyword"),
+    ERROR_MISSING_ERROR_KEYWORD("BCE0291", "error.missing.error.keyword"),
+    ERROR_MISSING_STREAM_KEYWORD("BCE0292", "error.missing.stream.keyword"),
+    ERROR_MISSING_READONLY_KEYWORD("BCE0293", "error.missing.readonly.keyword"),
+    ERROR_MISSING_DISTINCT_KEYWORD("BCE0294", "error.missing.distinct.keyword"),
 
     // Missing other tokens
     ERROR_MISSING_IDENTIFIER("BCE0400", "error.missing.identifier"),

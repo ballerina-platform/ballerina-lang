@@ -19,8 +19,6 @@
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
 import io.ballerina.projects.internal.model.Proxy;
-import org.ballerinalang.cli.module.Pull;
-import org.ballerinalang.cli.module.exeptions.CommandException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.toml.model.Manifest;
@@ -122,14 +120,6 @@ public class URIConverter implements Converter<URI> {
         boolean nightlyBuild = RepoUtils.getBallerinaVersion().contains("SNAPSHOT");
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
             String errorMessage = "";
-            try {
-                Pull.execute(remoteURI.toString(), modulePathInBalaCache.toString(), orgName + "/" + moduleName,
-                             proxy.host(), proxy.port(), proxy.username(), proxy.password(),
-                             supportedVersionRange, this.isBuild, nightlyBuild,
-                             supportedPlatform, RepoUtils.getBallerinaVersion());
-            } catch (CommandException e) {
-                errorMessage = e.getMessage().trim();
-            }
 
             if (!"".equals(errorMessage)) {
                 // removing the error stack

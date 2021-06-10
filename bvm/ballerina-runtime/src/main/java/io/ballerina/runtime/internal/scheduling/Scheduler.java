@@ -164,8 +164,9 @@ public class Scheduler {
     }
 
     public FutureValue scheduleToObjectGroup(BObject object, Object[] params, Function function, Strand parent,
-                                             Callback callback, String strandName, StrandMetadata metadata) {
-        FutureValue future = createFuture(parent, callback, null, PredefinedTypes.TYPE_NULL, strandName, metadata);
+                                             Callback callback, Map<String, Object> properties, Type returnType,
+                                             String strandName, StrandMetadata metadata) {
+        FutureValue future = createFuture(parent, callback, properties, returnType, strandName, metadata);
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;

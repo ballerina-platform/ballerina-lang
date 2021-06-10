@@ -1,6 +1,6 @@
-## Module overview
+## Module Overview
 
-This module facilitates developers to write automation tests for Ballerina code in a simple manner. It provides a number of capabilities such as configuring the setup and cleanup steps at different levels, ordering and grouping of tests, providing value-sets to tests, and independence from external functions and endpoints via mocking capabilities.
+This module facilitates writing tests for Ballerina code in a simple manner. It provides a number of capabilities such as configuring the setup and cleanup steps at different levels, ordering and grouping of tests, providing value-sets to tests, and independence from external functions and endpoints via mocking capabilities.
 
 ## Annotations
 A Ballerina testsuite can be implemented using a set of annotations. The available annotations enable executing instructions before and after the testsuite or a single test, organize a set of tests into a group, define data-driven tests, specify an order of execution, disable tests and mocking.
@@ -213,7 +213,7 @@ function intAdd(int a, int b) returns (int) {
 The test module provides capabilities to mock a function or an object for unit testing. The mocking features can be used to control the behavior of functions and objects by defining return values or replacing the entire object or function with a user-defined equivalent. This feature will help you to test the Ballerina code independently from other modules and external endpoints.
 
 ### Function Mocking
-Function mocking allows to control the behavior of a function in the module being tested or a function of an imported module. 
+Function mocking allows to control the behavior of a function in the module being tested or a function of an imported module.
 
 The annotation `@test:Mock {}` is used to declare a `MockFunction` object, with details of the name of the function to be mocked, as well as the module name if an import function is being mocked. The module name value of the annotation is optional if the function being mocked is not an import function.
 
@@ -290,7 +290,7 @@ public function testMockCall() {
 
 Object mocking enables controlling the values of member variables and the behavior of the member functions of an object. This is vital when working with client objects as the remote functions can be stubbed to return a mock value without having to actually make calls to the remote endpoint.
 
-Mocking of objects can be done in two ways.The available features provide the functionality to substitute the real object with a user-defined mock object or to stub the behavior of required functions. 
+Mocking of objects can be done in two ways.The available features provide the functionality to substitute the real object with a user-defined mock object or to stub the behavior of required functions.
 
 1. Creating a test double (providing an equivalent object in place of the real)
 2. Stubbing the member function or member variable (specifying the behavior of functions and values of variables)

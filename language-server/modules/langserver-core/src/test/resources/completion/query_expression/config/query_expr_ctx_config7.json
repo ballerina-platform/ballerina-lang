@@ -18,7 +18,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "test",
+      "insertText": "test1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -32,7 +32,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.test as test1 ;\n"
         }
       ]
     },

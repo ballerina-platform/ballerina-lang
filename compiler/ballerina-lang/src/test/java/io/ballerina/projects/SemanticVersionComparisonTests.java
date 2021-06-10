@@ -56,6 +56,37 @@ public class SemanticVersionComparisonTests {
     }
 
     @Test
+    public void testInitialPreReleaseVersions() {
+        SemanticVersion v1 = SemanticVersion.from("0.1.1-alpha");
+        SemanticVersion v2 = SemanticVersion.from("0.1.1-alpha");
+        Assert.assertEquals(v1.compareTo(v2), VersionCompatibilityResult.EQUAL);
+
+        v1 = SemanticVersion.from("0.1.1-alpha");
+        v2 = SemanticVersion.from("0.1.2-alpha");
+        Assert.assertEquals(v1.compareTo(v2), VersionCompatibilityResult.INCOMPATIBLE);
+
+        v1 = SemanticVersion.from("0.1.1-alpha");
+        v2 = SemanticVersion.from("0.3.2-alpha");
+        Assert.assertEquals(v1.compareTo(v2), VersionCompatibilityResult.INCOMPATIBLE);
+
+        v1 = SemanticVersion.from("0.1.1-alpha");
+        v2 = SemanticVersion.from("0.3.2-alpha.1");
+        Assert.assertEquals(v1.compareTo(v2), VersionCompatibilityResult.INCOMPATIBLE);
+
+        v1 = SemanticVersion.from("0.1.1-alpha.1");
+        v2 = SemanticVersion.from("0.3.2-alpha.2");
+        Assert.assertEquals(v1.compareTo(v2), VersionCompatibilityResult.INCOMPATIBLE);
+
+        v1 = SemanticVersion.from("0.1.1-alpha");
+        v2 = SemanticVersion.from("0.3.2-beta");
+        Assert.assertEquals(v1.compareTo(v2), VersionCompatibilityResult.INCOMPATIBLE);
+
+        v1 = SemanticVersion.from("0.1.1-alpha.1");
+        v2 = SemanticVersion.from("0.3.2-beta");
+        Assert.assertEquals(v1.compareTo(v2), VersionCompatibilityResult.INCOMPATIBLE);
+    }
+
+    @Test
     public void testStableVersions() {
         SemanticVersion v1 = SemanticVersion.from("1.1.1");
         SemanticVersion v2 = SemanticVersion.from("1.1.1");
@@ -98,7 +129,22 @@ public class SemanticVersionComparisonTests {
 
         v1 = SemanticVersion.from("1.1.1-alpha");
         v2 = SemanticVersion.from("1.1.1-beta");
+        Assert.assertEquals(v1.compareTo(v2), VersionCompatibilityResult.LESS_THAN);
+
+        v1 = SemanticVersion.from("1.1.1-alpha");
+        v2 = SemanticVersion.from("2.0.0-alpha");
         Assert.assertEquals(v1.compareTo(v2), VersionCompatibilityResult.INCOMPATIBLE);
+    }
+
+    @Test
+    public void testPreReleaseNumericVersions() {
+        SemanticVersion v1 = SemanticVersion.from("1.1.1-alpha.1");
+        SemanticVersion v2 = SemanticVersion.from("1.1.1-alpha.2");
+        Assert.assertEquals(v1.compareTo(v2), VersionCompatibilityResult.LESS_THAN);
+
+        v1 = SemanticVersion.from("1.1.1-alpha.1");
+        v2 = SemanticVersion.from("1.1.1-beta");
+        Assert.assertEquals(v1.compareTo(v2), VersionCompatibilityResult.LESS_THAN);
     }
 
     @Test

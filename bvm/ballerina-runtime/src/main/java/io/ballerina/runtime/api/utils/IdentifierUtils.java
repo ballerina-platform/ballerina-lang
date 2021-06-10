@@ -178,7 +178,6 @@ public class IdentifierUtils {
         Identifier encodedName = encodeGeneratedName(functionName);
         return encodedName.isEncoded ? GENERATED_METHOD_PREFIX + encodedName.name : functionName;
     }
-
     /**
      * Encode the non-function identifiers to avoid using jvm reserved characters.
      *

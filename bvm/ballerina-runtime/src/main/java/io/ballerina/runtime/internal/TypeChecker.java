@@ -2550,8 +2550,12 @@ public class TypeChecker {
         unresolvedTypes.add(pair);
         BErrorType bErrorType = (BErrorType) sourceType;
 
+        if (!checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes)) {
+            return false;
+        }
+
         if (targetType.typeIdSet == null) {
-            return checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
+            return true;
         }
 
         BTypeIdSet sourceTypeIdSet = bErrorType.typeIdSet;
@@ -2569,9 +2573,13 @@ public class TypeChecker {
             return false;
         }
 
+        if (!checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues,
+                allowNumericConversion)) {
+            return false;
+        }
+
         if (targetType.typeIdSet == null) {
-            return checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues,
-                    allowNumericConversion);
+            return true;
         }
 
         BTypeIdSet sourceIdSet = ((BErrorType) sourceType).typeIdSet;

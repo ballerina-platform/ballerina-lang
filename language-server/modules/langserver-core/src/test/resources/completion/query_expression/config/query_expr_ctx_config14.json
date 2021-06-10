@@ -18,7 +18,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "test",
+      "insertText": "test1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -32,7 +32,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.test as test1 ;\n"
         }
       ]
     },
@@ -401,11 +401,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
+      "label": "test",
+      "kind": "Variable",
+      "detail": "$CompilationError$",
+      "sortText": "B",
+      "insertText": "test",
       "insertTextFormat": "Snippet"
     },
     {
@@ -414,14 +414,6 @@
       "detail": "int",
       "sortText": "B",
       "insertText": "value2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "list1",
-      "kind": "Variable",
-      "detail": "int[]",
-      "sortText": "B",
-      "insertText": "list1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -444,6 +436,22 @@
       }
     },
     {
+      "label": "list1",
+      "kind": "Variable",
+      "detail": "int[]",
+      "sortText": "B",
+      "insertText": "list1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testFunction()",
       "kind": "Function",
       "detail": "Function",
@@ -459,14 +467,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "item",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "item",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -475,6 +475,14 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "item",
+      "kind": "Variable",
+      "detail": "$CompilationError$",
+      "sortText": "B",
+      "insertText": "item",
       "insertTextFormat": "Snippet"
     },
     {
