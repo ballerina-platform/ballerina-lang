@@ -1021,6 +1021,16 @@ public class Types {
     }
 
     private boolean isTupleTypeAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
+        TypePair pair = new TypePair(source, target);
+        if (unresolvedTypes.contains(pair)) {
+            return true;
+        }
+
+        if (source.tag == TypeTags.TUPLE && ((BTupleType) source).isCyclic) {
+            // add cyclic source to target pair to avoid recursive calls
+            unresolvedTypes.add(pair);
+        }
+
         if (source.tag != TypeTags.TUPLE || target.tag != TypeTags.TUPLE) {
             return false;
         }
@@ -5024,6 +5034,9 @@ public class Types {
                 return checkFillerValue((BRecordType) type);
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
+                if (tupleType.isCyclic) {
+                    return false;
+                }
                 return tupleType.getTupleTypes().stream().allMatch(eleType -> hasFillerValue(eleType));
             default:
                 // filler value is 0

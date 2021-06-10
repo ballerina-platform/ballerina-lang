@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.util.Flags;
@@ -261,32 +262,8 @@ public class ImmutableTypeCloner {
                 return immutableArrayIntersectionType;
             case TypeTags.TUPLE:
                 BTupleType origTupleType = (BTupleType) type;
-
-                List<BType> origTupleMemTypes = origTupleType.tupleTypes;
-                List<BType> immutableMemTypes = new ArrayList<>(origTupleMemTypes.size());
-
-                for (BType origTupleMemType : origTupleMemTypes) {
-                    immutableMemTypes.add(getImmutableType(pos, types, origTupleMemType, env, pkgId, owner, symTable,
-                                                           anonymousModelHelper, names, unresolvedTypes));
-                }
-
-                BTypeSymbol immutableTupleTSymbol = getReadonlyTSymbol(names, origTupleType.tsymbol, env, pkgId, owner);
-                BType origRestType = origTupleType.restType;
-                BType tupleRestType = origRestType == null ? origRestType :
-                        getImmutableType(pos, types, origRestType, env, pkgId, owner, symTable, anonymousModelHelper,
-                                         names, unresolvedTypes);
-
-                BTupleType immutableTupleType = new BTupleType(immutableTupleTSymbol, immutableMemTypes, tupleRestType,
-                                                    origTupleType.flags | Flags.READONLY);
-                if (immutableTupleTSymbol != null) {
-                    immutableTupleTSymbol.type = immutableTupleType;
-                }
-
-                BIntersectionType immutableTupleIntersectionType = createImmutableIntersectionType(env, origTupleType,
-                                                                                                   immutableTupleType,
-                                                                                                   symTable);
-                origTupleType.immutableType = immutableTupleIntersectionType;
-                return immutableTupleIntersectionType;
+                return defineImmutableTupleType(pos, types, env, pkgId, owner, symTable, anonymousModelHelper, names,
+                        unresolvedTypes, origTupleType);
             case TypeTags.MAP:
                 BMapType origMapType = (BMapType) type;
 
@@ -417,6 +394,80 @@ public class ImmutableTypeCloner {
                 return defineImmutableUnionType(pos, types, env, pkgId, owner, symTable, anonymousModelHelper, names,
                                                 unresolvedTypes, (BUnionType) type);
         }
+    }
+
+    private static BIntersectionType defineImmutableTupleType(Location pos, Types types, SymbolEnv env,
+                                                              PackageID pkgId, BSymbol owner, SymbolTable symTable,
+                                                              BLangAnonymousModelHelper anonymousModelHelper,
+                                                              Names names, Set<BType> unresolvedTypes,
+                                                              BTupleType type) {
+        BTypeSymbol origTupleTypeSymbol = type.tsymbol;
+        List<BType> origTupleMemTypes = type.tupleTypes;
+
+        if (unresolvedTypes.contains(type) && type.immutableType != null) {
+            return type.immutableType;
+        } else {
+            type.immutableType = createImmutableIntersectionType(env,
+                    type, new BTupleType(origTupleTypeSymbol), symTable);
+        }
+
+        List<BType> immutableMemTypes = new ArrayList<>(origTupleMemTypes.size());
+        BTupleType tupleEffectiveImmutableType = (BTupleType) type.immutableType.effectiveType;
+        tupleEffectiveImmutableType.isCyclic = type.isCyclic;
+        tupleEffectiveImmutableType.setMemberTypes(immutableMemTypes);
+
+        String originalTypeName = origTupleTypeSymbol == null ? "" : origTupleTypeSymbol.name.getValue();
+        Name origTupleTypeSymbolName = Names.EMPTY;
+        if (!originalTypeName.isEmpty()) {
+            origTupleTypeSymbolName = origTupleTypeSymbol.name.value.isEmpty() ? Names.EMPTY :
+                    getImmutableTypeName(names, origTupleTypeSymbol.toString());
+            tupleEffectiveImmutableType.name = origTupleTypeSymbolName;
+        }
+
+        for (BType origTupleMemType : origTupleMemTypes) {
+            if (types.isInherentlyImmutableType(origTupleMemType)) {
+                tupleEffectiveImmutableType.addMembers(origTupleMemType);
+                continue;
+            }
+            if (!types.isSelectivelyImmutableType(origTupleMemType, unresolvedTypes)) {
+                continue;
+            }
+            tupleEffectiveImmutableType.addMembers(getImmutableType(pos, types, origTupleMemType, env,
+                    pkgId, owner, symTable, anonymousModelHelper, names, unresolvedTypes));
+        }
+
+        if (type.restType != null) {
+            tupleEffectiveImmutableType.addRestType(getImmutableType(pos, types, type.restType, env, pkgId,
+                    owner, symTable, anonymousModelHelper, names, unresolvedTypes));
+        }
+
+        if (origTupleTypeSymbol != null) {
+            BTypeSymbol immutableTupleTSymbol =
+                    getReadonlyTSymbol(origTupleTypeSymbol, env, pkgId, owner, origTupleTypeSymbolName);
+            type.immutableType.effectiveType.tsymbol = immutableTupleTSymbol;
+            type.immutableType.effectiveType.flags |= (type.flags | Flags.READONLY);
+
+            if (immutableTupleTSymbol != null) {
+                immutableTupleTSymbol.type = type.immutableType.effectiveType;
+            }
+        } else {
+            type.immutableType.effectiveType.flags |= (type.flags | Flags.READONLY);
+        }
+
+        BIntersectionType immutableTupleIntersectionType = type.immutableType;
+        BType effectiveType = immutableTupleIntersectionType.effectiveType;
+        BTypeSymbol tsymbol = immutableTupleIntersectionType.effectiveType.tsymbol;
+        if (effectiveType.tag != TypeTags.TUPLE || tsymbol == null || tsymbol.name == null ||
+                tsymbol.name.value.isEmpty()) {
+            return immutableTupleIntersectionType;
+        }
+
+        BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
+        tupleTypeNode.type = effectiveType;
+        BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.addTypeDefinition(effectiveType,
+                effectiveType.tsymbol, tupleTypeNode, env);
+        typeDefinition.pos = pos;
+        return immutableTupleIntersectionType;
     }
 
     public static void defineUndefinedImmutableFields(BLangTypeDefinition immutableTypeDefinition,

@@ -67,6 +67,22 @@ public class BTupleType extends BType implements TupleType {
         this.isCyclic = isCyclic;
     }
 
+    public BTupleType(BTypeSymbol tsymbol) {
+        this(tsymbol, true);
+    }
+
+    private BTupleType(BTypeSymbol tsymbol, boolean readonly) {
+        super(TypeTags.TUPLE, tsymbol);
+
+        if (readonly) {
+            this.flags |= Flags.READONLY;
+
+            if (tsymbol != null) {
+                this.tsymbol.flags |= Flags.READONLY;
+            }
+        }
+    }
+
     @Override
     public List<BType> getTupleTypes() {
         return tupleTypes;
@@ -128,6 +144,10 @@ public class BTupleType extends BType implements TupleType {
             return false;
         }
         this.tupleTypes.add(memberType);
+        if (Symbols.isFlagOn(this.flags, Flags.READONLY) && !Symbols.isFlagOn(memberType.flags, Flags.READONLY)) {
+            this.flags ^= Flags.READONLY;
+        }
+        setCyclicFlag(memberType);
         return true;
     }
 
@@ -136,5 +156,48 @@ public class BTupleType extends BType implements TupleType {
     // empty tuple shell in main scope
     public void addRestType(BType restType) {
         this.restType = restType;
+        if (Symbols.isFlagOn(this.flags, Flags.READONLY) && !Symbols.isFlagOn(restType.flags, Flags.READONLY)) {
+            this.flags ^= Flags.READONLY;
+        }
+        setCyclicFlag(restType);
+    }
+
+    public void setMemberTypes(List<BType> memberTypes) {
+        assert memberTypes.size() == 0;
+        this.tupleTypes = memberTypes;
+    }
+
+    private void setCyclicFlag(BType type) {
+        if (isCyclic) {
+            return;
+        }
+
+        if (type instanceof BArrayType) {
+            BArrayType arrayType = (BArrayType) type;
+            if (arrayType.eType == this) {
+                isCyclic = true;
+            }
+        }
+
+        if (type instanceof BMapType) {
+            BMapType mapType = (BMapType) type;
+            if (mapType.constraint == this) {
+                isCyclic = true;
+            }
+        }
+
+        if (type instanceof BTableType) {
+            BTableType tableType = (BTableType) type;
+            if (tableType.constraint == this) {
+                isCyclic = true;
+            }
+
+            if (tableType.constraint instanceof BMapType) {
+                BMapType mapType = (BMapType) tableType.constraint;
+                if (mapType.constraint == this) {
+                    isCyclic = true;
+                }
+            }
+        }
     }
 }

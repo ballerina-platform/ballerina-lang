@@ -39,7 +39,7 @@ public class CyclicTypeDefinitionsTest {
     @BeforeClass
     public void setup() {
         unionCompileResult = BCompileUtil.compile("test-src/typedefs/union-type-definitions-cyclic.bal");
-        unionNegativeResult = BCompileUtil.compile("test-src/typedefs/union-type-definitions-cyclic-negative.bal");
+        unionNegativeResult = BCompileUtil.compile("test-src/typedefs/type-definitions-cyclic-negative.bal");
         tupleCompileResult = BCompileUtil.compile("test-src/typedefs/tuple-type-definitions-cyclic.bal");
         tupleNegativeResult = BCompileUtil.compile("test-src/typedefs/tuple-type-definitions-cyclic-negative.bal");
     }
