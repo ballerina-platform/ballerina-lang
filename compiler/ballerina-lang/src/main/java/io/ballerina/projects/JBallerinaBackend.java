@@ -502,13 +502,6 @@ public class JBallerinaBackend extends CompilerBackend {
 
         try {
             assembleExecutableJar(executableFilePath, manifest, jarLibraries);
-
-            // TODO: Move to a compiler extension once Compiler revamp is complete
-            if (packageContext.compilationOptions().observabilityIncluded()) {
-                ObservabilitySymbolCollector observabilitySymbolCollector
-                        = ObservabilitySymbolCollectorRunner.getInstance(compilerContext);
-                observabilitySymbolCollector.writeToExecutable(executableFilePath);
-            }
         } catch (IOException e) {
             throw new ProjectException("error while creating the executable jar file for package: " +
                     this.packageContext.packageName(), e);

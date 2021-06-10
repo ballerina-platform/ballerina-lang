@@ -991,6 +991,19 @@ public class CommonUtil {
     }
 
     /**
+     * Check if the provided line range is within the enclosing line range.
+     *
+     * @param lineRange      Line range to be checked for inclusion
+     * @param enclosingRange Enclosing line range in which the #lineRange reside
+     * @return True if the provided line range resides within the provided enclosing line range
+     */
+    public static boolean isWithinLineRange(LineRange lineRange, LineRange enclosingRange) {
+        Position start = CommonUtil.toPosition(lineRange.startLine());
+        Position end = CommonUtil.toPosition(lineRange.endLine());
+        return CommonUtil.isWithinLineRange(start, enclosingRange) && CommonUtil.isWithinLineRange(end, enclosingRange);
+    }
+
+    /**
      * Returns whether the position is within the range.
      *
      * @param pos   position
@@ -1154,6 +1167,10 @@ public class CommonUtil {
         return symbolName;
     }
 
+    public static boolean isKeyword(String token) {
+        return CommonUtil.BALLERINA_KEYWORDS.contains(token);
+    }
+
     /**
      * Escape a given value.
      *
@@ -1161,7 +1178,7 @@ public class CommonUtil {
      * @return {@link String}
      */
     public static String escapeReservedKeyword(String value) {
-        if (CommonUtil.BALLERINA_KEYWORDS.contains(value)) {
+        if (isKeyword(value)) {
             return "'" + value;
         }
 

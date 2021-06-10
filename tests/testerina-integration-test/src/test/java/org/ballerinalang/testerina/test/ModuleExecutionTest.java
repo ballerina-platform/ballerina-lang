@@ -53,7 +53,7 @@ public class ModuleExecutionTest extends BaseTestCase {
         AssertionUtils.assertForTestFailures(output, "default module test failure");
     }
 
-    @Test()
+    @Test(enabled = false)
     public void test_DefaultModule_SingleTest() throws BallerinaTestException {
         String msg1 = "1 passing";
         String msg2 = "[pass] main_test1";
@@ -66,7 +66,33 @@ public class ModuleExecutionTest extends BaseTestCase {
     }
 
     @Test()
-    public void test_DefaultModule_WildCardTest() throws BallerinaTestException {
+    public void test_DefaultModule_StartWildCardTest() throws BallerinaTestException {
+        String msg1 = "1 passing";
+        String msg2 = "[pass] commonTest";
+        String[] args = new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:*Test"};
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            throw new BallerinaTestException("Test failed due to default module wild card test failure.");
+        }
+    }
+
+    @Test()
+    public void test_DefaultModule_MiddleWildCardTest() throws BallerinaTestException {
+        String msg1 = "3 passing";
+        String msg2 = "[pass] main_test1";
+        String msg3 = "[pass] main_test2";
+        String msg4 = "[pass] main_test3";
+        String[] args = new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:*test*"};
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3) || !output.contains(msg4)) {
+            throw new BallerinaTestException("Test failed due to default module wild card test failure.");
+        }
+    }
+
+    @Test()
+    public void test_DefaultModule_EndWildCardTest() throws BallerinaTestException {
         String msg1 = "3 passing";
         String msg2 = "[pass] main_test1";
         String msg3 = "[pass] main_test2";

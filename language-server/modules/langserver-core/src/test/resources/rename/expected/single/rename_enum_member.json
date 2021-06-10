@@ -6,6 +6,9 @@
     "line": 24,
     "character": 4
   },
+  "prepareRename": {
+    "valid": true
+  },
   "result": {
     "changes": {
       "testSource.bal": [
