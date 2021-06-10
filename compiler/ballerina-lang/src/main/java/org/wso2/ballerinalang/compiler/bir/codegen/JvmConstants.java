@@ -249,7 +249,8 @@ public class JvmConstants {
             "io/ballerina/runtime/internal/util/exceptions/BLangRuntimeException";
     public static final String THROWABLE = "java/lang/Throwable";
     public static final String STACK_OVERFLOW_ERROR = "java/lang/StackOverflowError";
-    public static final String HANDLE_THROWABLE_METHOD = "handleRuntimeErrorsAndExit";
+    public static final String HANDLE_THROWABLE_METHOD = "handleBErrorAndExit";
+    public static final String HANDLE_ALL_THROWABLE_METHOD = "handleAllRuntimeErrorsAndExit";
     public static final String HANDLE_RETURNED_ERROR_METHOD = "handleRuntimeReturnValues";
     public static final String UNSUPPORTED_OPERATION_EXCEPTION = "java/lang/UnsupportedOperationException";
     public static final String HANDLE_STOP_PANIC_METHOD = "handleRuntimeErrors";

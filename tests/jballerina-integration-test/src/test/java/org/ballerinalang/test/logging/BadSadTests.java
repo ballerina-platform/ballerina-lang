@@ -70,7 +70,6 @@ public class BadSadTests extends BaseTest {
         String output = bMainInstance.runMainAndReadStdOut("run", new String[] {}, new HashMap<>(),
                 Paths.get("src/test/resources/logging/projects-for-badsad-tests/runCmdBadSad")
                         .toAbsolutePath().toString(), true);
-        Assert.assertTrue(output.contains("ballerina: Oh no, something really went wrong."));
 
         String expected = "java.lang.ClassCastException: class io.ballerina.runtime.internal.values.ErrorValue cannot" +
                 " be cast to class io.ballerina.runtime.internal.values.ArrayValue " +

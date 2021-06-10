@@ -82,7 +82,6 @@ public class ErrorTest {
             CompileResult compileResult = BCompileUtil.compile("test-src/jvm/runtime-oom-error.bal");
             BRunUtil.runMain(compileResult, new String[]{});
         } catch (Throwable e) {
-            Assert.assertTrue(e.getMessage().contains("ballerina: Oh no, something really went wrong."));
             return;
         }
         Assert.fail("runtime out of memory errors are not handled");

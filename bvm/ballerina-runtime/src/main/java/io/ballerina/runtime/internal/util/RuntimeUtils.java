@@ -125,19 +125,28 @@ public class RuntimeUtils {
         }
     }
 
-    public static void handleRuntimeErrorsAndExit(Throwable throwable) {
-        handleRuntimeErrors(throwable);
+    public static void handleBErrorAndExit(Throwable throwable) {
+        if (throwable instanceof ErrorValue) {
+            printToConsole((ErrorValue) throwable);
+        }
         Runtime.getRuntime().exit(1);
     }
 
-    public static void handleRuntimeErrors(Throwable throwable) {
+    public static void handleAllRuntimeErrorsAndExit(Throwable throwable) {
+        handleAllRuntimeErrors(throwable);
+        Runtime.getRuntime().exit(1);
+    }
+
+    public static void handleAllRuntimeErrors(Throwable throwable) {
         if (throwable instanceof ErrorValue) {
-            errStream.println("error: " + ((ErrorValue) throwable).getPrintableStackTrace());
+            printToConsole((ErrorValue) throwable);
         } else {
-            // These errors are unhandled errors in JVM, hence logging them to bre log.
-            errStream.println(RuntimeConstants.INTERNAL_ERROR_MESSAGE);
             logBadSad(throwable);
         }
+    }
+
+    private static void printToConsole(ErrorValue throwable) {
+        errStream.println("error: " + throwable.getPrintableStackTrace());
     }
 
     public static void handleRuntimeReturnValues(Object returnValue) {

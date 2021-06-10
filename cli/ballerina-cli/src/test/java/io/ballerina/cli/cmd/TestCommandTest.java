@@ -61,7 +61,7 @@ public class TestCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Test a valid ballerina file")
-    public void testTestBalFile() throws IOException {
+    public void testTestBalFile() {
         Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample_tests.bal");
 
         System.setProperty("user.dir", this.testResources.resolve("valid-test-bal-file").toString());
@@ -125,7 +125,7 @@ public class TestCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Build a valid ballerina project")
-    public void testBuildMultiModuleProject() throws IOException {
+    public void testBuildMultiModuleProject() {
         Path projectPath = this.testResources.resolve("validMultiModuleProjectWithTests");
         System.setProperty("user.dir", projectPath.toString());
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
