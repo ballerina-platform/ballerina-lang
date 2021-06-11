@@ -127,4 +127,9 @@ public class DivisionOperationTest {
                 "testDivisionSingleton"
         };
     }
+
+    @Test(description = "Test contextually expected type of numeric literals in addition")
+    public void testContextuallyExpectedTypeOfNumericLiteralInAdd() {
+        BRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInDivision");
+    }
 }

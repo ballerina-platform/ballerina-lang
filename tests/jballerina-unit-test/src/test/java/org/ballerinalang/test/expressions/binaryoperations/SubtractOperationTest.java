@@ -102,6 +102,11 @@ public class SubtractOperationTest {
         };
     }
 
+    @Test(description = "Test contextually expected type of numeric literals in subtraction")
+    public void testContextuallyExpectedTypeOfNumericLiteralInAdd() {
+        BRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInSubtract");
+    }
+
     @Test(description = "Test substract statement with errors")
     public void testSubtractStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 12);
