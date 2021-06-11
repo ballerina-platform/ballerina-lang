@@ -917,17 +917,17 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         } else if (node.getKind() == NodeKind.STRING_TEMPLATE_LITERAL) {
             BLangStringTemplateLiteral stringTemplateLiteral = (BLangStringTemplateLiteral) node;
             for (BLangExpression expr : stringTemplateLiteral.exprs) {
-                result = result * 31 + getTypeHash(stringTemplateLiteral.type) + hash(expr);
+                result = result * 31 + getTypeHash(stringTemplateLiteral.getBType()) + hash(expr);
             }
         } else if (node.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
             BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr) node;
             for (BLangExpression expr : listConstructorExpr.exprs) {
-                result = result * 31 + getTypeHash(listConstructorExpr.type) + hash(expr);
+                result = result * 31 + getTypeHash(listConstructorExpr.getBType()) + hash(expr);
             }
         } else if (node.getKind() == NodeKind.TABLE_CONSTRUCTOR_EXPR) {
             BLangTableConstructorExpr tableConstructorExpr = (BLangTableConstructorExpr) node;
             for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
-                result = result * 31 + getTypeHash(tableConstructorExpr.type) + hash(recordLiteral);
+                result = result * 31 + getTypeHash(tableConstructorExpr.getBType()) + hash(recordLiteral);
             }
         } else if (node.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
             BLangTypeConversionExpr typeConversionExpr = (BLangTypeConversionExpr) node;
@@ -968,8 +968,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private List<String> getFieldNames(BLangTableConstructorExpr constructorExpr) {
         List<String> fieldNames = null;
-        if (constructorExpr.type.tag == TypeTags.TABLE) {
-            fieldNames = ((BTableType) constructorExpr.type).fieldNameList;
+        if (constructorExpr.getBType().tag == TypeTags.TABLE) {
+            fieldNames = ((BTableType) constructorExpr.getBType()).fieldNameList;
             if (fieldNames != null) {
                 return fieldNames;
             }
@@ -1302,7 +1302,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeInit typeInitExpr) {
         typeInitExpr.argsExpr.forEach(argExpr -> analyzeNode(argExpr, env));
         if (this.currDependentSymbol.peek() != null) {
-            addDependency(this.currDependentSymbol.peek(), typeInitExpr.type.tsymbol);
+            addDependency(this.currDependentSymbol.peek(), typeInitExpr.getBType().tsymbol);
         }
     }
 
@@ -1666,10 +1666,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         if (this.currDependentSymbol.peek() != null) {
-            addDependency(this.currDependentSymbol.peek(), serviceConstructorExpr.type.tsymbol);
+            addDependency(this.currDependentSymbol.peek(), serviceConstructorExpr.getBType().tsymbol);
         }
 
-        addDependency(serviceConstructorExpr.type.tsymbol, serviceConstructorExpr.serviceNode.symbol);
+        addDependency(serviceConstructorExpr.getBType().tsymbol, serviceConstructorExpr.serviceNode.symbol);
         analyzeNode(serviceConstructorExpr.serviceNode, env);
     }
 
@@ -1919,7 +1919,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 BLangAccessExpression accessExpr = (BLangAccessExpression) varRef;
 
                 BLangExpression expr = accessExpr.expr;
-                BType type = expr.type;
+                BType type = expr.getBType();
                 if (isObjectMemberAccessWithSelf(accessExpr)) {
                     BObjectType objectType = (BObjectType) type;
 
@@ -1964,7 +1964,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private void checkFinalObjectFieldUpdate(BLangFieldBasedAccess fieldAccess) {
         BLangExpression expr = fieldAccess.expr;
 
-        BType exprType = expr.type;
+        BType exprType = expr.getBType();
 
         if (types.isSubTypeOfBaseType(exprType, TypeTags.OBJECT) &&
                 isFinalFieldInAllObjects(fieldAccess.pos, exprType, fieldAccess.field.value)) {
@@ -2036,7 +2036,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private void addVarIfInferredTypeIncludesError(BLangSimpleVariable variable) {
         BType typeIntersection =
                 types.getTypeIntersection(Types.IntersectionContext.compilerInternalIntersectionContext(),
-                                          variable.type, symTable.errorType, env);
+                                          variable.getBType(), symTable.errorType, env);
         if (typeIntersection != null &&
                 typeIntersection != symTable.semanticError && typeIntersection != symTable.noType) {
             unusedErrorVarsDeclaredWithVar.put(variable.symbol, variable.pos);
