@@ -1292,6 +1292,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         BType detailType = Optional.ofNullable(errorTypeNode.detailType)
                 .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.detailType);
 
+        if (errorTypeNode.isAnonymous) {
+            errorTypeNode.flagSet.add(Flag.PUBLIC);
+            errorTypeNode.flagSet.add(Flag.ANONYMOUS);
+        }
+
         boolean distinctErrorDef = errorTypeNode.flagSet.contains(Flag.DISTINCT);
         if (detailType == symTable.detailType && !distinctErrorDef &&
                 !this.env.enclPkg.packageID.equals(PackageID.ANNOTATIONS)) {
@@ -1303,6 +1308,13 @@ public class SymbolResolver extends BLangNodeVisitor {
         BErrorTypeSymbol errorTypeSymbol = Symbols
                 .createErrorSymbol(Flags.asMask(errorTypeNode.flagSet), Names.EMPTY, env.enclPkg.symbol.pkgID,
                                    null, env.scope.owner, errorTypeNode.pos, SOURCE);
+
+        if (env.node.getKind() != NodeKind.PACKAGE) {
+            errorTypeSymbol.name = names.fromString(
+                    anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
+            symbolEnter.defineSymbol(errorTypeNode.pos, errorTypeSymbol, env);
+        }
+
         BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
         errorType.flags |= errorTypeSymbol.flags;
         errorTypeSymbol.type = errorType;
@@ -1621,7 +1633,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 } else {
                     List<ScopeEntry> scopeEntries = visibleEntries.get(name);
                     entryList.forEach(scopeEntry -> {
-                        if (!scopeEntries.contains(scopeEntry) && !(scopeEntry.symbol instanceof BVarSymbol)) {
+                        if (!scopeEntries.contains(scopeEntry) && !isModuleLevelVar(scopeEntry.symbol)) {
                             scopeEntries.add(scopeEntry);
                         }
                     });
@@ -2138,6 +2150,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         dlog.error(inferDefaultLocation,
                    DiagnosticErrorCode.CANNOT_USE_INFERRED_TYPEDESC_DEFAULT_WITH_UNREFERENCED_PARAM);
         return false;
+    }
+
+    private boolean isModuleLevelVar(BSymbol symbol) {
+        return symbol.getKind() == SymbolKind.VARIABLE && symbol.owner.getKind() == SymbolKind.PACKAGE;
     }
 
     private static class ParameterizedTypeInfo {

@@ -159,8 +159,9 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, TABLE_VAR, "table<Employee> (entries = 3)", "table");
         // stream variable test
         debugTestRunner.assertExpression(context, STREAM_VAR, "stream<int, error>", "stream");
+        // TODO - Need to enable
         // never variable test
-        debugTestRunner.assertExpression(context, NEVER_VAR, "XMLSequence (size = 0)", "xml");
+        // debugTestRunner.assertExpression(context, NEVER_VAR, "XMLSequence (size = 0)", "xml");
         // json variable test
         debugTestRunner.assertExpression(context, JSON_VAR, "map<json> (size = 2)", "json");
         // anonymous object variable test (AnonPerson object)
@@ -697,6 +698,16 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void xmlNavigationEvaluationTest() throws BallerinaTestException {
         // Todo
+    }
+
+    @Override
+    @Test
+    public void remoteCallActionEvaluationTest() throws BallerinaTestException {
+        debugTestRunner.assertExpression(context, String.format("%s->getName(\"John\")", CLIENT_OBJECT_VAR), "John",
+                "string");
+        // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/31096
+        // debugTestRunner.assertExpression(context, String.format("%s->getTotalMarks(78,90)", CLIENT_OBJECT_VAR),
+        // "168", "int");
     }
 
     @AfterClass(alwaysRun = true)

@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -32,9 +33,12 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
+import org.ballerinalang.model.types.Field;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
+import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -57,11 +61,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -831,20 +837,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     varNode.type = lhsType;
                     varNode.symbol.type = lhsType;
                 }
-
-                if (!(types.isAssignable(lhsType, symTable.intType) ||
-                        types.isAssignable(lhsType, symTable.floatType) ||
-                        types.isAssignable(lhsType, symTable.stringType) ||
-                        types.isAssignable(lhsType, symTable.booleanType) ||
-                        types.isAssignable(lhsType, symTable.decimalType) ||
-                        types.isAssignable(lhsType, symTable.xmlType) ||
-                        types.isAssignable(lhsType, symTable.arrayType) ||
-                        types.isAssignable(lhsType, symTable.mapAnydataType) ||
-                        types.isAssignable(lhsType, symTable.tableType))) {
-                    // TODO: remove this check once runtime support all configurable types
-                    dlog.error(varNode.typeNode.pos,
-                            DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED, lhsType);
-                }
+                // TODO: remove this check once runtime support all configurable types
+                checkSupportedConfigType(lhsType, varNode.pos, varNode.name.value);
             }
         }
 
@@ -879,6 +873,77 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         transferForkFlag(varNode);
+    }
+
+    private void checkSupportedConfigType(BType type, Location location, String varName) {
+        List<String> errors = new ArrayList<>();
+        if (!isSupportedConfigType(type, errors, varName) || !errors.isEmpty()) {
+            StringBuilder errorMsg = new StringBuilder();
+            for (String error : errors) {
+                errorMsg.append("\n\t").append(error);
+            }
+            dlog.error(location, DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED, type, errorMsg);
+        }
+    }
+
+    private boolean isSupportedConfigType(BType type, List<String> errors, String varName) {
+        switch (type.getKind()) {
+            case ANYDATA:
+                break;
+            case FINITE:
+                return ((BFiniteType) type).isAnyData;
+            case ARRAY:
+                BType elementType = ((BArrayType) type).eType;
+                if (elementType.tag == TypeTags.INTERSECTION) {
+                    elementType = ((BIntersectionType) elementType).getEffectiveType();
+                }
+
+                if (elementType.tag == TypeTags.TABLE || !isSupportedConfigType(elementType, errors, varName)) {
+                    errors.add("array element type '" + elementType + "' is not supported");
+                }
+                break;
+            case RECORD:
+                BRecordType recordType = (BRecordType) type;
+                for (Field field : recordType.getFields().values()) {
+                    Type fieldType = field.getType();
+                    String fieldName = varName + "." + field.getName();
+                    if (!isSupportedConfigType((BType) fieldType, errors, fieldName)) {
+                        errors.add("record field type '" + fieldType + "' of field '" + fieldName + "' is not" +
+                                " supported");
+                    }
+                }
+                break;
+            case MAP:
+                BMapType mapType = (BMapType) type;
+                if (!isSupportedConfigType(mapType.constraint, errors, varName)) {
+                    errors.add("map constraint type '" + mapType.constraint + "' is not supported");
+                }
+                break;
+            case TABLE:
+                BTableType tableType = (BTableType) type;
+                if (!isSupportedConfigType(tableType.constraint, errors, varName)) {
+                    errors.add("table constraint type '" + tableType.constraint + "' is not supported");
+                }
+                break;
+            case INTERSECTION:
+                return isSupportedConfigType(((BIntersectionType) type).effectiveType, errors, varName);
+            case UNION:
+                BUnionType unionType = (BUnionType) type;
+                for (BType memberType : unionType.getMemberTypes()) {
+                    if (!isSupportedConfigType(memberType, errors, varName)) {
+                        errors.add("union member type '" + memberType + "' is not supported");
+                    }
+                }
+                break;
+            default:
+                return  types.isAssignable(type, symTable.intType) ||
+                        types.isAssignable(type, symTable.floatType) ||
+                        types.isAssignable(type, symTable.stringType) ||
+                        types.isAssignable(type, symTable.booleanType) ||
+                        types.isAssignable(type, symTable.decimalType) ||
+                        types.isAssignable(type, symTable.xmlType);
+        }
+        return true;
     }
 
     private void analyzeTypeNode(BLangType typeNode, SymbolEnv env) {
@@ -927,6 +992,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (errorType.detailType != null) {
                     analyzeTypeNode(errorType.detailType, env);
                 }
+                analyzeDef(errorType, env);
                 break;
             case FUNCTION_TYPE:
                 if (typeNode.getKind() == NodeKind.FUNCTION_TYPE) {
@@ -1248,6 +1314,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 // Set the type to the symbol. If the variable is a global variable, a symbol is already created in the
                 // symbol enter. If the variable is a local variable, the symbol will be created above.
                 simpleVariable.symbol.type = rhsType;
+
+                if (simpleVariable.symbol.type == symTable.semanticError) {
+                    simpleVariable.symbol.state = DiagnosticState.UNKNOWN_TYPE;
+                }
                 break;
             case TUPLE_VARIABLE:
                 if (varRefExpr == null) {
@@ -2155,7 +2225,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             for (Map.Entry<BVarSymbol, BType.NarrowedTypes> entry :
                     matchClause.matchGuard.expr.narrowedTypeInfo.entrySet()) {
                 if (entry.getValue().trueType == symTable.semanticError) {
-                    dlog.error(matchClause.pos, DiagnosticErrorCode.MATCH_STMT_UNMATCHED_PATTERN);
+                    dlog.warning(matchClause.pos, DiagnosticWarningCode.MATCH_STMT_UNMATCHED_PATTERN);
                 }
             }
 
@@ -2413,7 +2483,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 break;
             case CAPTURE_BINDING_PATTERN:
                 BLangCaptureBindingPattern captureBindingPattern = (BLangCaptureBindingPattern) bindingPattern;
-                captureBindingPattern.type = patternType;
+                captureBindingPattern.type = varBindingPattern.type == null ? patternType : varBindingPattern.type;
                 analyzeNode(captureBindingPattern, env);
                 break;
             case LIST_BINDING_PATTERN:
@@ -2543,6 +2613,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorMessageBindingPattern errorMessageBindingPattern) {
         BLangSimpleBindingPattern simpleBindingPattern = errorMessageBindingPattern.simpleBindingPattern;
+        if (simpleBindingPattern.wildCardBindingPattern != null) {
+            simpleBindingPattern.wildCardBindingPattern.type = symTable.stringType;
+        }
+        if (simpleBindingPattern.captureBindingPattern != null) {
+            simpleBindingPattern.captureBindingPattern.type = symTable.stringType;
+        }
         analyzeNode(simpleBindingPattern, env);
         errorMessageBindingPattern.declaredVars.putAll(simpleBindingPattern.declaredVars);
     }
@@ -2550,8 +2626,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorCauseBindingPattern errorCauseBindingPattern) {
         if (errorCauseBindingPattern.simpleBindingPattern != null) {
-            analyzeNode(errorCauseBindingPattern.simpleBindingPattern, env);
-            errorCauseBindingPattern.declaredVars.putAll(errorCauseBindingPattern.simpleBindingPattern.declaredVars);
+            BLangSimpleBindingPattern simpleBindingPattern = errorCauseBindingPattern.simpleBindingPattern;
+            if (simpleBindingPattern.captureBindingPattern != null) {
+                simpleBindingPattern.captureBindingPattern.type = symTable.errorType;
+            }
+            analyzeNode(simpleBindingPattern, env);
+            errorCauseBindingPattern.declaredVars.putAll(simpleBindingPattern.declaredVars);
             return;
         }
         if (errorCauseBindingPattern.errorBindingPattern != null) {
@@ -2625,6 +2705,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorMessageMatchPattern errorMessageMatchPattern) {
         BLangSimpleMatchPattern simpleMatchPattern = errorMessageMatchPattern.simpleMatchPattern;
+        if (simpleMatchPattern.varVariableName != null) {
+            simpleMatchPattern.varVariableName.type = symTable.stringType;
+        }
         analyzeNode(simpleMatchPattern, env);
         errorMessageMatchPattern.declaredVars.putAll(simpleMatchPattern.declaredVars);
     }
@@ -2632,8 +2715,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorCauseMatchPattern errorCauseMatchPattern) {
         if (errorCauseMatchPattern.simpleMatchPattern != null) {
-            analyzeNode(errorCauseMatchPattern.simpleMatchPattern, env);
-            errorCauseMatchPattern.declaredVars.putAll(errorCauseMatchPattern.simpleMatchPattern.declaredVars);
+            BLangSimpleMatchPattern simpleMatchPattern = errorCauseMatchPattern.simpleMatchPattern;
+            if (simpleMatchPattern.varVariableName != null) {
+                simpleMatchPattern.varVariableName.type = symTable.errorType;
+            }
+            analyzeNode(simpleMatchPattern, env);
+            errorCauseMatchPattern.declaredVars.putAll(simpleMatchPattern.declaredVars);
             return;
         }
         if (errorCauseMatchPattern.errorMatchPattern != null) {

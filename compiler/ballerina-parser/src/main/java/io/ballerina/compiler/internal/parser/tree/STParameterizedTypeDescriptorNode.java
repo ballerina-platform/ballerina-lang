@@ -31,50 +31,56 @@ import java.util.Collections;
  * @since 2.0.0
  */
 public class STParameterizedTypeDescriptorNode extends STTypeDescriptorNode {
-    public final STNode parameterizedType;
-    public final STNode typeParameter;
+    public final STNode keywordToken;
+    public final STNode typeParamNode;
 
     STParameterizedTypeDescriptorNode(
-            STNode parameterizedType,
-            STNode typeParameter) {
+            SyntaxKind kind,
+            STNode keywordToken,
+            STNode typeParamNode) {
         this(
-                parameterizedType,
-                typeParameter,
+                kind,
+                keywordToken,
+                typeParamNode,
                 Collections.emptyList());
     }
 
     STParameterizedTypeDescriptorNode(
-            STNode parameterizedType,
-            STNode typeParameter,
+            SyntaxKind kind,
+            STNode keywordToken,
+            STNode typeParamNode,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.PARAMETERIZED_TYPE_DESC, diagnostics);
-        this.parameterizedType = parameterizedType;
-        this.typeParameter = typeParameter;
+        super(kind, diagnostics);
+        this.keywordToken = keywordToken;
+        this.typeParamNode = typeParamNode;
 
         addChildren(
-                parameterizedType,
-                typeParameter);
+                keywordToken,
+                typeParamNode);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STParameterizedTypeDescriptorNode(
-                this.parameterizedType,
-                this.typeParameter,
+                this.kind,
+                this.keywordToken,
+                this.typeParamNode,
                 diagnostics);
     }
 
     public STParameterizedTypeDescriptorNode modify(
-            STNode parameterizedType,
-            STNode typeParameter) {
+            SyntaxKind kind,
+            STNode keywordToken,
+            STNode typeParamNode) {
         if (checkForReferenceEquality(
-                parameterizedType,
-                typeParameter)) {
+                keywordToken,
+                typeParamNode)) {
             return this;
         }
 
         return new STParameterizedTypeDescriptorNode(
-                parameterizedType,
-                typeParameter,
+                kind,
+                keywordToken,
+                typeParamNode,
                 diagnostics);
     }
 

@@ -205,14 +205,13 @@ public class IdentifierLiteralTest {
     public void testInvalidILUnicodeChar() {
         CompileResult resultNeg =
                 BCompileUtil.compile("test-src/expressions/literals/identifierliteral/invalid_IL_unicode_char.bal");
-        Assert.assertEquals(resultNeg.getErrorCount(), 7);
+        Assert.assertEquals(resultNeg.getErrorCount(), 6);
         BAssertUtil.validateError(resultNeg, 0, "incomplete quoted identifier", 18, 12);
         BAssertUtil.validateError(resultNeg, 1, "missing semicolon token", 18, 17);
         BAssertUtil.validateError(resultNeg, 2, "undefined symbol 'whiteSpace'", 18, 17);
         BAssertUtil.validateError(resultNeg, 3, "incomplete quoted identifier", 19, 12);
-        BAssertUtil.validateError(resultNeg, 4, "undefined symbol ''", 19, 12);
-        BAssertUtil.validateError(resultNeg, 5, "missing binary operator", 19, 17);
-        BAssertUtil.validateError(resultNeg, 6, "undefined symbol 'whiteSpace'", 19, 17);
+        BAssertUtil.validateError(resultNeg, 4, "missing binary operator", 19, 17);
+        BAssertUtil.validateError(resultNeg, 5, "undefined symbol 'whiteSpace'", 19, 17);
     }
 
     @Test

@@ -156,7 +156,13 @@ public function main() {
 
     record {|string city; string country;|} anonRecord = {city: "London", country: "UK"};
 
-    EmployeeTable tableVar = table [
+    EmployeeTable tableWithKeyVar = table [
+      {id: 1, name: "John", salary: 300.50},
+      {id: 2, name: "Bella", salary: 500.50},
+      {id: 3, name: "Peter", salary: 750.0}
+    ];
+
+    table<Employee> tableWithoutKeyVar = table [
       {id: 1, name: "John", salary: 300.50},
       {id: 2, name: "Bella", salary: 500.50},
       {id: 3, name: "Peter", salary: 750.0}
@@ -177,6 +183,8 @@ public function main() {
     'Person_\\\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ objectVar = new;
 
     AnonPerson anonObjectVar = new 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ();
+
+    Student clientObjectVar = new Student();
 
     typedesc<int> typedescVar = int;
     stream<int, error> oddNumberStream = new stream<int, error>(new OddNumberGenerator());

@@ -14,6 +14,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
+public client class Student {
+
+    remote function getName(string firstName, string lastName = "") returns string|error {
+        return firstName + lastName;
+    }
+
+    function getTotalMarks(int maths, int english) returns int {
+        future<int> futureSum = @strand {thread: "any"} start sum(maths, english);
+        int|error result = wait futureSum;
+        if result is int {
+            return result;
+        } else {
+            return -1;
+        }
+    }
+}
+
 function sum(int a, int b) returns int {
     return a + b;
 }
