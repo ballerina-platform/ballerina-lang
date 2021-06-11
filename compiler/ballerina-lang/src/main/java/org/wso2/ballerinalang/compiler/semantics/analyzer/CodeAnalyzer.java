@@ -721,7 +721,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.failureHandled = failureHandled;
         this.resetLastStatement();
         this.resetErrorThrown();
-        retryNode.retryBody.isBreakable = retryNode.onFailClause != null;
+        retryNode.retryBody.failureBreakMode = retryNode.onFailClause != null ?
+                BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
         analyzeOnFailClause(retryNode.onFailClause);
         this.errorTypes.pop();
     }
@@ -2280,7 +2281,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.resetLastStatement();
         this.loopWithinTransactionCheckStack.pop();
         analyzeExpr(foreach.collection);
-        foreach.body.isBreakable = foreach.onFailClause != null;
+        foreach.body.failureBreakMode = foreach.onFailClause != null ?
+                BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
         analyzeOnFailClause(foreach.onFailClause);
         this.errorTypes.pop();
     }
@@ -2317,7 +2319,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         analyzeNode(doNode.body, env);
         this.failureHandled = failureHandled;
-        doNode.body.isBreakable = doNode.onFailClause != null;
+        doNode.body.failureBreakMode = doNode.onFailClause != null ?
+                BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
         analyzeOnFailClause(doNode.onFailClause);
         this.errorTypes.pop();
     }
@@ -2360,7 +2363,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         lockNode.body.stmts.forEach(e -> analyzeNode(e, env));
         this.withinLockBlock = previousWithinLockBlock;
         this.failureHandled = failureHandled;
-        lockNode.body.isBreakable = lockNode.onFailClause != null;
+        lockNode.body.failureBreakMode = lockNode.onFailClause != null ?
+                BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
         analyzeOnFailClause(lockNode.onFailClause);
         this.errorTypes.pop();
     }

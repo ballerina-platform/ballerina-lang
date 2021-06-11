@@ -2784,7 +2784,7 @@ public class Desugar extends BLangNodeVisitor {
             // wrap user defined on fail within a do statement
             BLangOnFailClause onFailClause = retryNode.onFailClause;
             retryNode.onFailClause = null;
-            retryNode.retryBody.isBreakable = false;
+            retryNode.retryBody.failureBreakMode = BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
             BLangDo doStmt = wrapStatementWithinDo(retryNode.pos, retryNode, onFailClause);
             result = rewrite(doStmt, env);
         } else {
@@ -3338,7 +3338,8 @@ public class Desugar extends BLangNodeVisitor {
 
         // First create a block statement to hold generated statements
         BLangBlockStmt matchBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
-        matchBlockStmt.isBreakable = matchStmt.onFailClause != null;
+        matchBlockStmt.failureBreakMode = matchStmt.onFailClause != null ?
+                BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
         matchBlockStmt.pos = matchStmt.pos;
 
         if (matchStmt.onFailClause != null) {
@@ -3375,7 +3376,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
         BLangBlockStmt matchBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
         matchBlockStmt.pos = matchStatement.pos;
-        matchBlockStmt.isBreakable = matchStatement.onFailClause != null;
+        matchBlockStmt.failureBreakMode = matchStatement.onFailClause != null ?
+                BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
         if (matchStatement.onFailClause != null) {
             rewrite(matchStatement.onFailClause, env);
         }
@@ -4817,48 +4819,54 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForeach foreach) {
-        BLangOnFailClause currentOnFailClause = this.onFailClause;
-        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
-        analyzeOnFailClause(foreach.onFailClause, foreach.body);
-        BLangBlockStmt blockNode;
-        // We need to create a new variable for the expression as well. This is needed because integer ranges can be
-        // added as the expression so we cannot get the symbol in such cases.
-        BVarSymbol dataSymbol = new BVarSymbol(0, names.fromString("$data$"), this.env.scope.owner.pkgID,
-                                               foreach.collection.type, this.env.scope.owner, foreach.pos, VIRTUAL);
-        BLangSimpleVariable dataVariable = ASTBuilderUtil.createVariable(foreach.pos, "$data$",
-                                                                         foreach.collection.type, foreach.collection,
-                                                                         dataSymbol);
-        BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(foreach.pos, dataVariable);
+        if (foreach.onFailClause != null) {
+            BLangOnFailClause onFailClause = foreach.onFailClause;
+            foreach.onFailClause = null;
+            foreach.body.failureBreakMode = BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
+            BLangDo doStmt = wrapStatementWithinDo(foreach.pos, foreach, onFailClause);
+            result = rewrite(doStmt, env);
+        } else {
+            BLangBlockStmt blockNode;
+            // We need to create a new variable for the expression as well. This is needed because integer ranges can be
+            // added as the expression so we cannot get the symbol in such cases.
+            BVarSymbol dataSymbol = new BVarSymbol(0, names.fromString("$data$"),
+                    this.env.scope.owner.pkgID, foreach.collection.type, this.env.scope.owner, foreach.pos, VIRTUAL);
+            BLangSimpleVariable dataVariable = ASTBuilderUtil.createVariable(foreach.pos, "$data$",
+                    foreach.collection.type, foreach.collection,
+                    dataSymbol);
+            BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(foreach.pos, dataVariable);
 
-        // Get the symbol of the variable (collection).
-        BVarSymbol collectionSymbol = dataVariable.symbol;
-        switch (foreach.collection.type.tag) {
-            case TypeTags.STRING:
-            case TypeTags.ARRAY:
-            case TypeTags.TUPLE:
-            case TypeTags.XML:
-            case TypeTags.XML_TEXT:
-            case TypeTags.MAP:
-            case TypeTags.TABLE:
-            case TypeTags.STREAM:
-            case TypeTags.RECORD:
-                BInvokableSymbol iteratorSymbol = getLangLibIteratorInvokableSymbol(collectionSymbol);
-                blockNode = desugarForeachWithIteratorDef(foreach, dataVarDef, collectionSymbol, iteratorSymbol, true);
-                break;
-            case TypeTags.OBJECT: //We know for sure, the object is an iterable from TypeChecker phase.
-                iteratorSymbol = getIterableObjectIteratorInvokableSymbol(collectionSymbol);
-                blockNode = desugarForeachWithIteratorDef(foreach, dataVarDef, collectionSymbol, iteratorSymbol, false);
-                break;
-            default:
-                blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
-                blockNode.stmts.add(0, dataVarDef);
-                break;
+            // Get the symbol of the variable (collection).
+            BVarSymbol collectionSymbol = dataVariable.symbol;
+            switch (foreach.collection.type.tag) {
+                case TypeTags.STRING:
+                case TypeTags.ARRAY:
+                case TypeTags.TUPLE:
+                case TypeTags.XML:
+                case TypeTags.XML_TEXT:
+                case TypeTags.MAP:
+                case TypeTags.TABLE:
+                case TypeTags.STREAM:
+                case TypeTags.RECORD:
+                    BInvokableSymbol iteratorSymbol = getLangLibIteratorInvokableSymbol(collectionSymbol);
+                    blockNode = desugarForeachWithIteratorDef(foreach, dataVarDef, collectionSymbol,
+                            iteratorSymbol, true);
+                    break;
+                case TypeTags.OBJECT: //We know for sure, the object is an iterable from TypeChecker phase.
+                    iteratorSymbol = getIterableObjectIteratorInvokableSymbol(collectionSymbol);
+                    blockNode = desugarForeachWithIteratorDef(foreach, dataVarDef, collectionSymbol,
+                            iteratorSymbol, false);
+                    break;
+                default:
+                    blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
+                    blockNode.stmts.add(0, dataVarDef);
+                    break;
+            }
+
+            // Rewrite the block.
+            rewrite(blockNode, this.env);
+            result = blockNode;
         }
-
-        // Rewrite the block.
-        rewrite(blockNode, this.env);
-        swapAndResetEnclosingOnFail(currentOnFailClause, currentOnFailCallDef);
-        result = blockNode;
     }
 
     @Override
@@ -4884,8 +4892,13 @@ public class Desugar extends BLangNodeVisitor {
             this.enclosingOnFailCallFunc.add(this.onFailCallFuncDef);
             this.onFailClause = onFailClause;
             if (onFailClause.bodyContainsFail) {
-                blockStmt.isBreakable = false;
+                if (onFailClause.isInternal) {
+                    blockStmt.failureBreakMode = BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
+                } else {
+                    blockStmt.failureBreakMode = BLangBlockStmt.FailureBreakMode.BREAK_WITHIN_BLOCK;
+                }
             } else {
+                onFailClause.possibleClosureSymbols.forEach(symbol -> symbol.closure = true);
                 rewrite(onFailClause, env);
             }
         }
@@ -4899,7 +4912,7 @@ public class Desugar extends BLangNodeVisitor {
         onFailBody.stmts.addAll(onFailClause.body.stmts);
         onFailBody.scope = onFailClause.body.scope;
         onFailBody.mapSymbol = onFailClause.body.mapSymbol;
-        onFailBody.isBreakable = onFailClause.body.isBreakable;
+        onFailBody.failureBreakMode = onFailClause.body.failureBreakMode;
 
         BVarSymbol onFailErrorVariableSymbol =
                 ((BLangSimpleVariableDef) onFailClause.variableDefinitionNode).var.symbol;
@@ -4920,6 +4933,7 @@ public class Desugar extends BLangNodeVisitor {
             this.onFailCallFuncDef = null;
         }
         onFailBody = rewrite(onFailBody, env);
+        BLangFail failToEndBlock = new BLangFail();
         if (onFailClause.isInternal && fail.exprStmt != null) {
             if (fail.exprStmt instanceof BLangPanic) {
                 setPanicErrorToTrue(onFailBody, onFailClause);
@@ -4927,7 +4941,9 @@ public class Desugar extends BLangNodeVisitor {
                 onFailBody.stmts.add((BLangStatement) fail.exprStmt);
             }
         }
-
+        if (onFailClause.bodyContainsFail && !onFailClause.isInternal) {
+            onFailBody.stmts.add(failToEndBlock);
+        }
         this.onFailClause = currentOnFail;
         this.onFailCallFuncDef = currentOnFailDef;
         return onFailBody;
@@ -5148,7 +5164,7 @@ public class Desugar extends BLangNodeVisitor {
         if (whileNode.onFailClause != null) {
             BLangOnFailClause onFailClause = whileNode.onFailClause;
             whileNode.onFailClause = null;
-            whileNode.body.isBreakable = false;
+            whileNode.body.failureBreakMode = BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
             BLangDo doStmt = wrapStatementWithinDo(whileNode.pos, whileNode, onFailClause);
             result = rewrite(doStmt, env);
         } else {
@@ -5166,7 +5182,7 @@ public class Desugar extends BLangNodeVisitor {
         bLDo.body = doBlock;
         bLDo.pos = location;
         bLDo.onFailClause = onFailClause;
-        bLDo.body.isBreakable = true;
+        bLDo.body.failureBreakMode = BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK;
         doBlock.stmts.add(statement);
         return bLDo;
     }
@@ -5192,7 +5208,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(lockNode.pos);
         if (lockNode.onFailClause != null) {
-            blockStmt.isBreakable = true;
+            blockStmt.failureBreakMode = BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK;
             rewrite(lockNode.onFailClause, env);
         }
         BLangLockStmt lockStmt = new BLangLockStmt(lockNode.pos);
@@ -5323,7 +5339,7 @@ public class Desugar extends BLangNodeVisitor {
             //rewrite user defined on fail within a do statement
             BLangOnFailClause onFailClause = transactionNode.onFailClause;
             transactionNode.onFailClause = null;
-            transactionNode.transactionBody.isBreakable = false;
+            transactionNode.transactionBody.failureBreakMode = BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
             BLangDo doStmt = wrapStatementWithinDo(transactionNode.pos, transactionNode, onFailClause);
             // at this point;
             // do {
@@ -5380,7 +5396,9 @@ public class Desugar extends BLangNodeVisitor {
 
             transactionStmtBlock.stmts.add(0, shouldPanicDef);
             transactionStmtBlock.scope.define(shouldPanicVarSymbol.name, shouldPanicVarSymbol);
-            transactionStmtBlock.isBreakable = !userDefinedOnFailAvbl;
+            transactionStmtBlock.failureBreakMode = userDefinedOnFailAvbl ?
+                    BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE :
+                    BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK;
 
             // at this point;
             //
