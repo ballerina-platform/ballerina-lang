@@ -116,6 +116,10 @@ public class BCompileUtil {
     }
 
     public static CompileResult compileAndCacheBala(String sourceFilePath) {
+        return compileAndCacheBala(sourceFilePath, testBuildDirectory.resolve(DIST_CACHE_DIRECTORY));
+    }
+
+    public static CompileResult compileAndCacheBala(String sourceFilePath, Path repoPath) {
         Path sourcePath = Paths.get(sourceFilePath);
         String sourceFileName = sourcePath.getFileName().toString();
         Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
@@ -134,7 +138,7 @@ public class BCompileUtil {
         }
 
         Path balaCachePath = balaCachePath(currentPackage.packageOrg().toString(),
-                currentPackage.packageName().toString(), currentPackage.packageVersion().toString());
+                currentPackage.packageName().toString(), currentPackage.packageVersion().toString(), repoPath);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaCachePath);
         Path balaFilePath;
         try {
@@ -177,7 +181,8 @@ public class BCompileUtil {
                                                 String org,
                                                 String pkgName,
                                                 String version) throws IOException {
-        Path targetPath = balaCachePath(org, pkgName, version).resolve("any");
+        Path targetPath = balaCachePath(org, pkgName, version, testBuildDirectory.resolve(DIST_CACHE_DIRECTORY))
+                .resolve("any");
         if (Files.isDirectory(targetPath)) {
             ProjectUtils.deleteDirectory(targetPath);
         }
@@ -208,10 +213,10 @@ public class BCompileUtil {
 
     private static Path balaCachePath(String org,
                                       String pkgName,
-                                      String version) {
+                                      String version,
+                                      Path repoPath) {
         try {
-            Path distributionCache = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
-            Path balaDirPath = distributionCache.resolve("bala")
+            Path balaDirPath = repoPath.resolve("bala")
                     .resolve(org)
                     .resolve(pkgName)
                     .resolve(version);

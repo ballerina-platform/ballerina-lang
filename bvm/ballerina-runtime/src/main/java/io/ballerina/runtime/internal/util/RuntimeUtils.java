@@ -27,12 +27,11 @@ import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Optional;
-import java.util.logging.FileHandler;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -57,7 +56,7 @@ public class RuntimeUtils {
     private static Logger crashLogger = Logger.getLogger(CRASH_LOGGER);
 
     private static final PrintStream stderr = System.err;
-    private static FileHandler handler;
+    private static ConsoleHandler handler;
 
     /**
      * Used to handle rest args passed in to the main method.
@@ -137,7 +136,7 @@ public class RuntimeUtils {
         } else {
             // These errors are unhandled errors in JVM, hence logging them to bre log.
             errStream.println(RuntimeConstants.INTERNAL_ERROR_MESSAGE);
-            silentlyLogBadSad(throwable);
+            logBadSad(throwable);
         }
     }
 
@@ -172,7 +171,7 @@ public class RuntimeUtils {
         Runtime.getRuntime().exit(1);
     }
 
-    public static void silentlyLogBadSad(Throwable throwable) {
+    public static void logBadSad(Throwable throwable) {
         // These errors are unhandled errors in JVM, hence logging them to bre log.
         printCrashLog(throwable);
     }
@@ -182,18 +181,14 @@ public class RuntimeUtils {
         // Which result in empty ballerina-internal.log files always getting created.
         Level logLevel = Level.ALL;
 
-        try {
-            synchronized (crashLogger) {
-                if (handler == null) {
-                    handler = new FileHandler(initBRELogHandler(), true);
-                    handler.setFormatter(new DefaultLogFormatter());
-                    crashLogger.addHandler(handler);
-                    crashLogger.setUseParentHandlers(false);
-                    crashLogger.setLevel(logLevel);
-                }
+        synchronized (crashLogger) {
+            if (handler == null) {
+                handler = new ConsoleHandler();
+                handler.setFormatter(new DefaultLogFormatter());
+                crashLogger.addHandler(handler);
+                crashLogger.setUseParentHandlers(false);
+                crashLogger.setLevel(logLevel);
             }
-        } catch (IOException ioException) {
-            stderr.print("error initializing crash logger");
         }
         crashLogger.log(Level.SEVERE, throwable.getMessage(), throwable);
     }
