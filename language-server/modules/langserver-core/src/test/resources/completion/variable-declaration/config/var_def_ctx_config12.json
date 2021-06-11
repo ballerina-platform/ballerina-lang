@@ -472,6 +472,23 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "var1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "D",
+      "insertText": "var1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "main()",
       "kind": "Function",
       "detail": "Function",
@@ -487,11 +504,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "var1",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "D",
-      "insertText": "var1",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "O",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -500,14 +517,6 @@
       "detail": "error?",
       "sortText": "AB",
       "insertText": "result",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "O",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {

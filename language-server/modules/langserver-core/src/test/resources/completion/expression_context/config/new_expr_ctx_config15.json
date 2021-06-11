@@ -421,6 +421,47 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "obj2",
+      "kind": "Variable",
+      "detail": "TestObject2",
+      "sortText": "B",
+      "insertText": "obj2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "K",
+      "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject2",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "K",
+      "insertText": "TestObject2",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testNewFunction()",
       "kind": "Function",
       "detail": "Function",
@@ -436,14 +477,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "obj2",
-      "kind": "Variable",
-      "detail": "TestObject2",
-      "sortText": "B",
-      "insertText": "obj2",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -452,30 +485,6 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestObject2",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "K",
-      "insertText": "TestObject2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestObject1",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "K",
-      "insertText": "TestObject1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
