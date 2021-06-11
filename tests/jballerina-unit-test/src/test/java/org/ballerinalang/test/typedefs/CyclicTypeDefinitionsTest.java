@@ -33,15 +33,14 @@ import org.testng.annotations.Test;
  */
 public class CyclicTypeDefinitionsTest {
 
-    private CompileResult unionCompileResult, unionNegativeResult, tupleCompileResult, tupleNegativeResult;
+    private CompileResult unionCompileResult, negativeResult, tupleCompileResult;
     private static final String INVALID_CYCLIC_MESSAGE = "invalid cyclic type reference in '[%s]'";
 
     @BeforeClass
     public void setup() {
         unionCompileResult = BCompileUtil.compile("test-src/typedefs/union-type-definitions-cyclic.bal");
-        unionNegativeResult = BCompileUtil.compile("test-src/typedefs/type-definitions-cyclic-negative.bal");
+        negativeResult = BCompileUtil.compile("test-src/typedefs/type-definitions-cyclic-negative.bal");
         tupleCompileResult = BCompileUtil.compile("test-src/typedefs/tuple-type-definitions-cyclic.bal");
-        tupleNegativeResult = BCompileUtil.compile("test-src/typedefs/tuple-type-definitions-cyclic-negative.bal");
     }
 
     @Test(description = "Positive tests for tuple cyclic type definitions", dataProvider = "FunctionListTuple")
@@ -57,12 +56,11 @@ public class CyclicTypeDefinitionsTest {
                 {"testCycleTypeTable"},
                 {"testCyclicAsFunctionParams"},
                 {"testCyclicTypeDefInRecord"},
-                {"testCyclicTypeDefInTuple"},
-                {"testComplexCyclicUnion"},
-                {"testCyclicUserDefinedType"},
-                {"testCyclicUnionAgainstSubSetNegative"},
-                {"testImmutableImportedCyclicUnionVariable"},
-                {"testCastingToImmutableCyclicUnion"}
+                {"testCyclicTypeDefInUnion"},
+                {"testComplexCyclicTuple"},
+                {"testCyclicUserDefinedTypes"},
+                {"testCyclicRestType"},
+                {"testCastingToImmutableCyclicTuple"},
         };
     }
 
@@ -88,28 +86,38 @@ public class CyclicTypeDefinitionsTest {
         };
     }
 
-    @Test(description = "Negative test cases for union cyclic type definitions")
-    public void testUnionCyclicTypeDefNegative() {
+    @Test(description = "Negative test cases for cyclic type definitions")
+    public void testCyclicTypeDefNegative() {
         int i = 0;
-        BAssertUtil.validateError(unionNegativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "A, A"), 1, 1);
-        BAssertUtil.validateError(unionNegativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "B, B"), 3, 1);
-        BAssertUtil.validateError(unionNegativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "C, D, C"), 5, 1);
-        BAssertUtil.validateError(unionNegativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "D, C, D"), 6, 1);
-        BAssertUtil.validateError(unionNegativeResult, i++, "incompatible types: expected 'E', found 'string'", 8, 25);
-        BAssertUtil.validateError(unionNegativeResult, i++, "operator '==' not defined for 'CyclicDecimal' and 'float'", 14
+        BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "A, A"), 1, 1);
+        BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "B, B"), 3, 1);
+        BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "C, D, C"), 5, 1);
+        BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "D, C, D"), 6, 1);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'E', found 'string'", 8, 25);
+        BAssertUtil.validateError(negativeResult, i++, "operator '==' not defined for 'CyclicDecimal' and 'float'", 15
                 , 20);
-        BAssertUtil.validateError(unionNegativeResult, i++, "operator '!=' not defined for 'CyclicDecimal' and 'float'", 15
+        BAssertUtil.validateError(negativeResult, i++, "operator '!=' not defined for 'CyclicDecimal' and 'float'", 16
                 , 12);
-        BAssertUtil.validateError(unionNegativeResult, i++, "operator '===' not defined for 'CyclicDecimal' and 'float'", 16
+        BAssertUtil.validateError(negativeResult, i++, "operator '===' not defined for 'CyclicDecimal' and 'float'", 17
                 , 12);
-        Assert.assertEquals(i, unionNegativeResult.getErrorCount());
+        BAssertUtil.validateError(negativeResult, i++, "operator '==' not defined for '[int,tupleCyclic[]]' and '[int]'", 20
+                , 20);
+        BAssertUtil.validateError(negativeResult, i++, "operator '!=' not defined for '[int,tupleCyclic[]]' and '[int]'", 21
+                , 12);
+        BAssertUtil.validateError(negativeResult, i++, "operator '===' not defined for '[int,tupleCyclic[]]' and '[int]'", 22
+                , 12);
+        BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "G, G"), 25, 1);
+        BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "H, H"), 26, 1);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'(int|[int,string,([int,string,...,map<F>]|int),map<F>])', found '[int,string,[int,string]]'", 31, 12);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '[int,I[]]'", 33, 12);
+        Assert.assertEquals(i, negativeResult.getErrorCount());
     }
 
     @AfterClass
     public void tearDown() {
-        unionNegativeResult = null;
+        negativeResult = null;
         unionCompileResult = null;
-        tupleNegativeResult = null;
         tupleCompileResult = null;
     }
 }

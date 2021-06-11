@@ -118,7 +118,7 @@ type XTuple2 ["tuple", ApproxType, ApproxType];
 type XUnion2 ["union", ApproxType, ApproxType];
 type XIntersection2 ["intersection", ApproxType, ApproxType];
 
-public function testCyclicUserDefined() {
+public function testCyclicUserDefinedTypes() {
     XType1 a = ["tuple"];
     assert(a is XTuple1, true);
     assert(a is string, false);
@@ -146,7 +146,7 @@ public function testCyclicRestType() {
 
 type I [int, string, I[], map<I>, table<map<I>>, record { I a?; float x?;}, I...];
 
-public function testComplexCyclicUnion() {
+public function testComplexCyclicTuple() {
    string sampleString = "text";
     I test1 = [1];
     I test2 = [1, sampleString];

@@ -1694,7 +1694,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         dependencyList.add(getTypeOrClassName(typeDef));
                         dependencyList.add(member.tsymbol.name.value);
                         dlog.error(typeDef.getPosition(), DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, dependencyList);
-                        break;
+                        return symTable.semanticError;
                     }
                 }
                 ((BTupleType) newTypeNode).addRestType(definedTupleType.restType);
