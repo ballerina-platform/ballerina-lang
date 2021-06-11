@@ -18,12 +18,14 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
@@ -75,6 +77,11 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
     @Override
     public TypeSymbol typeDescriptor() {
         return typeDescriptorImpl;
+    }
+
+    @Override
+    public DiagnosticState diagnosticState() {
+        return ((BVarSymbol) this.getInternalSymbol()).state;
     }
 
     @Override

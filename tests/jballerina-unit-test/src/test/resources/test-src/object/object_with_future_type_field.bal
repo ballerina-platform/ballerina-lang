@@ -25,8 +25,8 @@ Foo globalFoo = new;
 
 public function getIntFromFutureField() returns int {
     Foo foo = new;
-    int a = wait foo.intFuture;
-    int b = wait globalFoo.intFuture;
+    int a = checkpanic wait foo.intFuture;
+    int b = checkpanic wait globalFoo.intFuture;
     return a + b;
 }
 

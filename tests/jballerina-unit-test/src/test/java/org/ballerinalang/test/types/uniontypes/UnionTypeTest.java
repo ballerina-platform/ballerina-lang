@@ -125,11 +125,19 @@ public class UnionTypeTest {
     @Test(description = "Test negative cases")
     public void testAmbiguousAssignment() {
         int i = 0;
-        Assert.assertEquals(negativeResult.getErrorCount(), 3);
+        Assert.assertEquals(negativeResult.getErrorCount(), 7);
         BAssertUtil.validateError(negativeResult, i++, "ambiguous type '(ClosedBar|ClosedFoo)'", 43, 30);
         BAssertUtil.validateError(negativeResult, i++, "ambiguous type '(ClosedBar|OpenBar)'", 44, 28);
-        BAssertUtil.validateError(negativeResult, i, "incompatible mapping constructor expression for type '" +
+        BAssertUtil.validateError(negativeResult, i++, "incompatible mapping constructor expression for type '" +
                 "(ClosedFoo|Foo2)'", 47, 25);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int:Signed8', found 'int'",
+                54, 31);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int:Signed8', found 'int'",
+                55, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(string:Char|int)', " +
+                        "found 'string'", 56, 26);
+        BAssertUtil.validateError(negativeResult, i, "incompatible types: expected 'SomeTypes2', found 'string'",
+                57, 21);
     }
 
     @Test(description = "Test nullable check")
@@ -149,6 +157,16 @@ public class UnionTypeTest {
     @Test
     public void testCastToImmutableUnion() {
         BRunUtil.invoke(result, "testCastToImmutableUnion");
+    }
+
+    @Test(description = "Test union with integer subtypes")
+    public void testUnionWithIntegerSubTypes() {
+        BRunUtil.invoke(result, "testUnionWithIntegerSubTypes");
+    }
+
+    @Test(description = "Test union with string subtypes")
+    public void testUnionWithStringSubTypes() {
+        BRunUtil.invoke(result, "testUnionWithStringSubTypes");
     }
 
     @AfterClass

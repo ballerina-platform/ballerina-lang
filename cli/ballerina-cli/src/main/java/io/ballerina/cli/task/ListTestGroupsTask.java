@@ -40,11 +40,9 @@ import java.util.stream.Collectors;
 public class ListTestGroupsTask implements Task {
 
     private final PrintStream out;
-    private boolean displayWarning;
 
-    public ListTestGroupsTask(PrintStream out, boolean displayWarning) {
+    public ListTestGroupsTask(PrintStream out) {
         this.out = out;
-        this.displayWarning = displayWarning;
     }
 
     @Override
@@ -53,9 +51,6 @@ public class ListTestGroupsTask implements Task {
             Module module = project.currentPackage().module(moduleId);
             TestProcessor testProcessor = new TestProcessor();
             Optional<TestSuite> suite = testProcessor.testSuite(module);
-            if (displayWarning) {
-                out.println("\nWarning: Other flags are skipped when list-groups flag is provided.\n");
-            }
             if (!project.currentPackage().packageOrg().anonymous()) {
                 out.println();
                 out.println("\t" + module.moduleName().toString());
