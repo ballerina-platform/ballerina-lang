@@ -998,6 +998,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean checkKeySpecifier(BLangTableConstructorExpr tableConstructorExpr, BTableType tableType) {
         if (tableConstructorExpr.tableKeySpecifier != null) {
+            if (!(validateTableKeyValue(getTableKeyNameList(tableConstructorExpr.
+                    tableKeySpecifier), tableConstructorExpr.recordLiteralList))) {
+                resultType = symTable.semanticError;
+                return true;
+            }
             tableType.fieldNameList = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
         }
         return false;
@@ -1129,10 +1134,67 @@ public class TypeChecker extends BLangNodeVisitor {
                             ((BIntersectionType) constraint).effectiveType,
                     tableType.keyPos);
 
-            return (isKeySpecifierValidated);
+            return (isKeySpecifierValidated && validateTableKeyValue(fieldNameList, recordLiterals));
         }
 
         return true;
+    }
+
+    private boolean validateTableKeyValue(List<String> keySpecifierFieldNames,
+                                                           List<BLangRecordLiteral> recordLiterals) {
+
+        for (String fieldName : keySpecifierFieldNames) {
+            for (BLangRecordLiteral recordLiteral : recordLiterals) {
+                BLangRecordKeyValueField recordKeyValueField = getRecordKeyValueField(recordLiteral, fieldName);
+                if (recordKeyValueField != null && isConstExpression(recordKeyValueField.getValue())) {
+                    continue;
+                }
+
+                dlog.error(recordLiteral.pos,
+                        DiagnosticErrorCode.KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT_EXPR, fieldName);
+                resultType = symTable.semanticError;
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean isConstExpression(BLangExpression expression) {
+        switch(expression.getKind()) {
+            case LITERAL:
+            case NUMERIC_LITERAL:
+            case STRING_TEMPLATE_LITERAL:
+            case XML_ELEMENT_LITERAL:
+            case XML_TEXT_LITERAL:
+            case LIST_CONSTRUCTOR_EXPR:
+            case TABLE_CONSTRUCTOR_EXPR:
+            case RECORD_LITERAL_EXPR:
+            case TYPE_CONVERSION_EXPR:
+            case UNARY_EXPR:
+            case BINARY_EXPR:
+            case TYPE_TEST_EXPR:
+            case TERNARY_EXPR:
+                return true;
+            case SIMPLE_VARIABLE_REF:
+                return (((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT;
+            case GROUP_EXPR:
+                return isConstExpression(((BLangGroupExpr) expression).expression);
+            default:
+                return false;
+        }
+    }
+
+    private BLangRecordKeyValueField getRecordKeyValueField(BLangRecordLiteral recordLiteral,
+                                                            String fieldName) {
+        for (RecordLiteralNode.RecordField recordField : recordLiteral.fields) {
+            BLangRecordKeyValueField recordKeyValueField = (BLangRecordKeyValueField) recordField;
+            if (fieldName.equals(recordKeyValueField.key.toString())) {
+                return recordKeyValueField;
+            }
+        }
+
+        return null;
     }
 
     public boolean validateKeySpecifier(List<String> fieldNameList, BType constraint,
@@ -5500,11 +5562,12 @@ public class TypeChecker extends BLangNodeVisitor {
         SymbolEnv cEnv = env;
         while (node != null && node.getKind() != NodeKind.FUNCTION) {
             if (node.getKind() == NodeKind.ON_FAIL) {
+                BLangOnFailClause onFailClause = (BLangOnFailClause) node;
                 SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
                 BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
                         SymTag.VARIABLE);
-                if (resolvedSymbol != symTable.notFoundSymbol) {
-                    resolvedSymbol.closure = true;
+                if (resolvedSymbol != symTable.notFoundSymbol && !resolvedSymbol.closure) {
+                    onFailClause.possibleClosureSymbols.add(resolvedSymbol);
                 }
                 break;
             } else {

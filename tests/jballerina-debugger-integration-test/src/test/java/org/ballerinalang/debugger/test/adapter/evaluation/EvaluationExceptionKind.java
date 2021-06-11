@@ -24,10 +24,16 @@ package org.ballerinalang.debugger.test.adapter.evaluation;
 public enum EvaluationExceptionKind {
 
     FUNCTION_NOT_FOUND("Undefined function '%s'"),
-    OBJECT_METHOD_NOT_FOUND("Undefined object method '%s'"),
+    CLASS_NOT_FOUND("Undefined class: %s"),
+    OBJECT_METHOD_NOT_FOUND("Undefined method '%s' in object `%s`"),
+    REMOTE_METHOD_NOT_FOUND("Undefined remote method '%s' in object `%s`"),
+    LANG_LIB_METHOD_NOT_FOUND("Undefined function '%s' in type '%s'"),
+    LANG_LIB_NOT_FOUND("Failed to load lang library: '%s'"),
     FIELD_NOT_FOUND("Undefined field '%s' in `%s`"),
     VARIABLE_NOT_FOUND("Undefined variable '%s'"),
+    HELPER_UTIL_NOT_FOUND("Failed to load the evaluation helper util method: '%s'"),
     FUNCTION_EXECUTION_ERROR("Error occurred when executing method: '%s'"),
+    TYPE_RESOLVING_ERROR("Failed to resolve type: '%s'"),
     STRAND_NOT_FOUND("Error occurred when trying to get the current strand instance for executing the method: %s"),
     INVALID_ARGUMENT("Unsupported/invalid argument found: %s"),
     TYPE_MISMATCH("Incompatible types: expected `%s`, but found '%s': in '%s'"),
@@ -36,6 +42,7 @@ public enum EvaluationExceptionKind {
     EMPTY("Empty expressions cannot be evaluated."),
     INVALID("Invalid expression: '%s'"),
     SYNTAX_ERROR("Syntax errors found: " + System.lineSeparator() + "%s"),
+    COMPILATION_ERRORS("Compilation error(s) found: " + System.lineSeparator() + "%s"),
     UNSUPPORTED_EXPRESSION("Following expressions/sub-expressions are not supported by the evaluator: " +
             System.lineSeparator() + "%s"),
     UNSUPPORTED_OPERATION("'%s' operation is not supported for types: '%s' and '%s'"),

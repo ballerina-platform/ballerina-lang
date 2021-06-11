@@ -38,6 +38,7 @@ import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -2236,7 +2237,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             for (Map.Entry<BVarSymbol, BType.NarrowedTypes> entry :
                     matchClause.matchGuard.expr.narrowedTypeInfo.entrySet()) {
                 if (entry.getValue().trueType == symTable.semanticError) {
-                    dlog.error(matchClause.pos, DiagnosticErrorCode.MATCH_STMT_UNMATCHED_PATTERN);
+                    dlog.warning(matchClause.pos, DiagnosticWarningCode.MATCH_STMT_UNMATCHED_PATTERN);
                 }
             }
 
@@ -2499,7 +2500,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 break;
             case CAPTURE_BINDING_PATTERN:
                 BLangCaptureBindingPattern captureBindingPattern = (BLangCaptureBindingPattern) bindingPattern;
-                captureBindingPattern.type = patternType;
+                captureBindingPattern.type = varBindingPattern.type == null ? patternType : varBindingPattern.type;
                 analyzeNode(captureBindingPattern, env);
                 break;
             case LIST_BINDING_PATTERN:
@@ -2629,6 +2630,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorMessageBindingPattern errorMessageBindingPattern) {
         BLangSimpleBindingPattern simpleBindingPattern = errorMessageBindingPattern.simpleBindingPattern;
+        if (simpleBindingPattern.wildCardBindingPattern != null) {
+            simpleBindingPattern.wildCardBindingPattern.type = symTable.stringType;
+        }
+        if (simpleBindingPattern.captureBindingPattern != null) {
+            simpleBindingPattern.captureBindingPattern.type = symTable.stringType;
+        }
         analyzeNode(simpleBindingPattern, env);
         errorMessageBindingPattern.declaredVars.putAll(simpleBindingPattern.declaredVars);
     }
@@ -2636,8 +2643,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorCauseBindingPattern errorCauseBindingPattern) {
         if (errorCauseBindingPattern.simpleBindingPattern != null) {
-            analyzeNode(errorCauseBindingPattern.simpleBindingPattern, env);
-            errorCauseBindingPattern.declaredVars.putAll(errorCauseBindingPattern.simpleBindingPattern.declaredVars);
+            BLangSimpleBindingPattern simpleBindingPattern = errorCauseBindingPattern.simpleBindingPattern;
+            if (simpleBindingPattern.captureBindingPattern != null) {
+                simpleBindingPattern.captureBindingPattern.type = symTable.errorType;
+            }
+            analyzeNode(simpleBindingPattern, env);
+            errorCauseBindingPattern.declaredVars.putAll(simpleBindingPattern.declaredVars);
             return;
         }
         if (errorCauseBindingPattern.errorBindingPattern != null) {
@@ -2711,6 +2722,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorMessageMatchPattern errorMessageMatchPattern) {
         BLangSimpleMatchPattern simpleMatchPattern = errorMessageMatchPattern.simpleMatchPattern;
+        if (simpleMatchPattern.varVariableName != null) {
+            simpleMatchPattern.varVariableName.type = symTable.stringType;
+        }
         analyzeNode(simpleMatchPattern, env);
         errorMessageMatchPattern.declaredVars.putAll(simpleMatchPattern.declaredVars);
     }
@@ -2718,8 +2732,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorCauseMatchPattern errorCauseMatchPattern) {
         if (errorCauseMatchPattern.simpleMatchPattern != null) {
-            analyzeNode(errorCauseMatchPattern.simpleMatchPattern, env);
-            errorCauseMatchPattern.declaredVars.putAll(errorCauseMatchPattern.simpleMatchPattern.declaredVars);
+            BLangSimpleMatchPattern simpleMatchPattern = errorCauseMatchPattern.simpleMatchPattern;
+            if (simpleMatchPattern.varVariableName != null) {
+                simpleMatchPattern.varVariableName.type = symTable.errorType;
+            }
+            analyzeNode(simpleMatchPattern, env);
+            errorCauseMatchPattern.declaredVars.putAll(simpleMatchPattern.declaredVars);
             return;
         }
         if (errorCauseMatchPattern.errorMatchPattern != null) {

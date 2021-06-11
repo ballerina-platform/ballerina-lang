@@ -183,18 +183,24 @@ public class MappingBindingPatternTest {
     }
 
     @Test
+    public void testReachableMappingBinding() {
+        BRunUtil.invoke(restMatchPatternResult, "testReachableMappingBinding");
+    }
+
+    @Test
     public void testMappingBindingPatternNegative() {
         int i = -1;
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 20, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 27, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 38, 28);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 42, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 46, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 54, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 61, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 73, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 75, 9);
-        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 20, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 27, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 38, 28);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 42, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 46, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 54, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 61, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 73, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 77, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 90, 9);
+        Assert.assertEquals(resultNegative.getWarnCount(), i + 1);
     }
 
     @Test
