@@ -74,5 +74,19 @@ function testUnmatchedPatternAgainstClosedRecord(Person person) {
         }
         var {id, name, ...rest} => {
         }
+        var {id, name} => {
+        }
+    }
+}
+
+type Record record {
+    int|float a;
+};
+
+function func() {
+    Record r1 = {a: 200};
+    match r1 {
+        {a: 150, b: "A"} => {}
+        {a: 150, b: "A", c: false} => {} // unreachable pattern
     }
 }

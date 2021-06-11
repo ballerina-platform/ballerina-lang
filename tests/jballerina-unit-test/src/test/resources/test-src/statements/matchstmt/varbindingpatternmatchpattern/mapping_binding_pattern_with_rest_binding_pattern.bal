@@ -303,6 +303,22 @@ public function testRestMappingAtRuntime() {
     assertEquals(<RecTwo> {m: 303, "b": "ballerina"}, rec3);
 }
 
+type Record record {| int m; string...; |};
+
+function testReachableMappingBinding() {
+    Record rec = {m: 1, "a": "foo", "b": "bar"};
+    string result = "";
+    match rec {
+        var {p, ...q} => {
+            result = "Match1";
+        }
+        var {a, b, ...c} => {
+            result = "Match2";
+        }
+    }
+    assertEquals("Match2", result);
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

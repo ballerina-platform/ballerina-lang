@@ -75,7 +75,7 @@ function testErrorNotMatchingVarIgnoreAndFallThroughToErrorPattern() returns str
     match v {
         0 => { return "zero"; }
         var _ => { return "other"; }
-        error(var r) => { return <string> checkpanic r; }
+        error(var r) => { return <string> r; }
     }
     return "no-match";
 }
