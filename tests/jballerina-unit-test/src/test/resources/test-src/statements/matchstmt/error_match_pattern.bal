@@ -256,6 +256,30 @@ function testErrorMatchPattern14() {
     assertEquals("Matched", result);
 }
 
+function testErrorMatchPattern15() {
+    error err1 = error("Error One", data = [11, 12]);
+    assertEquals("Matched with Error One", errorMatchPattern15(err1));
+
+    error err2 = error("Error Two", data = [11, {a: "A", b: "B"}]);
+    assertEquals("Matched with Error Two", errorMatchPattern15(err2));
+}
+
+function errorMatchPattern15(error x) returns string {
+    match x {
+        error("Error One", data=[11, 12]) => {
+            return "Matched with Error One";
+        }
+        error("Error One", data={a: "A", b: "B"}) => {
+            return "Some Other Error";
+        }
+        error("Error Two", data=[11, {a: "A", b: "B"}]) => {
+            return "Matched with Error Two";
+        }
+    }
+
+    return "Default";
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

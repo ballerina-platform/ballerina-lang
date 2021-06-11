@@ -73,6 +73,19 @@ public class IdentifierLiteralPackageTest {
 
     }
 
+    @Test(description = "Test access fields of record types with type label")
+    public void testAccessTypeLabelWithIL() {
+        BValue[] returns = BRunUtil.invoke(result, "accessTypeLabelWithIL");
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertSame(returns[1].getClass(), BInteger.class);
+
+        Assert.assertEquals(returns[0].stringValue(), "John");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 20);
+
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

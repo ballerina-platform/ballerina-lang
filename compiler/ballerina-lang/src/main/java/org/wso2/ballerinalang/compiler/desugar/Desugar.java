@@ -1215,7 +1215,25 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorType errorType) {
         errorType.detailType = rewrite(errorType.detailType, env);
+
+        boolean isDistinctError = errorType.flagSet.contains(Flag.DISTINCT);
+        boolean hasTypeParam = errorType.getDetailsTypeNode() != null;
+        // Distinct errors already have type-def.
+        // Error without type param is either a user-defined-type or a default error, they don't need a type-def.
+        // We need to create type-defs for local anonymous types with type param.
+        if (!isDistinctError && errorType.isLocal && errorType.isAnonymous && hasTypeParam) {
+            BLangUserDefinedType userDefinedType = desugarLocalAnonRecordTypeNode(errorType);
+            TypeDefBuilderHelper.addTypeDefinition(errorType.type, errorType.type.tsymbol, errorType, env);
+            errorType.desugared = true;
+            result = userDefinedType;
+            return;
+        }
         result = errorType;
+    }
+
+    private BLangUserDefinedType desugarLocalAnonRecordTypeNode(BLangErrorType errorTypeNode) {
+        return ASTBuilderUtil.createUserDefineTypeNode(errorTypeNode.type.tsymbol.name.value, errorTypeNode.type,
+                errorTypeNode.pos);
     }
 
     @Override
@@ -3530,6 +3548,10 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockStmt mainBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
         mainBlockStmt.addStatement(resultVarDef);
 
+        if (bindingPatternType == symTable.noType) {
+            return createConditionForUnmatchedPattern(resultVarRef, mainBlockStmt);
+        }
+
         BLangAssignment failureResult =
                 ASTBuilderUtil.createAssignmentStmt(pos, resultVarRef, getBooleanLiteral(false));
         BLangAssignment successResult =
@@ -3632,6 +3654,10 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef resultVarRef = ASTBuilderUtil.createVariableRef(pos, resultVarDef.var.symbol);
         blockStmt.addStatement(resultVarDef);
 
+        if (listBindingPattern.type == symTable.noType) {
+            return createConditionForUnmatchedPattern(resultVarRef, blockStmt);
+        }
+
         BLangAssignment failureResult =
                 ASTBuilderUtil.createAssignmentStmt(pos, resultVarRef, getBooleanLiteral(false));
         BLangAssignment successResult =
@@ -3729,6 +3755,10 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockStmt mainBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
         mainBlockStmt.addStatement(resultVarDef);
 
+        if (bindingPatternType == symTable.noType) {
+            return createConditionForUnmatchedPattern(resultVarRef, mainBlockStmt);
+        }
+
         BLangAssignment failureResult =
                 ASTBuilderUtil.createAssignmentStmt(pos, resultVarRef, getBooleanLiteral(false));
         BLangAssignment successResult =
@@ -3795,6 +3825,10 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef resultVarRef = ASTBuilderUtil.createVariableRef(pos, resultVarDef.var.symbol);
         BLangBlockStmt mainBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
         mainBlockStmt.addStatement(resultVarDef);
+
+        if (bindingPatternType == symTable.noType) {
+            return createConditionForUnmatchedPattern(resultVarRef, mainBlockStmt);
+        }
 
         BLangAssignment failureResult =
                 ASTBuilderUtil.createAssignmentStmt(pos, resultVarRef, getBooleanLiteral(false));
@@ -3924,6 +3958,10 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockStmt mainBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
         mainBlockStmt.addStatement(resultVarDef);
 
+        if (matchPatternType == symTable.noType) {
+            return createConditionForUnmatchedPattern(resultVarRef, mainBlockStmt);
+        }
+
         BLangAssignment failureResult =
                 ASTBuilderUtil.createAssignmentStmt(pos, resultVarRef, getBooleanLiteral(false));
         BLangAssignment successResult =
@@ -4005,6 +4043,10 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef resultVarRef = ASTBuilderUtil.createVariableRef(pos, resultVarDef.var.symbol);
         BLangBlockStmt mainBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
         mainBlockStmt.addStatement(resultVarDef);
+
+        if (matchPatternType == symTable.noType) {
+            return createConditionForUnmatchedPattern(resultVarRef, mainBlockStmt);
+        }
 
         BLangAssignment failureResult =
                 ASTBuilderUtil.createAssignmentStmt(pos, resultVarRef, getBooleanLiteral(false));
@@ -4177,6 +4219,10 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef resultVarRef = ASTBuilderUtil.createVariableRef(pos, resultVarDef.var.symbol);
         blockStmt.addStatement(resultVarDef);
 
+        if (bindingPatternType == symTable.noType) {
+            return createConditionForUnmatchedPattern(resultVarRef, blockStmt);
+        }
+
         BLangAssignment failureResult =
                 ASTBuilderUtil.createAssignmentStmt(pos, resultVarRef, getBooleanLiteral(false));
         BLangAssignment successResult =
@@ -4252,10 +4298,10 @@ public class Desugar extends BLangNodeVisitor {
                 ASTBuilderUtil.createAssignmentStmt(pos, resultVarRef, getBooleanLiteral(true));
         blockStmt.addStatement(failureResult);
 
-        List<BType> memberTupleTypes = ((BTupleType) varRef.type).getTupleTypes();
+        List<BType> memberTupleTypes = ((BTupleType) listMatchPattern.type).getTupleTypes();
         List<BLangMatchPattern> matchPatterns = listMatchPattern.matchPatterns;
 
-        BLangSimpleVariableDef tempCastVarDef = createVarDef("$castTemp$", varRef.type, varRef, pos);
+        BLangSimpleVariableDef tempCastVarDef = createVarDef("$castTemp$", listMatchPattern.type, varRef, pos);
         blockStmt.addStatement(tempCastVarDef);
         BLangExpression condition = createConditionForListMemberPattern(0, matchPatterns.get(0),
                 tempCastVarDef, blockStmt, memberTupleTypes.get(0), pos);
@@ -4402,6 +4448,10 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef resultVarRef = ASTBuilderUtil.createVariableRef(pos, resultVarDef.var.symbol);
         BLangBlockStmt mainBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
         mainBlockStmt.addStatement(resultVarDef);
+
+        if (matchPatternType == symTable.noType) {
+            return createConditionForUnmatchedPattern(resultVarRef, mainBlockStmt);
+        }
 
         BLangAssignment failureResult =
                 ASTBuilderUtil.createAssignmentStmt(pos, resultVarRef, getBooleanLiteral(false));
@@ -4558,6 +4608,11 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(matchPatternPos, tempVarDef.var.symbol);
 
             BLangExpression varCheckCondition = createConditionForNamedArgMatchPattern(matchPattern, tempVarRef);
+            BLangExpression typeCheckCondition = createIsLikeExpression(matchPatternPos, tempVarRef,
+                    matchPattern.type);
+            varCheckCondition = ASTBuilderUtil.createBinaryExpr(pos, typeCheckCondition,
+                   varCheckCondition, symTable.booleanType, OperatorKind.AND, null);
+
             if (i == 0) {
                 condition = varCheckCondition;
                 continue;
@@ -4616,6 +4671,10 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockStmt mainBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
         mainBlockStmt.addStatement(resultVarDef);
 
+        if (errorFieldBindingPatterns.namedArgBindingPatterns.isEmpty()) {
+            return createConditionForUnmatchedPattern(resultVarRef, mainBlockStmt);
+        }
+
         BLangAssignment failureResult =
                 ASTBuilderUtil.createAssignmentStmt(pos, resultVarRef, getBooleanLiteral(false));
         BLangAssignment successResult =
@@ -4647,6 +4706,13 @@ public class Desugar extends BLangNodeVisitor {
                             .resolveBinaryOperator(OperatorKind.AND, symTable.booleanType, symTable.booleanType));
         }
 
+        BType matchingType = createMatchingRecordType(errorFieldBindingPatterns);
+        BLangExpression isLikeExpr = createIsLikeExpression(errorFieldBindingPatterns.pos, matchExprVarRef,
+                matchingType);
+        condition = ASTBuilderUtil.createBinaryExpr(errorFieldBindingPatterns.pos, condition, isLikeExpr,
+                symTable.booleanType, OperatorKind.AND, (BOperatorSymbol) symResolver
+                        .resolveBinaryOperator(OperatorKind.AND, symTable.booleanType, symTable.booleanType));
+
         BLangBlockStmt tempBLock = ASTBuilderUtil.createBlockStmt(pos);
         tempBLock.addStatement(successResult);
         BLangIf ifStmtForFieldMatchPatterns = ASTBuilderUtil.createIfElseStmt(pos, condition, tempBLock, null);
@@ -4656,6 +4722,31 @@ public class Desugar extends BLangNodeVisitor {
                 resultVarRef);
         statementExpression.type = symTable.booleanType;
         return statementExpression;
+    }
+
+    private BType createMatchingRecordType(BLangErrorFieldBindingPatterns errorFieldBindingPatterns) {
+        BRecordType detailRecordType = createAnonRecordType(errorFieldBindingPatterns.pos);
+        List<BLangSimpleVariable> typeDefFields = new ArrayList<>();
+        for (BLangNamedArgBindingPattern bindingPattern : errorFieldBindingPatterns.namedArgBindingPatterns) {
+            Name fieldName = names.fromIdNode(bindingPattern.argName);
+            BVarSymbol declaredVarSym = bindingPattern.declaredVars.get(fieldName.value);
+            if (declaredVarSym == null) {
+                // constant match pattern expr, not needed for detail record type
+                continue;
+            }
+            BType fieldType = declaredVarSym.type;
+            BVarSymbol fieldSym = new BVarSymbol(Flags.PUBLIC, fieldName, detailRecordType.tsymbol.pkgID, fieldType,
+                    detailRecordType.tsymbol, bindingPattern.pos, VIRTUAL);
+            detailRecordType.fields.put(fieldName.value, new BField(fieldName, bindingPattern.pos, fieldSym));
+            detailRecordType.tsymbol.scope.define(fieldName, fieldSym);
+            typeDefFields.add(ASTBuilderUtil.createVariable(null, fieldName.value, fieldType, null, fieldSym));
+        }
+        BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(typeDefFields, detailRecordType,
+                errorFieldBindingPatterns.pos);
+        recordTypeNode.initFunction = TypeDefBuilderHelper
+                .createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
+        TypeDefBuilderHelper.addTypeDefinition(detailRecordType, detailRecordType.tsymbol, recordTypeNode, env);
+        return detailRecordType;
     }
 
     private BLangExpression createConditionForNamedArgMatchPattern(BLangMatchPattern matchPattern,
@@ -4714,6 +4805,14 @@ public class Desugar extends BLangNodeVisitor {
             return createVarCheckCondition(simpleBindingPattern.wildCardBindingPattern, matchExprVarRef);
         }
         return createVarCheckCondition(simpleBindingPattern.captureBindingPattern, matchExprVarRef);
+    }
+
+    private BLangExpression createConditionForUnmatchedPattern(BLangSimpleVarRef resultVarRef,
+                                                                  BLangBlockStmt blockStmt) {
+        BLangStatementExpression statementExpression = ASTBuilderUtil.createStatementExpression(blockStmt,
+                resultVarRef);
+        statementExpression.type = symTable.booleanType;
+        return statementExpression;
     }
 
     @Override

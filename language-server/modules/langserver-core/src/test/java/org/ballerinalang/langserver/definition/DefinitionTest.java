@@ -124,6 +124,7 @@ public class DefinitionTest {
         log.info("Test textDocument/definition for Std Lib Cases");
         return new Object[][]{
                 {"defProject8.json", "project"},
+                {"def_error_config2.json", "project"}
         };
     }
 

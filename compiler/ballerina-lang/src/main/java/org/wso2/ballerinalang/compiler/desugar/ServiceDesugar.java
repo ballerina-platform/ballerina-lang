@@ -78,7 +78,7 @@ public class ServiceDesugar {
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private final Names names;
-    private HttpFiltersDesugar httpFiltersDesugar;
+    private DeclarativeAuthDesugar declarativeAuthDesugar;
     private TransactionDesugar transactionDesugar;
     private final Types types;
 
@@ -96,7 +96,7 @@ public class ServiceDesugar {
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
-        this.httpFiltersDesugar = HttpFiltersDesugar.getInstance(context);
+        this.declarativeAuthDesugar = DeclarativeAuthDesugar.getInstance(context);
         this.transactionDesugar = TransactionDesugar.getInstance(context);
         this.types = Types.getInstance(context);
     }
@@ -299,6 +299,6 @@ public class ServiceDesugar {
                     .createBeginParticipantInvocation(functionNode.pos));
             ((BLangBlockFunctionBody) functionNode.body).stmts.add(0, stmt);
         }
-        httpFiltersDesugar.desugarFunction(functionNode, env, expressionTypes);
+        declarativeAuthDesugar.desugarFunction(functionNode, env, expressionTypes);
     }
 }

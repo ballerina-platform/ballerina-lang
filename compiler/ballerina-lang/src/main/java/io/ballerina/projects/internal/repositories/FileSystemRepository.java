@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Package Repository stored in file system.
@@ -117,7 +118,9 @@ public class FileSystemRepository implements PackageRepository {
         try {
             Path balaPackagePath = bala.resolve(orgName).resolve(packageName);
             if (Files.exists(balaPackagePath)) {
-                versions.addAll(Files.list(balaPackagePath).collect(Collectors.toList()));
+                try (Stream<Path> collect = Files.list(balaPackagePath)) {
+                    versions.addAll(collect.collect(Collectors.toList()));
+                }
             }
         } catch (IOException e) {
             throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());

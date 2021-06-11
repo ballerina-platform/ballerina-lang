@@ -927,13 +927,13 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STParameterizedTypeDescriptorNode transform(
-            STParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
-        STNode parameterizedType = modifyNode(parameterizedTypeDescriptorNode.parameterizedType);
-        STNode typeParameter = modifyNode(parameterizedTypeDescriptorNode.typeParameter);
-        return parameterizedTypeDescriptorNode.modify(
-                parameterizedType,
-                typeParameter);
+    public STMapTypeDescriptorNode transform(
+            STMapTypeDescriptorNode mapTypeDescriptorNode) {
+        STNode mapKeywordToken = modifyNode(mapTypeDescriptorNode.mapKeywordToken);
+        STNode mapTypeParamsNode = modifyNode(mapTypeDescriptorNode.mapTypeParamsNode);
+        return mapTypeDescriptorNode.modify(
+                mapKeywordToken,
+                mapTypeParamsNode);
     }
 
     @Override
@@ -1182,16 +1182,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STErrorTypeDescriptorNode transform(
-            STErrorTypeDescriptorNode errorTypeDescriptorNode) {
-        STNode errorKeywordToken = modifyNode(errorTypeDescriptorNode.errorKeywordToken);
-        STNode errorTypeParamsNode = modifyNode(errorTypeDescriptorNode.errorTypeParamsNode);
-        return errorTypeDescriptorNode.modify(
-                errorKeywordToken,
-                errorTypeParamsNode);
-    }
-
-    @Override
     public STStreamTypeDescriptorNode transform(
             STStreamTypeDescriptorNode streamTypeDescriptorNode) {
         STNode streamKeywordToken = modifyNode(streamTypeDescriptorNode.streamKeywordToken);
@@ -1218,16 +1208,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STTypedescTypeDescriptorNode transform(
-            STTypedescTypeDescriptorNode typedescTypeDescriptorNode) {
-        STNode typedescKeywordToken = modifyNode(typedescTypeDescriptorNode.typedescKeywordToken);
-        STNode typedescTypeParamsNode = modifyNode(typedescTypeDescriptorNode.typedescTypeParamsNode);
-        return typedescTypeDescriptorNode.modify(
-                typedescKeywordToken,
-                typedescTypeParamsNode);
-    }
-
-    @Override
     public STLetExpressionNode transform(
             STLetExpressionNode letExpressionNode) {
         STNode letKeyword = modifyNode(letExpressionNode.letKeyword);
@@ -1239,16 +1219,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 letVarDeclarations,
                 inKeyword,
                 expression);
-    }
-
-    @Override
-    public STXmlTypeDescriptorNode transform(
-            STXmlTypeDescriptorNode xmlTypeDescriptorNode) {
-        STNode xmlKeywordToken = modifyNode(xmlTypeDescriptorNode.xmlKeywordToken);
-        STNode xmlTypeParamsNode = modifyNode(xmlTypeDescriptorNode.xmlTypeParamsNode);
-        return xmlTypeDescriptorNode.modify(
-                xmlKeywordToken,
-                xmlTypeParamsNode);
     }
 
     @Override
@@ -2564,6 +2534,17 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 openParenToken,
                 arguments,
                 closeParenToken);
+    }
+
+    @Override
+    public STParameterizedTypeDescriptorNode transform(
+            STParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
+        STNode keywordToken = modifyNode(parameterizedTypeDescriptorNode.keywordToken);
+        STNode typeParamNode = modifyNode(parameterizedTypeDescriptorNode.typeParamNode);
+        return parameterizedTypeDescriptorNode.modify(
+                parameterizedTypeDescriptorNode.kind,
+                keywordToken,
+                typeParamNode);
     }
 
     // Tokens
