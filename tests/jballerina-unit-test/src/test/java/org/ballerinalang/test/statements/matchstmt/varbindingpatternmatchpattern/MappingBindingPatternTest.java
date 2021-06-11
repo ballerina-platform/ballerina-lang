@@ -37,7 +37,8 @@ public class MappingBindingPatternTest {
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/matchstmt/varbindingpatternmatchpattern" +
                 "/mapping_binding_pattern.bal");
-        restMatchPatternResult = BCompileUtil.compile("test-src/statements/matchstmt/varbindingpatternmatchpattern/mapping_binding_pattern_with_rest_binding_pattern.bal");
+        restMatchPatternResult = BCompileUtil.compile("test-src/statements/matchstmt/varbindingpatternmatchpattern" +
+                "/mapping_binding_pattern_with_rest_binding_pattern.bal");
     }
 
     @Test
