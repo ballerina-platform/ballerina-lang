@@ -2306,12 +2306,12 @@ public class TypeChecker extends BLangNodeVisitor {
             // type of all fields that are not specified in the destructuring pattern. Here we set the rest type of
             // record type to T.
             BType restFieldType;
-            if (restParam.type.tag == TypeTags.RECORD) {
-                restFieldType = ((BRecordType) restParam.type).restFieldType;
-            } else if (restParam.type.tag == TypeTags.MAP) {
-                restFieldType = ((BMapType) restParam.type).constraint;
+            if (restParam.getBType().tag == TypeTags.RECORD) {
+                restFieldType = ((BRecordType) restParam.getBType()).restFieldType;
+            } else if (restParam.getBType().tag == TypeTags.MAP) {
+                restFieldType = ((BMapType) restParam.getBType()).constraint;
             } else {
-                restFieldType = restParam.type;
+                restFieldType = restParam.getBType();
             }
             bRecordType.restFieldType = restFieldType;
         }

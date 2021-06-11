@@ -1850,10 +1850,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (lhsVarRef.restParam != null) {
             BLangSimpleVarRef varRefRest = (BLangSimpleVarRef) lhsVarRef.restParam;
             BType lhsRefType;
-            if (varRefRest.type.tag == TypeTags.RECORD) {
-                lhsRefType = varRefRest.type;
+            if (varRefRest.getBType().tag == TypeTags.RECORD) {
+                lhsRefType = varRefRest.getBType();
             } else {
-                lhsRefType = ((BLangSimpleVarRef) lhsVarRef.restParam).type;
+                lhsRefType = ((BLangSimpleVarRef) lhsVarRef.restParam).getBType();
             }
 
             BType rhsRestConstraint = rhsRecordType.restFieldType == symTable.noType ? symTable.neverType
@@ -2367,7 +2367,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BLangRestMatchPattern restMatchPattern = mappingMatchPattern.restMatchPattern;
             BRecordType matchPatternRecType = new BRecordType(matchPattenRecordSym);
             matchPatternRecType.restFieldType = symTable.anyOrErrorType;
-            restMatchPattern.type = matchPatternRecType;
+            restMatchPattern.setBType(matchPatternRecType);
             analyzeNode(restMatchPattern, env);
             mappingMatchPattern.declaredVars.put(restMatchPattern.variableName.value, restMatchPattern.symbol);
 
@@ -2470,7 +2470,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 BLangRestMatchPattern restMatchPattern = mappingMatchPattern.restMatchPattern;
-                BRecordType restPatternRecType = (BRecordType) restMatchPattern.type;
+                BRecordType restPatternRecType = (BRecordType) restMatchPattern.getBType();
                 BVarSymbol restVarSymbol =
                         restMatchPattern.declaredVars.get(restMatchPattern.getIdentifier().getValue());
                 if (restVarSymbol.type.tag != TypeTags.RECORD) {
@@ -2799,7 +2799,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BRecordTypeSymbol matchPattenRecordSym = symbolEnter.createAnonRecordSymbol(env, restBindingPattern.pos);
             BRecordType matchPatternRecType = new BRecordType(matchPattenRecordSym);
             matchPatternRecType.restFieldType = symTable.anyOrErrorType;
-            restBindingPattern.type = matchPatternRecType;
+            restBindingPattern.setBType(matchPatternRecType);
             restBindingPattern.accept(this);
             mappingBindingPattern.declaredVars.put(restBindingPattern.variableName.value, restBindingPattern.symbol);
 
