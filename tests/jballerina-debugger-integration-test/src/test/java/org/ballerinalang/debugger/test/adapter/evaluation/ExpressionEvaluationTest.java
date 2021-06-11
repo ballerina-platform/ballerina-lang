@@ -706,8 +706,8 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, String.format("%s->getName(\"John\")", CLIENT_OBJECT_VAR), "John",
                 "string");
         // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/31096
-        // debugTestRunner.assertExpression(context, String.format("%s->getTotal(78,90)", CLIENT_OBJECT_VAR), "168",
-        // "int");
+        // debugTestRunner.assertExpression(context, String.format("%s->getTotalMarks(78,90)", CLIENT_OBJECT_VAR),
+        // "168", "int");
     }
 
     @AfterClass(alwaysRun = true)

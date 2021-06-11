@@ -214,6 +214,6 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
     // 33. XML navigation expressions
     public abstract void xmlNavigationEvaluationTest() throws BallerinaTestException;
 
-    // 33. XML navigation expressions
+    // 34. Remote method call actions
     public abstract void remoteCallActionEvaluationTest() throws BallerinaTestException;
 }
