@@ -2656,7 +2656,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseQualifiedIdentifierWithPredeclPrefix(STToken preDeclaredPrefix, boolean isInConditionalExpr) {
         STNode identifier = STNodeFactory.createIdentifierToken(preDeclaredPrefix.text(),
                 preDeclaredPrefix.leadingMinutiae(), preDeclaredPrefix.trailingMinutiae());
-        return parseQualifiedIdentifier(identifier, isInConditionalExpr, true);
+        return parseQualifiedIdentifier(identifier, isInConditionalExpr);
     }
 
     /**
@@ -3758,7 +3758,6 @@ public class BallerinaParser extends AbstractParser {
         // If the readonly-keyword is present, check whether its qualifier
         // or the readonly-type-desc.
         STNode type;
-        STNode fieldOrRestDesc;
         STNode readOnlyQualifier;
         readOnlyQualifier = parseReadonlyKeyword();
 
@@ -3884,18 +3883,13 @@ public class BallerinaParser extends AbstractParser {
         return parseQualifiedIdentifier(typeRefOrPkgRef, isInConditionalExpr);
     }
 
-    private STNode parseQualifiedIdentifier(STNode identifier, boolean isInConditionalExpr) {
-        return parseQualifiedIdentifier(identifier, isInConditionalExpr, false);
-    }
-
     /**
      * Parse identifier or qualified identifier, given the starting identifier.
      *
      * @param identifier Starting identifier
      * @return Parse node
      */
-    private STNode parseQualifiedIdentifier(STNode identifier, boolean isInConditionalExpr,
-                                            boolean isPredeclaredPrefix) {
+    private STNode parseQualifiedIdentifier(STNode identifier, boolean isInConditionalExpr) {
         STToken nextToken = peek(1);
         if (nextToken.kind != SyntaxKind.COLON_TOKEN) {
             return STNodeFactory.createSimpleNameReferenceNode(identifier);
