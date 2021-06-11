@@ -3958,7 +3958,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         if (retryStatementNode.arguments().isPresent()) {
             ParenthesizedArgList arg = retryStatementNode.arguments().get();
-            retrySpec.pos = getPosition(arg);
+            // If type param is present, retry spec spans from type param to args
+            if (retryStatementNode.typeParameter().isPresent()) {
+                retrySpec.pos = getPosition(retryStatementNode.typeParameter().get(), arg);
+            } else {
+                retrySpec.pos = getPosition(arg);
+            }
             for (Node argNode : arg.arguments()) {
                 retrySpec.argExprs.add(createExpression(argNode));
             }
