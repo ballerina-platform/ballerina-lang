@@ -870,6 +870,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // TODO Clean this code up. Can we move the this to BLangPackageBuilder class
         // Create import package symbol
         Name orgName;
+        Name pkgName = null;
         Name version;
         PackageID enclPackageID = env.enclPkg.packageID;
         // The pattern of the import statement is 'import [org-name /] module-name [version sem-ver]'
@@ -888,10 +889,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (projectAPIInitiatedCompilation) {
                     version = Names.EMPTY;
                 } else {
-                    String pkgName = importPkgNode.getPackageName().stream()
+                    String pkgNameComps = importPkgNode.getPackageName().stream()
                             .map(id -> id.value)
                             .collect(Collectors.joining("."));
-                    if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)
+                    if (this.sourceDirectory.getSourcePackageNames().contains(pkgNameComps)
                             && orgName.value.equals(enclPackageID.orgName.value)) {
                         version = enclPackageID.version;
                     } else {
@@ -901,14 +902,20 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         } else {
             orgName = enclPackageID.orgName;
+            pkgName = enclPackageID.pkgName;
             version = (Names.DEFAULT_VERSION.equals(enclPackageID.version)) ? Names.EMPTY : enclPackageID.version;
         }
 
         List<Name> nameComps = importPkgNode.pkgNameComps.stream()
                 .map(identifier -> names.fromIdNode(identifier))
                 .collect(Collectors.toList());
+        Name moduleName = new Name(nameComps.stream().map(Name::getValue).collect(Collectors.joining(".")));
 
-        PackageID pkgId = new PackageID(orgName, nameComps, version);
+        if (pkgName == null) {
+            pkgName = moduleName;
+        }
+
+        PackageID pkgId = new PackageID(orgName, pkgName, moduleName, version, null);
 
         // Un-exported modules not inside current package is not allowed to import.
         BPackageSymbol bPackageSymbol = this.packageCache.getSymbol(pkgId);
