@@ -2308,8 +2308,10 @@ public class TypeChecker extends BLangNodeVisitor {
             BType restFieldType;
             if (restParam.type.tag == TypeTags.RECORD) {
                 restFieldType = ((BRecordType) restParam.type).restFieldType;
-            } else {
+            } else if (restParam.type.tag == TypeTags.MAP) {
                 restFieldType = ((BMapType) restParam.type).constraint;
+            } else {
+                restFieldType = restParam.type;
             }
             bRecordType.restFieldType = restFieldType;
         }

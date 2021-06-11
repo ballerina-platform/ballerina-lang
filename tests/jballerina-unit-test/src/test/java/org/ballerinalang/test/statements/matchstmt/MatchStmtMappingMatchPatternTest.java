@@ -15,11 +15,9 @@
 // under the License.
 package org.ballerinalang.test.statements.matchstmt;
 
-import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -31,16 +29,13 @@ import org.testng.annotations.Test;
  */
 public class MatchStmtMappingMatchPatternTest {
 
-    private CompileResult result, resultNegative, resultRestPattern;
-    private String patternNotMatched = "pattern will not be matched";
-    private String unreachablePattern = "unreachable pattern";
+    private CompileResult result, resultRestPattern;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/matchstmt/mapping-match-pattern.bal");
         resultRestPattern = BCompileUtil.compile("test-src/statements/matchstmt/mapping-match-pattern-with-rest-match" +
                 "-pattern.bal");
-        resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/mapping-mach-pattern-negative.bal");
     }
 
     @Test
@@ -243,59 +238,9 @@ public class MatchStmtMappingMatchPatternTest {
         BRunUtil.invoke(resultRestPattern, "testRestMappingAtRuntime");
     }
 
-    @Test
-    public void testMappingMatchPatternNegative() {
-        int i = 0;
-        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 23, 9);
-        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 30, 9);
-        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 33, 9);
-        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 33, 26);
-        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 36, 9);
-        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 43, 9);
-        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 46, 9);
-        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 60, 28);
-        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 64, 9);
-        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 66, 26);
-        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 68, 24);
-        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 72, 9);
-        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 76, 9);
-        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 84, 9);
-        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 91, 9);
-        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 98, 9);
-        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 110, 9);
-        Assert.assertEquals(resultNegative.getWarnCount(), i);
-    }
-
-    @Test
-    public void testMappingMatchPatternTypeNegative() {
-        CompileResult negativeResult = BCompileUtil.compile(
-                "test-src/statements/matchstmt/mapping_match_pattern_semantic_negative.bal");
-        int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<error>', found 'map<int>'",
-                20, 28);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<map<int>>', " +
-                "found 'record {| never x?; map<(int|error)>...; |}'", 21, 31);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'json'", 29, 21);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<boolean>', " +
-                "found 'record {| never x?; json...; |}'", 29, 24);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'json'", 32, 21);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'json'", 32, 28);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'", 47, 25);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<boolean>', " +
-                "found 'record {| never id?; string name; boolean employed; never...; |}'", 48, 30);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 63, 24);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', " +
-                        "found 'record {| never i?; never...; |}'",
-                64, 25);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', " +
-                "found 'record {| int i?; never...; |}'", 67, 24);
-        Assert.assertEquals(negativeResult.getErrorCount(), i);
-    }
-
     @AfterClass
     public void tearDown() {
         result = null;
         resultRestPattern = null;
-        resultNegative = null;
     }
 }

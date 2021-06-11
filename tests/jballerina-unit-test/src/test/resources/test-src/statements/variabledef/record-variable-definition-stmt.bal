@@ -461,12 +461,30 @@ function testRestFieldResolvingWithUnion() {
     assertEquality(true, rest?.married);
 }
 
+public function testClosedRecordDefinedRestField() {
+    string fullName;
+    boolean isMarried;
+    map<string> rest1;
+    map<never> rest2;
+    record {| never name?; boolean married; never...; |} rest3;
+
+    Person p = {name: "Jane Doe", married: false};
+    {name: fullName, married: isMarried, ...rest1} = p;
+
+    record {| never name?; never married?; |} rec = {};
+    rest2 = rec;
+    {name: fullName, married: isMarried, ...rest2} = p;
+    {name: fullName, ...rest3} = p;
+    assertEquality(false, rest3.married);
+}
+
 function testRestFieldResolving() {
     testInferredResType();
     testRecordDestructuring1();
     testRecordDestructuring2();
     testRecordDestructuring3();
     testRestFieldResolvingWithUnion();
+    testClosedRecordDefinedRestField();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

@@ -1851,8 +1851,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 lhsRefType = ((BLangSimpleVarRef) lhsVarRef.restParam).type;
             }
 
+            BType rhsRestConstraint = rhsRecordType.restFieldType == symTable.noType ? symTable.neverType
+                    : rhsRecordType.restFieldType;
             BRecordType rhsResType = symbolEnter.createRecordTypeForRestField(pos, env, rhsRecordType,
-                    mappedFields, rhsRecordType.restFieldType);
+                    mappedFields, rhsRestConstraint);
 
             types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos,
                     rhsResType, lhsRefType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);

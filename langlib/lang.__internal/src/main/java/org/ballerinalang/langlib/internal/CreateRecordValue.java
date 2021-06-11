@@ -41,6 +41,11 @@ public class CreateRecordValue {
         Map<String, Object> recVals = new HashMap<>();
         valMap.entrySet().stream().forEach(entry -> recVals.put(entry.getKey().getValue(), entry.getValue()));
 
-        return ValueCreator.createRecordValue(describingType.getPackage(), describingType.getName(), recVals);
+        if (describingType.isReadOnly()) {
+            return ValueCreator.createReadonlyRecordValue(describingType.getPackage(),
+                    describingType.getName(), recVals);
+        } else {
+            return ValueCreator.createRecordValue(describingType.getPackage(), describingType.getName(), recVals);
+        }
     }
 }
