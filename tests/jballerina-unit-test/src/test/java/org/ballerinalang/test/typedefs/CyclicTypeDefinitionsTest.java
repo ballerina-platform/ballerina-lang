@@ -100,12 +100,12 @@ public class CyclicTypeDefinitionsTest {
                 , 12);
         BAssertUtil.validateError(negativeResult, i++, "operator '===' not defined for 'CyclicDecimal' and 'float'", 17
                 , 12);
-        BAssertUtil.validateError(negativeResult, i++, "operator '==' not defined for '[int,tupleCyclic[]]' and '[int]'", 20
-                , 12);
-        BAssertUtil.validateError(negativeResult, i++, "operator '!=' not defined for '[int,tupleCyclic[]]' and '[int]'", 21
-                , 12);
-        BAssertUtil.validateError(negativeResult, i++, "operator '===' not defined for '[int,tupleCyclic[]]' and '[int]'", 22
-                , 12);
+        BAssertUtil.validateError(negativeResult, i++, "operator '==' not defined for " +
+                "'[int,tupleCyclic[]]' and '[int]'", 20, 12);
+        BAssertUtil.validateError(negativeResult, i++, "operator '!=' not defined for " +
+                "'[int,tupleCyclic[]]' and '[int]'", 21, 12);
+        BAssertUtil.validateError(negativeResult, i++, "operator '===' not defined for " +
+                "'[int,tupleCyclic[]]' and '[int]'", 22, 12);
         BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "G, G"), 25, 1);
         BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "H, H"), 26, 1);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
