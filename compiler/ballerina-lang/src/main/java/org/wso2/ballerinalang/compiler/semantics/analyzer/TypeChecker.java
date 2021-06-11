@@ -263,7 +263,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private Stack<SymbolEnv> queryEnvs, prevEnvs;
     private Stack<BLangSelectClause> selectClauses;
     private BLangMissingNodesHelper missingNodesHelper;
-    private String nonWorkerReferenceName;
 
     /**
      * Expected types or inherited types.
@@ -999,6 +998,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean checkKeySpecifier(BLangTableConstructorExpr tableConstructorExpr, BTableType tableType) {
         if (tableConstructorExpr.tableKeySpecifier != null) {
+            if (!(validateTableKeyValue(getTableKeyNameList(tableConstructorExpr.
+                    tableKeySpecifier), tableConstructorExpr.recordLiteralList))) {
+                resultType = symTable.semanticError;
+                return true;
+            }
             tableType.fieldNameList = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
         }
         return false;
@@ -1130,10 +1134,67 @@ public class TypeChecker extends BLangNodeVisitor {
                             ((BIntersectionType) constraint).effectiveType,
                     tableType.keyPos);
 
-            return (isKeySpecifierValidated);
+            return (isKeySpecifierValidated && validateTableKeyValue(fieldNameList, recordLiterals));
         }
 
         return true;
+    }
+
+    private boolean validateTableKeyValue(List<String> keySpecifierFieldNames,
+                                                           List<BLangRecordLiteral> recordLiterals) {
+
+        for (String fieldName : keySpecifierFieldNames) {
+            for (BLangRecordLiteral recordLiteral : recordLiterals) {
+                BLangRecordKeyValueField recordKeyValueField = getRecordKeyValueField(recordLiteral, fieldName);
+                if (recordKeyValueField != null && isConstExpression(recordKeyValueField.getValue())) {
+                    continue;
+                }
+
+                dlog.error(recordLiteral.pos,
+                        DiagnosticErrorCode.KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT_EXPR, fieldName);
+                resultType = symTable.semanticError;
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean isConstExpression(BLangExpression expression) {
+        switch(expression.getKind()) {
+            case LITERAL:
+            case NUMERIC_LITERAL:
+            case STRING_TEMPLATE_LITERAL:
+            case XML_ELEMENT_LITERAL:
+            case XML_TEXT_LITERAL:
+            case LIST_CONSTRUCTOR_EXPR:
+            case TABLE_CONSTRUCTOR_EXPR:
+            case RECORD_LITERAL_EXPR:
+            case TYPE_CONVERSION_EXPR:
+            case UNARY_EXPR:
+            case BINARY_EXPR:
+            case TYPE_TEST_EXPR:
+            case TERNARY_EXPR:
+                return true;
+            case SIMPLE_VARIABLE_REF:
+                return (((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT;
+            case GROUP_EXPR:
+                return isConstExpression(((BLangGroupExpr) expression).expression);
+            default:
+                return false;
+        }
+    }
+
+    private BLangRecordKeyValueField getRecordKeyValueField(BLangRecordLiteral recordLiteral,
+                                                            String fieldName) {
+        for (RecordLiteralNode.RecordField recordField : recordLiteral.fields) {
+            BLangRecordKeyValueField recordKeyValueField = (BLangRecordKeyValueField) recordField;
+            if (fieldName.equals(recordKeyValueField.key.toString())) {
+                return recordKeyValueField;
+            }
+        }
+
+        return null;
     }
 
     public boolean validateKeySpecifier(List<String> fieldNameList, BType constraint,
@@ -3700,48 +3761,36 @@ public class TypeChecker extends BLangNodeVisitor {
     // eventual type if not directly referring a worker is T|error. future<T> --> T|error
     private void setEventualTypeForExpression(BLangExpression expression,
                                               BType currentExpectedType) {
-        if ((expression == null) || (expression.getKind() != NodeKind.SIMPLE_VARIABLE_REF)) {
+        if (expression == null) {
             return;
         }
-
-        BLangSimpleVarRef varRef = (BLangSimpleVarRef) expression;
-        if (varRef.type == symTable.semanticError) {
+        if (isSimpleWorkerReference(expression)) {
             return;
         }
-        BFutureType futureType = (BFutureType) varRef.type;
+        BFutureType futureType = (BFutureType) expression.expectedType;
         BType currentType = futureType.constraint;
         if (types.containsErrorType(currentType)) {
             return;
         }
-        String varName = varRef.variableName.value;
-        if (workerExists(env, varName)) {
-            return;
-        }
+
         BUnionType eventualType = BUnionType.create(null, currentType, symTable.errorType);
         if (((currentExpectedType.tag != TypeTags.NONE) && (currentExpectedType.tag != TypeTags.NIL)) &&
                 !types.isAssignable(eventualType, currentExpectedType)) {
-            dlog.error(expression.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR_WAIT_FIELD,
-                    currentExpectedType, eventualType, varName);
+            dlog.error(expression.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR,
+                    currentExpectedType, eventualType, expression);
         }
         futureType.constraint = eventualType;
     }
 
-    private void setEventualTypeForWaitExpression(BLangSimpleVarRef expression,
+    private void setEventualTypeForWaitExpression(BLangExpression expression,
                                                   Location pos) {
         if ((resultType == symTable.semanticError) ||
-                (expression == null) ||
                 (types.containsErrorType(resultType))) {
             return;
         }
-        BSymbol varRefSymbol = expression.symbol;
-        if (varRefSymbol == null) {
+        if (isSimpleWorkerReference(expression)) {
             return;
         }
-        String varRefSymbolName = varRefSymbol.getName().value;
-        if (workerExists(env, varRefSymbolName)) {
-            return;
-        }
-
         BType currentExpectedType = ((BFutureType) expType).constraint;
         BUnionType eventualType = BUnionType.create(null, resultType, symTable.errorType);
         if ((currentExpectedType.tag == TypeTags.NONE) || (currentExpectedType.tag == TypeTags.NIL)) {
@@ -3750,8 +3799,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (!types.isAssignable(eventualType, currentExpectedType)) {
-            dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR_WAIT_FIELD,
-                    currentExpectedType, eventualType, varRefSymbolName);
+            dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR, currentExpectedType,
+                    eventualType, expression);
             resultType = symTable.semanticError;
             return;
         }
@@ -3764,7 +3813,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void setEventualTypeForAlternateWaitExpression(BLangExpression expression, Location pos) {
         if ((resultType == symTable.semanticError) ||
-                (expression == null) ||
                 (expression.getKind() != NodeKind.BINARY_EXPR) ||
                 (types.containsErrorType(resultType))) {
             return;
@@ -3772,7 +3820,6 @@ public class TypeChecker extends BLangNodeVisitor {
         if (types.containsErrorType(resultType)) {
             return;
         }
-        nonWorkerReferenceName = "";
         if (!isReferencingNonWorker((BLangBinaryExpr) expression)) {
             return;
         }
@@ -3785,10 +3832,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (!types.isAssignable(eventualType, currentExpectedType)) {
-            dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR_WAIT_FIELD,
-                    currentExpectedType, eventualType, nonWorkerReferenceName);
+            dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR, currentExpectedType,
+                    eventualType, expression);
             resultType = symTable.semanticError;
-            nonWorkerReferenceName = "";
             return;
         }
         if (resultType.tag == TypeTags.FUTURE) {
@@ -3798,35 +3844,41 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private boolean isReferencingNonWorker(BLangBinaryExpr binaryExpr) {
-        if (binaryExpr == null) {
+    private boolean isSimpleWorkerReference(BLangExpression expression) {
+        if (expression.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
             return false;
         }
+        BLangSimpleVarRef simpleVarRef = ((BLangSimpleVarRef) expression);
+        BSymbol varRefSymbol = simpleVarRef.symbol;
+        if (varRefSymbol == null) {
+            return false;
+        }
+        if (workerExists(env, simpleVarRef.variableName.value)) {
+            return true;
+        }
+        return false;
+    }
 
+    private boolean isReferencingNonWorker(BLangBinaryExpr binaryExpr) {
         BLangExpression lhsExpr = binaryExpr.lhsExpr;
         BLangExpression rhsExpr = binaryExpr.rhsExpr;
-        return isReferencingNonWorker(lhsExpr) || isReferencingNonWorker(rhsExpr);
+        if (isReferencingNonWorker(lhsExpr)) {
+            return true;
+        }
+        return isReferencingNonWorker(rhsExpr);
     }
 
     private boolean isReferencingNonWorker(BLangExpression expression) {
-        if (expression == null) {
-            return false;
-        }
-
         if (expression.getKind() == NodeKind.BINARY_EXPR) {
             return isReferencingNonWorker((BLangBinaryExpr) expression);
         } else if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) expression;
             BSymbol varRefSymbol = simpleVarRef.symbol;
-            if (varRefSymbol == null) {
-                return true; // TODO: inconclusive
-            }
             String varRefSymbolName = varRefSymbol.getName().value;
             if (workerExists(env, varRefSymbolName)) {
                 return false;
             }
-            nonWorkerReferenceName = varRefSymbolName;
-        } 
+        }
         return true;
     }
 
@@ -3873,10 +3925,11 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = ((BFutureType) resultType).constraint;
         }
 
-        if (waitExpr.getExpression().getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            setEventualTypeForWaitExpression((BLangSimpleVarRef) waitExpr.getExpression(), waitExpr.pos);
+        BLangExpression waitFutureExpression = waitExpr.getExpression();
+        if (waitFutureExpression.getKind() == NodeKind.BINARY_EXPR) {
+            setEventualTypeForAlternateWaitExpression(waitFutureExpression, waitExpr.pos);
         } else {
-            setEventualTypeForAlternateWaitExpression(waitExpr.getExpression(), waitExpr.pos);
+            setEventualTypeForWaitExpression(waitFutureExpression, waitExpr.pos);
         }
         waitExpr.type = resultType;
 
