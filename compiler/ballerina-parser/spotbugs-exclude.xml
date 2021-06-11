@@ -40,4 +40,7 @@
         <Method name="getNextRuleForComma" />
         <Bug pattern="SF_SWITCH_FALLTHROUGH" />
     </Match>
+    <Match>
+        <Class name="io.ballerina.compiler.internal.parser.utils.ConditionalExprResolver" />
+    </Match>
 </FindBugsFilter>
