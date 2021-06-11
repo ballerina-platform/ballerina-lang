@@ -1638,7 +1638,7 @@ public class BIRPackageSymbolEnter {
                 throw new UnsupportedOperationException("finite type value is not supported for type: " + valueType);
         }
 
-        litExpr.type = valueType;
+        litExpr.setBType(valueType);
 
         finiteType.addValue(litExpr);
     }
