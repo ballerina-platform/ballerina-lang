@@ -129,6 +129,19 @@ public class TypeCreator {
      * @param typeList  of the tuple type
      * @param restType  of the tuple type
      * @param typeFlags flags associated with the type
+     * @param readonly  whether immutable
+     * @return the new tuple type
+     */
+    public static TupleType createTupleType(List<Type> typeList, Type restType, int typeFlags, boolean readonly) {
+        return new BTupleType(typeList, restType, typeFlags, readonly);
+    }
+
+    /**
+     * Create a {@code TupleType} which represents the tuple type.
+     *
+     * @param typeList  of the tuple type
+     * @param restType  of the tuple type
+     * @param typeFlags flags associated with the type
      * @param isCyclic  whether cyclic
      * @param readonly  whether immutable
      * @return the new tuple type

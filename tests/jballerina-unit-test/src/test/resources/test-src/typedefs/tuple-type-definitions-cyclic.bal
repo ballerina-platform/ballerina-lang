@@ -21,7 +21,7 @@ public function testCycleTypeArray() {
 
     assert(a[0] is int, true);
     assert(a[0], 1);
-    assert(b[1] is [int,Foo[]][], true);
+    assert(b[1] is [int,A[]][], true);
 }
 
 type B [int, map<B>];
@@ -30,7 +30,7 @@ public function testCycleTypeMap() {
 
     int numberResult = 0;
     if(d[1] is map<B>) {
-        numberResult = d[1].get("one")[0];;
+        numberResult = d[1].get("one")[0];
     }
     assert(numberResult is int, true);
     assert(numberResult, 1);
@@ -57,7 +57,7 @@ public function testCycleTypeTable() {
     foreach var x in tb {
         var  a = x.get("one");
         if(a[0] is Person) {
-            names = names + a.name;
+            names = names + a[0].name;
         }
     }
     assert(names, "JaneAnne");
@@ -98,8 +98,8 @@ public function testCyclicTypeDefInUnion() {
    assert((<F> values)[2], ());
 }
 
-type XType1 XNil|XBoolean|XInt|XString|XTuple1|XUnion1|XIntersection1|XNever|XAny;
-type XType2 XNil|XBoolean|XInt|XString|XTuple2|XUnion2|XIntersection2|XNever|XAny;
+type XType1 XNil|XBoolean|XInt|XString|XTuple1|XUnion1|XIntersection1|XNever|XAny|();
+type XType2 XNil|XBoolean|XInt|XString|XTuple2|XUnion2|XIntersection2|XNever|XAny|();
 
 const XNil = "nil";
 const XBoolean = "boolean";
@@ -211,9 +211,8 @@ function testCastingToImmutableCyclicTuple() {
     assert(b is error, true);
     error err = <error> b;
     assert(err.message(), "{ballerina}TypeCastError");
-    assert(<string> checkpanic err.detail()["message"],
-        "incompatible types: '[int,MyCyclicTuple[]]' cannot be cast to '[int,([int,MyCyclicTuple[]][] & readonly)]'");
-
+    assert(<string> checkpanic err.detail()["message"], "incompatible types: '[int,MyCyclicTuple[]]' " +
+    "cannot be cast to '[int,([int,MyCyclicTuple[]][] & readonly)] & readonly'");
     MyCyclicTuple c = <[int, MyCyclicTuple[]] & readonly> [1, []];
     MyCyclicTuple & readonly d = <MyCyclicTuple & readonly> c;
     assert(d is [int, MyCyclicTuple[]] & readonly, true);
