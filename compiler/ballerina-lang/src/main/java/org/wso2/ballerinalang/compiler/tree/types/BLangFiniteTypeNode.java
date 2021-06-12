@@ -68,9 +68,9 @@ public class BLangFiniteTypeNode extends BLangType implements FiniteTypeNode {
     public String toString() {
         StringJoiner stringJoiner = new StringJoiner(" | ");
         for (BLangExpression memberTypeNode : valueSpace) {
-            if (memberTypeNode.type.tag == TypeTags.FLOAT) {
+            if (memberTypeNode.getBType().tag == TypeTags.FLOAT) {
                 stringJoiner.add(memberTypeNode.toString() + NumericLiteralSupport.FLOAT_DISCRIMINATOR);
-            } else if (memberTypeNode.type.tag == TypeTags.DECIMAL) {
+            } else if (memberTypeNode.getBType().tag == TypeTags.DECIMAL) {
                 stringJoiner.add(memberTypeNode.toString() + NumericLiteralSupport.DECIMAL_DISCRIMINATOR);
             } else {
                 stringJoiner.add(memberTypeNode.toString());

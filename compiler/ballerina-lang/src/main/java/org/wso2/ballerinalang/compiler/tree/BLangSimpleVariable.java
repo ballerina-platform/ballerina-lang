@@ -69,6 +69,6 @@ public class BLangSimpleVariable extends BLangVariable implements SimpleVariable
         if (symbol != null && symbol.name != null) {
             varName = symbol.name.value;
         }
-        return String.valueOf(type) + " " + varName + (expr != null ? " = " + String.valueOf(expr) : "");
+        return String.valueOf(getBType()) + " " + varName + (expr != null ? " = " + String.valueOf(expr) : "");
     }
 }

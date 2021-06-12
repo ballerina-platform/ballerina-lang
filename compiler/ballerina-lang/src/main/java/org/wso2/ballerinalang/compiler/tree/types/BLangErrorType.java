@@ -43,7 +43,7 @@ public class BLangErrorType extends BLangType implements ErrorTypeNode {
 
     @Override
     public String toString() {
-        return this.type.toString();
+        return this.getBType().toString();
     }
 
     @Override
