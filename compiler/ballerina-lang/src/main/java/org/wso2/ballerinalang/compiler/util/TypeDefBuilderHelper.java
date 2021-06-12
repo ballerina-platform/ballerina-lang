@@ -22,7 +22,6 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -35,7 +34,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -56,7 +54,6 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -100,7 +97,7 @@ public class TypeDefBuilderHelper {
     public static BLangRecordTypeNode createRecordTypeNode(List<BLangSimpleVariable> typeDefFields,
                                                            BRecordType recordType, Location pos) {
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
-        recordTypeNode.type = recordType;
+        recordTypeNode.setBType(recordType);
         recordTypeNode.fields = typeDefFields;
         recordTypeNode.symbol = recordType.tsymbol;
         recordTypeNode.pos = pos;
@@ -111,7 +108,7 @@ public class TypeDefBuilderHelper {
     public static BLangObjectTypeNode createObjectTypeNode(List<BLangSimpleVariable> typeDefFields,
                                                            BObjectType objectType, Location pos) {
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
-        objectTypeNode.type = objectType;
+        objectTypeNode.setBType(objectType);
         objectTypeNode.fields = typeDefFields;
         objectTypeNode.symbol = objectType.tsymbol;
         objectTypeNode.pos = pos;
@@ -122,10 +119,12 @@ public class TypeDefBuilderHelper {
     public static BLangFunction createInitFunctionForRecordType(BLangRecordTypeNode recordTypeNode, SymbolEnv env,
                                                                 Names names, SymbolTable symTable) {
         BLangFunction initFunction = createInitFunctionForStructureType(recordTypeNode.pos, recordTypeNode.symbol, env,
-                names, Names.INIT_FUNCTION_SUFFIX, symTable, recordTypeNode.type);
-        BStructureTypeSymbol structureSymbol = ((BStructureTypeSymbol) recordTypeNode.type.tsymbol);
+                                                                        names, Names.INIT_FUNCTION_SUFFIX, symTable,
+                                                                        recordTypeNode.getBType());
+        BStructureTypeSymbol structureSymbol = ((BStructureTypeSymbol) recordTypeNode.getBType().tsymbol);
         structureSymbol.initializerFunc = new BAttachedFunction(initFunction.symbol.name, initFunction.symbol,
-                                                                (BInvokableType) initFunction.type, initFunction.pos);
+                                                                (BInvokableType) initFunction.getBType(),
+                                                                initFunction.pos);
         recordTypeNode.initFunction = initFunction;
         structureSymbol.scope.define(structureSymbol.initializerFunc.symbol.name,
                                      structureSymbol.initializerFunc.symbol);
@@ -153,13 +152,13 @@ public class TypeDefBuilderHelper {
         initFunction.flagSet.add(Flag.ATTACHED);
 
         // Create the function type
-        initFunction.type = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
+        initFunction.setBType(new BInvokableType(new ArrayList<>(), symTable.nilType, null));
 
         // Create the function symbol
         Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(structTypeName, suffix.value));
         initFunction.symbol = Symbols
                 .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, env.enclPkg.symbol.pkgID,
-                                      initFunction.type, symbol, initFunction.body != null,
+                                      initFunction.getBType(), symbol, initFunction.body != null,
                                       initFunction.pos, VIRTUAL);
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
@@ -169,23 +168,18 @@ public class TypeDefBuilderHelper {
         // Create the function type symbol
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
                                                                          initFunction.symbol.flags,
-                                                                         env.enclPkg.packageID, initFunction.type,
+                                                                         env.enclPkg.packageID, initFunction.getBType(),
                                                                          initFunction.symbol, initFunction.pos,
                                                                          VIRTUAL);
         tsymbol.params = initFunction.symbol.params;
         tsymbol.restParam = initFunction.symbol.restParam;
         tsymbol.returnType = initFunction.symbol.retType;
-        initFunction.type.tsymbol = tsymbol;
+        initFunction.getBType().tsymbol = tsymbol;
 
         receiverSymbol.owner = initFunction.symbol;
 
         // Add return type as nil to the symbol
         initFunction.symbol.retType = symTable.nilType;
-
-        // Set the taint information to the constructed init function
-        initFunction.symbol.taintTable = new HashMap<>();
-        TaintRecord taintRecord = new TaintRecord(TaintRecord.TaintedStatus.UNTAINTED, new ArrayList<>());
-        initFunction.symbol.taintTable.put(TaintAnalyzer.ALL_UNTAINTED_TABLE_ENTRY_INDEX, taintRecord);
 
         return initFunction;
     }
@@ -194,7 +188,7 @@ public class TypeDefBuilderHelper {
                                                         SymbolEnv env) {
         BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
         typeDefinition.typeNode = typeNode;
-        typeDefinition.type = type;
+        typeDefinition.setBType(type);
         typeDefinition.symbol = symbol;
         typeDefinition.name = createIdentifier(symbol.pos, symbol.name.value);
         typeDefinition.pos = typeNode.getPosition();
@@ -209,12 +203,12 @@ public class TypeDefBuilderHelper {
         for (BField field : objType.fields.values()) {
             BVarSymbol symbol = field.symbol;
             BLangSimpleVariable fieldVar = ASTBuilderUtil.createVariable(field.pos, symbol.name.value, field.type,
-                    null, symbol);
+                                                                         null, symbol);
             fieldList.add(fieldVar);
         }
 
         BLangClassDefinition classDefNode = (BLangClassDefinition) TreeBuilder.createClassDefNode();
-        classDefNode.type = objType;
+        classDefNode.setBType(objType);
         classDefNode.fields = fieldList;
         classDefNode.symbol = classTSymbol;
         classDefNode.pos = pos;
@@ -227,20 +221,20 @@ public class TypeDefBuilderHelper {
     public static BLangErrorType createBLangErrorType(Location pos, BErrorType type, SymbolEnv env,
                                                       BLangAnonymousModelHelper anonymousModelHelper) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
-        errorType.type = type;
+        errorType.setBType(type);
 
         BLangUserDefinedType userDefinedTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         userDefinedTypeNode.pos = pos;
         userDefinedTypeNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
 
-        BType  detailType = type.detailType;
+        BType detailType = type.detailType;
 
         String typeName = detailType.tsymbol != null
                 ? detailType.tsymbol.name.value
                 : anonymousModelHelper.getNextAnonymousIntersectionErrorDetailTypeName(env.enclPkg.packageID);
 
         userDefinedTypeNode.typeName = createIdentifier(pos, typeName);
-        userDefinedTypeNode.type = detailType;
+        userDefinedTypeNode.setBType(detailType);
         errorType.detailType = userDefinedTypeNode;
 
         return errorType;

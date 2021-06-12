@@ -144,7 +144,7 @@ public class TypeNarrower extends BLangNodeVisitor {
         if (env.scope.entries.containsKey(varName)) {
             originalType = env.scope.entries.get(varName).symbol.type;
         } else {
-            originalType = varRef.type;
+            originalType = varRef.getBType();
         }
         BType remainingType = types.getRemainingMatchExprType(originalType, typeToRemove);
         if (remainingType == symTable.semanticError) {
@@ -257,7 +257,7 @@ public class TypeNarrower extends BLangNodeVisitor {
 
         BVarSymbol varSymbol = (BVarSymbol) symbol;
 
-        setNarrowedTypeInfo(typeTestExpr, varSymbol, typeTestExpr.typeNode.type);
+        setNarrowedTypeInfo(typeTestExpr, varSymbol, typeTestExpr.typeNode.getBType());
     }
 
     // Private methods
@@ -382,7 +382,7 @@ public class TypeNarrower extends BLangNodeVisitor {
                 env.scope.owner, expr.pos, SOURCE);
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
-        expr.type = symTable.getTypeFromTag(expr.type.tag);
+        expr.setBType(symTable.getTypeFromTag(expr.getBType().tag));
         finiteType.addValue(expr);
         finiteTypeSymbol.type = finiteType;
 

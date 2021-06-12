@@ -151,7 +151,7 @@ public class ASTBuilderUtil {
     }
 
     static void defineVariable(BLangSimpleVariable variable, BSymbol targetSymbol, Names names) {
-        variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name), targetSymbol.pkgID, variable.type,
+        variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name), targetSymbol.pkgID, variable.getBType(),
                                          targetSymbol, variable.pos, VIRTUAL);
         targetSymbol.scope.define(variable.symbol.name, variable.symbol);
     }
@@ -162,14 +162,14 @@ public class ASTBuilderUtil {
 
     static BLangExpression wrapToConversionExpr(BType sourceType, BLangExpression exprToWrap,
                                                 SymbolTable symTable, Types types) {
-        if (types.isSameType(sourceType, exprToWrap.type) || !isValueType(exprToWrap.type)) {
+        if (types.isSameType(sourceType, exprToWrap.getBType()) || !isValueType(exprToWrap.getBType())) {
             // No conversion needed.
             return exprToWrap;
         }
         BLangTypeConversionExpr castExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         castExpr.expr = exprToWrap;
-        castExpr.type = symTable.anyType;
-        castExpr.targetType = castExpr.type;
+        castExpr.setBType(symTable.anyType);
+        castExpr.targetType = castExpr.getBType();
         return castExpr;
     }
 
@@ -195,14 +195,14 @@ public class ASTBuilderUtil {
                 return null;
             }
         };
-        bLangType.type = type;
+        bLangType.setBType(type);
         return bLangType;
     }
 
     static BLangUserDefinedType createUserDefineTypeNode(String typeName, BType type, Location pos) {
         BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         userDefinedType.typeName = (BLangIdentifier) createIdentifier(typeName);
-        userDefinedType.type = type;
+        userDefinedType.setBType(type);
         userDefinedType.pos = pos;
         userDefinedType.pkgAlias = (BLangIdentifier) createIdentifier("");
         return userDefinedType;
@@ -383,7 +383,7 @@ public class ASTBuilderUtil {
         final BLangUnaryExpr unaryExpr = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
         unaryExpr.pos = pos;
         unaryExpr.expr = expr;
-        unaryExpr.type = type;
+        unaryExpr.setBType(type);
         unaryExpr.operator = kind;
         unaryExpr.opSymbol = symbol;
         return unaryExpr;
@@ -392,7 +392,7 @@ public class ASTBuilderUtil {
     static BLangTypedescExpr createTypedescExpr(Location pos, BType type, BType resolvedType) {
         final BLangTypedescExpr typeofExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
         typeofExpr.pos = pos;
-        typeofExpr.type = type;
+        typeofExpr.setBType(type);
         typeofExpr.resolvedType = resolvedType;
         return typeofExpr;
     }
@@ -404,19 +404,19 @@ public class ASTBuilderUtil {
         arrayAccess.pos = location;
         arrayAccess.expr = createVariableRef(location, varSymbol);
         arrayAccess.indexExpr = indexExpr;
-        arrayAccess.type = type;
+        arrayAccess.setBType(type);
         return arrayAccess;
     }
 
     static BLangExpression generateConversionExpr(BLangExpression varRef, BType target, SymbolResolver symResolver) {
-        if (varRef.type.tag == target.tag || varRef.type.tag > TypeTags.BOOLEAN) {
+        if (varRef.getBType().tag == target.tag || varRef.getBType().tag > TypeTags.BOOLEAN) {
             return varRef;
         }
         // Box value using cast expression.
         final BLangTypeConversionExpr conversion = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         conversion.pos = varRef.pos;
         conversion.expr = varRef;
-        conversion.type = target;
+        conversion.setBType(target);
         conversion.targetType = target;
         return conversion;
     }
@@ -455,7 +455,7 @@ public class ASTBuilderUtil {
                 .addAll(generateArgExprs(pos, restArgs, Lists.of(invokableSymbol.restParam), symResolver));
 
         invokeLambda.symbol = invokableSymbol;
-        invokeLambda.type = ((BInvokableType) invokableSymbol.type).retType;
+        invokeLambda.setBType(((BInvokableType) invokableSymbol.type).retType);
         return invokeLambda;
     }
 
@@ -487,7 +487,7 @@ public class ASTBuilderUtil {
                 .addAll(generateArgExprs(pos, restArgs, Lists.of(invokableSymbol.restParam), symResolver));
 
         invokeLambda.symbol = invokableSymbol;
-        invokeLambda.type = ((BInvokableType) invokableSymbol.type).retType;
+        invokeLambda.setBType(((BInvokableType) invokableSymbol.type).retType);
         return invokeLambda;
     }
 
@@ -502,7 +502,7 @@ public class ASTBuilderUtil {
         varRef.pos = pos;
         varRef.variableName = createIdentifier(pos, varSymbol.name.value);
         varRef.symbol = varSymbol;
-        varRef.type = varSymbol.type;
+        varRef.setBType(varSymbol.type);
         return varRef;
     }
 
@@ -514,7 +514,7 @@ public class ASTBuilderUtil {
         final BLangSimpleVariable varNode = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         varNode.pos = pos;
         varNode.name = createIdentifier(pos, name);
-        varNode.type = type;
+        varNode.setBType(type);
         varNode.expr = expr;
         varNode.symbol = varSymbol;
         return varNode;
@@ -560,7 +560,7 @@ public class ASTBuilderUtil {
         final BLangCheckedExpr checkExpr = (BLangCheckedExpr) TreeBuilder.createCheckExpressionNode();
         checkExpr.pos = pos;
         checkExpr.expr = expr;
-        checkExpr.type = returnType;
+        checkExpr.setBType(returnType);
         checkExpr.equivalentErrorTypeList = new ArrayList<>();
         return checkExpr;
     }
@@ -570,7 +570,7 @@ public class ASTBuilderUtil {
         final BLangCheckPanickedExpr checkExpr = (BLangCheckPanickedExpr) TreeBuilder.createCheckPanicExpressionNode();
         checkExpr.pos = location;
         checkExpr.expr = expr;
-        checkExpr.type = returnType;
+        checkExpr.setBType(returnType);
         checkExpr.equivalentErrorTypeList = new ArrayList<>();
         return checkExpr;
     }
@@ -585,7 +585,7 @@ public class ASTBuilderUtil {
         binaryExpr.pos = pos;
         binaryExpr.lhsExpr = lhsExpr;
         binaryExpr.rhsExpr = rhsExpr;
-        binaryExpr.type = type;
+        binaryExpr.setBType(type);
         binaryExpr.opKind = opKind;
         binaryExpr.opSymbol = symbol;
         return binaryExpr;
@@ -601,7 +601,7 @@ public class ASTBuilderUtil {
         assignableExpr.pos = pos;
         assignableExpr.lhsExpr = lhsExpr;
         assignableExpr.targetType = targetType;
-        assignableExpr.type = type;
+        assignableExpr.setBType(type);
         assignableExpr.opSymbol = new BOperatorSymbol(names.fromString(assignableExpr.opKind.value()),
                                                       null, targetType, null, opSymPos, VIRTUAL);
         return assignableExpr;
@@ -613,7 +613,7 @@ public class ASTBuilderUtil {
         isLikeExpr.pos = pos;
         isLikeExpr.expr = expr;
         isLikeExpr.typeNode = typeNode;
-        isLikeExpr.type = retType;
+        isLikeExpr.setBType(retType);
         return isLikeExpr;
     }
 
@@ -621,7 +621,7 @@ public class ASTBuilderUtil {
         final BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.pos = pos;
         literal.value = value;
-        literal.type = type;
+        literal.setBType(type);
         return literal;
     }
 
@@ -629,14 +629,14 @@ public class ASTBuilderUtil {
         final BLangConstRef constRef = (BLangConstRef) TreeBuilder.createConstLiteralNode();
         constRef.pos = pos;
         constRef.value = value;
-        constRef.type = type;
+        constRef.setBType(type);
         return constRef;
     }
 
     static BLangRecordLiteral createEmptyRecordLiteral(Location pos, BType type) {
         final BLangRecordLiteral recordLiteralNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
         recordLiteralNode.pos = pos;
-        recordLiteralNode.type = type;
+        recordLiteralNode.setBType(type);
         return recordLiteralNode;
     }
 
@@ -654,7 +654,7 @@ public class ASTBuilderUtil {
         final BLangListConstructorExpr.BLangArrayLiteral arrayLiteralNode =
                 (BLangListConstructorExpr.BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         arrayLiteralNode.pos = location;
-        arrayLiteralNode.type = type;
+        arrayLiteralNode.setBType(type);
         arrayLiteralNode.exprs = new ArrayList<>();
         return arrayLiteralNode;
     }
@@ -671,7 +671,7 @@ public class ASTBuilderUtil {
         final BLangListConstructorExpr listConstructorExpr =
                 (BLangListConstructorExpr) TreeBuilder.createListConstructorExpressionNode();
         listConstructorExpr.pos = pos;
-        listConstructorExpr.type = type;
+        listConstructorExpr.setBType(type);
         listConstructorExpr.exprs = new ArrayList<>();
         listConstructorExpr.internal = true;
         return listConstructorExpr;
@@ -680,12 +680,12 @@ public class ASTBuilderUtil {
     static BLangTypeInit createEmptyTypeInit(Location pos, BType type) {
         BLangTypeInit objectInitNode = (BLangTypeInit) TreeBuilder.createInitNode();
         objectInitNode.pos = pos;
-        objectInitNode.type = type;
+        objectInitNode.setBType(type);
         objectInitNode.internal = true;
 
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.symbol = ((BObjectTypeSymbol) type.tsymbol).generatedInitializerFunc.symbol;
-        invocationNode.type = type;
+        invocationNode.setBType(type);
         invocationNode.pos = pos;
         invocationNode.internal = true;
 
@@ -763,7 +763,7 @@ public class ASTBuilderUtil {
         BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
         typeNode.pos = pos;
         typeNode.typeKind = TypeKind.UNION;
-        typeNode.type = symTable.errorOrNilType;
+        typeNode.setBType(symTable.errorOrNilType);
         return createInitFunction(pos, name, suffix, typeNode);
     }
 
@@ -788,7 +788,7 @@ public class ASTBuilderUtil {
                 .createServiceConstructorNode();
         constExpr.pos = service.pos;
         constExpr.serviceNode = service;
-        constExpr.type = service.symbol.type;
+        constExpr.setBType(service.symbol.type);
         return constExpr;
     }
 
@@ -797,7 +797,7 @@ public class ASTBuilderUtil {
         receiver.pos = pos;
         IdentifierNode identifier = createIdentifier(pos, Names.SELF.getValue());
         receiver.setName(identifier);
-        receiver.type = type;
+        receiver.setBType(type);
         return receiver;
     }
 
@@ -826,7 +826,6 @@ public class ASTBuilderUtil {
         dupFuncSymbol.retType = invokableSymbol.retType;
         dupFuncSymbol.restParam = invokableSymbol.restParam;
         dupFuncSymbol.params = new ArrayList<>(invokableSymbol.params);
-        dupFuncSymbol.taintTable = invokableSymbol.taintTable;
         dupFuncSymbol.tainted = invokableSymbol.tainted;
         dupFuncSymbol.closure = invokableSymbol.closure;
         dupFuncSymbol.markdownDocumentation = invokableSymbol.markdownDocumentation;
@@ -877,7 +876,6 @@ public class ASTBuilderUtil {
             dupFuncSymbol.restParam = duplicateParamSymbol(invokableSymbol.restParam, dupFuncSymbol);
         }
 
-        dupFuncSymbol.taintTable = invokableSymbol.taintTable;
         dupFuncSymbol.tainted = invokableSymbol.tainted;
         dupFuncSymbol.closure = invokableSymbol.closure;
         dupFuncSymbol.tag = invokableSymbol.tag;
@@ -926,7 +924,7 @@ public class ASTBuilderUtil {
         xmlTextLiteral.concatExpr = concatExpr;
         xmlTextLiteral.pos = pos;
         xmlTextLiteral.parent = parent;
-        xmlTextLiteral.type = type;
+        xmlTextLiteral.setBType(type);
         return xmlTextLiteral;
     }
 
@@ -944,7 +942,7 @@ public class ASTBuilderUtil {
         ternaryExpr.elseExpr = elseExpr;
         ternaryExpr.thenExpr = thenExpr;
         ternaryExpr.expr = expr;
-        ternaryExpr.type = type;
+        ternaryExpr.setBType(type);
         return ternaryExpr;
     }
 
@@ -953,13 +951,13 @@ public class ASTBuilderUtil {
         BLangIndexBasedAccess memberAccessExpr = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         memberAccessExpr.expr = expr;
         memberAccessExpr.indexExpr = indexExpr;
-        memberAccessExpr.type = type;
+        memberAccessExpr.setBType(type);
         return memberAccessExpr;
     }
 
     public static BLangExpression createIgnoreExprNode(BType type) {
         BLangExpression ignoreExpr = (BLangExpression) TreeBuilder.createIgnoreExprNode();
-        ignoreExpr.type = type;
+        ignoreExpr.setBType(type);
         return ignoreExpr;
     }
 }

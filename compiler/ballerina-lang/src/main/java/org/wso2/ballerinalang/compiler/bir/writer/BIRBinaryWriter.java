@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.ConstValue;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.TaintTable;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
@@ -232,8 +231,6 @@ public class BIRBinaryWriter {
             buf.writeInt(addStringCPEntry(birFunction.receiver.name.value));
         }
 
-        writeTaintTable(buf, birFunction.taintTable);
-
         typeWriter.writeMarkdownDocAttachment(buf, birFunction.markdownDocAttachment);
 
         writeFunctionsGlobalVarDependency(buf, birFunction);
@@ -322,24 +319,6 @@ public class BIRBinaryWriter {
         buf.writeLong(length + 4);
         buf.writeInt(scopeCount);
         buf.writeBytes(scopebuf.nioBuffer().array(), 0, length);
-    }
-
-    private void writeTaintTable(ByteBuf buf, TaintTable taintTable) {
-        ByteBuf birbuf = Unpooled.buffer();
-        birbuf.writeShort(taintTable.rowCount);
-        birbuf.writeShort(taintTable.columnCount);
-        birbuf.writeInt(taintTable.taintTable.size());
-        for (Integer paramIndex : taintTable.taintTable.keySet()) {
-            birbuf.writeShort(paramIndex);
-            List<Byte> taintRecord = taintTable.taintTable.get(paramIndex);
-            birbuf.writeInt(taintRecord.size());
-            for (Byte taintStatus : taintRecord) {
-                birbuf.writeByte(taintStatus);
-            }
-        }
-        int length = birbuf.nioBuffer().limit();
-        buf.writeLong(length);
-        buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
     }
 
     private void writeAnnotations(ByteBuf buf, BIRTypeWriter typeWriter,

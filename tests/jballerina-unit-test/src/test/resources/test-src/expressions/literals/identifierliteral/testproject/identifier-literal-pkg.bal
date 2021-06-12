@@ -6,6 +6,10 @@ function getVarsInOtherPkg() returns [int, string, float, any] {
     variable: 'getVariable\ Any()];
 }
 
-function accessStructWithIL()returns [string, int] {
-    return [variable: 'getPerson\ 1().'first\ name, variable: 'getPerson\ 1().'current\ age];
+function accessStructWithIL()returns [string, int?] {
+    return [variable: 'getPerson\ 1().'first\ name, variable: 'getPerson\ 1()?.'current\ age];
+}
+
+function accessTypeLabelWithIL()returns [string, int?] {
+    return [variable: 'getEmployee\ 1().'first\ name, variable: 'getEmployee\ 1()?.'current\ age];
 }

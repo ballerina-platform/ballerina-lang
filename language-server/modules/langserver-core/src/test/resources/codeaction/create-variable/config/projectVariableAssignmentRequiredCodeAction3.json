@@ -1,0 +1,42 @@
+{
+  "line": 11,
+  "character": 4,
+  "expected": [
+    {
+      "title": "Create variable",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 4
+            },
+            "end": {
+              "line": 11,
+              "character": 4
+            }
+          },
+          "newText": "module2:Country country = "
+        }
+      ]
+    },
+    {
+      "title": "Ignore return value",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 4
+            },
+            "end": {
+              "line": 11,
+              "character": 4
+            }
+          },
+          "newText": "_ = "
+        }
+      ]
+    }
+  ]
+}

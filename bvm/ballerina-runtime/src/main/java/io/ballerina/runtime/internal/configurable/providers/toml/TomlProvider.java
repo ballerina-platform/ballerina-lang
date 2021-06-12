@@ -82,13 +82,11 @@ import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.is
 import static io.ballerina.runtime.internal.util.RuntimeUtils.isByteLiteral;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_INCOMPATIBLE_TYPE;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_INVALID_BYTE_RANGE;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_CONSTRAINT_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_DEFAULT_FILED_NOT_SUPPORTED;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_FIELD_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_INVALID_ADDTIONAL_RECORD_FIELD;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_INVALID_MODULE_STRUCTURE;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_REQUIRED_FILED_NOT_PROVIDED;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_TABLE_KEY__NOT_PROVIDED;
+import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_TABLE_KEY_NOT_PROVIDED;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_UNUSED_VALUE;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TYPE_NOT_SUPPORTED;
 
@@ -283,10 +281,6 @@ public class TomlProvider implements ConfigProvider {
             invalidTomlLines.add(tomlValue.location().lineRange());
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName, mapType,
                     getTomlTypeString(tomlValue));
-        }
-        if (!isSupportedType(mapType)) {
-            invalidTomlLines.add(tomlValue.location().lineRange());
-            throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, mapType.toString());
         }
         visitedNodes.add(tomlValue);
         TomlTableNode tomlTableValue = (TomlTableNode) tomlValue;
@@ -584,10 +578,6 @@ public class TomlProvider implements ConfigProvider {
 
     private BArray retrieveArrayValue(TomlNode tomlValue, String variableName, ArrayType arrayType) {
         Type elementType = arrayType.getElementType();
-        if (!isSupportedType(elementType)) {
-            invalidTomlLines.add(tomlValue.location().lineRange());
-            throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, arrayType.toString());
-        }
         if (isPrimitiveType(elementType.getTag())) {
             if (tomlValue.kind() != TomlType.KEY_VALUE) {
                 invalidTomlLines.add(tomlValue.location().lineRange());
@@ -738,11 +728,6 @@ public class TomlProvider implements ConfigProvider {
                                           variableName, recordType.toString());
             }
             Type fieldType = field.getFieldType();
-            if (!isSupportedType(fieldType)) {
-                invalidTomlLines.add(value.location().lineRange());
-                throw new ConfigException(CONFIG_TOML_FIELD_TYPE_NOT_SUPPORTED, getLineRange(value), fieldType,
-                                          variableName);
-            }
             Object objectValue = retrieveValue(value, variableName + "." + fieldName, fieldType);
             initialValueEntries.put(fieldName, objectValue);
         }
@@ -792,52 +777,8 @@ public class TomlProvider implements ConfigProvider {
         }
     }
 
-    private boolean isSupportedType(Type type) {
-        //Remove this check when we support all field types
-        int typeTag = type.getTag();
-        if (isPrimitiveType(typeTag)) {
-            return true;
-        }
-
-        switch (typeTag) {
-            case TypeTags.INTERSECTION_TAG:
-                Type effectiveType = ((IntersectionType) type).getEffectiveType();
-                return isSupportedType(effectiveType);
-            case TypeTags.ARRAY_TAG:
-                return isSupportedType(((ArrayType) type).getElementType());
-            case TypeTags.RECORD_TYPE_TAG:
-                RecordType recordType = (RecordType) type;
-                for (Field field :recordType.getFields().values()) {
-                    if (!isSupportedType(field.getFieldType())) {
-                        return false;
-                    }
-                }
-                return true;
-            case TypeTags.MAP_TAG:
-                Type constraintType = ((MapType) type).getConstrainedType();
-                if (constraintType.getTag() == TypeTags.INTERSECTION_TAG) {
-                    constraintType = ((IntersectionType) constraintType).getEffectiveType();
-                }
-                if (constraintType.getTag() == TypeTags.TABLE_TAG) {
-                    return true;
-                } else {
-                    return isSupportedType(constraintType);
-                }
-            case TypeTags.UNION_TAG:
-                BUnionType unionType = (BUnionType) type;
-                return SymbolFlags.isFlagOn(unionType.getFlags(), SymbolFlags.ENUM);
-            default:
-        }
-        return false;
-    }
-
     private BTable<BString, Object> retrieveTableValue(TomlNode tomlValue, String variableName, TableType tableType) {
         Type constraintType = tableType.getConstrainedType();
-        if (!isSupportedTableConstraint(constraintType)) {
-            invalidTomlLines.add(tomlValue.location().lineRange());
-            throw new ConfigException(CONFIG_TOML_CONSTRAINT_TYPE_NOT_SUPPORTED, getLineRange(tomlValue),
-                    constraintType, variableName);
-        }
         if (tomlValue.kind() != getEffectiveTomlType(tableType, variableName)) {
             invalidTomlLines.add(tomlValue.location().lineRange());
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName, tableType,
@@ -866,25 +807,12 @@ public class TomlProvider implements ConfigProvider {
         return new TableValueImpl<>((BTableType) type, tableData, keyNames);
     }
 
-    private boolean isSupportedTableConstraint(Type constraintType) {
-        switch (constraintType.getTag()) {
-            case TypeTags.RECORD_TYPE_TAG:
-                return true;
-            case TypeTags.MAP_TAG:
-                return isSupportedType(((MapType) constraintType).getConstrainedType());
-            case TypeTags.INTERSECTION_TAG:
-                return isSupportedTableConstraint(((IntersectionType) constraintType).getEffectiveType());
-            default:
-                return false;
-        }
-    }
-
     private void validateKeyField(TomlTableNode recordTable, String[] fieldNames, Type tableType,
                                          String variableName) {
         for (String key : fieldNames) {
             if (recordTable.entries().get(key) == null) {
                 invalidTomlLines.add(recordTable.location().lineRange());
-                throw new ConfigException(CONFIG_TOML_TABLE_KEY__NOT_PROVIDED, getLineRange(recordTable), key,
+                throw new ConfigException(CONFIG_TOML_TABLE_KEY_NOT_PROVIDED, getLineRange(recordTable), key,
                                           tableType.toString()
                         , variableName);
             }
