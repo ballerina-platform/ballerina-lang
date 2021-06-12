@@ -4874,7 +4874,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType getNonDefaultErrorErrorComponentsOrDefaultError(BType rhsType) {
         List<BType> errorTypes = new ArrayList<>();
         for (BType t : types.getAllTypes(rhsType)) {
-            if (types.isSameType(t, symTable.errorType) && types.isAssignable(t, symTable.errorType)) {
+            if (!types.isSameType(t, symTable.errorType) && types.isAssignable(t, symTable.errorType)) {
                 errorTypes.add(t);
             }
         }
