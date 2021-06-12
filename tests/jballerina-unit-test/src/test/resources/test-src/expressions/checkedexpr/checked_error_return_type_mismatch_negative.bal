@@ -47,3 +47,14 @@ public function baz() {
 
     E1? res = wait w2;
 }
+
+type LhsErr distinct error;
+type LhsErrTwo distinct error;
+
+public function fooBar() returns LhsErr? {
+    int|LhsErrTwo x = check fbar();
+}
+
+function fbar() returns int|error {
+    return error("");
+}
