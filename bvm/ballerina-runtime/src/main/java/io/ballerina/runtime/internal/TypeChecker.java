@@ -2379,25 +2379,41 @@ public class TypeChecker {
 
                     if (targetTypeElementType.getTag() == TypeTags.UNION_TAG) {
                         List<Type> targetNumericTypes = new ArrayList<>();
-                        for (Type memType : ((BUnionType) targetTypeElementType).getMemberTypes()) {
-
-                            if (memType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-                                if (checkIsFiniteTypeAssignableFromArrayType(source, sourceElementType,
-                                        memType)) {
-                                    return true;
-                                }
+                        Set<Object> valueSpaceItems = new HashSet<>();
+                        List<Type> memberTypes = ((BUnionType) targetTypeElementType).getMemberTypes();
+                        for (int i = 0; i < memberTypes.size(); i++) {
+                            if (memberTypes.get(i).getTag() == TypeTags.FINITE_TYPE_TAG) {
+                                valueSpaceItems.addAll(((BFiniteType) memberTypes.get(i)).valueSpace);
                             }
 
-                            if (isNumericType(memType) && !targetNumericTypes.contains(memType)) {
-                                targetNumericTypes.add(memType);
+                            if (isNumericType(memberTypes.get(i)) && !targetNumericTypes.contains(memberTypes.get(i))) {
+                                targetNumericTypes.add(memberTypes.get(i));
                             }
                         }
-                        return targetNumericTypes.size() == 1;
+
+                        if (targetNumericTypes.size() == 1) {
+                            return true;
+                        }
+
+                        if (!valueSpaceItems.isEmpty()) {
+                            for (int i = 0; i < source.size(); i++) {
+                                if (!checkFiniteTypeAssignable(source.get(i), sourceElementType, valueSpaceItems)) {
+                                    return false;
+                                }
+                            }
+                            return true;
+                        }
+                        return false;
                     }
 
                     if (targetTypeElementType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-                        return checkIsFiniteTypeAssignableFromArrayType(source, sourceElementType,
-                                targetTypeElementType);
+                        for (int i = 0; i < source.size(); i++) {
+                            if (!checkFiniteTypeAssignable(source.get(i), sourceElementType,
+                                    (BFiniteType) targetTypeElementType)) {
+                                return false;
+                            }
+                        }
+                        return true;
                     }
 
                     return false;
@@ -2559,15 +2575,13 @@ public class TypeChecker {
         return true;
     }
 
-    private static boolean checkIsFiniteTypeAssignableFromArrayType(ArrayValue source, Type sourceElementType,
-                                                                    Type targetTypeElementType) {
-        for (int i = 0; i < source.size(); i++) {
-            if (!checkFiniteTypeAssignable(source.get(i), sourceElementType,
-                    (BFiniteType) targetTypeElementType)) {
-                return false;
+    private static boolean checkFiniteTypeAssignable(Object sourceValue, Type sourceType, Set<Object> valueSpaceItems) {
+        for (Object valueSpaceItem : valueSpaceItems) {
+            if (isFiniteTypeValue(sourceValue, sourceType, valueSpaceItem)) {
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
 
