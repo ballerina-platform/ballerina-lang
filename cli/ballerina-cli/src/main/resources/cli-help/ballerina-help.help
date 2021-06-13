@@ -8,12 +8,12 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Ballerina is a statically typed, concurrent programming language, focusing on network interaction and structured
-       data. It is intended to be the core of a language-centric middleware platform. It has all the general-purpose
-       functionality expected of a modern programming language, but it also has several unusual aspects that make it
+       Ballerina is a statically-typed, concurrent programming language focusing on network interaction and structured
+       data. It is intended to be the core of a language-centric middleware platform. It not only has all the general-purpose
+       functionality expected from a modern programming language, but also has several unusual aspects that make it
        particularly suitable for its intended purpose.
 
-       Find more information at: https://ballerina.io/
+       Find more information at: https://ballerina.io/.
 
 
 OPTIONS
@@ -21,18 +21,18 @@ OPTIONS
            Print the Ballerina version information.
 
        -h, --help
-           Print usage details of a command.
+           Print the usage details of a command.
 
 
 BALLERINA COMMANDS
-        Here is a list of available subcommands:
+        The below is a list of the available subcommands:
 
    Core Commands:
-        build           Compile Ballerina program into an executable
-        run             Build and run Ballerina program
+        build           Compile a Ballerina program into an executable
+        run             Build and run a Ballerina program
         test            Run package tests
         doc             Generate API documentation
-        clean           Clean artifacts generated during the build
+        clean           Clean the artifacts generated during the build
         format          Format Ballerina sources
 
    Package Commands:
@@ -44,8 +44,8 @@ BALLERINA COMMANDS
         search          Search Ballerina Central for packages
 
    Other Commands:
-        grpc            Generate the Ballerina sources for the given protobuf definition
-        openapi         Generate the Ballerina sources for the given OpenAPI definition and vice versa
+        grpc            Generate the Ballerina sources for a given Protocol Buffer definition
+        openapi         Generate the Ballerina sources for a given OpenAPI definition and vice versa
         version         Print the Ballerina version
         bindgen         Generate the Ballerina bindings for Java APIs
         shell           Run Ballerina interactive REPL [EXPERIMENTAL]

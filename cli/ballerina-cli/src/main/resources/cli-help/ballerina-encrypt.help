@@ -6,8 +6,8 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Encrypt command performs symmetric encryption of sensitive
-       configuration values using AES, CBC mode with PKCS#5 padding.
+       Perform symmetric encryption of sensitive
+       configuration values using the AES, CBC mode with PKCS#5 padding.
 
        Configuration values containing sensitive information such as
        passwords and secrets should be encrypted to maintain
@@ -26,7 +26,7 @@ DESCRIPTION
 
 
 DEFAULT BEHAVIOUR
-       AES, CBC mode with PKCS#5 padding will be used to encrypt the
+       The AES, CBC mode with PKCS#5 padding will be used to encrypt the
        provided value by using the provided encryption key.
 
 

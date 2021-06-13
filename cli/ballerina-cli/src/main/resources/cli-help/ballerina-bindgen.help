@@ -1,5 +1,5 @@
 NAME
-       ballerina-bindgen - A CLI tool for generating Ballerina bindings for Java APIs
+       ballerina-bindgen - Generate Ballerina bindings for Java APIs
 
 SYNOPSIS
        bal bindgen [(-cp|--classpath) <classpath>...]
@@ -10,29 +10,28 @@ SYNOPSIS
 
 
 DESCRIPTION
-       A CLI tool for generating Ballerina bridge code for Java APIs.
+       Generate Ballerina bridge code for Java APIs.
 
        Ballerina bindings could be generated for Java classes residing inside Java libraries
-       or standard Java classes. Here the Java classes will be mapped onto Ballerina
-       objects, making the developer experience of Ballerina Java interoperability seamless.
+       or standard Java classes. The Java classes will be mapped onto Ballerina
+       objects making the developer experience of Ballerina Java interoperability seamless.
 
-       The directly dependent Java classes and other required resources will be automatically
-       generated apart from the specified Java classes.
+       The directly-dependent Java classes and other required resources will be automatically generated apart from the specified Java classes.
 
 
 OPTIONS
        (-cp|--classpath) <classpath>...
-           One or more comma-delimited classpaths for obtaining the jar files required for
+           One or more comma-delimited classpaths for obtaining the JAR files are required for
            generating the Ballerina bindings. This is not needed if the Ballerina bridge code
            is to be generated for standard Java classes.
 
        (-mvn|--maven) <groupId>:<artifactId>:<version>
-           A maven dependency with colon delimited groupId, artifactId and version. This would
-           resolve the transitive dependencies and update the Ballerina.toml file.
+           A maven dependency with the colon-delimited groupId, artifactId, and version. This would
+           resolve the transitive dependencies and update the `Ballerina.toml` file.
 
        (-o|--output) <output>
            Location of the generated Ballerina bridge code. If this path is not specified,
-           the output will be written onto the same directory from where the command is run.
+           the output will be written to the same directory from which the command is run.
 
        (-m|--modules)
            The flag that can be used to generate separate Ballerina module mappings for each
@@ -40,10 +39,10 @@ OPTIONS
            single output directory.
 
        --public
-           Set the visibility modifier of generated binding objects to public.
+           Set the visibility modifier of the generated binding objects to public.
 
        <class-name>...
-           One or more space separated fully qualified Java class names for which the bridge
+           One or more space-separated, fully-qualified Java class names for which the bridge
            code is to be generated.
 
 

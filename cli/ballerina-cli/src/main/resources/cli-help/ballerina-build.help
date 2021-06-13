@@ -6,29 +6,26 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Build compiles Ballerina sources and produces executable JAR file(s). However, 
+       Compile Ballerina sources and produce executable JAR file(s). However, 
        if the package does not contain an entry point, it will produce a non-executable
        JAR file, which can be used in another package/program.
 
-       Building a Ballerina package creates the executable .jar file
-       in the <package-root>/target/bin directory.
+       Building a Ballerina package creates the executable `.jar` file
+       in the `<package-root>/target/bin` directory.
 
-       Building a single Ballerina file will create an executable .jar file in the
+       Building a single Ballerina file will create an executable `.jar` file in the
        current directory. The name of the executable file will be
-       <ballerina-file-name>.jar.
-
-       If the output file is specified with the -o flag, the output
-       will be written to the given output file name. The -o flag will only work
-       for single files.
+       `<ballerina-file-name>.jar`.
 
 
 OPTIONS
        -o <output>, --output <output>
            Write the output to the given file. The provided output
-           file name may or may not contain the ‘.jar’ extension.
+           file name may or may not contain the ‘.jar’ extension. The -o flag will only work
+           for single files.
 
        -c, --compile
-           Compile the source and generates the Ballerina archive (.bala)
+           Compile the source and generate the Ballerina archive (.bala)
            without generating the executable.
 
        --offline
@@ -43,24 +40,23 @@ OPTIONS
        --code-coverage
            Enable code coverage. This will analyze the line coverage of the
            source `.bal` files in the Ballerina package and add a section
-           to the testerina report with the code coverage details.
-           This feature is not supported with single file executions.
+           to the testerina report with the code coverage details. This feature is not supported with single file executions.
 
        --test-report
            Generate an HTML report containing the test results. Defaults to 'true'
            if code coverage is enabled.
 
        --debug
-           Run tests in remote debugging mode, only when the '--skip-tests' flag is not used.
+           Run tests in remote debugging mode only when the '--skip-tests' flag is not used.
 
        --observability-included
-           Package observability in the executable JAR file(s).
+           Include package observability in the executable JAR file(s).
 
        --cloud
-           Enable cloud artifact generation for cloud providers such as kubernetes.
+           Enable cloud artifact generation for cloud providers such as Kubernetes.
 
        --list-conflicted-classes
-       		List conflicting classes of conflicting jars in the project.
+       		List conflicting classes of conflicting JARs in the project.
 
 
 CONFIG PROPERTIES
@@ -82,17 +78,17 @@ EXAMPLES
 
        Build the 'hello' library package with '--compile'/'-c' flag. This will
        generate the `<org-name>-<package-name>-<version>-<platform>.bala` file in
-       '<package-root>/target/bala' directory.
+       the '<package-root>/target/bala' directory.
           $ bal build -c
 
        Build the 'hello' package from a different directory location.
           $ bal build `<hello-package-path>`
 
        Build the current package and generate the test report. This will generate an
-       html test report in addition to the executable jar files.
+       HTML test report in addition to the executable JAR files.
           $ bal build --test-report
 
        Build the current package and generate the test report with
-       code coverage information. This will add an additional section
+       the code coverage information. This will add an additional section
        to the test report for code coverage information.
           $ bal build --code-coverage
