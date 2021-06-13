@@ -26,8 +26,7 @@ DESCRIPTION
        The 'modules' directory contains other non-default Ballerina modules. Use
        the 'bal add <module-name>' command to create modules.
 
-       The 'target' directory is created during the build process.
-       It is the output directory, which contains the build artifacts.
+       The 'target' directory is created during the build process. It is the output directory, which contains the build artifacts.
 
        A template can also be specified when initializing a new package.
        If a template is not specified, this command will initialize a package by
