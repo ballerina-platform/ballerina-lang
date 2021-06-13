@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import org.testng.annotations.Test;
 
@@ -32,7 +33,7 @@ import java.util.Optional;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -61,7 +62,7 @@ public class TypeByTemplateExprTest extends TypeByNodeTest {
                         expTypeKind = STRING;
                         break;
                     case XML_TEMPLATE_EXPRESSION:
-                        expTypeKind = XML;
+                        expTypeKind = TYPE_REFERENCE;
                         break;
                     case RAW_TEMPLATE_EXPRESSION:
                         expTypeKind = TYPE_REFERENCE;
@@ -70,7 +71,7 @@ public class TypeByTemplateExprTest extends TypeByNodeTest {
                         throw new IllegalStateException();
                 }
 
-                assertType(templateExpressionNode, model, expTypeKind);
+                assertType(templateExpressionNode, model, expTypeKind, templateExpressionNode.kind());
             }
         };
     }
@@ -79,14 +80,17 @@ public class TypeByTemplateExprTest extends TypeByNodeTest {
         assertEquals(getAssertCount(), 3);
     }
 
-    private void assertType(Node node, SemanticModel model, TypeDescKind typeKind) {
+    private void assertType(Node node, SemanticModel model, TypeDescKind typeKind, SyntaxKind nodeKind) {
         Optional<TypeSymbol> type = model.type(node);
         assertTrue(type.isPresent());
         assertEquals(type.get().typeKind(), typeKind);
 
-        if (typeKind == TYPE_REFERENCE) {
-            assertEquals(((TypeReferenceTypeSymbol) type.get()).name(), "RawTemplate");
+        if (nodeKind == SyntaxKind.RAW_TEMPLATE_EXPRESSION) {
+            assertEquals(type.get().getName().get(), "RawTemplate");
             assertEquals(((TypeReferenceTypeSymbol) type.get()).typeDescriptor().typeKind(), OBJECT);
+        } else if (nodeKind == SyntaxKind.XML_TEMPLATE_EXPRESSION) {
+            assertEquals(type.get().getName().get(), "Element");
+            assertEquals(((TypeReferenceTypeSymbol) type.get()).typeDescriptor().typeKind(), XML_ELEMENT);
         }
 
         incrementAssertCount();
