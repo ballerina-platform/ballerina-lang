@@ -21,7 +21,7 @@ DESCRIPTION
 
 OPTIONS
        -d, --dry-run
-           Dry-run the formatter and see which files will
+           Perform a dry run of the formatter and see which files will
            be formatted after the execution.
 
 
