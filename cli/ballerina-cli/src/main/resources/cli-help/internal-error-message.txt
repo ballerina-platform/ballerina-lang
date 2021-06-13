@@ -1,9 +1,8 @@
 ballerina: Oh no, something really went wrong. Bad. Sad.
 
-There should be a file named "ballerina-internal.log" in the current directory.
-If you are able to share with us the code that broke Ballerina then
-we would REALLY appreciate if you would report this to us:
-go to https://github.com/ballerina-platform/ballerina-lang/issues and
-create a bug report with both this log file and the sample code.
+If you are able to share the code that broke Ballerina, then
+we appreciate if you report it to us. 
 
-We thank you for helping make us better dancers.
+Please create a bug report in https://github.com/ballerina-platform/ballerina-lang/issues by adding your sample code and the `ballerina-internal.log` file in you current directory.
+
+We thank you for helping us to be better.

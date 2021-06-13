@@ -1,15 +1,15 @@
 NAME
-       ballerina-push - Push packages to Ballerina Central or local repository
+       ballerina-push - Push packages to Ballerina Central or to a local repository
 
 SYNOPSIS
        bal push [--repository=local]
 
 
 DESCRIPTION
-       The push command pushes the current package to Ballerina
-       Central if no options provided.
+       Push the current package to Ballerina
+       Central if no options are provided.
 
-       Before pushing the package to Ballerina Central:
+       Follow the steps below to set up the prerequisites before pushing the package to Ballerina Central.
        1) Create an organization by registering with Ballerina Central at
           https://central.ballerina.io/.
        2) Add the access token with the registration you receive  to the
@@ -22,12 +22,12 @@ DESCRIPTION
              name= "foo"
              version= "1.0.0"
 
-       Providing the option '--repository=local' will push the bala to the local
+       Providing the '--repository=local' option will push the BALA to the local
        repository. To use a certain package from the local repository, the depender
-       package should specify the entry 'repository="local"' in 'Dependencies.toml'
+       package should specify the 'repository="local"' entry in the 'Dependencies.toml'
        file under the `[[dependency]]` table of the dependee package.
 
-       E.g. Dependencies.toml content of 'abc/foo:1.0.0' which depends on 'abc/bar:1.0.0'
+       E.g., The `Dependencies.toml` file content of 'abc/foo:1.0.0' depends on 'abc/bar:1.0.0'
 
               [[dependency]]
               org= "abc"
@@ -37,7 +37,7 @@ DESCRIPTION
 
 OPTIONS
        --repository
-           Push the bala to a custom repository. Only the value 'local' is allowed.
+           Push the BALA to a custom repository. Only the 'local' is allowed.
 
 
 EXAMPLES
@@ -45,5 +45,5 @@ EXAMPLES
        building it.
            $ bal push
 
-       Push the package of the current package to local repository for testing.
+       Push the package of the current package to the local repository for testing.
            $ bal push --repository=local
