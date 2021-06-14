@@ -4981,6 +4981,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private void analyzeOnFailClause(BLangOnFailClause onFailClause, BLangBlockStmt blockStmt) {
         if (onFailClause != null) {
+            boolean markClosures = this.onFailClause != null;
             this.enclosingOnFailClause.add(this.onFailClause);
             this.enclosingOnFailCallFunc.add(this.onFailCallFuncDef);
             this.onFailClause = onFailClause;
@@ -4991,8 +4992,10 @@ public class Desugar extends BLangNodeVisitor {
                     blockStmt.failureBreakMode = BLangBlockStmt.FailureBreakMode.BREAK_WITHIN_BLOCK;
                 }
             } else {
-                onFailClause.possibleClosureSymbols.forEach(symbol -> symbol.closure = true);
                 rewrite(onFailClause, env);
+            }
+            if (markClosures || !onFailClause.bodyContainsFail) {
+                onFailClause.possibleClosureSymbols.forEach(symbol -> symbol.closure = true);
             }
         }
     }
