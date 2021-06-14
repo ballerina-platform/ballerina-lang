@@ -463,7 +463,7 @@ public class ImmutableTypeCloner {
         }
 
         BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
-        tupleTypeNode.type = effectiveType;
+        tupleTypeNode.setBType(effectiveType);
         BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.addTypeDefinition(effectiveType,
                 effectiveType.tsymbol, tupleTypeNode, env);
         typeDefinition.pos = pos;
