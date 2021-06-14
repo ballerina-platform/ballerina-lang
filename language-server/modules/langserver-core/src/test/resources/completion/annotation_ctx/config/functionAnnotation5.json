@@ -15,27 +15,28 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "foo",
-      "kind": "Field",
-      "detail": "string",
-      "sortText": "G",
-      "insertText": "foo: \"${1}\"",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "bar",
       "kind": "Field",
-      "detail": "int",
+      "detail": "(record {| string foo; int bar?; anydata...; |}).bar",
       "sortText": "G",
-      "insertText": "bar: ${2:0}",
+      "insertText": "bar: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Add All Attributes",
+      "label": "foo",
+      "kind": "Field",
+      "detail": "(record {| string foo; int bar?; anydata...; |}).foo",
+      "sortText": "G",
+      "insertText": "foo: \"${2}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill record {| string foo; int bar?; anydata...; |} Required Fields",
       "kind": "Property",
-      "detail": "none",
+      "detail": "record {| string foo; int bar?; anydata...; |}",
       "sortText": "Q",
-      "insertText": "foo: \"\",\nbar: 0",
+      "filterText": "fill",
+      "insertText": "foo: \"\"",
       "insertTextFormat": "Snippet"
     }
   ]
