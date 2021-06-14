@@ -630,13 +630,15 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
+        // Looking up args expressions since requiredArgs and restArgs get set only when compilation is successful
+        lookupNodes(invocationExpr.argExprs);
+        lookupNode(invocationExpr.expr);
+
         if (setEnclosingNode(invocationExpr, invocationExpr.name.pos)) {
             return;
         }
 
-        // Looking up args expressions since requiredArgs and restArgs get set only when compilation is successful
-        lookupNodes(invocationExpr.argExprs);
-        lookupNode(invocationExpr.expr);
+        setEnclosingNode(invocationExpr, invocationExpr.pos);
     }
 
     @Override
@@ -647,14 +649,15 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
+        lookupNodes(actionInvocationExpr.argExprs);
+        lookupNodes(actionInvocationExpr.restArgs);
+        lookupNode(actionInvocationExpr.expr);
+
         if (setEnclosingNode(actionInvocationExpr, actionInvocationExpr.name.pos)) {
             return;
         }
 
-        lookupNodes(actionInvocationExpr.requiredArgs);
-        lookupNodes(actionInvocationExpr.restArgs);
-        lookupNode(actionInvocationExpr.expr);
-        lookupNodes(actionInvocationExpr.argExprs);
+        setEnclosingNode(actionInvocationExpr, actionInvocationExpr.pos);
     }
 
     @Override
