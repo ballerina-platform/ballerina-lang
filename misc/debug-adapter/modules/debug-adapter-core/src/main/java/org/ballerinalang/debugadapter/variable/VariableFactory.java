@@ -172,7 +172,7 @@ public class VariableFactory {
             return new BXmlItem(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.XML_ATTRIB_MAP.getString())) {
             return new BXmlItemAttributeMap(context, varName, value);
-        } else if (valueTypeName.contains(JVMValueType.ANON_SERVICE.getString())) {
+        } else if (valueTypeName.contains(JVMValueType.ANON_TYPE.getString())) {
             return new BService(context, varName, value);
         } else if (valueTypeName.contains(JVMValueType.MAP_VALUE.getString()) && !isRecord(value)) {
             if (isJson(value)) {

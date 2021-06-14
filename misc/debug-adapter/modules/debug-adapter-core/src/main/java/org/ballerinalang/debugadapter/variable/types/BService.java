@@ -18,22 +18,20 @@ package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.variable.BSimpleVariable;
-import org.ballerinalang.debugadapter.variable.BVariableType;
 
 /**
  * Ballerina service variable type.
  */
-public class BService extends BSimpleVariable {
+public class BService extends BObject {
 
-    private static final String ANON_SERVICE = "anonymous service";
+    private static final String TYPE_SERVICE = "service";
 
     public BService(SuspendedContext context, String name, Value value) {
-        super(context, name, BVariableType.SERVICE, value);
+        super(context, name, value);
     }
 
     @Override
     public String computeValue() {
-        return ANON_SERVICE;
+        return TYPE_SERVICE;
     }
 }
