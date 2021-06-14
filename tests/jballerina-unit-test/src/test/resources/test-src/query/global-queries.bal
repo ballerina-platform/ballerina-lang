@@ -192,3 +192,9 @@ function testGlobalQuery4() returns boolean {
     testPassed = testPassed && dp.fname == "Dermot" && dp.lname == "Crowley" && dp.dept == "WSO2_HR";
     return testPassed;
 }
+
+int[] ints = from var i in from var j in [1, 2, 3] select j select i;
+
+function testGlobalQuery5() returns boolean {
+    return ints == [1, 2, 3];
+}
