@@ -50,7 +50,7 @@ function testBasicErrorMatch() returns string {
     error<ErrorData> err1 = error("Error Code", message = "Msg");
     match err1 {
         var error (reason, message = m) => {
-            return <string> checkpanic reason + ":" + <string> checkpanic m;
+            return <string> reason + ":" + <string> checkpanic m;
         }
     }
     return "Default";
@@ -60,10 +60,10 @@ function testErrorRestParamMatch(int errorNo) returns string {
     error err1 = selectError(errorNo);
     match err1 {
         var error (reason, message = m, x = x) => {
-            return <string> checkpanic x;
+            return toString(x);
         }
         var error (reason, message = m, blah = x, ...rest) => {
-            return <string> checkpanic reason + toString(rest);
+            return <string> reason + toString(rest);
         }
         var error (reason, message = m) => {
             return <string> checkpanic m;
@@ -110,7 +110,7 @@ function testBasicErrorMatch2() returns string {
             return "Matched with tuple : " + reason + " " + toString(detail);
         }
         var error (reason, message = message) => {
-            return "Matched with error : " + <string> checkpanic reason + " {\"message\":\"" + <string> checkpanic message + "\"}";
+            return "Matched with error : " + <string> reason + " {\"message\":\"" + <string> checkpanic message + "\"}";
         }
     }
     return "Default";
@@ -124,7 +124,7 @@ function testBasicErrorMatch3() returns string {
             return "Matched with tuple : " + reason + " " + toString(detail);
         }
         var error (reason) => {
-            return "Matched with error : " + <string> checkpanic reason;
+            return "Matched with error : " + <string> reason;
         }
     }
     return "Default";
@@ -160,30 +160,28 @@ function foo(ER1 | error t1) returns string {
     return "Default";
 }
 
-// function testBasicErrorMatch5() returns string[] {
-//     Foo f = {fatal: true};
-//     error err1 = error("Error Code 1");
-//     error err2 = error("Error Code 1", message = "Something Wrong");
-//     Foo | error fe1 = err1;
-//     Foo | error fe2 = err2;
-//     string[] results = [foo2(f), foo2(fe1), foo2(fe2), foo3(fe1), foo3(fe2)];
-//     return results;
-// }
+function testBasicErrorMatch5() returns string[] {
+    Foo f = {fatal: true};
+    error err1 = error("Error Code 1");
+    error err2 = error("Error Code 1", message = "Something Wrong");
+    error err3 = error("Error Code 1", err2);
+    Foo | error fe1 = err1;
+    Foo | error fe2 = err2;
+    string[] results = [foo2(f), foo2(fe1), foo2(fe2), foo3(fe1), foo3(fe2)];
+    return results;
+}
 
-// function foo2(any | error f) returns string {
-//     match f {
-//         var {fatal} => {
-//             return "Matched with a record : " + toString(fatal);
-//         }
-//         var error (reason) => {
-//             return "Matched with an error : " + <string> checkpanic reason;
-//         }
-//         var error (reason, ..._) => {
-//             return "Matched with an error : " + <string> checkpanic reason + " {}";
-//         }
-//     }
-//     return "Default";
-// }
+function foo2(any | error f) returns string {
+    match f {
+        var {fatal} => {
+            return "Matched with a record : " + toString(fatal);
+        }
+        var error (reason) => {
+            return "Matched with an error : " + <string> reason;
+        }
+    }
+    return "Default";
+ }
 
 function foo3(any | error f) returns string {
     match f {
@@ -191,10 +189,10 @@ function foo3(any | error f) returns string {
             return "Matched with a record : " + toString(fatal);
         }
         var error (reason) => {
-            return "Matched with an error 1: " + <string> checkpanic reason;
+            return "Matched with an error 1: " + <string> reason;
         }
         var error (reason, message = message) => {
-            return "Matched with an error : " + <string> checkpanic reason + ", message = " + <string> checkpanic message;
+            return "Matched with an error : " + <string> reason + ", message = " + <string> checkpanic message;
         }
     }
     return "Default";
@@ -212,44 +210,44 @@ function panik() returns string {
     panic e;
 }
 
-function foo4(any | error a) returns string {
+function foo4(any|error a) returns string {
     match a {
         "value" => {
             return "Matched with string";
         }
         var error (reason, message = message) => {
-            return "Matched with an error: reason = " + <string> checkpanic reason + ", message = " + <string> checkpanic message;
+            return "Matched with an error: reason = " + <string> reason + ", message = " + <string> checkpanic message;
         }
     }
     return "Default";
 }
 
-// function testErrorWithUnderscore() returns string[] {
-//     error err1 = error("Error One");
-//     string[] results = [foo5(err1)];
-//     return results;
-// }
+function testErrorWithUnderscore() returns string[] {
+    error err1 = error("Error One");
+    string[] results = [foo5(err1)];
+    return results;
+}
 
-// function foo5(any | error e) returns string {
-//     match e {
-//         var [a, b] => {
-//             return "Matched with tuple var";
-//         }
-//         var {a, b} => {
-//             return "Matched with record var";
-//         }
-//         var error (reason, ..._) => {
-//             return "Matched with error reason = " + <string> checkpanic reason;
-//         }
-//         var x => {
-//             if x is any {
-//                 return "Matched nothing : " + <string>x;
-//             } else {
-//                 return "Matched nothing";
-//             }
-//         }
-//     }
-// }
+function foo5(any|error e) returns string {
+    match e {
+        var [a, b] => {
+            return "Matched with tuple var";
+        }
+        var {a, b} => {
+            return "Matched with record var";
+        }
+        var error (reason) => {
+            return "Matched with error reason = " + <string> reason;
+        }
+        var x => {
+            if x is any {
+                return "Matched nothing : " + <string>x;
+            } else {
+                return "Matched nothing";
+            }
+        }
+    }
+}
 
 function testBasicErrorMatch7() returns string[] {
     Foo f = {fatal: true};
@@ -268,7 +266,7 @@ function foo6(any | error f) returns string {
             return "Matched with a record : " + toString(fatal);
         }
         var error (reason, message = message) => {
-            return "Matched with an error : " + <string> checkpanic reason + <string> checkpanic message;
+            return "Matched with an error : " + <string> reason + <string> checkpanic message;
         }
     }
     return "Default";
@@ -291,7 +289,7 @@ function testFiniteTypedReasonVariable() returns string[] {
 function matching(error<ErrorData2> | error<ErrorData2> a) returns string {
     match a {
         var error (reason, message = message, fatal = fatal) => {
-            return "reason = " + <string> checkpanic reason + ", message = " + <string> checkpanic message + ", fatal = " + (<boolean> checkpanic fatal ? "true" : "false");
+            return "reason = " + <string> reason + ", message = " + <string> checkpanic message + ", fatal = " + (<boolean> checkpanic fatal ? "true" : "false");
         }
         var x => {
             return "Failed";
@@ -303,10 +301,10 @@ function testErrorMatchPattern() returns string {
     error<ErrorData> err1 = error("Error Code", message = "Msg");
     match err1 {
         error (var reason, message = var m, ...var rest) => {
-            return <string> checkpanic reason + ":" + <string> checkpanic m;
+            return <string> reason + ":" + <string> checkpanic m;
         }
         var error (reason) => {
-            return <string> checkpanic reason;
+            return <string> reason;
         }
     }
     return "Default";
@@ -319,7 +317,7 @@ function testErrorConstReasonMatchPattern() returns string {
             return "Const reason" + ":" + <string> checkpanic m;
         }
         var error (reason) => {
-            return <string> checkpanic reason;
+            return <string> reason;
         }
     }
     return "Default";
@@ -334,7 +332,7 @@ function testIndirectErrorMatchPattern() returns string {
             return <string> checkpanic m;
         }
         error(var reason, ...var rest) => {
-            return <string> checkpanic reason;
+            return <string> reason;
         }
     }
     return "Default";

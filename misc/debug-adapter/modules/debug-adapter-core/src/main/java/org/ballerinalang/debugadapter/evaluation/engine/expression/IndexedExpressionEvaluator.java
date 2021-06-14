@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.debugadapter.evaluation.engine;
+package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
@@ -22,6 +22,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;

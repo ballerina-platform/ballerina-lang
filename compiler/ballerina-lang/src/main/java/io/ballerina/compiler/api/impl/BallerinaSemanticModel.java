@@ -225,7 +225,7 @@ public class BallerinaSemanticModel implements SemanticModel {
             return Optional.empty();
         }
 
-        return Optional.ofNullable(typesFactory.getTypeDescriptor(node.type));
+        return Optional.ofNullable(typesFactory.getTypeDescriptor(node.getBType()));
     }
 
     /**

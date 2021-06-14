@@ -353,7 +353,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
         boolean isFuture = varDefNode.getVariable().expr != null
-                && varDefNode.getVariable().expr.type instanceof BFutureType;
+                && varDefNode.getVariable().expr.getBType() instanceof BFutureType;
         if (isFuture) {
             return;
         }

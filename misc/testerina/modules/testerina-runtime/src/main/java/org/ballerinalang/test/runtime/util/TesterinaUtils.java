@@ -273,7 +273,7 @@ public class TesterinaUtils {
         StringBuilder sb = new StringBuilder();
         sb.append(errorMsg);
         // Append function/action/resource name with package path (if any)
-        StackTraceElement[] stackTrace = getStackTrace(throwable);
+        StackTraceElement[] stackTrace = throwable.getStackTrace();
         if (stackTrace.length == 0) {
             return sb.toString();
         }
@@ -283,7 +283,6 @@ public class TesterinaUtils {
         for (int i = 1; i < stackTrace.length; i++) {
             printStackElement(sb, stackTrace[i], "\n\t   ");
         }
-        sb.append("\n\nCheck ballerina-internal log for more details");
         return sb.toString();
     }
 
