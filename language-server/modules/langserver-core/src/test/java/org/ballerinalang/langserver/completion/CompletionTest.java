@@ -85,6 +85,9 @@ public abstract class CompletionTest {
 //            obj.add("position", configJsonObject.get("position"));
 //            obj.add("source", configJsonObject.get("source"));
 //            obj.add("items", resultList);
+//            if (configJsonObject.get("triggerCharacter") != null) {
+//                obj.add("triggerCharacter", configJsonObject.get("triggerCharacter"));
+//            }
 //            String objStr = obj.toString().concat(System.lineSeparator());
 //            java.nio.file.Files.write(FileUtils.RES_DIR.resolve(configJsonPath),
 //                                      objStr.getBytes(java.nio.charset.StandardCharsets.UTF_8));
