@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
+import org.eclipse.lsp4j.CompletionParams;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,14 +46,17 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
     private TypeSymbol contextType;
     private boolean isCapturedEnclosingNode = false;
     private ModuleMemberDeclarationNode enclosingNode = null;
+    private final CompletionParams completionParams;
 
-    public BallerinaCompletionContextImpl(CompletionContext context, LanguageServerContext serverContext) {
+    public BallerinaCompletionContextImpl(CompletionContext context, LanguageServerContext serverContext,
+                                          CompletionParams completionParams) {
         super(context.operation(),
                 context.fileUri(),
                 context.workspace(),
                 context.getCapabilities(),
                 context.getCursorPosition(),
                 serverContext);
+        this.completionParams = completionParams;
     }
 
     @Override
@@ -109,6 +113,11 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
         }
 
         return Optional.ofNullable(this.contextType);
+    }
+
+    @Override
+    public CompletionParams getCompletionParams() {
+        return this.completionParams;
     }
 
     @Override

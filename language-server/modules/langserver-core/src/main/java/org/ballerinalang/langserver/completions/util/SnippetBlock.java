@@ -40,20 +40,23 @@ public class SnippetBlock extends CompletionItemBuilder {
     private final String detail;
     private final String snippet;
     private final Kind kind;
+    private final String filterText;
     private final Pair<String, String>[] imports;
     private String id;
 
-    public SnippetBlock(String label, String snippet, String detail, Kind kind) {
+    public SnippetBlock(String label, String filterText, String snippet, String detail, Kind kind) {
         this.label = label;
+        this.filterText = filterText;
         this.snippet = snippet;
         this.detail = detail;
         this.kind = kind;
         this.imports = null;
     }
 
-    public SnippetBlock(String label, String snippet, String detail, Kind kind,
+    public SnippetBlock(String label, String filterText, String snippet, String detail, Kind kind,
                         Pair<String, String>... importsByOrgAndAlias) {
         this.label = label;
+        this.filterText = filterText;
         this.snippet = snippet;
         this.detail = detail;
         this.kind = kind;
@@ -90,6 +93,9 @@ public class SnippetBlock extends CompletionItemBuilder {
         }
         if (!detail.isEmpty()) {
             completionItem.setDetail(detail);
+        }
+        if (!filterText.isEmpty()) {
+            completionItem.setFilterText(filterText);
         }
         completionItem.setKind(this.getKind(this));
 

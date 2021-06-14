@@ -59,7 +59,7 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
     public BLangRecordLiteral(Location pos, BType type) {
         this.pos = pos;
         fields = new ArrayList<>();
-        this.type = type;
+        this.setBType(type);
     }
 
     @Override
@@ -235,7 +235,7 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
 
         public BLangStructLiteral(Location pos, BType structType, List<RecordField> fields) {
             super(pos);
-            this.type = structType;
+            this.setBType(structType);
             this.initializer = ((BRecordTypeSymbol) structType.tsymbol).initializerFunc;
             this.fields = fields;
         }
@@ -255,7 +255,7 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
 
         public BLangMapLiteral(Location pos, BType mapType, List<RecordField> fields) {
             super(pos);
-            this.type = mapType;
+            this.setBType(mapType);
             this.fields = fields;
         }
 
@@ -276,7 +276,7 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
 
         public BLangChannelLiteral(Location pos, BType channelType, String channelName) {
             super(pos);
-            this.type = channelType;
+            this.setBType(channelType);
             this.channelName = channelName;
         }
 
