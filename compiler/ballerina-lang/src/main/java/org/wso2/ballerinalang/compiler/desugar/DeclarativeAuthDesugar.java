@@ -177,7 +177,7 @@ public class DeclarativeAuthDesugar {
         statements.add(0, result);
 
         BVarSymbol resultSymbol = new BVarSymbol(0, names.fromIdNode(result.var.name), env.enclPkg.packageID,
-                                                 result.var.type, resourceNode.symbol, pos, VIRTUAL);
+                                                 result.var.getBType(), resourceNode.symbol, pos, VIRTUAL);
         resourceNode.symbol.scope.define(resultSymbol.name, resultSymbol);
         result.var.symbol = resultSymbol;
     }

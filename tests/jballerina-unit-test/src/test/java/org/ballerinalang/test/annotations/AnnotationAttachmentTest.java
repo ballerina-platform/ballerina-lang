@@ -464,13 +464,13 @@ public class AnnotationAttachmentTest {
             Assert.assertEquals(expression.getKind(), NodeKind.RECORD_LITERAL_EXPR);
             BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
             Assert.assertEquals(recordLiteral.getFields().size(), 0);
-            Assert.assertTrue(recordLiteral.type.tag == TypeTags.RECORD_TYPE_TAG
-                    || recordLiteral.type.tag == TypeTags.MAP_TAG);
-            if (recordLiteral.type.tag == TypeTags.RECORD_TYPE_TAG) {
-                Assert.assertEquals(recordLiteral.type.tsymbol.name.value, typeName);
+            Assert.assertTrue(recordLiteral.getBType().tag == TypeTags.RECORD_TYPE_TAG
+                    || recordLiteral.getBType().tag == TypeTags.MAP_TAG);
+            if (recordLiteral.getBType().tag == TypeTags.RECORD_TYPE_TAG) {
+                Assert.assertEquals(recordLiteral.getBType().tsymbol.name.value, typeName);
             } else {
-                Assert.assertEquals(recordLiteral.type.tag, TypeTags.MAP_TAG);
-                Assert.assertEquals(((BMapType) recordLiteral.type).constraint.tag, TypeTags.INT_TAG);
+                Assert.assertEquals(recordLiteral.getBType().tag, TypeTags.MAP_TAG);
+                Assert.assertEquals(((BMapType) recordLiteral.getBType()).constraint.tag, TypeTags.INT_TAG);
             }
             i++;
         }
