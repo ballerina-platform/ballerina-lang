@@ -16,69 +16,60 @@
  * under the License.
  */
 
-package io.ballerina.semantic.api.test.typebynode;
+package io.ballerina.semantic.api.test.typebynode.deprecated;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
-import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
-import io.ballerina.compiler.syntax.tree.TrapExpressionNode;
 import org.testng.annotations.Test;
 
-import java.util.List;
 import java.util.Optional;
 
-import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
- * Tests for getting the type of checking exprs, trap expr etc.
+ * Tests for getting the type of call expressions.
  *
  * @since 2.0.0
  */
 @Test
-public class TypeByErrorHandlingExprTest extends TypeByNodeTest {
+public class TypeByCallExprTest extends TypeByNodeTest {
 
     @Override
     String getTestSourcePath() {
-        return "test-src/type-by-node/type_by_error_handling_exprs.bal";
+        return "test-src/type-by-node/type_by_call_expr.bal";
     }
 
     @Override
     NodeVisitor getNodeVisitor(SemanticModel model) {
         return new NodeVisitor() {
-
             @Override
-            public void visit(CheckExpressionNode checkExpressionNode) {
-                assertType(checkExpressionNode, model, INT);
+            public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
+                assertType(functionCallExpressionNode, model, INT);
             }
 
             @Override
-            public void visit(TrapExpressionNode trapExpressionNode) {
-                Optional<TypeSymbol> type = assertType(trapExpressionNode, model, UNION);
-                List<TypeSymbol> members = ((UnionTypeSymbol) type.get()).memberTypeDescriptors();
-                assertEquals(members.get(0).typeKind(), NIL);
-                assertEquals(members.get(1).typeKind(), ERROR);
+            public void visit(MethodCallExpressionNode methodCallExpressionNode) {
+                assertType(methodCallExpressionNode, model, STRING);
             }
         };
     }
 
     void verifyAssertCount() {
-        assertEquals(getAssertCount(), 3);
+        assertEquals(getAssertCount(), 2);
     }
 
-    private Optional<TypeSymbol> assertType(Node node, SemanticModel model, TypeDescKind typeKind) {
+    private void assertType(Node node, SemanticModel model, TypeDescKind typeKind) {
         Optional<TypeSymbol> type = model.type(node);
         assertTrue(type.isPresent());
         assertEquals(type.get().typeKind(), typeKind);
         incrementAssertCount();
-        return type;
     }
 }

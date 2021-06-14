@@ -16,54 +16,61 @@
  * under the License.
  */
 
-package io.ballerina.semantic.api.test.typebynode;
+package io.ballerina.semantic.api.test.typebynode.deprecated;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import org.testng.annotations.Test;
 
 import java.util.Optional;
 
-import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
- * Tests for getting the type of call expressions.
+ * Tests for getting the type of anonymous functions.
  *
  * @since 2.0.0
  */
 @Test
-public class TypeByCallExprTest extends TypeByNodeTest {
+public class TypeByAnonFunctionTest extends TypeByNodeTest {
 
     @Override
     String getTestSourcePath() {
-        return "test-src/type-by-node/type_by_call_expr.bal";
+        return "test-src/type-by-node/type_by_anon_function.bal";
     }
 
     @Override
     NodeVisitor getNodeVisitor(SemanticModel model) {
         return new NodeVisitor() {
             @Override
-            public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
-                assertType(functionCallExpressionNode, model, INT);
+            public void visit(ExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
+                assertType(explicitAnonymousFunctionExpressionNode, model, FUNCTION);
             }
 
             @Override
-            public void visit(MethodCallExpressionNode methodCallExpressionNode) {
-                assertType(methodCallExpressionNode, model, STRING);
+            public void visit(ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
+                assertType(implicitAnonymousFunctionExpressionNode, model, FUNCTION);
+                assertType(implicitAnonymousFunctionExpressionNode.params(), model, STRING);
+            }
+
+            @Override
+            public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
+                assertType(functionCallExpressionNode, model, FUNCTION);
             }
         };
     }
 
     void verifyAssertCount() {
-        assertEquals(getAssertCount(), 2);
+        assertEquals(getAssertCount(), 4);
     }
 
     private void assertType(Node node, SemanticModel model, TypeDescKind typeKind) {

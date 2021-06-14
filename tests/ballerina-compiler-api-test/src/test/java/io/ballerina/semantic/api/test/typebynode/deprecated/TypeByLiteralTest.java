@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.semantic.api.test.typebynode;
+package io.ballerina.semantic.api.test.typebynode.deprecated;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
