@@ -28,6 +28,7 @@ import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
@@ -228,6 +229,15 @@ public class BuildCommand implements BLauncherCmd {
             }
         }
 
+        if (isProjectEmpty(project)) {
+            if (!(this.compile && project.currentPackage().compilerPluginToml().isPresent())) {
+                CommandUtil.printError(this.errStream, "package is empty. please add at least one .bal file", null,
+                        false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+        }
+
         if (this.compile && project.currentPackage().ballerinaToml().get().tomlDocument().toml()
                 .getTable("package").isEmpty()) {
             CommandUtil.printError(this.errStream,
@@ -292,6 +302,15 @@ public class BuildCommand implements BLauncherCmd {
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
+    }
+
+    private boolean isProjectEmpty(Project project) {
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            if (!project.currentPackage().module(moduleId).documentIds().isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private BuildOptions constructBuildOptions() {
