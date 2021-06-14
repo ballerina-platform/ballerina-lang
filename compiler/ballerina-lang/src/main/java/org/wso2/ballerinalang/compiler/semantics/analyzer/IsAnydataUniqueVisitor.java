@@ -234,7 +234,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             return type.isAnyData;
         }
         for (BLangExpression value : type.getValueSpace()) {
-            if (!visit(value.type)) {
+            if (!visit(value.getBType())) {
                 type.isAnyData = false;
                 return false;
             }

@@ -195,15 +195,15 @@ public class Types {
                            BType actualType,
                            BType expType,
                            DiagnosticCode diagCode) {
-        expr.type = checkType(expr.pos, actualType, expType, diagCode);
-        if (expr.type.tag == TypeTags.SEMANTIC_ERROR) {
-            return expr.type;
+        expr.setBType(checkType(expr.pos, actualType, expType, diagCode));
+        if (expr.getBType().tag == TypeTags.SEMANTIC_ERROR) {
+            return expr.getBType();
         }
 
         // Set an implicit cast expression, if applicable
         setImplicitCastExpr(expr, actualType, expType);
 
-        return expr.type;
+        return expr.getBType();
     }
 
     public BType checkType(Location pos,
@@ -366,7 +366,7 @@ public class Types {
     }
 
     boolean finiteTypeContainsNumericTypeValues(BFiniteType finiteType) {
-        return finiteType.getValueSpace().stream().anyMatch(valueExpr -> isBasicNumericType(valueExpr.type));
+        return finiteType.getValueSpace().stream().anyMatch(valueExpr -> isBasicNumericType(valueExpr.getBType()));
     }
 
     public boolean containsErrorType(BType type) {
@@ -393,11 +393,11 @@ public class Types {
     BType resolvePatternTypeFromMatchExpr(BLangErrorBindingPattern errorBindingPattern, BLangExpression matchExpr,
                                           SymbolEnv env) {
         if (matchExpr == null) {
-            return errorBindingPattern.type;
+            return errorBindingPattern.getBType();
         }
         BType intersectionType = getTypeIntersection(
                 IntersectionContext.compilerInternalIntersectionContext(),
-                matchExpr.type, errorBindingPattern.type, env);
+                matchExpr.getBType(), errorBindingPattern.getBType(), env);
         if (intersectionType == symTable.semanticError) {
             return symTable.noType;
         }
@@ -407,11 +407,11 @@ public class Types {
     public BType resolvePatternTypeFromMatchExpr(BLangListBindingPattern listBindingPattern,
                                                  BLangVarBindingPatternMatchPattern varBindingPatternMatchPattern,
                                                  SymbolEnv env) {
-        BTupleType listBindingPatternType = (BTupleType) listBindingPattern.type;
+        BTupleType listBindingPatternType = (BTupleType) listBindingPattern.getBType();
         if (varBindingPatternMatchPattern.matchExpr == null) {
             return listBindingPatternType;
         }
-        BType matchExprType = varBindingPatternMatchPattern.matchExpr.type;
+        BType matchExprType = varBindingPatternMatchPattern.matchExpr.getBType();
         BType intersectionType = getTypeIntersection(
                 IntersectionContext.compilerInternalIntersectionContext(),
                 matchExprType, listBindingPatternType, env);
@@ -426,7 +426,7 @@ public class Types {
         if (listMatchPattern.matchExpr == null) {
             return listMatchPatternType;
         }
-        BType matchExprType = listMatchPattern.matchExpr.type;
+        BType matchExprType = listMatchPattern.matchExpr.getBType();
         BType intersectionType = getTypeIntersection(
                 IntersectionContext.compilerInternalIntersectionContext(),
                 matchExprType, listMatchPatternType, env);
@@ -438,11 +438,11 @@ public class Types {
 
     BType resolvePatternTypeFromMatchExpr(BLangErrorMatchPattern errorMatchPattern, BLangExpression matchExpr) {
         if (matchExpr == null) {
-            return errorMatchPattern.type;
+            return errorMatchPattern.getBType();
         }
 
-        BType matchExprType = matchExpr.type;
-        BType patternType = errorMatchPattern.type;
+        BType matchExprType = matchExpr.getBType();
+        BType patternType = errorMatchPattern.getBType();
         if (isAssignable(matchExprType, patternType)) {
             return matchExprType;
         }
@@ -457,12 +457,12 @@ public class Types {
             if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 return ((BLangSimpleVarRef) constPatternExpr).symbol.type;
             } else {
-                return constPatternExpr.type;
+                return constPatternExpr.getBType();
             }
         }
 
-        BType matchExprType = constPattern.matchExpr.type;
-        BType constMatchPatternExprType = constPatternExpr.type;
+        BType matchExprType = constPattern.matchExpr.getBType();
+        BType constMatchPatternExprType = constPatternExpr.getBType();
 
         if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef constVarRef = (BLangSimpleVarRef) constPatternExpr;
@@ -513,7 +513,7 @@ public class Types {
         }
         BType intersectionType = getTypeIntersection(
                 IntersectionContext.compilerInternalIntersectionContext(),
-                mappingMatchPattern.matchExpr.type, patternType, env);
+                mappingMatchPattern.matchExpr.getBType(), patternType, env);
         if (intersectionType == symTable.semanticError) {
             return symTable.noType;
         }
@@ -523,13 +523,13 @@ public class Types {
     public BType resolvePatternTypeFromMatchExpr(BLangMappingBindingPattern mappingBindingPattern,
                                                  BLangVarBindingPatternMatchPattern varBindingPatternMatchPattern,
                                                  SymbolEnv env) {
-        BRecordType mappingBindingPatternType = (BRecordType) mappingBindingPattern.type;
+        BRecordType mappingBindingPatternType = (BRecordType) mappingBindingPattern.getBType();
         if (varBindingPatternMatchPattern.matchExpr == null) {
             return mappingBindingPatternType;
         }
         BType intersectionType = getTypeIntersection(
                 IntersectionContext.compilerInternalIntersectionContext(),
-                varBindingPatternMatchPattern.matchExpr.type,
+                varBindingPatternMatchPattern.matchExpr.getBType(),
                 mappingBindingPatternType, env);
         if (intersectionType == symTable.semanticError) {
             return symTable.noType;
@@ -1567,7 +1567,7 @@ public class Types {
     }
 
     public void setForeachTypedBindingPatternType(BLangForeach foreachNode) {
-        BType collectionType = foreachNode.collection.type;
+        BType collectionType = foreachNode.collection.getBType();
         BType varType;
         switch (collectionType.tag) {
             case TypeTags.STRING:
@@ -1715,7 +1715,7 @@ public class Types {
             return;
         }
 
-        BType collectionType = bLangInputClause.collection.type;
+        BType collectionType = bLangInputClause.collection.getBType();
         BType varType;
         switch (collectionType.tag) {
             case TypeTags.STRING:
@@ -1764,9 +1764,9 @@ public class Types {
                 break;
             case TypeTags.OBJECT:
                 // check for iterable objects
-                if (!isAssignable(bLangInputClause.collection.type, symTable.iterableType)) {
+                if (!isAssignable(bLangInputClause.collection.getBType(), symTable.iterableType)) {
                     dlog.error(bLangInputClause.collection.pos, DiagnosticErrorCode.INVALID_ITERABLE_OBJECT_TYPE,
-                            bLangInputClause.collection.type, symTable.iterableType);
+                               bLangInputClause.collection.getBType(), symTable.iterableType);
                     bLangInputClause.varType = symTable.semanticError;
                     bLangInputClause.resultType = symTable.semanticError;
                     bLangInputClause.nillableResultType = symTable.semanticError;
@@ -2301,7 +2301,7 @@ public class Types {
                 (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         implicitConversionExpr.pos = expr.pos;
         implicitConversionExpr.expr = expr.impConversionExpr == null ? expr : expr.impConversionExpr;
-        implicitConversionExpr.type = expType;
+        implicitConversionExpr.setBType(expType);
         implicitConversionExpr.targetType = expType;
         implicitConversionExpr.internal = true;
         expr.impConversionExpr = implicitConversionExpr;
@@ -2899,7 +2899,7 @@ public class Types {
         for (BType type : memberTypes) {
             if (type.tag == TypeTags.FINITE) {
                 for (BLangExpression expr : ((BFiniteType) type).getValueSpace()) {
-                    isSameType = isSameOrderedType(expr.type, baseType);
+                    isSameType = isSameOrderedType(expr.getBType(), baseType);
                     if (!isSameType) {
                         return false;
                     }
@@ -2916,12 +2916,12 @@ public class Types {
 
     private boolean checkValueSpaceHasSameType(BFiniteType finiteType, BType baseType) {
         if (baseType.tag == TypeTags.FINITE) {
-            BType baseExprType = finiteType.getValueSpace().iterator().next().type;
+            BType baseExprType = finiteType.getValueSpace().iterator().next().getBType();
             return checkValueSpaceHasSameType(((BFiniteType) baseType), baseExprType);
         }
         boolean isValueSpaceSameType = false;
         for (BLangExpression expr : finiteType.getValueSpace()) {
-            isValueSpaceSameType = isSameOrderedType(expr.type, baseType);
+            isValueSpaceSameType = isSameOrderedType(expr.getBType(), baseType);
             if (!isValueSpaceSameType) {
                 break;
             }
@@ -3268,11 +3268,11 @@ public class Types {
                     .allMatch(valueExpr ->  unionMemberTypes.stream()
                             .anyMatch(targetMemType -> targetMemType.tag == TypeTags.FINITE ?
                                     isAssignableToFiniteType(targetMemType, (BLangLiteral) valueExpr) :
-                                    isAssignable(valueExpr.type, targetType, unresolvedTypes)));
+                                    isAssignable(valueExpr.getBType(), targetType, unresolvedTypes)));
         }
 
         return finiteType.getValueSpace().stream()
-                .allMatch(expression -> isAssignable(expression.type, targetType, unresolvedTypes));
+                .allMatch(expression -> isAssignable(expression.getBType(), targetType, unresolvedTypes));
     }
 
     boolean isAssignableToFiniteType(BType type, BLangLiteral literalExpr) {
@@ -3308,7 +3308,7 @@ public class Types {
         }
         Object baseValue = baseLiteral.value;
         Object candidateValue = candidateLiteral.value;
-        int candidateTypeTag = candidateLiteral.type.tag;
+        int candidateTypeTag = candidateLiteral.getBType().tag;
 
         // Numeric literal assignability is based on assignable type and numeric equivalency of values.
         // If the base numeric literal is,
@@ -3317,7 +3317,7 @@ public class Types {
         // (3) float: we can assign int simple literal(Not an int constant) or a float literal/constant with same value.
         // (4) decimal: we can assign int simple literal or float simple literal (Not int/float constants) or decimal
         // with the same value.
-        switch (baseLiteral.type.tag) {
+        switch (baseLiteral.getBType().tag) {
             case TypeTags.BYTE:
                 if (candidateTypeTag == TypeTags.BYTE || (candidateTypeTag == TypeTags.INT &&
                         !candidateLiteral.isConstant && isByteLiteralValue((Long) candidateValue))) {
@@ -3459,7 +3459,7 @@ public class Types {
                 .filter(
                         // case I: targetType - string ("foo" is assignable to string)
                         // case II: targetType - type Bar "foo"|"baz" ; ("foo" is assignable to Bar)
-                        expr -> isAssignable(expr.type, targetType) ||
+                        expr -> isAssignable(expr.getBType(), targetType) ||
                                 isAssignableToFiniteType(targetType, (BLangLiteral) expr) ||
                                 // type FooVal "foo";
                                 // case III:  targetType - boolean|FooVal ("foo" is assignable to FooVal)
@@ -3564,7 +3564,7 @@ public class Types {
                 BType firstTypeInUnion = memberTypes.iterator().next();
                 if (firstTypeInUnion.tag == TypeTags.FINITE) {
                     Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
-                    BType baseExprType = valSpace.iterator().next().type;
+                    BType baseExprType = valSpace.iterator().next().getBType();
                     for (BType memType : memberTypes) {
                         if (memType.tag == TypeTags.FINITE) {
                             if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
@@ -3585,12 +3585,12 @@ public class Types {
                 return true;
             case TypeTags.FINITE:
                 Set<BLangExpression> valSpace = ((BFiniteType) type).getValueSpace();
-                BType baseExprType = valSpace.iterator().next().type;
+                BType baseExprType = valSpace.iterator().next().getBType();
                 for (BLangExpression expr : valSpace) {
                     if (!checkValueSpaceHasSameType((BFiniteType) type, baseExprType)) {
                         return false;
                     }
-                    if (!validNumericTypeExists(expr.type)) {
+                    if (!validNumericTypeExists(expr.getBType())) {
                         return false;
                     }
                 }
@@ -3630,7 +3630,7 @@ public class Types {
             case TypeTags.FINITE:
                 Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
                 for (BLangExpression expr : valueSpace) {
-                    if (!validIntegerTypeExists(expr.type)) {
+                    if (!validIntegerTypeExists(expr.getBType())) {
                         return false;
                     }
                 }
@@ -3654,7 +3654,7 @@ public class Types {
                 BType firstTypeInUnion = memberTypes.iterator().next();
                 if (firstTypeInUnion.tag == TypeTags.FINITE) {
                     Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
-                    BType baseExprType = valSpace.iterator().next().type;
+                    BType baseExprType = valSpace.iterator().next().getBType();
                     for (BType memType : memberTypes) {
                         if (memType.tag == TypeTags.FINITE) {
                             if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
@@ -3675,12 +3675,12 @@ public class Types {
                 return true;
             case TypeTags.FINITE:
                 Set<BLangExpression> valSpace = ((BFiniteType) type).getValueSpace();
-                BType baseExprType = valSpace.iterator().next().type;
+                BType baseExprType = valSpace.iterator().next().getBType();
                 for (BLangExpression expr : valSpace) {
                     if (!checkValueSpaceHasSameType((BFiniteType) type, baseExprType)) {
                         return false;
                     }
-                    if (!validStringOrXmlTypeExists(expr.type)) {
+                    if (!validStringOrXmlTypeExists(expr.getBType())) {
                         return false;
                     }
                 }
@@ -3717,7 +3717,7 @@ public class Types {
             case TypeTags.FINITE:
                 Set<BLangExpression> valSpace = ((BFiniteType) type).getValueSpace();
                 for (BLangExpression expr : valSpace) {
-                    if (!checkTypeContainString(expr.type)) {
+                    if (!checkTypeContainString(expr.getBType())) {
                         return false;
                     }
                 }
@@ -3753,7 +3753,7 @@ public class Types {
             case TypeTags.FINITE:
                 BFiniteType expType = (BFiniteType) bType;
                 expType.getValueSpace().forEach(value -> {
-                    memberTypes.add(value.type);
+                    memberTypes.add(value.getBType());
                 });
                 break;
             case TypeTags.UNION:
@@ -4808,7 +4808,7 @@ public class Types {
         for (BLangExpression valueExpr : originalType.getValueSpace()) {
             boolean matchExists = false;
             for (BType remType : removeTypes) {
-                if (isAssignable(valueExpr.type, remType) ||
+                if (isAssignable(valueExpr.getBType(), remType) ||
                         isAssignableToFiniteType(remType, (BLangLiteral) valueExpr)) {
                     matchExists = true;
                     break;
@@ -4903,14 +4903,14 @@ public class Types {
                 return isAllowedConstantType(((BMapType) type).constraint);
             case TypeTags.FINITE:
                 BLangExpression finiteValue = ((BFiniteType) type).getValueSpace().toArray(new BLangExpression[0])[0];
-                return isAllowedConstantType(finiteValue.type);
+                return isAllowedConstantType(finiteValue.getBType());
             default:
                 return false;
         }
     }
 
     public boolean isValidLiteral(BLangLiteral literal, BType targetType) {
-        BType literalType = literal.type;
+        BType literalType = literal.getBType();
         if (literalType.tag == targetType.tag) {
             return true;
         }
@@ -4948,7 +4948,7 @@ public class Types {
      * @param diagnosticCode    The code to log if the return type is invalid
      */
     public void validateErrorOrNilReturn(BLangFunction function, DiagnosticCode diagnosticCode) {
-        BType returnType = function.returnTypeNode.type;
+        BType returnType = function.returnTypeNode.getBType();
 
         if (returnType.tag == TypeTags.NIL) {
             return;
@@ -4962,7 +4962,7 @@ public class Types {
             }
         }
 
-        dlog.error(function.returnTypeNode.pos, diagnosticCode, function.returnTypeNode.type.toString());
+        dlog.error(function.returnTypeNode.pos, diagnosticCode, function.returnTypeNode.getBType().toString());
     }
 
     /**
@@ -5090,7 +5090,7 @@ public class Types {
 
         while (iterator.hasNext()) {
             BLangExpression value = (BLangExpression) iterator.next();
-            if (!isSameBasicType(value.type, firstElement.type)) {
+            if (!isSameBasicType(value.getBType(), firstElement.getBType())) {
                 return false;
             }
             if (!defaultFillValuePresent && isImplicitDefaultValue(value)) {
@@ -5165,7 +5165,7 @@ public class Types {
     private Set<BType> getValueTypes(Set<BLangExpression> valueSpace) {
         Set<BType> uniqueType = new HashSet<>();
         for (BLangExpression expression : valueSpace) {
-            uniqueType.add(expression.type);
+            uniqueType.add(expression.getBType());
         }
         return uniqueType;
     }
@@ -5173,7 +5173,7 @@ public class Types {
     private boolean isImplicitDefaultValue(BLangExpression expression) {
         if ((expression.getKind() == NodeKind.LITERAL) || (expression.getKind() == NodeKind.NUMERIC_LITERAL)) {
             BLangLiteral literalExpression = (BLangLiteral) expression;
-            BType literalExprType = literalExpression.type;
+            BType literalExprType = literalExpression.getBType();
             Object value = literalExpression.getValue();
             switch (literalExprType.getKind()) {
                 case INT:
@@ -5284,7 +5284,7 @@ public class Types {
                 for (BType memType : memberTypes) {
                     if (memType.tag == TypeTags.FINITE && firstTypeInUnion.tag == TypeTags.FINITE) {
                         Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
-                        BType baseExprType = valSpace.iterator().next().type;
+                        BType baseExprType = valSpace.iterator().next().getBType();
                         if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
                             return false;
                         }
@@ -5313,12 +5313,12 @@ public class Types {
             case TypeTags.FINITE:
                 boolean isValueSpaceOrdered = false;
                 Set<BLangExpression> valSpace = ((BFiniteType) type).getValueSpace();
-                BType baseExprType = valSpace.iterator().next().type;
+                BType baseExprType = valSpace.iterator().next().getBType();
                 for (BLangExpression expr : valSpace) {
                     if (!checkValueSpaceHasSameType((BFiniteType) type, baseExprType)) {
                         return false;
                     }
-                    isValueSpaceOrdered = isOrderedType(expr.type, hasCycle);
+                    isValueSpaceOrdered = isOrderedType(expr.getBType(), hasCycle);
                     if (!isValueSpaceOrdered) {
                         break;
                     }
@@ -5372,7 +5372,7 @@ public class Types {
                 return findCompatibleType(memberTypes.iterator().next());
             default:
                 Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
-                return findCompatibleType(valueSpace.iterator().next().type);
+                return findCompatibleType(valueSpace.iterator().next().getBType());
         }
     }
 

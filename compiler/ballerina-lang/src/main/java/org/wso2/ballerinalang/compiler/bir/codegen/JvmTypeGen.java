@@ -2215,7 +2215,7 @@ public class JvmTypeGen {
 
         for (BLangExpression valueTypePair : finiteType.getValueSpace()) {
             Object value = ((BLangLiteral) valueTypePair).value;
-            BType valueType = valueTypePair.type;
+            BType valueType = valueTypePair.getBType();
             mv.visitInsn(DUP);
 
             JvmCodeGenUtil.loadConstantValue(valueType, value, mv, stringConstantsGen);
