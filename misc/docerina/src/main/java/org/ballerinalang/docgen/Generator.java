@@ -36,7 +36,6 @@ import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.DistinctTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.EnumMemberNode;
-import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
@@ -55,6 +54,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
@@ -67,7 +67,6 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
-import io.ballerina.compiler.syntax.tree.TypedescTypeDescriptorNode;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.generator.model.Annotation;
@@ -202,10 +201,10 @@ public class Generator {
                 ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
                         == SyntaxKind.ERROR_TYPE_DESC) {
             Type detailType = null;
-            ErrorTypeDescriptorNode errorTypeDescNode = (ErrorTypeDescriptorNode)
+            ParameterizedTypeDescriptorNode parameterizedTypeDescNode = (ParameterizedTypeDescriptorNode)
                     ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor();
-            if (errorTypeDescNode.errorTypeParamsNode().isPresent()) {
-                detailType = Type.fromNode(errorTypeDescNode.errorTypeParamsNode().get().typeNode(), semanticModel);
+            if (parameterizedTypeDescNode.typeParamNode().isPresent()) {
+                detailType = Type.fromNode(parameterizedTypeDescNode.typeParamNode().get().typeNode(), semanticModel);
             }
             Error err = new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), detailType);
             err.isDistinct = true;
@@ -236,10 +235,11 @@ public class Generator {
                 module.types.add(bType);
             }
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.ERROR_TYPE_DESC) {
-            ErrorTypeDescriptorNode errorTypeDescriptor = (ErrorTypeDescriptorNode) typeDefinition.typeDescriptor();
+            ParameterizedTypeDescriptorNode parameterizedTypeDescNode =
+                    (ParameterizedTypeDescriptorNode) typeDefinition.typeDescriptor();
             Type type = null;
-            if (errorTypeDescriptor.errorTypeParamsNode().isPresent()) {
-                type = Type.fromNode(errorTypeDescriptor.errorTypeParamsNode().get().typeNode(),
+            if (parameterizedTypeDescNode.typeParamNode().isPresent()) {
+                type = Type.fromNode(parameterizedTypeDescNode.typeParamNode().get().typeNode(),
                         semanticModel);
             }
             module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), type));
@@ -250,8 +250,8 @@ public class Generator {
             addIntersectionTypeModel((IntersectionTypeDescriptorNode) typeDefinition.typeDescriptor(), typeName,
                     metaDataNode, semanticModel, module);
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TYPEDESC_TYPE_DESC) {
-            module.types.add(getTypeDescModel((TypedescTypeDescriptorNode) typeDefinition.typeDescriptor(), typeName,
-                    metaDataNode, semanticModel));
+            module.types.add(getTypeDescModel((ParameterizedTypeDescriptorNode) typeDefinition.typeDescriptor(),
+                    typeName, metaDataNode, semanticModel));
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.INT_TYPE_DESC ||
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.DECIMAL_TYPE_DESC ||
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.XML_TYPE_DESC ||
@@ -388,11 +388,11 @@ public class Generator {
         return bType;
     }
 
-    private static BType getTypeDescModel(TypedescTypeDescriptorNode typeDescriptor, String typeName,
+    private static BType getTypeDescModel(ParameterizedTypeDescriptorNode typeDescriptor, String typeName,
                                           Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel) {
         Type type = null;
-        if (typeDescriptor.typedescTypeParamsNode().isPresent()) {
-            type = Type.fromNode(typeDescriptor.typedescTypeParamsNode().get().typeNode(), semanticModel);
+        if (typeDescriptor.typeParamNode().isPresent()) {
+            type = Type.fromNode(typeDescriptor.typeParamNode().get().typeNode(), semanticModel);
         }
         BType bType = new BType(typeName, getDocFromMetadata(optionalMetadataNode), isDeprecated(optionalMetadataNode),
                 null);

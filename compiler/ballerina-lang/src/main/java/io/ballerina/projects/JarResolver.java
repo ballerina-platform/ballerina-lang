@@ -18,10 +18,16 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.util.ProjectUtils;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
+import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -45,6 +51,7 @@ public class JarResolver {
     private final JBallerinaBackend jBalBackend;
     private final PackageResolution pkgResolution;
     private final PackageContext rootPackageContext;
+    private final PrintStream err = System.err;
 
     private ClassLoader classLoaderWithAllJars;
 
@@ -79,6 +86,29 @@ public class JarResolver {
         jarFiles.add(new JarLibrary(jBalBackend.runtimeLibrary().path(),
                                     PlatformLibraryScope.DEFAULT,
                                     getPackageName(rootPackageContext)));
+
+        // TODO: Move to a compiler extension once Compiler revamp is complete
+        // 4) Add the Observability Symbols Jar
+        if (rootPackageContext.compilationOptions().observabilityIncluded()) {
+            try {
+                // Generating an empty Jar which can be used by the Observability Symbol Collector
+                String packageName = rootPackageContext.packageOrg().value() + "-"
+                        + rootPackageContext.packageName().value();
+                Path observabilityJarPath = ProjectUtils.generateObservabilitySymbolsJar(packageName);
+
+                // Writing the Syntax Tree to the Jar
+                CompilerContext compilerContext = rootPackageContext.project().projectEnvironmentContext()
+                        .getService(CompilerContext.class);
+                ObservabilitySymbolCollector observabilitySymbolCollector
+                        = ObservabilitySymbolCollectorRunner.getInstance(compilerContext);
+                observabilitySymbolCollector.writeToExecutable(observabilityJarPath);
+
+                jarFiles.add(new JarLibrary(observabilityJarPath, PlatformLibraryScope.DEFAULT,
+                        getPackageName(rootPackageContext)));
+            } catch (IOException e) {
+                err.println("\twarning: Failed to add Observability information to Jar due to: " + e.getMessage());
+            }
+        }
 
         // TODO Filter out duplicate jar entries
         return jarFiles;

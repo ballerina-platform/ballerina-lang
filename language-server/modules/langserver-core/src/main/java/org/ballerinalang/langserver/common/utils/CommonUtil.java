@@ -99,6 +99,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -378,21 +379,23 @@ public class CommonUtil {
      * @return {@link List}     List of completion items for the struct fields
      */
     public static List<LSCompletionItem> getRecordFieldCompletionItems(BallerinaCompletionContext context,
-                                                                       Map<String, RecordFieldSymbol> fields) {
+                                                                       Map<String, RecordFieldSymbol> fields,
+                                                                       TypeSymbol symbol) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         AtomicInteger fieldCounter = new AtomicInteger();
         fields.forEach((name, field) -> {
             fieldCounter.getAndIncrement();
             String insertText =
                     getRecordFieldCompletionInsertText(field, Collections.emptyList(), 0, fieldCounter.get());
+            String detail = symbol.getName().isPresent() ? (symbol.getName().get() + "." + name)
+                    : ("(" + symbol.signature() + ")." + name);
             CompletionItem fieldItem = new CompletionItem();
             fieldItem.setInsertText(insertText);
             fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
             fieldItem.setLabel(name);
-            fieldItem.setDetail(ItemResolverConstants.FIELD_TYPE);
             fieldItem.setKind(CompletionItemKind.Field);
             fieldItem.setSortText(Priority.PRIORITY120.toString());
-            completionItems.add(new RecordFieldCompletionItem(context, field, fieldItem));
+            completionItems.add(new RecordFieldCompletionItem(context, field, fieldItem, detail));
         });
 
         return completionItems;
@@ -402,27 +405,48 @@ public class CommonUtil {
      * Get the completion item to fill all the struct fields.
      *
      * @param context Language Server Operation Context
-     * @param fields  Map of fields
+     * @param fields  A non empty map of fields
      * @return {@link LSCompletionItem}   Completion Item to fill all the options
      */
     public static LSCompletionItem getFillAllStructFieldsItem(BallerinaCompletionContext context,
-                                                              Map<String, RecordFieldSymbol> fields) {
+                                                              Map<String, RecordFieldSymbol> fields,
+                                                              TypeSymbol symbol) {
+
         List<String> fieldEntries = new ArrayList<>();
 
-        for (Map.Entry<String, RecordFieldSymbol> fieldSymbolEntry : fields.entrySet()) {
-            String defaultFieldEntry = fieldSymbolEntry.getKey()
-                    + PKG_DELIMITER_KEYWORD + " "
-                    + getDefaultValueForType(fieldSymbolEntry.getValue().typeDescriptor());
-            fieldEntries.add(defaultFieldEntry);
+        Map<String, RecordFieldSymbol> requiredFields = new HashMap<>();
+        for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
+            if (!entry.getValue().isOptional()) {
+                requiredFields.put(entry.getKey(), entry.getValue());
+            }
+        }
+        
+        String label;
+        String detail = symbol.getName().isPresent() ? symbol.getName().get() : symbol.signature();
+        if (!requiredFields.isEmpty()) {
+            label = "Fill " + detail + " Required Fields";
+            for (Map.Entry<String, RecordFieldSymbol> entry : requiredFields.entrySet()) {
+                String fieldEntry = entry.getKey()
+                        + PKG_DELIMITER_KEYWORD + " "
+                        + getDefaultValueForType(entry.getValue().typeDescriptor());
+                fieldEntries.add(fieldEntry);
+            }
+        } else {
+            label = "Fill " + detail + " Optional Fields";
+            for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
+                String fieldEntry = entry.getKey()
+                        + PKG_DELIMITER_KEYWORD + " "
+                        + getDefaultValueForType(entry.getValue().typeDescriptor());
+                fieldEntries.add(fieldEntry);
+            }
         }
 
         String insertText = String.join(("," + LINE_SEPARATOR), fieldEntries);
-        String label = "Add All Attributes";
-
         CompletionItem completionItem = new CompletionItem();
+        completionItem.setFilterText("fill");
         completionItem.setLabel(label);
         completionItem.setInsertText(insertText);
-        completionItem.setDetail(ItemResolverConstants.NONE);
+        completionItem.setDetail(detail);
         completionItem.setKind(CompletionItemKind.Property);
         completionItem.setSortText(Priority.PRIORITY110.toString());
 
@@ -991,6 +1015,19 @@ public class CommonUtil {
     }
 
     /**
+     * Check if the provided line range is within the enclosing line range.
+     *
+     * @param lineRange      Line range to be checked for inclusion
+     * @param enclosingRange Enclosing line range in which the #lineRange reside
+     * @return True if the provided line range resides within the provided enclosing line range
+     */
+    public static boolean isWithinLineRange(LineRange lineRange, LineRange enclosingRange) {
+        Position start = CommonUtil.toPosition(lineRange.startLine());
+        Position end = CommonUtil.toPosition(lineRange.endLine());
+        return CommonUtil.isWithinLineRange(start, enclosingRange) && CommonUtil.isWithinLineRange(end, enclosingRange);
+    }
+
+    /**
      * Returns whether the position is within the range.
      *
      * @param pos   position
@@ -1154,6 +1191,10 @@ public class CommonUtil {
         return symbolName;
     }
 
+    public static boolean isKeyword(String token) {
+        return CommonUtil.BALLERINA_KEYWORDS.contains(token);
+    }
+
     /**
      * Escape a given value.
      *
@@ -1161,7 +1202,7 @@ public class CommonUtil {
      * @return {@link String}
      */
     public static String escapeReservedKeyword(String value) {
-        if (CommonUtil.BALLERINA_KEYWORDS.contains(value)) {
+        if (isKeyword(value)) {
             return "'" + value;
         }
 

@@ -76,7 +76,7 @@ public class BLangListConstructorExpr extends BLangExpression implements ListCon
         public BLangArrayLiteral(Location pos, List<BLangExpression> exprs, BType tupleType) {
             this.pos = pos;
             this.exprs = exprs;
-            this.type = tupleType;
+            this.setBType(tupleType);
         }
 
         @Override
@@ -105,7 +105,7 @@ public class BLangListConstructorExpr extends BLangExpression implements ListCon
         public BLangTupleLiteral(Location pos, List<BLangExpression> exprs, BType tupleType) {
             this.pos = pos;
             this.exprs = exprs;
-            this.type = tupleType;
+            this.setBType(tupleType);
         }
 
         @Override
@@ -128,7 +128,7 @@ public class BLangListConstructorExpr extends BLangExpression implements ListCon
 
         public BLangJSONArrayLiteral(List<BLangExpression> exprs, BType jsonType) {
             this.exprs = exprs;
-            this.type = jsonType;
+            this.setBType(jsonType);
         }
 
         @Override

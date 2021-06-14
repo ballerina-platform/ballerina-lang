@@ -535,7 +535,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         } else if (returnParameter != null && !isExpected) {
             dlog.warning(returnParameter.pos, DiagnosticWarningCode.NO_DOCUMENTABLE_RETURN_PARAMETER);
         } else if (returnParameter != null) {
-            returnParameter.setReturnType(((BLangFunction) node).getReturnTypeNode().type);
+            returnParameter.setReturnType(((BLangFunction) node).getReturnTypeNode().getBType());
         }
     }
 

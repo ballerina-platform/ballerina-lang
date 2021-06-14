@@ -1,0 +1,24 @@
+{
+  "source": {
+    "file": "projectls/error_types.bal"
+  },
+  "position": {
+    "line": 6,
+    "character": 38
+  },
+  "result": [
+    {
+      "range": {
+        "start": {
+          "line": 5,
+          "character": 12
+        },
+        "end": {
+          "line": 5,
+          "character": 19
+        }
+      },
+      "uri": "projectls/modules/lsmod1/source1.bal"
+    }
+  ]
+}
