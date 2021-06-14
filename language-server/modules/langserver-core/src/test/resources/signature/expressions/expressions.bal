@@ -69,8 +69,8 @@ public function expressions() returns error? {
 
     // -- expression, new-expr
     // new-expr := explicit-new-expr | implicit-new-expr
-    Stub stub1 = new(2);
-    Stub stub2 = new Stub(2);
+    Stub stub1 = new(2,);
+    Stub stub2 = new Stub(2,);
 
     // -- expression, service-constructor-expr[!] refer end of this function
 
@@ -78,14 +78,14 @@ public function expressions() returns error? {
     int func = foo(1, false);
 
     // -- expression, field-access-expr
-    Stub stub3 = new Stub(2);
+    Stub stub3 = new Stub(2,"test");
     stub3.foo(1, false);
     stub3.bar(1, false).foo(1, false);
     stub3.obj.foo(1, false);
 
     // -- expression, optional-field-access-expr
     // optional-field-access-expr = expression ?. field-name
-    Stub stub4 = new Stub(2);
+    Stub stub4 = new Stub(2,"test");
     Annot? c = stub4.bar2(1, false)?.bar;
 
     // -- expression,  xml-attribute-access-expr
@@ -107,7 +107,7 @@ public function expressions() returns error? {
     int f4 = fooR(1, ...[foo(1, false)]);
 
     // -- expression, method-call-expr
-    Stub stub5 = new Stub(2);
+    Stub stub5 = new Stub(2,"test");
     stub5.obj.foo(1, false);
 
     // -- expression, functional-constructor-expr
@@ -303,7 +303,7 @@ public client class Stub {
     public Child obj = new Child();
 
     # Create a new Stub
-    public function init(any arg) {
+    public function init(any arg1,string arg2) {
 
     }
 
@@ -405,4 +405,11 @@ function testQNameReference() {
 
 function testQNameReference2() {
     module1:TestClass1 cls = new module1:TestClass1()
+}
+
+// -- expression, function-call-expr-without-params
+int t1 = testFunctionCall()
+
+function testFunctionCall() {
+
 }

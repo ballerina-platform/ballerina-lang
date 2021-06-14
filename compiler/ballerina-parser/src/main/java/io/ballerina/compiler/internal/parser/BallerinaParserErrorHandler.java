@@ -217,16 +217,16 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER, ParserRuleContext.FINAL_KEYWORD };
 
     private static final ParserRuleContext[] OBJECT_METHOD_START =
-            { ParserRuleContext.FUNCTION_KEYWORD, ParserRuleContext.OBJECT_METHOD_FIRST_QUALIFIER };
+            { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.OBJECT_METHOD_FIRST_QUALIFIER };
 
     private static final ParserRuleContext[] OBJECT_METHOD_WITHOUT_FIRST_QUALIFIER =
-            { ParserRuleContext.FUNCTION_KEYWORD, ParserRuleContext.OBJECT_METHOD_SECOND_QUALIFIER };
+            { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.OBJECT_METHOD_SECOND_QUALIFIER };
 
     private static final ParserRuleContext[] OBJECT_METHOD_WITHOUT_SECOND_QUALIFIER =
-            { ParserRuleContext.FUNCTION_KEYWORD, ParserRuleContext.OBJECT_METHOD_THIRD_QUALIFIER };
+            { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.OBJECT_METHOD_THIRD_QUALIFIER };
 
     private static final ParserRuleContext[] OBJECT_METHOD_WITHOUT_THIRD_QUALIFIER =
-            { ParserRuleContext.FUNCTION_KEYWORD, ParserRuleContext.OBJECT_METHOD_FOURTH_QUALIFIER };
+            { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.OBJECT_METHOD_FOURTH_QUALIFIER };
 
     private static final ParserRuleContext[] OBJECT_TYPE_START =
             { ParserRuleContext.OBJECT_KEYWORD, ParserRuleContext.FIRST_OBJECT_TYPE_QUALIFIER };
@@ -4853,20 +4853,23 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
      */
     private ParserRuleContext getNextRuleForFuncTypeFuncKeywordRhs() {
         ParserRuleContext parentCtx = getParentContext();
-        switch (parentCtx) {
-            case FUNC_DEF_OR_FUNC_TYPE:
-                switchContext(ParserRuleContext.VAR_DECL_STMT);
-                startContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
-                break;
-            case CLASS_MEMBER:
-            case OBJECT_MEMBER:
-            case OBJECT_MEMBER_DESCRIPTOR:
-                startContext(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER);
-                break;
-            default:
-                if (getGrandParentContext() == ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR) {
-                    switchContext(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER);
-                }
+        if (parentCtx == ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE) {
+            endContext();
+            parentCtx = getParentContext();
+            switch (parentCtx) {
+                case OBJECT_MEMBER_DESCRIPTOR:
+                case CLASS_MEMBER:
+                case OBJECT_MEMBER:
+                    startContext(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER);
+                    break;
+                case COMP_UNIT:
+                default:
+                    startContext(ParserRuleContext.VAR_DECL_STMT);
+                    startContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
+                    break;
+            }
+        } else if (getGrandParentContext() == ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR) {
+            switchContext(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER);
         }
 
         assert isInTypeDescContext();

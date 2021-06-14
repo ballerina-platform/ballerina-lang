@@ -3466,13 +3466,29 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangStatement convertMatchClausesToIfElseStmt(List<BLangMatchClause> matchClauses,
                                                            BLangSimpleVariable matchExprVar) {
+        BLangDo outerScopeBlock = rewriteMatchClauseScope(matchClauses.get(0).pos, matchClauses.get(0));
+        BLangDo innerScopeBlock = outerScopeBlock;
         BLangIf parentIfNode = convertMatchClauseToIfStmt(matchClauses.get(0), matchExprVar);
         BLangIf currentIfNode = parentIfNode;
         for (int i = 1; i < matchClauses.size(); i++) {
+            BLangDo currentScopeBlock = rewriteMatchClauseScope(matchClauses.get(i).pos, matchClauses.get(i));
+            innerScopeBlock.body.stmts.add(0, currentScopeBlock);
+            innerScopeBlock = currentScopeBlock;
             currentIfNode.elseStmt = convertMatchClauseToIfStmt(matchClauses.get(i), matchExprVar);
             currentIfNode = (BLangIf) currentIfNode.elseStmt;
         }
-        return parentIfNode;
+        innerScopeBlock.body.stmts.add(parentIfNode);
+        return outerScopeBlock;
+    }
+
+    private BLangDo rewriteMatchClauseScope(Location pos, BLangMatchClause matchClause) {
+        BLangDo doStmt = (BLangDo) TreeBuilder.createDoNode();
+        BLangBlockStmt scopeBlock = ASTBuilderUtil.createBlockStmt(pos);
+        scopeBlock.scope = new Scope(matchClause.blockStmt.scope.owner);
+        scopeBlock.scope.entries = matchClause.blockStmt.scope.entries;
+        matchClause.blockStmt.scope = new Scope(scopeBlock.scope.owner);
+        doStmt.body = scopeBlock;
+        return doStmt;
     }
 
     private BLangIf convertMatchClauseToIfStmt(BLangMatchClause matchClause, BLangSimpleVariable matchExprVar) {

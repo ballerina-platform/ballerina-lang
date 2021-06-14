@@ -1428,28 +1428,40 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         typeDefinition.setPrecedence(this.typePrecedence++);
         BTypeSymbol typeDefSymbol;
+
+        boolean label = false;
         if (definedType.tsymbol.name != Names.EMPTY) {
             typeDefSymbol = definedType.tsymbol.createLabelSymbol();
+            label = true;
         } else {
             typeDefSymbol = definedType.tsymbol;
         }
+
+        boolean isNonLabelIntersectionType = definedType.tag == TypeTags.INTERSECTION && !label;
+        BType effectiveDefinedType = isNonLabelIntersectionType ? ((BIntersectionType) definedType).effectiveType :
+                definedType;
+
         typeDefSymbol.markdownDocumentation = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
         typeDefSymbol.name = names.fromIdNode(typeDefinition.getName());
         typeDefSymbol.pkgID = env.enclPkg.packageID;
         typeDefSymbol.pos = typeDefinition.name.pos;
         typeDefSymbol.origin = getOrigin(typeDefSymbol.name);
 
-        boolean distinctFlagPresent = isDistinctFlagPresent(typeDefinition);
+        if (isNonLabelIntersectionType) {
+            BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
+            effectiveTypeSymbol.name = typeDefSymbol.name;
+            effectiveTypeSymbol.pkgID = typeDefSymbol.pkgID;
+        }
 
-        if (distinctFlagPresent) {
+        if (isDistinctFlagPresent(typeDefinition)) {
             if (definedType.getKind() == TypeKind.ERROR) {
                 BErrorType distinctType = getDistinctErrorType(typeDefinition, (BErrorType) definedType, typeDefSymbol);
                 typeDefinition.typeNode.setBType(distinctType);
                 definedType = distinctType;
-            } else if (definedType.getKind() == TypeKind.INTERSECTION
-                    && ((BIntersectionType) definedType).effectiveType.getKind() == TypeKind.ERROR) {
+            } else if (definedType.tag == TypeTags.INTERSECTION &&
+                    ((BIntersectionType) definedType).effectiveType.getKind() == TypeKind.ERROR) {
                 populateErrorTypeIds((BErrorType) ((BIntersectionType) definedType).effectiveType,
-                                (BLangIntersectionTypeNode) typeDefinition.typeNode, typeDefinition.name.value);
+                                     (BLangIntersectionTypeNode) typeDefinition.typeNode, typeDefinition.name.value);
             } else if (definedType.getKind() == TypeKind.OBJECT) {
                 BObjectType distinctType = getDistinctObjectType(typeDefinition, (BObjectType) definedType,
                                                                  typeDefSymbol);
@@ -1489,6 +1501,13 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
         definedType.flags |= typeDefSymbol.flags;
+
+        if (isNonLabelIntersectionType) {
+            BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
+            effectiveTypeSymbol.flags |= definedType.tsymbol.flags;
+            effectiveTypeSymbol.origin = VIRTUAL;
+            effectiveDefinedType.flags |= definedType.flags;
+        }
 
         typeDefinition.symbol = typeDefSymbol;
         if (typeDefinition.hasCyclicReference) {
@@ -1974,7 +1993,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (varSymbol.type.tag == TypeTags.INVOKABLE) {
             BInvokableSymbol symbol = (BInvokableSymbol) varSymbol;
             BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) symbol.type.tsymbol;
-            symbol.params = tsymbol.params;
+            symbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
             symbol.restParam = tsymbol.restParam;
             symbol.retType = tsymbol.returnType;
         }
@@ -1999,9 +2018,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleVariable varNode) {
         if (varNode.isDeclaredWithVar) {
-            varNode.symbol = defineVarSymbol(varNode.pos, varNode.flagSet, symTable.noType,
-                    names.fromString(anonymousModelHelper.getNextTupleVarKey(env.enclPkg.packageID)), env,
-                    varNode.internal);
+            varNode.symbol =
+                    defineVarSymbol(varNode.pos, varNode.flagSet, symTable.noType,
+                                    names.fromString(anonymousModelHelper.getNextTupleVarKey(env.enclPkg.packageID)),
+                                    env, true);
             // Symbol enter with type other
             List<BLangVariable> memberVariables = new ArrayList<>(varNode.memberVariables);
             if (varNode.restVariable != null) {
@@ -2027,7 +2047,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     boolean checkTypeAndVarCountConsistency(BLangTupleVariable var, SymbolEnv env) {
         if (var.symbol == null) {
             Name varName = names.fromString(anonymousModelHelper.getNextTupleVarKey(env.enclPkg.packageID));
-            var.symbol = defineVarSymbol(var.pos, var.flagSet, var.getBType(), varName, env, var.internal);
+            var.symbol = defineVarSymbol(var.pos, var.flagSet, var.getBType(), varName, env, true);
         }
         
         return checkTypeAndVarCountConsistency(var, null, env);
@@ -2207,9 +2227,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordVariable recordVar) {
         if (recordVar.isDeclaredWithVar) {
-            recordVar.symbol = defineVarSymbol(recordVar.pos, recordVar.flagSet, symTable.noType,
-                    names.fromString(anonymousModelHelper.getNextRecordVarKey(env.enclPkg.packageID)), env,
-                    recordVar.internal);
+            recordVar.symbol =
+                    defineVarSymbol(recordVar.pos, recordVar.flagSet, symTable.noType,
+                                    names.fromString(anonymousModelHelper.getNextRecordVarKey(env.enclPkg.packageID)),
+                                    env, true);
             // Symbol enter each member with type other.
             for (BLangRecordVariable.BLangRecordVariableKeyValue variable : recordVar.variableList) {
                 BLangVariable value = variable.getValue();
@@ -2238,7 +2259,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     boolean symbolEnterAndValidateRecordVariable(BLangRecordVariable var, SymbolEnv env) {
         if (var.symbol == null) {
             Name varName = names.fromString(anonymousModelHelper.getNextRecordVarKey(env.enclPkg.packageID));
-            var.symbol = defineVarSymbol(var.pos, var.flagSet, var.getBType(), varName, env, var.internal);
+            var.symbol = defineVarSymbol(var.pos, var.flagSet, var.getBType(), varName, env, true);
         }
 
         return validateRecordVariable(var, env);
@@ -2736,9 +2757,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorVariable errorVar) {
         if (errorVar.isDeclaredWithVar) {
-            errorVar.symbol = defineVarSymbol(errorVar.pos, errorVar.flagSet, symTable.noType,
-                    names.fromString(anonymousModelHelper.getNextErrorVarKey(env.enclPkg.packageID)), env,
-                    errorVar.internal);
+            errorVar.symbol =
+                    defineVarSymbol(errorVar.pos, errorVar.flagSet, symTable.noType,
+                                    names.fromString(anonymousModelHelper.getNextErrorVarKey(env.enclPkg.packageID)),
+                                    env, true);
 
             // Symbol enter each member with type other.
             BLangSimpleVariable errorMsg = errorVar.message;
@@ -2782,7 +2804,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     boolean symbolEnterAndValidateErrorVariable(BLangErrorVariable var, SymbolEnv env) {
         if (var.symbol == null) {
             Name varName = names.fromString(anonymousModelHelper.getNextErrorVarKey(env.enclPkg.packageID));
-            var.symbol = defineVarSymbol(var.pos, var.flagSet, var.getBType(), varName, env, var.internal);
+            var.symbol = defineVarSymbol(var.pos, var.flagSet, var.getBType(), varName, env, true);
         }
 
         return validateErrorVariable(var, env);
@@ -3626,7 +3648,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             if (!types.isSelectivelyImmutableType(mutableType, true)) {
-                dlog.error(typeDefNode.typeNode.pos, DiagnosticErrorCode.INVALID_INTERSECTION_TYPE, immutableType);
+                dlog.error(typeDefNode.typeNode.pos, DiagnosticErrorCode.INVALID_INTERSECTION_TYPE, typeDefNode.name);
                 typeNode.setBType(symTable.semanticError);
             }
         }
@@ -3914,7 +3936,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                                                     invokableSymbol.type,
                                                                                     env.scope.owner, invokableNode.pos,
                                                                                     SOURCE);
-        functionTypeSymbol.params = invokableSymbol.params;
+        functionTypeSymbol.params = invokableSymbol.params == null ? null : new ArrayList<>(invokableSymbol.params);
         functionTypeSymbol.returnType = invokableSymbol.retType;
 
         BType restType = null;
@@ -3968,7 +3990,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (type.tag == TypeTags.INVOKABLE && type.tsymbol != null) {
             BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) type.tsymbol;
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) varSymbol;
-            invokableSymbol.params = tsymbol.params;
+            invokableSymbol.params = tsymbol.params == null ? null : new ArrayList(tsymbol.params);
             invokableSymbol.restParam = tsymbol.restParam;
             invokableSymbol.retType = tsymbol.returnType;
             invokableSymbol.flags = tsymbol.flags;

@@ -245,6 +245,7 @@
         <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.test.logging.LogAPITestCase" />
+            <class name="org.ballerinalang.test.logging.BadSadTests" />
         </classes>
     </test>
 
