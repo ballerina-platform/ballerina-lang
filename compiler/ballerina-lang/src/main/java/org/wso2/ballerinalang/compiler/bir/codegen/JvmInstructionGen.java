@@ -1363,8 +1363,9 @@ public class JvmInstructionGen {
         BTypeSymbol tsymbol = elementType.tag == TypeTags.RECORD ? elementType.tsymbol :
                 ((BIntersectionType) elementType).effectiveType.tsymbol;
         String typeOwner = JvmCodeGenUtil.getPackageName(elementType.tsymbol.pkgID) + MODULE_INIT_CLASS_NAME;
-        this.mv.visitFieldInsn(GETSTATIC, typeOwner,
-                jvmTypeGen.getTypedescFieldName(tsymbol.name.value), "L" + TYPEDESC_VALUE + ";");
+        String typedescFieldName =
+                jvmTypeGen.getTypedescFieldName(IdentifierUtils.encodeFunctionIdentifier(tsymbol.name.value));
+        this.mv.visitFieldInsn(GETSTATIC, typeOwner, typedescFieldName, "L" + TYPEDESC_VALUE + ";");
         this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD, String.format("(L%s;J[L%s;" +
                 "L%s;)V", ARRAY_TYPE, LIST_INITIAL_VALUE_ENTRY, TYPEDESC_VALUE), false);
     }
