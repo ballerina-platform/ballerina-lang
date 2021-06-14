@@ -10,6 +10,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
+      "filterText": "record",
       "insertText": "record {${1}}",
       "insertTextFormat": "Snippet"
     },
@@ -18,31 +19,16 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
+      "filterText": "record",
       "insertText": "record {|${1}|}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestRecord1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "TestRecord1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap1",
+      "label": "TestMap3",
       "kind": "TypeParameter",
       "detail": "Map",
       "sortText": "M",
-      "insertText": "TestMap1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap2",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "M",
-      "insertText": "TestMap2",
+      "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     },
     {
@@ -57,11 +43,27 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestMap3",
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "TestRecord1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap2",
       "kind": "TypeParameter",
       "detail": "Map",
       "sortText": "M",
-      "insertText": "TestMap3",
+      "insertText": "TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap1",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "M",
+      "insertText": "TestMap1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -73,11 +75,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "test",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -91,7 +93,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "value",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
         }
       ]
     },
@@ -142,11 +167,11 @@
       ]
     },
     {
-      "label": "ballerina/lang.value",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "value",
+      "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -160,30 +185,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -304,6 +306,7 @@
       "kind": "TypeParameter",
       "detail": "type ",
       "sortText": "Q",
+      "filterText": "map",
       "insertText": "map",
       "insertTextFormat": "Snippet"
     }

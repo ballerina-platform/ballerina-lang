@@ -13,10 +13,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "test",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -30,7 +30,29 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "value",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
         }
       ]
     },
@@ -79,10 +101,10 @@
       ]
     },
     {
-      "label": "ballerina/lang.value",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "value",
+      "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -96,29 +118,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -221,31 +221,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestRecord1",
-      "kind": "Struct",
-      "detail": "Record",
-      "insertText": "TestRecord1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap1",
+      "label": "TestMap3",
       "kind": "TypeParameter",
       "detail": "Map",
-      "insertText": "TestMap1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap2",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "insertText": "TestMap2",
+      "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     },
     {
@@ -259,10 +238,31 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestMap3",
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "insertText": "TestRecord1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap2",
       "kind": "TypeParameter",
       "detail": "Map",
-      "insertText": "TestMap3",
+      "insertText": "TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap1",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "insertText": "TestMap1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -325,6 +325,7 @@
       "label": "record",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "record",
       "insertText": "record ",
       "insertTextFormat": "Snippet"
     },
@@ -332,6 +333,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
@@ -339,6 +341,7 @@
       "label": "record {}",
       "kind": "Snippet",
       "detail": "Snippet",
+      "filterText": "record",
       "insertText": "record {${1}}",
       "insertTextFormat": "Snippet"
     },
@@ -346,6 +349,7 @@
       "label": "record {||}",
       "kind": "Snippet",
       "detail": "Snippet",
+      "filterText": "record",
       "insertText": "record {|${1}|}",
       "insertTextFormat": "Snippet"
     },
@@ -353,6 +357,7 @@
       "label": "distinct",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "distinct",
       "insertText": "distinct",
       "insertTextFormat": "Snippet"
     },
@@ -360,6 +365,7 @@
       "label": "object {}",
       "kind": "Snippet",
       "detail": "Snippet",
+      "filterText": "object",
       "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
     }
