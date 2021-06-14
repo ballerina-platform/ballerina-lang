@@ -547,6 +547,11 @@ public class BJSONValueTest {
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
     }
 
+    @Test
+    public void testJsonLaxErrorLifting() {
+        BRunUtil.invoke(compileResult, "testJsonLaxErrorLifting");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

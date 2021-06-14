@@ -2425,7 +2425,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     fieldAccessExpr.isCompoundAssignmentLValue;
         }
 
-        BType varRefType = types.getTypeWithEffectiveIntersectionTypes(getTypeOfExprInFieldAccess(containerExpression));
+        BType varRefType = types.getTypeWithEffectiveIntersectionTypes(checkExpr(containerExpression, env));
 
         // Disallow `expr.ns:attrname` syntax on non xml expressions.
         if (fieldAccessExpr instanceof BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess
@@ -5133,23 +5133,8 @@ public class TypeChecker extends BLangNodeVisitor {
             typeOfExprWithCheckingKeyword = BUnionType.create(null, expType, symTable.errorType);
         }
 
-        if (exprWithCheckingKeyword.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
-                operatorType.equals("check") && types.isUnionOfSimpleBasicTypes(expType)) {
-            BType varRefType = getTypeOfExprInFieldAccess(((BLangFieldBasedAccess) exprWithCheckingKeyword).expr);
-            if (types.isLax(varRefType)) {
-                ArrayList<BLangExpression> argExprs = new ArrayList<>();
-                BType typedescType = new BTypedescType(expType, null);
-                BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
-                typedescExpr.resolvedType = expType;
-                typedescExpr.type = typedescType;
-                argExprs.add(typedescExpr);
-                BLangInvocation invocation = ASTBuilderUtil.createLangLibInvocationNode(FUNCTION_NAME_ENSURE_TYPE,
-                                                                    argExprs, exprWithCheckingKeyword, checkedExpr.pos);
-                invocation.symbol = symResolver.lookupLangLibMethod(typeOfExprWithCheckingKeyword,
-                                                                    names.fromString(invocation.name.value));
-                invocation.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-                checkedExpr.expr = invocation;
-            }
+        if (checkedExpr.getKind() == NodeKind.CHECK_EXPR && types.isUnionOfSimpleBasicTypes(expType)) {
+            rewriteWithEnsureTypeFunc(checkedExpr, exprWithCheckingKeyword, typeOfExprWithCheckingKeyword);
         }
 
         BType exprType = checkExpr(checkedExpr.expr, env, typeOfExprWithCheckingKeyword);
@@ -5226,6 +5211,26 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(checkedExpr, actualType, expType);
+    }
+
+    private void rewriteWithEnsureTypeFunc(BLangCheckedExpr checkedExpr, BLangExpression exprWithCheckingKeyword,
+                                           BType typeOfExprWithCheckingKeyword) {
+        BType exprType = checkExpr(exprWithCheckingKeyword, env);
+        BType errorLiftedType = types.getSafeType(exprType, false, true);
+        if (types.isLax(errorLiftedType)) {
+            ArrayList<BLangExpression> argExprs = new ArrayList<>();
+            BType typedescType = new BTypedescType(expType, null);
+            BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
+            typedescExpr.resolvedType = expType;
+            typedescExpr.type = typedescType;
+            argExprs.add(typedescExpr);
+            BLangInvocation invocation = ASTBuilderUtil.createLangLibInvocationNode(FUNCTION_NAME_ENSURE_TYPE,
+                                                                argExprs, exprWithCheckingKeyword, checkedExpr.pos);
+            invocation.symbol = symResolver.lookupLangLibMethod(typeOfExprWithCheckingKeyword,
+                                                                names.fromString(invocation.name.value));
+            invocation.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+            checkedExpr.expr = invocation;
+        }
     }
 
     @Override
@@ -6572,11 +6577,6 @@ public class TypeChecker extends BLangNodeVisitor {
         xmlTextLiteral.pos = exprs.get(0).pos;
         xmlTextLiteral.type = symTable.xmlType;
         return xmlTextLiteral;
-    }
-
-    private BType getTypeOfExprInFieldAccess(BLangExpression expr) {
-        checkExpr(expr, this.env, symTable.noType);
-        return expr.type;
     }
 
     private BType getAccessExprFinalType(BLangAccessExpression accessExpr, BType actualType) {

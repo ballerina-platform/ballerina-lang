@@ -432,3 +432,59 @@ function testMapJsonToJsonArray() {
     json[] j = [2];
     map<json>[] p = <map<json>[]> j;
 }
+
+function testJsonLaxErrorLifting() returns error? {
+    check testSimpleVarRefJsonErrorLiftingInLaxTyping();
+    check testJsonMapErrorLifingInLaxTyping();
+    check testJsonReturnTypeErrorLifting();
+}
+
+public function testSimpleVarRefJsonErrorLiftingInLaxTyping() returns error? {
+    json j = 1;
+    int i = check j;
+    assertEquals(1, i);
+}
+
+public function testJsonMapErrorLifingInLaxTyping() returns error? {
+          json j = {
+             x: {
+                y: {
+                   z: "value"
+                }
+             }
+          };
+
+         string val =  check j.x.y.z;
+         assertEquals("value", val);
+}
+
+public function testJsonReturnTypeErrorLifting() returns error? {
+     int i = check foo();
+     assertEquals(1, i);
+}
+
+function foo() returns json {
+    json j = 1;
+    return j;
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(boolean actual) {
+    assertEquals(true, actual);
+}
+
+function assertFalse(boolean actual) {
+    assertEquals(false, actual);
+}
+
+function assertEquals(anydata expected, anydata actual) {
+    if (expected == actual) {
+        return;
+    }
+    typedesc<anydata> expT = typeof expected;
+    typedesc<anydata> actT = typeof actual;
+    string msg = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+    panic error(ASSERTION_ERROR_REASON, message = msg);
+}
