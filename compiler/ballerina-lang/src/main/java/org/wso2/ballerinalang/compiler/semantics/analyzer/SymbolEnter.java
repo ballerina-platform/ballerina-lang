@@ -1997,9 +1997,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleVariable varNode) {
         if (varNode.isDeclaredWithVar) {
-            varNode.symbol = defineVarSymbol(varNode.pos, varNode.flagSet, symTable.noType,
-                    names.fromString(anonymousModelHelper.getNextTupleVarKey(env.enclPkg.packageID)), env,
-                    varNode.internal);
+            varNode.symbol =
+                    defineVarSymbol(varNode.pos, varNode.flagSet, symTable.noType,
+                                    names.fromString(anonymousModelHelper.getNextTupleVarKey(env.enclPkg.packageID)),
+                                    env, true);
             // Symbol enter with type other
             List<BLangVariable> memberVariables = new ArrayList<>(varNode.memberVariables);
             if (varNode.restVariable != null) {
@@ -2025,7 +2026,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     boolean checkTypeAndVarCountConsistency(BLangTupleVariable var, SymbolEnv env) {
         if (var.symbol == null) {
             Name varName = names.fromString(anonymousModelHelper.getNextTupleVarKey(env.enclPkg.packageID));
-            var.symbol = defineVarSymbol(var.pos, var.flagSet, var.getBType(), varName, env, var.internal);
+            var.symbol = defineVarSymbol(var.pos, var.flagSet, var.getBType(), varName, env, true);
         }
         
         return checkTypeAndVarCountConsistency(var, null, env);
@@ -2205,9 +2206,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordVariable recordVar) {
         if (recordVar.isDeclaredWithVar) {
-            recordVar.symbol = defineVarSymbol(recordVar.pos, recordVar.flagSet, symTable.noType,
-                    names.fromString(anonymousModelHelper.getNextRecordVarKey(env.enclPkg.packageID)), env,
-                    recordVar.internal);
+            recordVar.symbol =
+                    defineVarSymbol(recordVar.pos, recordVar.flagSet, symTable.noType,
+                                    names.fromString(anonymousModelHelper.getNextRecordVarKey(env.enclPkg.packageID)),
+                                    env, true);
             // Symbol enter each member with type other.
             for (BLangRecordVariable.BLangRecordVariableKeyValue variable : recordVar.variableList) {
                 BLangVariable value = variable.getValue();
@@ -2236,7 +2238,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     boolean symbolEnterAndValidateRecordVariable(BLangRecordVariable var, SymbolEnv env) {
         if (var.symbol == null) {
             Name varName = names.fromString(anonymousModelHelper.getNextRecordVarKey(env.enclPkg.packageID));
-            var.symbol = defineVarSymbol(var.pos, var.flagSet, var.getBType(), varName, env, var.internal);
+            var.symbol = defineVarSymbol(var.pos, var.flagSet, var.getBType(), varName, env, true);
         }
 
         return validateRecordVariable(var, env);
@@ -2565,9 +2567,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorVariable errorVar) {
         if (errorVar.isDeclaredWithVar) {
-            errorVar.symbol = defineVarSymbol(errorVar.pos, errorVar.flagSet, symTable.noType,
-                    names.fromString(anonymousModelHelper.getNextErrorVarKey(env.enclPkg.packageID)), env,
-                    errorVar.internal);
+            errorVar.symbol =
+                    defineVarSymbol(errorVar.pos, errorVar.flagSet, symTable.noType,
+                                    names.fromString(anonymousModelHelper.getNextErrorVarKey(env.enclPkg.packageID)),
+                                    env, true);
 
             // Symbol enter each member with type other.
             BLangSimpleVariable errorMsg = errorVar.message;
@@ -2611,7 +2614,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     boolean symbolEnterAndValidateErrorVariable(BLangErrorVariable var, SymbolEnv env) {
         if (var.symbol == null) {
             Name varName = names.fromString(anonymousModelHelper.getNextErrorVarKey(env.enclPkg.packageID));
-            var.symbol = defineVarSymbol(var.pos, var.flagSet, var.getBType(), varName, env, var.internal);
+            var.symbol = defineVarSymbol(var.pos, var.flagSet, var.getBType(), varName, env, true);
         }
 
         return validateErrorVariable(var, env);
