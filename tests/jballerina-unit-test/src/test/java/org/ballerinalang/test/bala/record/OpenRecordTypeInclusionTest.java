@@ -77,9 +77,8 @@ public class OpenRecordTypeInclusionTest {
                 "PersonTwo]'", 89, 1);
         BAssertUtil.validateError(negative, index++, "invalid cyclic type reference in '[Employee, PersonTwo, " +
                 "Employee]'", 94, 1);
-        BAssertUtil.validateError(negative, index++, "redeclared symbol 'body'", 105, 6);
-        BAssertUtil.validateError(negative, index++, "incompatible subtype: 'float' type field 'body' cannot " +
-                "override included field type 'Baz'", 106, 5);
+        BAssertUtil.validateError(negative, index++, "included field 'body' of type 'float' cannot be " +
+                "overridden by a field of type 'Baz': expected a subtype of 'float'", 106, 5);
         assertEquals(negative.getErrorCount(), index);
     }
 

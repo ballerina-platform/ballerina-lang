@@ -103,9 +103,16 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 66, 6);
         BAssertUtil.validateError(negativeResult, i++, "variable 'name' is not initialized", 69, 16);
         BAssertUtil.validateError(negativeResult, i++, "variable 'salary' is not initialized", 73, 16);
-        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'body'", 83, 6);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible subtype: 'anydata' type field 'body' cannot " +
-                "override included field type 'Baz2'", 84, 5);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
+    }
+
+    @Test
+    public void testOutOfOrderObjectTypeReferenceNegative() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/object" +
+                "/object_out_of_order_inclusion_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "included field 'body' of type 'anydata' cannot " +
+                "be overridden by a field of type 'Baz2': expected a subtype of 'anydata'", 24, 5);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

@@ -711,11 +711,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                                 DiagnosticErrorCode.MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD,
                                 existingVariable.name.value);
                     }
-                    if (types.isAssignable(existingVariable.getBType(), field.type)) {
-                        continue;
+                    if (!types.isAssignable(existingVariable.getBType(), field.type)) {
+                        dlog.error(existingVariable.pos, DiagnosticErrorCode.INCOMPATIBLE_SUB_TYPE_FIELD,
+                                field.name, field.getType(), existingVariable.getBType());
                     }
-                    dlog.error(existingVariable.pos, DiagnosticErrorCode.INCOMPATIBLE_SUB_TYPE_FIELD,
-                            field.type, field.name, existingVariable.getBType());
+                    continue;
                 }
 
                 BLangSimpleVariable var = ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type);
@@ -4198,8 +4198,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     }
                     if (!types.isAssignable(existingVariable.getBType(), f.type)) {
                         dlog.error(existingVariable.pos, DiagnosticErrorCode.INCOMPATIBLE_SUB_TYPE_FIELD,
-                                f.type, f.name, existingVariable.getBType());
-                        return true;
+                                f.name, f.getType(), existingVariable.getBType());
                     }
                     return false;
                 }
