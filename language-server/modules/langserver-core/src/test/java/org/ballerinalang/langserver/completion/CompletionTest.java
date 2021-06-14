@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.completion;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
@@ -102,9 +103,12 @@ public abstract class CompletionTest {
         JsonObject positionObj = configJsonObject.get("position").getAsJsonObject();
         position.setLine(positionObj.get("line").getAsInt());
         position.setCharacter(positionObj.get("character").getAsInt());
+        JsonElement triggerCharElement = configJsonObject.get("triggerCharacter");
+        String triggerChar = triggerCharElement == null ? "" : triggerCharElement.getAsString();
 
         TestUtil.openDocument(serviceEndpoint, sourcePath);
-        responseString = TestUtil.getCompletionResponse(sourcePath.toString(), position, this.serviceEndpoint);
+        responseString = TestUtil.getCompletionResponse(sourcePath.toString(), position,
+                this.serviceEndpoint, triggerChar);
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
         return responseString;

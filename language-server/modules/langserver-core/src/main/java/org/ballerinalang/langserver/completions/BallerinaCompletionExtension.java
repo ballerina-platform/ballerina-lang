@@ -47,7 +47,7 @@ public class BallerinaCompletionExtension implements CompletionExtension {
                                         CompletionContext context,
                                         LanguageServerContext serverContext)
             throws Throwable {
-        BallerinaCompletionContext bcContext = new BallerinaCompletionContextImpl(context, serverContext);
+        BallerinaCompletionContext bcContext = new BallerinaCompletionContextImpl(context, serverContext, inputParams);
         return CompletionUtil.getCompletionItems(bcContext);
     }
 }
