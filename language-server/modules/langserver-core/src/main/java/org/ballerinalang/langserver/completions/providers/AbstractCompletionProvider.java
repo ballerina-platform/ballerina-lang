@@ -74,6 +74,7 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -81,8 +82,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
@@ -228,15 +227,14 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
     protected List<LSCompletionItem> getTypeItems(BallerinaCompletionContext context) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        visibleSymbols.forEach(bSymbol -> {
-            // Specifically remove the error type, since this is covered with langlib suggestion and type builtin types
-            if (!Names.ERROR.getValue().equals(bSymbol.getName().orElse(""))
-                    && (bSymbol.kind() == SymbolKind.TYPE_DEFINITION || bSymbol.kind() == SymbolKind.CLASS
-                    || bSymbol.kind() == ENUM)) {
-                CompletionItem cItem = TypeCompletionItemBuilder.build(bSymbol, bSymbol.getName().get());
-                completionItems.add(new SymbolCompletionItem(context, bSymbol, cItem));
-            }
-        });
+        // Specifically remove the error type, since this is covered with langlib suggestion and type builtin types
+        visibleSymbols.stream()
+                .filter(CommonUtil.typesFilter()
+                                .and(symbol -> !Names.ERROR.getValue().equals(symbol.getName().orElse(""))))
+                .forEach(symbol -> {
+                    CompletionItem cItem = TypeCompletionItemBuilder.build(symbol, symbol.getName().get());
+                    completionItems.add(new SymbolCompletionItem(context, symbol, cItem));
+                });
 
         completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
         completionItems.addAll(Arrays.asList(

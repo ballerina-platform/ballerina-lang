@@ -57,7 +57,7 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
     }
 
     private List<LSCompletionItem> typeDescriptorCItems(BallerinaCompletionContext context) {
-        if (this.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
             QualifiedNameReferenceNode nameRef
                     = (QualifiedNameReferenceNode) context.getNodeAtCursor();
             return this.getCompletionItemList(QNameReferenceUtil.getTypesInModule(context, nameRef), context);
