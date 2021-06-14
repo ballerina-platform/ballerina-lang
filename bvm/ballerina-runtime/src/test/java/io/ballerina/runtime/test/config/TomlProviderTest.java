@@ -665,7 +665,7 @@ public class TomlProviderTest {
     }
 
     @Test(dataProvider = "union-data-provider")
-    public void testTomlProviderUnions(String variableName, Type type, Object expectedValues) {;
+    public void testTomlProviderUnions(String variableName, Type type, Object expectedValues) {
         IntersectionType unionType = new BIntersectionType(ROOT_MODULE, new Type[]{type, PredefinedTypes.TYPE_READONLY}
                 , type, 1, true);
         VariableKey unionVar = new VariableKey(ROOT_MODULE, variableName, unionType, true);

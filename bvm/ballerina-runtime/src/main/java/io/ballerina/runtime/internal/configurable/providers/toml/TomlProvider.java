@@ -60,7 +60,6 @@ import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlBasicValueNode;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlNode;
-import io.ballerina.toml.semantic.ast.TomlStringValueNode;
 import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
@@ -365,7 +364,7 @@ public class TomlProvider implements ConfigProvider {
         if (moduleNode != null && moduleNode.entries().containsKey(key.variable)) {
             tomlValue = moduleNode.entries().get(key.variable);
         }
-        if (tomlValue == null){
+        if (tomlValue == null) {
             return Optional.empty();
         }
         BUnionType unionType = (BUnionType) ((BIntersectionType) key.type).getEffectiveType();
