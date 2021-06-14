@@ -1273,7 +1273,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         analyzeNode(expr, env);
 
         if (!isInvalidIsolatedObjectFieldOrMethodAccessViaSelfIfOutsideLock(fieldAccessExpr, true)) {
-            BTypeSymbol tsymbol = expr.type.tsymbol;
+            BTypeSymbol tsymbol = expr.getBType().tsymbol;
             if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && isSelfOfObject((BLangSimpleVarRef) expr) &&
                     this.nonPublicPotentiallyIsolatedConstructs.containsKey(tsymbol) &&
                     !inClassInitMethod()) {
@@ -3134,7 +3134,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        BType type = classDefinition.type;
+        BType type = classDefinition.getBType();
         if (Symbols.isFlagOn(type.flags, Flags.ISOLATED)) {
             return;
         }
@@ -3142,7 +3142,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         Set<BLangIdentifier> protectedFields = new HashSet<>();
 
         for (BLangSimpleVariable field : classDefinition.fields) {
-            BType fieldType = field.type;
+            BType fieldType = field.getBType();
             if (field.flagSet.contains(Flag.FINAL) && types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(fieldType)) {
                 continue;
             }
