@@ -270,7 +270,7 @@ public class SymbolTable {
         initializeTSymbol(xmlTextType, Names.XML_TEXT, PackageID.XML);
 
         BLangLiteral trueLiteral = new BLangLiteral();
-        trueLiteral.type = this.booleanType;
+        trueLiteral.setBType(this.booleanType);
         trueLiteral.value = Boolean.TRUE;
 
         defineCyclicUnionBasedInternalTypes();

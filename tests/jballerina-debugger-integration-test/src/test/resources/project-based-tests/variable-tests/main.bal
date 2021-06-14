@@ -184,6 +184,8 @@ public function main() {
 
     AnonPerson anonObjectVar = new 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ();
 
+    Student clientObjectVar = new Student();
+
     typedesc<int> typedescVar = int;
     stream<int, error> oddNumberStream = new stream<int, error>(new OddNumberGenerator());
 

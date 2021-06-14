@@ -10,39 +10,41 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
+      "filterText": "readonly",
       "insertText": "readonly ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "rec1Field1",
-      "kind": "Field",
-      "detail": "int",
-      "sortText": "G",
-      "insertText": "rec1Field1: ${1:0}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "rec1Field2",
-      "kind": "Field",
-      "detail": "string",
-      "sortText": "G",
-      "insertText": "rec1Field2: \"${2}\"",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "optionalInt",
       "kind": "Field",
-      "detail": "int",
+      "detail": "(record {| int rec1Field1; string rec1Field2; int optionalInt?; anydata...; |}).optionalInt",
       "sortText": "G",
-      "insertText": "optionalInt: ${3:0}",
+      "insertText": "optionalInt: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Add All Attributes",
+      "label": "rec1Field1",
+      "kind": "Field",
+      "detail": "(record {| int rec1Field1; string rec1Field2; int optionalInt?; anydata...; |}).rec1Field1",
+      "sortText": "G",
+      "insertText": "rec1Field1: ${2:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rec1Field2",
+      "kind": "Field",
+      "detail": "(record {| int rec1Field1; string rec1Field2; int optionalInt?; anydata...; |}).rec1Field2",
+      "sortText": "G",
+      "insertText": "rec1Field2: \"${3}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill record {| int rec1Field1; string rec1Field2; int optionalInt?; anydata...; |} Required Fields",
       "kind": "Property",
-      "detail": "none",
+      "detail": "record {| int rec1Field1; string rec1Field2; int optionalInt?; anydata...; |}",
       "sortText": "Q",
-      "insertText": "rec1Field1: 0,\nrec1Field2: \"\",\noptionalInt: 0",
+      "filterText": "fill",
+      "insertText": "rec1Field1: 0,\nrec1Field2: \"\"",
       "insertTextFormat": "Snippet"
     }
   ]

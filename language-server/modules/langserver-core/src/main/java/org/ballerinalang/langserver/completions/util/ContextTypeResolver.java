@@ -383,7 +383,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (rawType.typeKind() == TypeDescKind.ARRAY) {
             return Optional.of(((ArrayTypeSymbol) rawType).memberTypeDescriptor());
         }
-        
+
         return Optional.empty();
     }
 
@@ -394,7 +394,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     private Optional<Symbol> getTypeFromQNameReference(QualifiedNameReferenceNode node, Predicate<Symbol> predicate) {
         List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, node, predicate);
-        if (moduleContent.size() > 1) {
+        if (moduleContent.size() != 1) {
             // At the moment we do not handle the ambiguity. Hence consider only single item
             return Optional.empty();
         }

@@ -17,16 +17,15 @@ package org.ballerinalang.langserver.hover;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.Documentable;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
-import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
@@ -397,22 +396,12 @@ public class HoverUtil {
         boolean isPublic = false;
         boolean isRemote = false;
 
-        switch (symbol.kind()) {
-            case CLASS_FIELD:
-                isPublic = ((ClassFieldSymbol) symbol).qualifiers().contains(Qualifier.PUBLIC);
-                isPrivate = ((ClassFieldSymbol) symbol).qualifiers().contains(Qualifier.PRIVATE);
-                break;
-            case OBJECT_FIELD:
-                isPublic = ((ObjectFieldSymbol) symbol).qualifiers().contains(Qualifier.PUBLIC);
-                isPrivate = ((ObjectFieldSymbol) symbol).qualifiers().contains(Qualifier.PRIVATE);
-                break;
-            case RESOURCE_METHOD:
-                isResource = true;
-                break;
-            case METHOD:
-                isPublic = ((MethodSymbol) symbol).qualifiers().contains(Qualifier.PUBLIC);
-                isPrivate = ((MethodSymbol) symbol).qualifiers().contains(Qualifier.PRIVATE);
-                isRemote = ((MethodSymbol) symbol).qualifiers().contains(Qualifier.REMOTE);
+        if (symbol instanceof Qualifiable) {
+            Qualifiable qSymbol = (Qualifiable) symbol;
+            isPrivate = qSymbol.qualifiers().contains(Qualifier.PRIVATE);
+            isPublic = qSymbol.qualifiers().contains(Qualifier.PUBLIC);
+            isResource = qSymbol.qualifiers().contains(Qualifier.RESOURCE);
+            isRemote = qSymbol.qualifiers().contains(Qualifier.REMOTE);
         }
 
         if (isResource || isRemote || isPublic) {

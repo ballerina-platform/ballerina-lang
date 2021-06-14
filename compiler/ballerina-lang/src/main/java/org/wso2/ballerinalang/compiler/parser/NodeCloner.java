@@ -293,7 +293,7 @@ public class NodeCloner extends BLangNodeVisitor {
             result.pos = sourceNode.pos;
             result.internal = sourceNode.internal;
             result.addWS(source.getWS());
-            result.type = sourceNode.type;
+            result.setBType(sourceNode.getBType());
         }
         return (T) result;
     }
@@ -330,7 +330,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.originalValue = source.originalValue;
         clone.isFiniteContext = source.isFiniteContext;
         clone.isConstant = source.isConstant;
-        clone.type = source.type;
+        clone.setBType(source.getBType());
     }
 
     private void cloneBLangAccessExpression(BLangAccessExpression source, BLangAccessExpression clone) {

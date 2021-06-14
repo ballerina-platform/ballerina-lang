@@ -6,6 +6,25 @@
   "source": "annotation_decl/source/source1.bal",
   "items": [
     {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "L",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecordArrayType1",
+      "kind": "TypeParameter",
+      "detail": "Array",
+      "sortText": "M",
+      "insertText": "TestRecordArrayType1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "MapType",
       "kind": "TypeParameter",
       "detail": "Array",
@@ -22,25 +41,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestRecordArrayType1",
-      "kind": "TypeParameter",
-      "detail": "Array",
-      "sortText": "M",
-      "insertText": "TestRecordArrayType1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "L",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
@@ -49,11 +49,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "test",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -67,7 +67,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "value",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
         }
       ]
     },
@@ -118,11 +141,11 @@
       ]
     },
     {
-      "label": "ballerina/lang.value",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "value",
+      "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -136,30 +159,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -280,6 +280,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
+      "filterText": "record",
       "insertText": "record {${1}}",
       "insertTextFormat": "Snippet"
     },
@@ -288,6 +289,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
+      "filterText": "record",
       "insertText": "record {|${1}|}",
       "insertTextFormat": "Snippet"
     }

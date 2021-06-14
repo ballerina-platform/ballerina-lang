@@ -14,11 +14,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "test1",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -32,7 +32,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test as test1 ;\n"
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "value3",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value as value3 ;\n"
         }
       ]
     },
@@ -83,11 +106,11 @@
       ]
     },
     {
-      "label": "ballerina/lang.value",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "value3",
+      "insertText": "test1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -101,30 +124,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value as value3 ;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/lang.test as test1 ;\n"
         }
       ]
     },
@@ -241,14 +241,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -257,6 +249,14 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -328,6 +328,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
+      "filterText": "record",
       "insertText": "record ",
       "insertTextFormat": "Snippet"
     },
@@ -336,6 +337,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
+      "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
@@ -344,6 +346,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
+      "filterText": "record",
       "insertText": "record {${1}}",
       "insertTextFormat": "Snippet"
     },
@@ -352,6 +355,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
+      "filterText": "record",
       "insertText": "record {|${1}|}",
       "insertTextFormat": "Snippet"
     },
@@ -360,6 +364,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
+      "filterText": "distinct",
       "insertText": "distinct",
       "insertTextFormat": "Snippet"
     },
@@ -368,6 +373,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
+      "filterText": "object",
       "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
     }
