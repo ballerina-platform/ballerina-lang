@@ -21,6 +21,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -73,8 +74,9 @@ public class BLangUserDefinedType extends BLangType implements UserDefinedTypeNo
     public String toString() {
         String typeName = this.typeName.value;
 
-        if (typeName.startsWith("$") && this.type != null) {
-            String tName = this.type.toString();
+        BType thisType = this.getBType();
+        if (typeName.startsWith("$") && thisType != null) {
+            String tName = thisType.toString();
 
             // When there are errors in this type, we can't just use the tName.
             // Fall back to pkgAlias:typeName pattern

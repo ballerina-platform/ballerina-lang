@@ -1935,7 +1935,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (!(hasReadOnlyType || isErrorIntersection)) {
             dlog.error(intersectionTypeNode.pos,
                     DiagnosticErrorCode.UNSUPPORTED_TYPE_INTERSECTION, intersectionTypeNode);
-            return symTable.noType;
+            return symTable.semanticError;
         }
 
         BType potentialIntersectionType = getPotentialIntersection(
