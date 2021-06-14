@@ -108,9 +108,7 @@ public class Symbols {
 
     public static BErrorTypeSymbol createErrorSymbol(long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                                                      Location pos, SymbolOrigin origin) {
-        BErrorTypeSymbol typeSymbol = new BErrorTypeSymbol(SymTag.ERROR, flags, name, pkgID, type, owner, pos, origin);
-        typeSymbol.kind = SymbolKind.ERROR;
-        return typeSymbol;
+        return new BErrorTypeSymbol(SymTag.ERROR, flags, name, pkgID, type, owner, pos, origin);
     }
 
     public static BAnnotationSymbol createAnnotationSymbol(long flags, Set<AttachPoint> points, Name name,

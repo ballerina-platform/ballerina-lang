@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.api;
 
+import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -44,6 +45,17 @@ public interface SemanticModel {
      * @return {@link List} of visible symbols in the given location
      */
     List<Symbol> visibleSymbols(Document sourceFile, LinePosition position);
+
+    /**
+     * Lookup the visible symbols at the given location. This additionally takes a list of diagnostic states. These are
+     * used to determine whether to include variable symbols with varying diagnostic states.
+     *
+     * @param sourceFile The source file document in which to look up the position
+     * @param position   text position in the source
+     * @param states     The allowed states of in-scope variable symbols
+     * @return {@link List} of visible symbols in the given location
+     */
+    List<Symbol> visibleSymbols(Document sourceFile, LinePosition position, DiagnosticState... states);
 
     /**
      * Lookup the symbol at the given location.

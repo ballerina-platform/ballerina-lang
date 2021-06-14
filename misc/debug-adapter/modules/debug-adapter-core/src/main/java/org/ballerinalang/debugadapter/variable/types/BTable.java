@@ -29,6 +29,7 @@ import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -45,12 +46,15 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFro
 public class BTable extends IndexedCompoundVariable {
 
     private int tableSize = -1;
-    private ArrayReference tableKeys = null;
+    private final Map<String, Value> tableValues = new LinkedHashMap<>();
 
     private static final String FIELD_CONSTRAINT = "constraint";
     private static final String METHOD_SIZE = "size";
-    private static final String METHOD_GETKEYS = "getKeys";
-    private static final String METHOD_GET = "get";
+    private static final String METHOD_GET_ITERATOR = "getIterator";
+    private static final String METHOD_HAS_NEXT = "hasNext";
+    private static final String METHOD_NEXT = "next";
+    private static final String METHOD_GET_VALUES = "getValues";
+    private static final String ITERATOR_VALUE_PATTERN = ".*IteratorValue;$";
 
     public BTable(SuspendedContext context, String name, Value value) {
         super(context, name, BVariableType.TABLE, value);
@@ -73,8 +77,8 @@ public class BTable extends IndexedCompoundVariable {
             if (!(jvmValue instanceof ObjectReference)) {
                 return Either.forRight(new ArrayList<>());
             }
-            Value[] tableKeys = getTableKeys(start, count);
-            return Either.forRight(getTableEntriesFor(tableKeys));
+            populateTableValues(start, count);
+            return Either.forRight(getChildVariables(start, count));
         } catch (Exception ignored) {
             return Either.forRight(new ArrayList<>());
         }
@@ -132,66 +136,69 @@ public class BTable extends IndexedCompoundVariable {
         }
     }
 
-    private Value[] getTableKeys(int start, int count) {
-        if (tableKeys == null) {
-            populateTableKeys();
-        }
-        if (tableKeys == null) {
-            return new Value[0];
-        }
-        // If count > 0, returns a sublist of the child variables
-        // If count == 0, returns all child variables
-        if (count > 0) {
-            Value[] keyArray = new Value[count];
-            for (int index = start; index < start + count; index++) {
-                keyArray[index - start] = tableKeys.getValue(index);
-            }
-            return keyArray;
-        } else {
-            int variableLimit = getTableSize();
-            Value[] keyArray = new Value[variableLimit];
-            for (int index = 0; index < variableLimit; index++) {
-                keyArray[index] = tableKeys.getValue(index);
-            }
-            return keyArray;
-        }
-    }
-
-    private void populateTableKeys() {
-        try {
-            Optional<Method> method = VariableUtils.getMethod(jvmValue, METHOD_GETKEYS);
-            if (method.isEmpty()) {
-                return;
-            }
-            Value keys = ((ObjectReference) jvmValue).invokeMethod(getContext().getOwningThread().getThreadReference(),
-                    method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
-            if (!(keys instanceof ArrayReference)) {
-                return;
-            }
-            tableKeys = (ArrayReference) keys;
-        } catch (Exception ignored) {
-            tableKeys = null;
-        }
-    }
-
-    private List<Value> getTableEntriesFor(Value[] tableKeys) {
-        try {
-            List<Value> tableValues = new ArrayList<>();
-            for (Value key : tableKeys) {
-                // Invokes "get(key)" method on table variable instance object.
-                Optional<Method> method = VariableUtils.getMethod(jvmValue, METHOD_GET);
-                if (method.isEmpty()) {
-                    return new ArrayList<>();
+    private void populateTableValues(int start, int count) throws Exception {
+        int index = 0;
+        Value iterator = getIterator();
+        while (hasNext(iterator) && index < start + count) {
+            Value next = nextElement(iterator);
+            if (index >= start && index < start + count) {
+                if (tableValues.containsKey(String.valueOf(index))) {
+                    continue;
                 }
-                ArrayList<Value> args = new ArrayList<>();
-                args.add(key);
-                Value tableValue = ((ObjectReference) jvmValue).invokeMethod(getContext().getOwningThread()
-                        .getThreadReference(), method.get(), args, ObjectReference.INVOKE_SINGLE_THREADED);
-                tableValues.add(tableValue);
+                Value values = getValues(next);
+                if (values == null) {
+                    continue;
+                }
+                Value value = ((ArrayReference) values).getValue(1);
+                tableValues.put(String.valueOf(index), value);
             }
-            return tableValues;
-        } catch (Exception e) {
-            return new ArrayList<>();
+            index++;
         }
+    }
+
+    private ArrayList<Value> getChildVariables(int start, int count) {
+        ArrayList<Value> childVariables = new ArrayList<>();
+        for (int i = start; i < start + count; i++) {
+            childVariables.add(tableValues.get(String.valueOf(i)));
+        }
+        return childVariables;
+    }
+
+    private Value getIterator() throws Exception {
+        Optional<Method> getIteratorMethod =
+            VariableUtils.getMethod(jvmValue, METHOD_GET_ITERATOR, ITERATOR_VALUE_PATTERN);
+        if (getIteratorMethod.isEmpty()) {
+            return null;
+        }
+        return ((ObjectReference) jvmValue).invokeMethod(getContext().getOwningThread().getThreadReference(),
+            getIteratorMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+    }
+
+    private boolean hasNext(Value iterator) throws Exception {
+        Optional<Method> hasNextMethod = VariableUtils.getMethod(iterator, METHOD_HAS_NEXT);
+        if (hasNextMethod.isEmpty()) {
+            return false;
+        }
+        Value hasNext = ((ObjectReference) iterator).invokeMethod(getContext().getOwningThread().getThreadReference(),
+            hasNextMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+        return Boolean.parseBoolean(hasNext.toString());
+    }
+
+    private Value nextElement(Value iterator) throws Exception {
+        Optional<Method> nextMethod = VariableUtils.getMethod(iterator, METHOD_NEXT);
+        if (nextMethod.isEmpty()) {
+            return null;
+        }
+        return ((ObjectReference) iterator).invokeMethod(getContext().getOwningThread().getThreadReference(),
+            nextMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+    }
+
+    private Value getValues(Value next) throws Exception {
+        Optional<Method> getValuesMethod = VariableUtils.getMethod(next, METHOD_GET_VALUES);
+        if (getValuesMethod.isEmpty()) {
+            return null;
+        }
+        return ((ObjectReference) next).invokeMethod(getContext().getOwningThread().getThreadReference(),
+            getValuesMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
     }
 }

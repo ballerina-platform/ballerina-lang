@@ -21,8 +21,8 @@ function testIncompatibleTypes() {
     future<Foo> f3 = f1;
     future<int|string> f4 = f2;
 
-    // future f5 = f1;
-    // future<Bar> f6 = f5;
+    future f5 = f1;
+    future<Bar> f6 = f5;
 }
 
 type Foo record {

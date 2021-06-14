@@ -38,6 +38,13 @@ public class RecordFieldCompletionItem extends AbstractLSCompletionItem {
         completionItem.setDetail(CommonUtil.getModifiedTypeName(context, fieldSymbol.typeDescriptor()));
     }
 
+    public RecordFieldCompletionItem(BallerinaCompletionContext context, RecordFieldSymbol fieldSymbol,
+                                     CompletionItem completionItem, String detail) {
+        super(context, completionItem, CompletionItemType.RECORD_FIELD);
+        this.fieldSymbol = fieldSymbol;
+        completionItem.setDetail(detail);
+    }
+
     public RecordFieldSymbol getFieldSymbol() {
         return fieldSymbol;
     }

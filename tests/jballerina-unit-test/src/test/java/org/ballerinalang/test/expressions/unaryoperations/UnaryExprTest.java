@@ -184,13 +184,22 @@ public class UnaryExprTest {
         BRunUtil.invoke(result, "testComplementOperator");
     }
 
+    @Test(description = "Test unary operators with int sub types")
+    public void testUnaryOperationsWithIntSubtypes() {
+        BRunUtil.invoke(result, "testUnaryOperationsWithIntSubtypes");
+    }
+
     @Test(description = "Test unary statement with errors")
     public void testUnaryStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 4);
+        Assert.assertEquals(resultNegative.getErrorCount(), 6);
         BAssertUtil.validateError(resultNegative, 0, "operator '+' not defined for 'json'", 5, 10);
         BAssertUtil.validateError(resultNegative, 1, "operator '-' not defined for 'json'", 14, 10);
         BAssertUtil.validateError(resultNegative, 2, "operator '!' not defined for 'json'", 23, 10);
         BAssertUtil.validateError(resultNegative, 3, "operator '!' not defined for 'int'", 29, 13);
+        BAssertUtil.validateError(resultNegative, 4, "incompatible types: expected 'int:Unsigned8', found 'int'",
+                 34, 24);
+        BAssertUtil.validateError(resultNegative, 5, "incompatible types: expected 'int:Signed8', found 'int'",
+                35, 22);
     }
 
     @AfterClass

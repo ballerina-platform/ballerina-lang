@@ -1186,15 +1186,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public ParameterizedTypeDescriptorNode transform(
-            ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
-        Token parameterizedType =
-                modifyToken(parameterizedTypeDescriptorNode.parameterizedType());
-        TypeParameterNode typeParameter =
-                modifyNode(parameterizedTypeDescriptorNode.typeParameter());
-        return parameterizedTypeDescriptorNode.modify(
-                parameterizedType,
-                typeParameter);
+    public MapTypeDescriptorNode transform(
+            MapTypeDescriptorNode mapTypeDescriptorNode) {
+        Token mapKeywordToken =
+                modifyToken(mapTypeDescriptorNode.mapKeywordToken());
+        TypeParameterNode mapTypeParamsNode =
+                modifyNode(mapTypeDescriptorNode.mapTypeParamsNode());
+        return mapTypeDescriptorNode.modify(
+                mapKeywordToken,
+                mapTypeParamsNode);
     }
 
     @Override
@@ -1507,18 +1507,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public ErrorTypeDescriptorNode transform(
-            ErrorTypeDescriptorNode errorTypeDescriptorNode) {
-        Token errorKeywordToken =
-                modifyToken(errorTypeDescriptorNode.errorKeywordToken());
-        TypeParameterNode errorTypeParamsNode =
-                modifyNode(errorTypeDescriptorNode.errorTypeParamsNode().orElse(null));
-        return errorTypeDescriptorNode.modify(
-                errorKeywordToken,
-                errorTypeParamsNode);
-    }
-
-    @Override
     public StreamTypeDescriptorNode transform(
             StreamTypeDescriptorNode streamTypeDescriptorNode) {
         Token streamKeywordToken =
@@ -1552,18 +1540,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public TypedescTypeDescriptorNode transform(
-            TypedescTypeDescriptorNode typedescTypeDescriptorNode) {
-        Token typedescKeywordToken =
-                modifyToken(typedescTypeDescriptorNode.typedescKeywordToken());
-        TypeParameterNode typedescTypeParamsNode =
-                modifyNode(typedescTypeDescriptorNode.typedescTypeParamsNode().orElse(null));
-        return typedescTypeDescriptorNode.modify(
-                typedescKeywordToken,
-                typedescTypeParamsNode);
-    }
-
-    @Override
     public LetExpressionNode transform(
             LetExpressionNode letExpressionNode) {
         Token letKeyword =
@@ -1579,18 +1555,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 letVarDeclarations,
                 inKeyword,
                 expression);
-    }
-
-    @Override
-    public XmlTypeDescriptorNode transform(
-            XmlTypeDescriptorNode xmlTypeDescriptorNode) {
-        Token xmlKeywordToken =
-                modifyToken(xmlTypeDescriptorNode.xmlKeywordToken());
-        TypeParameterNode xmlTypeParamsNode =
-                modifyNode(xmlTypeDescriptorNode.xmlTypeParamsNode().orElse(null));
-        return xmlTypeDescriptorNode.modify(
-                xmlKeywordToken,
-                xmlTypeParamsNode);
     }
 
     @Override
@@ -3240,6 +3204,19 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 openParenToken,
                 arguments,
                 closeParenToken);
+    }
+
+    @Override
+    public ParameterizedTypeDescriptorNode transform(
+            ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
+        Token keywordToken =
+                modifyToken(parameterizedTypeDescriptorNode.keywordToken());
+        TypeParameterNode typeParamNode =
+                modifyNode(parameterizedTypeDescriptorNode.typeParamNode().orElse(null));
+        return parameterizedTypeDescriptorNode.modify(
+                parameterizedTypeDescriptorNode.kind(),
+                keywordToken,
+                typeParamNode);
     }
 
     // Tokens

@@ -10,31 +10,33 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
+      "filterText": "readonly",
       "insertText": "readonly ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "first",
-      "kind": "Field",
-      "detail": "string",
-      "sortText": "G",
-      "insertText": "first: \"${1}\"",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "last",
       "kind": "Field",
-      "detail": "string",
+      "detail": "(record {| readonly string first; readonly string last; anydata & readonly...; |}).last",
       "sortText": "G",
-      "insertText": "last: \"${2}\"",
+      "insertText": "last: \"${1}\"",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Add All Attributes",
+      "label": "first",
+      "kind": "Field",
+      "detail": "(record {| readonly string first; readonly string last; anydata & readonly...; |}).first",
+      "sortText": "G",
+      "insertText": "first: \"${2}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill record {| readonly string first; readonly string last; anydata & readonly...; |} Required Fields",
       "kind": "Property",
-      "detail": "none",
+      "detail": "record {| readonly string first; readonly string last; anydata & readonly...; |}",
       "sortText": "Q",
-      "insertText": "first: \"\",\nlast: \"\"",
+      "filterText": "fill",
+      "insertText": "last: \"\",\nfirst: \"\"",
       "insertTextFormat": "Snippet"
     }
   ]

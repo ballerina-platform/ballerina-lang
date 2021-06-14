@@ -9,6 +9,7 @@
       "label": "external",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "external",
       "insertText": "external;",
       "insertTextFormat": "Snippet"
     }
