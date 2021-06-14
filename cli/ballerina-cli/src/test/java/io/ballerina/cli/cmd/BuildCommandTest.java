@@ -602,6 +602,33 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("Dependencies.toml").toFile().exists());
     }
 
+    @Test(description = "Compile an empty pacakge with compiler plugin")
+    public void testCompileEmptyProjectWithCompilerPlugin() {
+        Path projectPath = this.testResources.resolve("emptyProjectWithCompilerPlugin");
+        System.setProperty("user.dir", projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("wso2-compilerPlugin-any-0.1.0.bala")
+                .toFile().exists());
+    }
+
+    @Test(description = "Build an empty package with compiler plugin")
+    public void testBuildEmptyProjectWithCompilerPlugin() throws IOException {
+        Path projectPath = this.testResources.resolve("emptyProjectWithCompilerPlugin");
+        System.setProperty("user.dir", projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, false);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("build-empty-project-with-compiler-plugin.txt"));
+    }
+
     static class Copy extends SimpleFileVisitor<Path> {
         private Path fromPath;
         private Path toPath;
