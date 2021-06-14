@@ -107,9 +107,9 @@ public class SimpleStringExpression<DataType, InboundMsgType> extends Expression
         String finalValue = decodeValue(expressionValue);
         for (Variable var : variableList) {
             String name = var.getName();
-            if (variables.getMap().containsKey(name) && !finalValue.equals(variables.getMap().get(name))) {
-                return false;
-            }
+//            if (variables.getMap().containsKey(name) && !finalValue.equals(variables.getMap().get(name))) {
+//                return false;
+//            }
             if (var.checkModifier(finalValue)) {
                 variables.getMap().put(name, finalValue);
             } else {
