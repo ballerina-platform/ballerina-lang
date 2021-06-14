@@ -18,7 +18,7 @@
 package io.ballerina.compiler.api.symbols;
 
 /**
- * Represents the none type descriptor.
+ * Represents the absence of a type descriptor.
  */
 public interface NoneTypeSymbol extends TypeSymbol {
 

@@ -24,7 +24,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
- * Represents the none type descriptor.
+ * Represents the absence of a type descriptor.
  */
 public class BallerinaNoneTypeSymbol extends AbstractTypeSymbol implements NoneTypeSymbol {
 
