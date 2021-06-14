@@ -195,6 +195,11 @@ class NodeFinder extends BaseVisitor {
     private LineRange range;
     private BLangNode enclosingNode;
     private BLangNode enclosingContainer;
+    private boolean allowExprStmts;
+
+    NodeFinder(boolean allowExprStmts) {
+        this.allowExprStmts = allowExprStmts;
+    }
 
     BLangNode lookup(BLangPackage module, LineRange range) {
         List<TopLevelNode> topLevelNodes = new ArrayList<>(module.topLevelNodes);
@@ -425,7 +430,10 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
         lookupNode(exprStmtNode.expr);
-        setEnclosingNode(exprStmtNode.expr, exprStmtNode.pos);
+
+        if (this.allowExprStmts) {
+            setEnclosingNode(exprStmtNode.expr, exprStmtNode.pos);
+        }
     }
 
     @Override
