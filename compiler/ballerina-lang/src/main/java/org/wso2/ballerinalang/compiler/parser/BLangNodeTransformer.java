@@ -786,7 +786,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     (BLangLiteral) TreeBuilder.createLiteralExpression() :
                     (BLangLiteral) TreeBuilder.createNumericLiteralExpression();
             literal.setValue(((BLangLiteral) constantNode.expr).value);
-            literal.type = constantNode.expr.type;
+            literal.setBType(constantNode.expr.getBType());
             literal.isConstant = true;
 
             // Create a new finite type node.
@@ -2493,7 +2493,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             BLangLiteral nilLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
             nilLiteral.pos = getPosition(returnStmtNode);
             nilLiteral.value = Names.NIL_VALUE;
-            nilLiteral.type = symTable.nilType;
+            nilLiteral.setBType(symTable.nilType);
             bLReturn.expr = nilLiteral;
         }
         return bLReturn;
@@ -3237,8 +3237,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ByteArrayLiteralNode byteArrayLiteralNode) {
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.pos = getPosition(byteArrayLiteralNode);
-        literal.type = symTable.getTypeFromTag(TypeTags.BYTE_ARRAY);
-        literal.type.tag = TypeTags.BYTE_ARRAY;
+        literal.setBType(symTable.getTypeFromTag(TypeTags.BYTE_ARRAY));
+        literal.getBType().tag = TypeTags.BYTE_ARRAY;
         literal.value = getValueFromByteArrayNode(byteArrayLiteralNode);
         literal.originalValue = String.valueOf(literal.value);
         return literal;
@@ -3958,7 +3958,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         if (retryStatementNode.arguments().isPresent()) {
             ParenthesizedArgList arg = retryStatementNode.arguments().get();
-            retrySpec.pos = getPosition(arg);
+            // If type param is present, retry spec spans from type param to args
+            if (retryStatementNode.typeParameter().isPresent()) {
+                retrySpec.pos = getPosition(retryStatementNode.typeParameter().get(), arg);
+            } else {
+                retrySpec.pos = getPosition(arg);
+            }
             for (Node argNode : arg.arguments()) {
                 retrySpec.argExprs.add(createExpression(argNode));
             }
@@ -4739,7 +4744,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangLiteral bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         bLiteral.value = "";
         bLiteral.originalValue = "";
-        bLiteral.type = symTable.getTypeFromTag(TypeTags.STRING);
+        bLiteral.setBType(symTable.getTypeFromTag(TypeTags.STRING));
         return bLiteral;
     }
 
@@ -5140,7 +5145,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private BLangLiteral createEmptyStringLiteral(Location pos) {
         BLangLiteral bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         bLiteral.pos = pos;
-        bLiteral.type = symTable.stringType;
+        bLiteral.setBType(symTable.stringType);
         bLiteral.value = "";
         bLiteral.originalValue = "";
         return bLiteral;
@@ -5290,8 +5295,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         bLiteral.pos = getPosition(literal);
-        bLiteral.type = symTable.getTypeFromTag(typeTag);
-        bLiteral.type.tag = typeTag;
+        bLiteral.setBType(symTable.getTypeFromTag(typeTag));
+        bLiteral.getBType().tag = typeTag;
         bLiteral.value = value;
         bLiteral.originalValue = originalValue;
         return bLiteral;
@@ -5300,7 +5305,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private BLangLiteral createStringLiteral(String value, Location pos) {
         BLangLiteral strLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         strLiteral.value = strLiteral.originalValue = value;
-        strLiteral.type = symTable.stringType;
+        strLiteral.setBType(symTable.stringType);
         strLiteral.pos = pos;
         return strLiteral;
     }

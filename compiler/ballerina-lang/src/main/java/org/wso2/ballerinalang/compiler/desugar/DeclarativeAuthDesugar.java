@@ -65,7 +65,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
  *
  * @since 0.974.1
  */
-public class HttpFiltersDesugar {
+public class DeclarativeAuthDesugar {
 
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
@@ -76,20 +76,20 @@ public class HttpFiltersDesugar {
     private static final String WEBSOCKET_PACKAGE_NAME = "websocket";
     private static final String AUTHENTICATE_RESOURCE = "authenticateResource";
 
-    private static final CompilerContext.Key<HttpFiltersDesugar> HTTP_FILTERS_DESUGAR_KEY =
+    private static final CompilerContext.Key<DeclarativeAuthDesugar> DECLARATIVE_AUTH_DESUGAR_KEY =
             new CompilerContext.Key<>();
 
-    public static HttpFiltersDesugar getInstance(CompilerContext context) {
-        HttpFiltersDesugar desugar = context.get(HTTP_FILTERS_DESUGAR_KEY);
+    public static DeclarativeAuthDesugar getInstance(CompilerContext context) {
+        DeclarativeAuthDesugar desugar = context.get(DECLARATIVE_AUTH_DESUGAR_KEY);
         if (desugar == null) {
-            desugar = new HttpFiltersDesugar(context);
+            desugar = new DeclarativeAuthDesugar(context);
         }
 
         return desugar;
     }
 
-    private HttpFiltersDesugar(CompilerContext context) {
-        context.put(HTTP_FILTERS_DESUGAR_KEY, this);
+    private DeclarativeAuthDesugar(CompilerContext context) {
+        context.put(DECLARATIVE_AUTH_DESUGAR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
@@ -177,7 +177,7 @@ public class HttpFiltersDesugar {
         statements.add(0, result);
 
         BVarSymbol resultSymbol = new BVarSymbol(0, names.fromIdNode(result.var.name), env.enclPkg.packageID,
-                                                 result.var.type, resourceNode.symbol, pos, VIRTUAL);
+                                                 result.var.getBType(), resourceNode.symbol, pos, VIRTUAL);
         resourceNode.symbol.scope.define(resultSymbol.name, resultSymbol);
         result.var.symbol = resultSymbol;
     }

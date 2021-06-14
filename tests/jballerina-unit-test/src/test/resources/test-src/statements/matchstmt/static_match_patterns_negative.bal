@@ -264,13 +264,6 @@ function foo() returns string {
     return "var1";
 }
 
-function singleMatchStmt() returns string {
-    any k = 1;
-    match k {
-        _ => {return "A";} // pattern will always be matched
-    }
-}
-
 function invalidSimpleVariable() returns string {
     any k = 1;
     string a = "A";

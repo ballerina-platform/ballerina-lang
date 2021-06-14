@@ -13,3 +13,8 @@ function accessStructWithIL()returns [string, int?] {
 function accessTypeLabelWithIL()returns [string, int?] {
     return [variable: 'getEmployee\ 1().'first\ name, variable: 'getEmployee\ 1()?.'current\ age];
 }
+
+function getAnonFromFoo() returns record {| string name; |}[] {
+    variable:Foo\$[] arr = [{name: "Waruna"}];
+    return arr;
+}

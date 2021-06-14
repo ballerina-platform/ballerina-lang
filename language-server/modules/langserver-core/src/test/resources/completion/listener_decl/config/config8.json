@@ -22,11 +22,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "test1",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -40,7 +40,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test as test1 ;\n"
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "value",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
         }
       ]
     },
@@ -91,11 +114,11 @@
       ]
     },
     {
-      "label": "ballerina/lang.value",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "value",
+      "insertText": "test1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -109,30 +132,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/lang.test as test1 ;\n"
         }
       ]
     },
@@ -253,6 +253,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "E",
+      "filterText": "new",
       "insertText": "new ",
       "insertTextFormat": "Snippet"
     },
@@ -261,6 +262,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "U",
+      "filterText": "check",
       "insertText": "check ",
       "insertTextFormat": "Snippet"
     },
@@ -269,6 +271,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "U",
+      "filterText": "checkpanic",
       "insertText": "checkpanic ",
       "insertTextFormat": "Snippet"
     },
@@ -277,6 +280,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "U",
+      "filterText": "trap",
       "insertText": "trap",
       "insertTextFormat": "Snippet"
     }
