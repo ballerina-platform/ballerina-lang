@@ -57,23 +57,42 @@ configurable map<table<mod1:Numbers>> numberTableMap = ?;
 configurable map<table<configLib:Symbols>> symbolTableMap = ?;
 
 public function testRecords() {
-    test:assertEquals(words.toString(), "");
-    test:assertEquals(wordArr.toString(), "");
-    test:assertEquals(wordTable.toString(), "");
-    test:assertEquals(wordMap.toString(), "");
-    test:assertEquals(wordTableMap.toString(), "");
+    test:assertEquals(words.toString(), "{\"word1\":\"word 1\",\"word2\":\"word 2\",\"word3\":\"word 3\","+
+    "\"word4\":\"word 4\",\"word5\":\"word 5\",\"word6\":\"word 6\"}");
+    test:assertEquals(wordArr.toString(), "[{\"word1\":\"word 1\",\"word2\":\"word 2\",\"word3\":\"word 3\"," +
+    "\"word4\":\"word 4\",\"word5\":\"word 5\",\"word6\":\"word 7\"},{\"word1\":\"word 10\",\"word2\":\"word 20\"," +
+    "\"word3\":\"word 30\",\"word4\":\"word 40\",\"word5\":\"word 50\",\"word6\":\"word 60\"}]");
+    test:assertEquals(wordTable.toString(), "[{\"word1\":\"word 1\",\"word2\":\"word 2\",\"word3\":\"word 3\"," +
+    "\"word4\":\"word 4\",\"word5\":\"word 5\",\"word6\":\"word 7\"},{\"word1\":\"word 10\",\"word2\":\"word 20\"," +
+    "\"word3\":\"word 30\",\"word4\":\"word 40\",\"word5\":\"word 50\",\"word6\":\"word 60\"}]");
+    test:assertEquals(wordMap.toString(), "{\"entry1\":{\"word1\":\"word 1\",\"word2\":\"word 2\"," +
+    "\"word3\":\"word 3\",\"word4\":\"word 4\",\"word5\":\"word 5\",\"word6\":\"word 6\"}," +
+    "\"entry2\":{\"word1\":\"word 11\",\"word2\":\"word 22\",\"word3\":\"word 33\",\"word4\":\"word 44\"," +
+    "\"word5\":\"word 55\",\"word6\":\"word 66\"}}");
+    test:assertEquals(wordTableMap.toString(), "{\"map1\":[{\"word1\":\"word 1\",\"word2\":\"word 2\"," +
+    "\"word3\":\"word 3\",\"word4\":\"word 4\",\"word5\":\"word 5\",\"word6\":\"word 7\"}]," +
+    "\"map2\":[{\"word1\":\"word 10\",\"word2\":\"word 20\",\"word3\":\"word 30\",\"word4\":\"word 40\"," +
+    "\"word5\":\"word 50\",\"word6\":\"word 60\"}]}");
 
-    test:assertEquals(numbers.toString(), "");
-    test:assertEquals(numberArr.toString(), "");
-    test:assertEquals(numberTable.toString(), "");
-    test:assertEquals(numberMap.toString(), "");
-    test:assertEquals(numberTableMap.toString(), "");
+    test:assertEquals(numbers.toString(), "{\"num1\":1,\"num2\":2,\"num3\":3,\"num4\":4,\"num5\":5}");
+    test:assertEquals(numberArr.toString(), "[{\"num1\":1,\"num2\":2,\"num3\":3,\"num4\":4,\"num5\":6}," +
+    "{\"num1\":10,\"num2\":20,\"num3\":30,\"num4\":40,\"num5\":50}]");
+    test:assertEquals(numberTable.toString(), "[{\"num1\":1,\"num2\":2,\"num3\":3,\"num4\":4,\"num5\":6}," +
+    "{\"num1\":10,\"num2\":20,\"num3\":30,\"num4\":40,\"num5\":50}]");
+    test:assertEquals(numberMap.toString(), "{\"entry1\":{\"num1\":1,\"num2\":2,\"num3\":3,\"num4\":4," +
+    "\"num5\":55},\"entry2\":{\"num1\":11,\"num2\":22,\"num3\":33,\"num4\":44,\"num5\":55}}");
+    test:assertEquals(numberTableMap.toString(), "{\"map1\":[{\"num1\":1,\"num2\":2,\"num3\":3,\"num4\":4," +
+    "\"num5\":6}],\"map2\":[{\"num1\":10,\"num2\":20,\"num3\":30,\"num4\":40,\"num5\":50}]}");
 
-    test:assertEquals(symbols.toString(), "");
-    test:assertEquals(symbols.toString(), "");
-    test:assertEquals(symbolTable.toString(), "");
-    test:assertEquals(symbolMap.toString(), "");
-    test:assertEquals(symbolTableMap.toString(), "");
+    test:assertEquals(symbols.toString(), "{\"symbol1\":\"!\",\"symbol2\":\"@\",\"symbol3\":\"#\",\"symbol4\":\"$\"}");
+    test:assertEquals(symbolArr.toString(), "[{\"symbol1\":\"!\",\"symbol2\":\"@\",\"symbol3\":\"#\"," +
+    "\"symbol4\":\"%\"},{\"symbol1\":\"^\",\"symbol2\":\"&\",\"symbol3\":\"*\",\"symbol4\":\"-\"}]");
+    test:assertEquals(symbolTable.toString(), "[{\"symbol1\":\"!\",\"symbol2\":\"@\",\"symbol3\":\"#\"," +
+    "\"symbol4\":\"%\"},{\"symbol1\":\"^\",\"symbol2\":\"&\",\"symbol3\":\"*\",\"symbol4\":\"-\"}]");
+    test:assertEquals(symbolMap.toString(), "{\"entry1\":{\"symbol1\":\"!\",\"symbol2\":\"@\",\"symbol3\":\"#\"," +
+    "\"symbol4\":\"=\"},\"entry2\":{\"symbol1\":\"+\",\"symbol2\":\"|\",\"symbol3\":\"}\",\"symbol4\":\"?\"}}");
+    test:assertEquals(symbolTableMap.toString(), "{\"map1\":[{\"symbol1\":\"!\",\"symbol2\":\"@\",\"symbol3\":\"#\"," +
+    "\"symbol4\":\"%\"}],\"map2\":[{\"symbol1\":\"^\",\"symbol2\":\"&\",\"symbol3\":\"*\",\"symbol4\":\"-\"}]}");
 
     testTableIterator(wordTable);
     testTableIterator(numberTable);

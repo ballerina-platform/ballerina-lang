@@ -14,15 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Employee record {|
-    readonly int id;
-    readonly string name = "Default";
-    readonly float salary?;
-|};
+type Person record {
+    string name;
+    int id;
+    Address address;
+};
 
-type EmployeeTable table<Employee> key(id) & readonly;
+type Address record {
+    string city;
+    readonly Country country = {};
+};
 
-configurable EmployeeTable employees = ?;
+type Country record {
+    string name = "SL";
+};
+
+configurable table<Person> key(id) person = ?;
 
 public function main() {
     // do nothing

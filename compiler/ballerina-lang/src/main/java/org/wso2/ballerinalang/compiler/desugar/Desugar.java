@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -930,7 +931,6 @@ public class Desugar extends BLangNodeVisitor {
                             // If it is optional configuration create if else
                             simpleGlobalVar.expr = createIfElseFromConfigurable(simpleGlobalVar);
                         }
-                        //TODO: Add error check for clone with type
                         if (TypeTags.containsDefaultableRecordType(simpleGlobalVar.getBType())) {
                             rewriteGetValueInvocationForConfigurable(simpleGlobalVar);
                         }
@@ -954,12 +954,16 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void rewriteGetValueInvocationForConfigurable(BLangSimpleVariable configVar) {
-        BLangInvocation cloneWithTypeInvocation = generateCloneWithTypeInvocation(configVar.getBType(),
-                        Lists.of(configVar.expr));
+        BType tempType = configVar.getBType();
+        if (tempType.tag == TypeTags.INTERSECTION) {
+            tempType = ((BIntersectionType) tempType).getConstituentTypes().iterator().next();
+        }
+        BLangInvocation cloneWithTypeInvocation = generateCloneWithTypeInvocation(tempType, Lists.of(configVar.expr));
         BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckPanickedExpr(configVar.pos
-                , cloneWithTypeInvocation, configVar.getBType());
+                , cloneWithTypeInvocation, tempType);
         checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
-        configVar.expr = checkedExpr;
+        BLangExpression cloneReadOnlyInvocation = visitCloneReadonly(checkedExpr, configVar.getBType());
+        configVar.expr = cloneReadOnlyInvocation;
 }
 
     private void addToGlobalVariableList(BLangStatement bLangStatement, BLangBlockFunctionBody initFnBody,

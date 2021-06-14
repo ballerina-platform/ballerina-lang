@@ -165,9 +165,10 @@ public class TypeTags {
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) type;
                 for (Map.Entry<String, BField> field : recordType.fields.entrySet()) {
-                    long flags = field.getValue().symbol.flags;
+                    BField bField = field.getValue();
+                    long flags = bField.symbol.flags;
                     if (!SymbolFlags.isFlagOn(flags, SymbolFlags.OPTIONAL) && !SymbolFlags.isFlagOn(flags,
-                            SymbolFlags.REQUIRED)) {
+                            SymbolFlags.REQUIRED) || containsDefaultableRecordType(bField.type)) {
                         return true;
                     }
                 }

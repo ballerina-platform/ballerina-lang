@@ -76,9 +76,9 @@ import java.util.Set;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getEffectiveTomlType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getLineRange;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getModuleKey;
-import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getMutableType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getTomlTypeString;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.isPrimitiveType;
+import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.validateAndGetMutableType;
 import static io.ballerina.runtime.internal.util.RuntimeUtils.isByteLiteral;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_INCOMPATIBLE_TYPE;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_INVALID_BYTE_RANGE;
@@ -300,7 +300,7 @@ public class TomlProvider implements ConfigProvider {
 
         }
         if (hasDefaultField && constrainedType.getTag() == TypeTags.INTERSECTION_TAG) {
-            return ValueCreator.createMapValue(getMutableType(mapType), keyValueEntries);
+            return ValueCreator.createMapValue(validateAndGetMutableType(mapType, variableName), keyValueEntries);
         }
         return ValueCreator.createMapValue(mapType, keyValueEntries);
     }
@@ -646,7 +646,7 @@ public class TomlProvider implements ConfigProvider {
                     getTomlTypeString(tomlValue));
         }
         if (hasDefaultField && arrayType.getElementType().getTag() == TypeTags.INTERSECTION_TAG) {
-            elementType = getMutableType(elementType);
+            elementType = validateAndGetMutableType(arrayType.getElementType(), variableName);
             arrayType = TypeCreator.createArrayType(elementType);
         }
         visitedNodes.add(tomlValue);
@@ -733,7 +733,8 @@ public class TomlProvider implements ConfigProvider {
         Map<String, Object> initialValueEntries = getMapValueEntries(variableName, recordType, tomlValue,
                 hasDefaultField);
         if (hasDefaultField || type.getTag() == TypeTags.RECORD_TYPE_TAG && type.isReadOnly()) {
-            return createReadOnlyFieldRecord(initialValueEntries, recordType);
+            return createReadOnlyFieldRecord(initialValueEntries,
+                    (RecordType) validateAndGetMutableType(recordType, variableName));
         }
         return ValueCreator.createReadonlyRecordValue(recordType.getPackage(), recordName, initialValueEntries);
     }
@@ -808,21 +809,19 @@ public class TomlProvider implements ConfigProvider {
         ArrayValue keyNames = keys == null ? (ArrayValue) ValueCreator.createArrayValue(new BString[]{}) :
                 (ArrayValue) StringUtils.fromStringArray(keys);
         if (hasDefaultField) {
-            return getDefaultableTableValue(constraintType, tableSize, tableEntries, keys, keyNames);
+            return getDefaultableTableValue(constraintType, tableSize, tableEntries, keys, keyNames, variableName);
         }
         ArrayValue tableData =
                 new ArrayValueImpl(TypeCreator.createArrayType(constraintType), tableSize, tableEntries);
-        if (constraintType.getTag() == TypeTags.INTERSECTION_TAG) {
-            constraintType = ((IntersectionType) constraintType).getEffectiveType();
-        }
         TableType type = TypeCreator.createTableType(constraintType, keys, true);
         return new TableValueImpl<>(type, tableData, keyNames);
     }
 
     private BTable<BString, Object> getDefaultableTableValue(Type constraintType, int tableSize,
                                                              ListInitialValueEntry.ExpressionEntry[] tableEntries,
-                                                             String[] keys, ArrayValue keyNames) {
-        constraintType = getMutableType(constraintType);
+                                                             String[] keys, ArrayValue keyNames,
+                                                             String variableName) {
+        constraintType = validateAndGetMutableType(constraintType, variableName);
         ArrayValue tableData =
                 new ArrayValueImpl(TypeCreator.createArrayType(constraintType), tableSize, tableEntries);
         TableType type = TypeCreator.createTableType(constraintType, keys, false);

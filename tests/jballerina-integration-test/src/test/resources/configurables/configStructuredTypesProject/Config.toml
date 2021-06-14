@@ -128,17 +128,17 @@ id = 12
 address.city="London"
 address.country.name="UK"
 
-[[personArray1]]
-name = "waruna"
-id = 700
-address.city="Abu Dhabi"
-address.country.name="UAE"
+# [[personArray1]]
+# name = "waruna"
+# id = 700
+# address.city="Abu Dhabi"
+# address.country.name="UAE"
 
-[[personArray1]]
-name = "manu"
-id = 701
-address.city="Mumbai"
-address.country.name="India"
+# [[personArray1]]
+# name = "manu"
+# id = 701
+# address.city="Mumbai"
+# address.country.name="India"
 
 [[personArray2]]
 name = "gabilan"
@@ -284,17 +284,17 @@ id = 122
 address.city="Mumbai"
 address.country.name="India"
 
-[[configStructuredTypes.mod2.personArray1]]
-name = "manu"
-id = 800
-address.city="New York"
-address.country.name="USA"
+# [[configStructuredTypes.mod2.personArray1]]
+# name = "manu"
+# id = 800
+# address.city="New York"
+# address.country.name="USA"
 
-[[configStructuredTypes.mod2.personArray1]]
-name = "hinduja"
-id = 801
-address.city="London"
-address.country.name="UK"
+# [[configStructuredTypes.mod2.personArray1]]
+# name = "hinduja"
+# id = 801
+# address.city="London"
+# address.country.name="UK"
 
 [[configStructuredTypes.mod2.personArray2]]
 name = "riyafa"

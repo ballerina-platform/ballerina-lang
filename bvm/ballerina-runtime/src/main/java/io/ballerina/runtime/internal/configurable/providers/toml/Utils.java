@@ -22,8 +22,10 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
@@ -34,7 +36,11 @@ import io.ballerina.toml.semantic.ast.TomlNode;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILE_NAME;
+import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_DEFAULT_FILED_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TYPE_NOT_SUPPORTED;
 
@@ -129,21 +135,46 @@ public class Utils {
                 LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
     }
 
-    static Type getMutableType(Type type) {
+    static Type validateAndGetMutableType(Type type, String variableName) {
         switch (type.getTag()) {
+            case TypeTags.RECORD_TYPE_TAG:
+                RecordType recordType = ((RecordType) type);
+                Map<String, Field> fieldMap = new HashMap<>();
+                for (Map.Entry<String, Field> fieldEntry : recordType.getFields().entrySet()) {
+                    String key = fieldEntry.getKey();
+                    Field field = fieldEntry.getValue();
+                    long flags = field.getFlags();
+                    Field newField = TypeCreator.createField(
+                            validateAndGetMutableType(field.getFieldType(), variableName),
+                            field.getFieldName(), flags);
+                    if (field.getFieldType().getTag() == TypeTags.INTERSECTION_TAG) {
+                        throw new ConfigException(CONFIG_TOML_DEFAULT_FILED_NOT_SUPPORTED, key, variableName);
+                    }
+                    fieldMap.put(key, newField);
+                }
+                return TypeCreator.createRecordType(recordType.getName(), recordType.getPackage(),
+                        recordType.getTypeFlags(),  fieldMap, recordType.getRestFieldType(),
+                        recordType.isSealed(), recordType.getTypeFlags());
             case TypeTags.ARRAY_TAG:
                 Type elementType = ((ArrayType) type).getElementType();
-                return TypeCreator.createArrayType(getMutableType(elementType));
+                return TypeCreator.createArrayType(validateAndGetMutableType(elementType, variableName));
             case TypeTags.MAP_TAG:
                 MapType mapType = (MapType) type;
-                return TypeCreator.createMapType(getMutableType(mapType.getConstrainedType()));
+                return TypeCreator.createMapType(validateAndGetMutableType(mapType.getConstrainedType(), variableName));
             case TypeTags.TABLE_TAG:
                 TableType tableType = (TableType) type;
-                String[] keys = tableType.getFieldNames() == null ? new String[]{} : tableType.getFieldNames();
-                return TypeCreator.createTableType(getMutableType(tableType.getConstrainedType()), keys,
-                        false);
+                String[] keys = tableType.getFieldNames();
+                Type constraintType = validateAndGetMutableType(tableType.getConstrainedType(), variableName);
+                if (keys == null) {
+                    return TypeCreator.createTableType(constraintType, false);
+                } else {
+                    return TypeCreator.createTableType(
+                            validateAndGetMutableType(tableType.getConstrainedType(), variableName),
+                            keys, false);
+                }
             case TypeTags.INTERSECTION_TAG:
-                return getMutableType(((BIntersectionType) type).getConstituentTypes().get(0));
+                BIntersectionType intersectionType = (BIntersectionType) type;
+                return validateAndGetMutableType(intersectionType.getConstituentTypes().get(0), variableName);
             default:
                 return type;
         }

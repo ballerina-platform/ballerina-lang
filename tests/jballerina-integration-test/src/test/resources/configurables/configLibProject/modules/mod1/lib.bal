@@ -62,3 +62,16 @@ public isolated function getNumber() returns int {
 isolated function getSymbol() returns string {
     return symbol3;
 }
+
+public type Person record {
+    string name;
+    Address address = {};
+};
+
+public type Address record {|
+    Country country = {};
+|};
+
+public type Country record {
+    string name = "LK";
+};

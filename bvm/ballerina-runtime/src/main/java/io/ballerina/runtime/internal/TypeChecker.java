@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType.ArrayState;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
@@ -978,7 +979,8 @@ public class TypeChecker {
             case TypeTags.RECORD_TYPE_TAG:
                 Map<String, Field> fieldList = ((BRecordType) constraintType).getFields();
                 return (BField) fieldList.get(fieldName);
-
+            case TypeTags.INTERSECTION_TAG:
+                return getTableConstraintField(((IntersectionType) constraintType).getEffectiveType(), fieldName);
             case TypeTags.UNION_TAG:
                 BUnionType unionType = (BUnionType) constraintType;
                 List<Type> memTypes = unionType.getMemberTypes();
@@ -2509,13 +2511,21 @@ public class TypeChecker {
         if (!(sourceValue instanceof TableValueImpl)) {
             return false;
         }
+        TableValueImpl tableValue = (TableValueImpl) sourceValue;
+        if (!(targetType.getKeyType() == null && targetType.getFieldNames() == null)) {
+            return false;
+        }
+
+        if (((BTableType) tableValue.getType()).getKeyType() != null && !checkIsType(tableValue.getKeyType(),
+                targetType.getKeyType())) {
+            return false;
+        }
 
         TypeValuePair typeValuePair = new TypeValuePair(sourceValue, targetType);
         if (unresolvedValues.contains(typeValuePair)) {
             return true;
         }
 
-        TableValueImpl tableValue = (TableValueImpl) sourceValue;
         Object[] objects = tableValue.values().toArray();
         for (Object object : objects) {
             if (!checkIsLikeType(object, targetType.getConstrainedType(), allowNumericConversion)) {

@@ -50,7 +50,6 @@ import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +67,9 @@ import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMP
 public class CloneWithType {
 
     private static final String AMBIGUOUS_TARGET = "ambiguous target type";
+
+    private CloneWithType() {
+    }
 
     public static Object cloneWithType(Object v, BTypedesc t) {
         Type describingType = t.getDescribingType();
@@ -157,9 +159,6 @@ public class CloneWithType {
             case TypeTags.TABLE_TAG:
                 newValue = convertTable((BTable<?, ?>) value, targetType, unresolvedValues, t);
                 break;
-            case TypeTags.TABLE_TAG:
-                newValue = convertTable((BTable) value, targetType, unresolvedValues, t, strand);
-                break;
             case TypeTags.XML_TAG:
             case TypeTags.XML_ELEMENT_TAG:
             case TypeTags.XML_COMMENT_TAG:
@@ -177,40 +176,34 @@ public class CloneWithType {
         return newValue;
     }
 
-    private static Object convertTable(BTable table, Type targetType, List<TypeValuePair> unresolvedValues, BTypedesc t,
-                                       Strand strand) {
-
+    private static Object convertTable(BTable<?, ?> bTable, Type targetType, List<TypeValuePair> unresolvedValues,
+                                       BTypedesc t) {
         switch (targetType.getTag()) {
             case TypeTags.TABLE_TAG:
                 TableType tableType = (TableType) targetType;
-                Collection values = table.values();
-                Type constrainedType = tableType.getConstrainedType();
-                int size = values.size();
-                BListInitialValueEntry[] arrayValues = new BListInitialValueEntry[size];
-                int index = 0;
-                for (Object mapEntry : values) {
-                    if (mapEntry == null) {
-                        continue;
-                    }
-                    Object newValue  = convertMap((BMap<?, ?>) mapEntry, constrainedType,
-                            unresolvedValues, t, strand);
-                    arrayValues[index] = ValueCreator.createListInitialValueEntry(newValue);
-                    index++;
+                Object[] tableValues = new Object[bTable.size()];
+                int count = 0;
+                for (Object tableValue : bTable.values()) {
+                    BMap<?, ?> bMap = (BMap<?, ?>) convert(tableValue, tableType.getConstrainedType(),
+                            unresolvedValues, t);
+                    tableValues[count++] = bMap;
                 }
-                String[] keys = tableType.getFieldNames();
-                if (keys == null) {
-                    keys = new String[]{};
+                BArray data = ValueCreator
+                        .createArrayValue(tableValues, TypeCreator.createArrayType(tableType.getConstrainedType()));
+                BArray fieldNames;
+                if (tableType.getFieldNames() != null) {
+                    fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
+                } else {
+                    fieldNames = ValueCreator.createArrayValue(new BString[]{});
                 }
-                return ValueCreator.createTableValue(tableType,
-                        ValueCreator.createArrayValue(TypeCreator.createArrayType(constrainedType), size, arrayValues),
-                        StringUtils.fromStringArray(keys));
+                return ValueCreator.createTableValue(tableType, data, fieldNames);
+
             case TypeTags.INTERSECTION_TAG:
-                return convertTable(table, ((IntersectionType) targetType).getEffectiveType(), unresolvedValues, t,
-                        strand);
+                return convertTable(bTable, ((IntersectionType) targetType).getEffectiveType(), unresolvedValues, t);
             default:
                 break;
         }
-        throw CloneUtils.createConversionError(table, targetType);
+        throw CloneUtils.createConversionError(bTable, targetType);
     }
 
     private static Object convertMap(BMap<?, ?> map, Type targetType, List<TypeValuePair> unresolvedValues,
@@ -323,29 +316,6 @@ public class CloneWithType {
         }
         // should never reach here
         throw CloneUtils.createConversionError(array, targetType);
-    }
-
-    private static Object convertTable(BTable<?, ?> bTable, Type targetType, List<TypeValuePair> unresolvedValues,
-                                       BTypedesc t) {
-
-        TableType tableType = (TableType) targetType;
-        Object[] tableValues = new Object[bTable.size()];
-        int count = 0;
-        for (Object tableValue : bTable.values()) {
-            BMap<?, ?> bMap = (BMap<?, ?>) convert(tableValue, tableType.getConstrainedType(),
-                                                   unresolvedValues, t);
-            tableValues[count++] = bMap;
-        }
-        BArray data = ValueCreator
-                .createArrayValue(tableValues, TypeCreator.createArrayType(tableType.getConstrainedType()));
-        BArray fieldNames;
-        if (tableType.getFieldNames() != null) {
-            fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
-        } else {
-            fieldNames = ValueCreator.createArrayValue(new BString[]{});
-        }
-        return ValueCreator.createTableValue(tableType, data, fieldNames);
-
     }
 
     private static BError createConversionError(Object inputValue, Type targetType) {

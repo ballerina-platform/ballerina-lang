@@ -31,19 +31,18 @@ public type Officer record {|
     readonly int id = 0;
 |};
 
-
-public type Person readonly & record {
-     string name;
-     int id;
-     Address address;
+public type Person record {
+    string name;
+    int id;
+    Address address;
 };
 
-public type Address  record {
+public type Address record {
     string city;
-    County country = {};
+    Country country = {};
 };
 
-public type County  record {
+public type Country record {
     string name = "SL";
 };
 

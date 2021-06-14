@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -380,6 +381,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             } else if (possibleTypes.size() > 1) {
                 return new BUnionType(new ArrayList<>(possibleTypes));
             }
+        } else if (constraintType.getTag() == TypeTags.INTERSECTION_TAG) {
+            return getTableConstraintField(((IntersectionType) constraintType).getEffectiveType(), fieldName);
         }
         //cannot reach here. constraint should be a subtype of map<any|error>
         return null;

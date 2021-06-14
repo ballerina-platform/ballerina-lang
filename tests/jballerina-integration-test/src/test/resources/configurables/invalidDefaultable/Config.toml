@@ -1,3 +1,5 @@
-[[main.employees]]
+[[person]]
+name = "Jane Doe"
 id = 222
-salary = 34000.0
+address.city = "Colombo"
+address.country.name = "LK"
