@@ -15,11 +15,12 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package io.ballerina.runtime.internal.util;
 
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BArrayType;
@@ -28,12 +29,9 @@ import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MAX_VALUE;
@@ -48,13 +46,10 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MIN_VALU
 public class RuntimeUtils {
 
     private static final String CRASH_LOGGER = "b7a.log.crash";
-    private static final String DEFAULT_CRASH_LOG_FILE = "ballerina-internal.log";
-    private static PrintStream errStream = System.err;
+    private static final PrintStream errStream = System.err;
     public static final String USER_DIR = System.getProperty("user.dir");
     public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
-    private static Logger crashLogger = Logger.getLogger(CRASH_LOGGER);
-
-    private static final PrintStream stderr = System.err;
+    private static final Logger crashLogger = Logger.getLogger(CRASH_LOGGER);
     private static ConsoleHandler handler;
 
     /**
@@ -78,7 +73,7 @@ public class RuntimeUtils {
         // TODO: need to add parsing logic for ref values for both var args and other args as well.
         switch (type.getTag()) {
             case TypeTags.STRING_TAG:
-                array.add(array.size(), value);
+                array.add(array.size(), StringUtils.fromString(value));
                 break;
             case TypeTags.INT_TAG:
                 array.add(array.size(), (long) TypeConverter.convertValues(type, value));
@@ -115,7 +110,6 @@ public class RuntimeUtils {
         String name;
         boolean hasDefaultable;
         Type type;
-        int index = -1;
 
         public ParamInfo(boolean hasDefaultable, String name, Type type) {
             this.name = name;
@@ -198,19 +192,6 @@ public class RuntimeUtils {
             }
         }
         crashLogger.log(Level.SEVERE, throwable.getMessage(), throwable);
-    }
-
-    private static String initBRELogHandler() {
-        String fileName = LogManager.getLogManager().getProperty(RuntimeConstants.DEFAULT_LOG_FILE_HANDLER_PATTERN);
-        if (fileName == null || fileName.trim().isEmpty()) {
-            fileName = DEFAULT_CRASH_LOG_FILE;
-        }
-
-        if (Files.isWritable(Paths.get(USER_DIR))) {
-            return Paths.get(USER_DIR, fileName).toString();
-        } else {
-            return Paths.get(TEMP_DIR, fileName).toString();
-        }
     }
 
     private RuntimeUtils() {
