@@ -1972,7 +1972,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (varSymbol.type.tag == TypeTags.INVOKABLE) {
             BInvokableSymbol symbol = (BInvokableSymbol) varSymbol;
             BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) symbol.type.tsymbol;
-            symbol.params = tsymbol.params;
+            symbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
             symbol.restParam = tsymbol.restParam;
             symbol.retType = tsymbol.returnType;
         }
@@ -3746,7 +3746,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                                                     invokableSymbol.type,
                                                                                     env.scope.owner, invokableNode.pos,
                                                                                     SOURCE);
-        functionTypeSymbol.params = invokableSymbol.params;
+        functionTypeSymbol.params = invokableSymbol.params == null ? null : new ArrayList<>(invokableSymbol.params);
         functionTypeSymbol.returnType = invokableSymbol.retType;
 
         BType restType = null;
@@ -3800,7 +3800,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (type.tag == TypeTags.INVOKABLE && type.tsymbol != null) {
             BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) type.tsymbol;
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) varSymbol;
-            invokableSymbol.params = tsymbol.params;
+            invokableSymbol.params = tsymbol.params == null ? null : new ArrayList(tsymbol.params);
             invokableSymbol.restParam = tsymbol.restParam;
             invokableSymbol.retType = tsymbol.returnType;
             invokableSymbol.flags = tsymbol.flags;
