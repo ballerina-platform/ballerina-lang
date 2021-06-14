@@ -53,8 +53,15 @@ type LhsErrTwo distinct error;
 
 public function fooBar() returns LhsErr? {
     int|LhsErrTwo x = check fbar();
+    int y = check fFoo();
+    int|LhsErr z = check fFoo();
+    int|LhsErrTwo q = check fFoo();
 }
 
 function fbar() returns int|error {
+    return error("");
+}
+
+function fFoo() returns LhsErrTwo|int {
     return error("");
 }
