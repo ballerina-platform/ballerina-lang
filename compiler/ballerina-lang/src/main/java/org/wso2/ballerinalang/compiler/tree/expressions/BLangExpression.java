@@ -53,7 +53,8 @@ public abstract class BLangExpression extends BLangNode implements ExpressionNod
     public Map<BVarSymbol, NarrowedTypes> narrowedTypeInfo;
 
     public void setTypeCheckedType(BType type) {
-        super.setBType(type);
+        this.type = type;
+
         if (this.determinedType == null) {
             this.determinedType = type;
         }

@@ -29,7 +29,7 @@ import java.util.Set;
  */
 public abstract class BLangNode implements Node {
 
-    private BType type;
+    protected BType type;
     public BLangNode parent = null;
 
     /**
