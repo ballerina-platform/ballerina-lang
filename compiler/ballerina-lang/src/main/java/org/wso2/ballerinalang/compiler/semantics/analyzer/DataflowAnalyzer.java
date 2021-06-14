@@ -914,10 +914,47 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         } else if (node.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) node;
             result = simpleVarRef.variableName.hashCode();
+        } else if (node.getKind() == NodeKind.STRING_TEMPLATE_LITERAL) {
+            BLangStringTemplateLiteral stringTemplateLiteral = (BLangStringTemplateLiteral) node;
+            for (BLangExpression expr : stringTemplateLiteral.exprs) {
+                result = result * 31 + getTypeHash(stringTemplateLiteral.getBType()) + hash(expr);
+            }
+        } else if (node.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+            BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr) node;
+            for (BLangExpression expr : listConstructorExpr.exprs) {
+                result = result * 31 + getTypeHash(listConstructorExpr.getBType()) + hash(expr);
+            }
+        } else if (node.getKind() == NodeKind.TABLE_CONSTRUCTOR_EXPR) {
+            BLangTableConstructorExpr tableConstructorExpr = (BLangTableConstructorExpr) node;
+            for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
+                result = result * 31 + getTypeHash(tableConstructorExpr.getBType()) + hash(recordLiteral);
+            }
+        } else if (node.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
+            BLangTypeConversionExpr typeConversionExpr = (BLangTypeConversionExpr) node;
+            result = 31 * result + hash(typeConversionExpr.expr);
+        } else if (node.getKind() == NodeKind.BINARY_EXPR) {
+            BLangBinaryExpr binaryExpr = (BLangBinaryExpr) node;
+            result = 31 * result + hash(binaryExpr.lhsExpr) + hash(binaryExpr.rhsExpr);
+        } else if (node.getKind() == NodeKind.UNARY_EXPR) {
+            BLangUnaryExpr unaryExpr = (BLangUnaryExpr) node;
+            result = 31 * result + hash(unaryExpr.expr);
+        } else if (node.getKind() == NodeKind.TYPE_TEST_EXPR) {
+            BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) node;
+            result = 31 * result + hash(typeTestExpr.expr);
+        } else if (node.getKind() == NodeKind.TERNARY_EXPR) {
+            BLangTernaryExpr ternaryExpr = (BLangTernaryExpr) node;
+            result = 31 * result + hash(ternaryExpr.expr) + hash(ternaryExpr.thenExpr) + hash(ternaryExpr.elseExpr);
+        } else if (node.getKind() == NodeKind.GROUP_EXPR) {
+            BLangGroupExpr groupExpr = (BLangGroupExpr) node;
+            result = 31 * result + hash(groupExpr.expression);
         } else {
             dlog.error(((BLangExpression) node).pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
         }
         return result;
+    }
+
+    private Integer getTypeHash(BType type) {
+        return Objects.hash(type.tag, type.name);
     }
 
     private List<BLangExpression> createKeyArray(BLangRecordLiteral literal, List<String> fieldNames) {
@@ -931,8 +968,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private List<String> getFieldNames(BLangTableConstructorExpr constructorExpr) {
         List<String> fieldNames = null;
-        if (constructorExpr.type.tag == TypeTags.TABLE) {
-            fieldNames = ((BTableType) constructorExpr.type).fieldNameList;
+        if (constructorExpr.getBType().tag == TypeTags.TABLE) {
+            fieldNames = ((BTableType) constructorExpr.getBType()).fieldNameList;
             if (fieldNames != null) {
                 return fieldNames;
             }
@@ -1265,7 +1302,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeInit typeInitExpr) {
         typeInitExpr.argsExpr.forEach(argExpr -> analyzeNode(argExpr, env));
         if (this.currDependentSymbol.peek() != null) {
-            addDependency(this.currDependentSymbol.peek(), typeInitExpr.type.tsymbol);
+            addDependency(this.currDependentSymbol.peek(), typeInitExpr.getBType().tsymbol);
         }
     }
 
@@ -1629,10 +1666,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         if (this.currDependentSymbol.peek() != null) {
-            addDependency(this.currDependentSymbol.peek(), serviceConstructorExpr.type.tsymbol);
+            addDependency(this.currDependentSymbol.peek(), serviceConstructorExpr.getBType().tsymbol);
         }
 
-        addDependency(serviceConstructorExpr.type.tsymbol, serviceConstructorExpr.serviceNode.symbol);
+        addDependency(serviceConstructorExpr.getBType().tsymbol, serviceConstructorExpr.serviceNode.symbol);
         analyzeNode(serviceConstructorExpr.serviceNode, env);
     }
 
@@ -1882,7 +1919,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 BLangAccessExpression accessExpr = (BLangAccessExpression) varRef;
 
                 BLangExpression expr = accessExpr.expr;
-                BType type = expr.type;
+                BType type = expr.getBType();
                 if (isObjectMemberAccessWithSelf(accessExpr)) {
                     BObjectType objectType = (BObjectType) type;
 
@@ -1927,7 +1964,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private void checkFinalObjectFieldUpdate(BLangFieldBasedAccess fieldAccess) {
         BLangExpression expr = fieldAccess.expr;
 
-        BType exprType = expr.type;
+        BType exprType = expr.getBType();
 
         if (types.isSubTypeOfBaseType(exprType, TypeTags.OBJECT) &&
                 isFinalFieldInAllObjects(fieldAccess.pos, exprType, fieldAccess.field.value)) {
@@ -1999,7 +2036,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private void addVarIfInferredTypeIncludesError(BLangSimpleVariable variable) {
         BType typeIntersection =
                 types.getTypeIntersection(Types.IntersectionContext.compilerInternalIntersectionContext(),
-                                          variable.type, symTable.errorType, env);
+                                          variable.getBType(), symTable.errorType, env);
         if (typeIntersection != null &&
                 typeIntersection != symTable.semanticError && typeIntersection != symTable.noType) {
             unusedErrorVarsDeclaredWithVar.put(variable.symbol, variable.pos);

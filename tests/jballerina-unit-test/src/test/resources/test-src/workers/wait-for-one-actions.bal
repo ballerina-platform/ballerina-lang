@@ -63,7 +63,7 @@ function waitTest6() returns int|float {
 }
 
 function waitTest7() returns int {
-    int result = wait fuInt();
+    int result = checkpanic  wait fuInt();
     return result;
 }
 

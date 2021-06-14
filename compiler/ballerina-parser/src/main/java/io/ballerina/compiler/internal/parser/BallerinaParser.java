@@ -1897,7 +1897,7 @@ public class BallerinaParser extends AbstractParser {
      * </p>
      * <code>
      * param-list := required-params [, defaultable-params] [, rest-param]
-     * <br/>&nbsp;| defaultable-params [, rest-param]
+     * <br/>| defaultable-params [, rest-param]
      * <br/>&nbsp;| [rest-param]
      * <br/><br/>
      * required-params := required-param (, required-param)*
@@ -2507,18 +2507,8 @@ public class BallerinaParser extends AbstractParser {
                 reportInvalidQualifierList(qualifiers);
                 return parseNilOrParenthesisedTypeDesc();
             case MAP_KEYWORD: // map type desc
-            case FUTURE_KEYWORD: // future type desc
                 reportInvalidQualifierList(qualifiers);
-                return parseParameterizedTypeDescriptor(consume());
-            case TYPEDESC_KEYWORD:
-                reportInvalidQualifierList(qualifiers);
-                return parseTypedescTypeDescriptor(consume());
-            case ERROR_KEYWORD:
-                reportInvalidQualifierList(qualifiers);
-                return parseErrorTypeDescriptor();
-            case XML_KEYWORD:
-                reportInvalidQualifierList(qualifiers);
-                return parseXmlTypeDescriptor(consume());
+                return parseMapTypeDescriptor(consume());
             case STREAM_KEYWORD:
                 reportInvalidQualifierList(qualifiers);
                 return parseStreamTypeDescriptor(consume());
@@ -2538,6 +2528,11 @@ public class BallerinaParser extends AbstractParser {
                 reportInvalidQualifierList(qualifiers);
                 return parseQualifiedIdentWithTransactionPrefix(context);
             default:
+                if (isParameterizedTypeToken(nextToken.kind)) {
+                    reportInvalidQualifierList(qualifiers);
+                    return parseParameterizedTypeDescriptor(consume());
+                }
+                
                 if (isSingletonTypeDescStart(nextToken.kind)) {
                     reportInvalidQualifierList(qualifiers);
                     return parseSingletonTypeDesc();
@@ -2569,6 +2564,24 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    /**
+     * Check whether the given token is a parameterized type keyword.
+     *
+     * @param tokenKind Token to check
+     * @return <code>true</code> if the given token is a parameterized type keyword. <code>false</code> otherwise
+     */
+    static boolean isParameterizedTypeToken(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case TYPEDESC_KEYWORD:
+            case FUTURE_KEYWORD:
+            case XML_KEYWORD:
+            case ERROR_KEYWORD:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     private STNode parseQualifiedIdentWithTransactionPrefix(ParserRuleContext context) {
         STToken transactionKeyword = consume();
         STNode identifier = STNodeFactory.createIdentifierToken(transactionKeyword.text(),
@@ -2590,12 +2603,8 @@ public class BallerinaParser extends AbstractParser {
         }
         ParserRuleContext context;
         switch (preDeclaredPrefix.kind) {
-            case ERROR_KEYWORD:
-                context = ParserRuleContext.ERROR_TYPE_OR_TYPE_REF;
-                break;
             case MAP_KEYWORD:
-            case FUTURE_KEYWORD:
-                context = ParserRuleContext.PARAMETERIZED_TYPE_OR_TYPE_REF;
+                context = ParserRuleContext.MAP_TYPE_OR_TYPE_REF;
                 break;
             case OBJECT_KEYWORD:
                 context = ParserRuleContext.OBJECT_TYPE_OR_TYPE_REF;
@@ -2606,14 +2615,12 @@ public class BallerinaParser extends AbstractParser {
             case TABLE_KEYWORD:
                 context = ParserRuleContext.TABLE_TYPE_OR_TYPE_REF;
                 break;
-            case TYPEDESC_KEYWORD:
-                context = ParserRuleContext.TYPEDESC_TYPE_OR_TYPE_REF;
-                break;
-            case XML_KEYWORD:
-                context = ParserRuleContext.XML_TYPE_OR_TYPE_REF;
-                break;
             default:
-                context = ParserRuleContext.TYPEDESC_RHS_OR_TYPE_REF;
+                if (isParameterizedTypeToken(preDeclaredPrefix.kind)) {
+                    context = ParserRuleContext.PARAMETERIZED_TYPE_OR_TYPE_REF;
+                } else {
+                    context = ParserRuleContext.TYPE_DESC_RHS_OR_TYPE_REF;
+                }
         }
 
         Solution solution = recover(peek(), context);
@@ -2627,13 +2634,9 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseTypeDescStartWithPredeclPrefix(STToken preDeclaredPrefix, List<STNode> qualifiers) {
         switch (preDeclaredPrefix.kind) {
-            case ERROR_KEYWORD:
-                reportInvalidQualifierList(qualifiers);
-                return parseErrorTypeDescriptor(preDeclaredPrefix);
             case MAP_KEYWORD:
-            case FUTURE_KEYWORD:
                 reportInvalidQualifierList(qualifiers);
-                return parseParameterizedTypeDescriptor(preDeclaredPrefix);
+                return parseMapTypeDescriptor(preDeclaredPrefix);
             case OBJECT_KEYWORD:
                 STNode objectTypeQualifiers = createObjectTypeQualNodeList(qualifiers);
                 return parseObjectTypeDescriptor(preDeclaredPrefix, objectTypeQualifiers);
@@ -2643,13 +2646,12 @@ public class BallerinaParser extends AbstractParser {
             case TABLE_KEYWORD:
                 reportInvalidQualifierList(qualifiers);
                 return parseTableTypeDescriptor(preDeclaredPrefix);
-            case TYPEDESC_KEYWORD:
-                reportInvalidQualifierList(qualifiers);
-                return parseTypedescTypeDescriptor(preDeclaredPrefix);
-            case XML_KEYWORD:
-                reportInvalidQualifierList(qualifiers);
-                return parseXmlTypeDescriptor(preDeclaredPrefix);
             default:
+                if (isParameterizedTypeToken(preDeclaredPrefix.kind)) {
+                    reportInvalidQualifierList(qualifiers);
+                    return parseParameterizedTypeDescriptor(preDeclaredPrefix);
+                }
+                
                 return createBuiltinSimpleNameReference(preDeclaredPrefix);
         }
     }
@@ -8573,16 +8575,53 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse parameterized type descriptor.
-     * parameterized-type-descriptor := map type-parameter | future type-parameter | typedesc type-parameter
+     * Parse map type descriptor.
+     * map-type-descriptor := `map` type-parameter
      *
      * @return Parsed node
      */
-    private STNode parseParameterizedTypeDescriptor(STNode parameterizedTypeKeyword) {
+    private STNode parseMapTypeDescriptor(STNode mapKeyword) {
         STNode typeParameter = parseTypeParameter();
-        return STNodeFactory.createParameterizedTypeDescriptorNode(parameterizedTypeKeyword, typeParameter);
+        return STNodeFactory.createMapTypeDescriptorNode(mapKeyword, typeParameter);
     }
 
+    /**
+     * Parse parameterized type descriptor.
+     * parameterized-type-descriptor := `typedesc` [type-parameter]
+     * <br/>&nbsp;| `future` [type-parameter]
+     * <br/>&nbsp;| `xml` [type-parameter]
+     * <br/>&nbsp;| `error` [type-parameter]
+     *
+     * @return Parsed node
+     */
+    private STNode parseParameterizedTypeDescriptor(STNode keywordToken) {
+        STNode typeParamNode;
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.LT_TOKEN) {
+            typeParamNode = parseTypeParameter();
+        } else {
+            typeParamNode = STNodeFactory.createEmptyNode();
+        }
+
+        SyntaxKind parameterizedTypeDescKind = getParameterizedTypeDescKind(keywordToken);
+        return STNodeFactory.createParameterizedTypeDescriptorNode(parameterizedTypeDescKind, keywordToken,
+                typeParamNode);
+    }
+
+    private SyntaxKind getParameterizedTypeDescKind(STNode keywordToken) {
+        switch (keywordToken.kind) {
+            case TYPEDESC_KEYWORD:
+                return SyntaxKind.TYPEDESC_TYPE_DESC;
+            case FUTURE_KEYWORD:
+                return SyntaxKind.FUTURE_TYPE_DESC;
+            case XML_KEYWORD:
+                return SyntaxKind.XML_TYPE_DESC;
+            case ERROR_KEYWORD:
+            default:
+                return SyntaxKind.ERROR_TYPE_DESC;
+        }
+    }
+    
     /**
      * Parse <code> < </code> token.
      *
@@ -9447,10 +9486,6 @@ public class BallerinaParser extends AbstractParser {
             case CLIENT_KEYWORD:
             case OPEN_PAREN_TOKEN: // nil type descriptor '()'
             case MAP_KEYWORD: // map type desc
-            case FUTURE_KEYWORD: // future type desc
-            case TYPEDESC_KEYWORD: // typedesc type desc
-            case ERROR_KEYWORD: // error type desc
-            case XML_KEYWORD: // xml type desc
             case STREAM_KEYWORD: // stream type desc
             case TABLE_KEYWORD: // table type
             case FUNCTION_KEYWORD:
@@ -9461,6 +9496,10 @@ public class BallerinaParser extends AbstractParser {
             case TRANSACTION_KEYWORD:
                 return true;
             default:
+                if (isParameterizedTypeToken(nodeKind)) {
+                    return true;
+                }
+                
                 if (isSingletonTypeDescStart(nodeKind)) {
                     return true;
                 }
@@ -10043,31 +10082,6 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse error type descriptor.
-     * <p>
-     * error-type-descriptor := error [type-parameter]
-     * type-parameter := < type-descriptor >
-     * </p>
-     *
-     * @return Parsed node
-     */
-    private STNode parseErrorTypeDescriptor() {
-        STNode errorKeywordToken = parseErrorKeyword();
-        return parseErrorTypeDescriptor(errorKeywordToken);
-    }
-
-    private STNode parseErrorTypeDescriptor(STNode errorKeywordToken) {
-        STNode errorTypeParamsNode;
-        STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.LT_TOKEN) {
-            errorTypeParamsNode = parseTypeParameter();
-        } else {
-            errorTypeParamsNode = STNodeFactory.createEmptyNode();
-        }
-        return STNodeFactory.createErrorTypeDescriptorNode(errorKeywordToken, errorTypeParamsNode);
-    }
-
-    /**
      * Parse error-keyword.
      *
      * @return Parsed error-keyword node
@@ -10083,26 +10097,10 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse typedesc type descriptor.
-     * typedesc-type-descriptor := typedesc type-parameter
-     *
-     * @return Parsed typedesc type node
-     */
-    private STNode parseTypedescTypeDescriptor(STNode typedescKeywordToken) {
-        STNode typedescTypeParamsNode;
-        STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.LT_TOKEN) {
-            typedescTypeParamsNode = parseTypeParameter();
-        } else {
-            typedescTypeParamsNode = STNodeFactory.createEmptyNode();
-        }
-        return STNodeFactory.createTypedescTypeDescriptorNode(typedescKeywordToken, typedescTypeParamsNode);
-    }
-
-    /**
      * Parse stream type descriptor.
      * <p>
      * stream-type-descriptor := stream [stream-type-parameters]
+     * <br/>
      * stream-type-parameters := < type-descriptor [, type-descriptor]>
      * </p>
      *
@@ -10117,23 +10115,6 @@ public class BallerinaParser extends AbstractParser {
             streamTypeParamsNode = STNodeFactory.createEmptyNode();
         }
         return STNodeFactory.createStreamTypeDescriptorNode(streamKeywordToken, streamTypeParamsNode);
-    }
-
-    /**
-     * Parse xml type descriptor.
-     * xml-type-descriptor := xml type-parameter
-     *
-     * @return Parsed typedesc type node
-     */
-    private STNode parseXmlTypeDescriptor(STNode xmlKeywordToken) {
-        STNode typedescTypeParamsNode;
-        STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.LT_TOKEN) {
-            typedescTypeParamsNode = parseTypeParameter();
-        } else {
-            typedescTypeParamsNode = STNodeFactory.createEmptyNode();
-        }
-        return STNodeFactory.createXmlTypeDescriptorNode(xmlKeywordToken, typedescTypeParamsNode);
     }
 
     /**

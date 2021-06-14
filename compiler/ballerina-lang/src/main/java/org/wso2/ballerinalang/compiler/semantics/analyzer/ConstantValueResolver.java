@@ -91,12 +91,12 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLiteral literal) {
-        this.result = new BLangConstantValue(literal.value, literal.type);
+        this.result = new BLangConstantValue(literal.value, literal.getBType());
     }
 
     @Override
     public void visit(BLangNumericLiteral literal) {
-        this.result = new BLangConstantValue(literal.value, literal.type);
+        this.result = new BLangConstantValue(literal.value, literal.getBType());
     }
 
     @Override
@@ -157,7 +157,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             mapConstVal.put(key, value);
         }
 
-        this.result = new BLangConstantValue(mapConstVal, recordLiteral.type);
+        this.result = new BLangConstantValue(mapConstVal, recordLiteral.getBType());
     }
 
     @Override

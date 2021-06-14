@@ -53,7 +53,7 @@ public class ModuleExecutionTest extends BaseTestCase {
         AssertionUtils.assertForTestFailures(output, "default module test failure");
     }
 
-    @Test()
+    @Test(enabled = false)
     public void test_DefaultModule_SingleTest() throws BallerinaTestException {
         String msg1 = "1 passing";
         String msg2 = "[pass] main_test1";

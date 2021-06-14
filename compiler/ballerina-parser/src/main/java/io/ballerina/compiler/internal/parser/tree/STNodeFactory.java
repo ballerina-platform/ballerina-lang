@@ -876,13 +876,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeParenToken);
     }
 
-    public static STNode createParameterizedTypeDescriptorNode(
-            STNode parameterizedType,
-            STNode typeParameter) {
+    public static STNode createMapTypeDescriptorNode(
+            STNode mapKeywordToken,
+            STNode mapTypeParamsNode) {
 
-        return new STParameterizedTypeDescriptorNode(
-                parameterizedType,
-                typeParameter);
+        return new STMapTypeDescriptorNode(
+                mapKeywordToken,
+                mapTypeParamsNode);
     }
 
     public static STNode createNilLiteralNode(
@@ -1114,15 +1114,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeParenToken);
     }
 
-    public static STNode createErrorTypeDescriptorNode(
-            STNode errorKeywordToken,
-            STNode errorTypeParamsNode) {
-
-        return new STErrorTypeDescriptorNode(
-                errorKeywordToken,
-                errorTypeParamsNode);
-    }
-
     public static STNode createStreamTypeDescriptorNode(
             STNode streamKeywordToken,
             STNode streamTypeParamsNode) {
@@ -1147,15 +1138,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 gtToken);
     }
 
-    public static STNode createTypedescTypeDescriptorNode(
-            STNode typedescKeywordToken,
-            STNode typedescTypeParamsNode) {
-
-        return new STTypedescTypeDescriptorNode(
-                typedescKeywordToken,
-                typedescTypeParamsNode);
-    }
-
     public static STNode createLetExpressionNode(
             STNode letKeyword,
             STNode letVarDeclarations,
@@ -1167,15 +1149,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 letVarDeclarations,
                 inKeyword,
                 expression);
-    }
-
-    public static STNode createXmlTypeDescriptorNode(
-            STNode xmlKeywordToken,
-            STNode xmlTypeParamsNode) {
-
-        return new STXmlTypeDescriptorNode(
-                xmlKeywordToken,
-                xmlTypeParamsNode);
     }
 
     public static STNode createLetVariableDeclarationNode(
@@ -2389,6 +2362,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 openParenToken,
                 arguments,
                 closeParenToken);
+    }
+
+    public static STNode createParameterizedTypeDescriptorNode(
+            SyntaxKind kind,
+            STNode keywordToken,
+            STNode typeParamNode) {
+
+        return new STParameterizedTypeDescriptorNode(
+                kind,
+                keywordToken,
+                typeParamNode);
     }
 }
 

@@ -1127,7 +1127,7 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangValueType valueType) {
-        this.symbolAtCursor = valueType.type.tsymbol;
+        this.symbolAtCursor = valueType.getBType().tsymbol;
     }
 
     @Override
@@ -1137,7 +1137,7 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
-        this.symbolAtCursor = builtInRefType.type.tsymbol;
+        this.symbolAtCursor = builtInRefType.getBType().tsymbol;
     }
 
     @Override
@@ -1145,7 +1145,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(constrainedType.constraint);
 
         if (this.symbolAtCursor == null) {
-            this.symbolAtCursor = ((BLangNode) constrainedType).type.tsymbol;
+            this.symbolAtCursor = ((BLangNode) constrainedType).getBType().tsymbol;
         }
     }
 
@@ -1155,7 +1155,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(streamType.error);
 
         if (symbolAtCursor == null) {
-            this.symbolAtCursor = streamType.type.type.tsymbol;
+            this.symbolAtCursor = streamType.type.getBType().tsymbol;
         }
     }
 
@@ -1166,7 +1166,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(tableType.tableKeyTypeConstraint);
 
         if (this.symbolAtCursor == null) {
-            this.symbolAtCursor = tableType.type.type.tsymbol;
+            this.symbolAtCursor = tableType.type.getBType().tsymbol;
         }
     }
 

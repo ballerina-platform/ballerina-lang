@@ -51,7 +51,7 @@ public class InvocationArgProcessor {
 
     public static final String DEFAULTABLE_PARAM_SUFFIX = "[Defaultable]";
 
-    static Map<String, Value> generateNamedArgs(SuspendedContext context, String functionName, FunctionTypeSymbol
+    public static Map<String, Value> generateNamedArgs(SuspendedContext context, String functionName, FunctionTypeSymbol
             definition, List<Map.Entry<String, Evaluator>> argEvaluators) throws EvaluationException {
 
         boolean namedArgsFound = false;
@@ -160,8 +160,10 @@ public class InvocationArgProcessor {
         return argValues;
     }
 
-    static Map<String, Value> generateNamedArgs(SuspendedContext context, String functionName, FunctionSignatureNode
-            functionSignature, List<Map.Entry<String, Evaluator>> argEvaluators) throws EvaluationException {
+    public static Map<String, Value> generateNamedArgs(SuspendedContext context, String functionName,
+                                                       FunctionSignatureNode functionSignature,
+                                                       List<Map.Entry<String, Evaluator>> argEvaluators)
+            throws EvaluationException {
 
         boolean namedArgsFound = false;
         boolean restArgsFound = false;

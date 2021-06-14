@@ -103,6 +103,11 @@ public class MultipleLetClauseTest {
         Assert.assertEquals(teacher2.get("age").stringValue(), "30");
     }
 
+    @Test
+    public void testQueryExpressionWithinLetClause() {
+        BRunUtil.invoke(result, "testQueryExpressionWithinLetClause");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

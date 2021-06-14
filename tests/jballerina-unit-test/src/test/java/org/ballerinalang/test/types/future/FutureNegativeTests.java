@@ -56,9 +56,8 @@ public class FutureNegativeTests {
         validateError(errors, index++,
                       "incompatible types: expected 'future<(int|string)>', found 'future<(int|string|error)>'",
                       22, 29);
-        // https://github.com/ballerina-platform/ballerina-lang/issues/28758
-        // validateError(errors, index++, "incompatible types: expected 'future<Bar>', found 'future<(any|error)>'",
-        //              25, 22);
+        validateError(errors, index++, "incompatible types: expected 'future<Bar>', found 'future<(any|error)>'",
+                      25, 22);
         Assert.assertEquals(errors.getErrorCount(), index);
     }
 

@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
@@ -71,6 +72,7 @@ import javax.annotation.Nonnull;
  * @since 2.0.0
  */
 public class FieldAccessCompletionResolver extends NodeTransformer<Optional<TypeSymbol>> {
+
     private final PositionedOperationContext context;
     private final boolean optionalFieldAccess;
 
@@ -248,11 +250,16 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
                     break;
                 }
                 ObjectTypeSymbol objTypeDesc = (ObjectTypeSymbol) rawType;
-                visibleEntries.addAll(objTypeDesc.fieldDescriptors().values());
+                visibleEntries.addAll(objTypeDesc.fieldDescriptors().values().stream()
+                        .filter(objectFieldSymbol -> withValidAccessModifiers(node, objectFieldSymbol, currentPkg.get(),
+                                currentModule.get().moduleId())).collect(Collectors.toList()));
                 boolean isClient = SymbolUtil.isClient(objTypeDesc);
+                boolean isService = SymbolUtil.getTypeDescForObjectSymbol(objTypeDesc)
+                        .qualifiers().contains(Qualifier.SERVICE);
                 // If the object type desc is a client, then we avoid all the remote methods
                 List<MethodSymbol> methodSymbols = objTypeDesc.methods().values().stream()
-                        .filter(methodSymbol -> (!isClient || !methodSymbol.qualifiers().contains(Qualifier.REMOTE))
+                        .filter(methodSymbol -> ((!isClient && !isService)
+                                || !methodSymbol.qualifiers().contains(Qualifier.REMOTE))
                                 && !methodSymbol.qualifiers().contains(Qualifier.RESOURCE)
                                 && withValidAccessModifiers(node, methodSymbol, currentPkg.get(),
                                 currentModule.get().moduleId()))
@@ -267,24 +274,32 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         return visibleEntries;
     }
 
-    private boolean withValidAccessModifiers(Node exprNode, MethodSymbol methodSymbol, Package currentPackage,
+    private boolean withValidAccessModifiers(Node exprNode, Symbol symbol, Package currentPackage,
                                              ModuleId currentModule) {
         Optional<Project> project = context.workspace().project(context.filePath());
-        Optional<ModuleSymbol> methodSymbolModule = methodSymbol.getModule();
-        if (project.isEmpty() || methodSymbolModule.isEmpty()) {
+        Optional<ModuleSymbol> symbolModule = symbol.getModule();
+        if (project.isEmpty() || symbolModule.isEmpty()) {
             return false;
         }
-        boolean isResource = methodSymbol.qualifiers().contains(Qualifier.RESOURCE);
-        boolean isPrivate = methodSymbol.qualifiers().contains(Qualifier.PRIVATE);
-        boolean isPublic = methodSymbol.qualifiers().contains(Qualifier.PUBLIC);
+
+        boolean isPrivate = false;
+        boolean isPublic = false;
+        boolean isResource = false;
+
+        if (symbol instanceof Qualifiable) {
+            Qualifiable qSymbol = (Qualifiable) symbol;
+            isPrivate = qSymbol.qualifiers().contains(Qualifier.PRIVATE);
+            isPublic = qSymbol.qualifiers().contains(Qualifier.PUBLIC);
+            isResource = qSymbol.qualifiers().contains(Qualifier.RESOURCE);
+        }
 
         if (exprNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
                 && ((SimpleNameReferenceNode) exprNode).name().text().equals(Names.SELF.getValue())
                 && !isResource) {
             return true;
         }
-        ModuleID objModuleId = methodSymbolModule.get().id();
 
+        ModuleID objModuleId = symbolModule.get().id();
         return isPublic || (!isPrivate && objModuleId.moduleName().equals(currentModule.moduleName())
                 && objModuleId.orgName().equals(currentPackage.packageOrg().value()));
     }
