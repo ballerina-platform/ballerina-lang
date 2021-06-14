@@ -17,6 +17,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "TEST_CONST",
+      "kind": "TypeParameter",
+      "detail": "Singleton",
+      "sortText": "M",
+      "insertText": "TEST_CONST",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TestMap3",
       "kind": "TypeParameter",
       "detail": "Map",
@@ -30,14 +38,6 @@
       "detail": "Union",
       "sortText": "M",
       "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestRecord1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -57,11 +57,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TEST_CONST",
-      "kind": "TypeParameter",
-      "detail": "Singleton",
-      "sortText": "M",
-      "insertText": "TEST_CONST",
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -180,6 +180,24 @@
       "sortText": "O",
       "filterText": "object",
       "insertText": "object {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "true",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "true",
+      "insertText": "true",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "false",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "false",
+      "insertText": "false",
       "insertTextFormat": "Snippet"
     },
     {

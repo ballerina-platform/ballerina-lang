@@ -241,14 +241,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TR1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "TR1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -260,19 +252,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "STRING_VAL_TWO",
-      "kind": "TypeParameter",
-      "detail": "Singleton",
-      "sortText": "M",
-      "insertText": "STRING_VAL_TWO",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
       "sortText": "M",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "STRING_VAL_TWO",
+      "kind": "TypeParameter",
+      "detail": "Singleton",
+      "sortText": "M",
+      "insertText": "STRING_VAL_TWO",
       "insertTextFormat": "Snippet"
     },
     {
@@ -289,6 +281,14 @@
       "detail": "Record",
       "sortText": "L",
       "insertText": "T5",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TR1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "TR1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -407,6 +407,24 @@
       "sortText": "O",
       "filterText": "object",
       "insertText": "object {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "true",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "true",
+      "insertText": "true",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "false",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "false",
+      "insertText": "false",
       "insertTextFormat": "Snippet"
     }
   ]

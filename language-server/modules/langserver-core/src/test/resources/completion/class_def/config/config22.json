@@ -282,14 +282,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "BALLERINA",
-      "kind": "TypeParameter",
-      "detail": "Singleton",
-      "sortText": "M",
-      "insertText": "BALLERINA",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -301,19 +293,27 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "UniqueGreetingsStore",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "K",
-      "insertText": "UniqueGreetingsStore",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
       "sortText": "M",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "BALLERINA",
+      "kind": "TypeParameter",
+      "detail": "Singleton",
+      "sortText": "M",
+      "insertText": "BALLERINA",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "UniqueGreetingsStore",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "K",
+      "insertText": "UniqueGreetingsStore",
       "insertTextFormat": "Snippet"
     },
     {
@@ -432,6 +432,24 @@
       "sortText": "O",
       "filterText": "object",
       "insertText": "object {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "true",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "true",
+      "insertText": "true",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "false",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "false",
+      "insertText": "false",
       "insertTextFormat": "Snippet"
     },
     {
