@@ -37,3 +37,7 @@ public type Person record {
 };
 
 type Employee Person;
+
+public type Foo\$ record {|
+    string name = "default";
+|};

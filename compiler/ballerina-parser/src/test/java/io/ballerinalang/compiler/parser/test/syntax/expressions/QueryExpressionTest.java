@@ -94,6 +94,11 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
                 "query-expr/query_expr_assert_55.json");
     }
 
+    @Test
+    public void testNestedQueryExpr() {
+        testFile("query-expr/query_expr_source_67.bal", "query-expr/query_expr_assert_67.json");
+    }
+
     // Recovery tests
 
     @Test

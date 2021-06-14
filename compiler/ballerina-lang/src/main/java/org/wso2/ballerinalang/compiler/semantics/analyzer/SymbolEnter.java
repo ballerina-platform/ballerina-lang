@@ -1426,28 +1426,40 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         typeDefinition.setPrecedence(this.typePrecedence++);
         BTypeSymbol typeDefSymbol;
+
+        boolean label = false;
         if (definedType.tsymbol.name != Names.EMPTY) {
             typeDefSymbol = definedType.tsymbol.createLabelSymbol();
+            label = true;
         } else {
             typeDefSymbol = definedType.tsymbol;
         }
+
+        boolean isNonLabelIntersectionType = definedType.tag == TypeTags.INTERSECTION && !label;
+        BType effectiveDefinedType = isNonLabelIntersectionType ? ((BIntersectionType) definedType).effectiveType :
+                definedType;
+
         typeDefSymbol.markdownDocumentation = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
         typeDefSymbol.name = names.fromIdNode(typeDefinition.getName());
         typeDefSymbol.pkgID = env.enclPkg.packageID;
         typeDefSymbol.pos = typeDefinition.name.pos;
         typeDefSymbol.origin = getOrigin(typeDefSymbol.name);
 
-        boolean distinctFlagPresent = isDistinctFlagPresent(typeDefinition);
+        if (isNonLabelIntersectionType) {
+            BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
+            effectiveTypeSymbol.name = typeDefSymbol.name;
+            effectiveTypeSymbol.pkgID = typeDefSymbol.pkgID;
+        }
 
-        if (distinctFlagPresent) {
+        if (isDistinctFlagPresent(typeDefinition)) {
             if (definedType.getKind() == TypeKind.ERROR) {
                 BErrorType distinctType = getDistinctErrorType(typeDefinition, (BErrorType) definedType, typeDefSymbol);
                 typeDefinition.typeNode.setBType(distinctType);
                 definedType = distinctType;
-            } else if (definedType.getKind() == TypeKind.INTERSECTION
-                    && ((BIntersectionType) definedType).effectiveType.getKind() == TypeKind.ERROR) {
+            } else if (definedType.tag == TypeTags.INTERSECTION &&
+                    ((BIntersectionType) definedType).effectiveType.getKind() == TypeKind.ERROR) {
                 populateErrorTypeIds((BErrorType) ((BIntersectionType) definedType).effectiveType,
-                                (BLangIntersectionTypeNode) typeDefinition.typeNode, typeDefinition.name.value);
+                                     (BLangIntersectionTypeNode) typeDefinition.typeNode, typeDefinition.name.value);
             } else if (definedType.getKind() == TypeKind.OBJECT) {
                 BObjectType distinctType = getDistinctObjectType(typeDefinition, (BObjectType) definedType,
                                                                  typeDefSymbol);
@@ -1487,6 +1499,13 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
         definedType.flags |= typeDefSymbol.flags;
+
+        if (isNonLabelIntersectionType) {
+            BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
+            effectiveTypeSymbol.flags |= definedType.tsymbol.flags;
+            effectiveTypeSymbol.origin = VIRTUAL;
+            effectiveDefinedType.flags |= definedType.flags;
+        }
 
         typeDefinition.symbol = typeDefSymbol;
         if (typeDefinition.hasCyclicReference) {
@@ -1972,7 +1991,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (varSymbol.type.tag == TypeTags.INVOKABLE) {
             BInvokableSymbol symbol = (BInvokableSymbol) varSymbol;
             BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) symbol.type.tsymbol;
-            symbol.params = tsymbol.params;
+            symbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
             symbol.restParam = tsymbol.restParam;
             symbol.retType = tsymbol.returnType;
         }
@@ -3458,7 +3477,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             if (!types.isSelectivelyImmutableType(mutableType, true)) {
-                dlog.error(typeDefNode.typeNode.pos, DiagnosticErrorCode.INVALID_INTERSECTION_TYPE, immutableType);
+                dlog.error(typeDefNode.typeNode.pos, DiagnosticErrorCode.INVALID_INTERSECTION_TYPE, typeDefNode.name);
                 typeNode.setBType(symTable.semanticError);
             }
         }
@@ -3746,7 +3765,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                                                     invokableSymbol.type,
                                                                                     env.scope.owner, invokableNode.pos,
                                                                                     SOURCE);
-        functionTypeSymbol.params = invokableSymbol.params;
+        functionTypeSymbol.params = invokableSymbol.params == null ? null : new ArrayList<>(invokableSymbol.params);
         functionTypeSymbol.returnType = invokableSymbol.retType;
 
         BType restType = null;
@@ -3800,7 +3819,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (type.tag == TypeTags.INVOKABLE && type.tsymbol != null) {
             BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) type.tsymbol;
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) varSymbol;
-            invokableSymbol.params = tsymbol.params;
+            invokableSymbol.params = tsymbol.params == null ? null : new ArrayList(tsymbol.params);
             invokableSymbol.restParam = tsymbol.restParam;
             invokableSymbol.retType = tsymbol.returnType;
             invokableSymbol.flags = tsymbol.flags;
