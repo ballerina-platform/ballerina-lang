@@ -6,10 +6,10 @@
   "source": "statement_context/source/worker_declaration_ctx_source5.bal",
   "items": [
     {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "test",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -23,51 +23,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.array",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "array",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.array;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/jballerina.java",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "java",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/jballerina.java;\n"
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -116,10 +72,10 @@
       ]
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "runtime",
+      "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -133,7 +89,51 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/lang.array;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/jballerina.java",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/jballerina.java;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -236,13 +236,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -250,6 +243,13 @@
         "left": "Describes Strand execution details for the runtime.\n"
       },
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -312,6 +312,7 @@
       "label": "record",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "record",
       "insertText": "record ",
       "insertTextFormat": "Snippet"
     },
@@ -319,6 +320,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
@@ -326,6 +328,7 @@
       "label": "record {}",
       "kind": "Snippet",
       "detail": "Snippet",
+      "filterText": "record",
       "insertText": "record {${1}}",
       "insertTextFormat": "Snippet"
     },
@@ -333,6 +336,7 @@
       "label": "record {||}",
       "kind": "Snippet",
       "detail": "Snippet",
+      "filterText": "record",
       "insertText": "record {|${1}|}",
       "insertTextFormat": "Snippet"
     },
@@ -340,6 +344,7 @@
       "label": "distinct",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "distinct",
       "insertText": "distinct",
       "insertTextFormat": "Snippet"
     },
@@ -347,6 +352,7 @@
       "label": "object {}",
       "kind": "Snippet",
       "detail": "Snippet",
+      "filterText": "object",
       "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
     }
