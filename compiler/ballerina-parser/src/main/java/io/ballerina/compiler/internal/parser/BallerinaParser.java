@@ -11142,10 +11142,16 @@ public class BallerinaParser extends AbstractParser {
                 continue;
             }
 
-            if (intermediateClause.kind == SyntaxKind.SELECT_CLAUSE) {
-                selectClause = intermediateClause;
-            } else {
+            if (intermediateClause.kind != SyntaxKind.SELECT_CLAUSE) {
                 clauses.add(intermediateClause);
+                continue;
+            }
+
+            selectClause = intermediateClause;
+            
+            // Break the loop for nested query expressions, as remaining clauses belong to the parent.
+            if (isNestedQueryExpr()) {
+                break;
             }
         }
 
@@ -11180,6 +11186,15 @@ public class BallerinaParser extends AbstractParser {
                 onConflictClause);
     }
 
+    /**
+     * Check whether currently parsing query expr is a nested query expression.
+     *
+     * @return <code>true</code> if currently parsing query-expr is a nested query-expr. <code>false</code> otherwise.
+     */
+    private boolean isNestedQueryExpr() {
+        return Collections.frequency(this.errorHandler.getContextStack(), ParserRuleContext.QUERY_EXPRESSION) > 1;
+    }
+    
     /**
      * Parse an intermediate clause.
      * <p>
