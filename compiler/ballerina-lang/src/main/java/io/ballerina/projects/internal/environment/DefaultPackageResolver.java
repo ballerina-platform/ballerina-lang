@@ -216,7 +216,10 @@ public class DefaultPackageResolver implements PackageResolver {
                 ResolutionRequest newResolutionReq = ResolutionRequest.from(
                         PackageDescriptor.from(resolutionRequest.orgName(), resolutionRequest.packageName(),
                                 versionList.get(0)), resolutionRequest.scope());
-                resolvedPackage = ballerinaDistRepo.getPackage(newResolutionReq);
+                resolvedPackage = Optional.ofNullable(loadFromCache(newResolutionReq));
+                if (resolvedPackage.isEmpty()) {
+                    resolvedPackage = ballerinaDistRepo.getPackage(newResolutionReq);
+                }
             }
         }
 
