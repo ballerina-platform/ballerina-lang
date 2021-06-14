@@ -95,13 +95,16 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testBallerinaTestAPIWithConfigurableVariables() throws BallerinaTestException {
-        LogLeecher testLog = new LogLeecher("4 passing");
+        LogLeecher testLog1 = new LogLeecher("5 passing");
+        LogLeecher testLog2 = new LogLeecher("4 passing");
         bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
-                              new LogLeecher[]{testLog}, testFileLocation + "/testProject");
-        testLog.waitForText(5000);
+                              new LogLeecher[]{testLog1, testLog2}, testFileLocation + "/testProject");
+        testLog1.waitForText(5000);
+        testLog1.waitForText(5000);
 
-        String errorMsg = "error: configurable variable 'invalidMap' with type 'map<(anydata & readonly)> &" +
-                " readonly' is not supported";
+        // Testing `bal test` command error log for configurables
+        String errorMsg = "error: [Config.toml:(3:1,3:22)] configurable variable 'invalidMap' is expected to be of " +
+                "type 'map<string> & readonly', but found 'string'";
         String errorLocationMsg = "\tat testOrg/configPkg:0.1.0(tests/main_test.bal:19)";
         LogLeecher errorLog = new LogLeecher(errorMsg, ERROR);
         LogLeecher errorLocationLog = new LogLeecher(errorLocationMsg, ERROR);
@@ -114,8 +117,8 @@ public class ConfigurableTest extends BaseTest {
     public void testEnvironmentVariableBasedConfigurable() throws BallerinaTestException {
 
         // test config file location through `BAL_CONFIG_FILES` env variable
-        String configFilePaths = Paths.get(testFileLocation, "config_files", "Config-A.toml").toString() +
-                File.pathSeparator + Paths.get(testFileLocation, "config_files", "Config-B.toml").toString();
+        String configFilePaths = Paths.get(testFileLocation, "config_files", "Config-A.toml") +
+                File.pathSeparator + Paths.get(testFileLocation, "config_files", "Config-B.toml");
         executeBalCommand("", "envVarPkg",
                           addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE,
                                                                           configFilePaths))));

@@ -24,7 +24,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
-import static org.ballerinalang.test.BAssertUtil.validateWarning;
 
 /**
  * Test cases related to isolated objects.
@@ -191,8 +190,6 @@ public class IsolatedObjectTest {
                 "statement", 509, 9);
         validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 513, 9);
         validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 517, 9);
-        validateWarning(result, i++, "concurrent calls will not be made to this method since the method is not an " +
-                "'isolated' method", 520, 5);
         validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
                 "'lock' statement", 522, 13);
         validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
@@ -206,8 +203,6 @@ public class IsolatedObjectTest {
                 "statement", 540, 9);
         validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 544, 9);
         validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 548, 9);
-        validateWarning(result, i++, "concurrent calls will not be made to this method since the method is not an " +
-                "'isolated' method", 551, 5);
         validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
                 "'lock' statement", 553, 13);
         validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
@@ -221,8 +216,6 @@ public class IsolatedObjectTest {
                 "statement", 571, 9);
         validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 575, 9);
         validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 579, 9);
-        validateWarning(result, i++, "concurrent calls will not be made to this method since the method is not an " +
-                "'isolated' method", 582, 5);
         validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
                 "'lock' statement", 584, 13);
         validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
@@ -255,22 +248,15 @@ public class IsolatedObjectTest {
         validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 748, 31);
         validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 748, 57);
         validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 748, 70);
-        Assert.assertEquals(result.getErrorCount(), i - 3);
-        Assert.assertEquals(result.getWarnCount(), 3);
+        Assert.assertEquals(result.getErrorCount(), i);
+        Assert.assertEquals(result.getWarnCount(), 0);
     }
 
     @Test
     public void testIsolatedObjects() {
         CompileResult compileResult = BCompileUtil.compile("test-src/isolated-objects/isolated_objects.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-
-        int i = 0;
-        validateWarning(compileResult, i++, "concurrent calls will not be made to this method since the method is not" +
-                " an 'isolated' method", 546, 5);
-        validateWarning(compileResult, i++, "concurrent calls will not be made to this method since the method is not" +
-                " an 'isolated' method", 574, 5);
-        Assert.assertEquals(compileResult.getWarnCount(), i);
-
+        Assert.assertEquals(compileResult.getWarnCount(), 0);
         BRunUtil.invoke(compileResult, "testRuntimeIsolatedFlag");
     }
 }
