@@ -39,6 +39,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
@@ -67,6 +68,7 @@ import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.tools.text.LineRange;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -89,6 +91,7 @@ import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_TABLE_KEY_NOT_PROVIDED;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_UNUSED_VALUE;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TYPE_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_UNION_VALUE_AMBIGUOUS_TARGET;
 
 /**
  * Toml value provider for configurable implementation.
@@ -318,8 +321,19 @@ public class TomlProvider implements ConfigProvider {
                     return retrieveRecordValue(tomlValue, variableName, type);
                 }
                 return retrieveValue(tomlValue, variableName, effectiveType);
+            case TypeTags.FINITE_TYPE_TAG:
+                BString value = StringUtils.fromString(((TomlKeyValueNode) tomlValue).value().toString());
+                visitedNodes.add(tomlValue);
+                if (((BFiniteType) type).valueSpace.contains(value)) {
+                    return value;
+                } else {
+                    throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
+                                              IdentifierUtils.decodeIdentifier(type.toString()),
+                                              getTomlTypeString(tomlValue));
+                }
+            case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
-                return retrieveUnionValue(tomlValue, variableName, (UnionType) type);
+                return retrieveUnionValue(tomlValue, variableName, (BUnionType) type);
             default:
                 invalidTomlLines.add(tomlValue.location().lineRange());
                 throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, type.toString());
@@ -346,20 +360,16 @@ public class TomlProvider implements ConfigProvider {
 
     @Override
     public Optional<Object> getAsUnionAndMark(Module module, VariableKey key) {
+        TomlTableNode moduleNode = getModuleTomlNode(module, key);
+        TomlNode tomlValue = null;
+        if (moduleNode != null && moduleNode.entries().containsKey(key.variable)) {
+            tomlValue = moduleNode.entries().get(key.variable);
+        }
+        if (tomlValue == null){
+            return Optional.empty();
+        }
         BUnionType unionType = (BUnionType) ((BIntersectionType) key.type).getEffectiveType();
-        TomlNode tomlValue = getBasicTomlValue(module, key);
-        if (tomlValue == null) {
-            return Optional.empty();
-        }
-        Object value = ((TomlBasicValueNode<?>) tomlValue).getValue();
-        if (value == null) {
-            return Optional.empty();
-        }
-        BString stringVal = createEnumValue(tomlValue, value, key.variable, unionType);
-        if (stringVal == null) {
-            return Optional.empty();
-        }
-        return Optional.of(stringVal);
+        return Optional.of(retrieveUnionValue(tomlValue, key.variable, unionType));
     }
 
     @Override
@@ -552,17 +562,6 @@ public class TomlProvider implements ConfigProvider {
         return getBalValue(variableName, type, value);
     }
 
-    private BString retrieveUnionValue(TomlNode tomlValue, String variableName, UnionType unionType) {
-        TomlNode tomlNode = ((TomlKeyValueNode) tomlValue).value();
-        visitedNodes.add(tomlValue);
-        if (tomlNode.kind() != getEffectiveTomlType(unionType, variableName)) {
-            invalidTomlLines.add(tomlValue.location().lineRange());
-            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName, unionType,
-                                      getTomlTypeString(tomlValue));
-        }
-        return createEnumValue(tomlNode, ((TomlStringValueNode) tomlNode).getValue(), variableName, unionType);
-    }
-
     private BString createEnumValue(TomlNode tomlValue, Object value, String variableName, UnionType unionType) {
         BString stringVal = StringUtils.fromString((String) value);
         List<Type> memberTypes = unionType.getMemberTypes();
@@ -573,6 +572,26 @@ public class TomlProvider implements ConfigProvider {
         }
         throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
                                   IdentifierUtils.decodeIdentifier(unionType.toString()), getTomlTypeString(tomlValue));
+    }
+
+    private Object retrieveUnionValue(TomlNode tomlValue, String variableName, BUnionType unionType) {
+        Object balValue = Utils.getBalValue(tomlValue, visitedNodes);
+        List<Type> convertibleTypes = new ArrayList<>();
+        for (Type type : unionType.getMemberTypes()) {
+            if (TypeChecker.checkIsLikeType(balValue, type, false)) {
+                convertibleTypes.add(type);
+            }
+        }
+        if (convertibleTypes.isEmpty()) {
+            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
+                                      IdentifierUtils.decodeIdentifier(unionType.toString()),
+                                      getTomlTypeString(tomlValue));
+        }
+        if (convertibleTypes.size() > 1) {
+            throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, getLineRange(tomlValue), variableName,
+                                      IdentifierUtils.decodeIdentifier(unionType.toString()));
+        }
+        return retrieveValue(tomlValue, variableName, convertibleTypes.get(0));
     }
 
 
