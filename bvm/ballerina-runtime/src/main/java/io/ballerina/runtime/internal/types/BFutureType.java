@@ -83,10 +83,7 @@ public class BFutureType extends BType implements FutureType {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getConstraintString());
-        sb.insert(0, TypeConstants.FUTURE_TNAME);
-        return sb.toString();
+        return TypeConstants.FUTURE_TNAME + getConstraintString();
     }
 
     private String getConstraintString() {

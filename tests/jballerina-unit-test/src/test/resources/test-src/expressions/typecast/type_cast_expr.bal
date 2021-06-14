@@ -386,11 +386,6 @@ function testFutureCastNegative() {
     assertEquality("incompatible types: 'future<int>' cannot be cast to 'future<int[]>'", <string> checkpanic err.detail()["message"]);
 }
 
-function foo() returns future<int> {
-    future<int> f = start testFutureFunc();
-    return f;
-}
-
 function testFutureOfFutureValueCastNegative() {
     future<future<int>> s = start foo();
     any a = s;
@@ -400,6 +395,11 @@ function testFutureOfFutureValueCastNegative() {
     error err = <error> res;
     assertEquality("{ballerina}TypeCastError", err.message());
     assertEquality("incompatible types: 'future<future<int>>' cannot be cast to 'future<future<int[]>>'", <string> checkpanic err.detail()["message"]);
+}
+
+function foo() returns future<int> {
+    future<int> f = start testFutureFunc();
+    return f;
 }
 
 function testObjectCastPositive() returns boolean {
