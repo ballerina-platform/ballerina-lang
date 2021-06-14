@@ -93,8 +93,11 @@ public class TestBirAndJarCache {
         for (ModuleId moduleId : currentPackage.moduleIds()) {
             Module module = currentPackage.module(moduleId);
             ModuleName moduleName = module.moduleName();
+            String jarName = module.descriptor().org().value() + "-"
+                    + moduleName + "-"
+                    + module.descriptor().version().value();
             Assert.assertTrue(foundPaths.contains(moduleName.toString() + ".bir"));
-            Assert.assertTrue(foundPaths.contains(moduleName.toString() + ".jar"));
+            Assert.assertTrue(foundPaths.contains(jarName + ".jar"));
         }
     }
 
