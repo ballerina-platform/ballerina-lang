@@ -53,15 +53,15 @@ public class RuntimeTest {
         BValue[] returns = BRunUtil.invoke(errorResult, "testGetCallStack");
         Assert.assertEquals(returns.length, 5);
         Assert.assertEquals(returns[0].stringValue(), "{callableName:\"externGetStackTrace\", moduleName:\"ballerina" +
-                ".lang$0046runtime.0_0_1.runtime\", fileName:\"runtime.bal\", lineNumber:95}");
+                ".lang.runtime.0_0_1\", fileName:\"runtime.bal\", lineNumber:100}");
         Assert.assertEquals(returns[1].stringValue(), "{callableName:\"getStackTrace\", moduleName:\"ballerina" +
-                ".lang$0046runtime.0_0_1.runtime\", fileName:\"runtime.bal\", lineNumber:85}");
+                ".lang.runtime.0_0_1\", fileName:\"runtime.bal\", lineNumber:85}");
         Assert.assertEquals(returns[2].stringValue(), "{callableName:\"level2Function\", " +
-                "moduleName:\"runtime-error\", fileName:\"runtime-error.bal\", lineNumber:12}");
+                "fileName:\"runtime-error.bal\", lineNumber:12}");
         Assert.assertEquals(returns[3].stringValue(), "{callableName:\"level1Function\", " +
-                "moduleName:\"runtime-error\", fileName:\"runtime-error.bal\", lineNumber:8}");
+                "fileName:\"runtime-error.bal\", lineNumber:8}");
         Assert.assertEquals(returns[4].stringValue(), "{callableName:\"testGetCallStack\", " +
-                "moduleName:\"runtime-error\", fileName:\"runtime-error.bal\", lineNumber:4}");
+                "fileName:\"runtime-error.bal\", lineNumber:4}");
     }
 
     @Test

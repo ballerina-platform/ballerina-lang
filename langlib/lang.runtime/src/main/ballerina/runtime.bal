@@ -84,10 +84,15 @@ public isolated function getStackTrace() returns StackFrame[] {
     int i = 0;
     CallStackElement[] callStackElements = externGetStackTrace();
     lang_array:forEach(callStackElements, function (CallStackElement callStackElement) {
-                                stackFrame[i] = new java:StackFrameImpl(callStackElement.callableName,
-                                callStackElement.moduleName, callStackElement.fileName, callStackElement.lineNumber);
-                                i += 1;
-                            });
+        if (callStackElement["moduleName"] is string) {
+            stackFrame[i] = new java:StackFrameImpl(callStackElement.callableName, callStackElement.moduleName,
+            callStackElement.fileName, callStackElement.lineNumber);
+        } else {
+            stackFrame[i] = new java:StackFrameImplForSingleBalFile(callStackElement.callableName,
+            callStackElement.fileName, callStackElement.lineNumber);
+        }
+        i += 1;
+    });
     return stackFrame;
 }
 

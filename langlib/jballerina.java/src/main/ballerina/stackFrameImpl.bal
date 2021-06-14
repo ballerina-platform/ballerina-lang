@@ -42,3 +42,29 @@ public readonly class StackFrameImpl {
         self.lineNumber = lineNumber;
     }
 }
+
+# Implementation for the `runtime.StackFrame`.
+#
+# + callableName - Callable name
+# + fileName - File name
+# + lineNumber - Line number
+public readonly class StackFrameImplForSingleBalFile {
+
+    public string callableName;
+    public string fileName;
+    public int lineNumber;
+
+    # Returns a string representing for the `StackFrame`
+    #
+    # + return - A stack frame as string
+    public function toString() returns string {
+        return "callableName: " + self.callableName + " " + "fileName: " + self.fileName +
+                        " " + "lineNumber: " + getStringValue(self.lineNumber);
+    }
+
+    public function init(string callableName, string fileName, int lineNumber) {
+        self.callableName = callableName;
+        self.fileName = fileName;
+        self.lineNumber = lineNumber;
+    }
+}
