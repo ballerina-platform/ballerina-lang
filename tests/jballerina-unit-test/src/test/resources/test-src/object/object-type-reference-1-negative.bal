@@ -73,3 +73,25 @@ class Manager2 {
         return self.salary;
     }
 }
+
+class Foo {
+    anydata body;
+}
+
+// Out of order inclusion test : added to test a NPE
+class Bar {
+    *Foo;
+    Baz2 body; // defined after the type definition
+
+    function init(Baz2 baz) {
+        self.body = baz;
+    }
+}
+
+class Baz2 {
+    int id;
+
+    function init(int id) {
+        self.id = id;
+    }
+}

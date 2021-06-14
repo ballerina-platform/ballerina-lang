@@ -715,7 +715,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         continue;
                     }
                     dlog.error(existingVariable.pos, DiagnosticErrorCode.INCOMPATIBLE_SUB_TYPE_FIELD,
-                            field.type, field.name, existingVariable.type);
+                            field.type, field.name, existingVariable.getBType());
                 }
 
                 BLangSimpleVariable var = ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type);

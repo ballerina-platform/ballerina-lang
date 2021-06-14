@@ -103,6 +103,9 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 66, 6);
         BAssertUtil.validateError(negativeResult, i++, "variable 'name' is not initialized", 69, 16);
         BAssertUtil.validateError(negativeResult, i++, "variable 'salary' is not initialized", 73, 16);
+        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'body'", 83, 6);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible subtype: 'anydata' type field 'body' cannot " +
+                "override included field type 'Baz2'", 84, 5);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
