@@ -133,12 +133,11 @@ public class Bootstrap {
             symbolTable.updateStringSubtypeOwners();
         }
 
-        symResolver.bootstrapCloneableType();
-
         if (langLib.equals(ERROR)) {
             symbolTable.langValueModuleSymbol = loadLangLibFromBala(VALUE, compilerContext);
         }
 
+        symResolver.bootstrapCloneableType();
         symResolver.defineOperators();
     }
 

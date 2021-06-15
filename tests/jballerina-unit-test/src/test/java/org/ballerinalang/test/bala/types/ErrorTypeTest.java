@@ -109,6 +109,11 @@ public class ErrorTypeTest {
     public void testErrorDetailDefinedAfterErrorDef() {
         BRunUtil.invoke(result, "testErrorDetailDefinedAfterErrorDef");
     }
+
+    @Test
+    public void testRetriableErrorType() {
+        BRunUtil.invoke(result, "testRetriableErrorType");
+    }
     
     @Test
     public void testDistinctErrorTypeNegative() {
