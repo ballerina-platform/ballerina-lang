@@ -274,6 +274,31 @@ function testCallExprWithCheck() {
    assertFalse(callExprWithCheck() is error);
 }
 
+type Err distinct error;
+
+function ternaryCheck(boolean b) returns string|Err {
+    return check (b ? barOrErr() : bazOrErr());
+}
+
+function barOrErr() returns string|Err {
+    return "bar";
+}
+
+function bazOrErr() returns string|Err {
+    return error("Err");
+}
+
+function testCheckWithTernaryOperator() {
+    var a = ternaryCheck(false);
+    if !(a is Err) {
+        panic error("Expected value of type: Err, found: " + (typeof a).toString());
+    }
+    a = ternaryCheck(true);
+    if !(a is string) {
+        panic error("Expected value of type: string, found: " + (typeof a).toString());
+    }
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(anydata actual) {
