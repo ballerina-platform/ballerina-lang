@@ -700,7 +700,7 @@ public class TomlProvider implements ConfigProvider {
             Object balValue;
             TomlNode tomlValueNode = arrayList.get(i);
 
-            switch (elementType.getTag()){
+            switch (elementType.getTag()) {
                 case TypeTags.INTERSECTION_TAG:
                     ArrayType arrayType = (ArrayType) ((BIntersectionType) elementType).getEffectiveType();
                     balValue = getPrimitiveArray(tomlValueNode, variableName, arrayType);
