@@ -156,11 +156,12 @@ public class SortingUtil {
      * 1. Types defined in the same module
      * 2. Types visible from other modules (StrandData, Thread in lang.value)
      * 3. Visible Modules
-     * 4. Enums
-     * 5. Enum Member
-     * 6. Basic Types (boolean, int, string, etc)
-     * 7. Type Descriptor snippets (record snippet, object snippet)
-     * 7+. keywords (true, false, record, object)
+     * 4. Constant
+     * 5. Enums
+     * 6. Enum Member
+     * 7. Basic Types (boolean, int, string, etc)
+     * 8. Type Descriptor snippets (record snippet, object snippet)
+     * 8+. keywords (true, false, record, object)
      *
      * @param context language server completion context
      * @param item    completion item to evaluate
@@ -172,7 +173,7 @@ public class SortingUtil {
             // Case 6
             if (symbol.isEmpty()) {
                 // Basic types such as int, boolean, string, and etc get a lower priority
-                return genSortText(6);
+                return genSortText(7);
             }
             Optional<Project> currentProject = context.workspace().project(context.filePath());
             String currentOrg = currentProject.get().currentPackage().packageOrg().value();
@@ -183,8 +184,11 @@ public class SortingUtil {
             String moduleName = symbolModule.isPresent() ? symbolModule.get().id().moduleName() : "";
 
             // Case 4
-            if (symbol.get().kind() == SymbolKind.ENUM) {
+            if (symbol.get().kind() == SymbolKind.CONSTANT) {
                 return genSortText(4);
+            }
+            if (symbol.get().kind() == SymbolKind.ENUM) {
+                return genSortText(5);
             }
             // Case 5
             if (symbol.get().kind() == SymbolKind.ENUM_MEMBER) {
@@ -209,11 +213,11 @@ public class SortingUtil {
 
         // Case 7
         if (item.getType() == SNIPPET && ((SnippetCompletionItem) item).kind() == SnippetBlock.Kind.TYPE) {
-            return genSortText(7);
+            return genSortText(8);
         }
         
         // Case 7+ 
-        return genSortText(SortingUtil.toRank(item, 7));
+        return genSortText(SortingUtil.toRank(item, 8));
     }
 
     /**
