@@ -632,6 +632,33 @@ public class BuildCommandTest extends BaseCommandTest {
                 getOutput("build-empty-project-with-compiler-plugin.txt"));
     }
 
+    @Test(description = "Compile an empty package with tests only")
+    public void testCompileEmptyProjectWithTestsOnly() {
+        Path projectPath = this.testResources.resolve("emptyProjectWithTestsOnly");
+        System.setProperty("user.dir", projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala")
+                .resolve("wso2-emptyProjWithTestsOnly-any-0.1.0.bala").toFile().exists());
+    }
+
+    @Test(description = "Build an empty package with tests only")
+    public void testBuildEmptyProjectWithTestsOnly() throws IOException {
+        Path projectPath = this.testResources.resolve("emptyProjectWithTestsOnly");
+        System.setProperty("user.dir", projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, false);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("build-empty-project-with-tests-only.txt"));
+    }
+
     static class Copy extends SimpleFileVisitor<Path> {
         private Path fromPath;
         private Path toPath;
