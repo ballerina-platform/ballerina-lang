@@ -31,7 +31,7 @@ function testSubString() returns [string,string, string] {
     return [str.substring(6, 9), str.substring(6), strings:substring(str,6)];
 }
 
-function testIterator() returns string[] {
+function testIterator(int test) returns string[] {
     string str = "Foo Bar";
 
     object {
@@ -40,12 +40,26 @@ function testIterator() returns string[] {
 
     string[] chars = [];
     int i = 0;
-    record {| string:Char value; |}|() elem = itr.next();
 
-    while (elem is record {| string:Char value; |}) {
-        chars[i] = elem.value;
-        elem = itr.next();
-        i += 1;
+    match test{
+        1 => {
+            record {| string:Char value; |}|() elem = itr.next();
+            while (elem is record {| string:Char value; |}) {
+                chars[i] = elem.value;
+                elem = itr.next();
+                i += 1;
+            }
+        }
+
+        2 => {
+            record {| string value; |}|() elem = itr.next();
+            while (elem is record {| string value; |}) {
+                chars[i] = elem.value;
+                elem = itr.next();
+                i += 1;
+            }
+        }
+
     }
 
     return chars;

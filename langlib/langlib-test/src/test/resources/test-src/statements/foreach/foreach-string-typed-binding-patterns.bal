@@ -10,6 +10,19 @@ function concatIntAny(int i, any a) {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
+function testStringWithSimpleVariableWithCharType() returns string {
+    output = "";
+
+    string sdata = "Ballerina";
+
+    int i = 0;
+    foreach string:Char s in sdata {
+        concatIntString(i, s);
+        i += 1;
+    }
+    return output;
+}
+
 function testStringWithSimpleVariableWithoutType() returns string {
     output = "";
 
@@ -80,4 +93,18 @@ function testIterationOnEmptyString() returns string {
         i += 1;
     }
     return output;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+function testIterationTypeCheck() returns int{
+    string foo = "foo";
+    int count = 0;
+    foreach var item in foo {
+        string str = item;
+        if(str is string:Char){
+            count += 1;
+        }
+    }
+    return count;
 }

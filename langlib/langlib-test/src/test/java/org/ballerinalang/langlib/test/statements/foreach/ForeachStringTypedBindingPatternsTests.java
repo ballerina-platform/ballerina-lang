@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
+import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -25,12 +26,14 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static org.testng.Assert.assertEquals;
+
 /**
  * Tests for typed binding patterns in foreach.
  *
  * @since 0.985.0
  */
-@Test(enabled = false)
+@Test(enabled = true)
 public class ForeachStringTypedBindingPatternsTests {
 
     private CompileResult program;
@@ -40,38 +43,52 @@ public class ForeachStringTypedBindingPatternsTests {
         program = BCompileUtil.compile("test-src/statements/foreach/foreach-string-typed-binding-patterns.bal");
     }
 
-    @Test(enabled = false)
+    @Test(enabled = true)
+    public void testStringWithSimpleVariableWithCharType() {
+        BValue[] returns = BRunUtil.invoke(program, "testStringWithSimpleVariableWithCharType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ");
+    }
+
+    @Test(enabled = true)
     public void testStringWithSimpleVariableWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testStringWithSimpleVariableWithoutType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ");
     }
 
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testStringWithSimpleVariableWithType() {
         BValue[] returns = BRunUtil.invoke(program, "testStringWithSimpleVariableWithType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ");
     }
 
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testStringWithSimpleVariableWithAnydataType() {
         BValue[] returns = BRunUtil.invoke(program, "testStringWithSimpleVariableWithAnydataType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ");
     }
 
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testStringWithSimpleVariableWithAnyType() {
         BValue[] returns = BRunUtil.invoke(program, "testStringWithSimpleVariableWithAnyType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ");
     }
 
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testIterationOnEmptyString() {
         BValue[] returns = BRunUtil.invoke(program, "testIterationOnEmptyString");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "");
+    }
+
+    @Test(enabled = true)
+    public void testIterationTypeCheck() {
+        BValue[] returns = BRunUtil.invoke(program, "testIterationTypeCheck");
+        Assert.assertEquals(returns.length, 1);
+        assertEquals(((BInteger) returns[0]).intValue(), 3);
     }
 }

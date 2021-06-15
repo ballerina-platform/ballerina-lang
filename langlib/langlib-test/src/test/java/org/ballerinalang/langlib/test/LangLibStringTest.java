@@ -75,13 +75,18 @@ public class LangLibStringTest {
     @Test
     public void testIterator() {
         String[] expected = new String[]{"F", "o", "o", " ", "B", "a", "r"};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIterator");
-        BValueArray arr = (BValueArray) returns[0];
-        long size = arr.size();
 
-        for (int i = 0; i < size; i++) {
-            assertEquals(arr.getString(i), expected[i]);
+        for (int test = 0; test < 2; test++){
+
+            BValue[] returns = BRunUtil.invoke(compileResult, "testIterator", new BValue[]{new BInteger(test)});
+            BValueArray arr = (BValueArray) returns[0];
+            long size = arr.size();
+
+            for (int i = 0; i < size; i++) {
+                assertEquals(arr.getString(i), expected[i]);
+            }
         }
+
     }
 
     @Test
