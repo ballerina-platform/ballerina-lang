@@ -37,7 +37,7 @@ function testMappingBindingPatternWithRest1() {
 function mappingBindingPatternRest2(record { int x; int y; int z1; int z2; } v) returns anydata {
     match v {
         var {x: a, y: b, z1: c, ...r} => {
-            return r["z2"];
+            return r.z2;
         }
         var _ => {
             return "No match";
@@ -161,6 +161,7 @@ function testMappingBindingPatternWithRest6() {
     var v2 = <[int, map<boolean|string>]> r2;
     assertEquals(123, v2[0]);
     map<boolean|string> m2 = v2[1];
+    assertEquals(true, m2 is record {|never a?; boolean b; string c;|});
     assertEquals(true, m2["b"]);
     assertEquals("hello", m2["c"]);
     assertEquals(2, m2.length());
@@ -173,7 +174,9 @@ function testMappingBindingPatternWithRest6() {
     var v4 = <[string, map<int|string>]> r4;
     assertEquals("hello", v4[0]);
     map<int|string> m4 = v4[1];
-    assertEquals(0, m4["m"]);
+    assertEquals(true, m4 is record {|never p?; int m; string...;|});
+    record {|never p?; int m; string...;|} resRec = <record {|never p?; int m; string...;|}>m4;
+    assertEquals(0, resRec.m);
     assertEquals("world", m4["q"]);
     assertEquals(2, m4.length());
 
@@ -185,6 +188,7 @@ function testMappingBindingPatternWithRest6() {
     var v6 = <[anydata, map<anydata>]> r6;
     assertEquals("hello", v6[0]);
     map<anydata> m6 = v6[1];
+    assertEquals(true, m6 is record {|never p?; int n?; anydata...;|});
     assertEquals(10, m6["m"]);
     assertEquals("world", m6["q"]);
     assertEquals(2, m6.length());
@@ -230,10 +234,12 @@ function mappingBindingPatternRest11(ClosedRecordWithOneField|EmptyClosedRecord 
     match rec {
         var {i, ...rest} => {
             int m = i;
+            assertEquals(true, rest is record {| never i?; never...;|});
             map<never> n = rest;
             return <int[2]> [m, n.length()];
         }
         var {...rest} => {
+            assertEquals(true, rest is record {| int i?; never...;|});
             map<int|never> n = rest;
             return n.length();
         }
@@ -274,6 +280,7 @@ public function testRestMappingAtRuntime() {
     var v1 = <[string, map<int|string>]> r1;
     assertEquals("hello", v1[0]);
     var m1 = v1[1];
+    assertEquals(true, m1 is record{|never p?; int|string...;|});
     assertEquals(101, m1["m"]);
     assertEquals("world", m1["q"]);
     assertEquals(2, m1.length());
@@ -298,9 +305,52 @@ public function testRestMappingAtRuntime() {
     var v3 = <[int, map<string>]> r3;
     assertEquals(303, v3[0]);
     var m3 = v3[1];
+    assertEquals(true, m3 is record{|never m?; string...;|});
     assertEquals("ballerina", m3["b"]);
     assertEquals(1, m3.length());
     assertEquals(<RecTwo> {m: 303, "b": "ballerina"}, rec3);
+}
+
+type PersonA record {|
+    int id;
+    string name;
+    boolean employed;
+|};
+
+type PersonB record {|
+    string...;
+|};
+
+function testRestRecordPattern() {
+    Person p1 = {id: 20, name: "Jane Doe", employed: false};
+
+    match p1 {
+        {name: var s, ...var rest} => {
+            assertEquals(true, rest is record{|never name?; int id; boolean employed; |});
+            assertEquals(20, rest.id);
+            assertEquals(false, rest.employed);
+        }
+    }
+
+    match p1 {
+         {...var rest} => {
+             assertEquals(true, rest is record{|int id; string name; boolean employed;|});
+             assertEquals("Jane Doe", rest.name);
+             assertEquals(20, rest.id);
+             assertEquals(false, rest.employed);
+         }
+    }
+
+    PersonA|PersonB p2 = {id: 10, name: "Jone Doe", employed: true};
+
+    match p2 {
+         var {...rest} => {
+             assertEquals(true, rest is record{|int id?; string name?; boolean employed?; (never|string)...;|});
+             assertEquals("Jone Doe", rest?.name);
+             assertEquals(10, rest?.id);
+             assertEquals(true, rest?.employed);
+         }
+     }
 }
 
 type Record record {| int m; string...; |};
