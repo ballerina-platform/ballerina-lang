@@ -284,7 +284,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(localVariables, "ĠĿŐΒȂɭ_ /:@[`{~π_json", "map<json> (size = 0)", "json");
 
         // service variable visibility test
-        debugTestRunner.assertVariable(localVariables, "serviceVar", "service", "object");
+        debugTestRunner.assertVariable(localVariables, "serviceVar", "service", "service");
     }
 
     @Test(dependsOnMethods = "globalVariableVisibilityTest",
