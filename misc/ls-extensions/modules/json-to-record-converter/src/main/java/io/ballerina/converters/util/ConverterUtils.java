@@ -17,11 +17,6 @@
  */
 package io.ballerina.converters.util;
 
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.compiler.syntax.tree.RecordFieldNode;
-import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.converters.exception.ConverterException;
 
 import java.util.ArrayList;
@@ -126,56 +121,5 @@ public class ConverterUtils {
         } else {
             throw new ConverterException(ErrorMessages.invalidReference(referenceVariable));
         }
-    }
-
-    /**
-     * This method takes a list of record nodes and returns it as a code block.
-     *
-     * @param typeNodeList list of type nodes
-     * @return formatted code block as a string
-     */
-    public static String typeNodesToFormattedString(ArrayList<TypeDefinitionNode> typeNodeList) {
-        StringBuilder sourceCodeString = new StringBuilder();
-        for (TypeDefinitionNode typeNode : typeNodeList) {
-            sourceCodeString.append(typeNode.typeKeyword().toSourceCode());
-            sourceCodeString.append(" ");
-
-            sourceCodeString.append(typeNode.typeName().toSourceCode());
-            sourceCodeString.append(" ");
-
-            if (!(typeNode.typeDescriptor() instanceof RecordTypeDescriptorNode)) {
-                throw new IllegalArgumentException();
-            }
-
-            RecordTypeDescriptorNode recordNode = (RecordTypeDescriptorNode) typeNode.typeDescriptor();
-
-            sourceCodeString.append(recordNode.recordKeyword().toSourceCode());
-            sourceCodeString.append(" ");
-            sourceCodeString.append(recordNode.bodyStartDelimiter().toSourceCode());
-            sourceCodeString.append("\n");
-
-            NodeList<Node> fieldNodes = recordNode.fields();
-
-            for (Node field : fieldNodes) {
-                if (!(field instanceof RecordFieldNode)) {
-                    throw new IllegalArgumentException(); //TODO: Change to ConverterException
-                }
-                RecordFieldNode recordField = (RecordFieldNode) field;
-                sourceCodeString.append("\t");
-                sourceCodeString.append(recordField.typeName().toSourceCode());
-                sourceCodeString.append(" ");
-                sourceCodeString.append(recordField.fieldName().toSourceCode());
-                if (recordField.questionMarkToken().isPresent()) {
-                    sourceCodeString.append(recordField.questionMarkToken().get().toSourceCode());
-                }
-                sourceCodeString.append(recordField.semicolonToken().toSourceCode());
-                sourceCodeString.append("\n");
-            }
-
-            sourceCodeString.append(recordNode.bodyEndDelimiter().toSourceCode());
-            sourceCodeString.append(typeNode.semicolonToken().toSourceCode());
-            sourceCodeString.append("\n\n");
-        }
-        return sourceCodeString.toString();
     }
 }

@@ -26,6 +26,8 @@ configurations {
 dependencies {
     compileOnly project(':ballerina-parser')
     compileOnly project(':ballerina-lang')
+    compileOnly project(':ballerina-tools-api')
+    compileOnly project(':formatter:formatter-core')
     compileOnly project(':language-server:language-server-commons')
     compileOnly "com.fasterxml.jackson.core:jackson-databind"
     implementation "io.swagger.core.v3:swagger-models"
@@ -37,6 +39,7 @@ dependencies {
     compileOnly(group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
     testCompile 'org.testng:testng'
     testCompile project(':ballerina-parser')
+    testCompile project(':formatter:formatter-core')
 }
 
 test {

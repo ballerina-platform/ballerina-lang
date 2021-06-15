@@ -17,18 +17,14 @@
  */
 package io.ballerina.converters;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.converters.exception.ConverterException;
-import io.ballerina.converters.util.ConverterUtils;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -48,14 +44,12 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
     @JsonRequest
     public CompletableFuture<JsonToRecordResponse> convertJsonToBalRecord(JsonToRecordRequest request) {
         return CompletableFuture.supplyAsync(() -> {
-            ArrayList<TypeDefinitionNode> nodes;
             JsonToRecordResponse response = new JsonToRecordResponse();
             try {
                 String jsonString = request.getJsonString();
-                nodes = JsonToRecordConverter.convert(jsonString);
-                String codeBlock = ConverterUtils.typeNodesToFormattedString(nodes);
+                String codeBlock = JsonToRecordConverter.convert(jsonString);
                 response.setCodeBlock(codeBlock);
-            } catch (IOException | ConverterException e) {
+            } catch (IOException | ConverterException | FormatterException e) {
                 response.setCodeBlock("");
             }
             return response;

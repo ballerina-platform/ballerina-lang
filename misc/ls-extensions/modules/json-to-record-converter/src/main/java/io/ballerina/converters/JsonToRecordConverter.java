@@ -23,12 +23,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
@@ -36,6 +40,8 @@ import io.ballerina.converters.exception.ConverterException;
 import io.ballerina.converters.util.Constants;
 import io.ballerina.converters.util.ErrorMessages;
 import io.ballerina.converters.util.SchemaGenerator;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
@@ -44,10 +50,11 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import org.apache.commons.lang3.StringUtils;
+import org.ballerinalang.formatter.core.Formatter;
+import org.ballerinalang.formatter.core.FormatterException;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -79,8 +86,8 @@ public class JsonToRecordConverter {
      * @throws IOException in case of Json parse error
      * @throws ConverterException in case of invalid schema
      */
-    public static ArrayList<TypeDefinitionNode> convert(String jsonString) throws IOException,
-            ConverterException {
+    public static String convert(String jsonString) throws IOException,
+            ConverterException, FormatterException {
         ObjectMapper objectMapper = new ObjectMapper();
         OpenAPI model;
         JsonNode inputJson = objectMapper.readTree(jsonString);
@@ -91,7 +98,17 @@ public class JsonToRecordConverter {
             String schemaJson = objectMapper.writeValueAsString(schema);
             model = parseJSONSchema(schemaJson);
         }
-        return generateRecords(model);
+        ArrayList<TypeDefinitionNode> typeDefinitionNodeList = generateRecords(model);
+        NodeList<ImportDeclarationNode> imports = AbstractNodeFactory.createEmptyNodeList();
+        NodeList<ModuleMemberDeclarationNode> moduleMembers = AbstractNodeFactory.createNodeList(
+                typeDefinitionNodeList.toArray(new TypeDefinitionNode[typeDefinitionNodeList.size()]));
+        Token eofToken = AbstractNodeFactory.createIdentifierToken("");
+        ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
+        TextDocument textDocument = TextDocuments.from("");
+        SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
+        syntaxTree = syntaxTree.modifyWith(modulePartNode);
+        String codeBlock = Formatter.format(syntaxTree).toString();
+        return codeBlock;
     }
 
     /**
@@ -281,7 +298,6 @@ public class JsonToRecordConverter {
                 return createBuiltinSimpleNameReferenceNode(null, refTypeName);
 
             } else {
-                System.err.println("Encountered an unsupported type. Type `any` would be used for the field.");
                 Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
                 return createBuiltinSimpleNameReferenceNode(null, typeName);
             }
@@ -291,7 +307,6 @@ public class JsonToRecordConverter {
         } else {
             //This contains a fallback to Ballerina common type `any` if the OpenApi specification type is not defined
             // or not compatible with any of the current Ballerina types.
-            System.err.println("Encountered an unsupported type. Type `any` would be used for the field.");
             Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
             return createBuiltinSimpleNameReferenceNode(null, typeName);
         }

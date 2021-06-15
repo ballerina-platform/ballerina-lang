@@ -17,8 +17,6 @@
  */
 package io.ballerina.converters.util;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
