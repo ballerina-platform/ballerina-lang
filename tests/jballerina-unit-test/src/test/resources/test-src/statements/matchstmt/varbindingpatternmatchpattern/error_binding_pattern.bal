@@ -34,7 +34,7 @@ function testErrorBindingPattern1() {
 function errorBindingPattern2(any|error e) returns string {
     match e {
         var error(a) => {
-            return <string> checkpanic a;
+            return <string> a;
         }
     }
     return "No match";
@@ -143,6 +143,44 @@ function testErrorBindingPattern8() {
     assertEquals("match2", errorBindingPattern8(error MyError1("Message1", x = 2)));
     assertEquals("match2", errorBindingPattern8(error MyError1("Message1", x = 4)));
     assertEquals("No match", errorBindingPattern8(error("Message1", x = "5")));
+}
+
+function testErrorBindingPattern9() {
+    any|error err1 = error("Error", error("Invalid Op"));
+    assertEquals("message:Error cause:Invalid Op", errorBindingPattern9(err1));
+    assertEquals("message:Error cause:Invalid Op", errorBindingPattern10(err1));
+
+    any|error err2 = error("Error");
+    assertEquals("message:Error cause:No Cause", errorBindingPattern9(err2));
+    assertEquals("message:Error cause:No Cause", errorBindingPattern10(err2));
+
+    any|error err3 = error("Error", details = 12);
+    assertEquals("message:Error cause:No Cause", errorBindingPattern9(err3));
+    assertEquals("message:Error cause:No Cause", errorBindingPattern10(err3));
+}
+
+function errorBindingPattern9(any|error x) returns string {
+    match x {
+        var error(m, c) => {
+            string m2 = m;
+            error? c2 = c;
+            return "message:"+ m2 + " cause:" + (c2 is () ? "No Cause" : c2.message());
+        }
+    }
+
+    return "Default";
+}
+
+function errorBindingPattern10(any|error x) returns string {
+    match x {
+        error(var m, var c) => {
+            string m2 = m;
+            error? c2 = c;
+            return "message:"+ m2 + " cause:" + (c2 is () ? "No Cause" : c2.message());
+        }
+    }
+
+    return "Default";
 }
 
 function assertEquals(anydata expected, anydata actual) {

@@ -64,7 +64,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.StringJoiner;
+import java.util.jar.Attributes;
 import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -302,6 +304,16 @@ public class ProjectUtils {
         dependencies.add(new JarLibrary(asmCommonsJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
         dependencies.add(new JarLibrary(diffUtilsJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
         return dependencies;
+    }
+
+    public static Path generateObservabilitySymbolsJar(String packageName) throws IOException {
+        Path jarPath = Files.createTempFile(packageName + "-", "-observability-symbols.jar");
+        Manifest manifest = new Manifest();
+        manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        JarOutputStream jarOutputStream = new JarOutputStream(new BufferedOutputStream(
+                new FileOutputStream(jarPath.toFile())), manifest);
+        jarOutputStream.close();
+        return jarPath;
     }
 
     public static void assembleExecutableJar(Manifest manifest,

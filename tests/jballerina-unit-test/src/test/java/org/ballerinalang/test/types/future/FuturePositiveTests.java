@@ -44,7 +44,7 @@ public class FuturePositiveTests {
         BRunUtil.invoke(result, "testBasicTypes");
     }
 
-    @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/28758
+    @Test
     public void testBasicTypesWithoutFutureConstraint() {
         BRunUtil.invoke(result, "testBasicTypesWithoutFutureConstraint");
     }
@@ -54,7 +54,7 @@ public class FuturePositiveTests {
         BRunUtil.invoke(result, "testRefTypes");
     }
 
-    @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/28758
+    @Test
     public void testRefTypesWithoutFutureConstraint() {
         BRunUtil.invoke(result, "testRefTypesWithoutFutureConstraint");
     }
@@ -64,7 +64,7 @@ public class FuturePositiveTests {
         BRunUtil.invoke(result, "testArrayTypes");
     }
 
-    @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/28758
+    @Test
     public void testArrayTypesWithoutFutureConstraint() {
         BRunUtil.invoke(result, "testArrayTypesWithoutFutureConstraint");
     }
@@ -74,7 +74,7 @@ public class FuturePositiveTests {
         BRunUtil.invoke(result, "testRecordTypes");
     }
 
-    @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/28758
+    @Test
     public void testRecordTypesWithoutFutureConstraint() {
         BRunUtil.invoke(result, "testRecordTypesWithoutFutureConstraint");
     }
@@ -84,7 +84,7 @@ public class FuturePositiveTests {
         BRunUtil.invoke(result, "testObjectTypes");
     }
 
-    @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/28758
+    @Test
     public void testObjectTypesWithoutFutureConstraint() {
         BRunUtil.invoke(result, "testObjectTypesWithoutFutureConstraint");
     }
@@ -94,7 +94,7 @@ public class FuturePositiveTests {
         BRunUtil.invoke(result, "testCustomErrorFuture");
     }
 
-    @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/28758
+    @Test
     public void testCustomErrorFutureWithoutConstraint() {
         BRunUtil.invoke(result, "testCustomErrorFutureWithoutConstraint");
     }
@@ -115,9 +115,8 @@ public class FuturePositiveTests {
         validateError(errors, index++,
                       "incompatible types: expected 'future<(int|string)>', found 'future<(int|string|error)>'",
                       22, 29);
-        // https://github.com/ballerina-platform/ballerina-lang/issues/28758
-        // validateError(errors, index++, "incompatible types: expected 'future<Bar>', found 'future<(any|error)>'",
-        //              25, 22);
+        validateError(errors, index++, "incompatible types: expected 'future<Bar>', found 'future<(any|error)>'",
+                      25, 22);
         Assert.assertEquals(errors.getErrorCount(), index);
     }
 

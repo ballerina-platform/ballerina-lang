@@ -449,7 +449,7 @@ class JMethodResolver {
                     Set<BLangExpression> valueSpace = ((BFiniteType) bType).getValueSpace();
                     for (Iterator<BLangExpression> iterator = valueSpace.iterator(); iterator.hasNext(); ) {
                         BLangExpression value = iterator.next();
-                        if (!isValidParamBType(jType, value.type, isLastParam, restParamExist)) {
+                        if (!isValidParamBType(jType, value.getBType(), isLastParam, restParamExist)) {
                             return false;
                         }
                     }
@@ -606,7 +606,7 @@ class JMethodResolver {
 
                     Set<BLangExpression> valueSpace = ((BFiniteType) bType).getValueSpace();
                     for (BLangExpression value : valueSpace) {
-                        if (isValidReturnBType(jType, value.type, jMethodRequest, visitedSet)) {
+                        if (isValidReturnBType(jType, value.getBType(), jMethodRequest, visitedSet)) {
                             return true;
                         }
                     }

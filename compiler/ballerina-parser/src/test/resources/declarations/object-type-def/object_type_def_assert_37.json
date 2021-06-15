@@ -100,12 +100,16 @@
               ]
             },
             {
-              "kind": "OBJECT_FIELD",
+              "kind": "TYPE_REFERENCE",
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "LIST",
-                  "children": []
+                  "kind": "ASTERISK_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_ASTERISK_TOKEN"
+                  ]
                 },
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -114,14 +118,6 @@
                       "kind": "IDENTIFIER_TOKEN",
                       "value": "a"
                     }
-                  ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "isMissing": true,
-                  "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_IDENTIFIER"
                   ]
                 },
                 {
