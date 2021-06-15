@@ -75,7 +75,7 @@ function testMultiplySingleton() {
     assertEqual(a1 * a7, 240);
 }
 
-function testContextuallyExpectedTypeOfNumericLiteralInMultiply(){
+function testContextuallyExpectedTypeOfNumericLiteralInMultiply() {
     float a1 = 10.0 * 2;
     float a2 = 5 * 3;
     decimal a3 = 15.0 * 2;

@@ -75,7 +75,7 @@ function testSubtractSingleton() {
     assertEqual(a1 - a7, 8);
 }
 
-function testContextuallyExpectedTypeOfNumericLiteralInSubtract(){
+function testContextuallyExpectedTypeOfNumericLiteralInSubtract() {
     float a1 = 10.0 - 5;
     float a2 = 10 - 2;
     decimal a3 = 30 - 15.0;

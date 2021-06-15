@@ -90,7 +90,7 @@ public class MultiplyOperationTest {
     }
 
     @Test(description = "Test contextually expected type of numeric literals in multiplication")
-    public void testContextuallyExpectedTypeOfNumericLiteralInAdd() {
+    public void testContextuallyExpectedTypeOfNumericLiteralInMultiply() {
         BRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInMultiply");
     }
 

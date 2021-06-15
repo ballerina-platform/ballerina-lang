@@ -135,7 +135,7 @@ function testAddSingleton() {
     assertEqual(a1 + a7, 13);
 }
 
-function testContextuallyExpectedTypeOfNumericLiteralInAdd(){
+function testContextuallyExpectedTypeOfNumericLiteralInAdd() {
     float a1 = 10.0 + 5;
     float a2 = 5 + 3;
     decimal a3 = 5 + 15.0;

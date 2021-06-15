@@ -131,7 +131,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
@@ -4015,26 +4014,7 @@ public class TypeChecker extends BLangNodeVisitor {
         checkDecimalCompatibilityForBinaryArithmeticOverLiteralValues(binaryExpr);
 
         SymbolEnv rhsExprEnv;
-        BType lhsType;
-        if (binaryExpr.lhsExpr instanceof BLangNumericLiteral) {
-            switch (binaryExpr.opKind) {
-                case ADD:
-                case SUB:
-                case MUL:
-                case DIV:
-                    if (binaryExpr.expectedType.tag != TypeTags.NONE && binaryExpr.expectedType.tag != TypeTags.ANY) {
-                        lhsType = checkExpectedTypeCompatibility(binaryExpr.lhsExpr,
-                                binaryExpr.expectedType, env);
-                    } else {
-                        lhsType = checkExpr(binaryExpr.lhsExpr, env);;
-                    }
-                    break;
-                default:
-                    lhsType = checkExpr(binaryExpr.lhsExpr, env);
-            }
-        } else {
-            lhsType = checkExpr(binaryExpr.lhsExpr, env);
-        }
+        BType lhsType = checkAndGetType(binaryExpr.lhsExpr, env, binaryExpr);
 
         if (binaryExpr.opKind == OperatorKind.AND) {
             rhsExprEnv = typeNarrower.evaluateTruth(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env, true);
@@ -4044,27 +4024,7 @@ public class TypeChecker extends BLangNodeVisitor {
             rhsExprEnv = env;
         }
 
-        BType rhsType;
-
-        if (binaryExpr.rhsExpr instanceof BLangNumericLiteral) {
-            switch (binaryExpr.opKind) {
-                case ADD:
-                case SUB:
-                case MUL:
-                case DIV:
-                    if (binaryExpr.expectedType.tag != TypeTags.NONE && binaryExpr.expectedType.tag != TypeTags.ANY) {
-                        rhsType = checkExpectedTypeCompatibility(binaryExpr.rhsExpr,
-                                binaryExpr.expectedType, rhsExprEnv);
-                    } else {
-                        rhsType = checkExpectedTypeCompatibility(binaryExpr.rhsExpr, lhsType, rhsExprEnv);
-                    }
-                    break;
-                default:
-                    rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
-            }
-        } else {
-            rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
-        }
+        BType rhsType = checkAndGetType(binaryExpr.rhsExpr, rhsExprEnv, binaryExpr);
 
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
@@ -4122,25 +4082,41 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(binaryExpr, actualType, expType);
     }
 
-    private BType checkExpectedTypeCompatibility(BLangExpression expr, BType expectedType, SymbolEnv env) {
-        boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
-        this.nonErrorLoggingCheck = true;
-        int prevErrorCount = this.dlog.errorCount();
-        this.dlog.resetErrorCount();
-        this.dlog.mute();
+    private BType checkAndGetType(BLangExpression expr, SymbolEnv env, BLangBinaryExpr binaryExpr) {
+        if (expr.getKind() == NodeKind.NUMERIC_LITERAL) {
+            switch (binaryExpr.opKind) {
+                case ADD:
+                case SUB:
+                case MUL:
+                case DIV:
+                    if (binaryExpr.expectedType.tag != TypeTags.NONE && binaryExpr.expectedType.tag != TypeTags.ANY) {
+                        boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
+                        this.nonErrorLoggingCheck = true;
+                        int prevErrorCount = this.dlog.errorCount();
+                        this.dlog.resetErrorCount();
+                        this.dlog.mute();
 
-        expr.cloneAttempt++;
-        BType exprCompatibleType = checkExpr(nodeCloner.clone(expr), env, expectedType);
+                        expr.cloneAttempt++;
+                        BType exprCompatibleType = checkExpr(nodeCloner.clone(expr), env, binaryExpr.expectedType);
 
-        this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
-        int errorCount = this.dlog.errorCount();
-        this.dlog.setErrorCount(prevErrorCount);
-        if (!prevNonErrorLoggingCheck) {
-            this.dlog.unmute();
-        }
+                        this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+                        int errorCount = this.dlog.errorCount();
+                        this.dlog.setErrorCount(prevErrorCount);
+                        if (!prevNonErrorLoggingCheck) {
+                            this.dlog.unmute();
+                        }
 
-        if (errorCount == 0 && exprCompatibleType != symTable.semanticError) {
-            return checkExpr(expr, env, expectedType);
+                        if (errorCount == 0 && exprCompatibleType != symTable.semanticError) {
+                            return checkExpr(expr, env, binaryExpr.expectedType);
+                        } else {
+                            return checkExpr(expr, env);
+                        }
+                    } else {
+                        return checkExpr(expr, env);
+                    }
+                default:
+                    return checkExpr(expr, env);
+            }
         } else {
             return checkExpr(expr, env);
         }

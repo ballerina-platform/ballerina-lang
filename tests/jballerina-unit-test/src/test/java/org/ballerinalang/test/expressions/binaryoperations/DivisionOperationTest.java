@@ -129,7 +129,7 @@ public class DivisionOperationTest {
     }
 
     @Test(description = "Test contextually expected type of numeric literals in addition")
-    public void testContextuallyExpectedTypeOfNumericLiteralInAdd() {
+    public void testContextuallyExpectedTypeOfNumericLiteralInDivision() {
         BRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInDivision");
     }
 }

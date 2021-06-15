@@ -103,7 +103,7 @@ public class SubtractOperationTest {
     }
 
     @Test(description = "Test contextually expected type of numeric literals in subtraction")
-    public void testContextuallyExpectedTypeOfNumericLiteralInAdd() {
+    public void testContextuallyExpectedTypeOfNumericLiteralInSubtract() {
         BRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInSubtract");
     }
 
