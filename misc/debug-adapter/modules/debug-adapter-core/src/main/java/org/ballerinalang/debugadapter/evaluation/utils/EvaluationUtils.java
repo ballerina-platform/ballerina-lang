@@ -35,6 +35,7 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeInstanceMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
+import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.JVMValueType;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
@@ -71,7 +72,9 @@ public class EvaluationUtils {
     public static final String B_STRING_UTILS_CLASS = RUNTIME_HELPER_PREFIX + "api.utils.StringUtils";
     public static final String B_TYPE_UTILS_CLASS = RUNTIME_HELPER_PREFIX + "api.utils.TypeUtils";
     public static final String B_XML_FACTORY_CLASS = RUNTIME_HELPER_PREFIX + "internal.XmlFactory";
+    public static final String B_VALUE_UTILS_CLASS = RUNTIME_HELPER_PREFIX + "internal.ValueUtils";
     public static final String B_DECIMAL_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.DecimalValue";
+    public static final String B_FUTURE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.FutureValue[]";
     public static final String B_XML_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.XmlValue";
     public static final String B_STRING_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BString";
     public static final String B_TYPE_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type";
@@ -123,14 +126,17 @@ public class EvaluationUtils {
     public static final String VALUE_EQUAL_METHOD = "isEqual";
     public static final String XML_CONCAT_METHOD = "concatenate";
     public static final String STRING_TO_XML_METHOD = "stringToXml";
-    private static final String B_STRING_CONCAT_METHOD = "concat";
+    public static final String CREATE_FUTURE_ARRAY_METHOD = "createFutureArray";
+    public static final String HANDLE_WAIT_ANY_METHOD = "handleWaitAny";
     static final String FROM_STRING_METHOD = "fromString";
+    private static final String B_STRING_CONCAT_METHOD = "concat";
     private static final String FOR_NAME_METHOD = "forName";
     private static final String GET_STRING_VALUE_METHOD = "getStringValue";
     private static final String INT_VALUE_METHOD = "intValue";
     private static final String LONG_VALUE_METHOD = "longValue";
     private static final String FLOAT_VALUE_METHOD = "floatValue";
     private static final String DOUBLE_VALUE_METHOD = "doubleValue";
+
     // Misc
     public static final String STRAND_VAR_NAME = "__strand";
     public static final String REST_ARG_IDENTIFIER = "...";
@@ -139,7 +145,7 @@ public class EvaluationUtils {
     }
 
     /**
-     * Loads and returns Ballerina JVM runtime method instance for a given qualified class name + method name.
+     * Loads and returns Ballerina JVM runtime static method instance for a given qualified class name + method name.
      *
      * @param context      suspended context
      * @param qClassName   qualified name of the class to be loaded
@@ -167,6 +173,33 @@ public class EvaluationUtils {
                     methodName));
         }
         return new RuntimeStaticMethod(context, classesRef.get(0), methods.get(0));
+    }
+
+    /**
+     * Extracts and returns Ballerina JVM runtime instance method of the given object, with the given method name.
+     *
+     * @param context      suspended context
+     * @param objectRef    JDI value reference of the object instance
+     * @param methodName   name of the method to be loaded
+     * @param argTypeNames argument type names
+     * @return corresponding Ballerina JVM runtime method instance
+     */
+    public static RuntimeInstanceMethod getRuntimeMethod(SuspendedContext context, Value objectRef,
+                                                         String methodName, List<String> argTypeNames)
+            throws EvaluationException {
+
+        List<Method> methods = ((ObjectReference) objectRef).referenceType().methodsByName(methodName);
+        if (methods == null || methods.isEmpty()) {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
+                    methodName));
+        }
+        methods = methods.stream().filter(method -> method.isPublic() && !method.isStatic() &&
+                compare(method.argumentTypeNames(), argTypeNames)).collect(Collectors.toList());
+        if (methods.size() != 1) {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
+                    methodName));
+        }
+        return new RuntimeInstanceMethod(context, objectRef, methods.get(0));
     }
 
     public static GeneratedStaticMethod getGeneratedMethod(SuspendedContext context, String qClassName,
@@ -432,5 +465,17 @@ public class EvaluationUtils {
     private static boolean compare(List<String> list1, List<String> list2) {
         return list1.size() == list2.size() && IntStream.range(0, list1.size()).allMatch(i ->
                 list1.get(i).equals(list2.get(i)));
+    }
+
+    public static Value getActiveStrand(SuspendedContext context) throws EvaluationException {
+        try {
+            Value strand = context.getFrame().getValue(context.getFrame().visibleVariableByName(STRAND_VAR_NAME));
+            if (strand == null) {
+                throw new EvaluationException(EvaluationExceptionKind.STRAND_NOT_FOUND.getString());
+            }
+            return strand;
+        } catch (JdiProxyException e) {
+            throw new EvaluationException(EvaluationExceptionKind.STRAND_NOT_FOUND.getString());
+        }
     }
 }

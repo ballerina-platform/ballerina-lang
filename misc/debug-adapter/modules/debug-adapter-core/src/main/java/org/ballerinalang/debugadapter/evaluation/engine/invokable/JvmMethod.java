@@ -109,12 +109,12 @@ public abstract class JvmMethod {
         try {
             Value strand = context.getFrame().getValue(context.getFrame().visibleVariableByName(STRAND_VAR_NAME));
             if (strand == null) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.STRAND_NOT_FOUND.getString(),
+                throw new EvaluationException(String.format(EvaluationExceptionKind.METHOD_STRAND_NOT_FOUND.getString(),
                         methodRef.name()));
             }
             return strand;
         } catch (JdiProxyException e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.STRAND_NOT_FOUND.getString(),
+            throw new EvaluationException(String.format(EvaluationExceptionKind.METHOD_STRAND_NOT_FOUND.getString(),
                     methodRef));
         }
     }

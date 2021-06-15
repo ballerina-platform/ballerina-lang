@@ -31,6 +31,7 @@ import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.transactions.TransactionLocalContext;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -283,6 +284,11 @@ public class Strand {
             ctx.intermediate = true;
         }
         ctx.unLock();
+    }
+
+    @SuppressWarnings("unused")
+    public WaitResult handleWaitAny(FutureValue... futures) throws Throwable {
+        return handleWaitAny(Arrays.asList(futures));
     }
 
     public WaitResult handleWaitAny(List<FutureValue> futures) throws Throwable {

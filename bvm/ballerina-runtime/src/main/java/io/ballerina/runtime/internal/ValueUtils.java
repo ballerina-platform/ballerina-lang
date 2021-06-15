@@ -28,6 +28,7 @@ import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.State;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BRecordType;
+import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 
@@ -134,8 +135,7 @@ public class ValueUtils {
                 currentStrand.blockedOnExtern = false;
                 currentStrand.setState(State.RUNNABLE);
             }
-            objectValue = valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand,
-                                                         null, fields);
+            objectValue = valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand, null, fields);
         } finally {
             if (currentStrand != null) {
                 currentStrand.blockedOnExtern = prevBlockedOnExtern;
@@ -143,6 +143,14 @@ public class ValueUtils {
             }
         }
         return objectValue;
+    }
+
+    /**
+     * Create an empty array of Future values. (This helper method is currently used by the debugger expression
+     * evaluator).
+     */
+    public static FutureValue[] createFutureArray() {
+        return new FutureValue[0];
     }
 
     private static Strand getStrand() {

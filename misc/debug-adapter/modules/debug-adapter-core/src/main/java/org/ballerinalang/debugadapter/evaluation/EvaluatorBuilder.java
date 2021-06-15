@@ -44,9 +44,11 @@ import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
 import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.WaitActionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.action.RemoteMethodCallActionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.action.WaitActionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.BasicLiteralEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.BinaryExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.ConditionalExpressionEvaluator;
@@ -335,6 +337,7 @@ public class EvaluatorBuilder extends NodeVisitor {
         result = new UnaryExpressionEvaluator(context, unaryExpressionNode, subExprEvaluator);
     }
 
+    @Override
     public void visit(RemoteMethodCallActionNode methodCallActionNode) {
         visitSyntaxNode(methodCallActionNode);
         try {
@@ -346,6 +349,15 @@ public class EvaluatorBuilder extends NodeVisitor {
         } catch (EvaluationException e) {
             builderException = e;
         }
+    }
+
+    @Override
+    public void visit(WaitActionNode waitActionNode) {
+        visitSyntaxNode(waitActionNode);
+        // visits object expression.
+        waitActionNode.waitFutureExpr().accept(this);
+        Evaluator futureExpression = result;
+        result = new WaitActionEvaluator(context, waitActionNode, futureExpression);
     }
 
     @Override
@@ -423,6 +435,7 @@ public class EvaluatorBuilder extends NodeVisitor {
 
         // Adds action syntax.
         addRemoteMethodCallAction();
+        addWaitAction();
     }
 
     private void addLiteralExpressionSyntax() {
@@ -597,6 +610,10 @@ public class EvaluatorBuilder extends NodeVisitor {
 
     private void addRemoteMethodCallAction() {
         supportedSyntax.add(SyntaxKind.REMOTE_METHOD_CALL_ACTION);
+    }
+
+    private void addWaitAction() {
+        supportedSyntax.add(SyntaxKind.WAIT_ACTION);
     }
 
     private void addMiscellaneousSyntax() {
