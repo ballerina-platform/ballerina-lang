@@ -10,6 +10,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
+      "filterText": "remote",
       "insertText": "remote",
       "insertTextFormat": "Snippet"
     },
@@ -18,6 +19,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
+      "filterText": "remote function",
       "insertText": "remote function",
       "insertTextFormat": "Snippet"
     }

@@ -37,7 +37,7 @@ public class BLangLiteral extends BLangExpression implements LiteralNode {
 
     public BLangLiteral(Object value, BType type) {
         this.value = value;
-        this.type = type;
+        this.setBType(type);
     }
 
     @Override

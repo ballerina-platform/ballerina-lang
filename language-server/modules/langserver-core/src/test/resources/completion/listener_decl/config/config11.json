@@ -12,7 +12,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `module1:Listener`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `module1:Listener`   \n  \n"
         }
       },
       "sortText": "D",
@@ -27,7 +27,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
         }
       },
       "sortText": "H",
@@ -60,11 +60,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "test",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -78,7 +78,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "value",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
         }
       ]
     },
@@ -129,11 +152,11 @@
       ]
     },
     {
-      "label": "ballerina/lang.value",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "value",
+      "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -147,30 +170,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -309,6 +309,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "E",
+      "filterText": "new",
       "insertText": "new ",
       "insertTextFormat": "Snippet"
     },
@@ -317,6 +318,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "U",
+      "filterText": "check",
       "insertText": "check ",
       "insertTextFormat": "Snippet"
     },
@@ -325,6 +327,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "U",
+      "filterText": "checkpanic",
       "insertText": "checkpanic ",
       "insertTextFormat": "Snippet"
     },
@@ -333,6 +336,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "U",
+      "filterText": "trap",
       "insertText": "trap",
       "insertTextFormat": "Snippet"
     }

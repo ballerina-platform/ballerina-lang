@@ -255,25 +255,25 @@ function testRestTypeOverriding() {
     assertEquality("str2", r6["s2"]);
 }
 
-// public type Foo record {|
-//     anydata body;
-// |};
+ public type Foo record {|
+     anydata body;
+ |};
 
-// // Out of order inclusion test : added to test a NPE
-// type Bar record {|
-//     *Foo;
-//     Baz2 body;   // defined after the type definition
-// |};
+ // Out of order inclusion test : added to test a NPE
+ type Bar record {|
+     *Foo;
+     Baz2 body;   // defined after the type definition
+ |};
 
-// type Baz2 record {|
-//     int id;
-// |};
+ type Baz2 record {|
+     int id;
+ |};
 
-// function testOutOfOrderFieldOverridingFieldFromTypeInclusion() {
-//     Baz2 bazRecord = {id: 4};
-//     Bar barRecord = {body: bazRecord};
-//     assertEquality(4, barRecord.body.id);
-// }
+ function testOutOfOrderFieldOverridingFieldFromTypeInclusion() {
+     Baz2 bazRecord = {id: 4};
+     Bar barRecord = {body: bazRecord};
+     assertEquality(4, barRecord.body.id);
+ }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 

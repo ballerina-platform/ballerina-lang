@@ -67,6 +67,12 @@ public class GlobalQueryTest {
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
+    @Test(description = "Test nested query-expr as a collection of a query-expr")
+    public void testGlobalQuery5() {
+        BValue[] values = BRunUtil.invoke(result, "testGlobalQuery5");
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+    
     @Test(description = "Test negative scenarios for module level queries")
     public void testNegativeScenarios() {
         Assert.assertEquals(negativeResult.getErrorCount(), 1);

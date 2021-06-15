@@ -99,6 +99,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -378,21 +379,23 @@ public class CommonUtil {
      * @return {@link List}     List of completion items for the struct fields
      */
     public static List<LSCompletionItem> getRecordFieldCompletionItems(BallerinaCompletionContext context,
-                                                                       Map<String, RecordFieldSymbol> fields) {
+                                                                       Map<String, RecordFieldSymbol> fields,
+                                                                       TypeSymbol symbol) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         AtomicInteger fieldCounter = new AtomicInteger();
         fields.forEach((name, field) -> {
             fieldCounter.getAndIncrement();
             String insertText =
                     getRecordFieldCompletionInsertText(field, Collections.emptyList(), 0, fieldCounter.get());
+            String detail = symbol.getName().isPresent() ? (symbol.getName().get() + "." + name)
+                    : ("(" + symbol.signature() + ")." + name);
             CompletionItem fieldItem = new CompletionItem();
             fieldItem.setInsertText(insertText);
             fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
             fieldItem.setLabel(name);
-            fieldItem.setDetail(ItemResolverConstants.FIELD_TYPE);
             fieldItem.setKind(CompletionItemKind.Field);
             fieldItem.setSortText(Priority.PRIORITY120.toString());
-            completionItems.add(new RecordFieldCompletionItem(context, field, fieldItem));
+            completionItems.add(new RecordFieldCompletionItem(context, field, fieldItem, detail));
         });
 
         return completionItems;
@@ -402,27 +405,48 @@ public class CommonUtil {
      * Get the completion item to fill all the struct fields.
      *
      * @param context Language Server Operation Context
-     * @param fields  Map of fields
+     * @param fields  A non empty map of fields
      * @return {@link LSCompletionItem}   Completion Item to fill all the options
      */
     public static LSCompletionItem getFillAllStructFieldsItem(BallerinaCompletionContext context,
-                                                              Map<String, RecordFieldSymbol> fields) {
+                                                              Map<String, RecordFieldSymbol> fields,
+                                                              TypeSymbol symbol) {
+
         List<String> fieldEntries = new ArrayList<>();
 
-        for (Map.Entry<String, RecordFieldSymbol> fieldSymbolEntry : fields.entrySet()) {
-            String defaultFieldEntry = fieldSymbolEntry.getKey()
-                    + PKG_DELIMITER_KEYWORD + " "
-                    + getDefaultValueForType(fieldSymbolEntry.getValue().typeDescriptor());
-            fieldEntries.add(defaultFieldEntry);
+        Map<String, RecordFieldSymbol> requiredFields = new HashMap<>();
+        for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
+            if (!entry.getValue().isOptional()) {
+                requiredFields.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        String label;
+        String detail = symbol.getName().isPresent() ? symbol.getName().get() : symbol.signature();
+        if (!requiredFields.isEmpty()) {
+            label = "Fill " + detail + " Required Fields";
+            for (Map.Entry<String, RecordFieldSymbol> entry : requiredFields.entrySet()) {
+                String fieldEntry = entry.getKey()
+                        + PKG_DELIMITER_KEYWORD + " "
+                        + getDefaultValueForType(entry.getValue().typeDescriptor());
+                fieldEntries.add(fieldEntry);
+            }
+        } else {
+            label = "Fill " + detail + " Optional Fields";
+            for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
+                String fieldEntry = entry.getKey()
+                        + PKG_DELIMITER_KEYWORD + " "
+                        + getDefaultValueForType(entry.getValue().typeDescriptor());
+                fieldEntries.add(fieldEntry);
+            }
         }
 
         String insertText = String.join(("," + LINE_SEPARATOR), fieldEntries);
-        String label = "Add All Attributes";
-
         CompletionItem completionItem = new CompletionItem();
+        completionItem.setFilterText("fill");
         completionItem.setLabel(label);
         completionItem.setInsertText(insertText);
-        completionItem.setDetail(ItemResolverConstants.NONE);
+        completionItem.setDetail(detail);
         completionItem.setKind(CompletionItemKind.Property);
         completionItem.setSortText(Priority.PRIORITY110.toString());
 
@@ -1285,8 +1309,8 @@ public class CommonUtil {
     /**
      * Check if the symbol is a class symbol with self as the name.
      *
-     * @param symbol  Symbol
-     * @param context PositionedOperationContext
+     * @param symbol               Symbol
+     * @param context              PositionedOperationContext
      * @param enclosedModuleMember ModuleMemberDeclarationNode
      * @return {@link Boolean} whether the symbol is a self class symbol.
      */
@@ -1315,7 +1339,7 @@ public class CommonUtil {
         return classSymbol.equals(varTypeSymbol);
     }
 
-   /**
+    /**
      * Check if the cursor is positioned in a lock statement node context.
      *
      * @param context Completion context.
@@ -1331,5 +1355,16 @@ public class CommonUtil {
         }
         while (evalNode != null);
         return false;
+    }
+
+    /**
+     * Get the common predicate to filter the types.
+     *
+     * @return {@link Predicate}
+     */
+    public static Predicate<Symbol> typesFilter() {
+        return symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION ||
+                symbol.kind() == SymbolKind.CLASS || symbol.kind() == SymbolKind.ENUM
+                || symbol.kind() == SymbolKind.ENUM_MEMBER || symbol.kind() == SymbolKind.CONSTANT;
     }
 }

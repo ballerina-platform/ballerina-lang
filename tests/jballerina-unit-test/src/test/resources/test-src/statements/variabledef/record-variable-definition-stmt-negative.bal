@@ -157,3 +157,132 @@ function ignoreVariables() {
     PersonWithAge {_: fName, _} = p; // underscore not allowed
     PersonWithAge {name: _, age: _} = p; // no new variables on left side
 }
+
+type XY record {
+    int x;
+    int y;
+};
+
+// any field other than x and y
+type NotXY record {
+    never x?;
+    never y?;
+};
+
+function testInferredType(XY xy) returns XY {
+    var {x: _, y: _, ...extra} = xy;
+    return extra;
+}
+
+type ClosedXY record {|
+    int x;
+    int y;
+    string...;
+|};
+
+function testDefinedRestType() returns map<int> {
+    int xx;
+    int yy;
+    map<int|string> extra;
+    {x: xx, y: yy, ...extra} = <ClosedXY>{x:10, y:20, "foo":"bar"};
+    return extra;
+}
+
+type OptionalXY record {
+    int x?;
+    int y?;
+};
+
+function testWithOptionalFields() returns map<int> {
+    var {...extra} = <XY>{x:10, y:20, "foo":"bar"};
+    return extra;
+}
+
+type PersonClosed record {|
+    string name;
+    int age;
+    string...;
+|};
+
+function testRestFieldTypeCheck() {
+    string s;
+    int age;
+    map<string> rest;
+
+    PersonClosed p = {name: "Jane Doe", age: 20, "employed": "false"};
+    {name: s, ...rest} = p;
+}
+
+type Employee record {|
+    string name;
+    int|error id;
+    string...;
+|};
+
+function testRestFieldTypeCheckWithError() {
+    string s;
+    int id;
+    map<string> rest;
+
+    Employee emp1 = {name: "Jane Doe", id: error("custom error"), "employed": "false"};
+    {name: s, ...rest} = emp1;
+
+    Employee emp2 = {name: "Jean Doe", id: 10, "employed": "true"};
+    {name: s, id, ...rest} = emp2;
+}
+
+function testDefinedRestField() {
+    string s;
+    int age;
+    record {| never name?; never age?; (int|string)...; |} rest;
+
+    PersonClosed p = {name: "Jane Doe", age: 20, "employed": "false"};
+    {name: s,...rest} = p;
+
+    if rest.hasKey("age") {
+        panic error("Found 'age' field: " + rest.get("age").toString());
+    }
+}
+
+function testTypedBinidingRestField() {
+    PersonClosed p = {name: "Jane Doe", age: 20, "employed": "false"};
+    PersonClosed {name,...rest} = p;
+
+    record{|never name?; int...;|} extra = rest;
+    int personAge = rest.age;
+    string employed = rest.employed;
+}
+
+function DeclaredRestFieldMismach() {
+    string stdName;
+    int age;
+    map<string> details;
+    {name: stdName, ...details} = <PersonClosed>{name: "Jane Doe", age: 10, "foo": "bar"};
+}
+
+type SchemaA record {|
+    string name;
+    int age;
+    string...;
+|};
+
+type SchemaB record {|
+    string name;
+    boolean age;
+    boolean married;
+    int...;
+|};
+
+type SchemaC record {|
+    string name;
+    string age;
+    int...;
+|};
+
+function testRestFieldResolving() {
+    SchemaA recA = {name: "David", age:10, "foo":"bar"};
+    SchemaA|SchemaB|SchemaC {name, ...rest} = recA;
+    map<int|string> extra = rest;
+    var extraRec = rest;
+    boolean married = extraRec.married;
+}

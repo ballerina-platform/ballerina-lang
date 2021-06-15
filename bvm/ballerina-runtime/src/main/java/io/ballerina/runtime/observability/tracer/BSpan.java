@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
@@ -180,9 +181,11 @@ public class BSpan {
             if (spanContext.isSampled()) {
                 BMapInitialValueEntry[] values = new BMapInitialValueEntry[]{
                         new MappingInitialValueEntry.KeyValueEntry(
-                                TraceConstants.SPAN_CONTEXT_MAP_KEY_TRACE_ID, spanContext.getTraceId()),
+                                TraceConstants.SPAN_CONTEXT_MAP_KEY_TRACE_ID,
+                                StringUtils.fromString(spanContext.getTraceId())),
                         new MappingInitialValueEntry.KeyValueEntry(
-                                TraceConstants.SPAN_CONTEXT_MAP_KEY_SPAN_ID, spanContext.getSpanId())
+                                TraceConstants.SPAN_CONTEXT_MAP_KEY_SPAN_ID,
+                                StringUtils.fromString(spanContext.getSpanId()))
                 };
                 bSpanContext = ValueCreator.createMapValue(IMMUTABLE_STRING_MAP_TYPE, values);
             } else {

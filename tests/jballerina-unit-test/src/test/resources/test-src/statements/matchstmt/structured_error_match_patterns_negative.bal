@@ -38,13 +38,13 @@ function testErrorPattern1() returns string {
 
 function testErrorPattern2() returns string {
     error <ClosedFoo> err = error("Err Code 1", s = "error");
-
-    match err {
+    any|error a = err;
+    match a {
         var error (reason, ...rest) => {return "A";}
         var error (reason, s = s) => {return "A";} // unreachable
     }
 
-    match err {
+    match a {
         var error (reason, s = s) => {return "A";}
         var error (reason, s = s, ...rest) => {return "A";} // unknown field 'detail' in record type 'ClosedFoo'
         var error (reason, s = s) => {return "A";} // unreachable
@@ -54,13 +54,13 @@ function testErrorPattern2() returns string {
 
 function testErrorPattern3() returns string {
     error <ClosedFoo> err = error("Err Code 1", s = "error");
-
-    match err {
+    any|error a = err;
+    match a {
         var error (reason, ...rest) => {return "A";}
         var error (reason, s = _) => {return "A";} // unreachable
     }
 
-    match err {
+    match a {
         var error (reason, ...rest) => {return "A";}
         var error (reason) => {return "A";} // unreachable
     }
