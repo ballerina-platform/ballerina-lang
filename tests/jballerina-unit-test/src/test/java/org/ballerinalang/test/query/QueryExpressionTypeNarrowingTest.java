@@ -49,6 +49,11 @@ public class QueryExpressionTypeNarrowingTest {
         BRunUtil.invoke(result, "testQueryExprWithinNegatedTypeGuard");
     }
 
+    @Test(description = "Test query expression within a ternary operator")
+    public void testTernaryWithinQueryExpression() {
+        BRunUtil.invoke(result, "testTernaryWithinQueryExpression");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

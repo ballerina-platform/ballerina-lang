@@ -59,6 +59,37 @@ function merge(string[]? tokens) returns string {
     return "";
 }
 
+type Label record {
+    string name;
+};
+
+type Data record {
+    Label[]? labels;
+};
+
+function testTernaryWithinQueryExpression () {
+    Label[] labelList = [{name: "A"}, {name: "B"}];
+    Data[] data1 = [{labels: ()}];
+    Data[] data2 = [{labels: labelList}];
+    Data data3 = {labels: [{name: "John Doe"}]};
+
+    Data[] res1 = filterNonEmtyData(data1);
+    Data[] res2 = filterNonEmtyData(data2);
+
+    assertEquality(data3, res1[0]);
+    assertEquality(data2, res2);
+}
+
+function filterNonEmtyData (Data[] dataList) returns Data[] {
+    Data[] newData = from Data d in dataList
+        select {
+            labels: let Label[]? l = d.labels
+                in (l != () ? from Label nl in l
+                    select {name: nl.name} : [{name: "John Doe"}])
+        };
+    return newData;
+}
+
 //---------------------------------------------------------------------------------------------------------
 const ASSERTION_ERROR_REASON = "AssertionError";
 
