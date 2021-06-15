@@ -76,7 +76,7 @@ public class LangLibStringTest {
     public void testIterator() {
         String[] expected = new String[]{"F", "o", "o", " ", "B", "a", "r"};
 
-        for (int test = 0; test < 2; test++){
+        for (int test = 0; test < 2; test++) {
 
             BValue[] returns = BRunUtil.invoke(compileResult, "testIterator", new BValue[]{new BInteger(test)});
             BValueArray arr = (BValueArray) returns[0];
