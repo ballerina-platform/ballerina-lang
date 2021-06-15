@@ -177,6 +177,11 @@ public class ConfigNegativeTest {
                         new VariableKey[]{new VariableKey(MODULE, "myMap", PredefinedTypes.TYPE_MAP, null, true)}, 1
                         , 5, new String[]{"error: configurable variable 'myMap' with type 'map' is not supported",
                         "warning: [org.mod1.myMap=4] unused command line argument"}},
+                // not supported cli union type
+                {new String[]{"-Corg.mod1.myUnion=5"}, null, new VariableKey[]{
+                        new VariableKey(MODULE, "myUnion", incompatibleUnionType, null, true)}, 1, 1,
+                        new String[]{"error: value for configurable variable 'myUnion' with type '(int|string)' is " +
+                                "not supported as a command line argument"}},
                 // not supported cli type
                 {new String[]{"-Corg.mod1.myMap=5"}, null,
                         new VariableKey[]{
