@@ -211,7 +211,13 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
             String parentString = parentTables.get(i);
             TopLevelNode rootTableNode = parentTable.entries().get(parentString);
             if (rootTableNode != null) {
-                parentTable = (TomlTableNode) rootTableNode;
+                if (rootTableNode.kind() == TomlType.TABLE) {
+                    parentTable = (TomlTableNode) rootTableNode;
+                } else if (rootTableNode.kind() == TomlType.TABLE_ARRAY) {
+                    TomlTableArrayNode arrayNode = (TomlTableArrayNode) rootTableNode;
+                    List<TomlTableNode> children = arrayNode.children();
+                    parentTable = children.get(children.size() - 1);
+                }
             } else {
                 TomlKeyEntryNode tomlKeyEntryNode = childNode.key().keys().get(i);
                 parentTable = generateTable(parentTable, tomlKeyEntryNode, childNode);

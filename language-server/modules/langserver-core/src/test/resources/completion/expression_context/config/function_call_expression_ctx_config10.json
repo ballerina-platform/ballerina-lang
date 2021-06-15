@@ -10,6 +10,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "R",
+      "filterText": "start",
       "insertText": "start ",
       "insertTextFormat": "Snippet"
     },
@@ -18,6 +19,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "R",
+      "filterText": "wait",
       "insertText": "wait ",
       "insertTextFormat": "Snippet"
     },
@@ -26,6 +28,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "R",
+      "filterText": "flush",
       "insertText": "flush ",
       "insertTextFormat": "Snippet"
     },
@@ -34,6 +37,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "Q",
+      "filterText": "from",
       "insertText": "from ${1:var} ${2:item} in ${3}",
       "insertTextFormat": "Snippet"
     },
@@ -292,6 +296,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "R",
+      "filterText": "service",
       "insertText": "service",
       "insertTextFormat": "Snippet"
     },
@@ -300,6 +305,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "R",
+      "filterText": "new",
       "insertText": "new ",
       "insertTextFormat": "Snippet"
     },
@@ -308,6 +314,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "R",
+      "filterText": "isolated",
       "insertText": "isolated ",
       "insertTextFormat": "Snippet"
     },
@@ -316,6 +323,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "R",
+      "filterText": "transactional",
       "insertText": "transactional",
       "insertTextFormat": "Snippet"
     },
@@ -324,6 +332,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "R",
+      "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
@@ -332,6 +341,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "R",
+      "filterText": "let",
       "insertText": "let",
       "insertTextFormat": "Snippet"
     },
@@ -340,6 +350,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "R",
+      "filterText": "typeof",
       "insertText": "typeof ",
       "insertTextFormat": "Snippet"
     },
@@ -348,6 +359,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "R",
+      "filterText": "trap",
       "insertText": "trap",
       "insertTextFormat": "Snippet"
     },
@@ -356,6 +368,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "R",
+      "filterText": "error",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -364,6 +377,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "R",
+      "filterText": "client",
       "insertText": "client ",
       "insertTextFormat": "Snippet"
     },
@@ -372,6 +386,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "R",
+      "filterText": "object",
       "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
@@ -380,6 +395,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "R",
+      "filterText": "true",
       "insertText": "true",
       "insertTextFormat": "Snippet"
     },
@@ -388,6 +404,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "R",
+      "filterText": "false",
       "insertText": "false",
       "insertTextFormat": "Snippet"
     },
@@ -396,6 +413,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "R",
+      "filterText": "check",
       "insertText": "check ",
       "insertTextFormat": "Snippet"
     },
@@ -404,6 +422,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "R",
+      "filterText": "checkpanic",
       "insertText": "checkpanic ",
       "insertTextFormat": "Snippet"
     },
@@ -412,6 +431,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "R",
+      "filterText": "is",
       "insertText": "is",
       "insertTextFormat": "Snippet"
     },
@@ -420,6 +440,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "Q",
+      "filterText": "error",
       "insertText": "error(\"${1}\")",
       "insertTextFormat": "Snippet"
     },
@@ -428,7 +449,8 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "Q",
-      "insertText": "object {${1}};",
+      "filterText": "object",
+      "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -436,6 +458,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "Q",
+      "filterText": "base16",
       "insertText": "base16 `${1}`",
       "insertTextFormat": "Snippet"
     },
@@ -444,6 +467,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "Q",
+      "filterText": "base64",
       "insertText": "base64 `${1}`",
       "insertTextFormat": "Snippet"
     },
@@ -454,7 +478,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` num1  \n- `int` num2  \n  \n**Returns** `int`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` num1  \n- `int` num2  \n  \n**Return** `int`   \n  \n"
         }
       },
       "sortText": "B",
@@ -475,6 +499,17 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "N",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "main()",
       "kind": "Function",
       "detail": "Function",
@@ -490,33 +525,35 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "myFunc(int a, int b)(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` b  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "sortText": "B",
-      "filterText": "myFunc",
-      "insertText": "myFunc(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "label": "total",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "A",
+      "insertText": "total",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "N",
-      "insertText": "StrandData",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "O",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myInt1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "A",
+      "insertText": "myInt1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myInt2",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "A",
+      "insertText": "myInt2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -526,7 +563,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `function (int, int) returns int` func  \n- `int` num1  \n- `int` num2  \n  \n**Returns** `int`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `function (int, int) returns int` func  \n- `int` num1  \n- `int` num2  \n  \n**Return** `int`   \n  \n"
         }
       },
       "sortText": "B",
@@ -539,36 +576,23 @@
       }
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "O",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "total",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "A",
-      "insertText": "total",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myInt2",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "A",
-      "insertText": "myInt2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myInt1",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "A",
-      "insertText": "myInt1",
-      "insertTextFormat": "Snippet"
+      "label": "myFunc(int a, int b)(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` b  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "B",
+      "filterText": "myFunc",
+      "insertText": "myFunc(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "readonly",

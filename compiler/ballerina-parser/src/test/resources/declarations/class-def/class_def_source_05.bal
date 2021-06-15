@@ -1,4 +1,6 @@
 class Foo {
-    int a;
+    public function foo() {
+    }
 
-;d
+    int a;
+    int b;
