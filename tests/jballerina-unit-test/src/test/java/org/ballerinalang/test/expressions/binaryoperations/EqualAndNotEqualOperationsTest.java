@@ -1103,46 +1103,4 @@ public class EqualAndNotEqualOperationsTest {
     public void testTableEquality() {
         BRunUtil.invoke(result, "testTableEquality");
     }
-
-    @Test(description = "Test equals operation with float/decimal and int literal")
-    public void testContextuallyExpectedTypeIntLiteralEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result,
-                "checkContextuallyExpectedTypeIntLiteralEqualityPositive",
-                new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
-                "Expected float/decimal and int literal to be identified as equal");
-    }
-
-    @Test(description = "Test unequals operation with float/decimal and int literal")
-    public void testContextuallyExpectedTypeIntLiteralEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result,
-                "checkContextuallyExpectedTypeIntLiteralEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                "Expected float/decimal and int literal to be identified as not equal");
-    }
-
-    @Test(description = "Test equals operation with decimal and float literal")
-    public void testContextuallyExpectedTypeFloatLiteralEqualityPositive() {
-        BValue[] returns = BRunUtil.invoke(result,
-                "checkContextuallyExpectedTypeFloatLiteralEqualityPositive",
-                new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
-                "Expected decimal and float literal to be identified as equal");
-    }
-
-    @Test(description = "Test unequals operation with decimal and float literal")
-    public void testContextuallyExpectedTypeFloatLiteralEqualityNegative() {
-        BValue[] returns = BRunUtil.invoke(result,
-                "checkContextuallyExpectedTypeFloatLiteralEqualityNegative", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
-                "Expected decimal and float literal to be identified as not equal");
-    }
 }

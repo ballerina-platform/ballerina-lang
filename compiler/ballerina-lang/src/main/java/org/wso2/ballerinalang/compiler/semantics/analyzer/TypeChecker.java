@@ -4015,7 +4015,27 @@ public class TypeChecker extends BLangNodeVisitor {
         checkDecimalCompatibilityForBinaryArithmeticOverLiteralValues(binaryExpr);
 
         SymbolEnv rhsExprEnv;
-        BType lhsType = checkExpr(binaryExpr.lhsExpr, env);
+        BType lhsType;
+        if (binaryExpr.lhsExpr instanceof BLangNumericLiteral) {
+            switch (binaryExpr.opKind) {
+                case ADD:
+                case SUB:
+                case MUL:
+                case DIV:
+                    if (binaryExpr.expectedType.tag != TypeTags.NONE && binaryExpr.expectedType.tag != TypeTags.ANY) {
+                        lhsType = checkExpectedTypeCompatibility(binaryExpr.lhsExpr,
+                                binaryExpr.expectedType, env);
+                    } else {
+                        lhsType = checkExpr(binaryExpr.lhsExpr, env);;
+                    }
+                    break;
+                default:
+                    lhsType = checkExpr(binaryExpr.lhsExpr, env);
+            }
+        } else {
+            lhsType = checkExpr(binaryExpr.lhsExpr, env);
+        }
+
         if (binaryExpr.opKind == OperatorKind.AND) {
             rhsExprEnv = typeNarrower.evaluateTruth(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env, true);
         } else if (binaryExpr.opKind == OperatorKind.OR) {
@@ -4038,10 +4058,6 @@ public class TypeChecker extends BLangNodeVisitor {
                     } else {
                         rhsType = checkExpectedTypeCompatibility(binaryExpr.rhsExpr, lhsType, rhsExprEnv);
                     }
-                    break;
-                case EQUAL:
-                case NOT_EQUAL:
-                    rhsType = checkExpectedTypeCompatibility(binaryExpr.rhsExpr, lhsType, rhsExprEnv);
                     break;
                 default:
                     rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);

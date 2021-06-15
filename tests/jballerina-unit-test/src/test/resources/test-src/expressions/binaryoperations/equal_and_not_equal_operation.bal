@@ -109,30 +109,6 @@ function checkAnyDataEqualityNegative(anydata a, anydata b) returns boolean {
     return (a == b) || !(a != b);
 }
 
-function checkContextuallyExpectedTypeIntLiteralEqualityPositive() returns boolean {
-    float a = 5.0;
-    decimal b = 10.0;
-    return (a == 5) && !(a != 5) && (b == 10) && !(b != 10);
-}
-
-function checkContextuallyExpectedTypeIntLiteralEqualityNegative() returns boolean {
-    float a = 5.0;
-    decimal b = 10.0;
-    return (a == 1) || !(a != 1) || (b == 13) || !(b != 13);
-}
-
-function checkContextuallyExpectedTypeFloatLiteralEqualityPositive() returns boolean {
-    decimal a = 10.0;
-    decimal b = 125.5;
-    return (a == 10.0) && !(a != 10.0) && (b == 125.5) && !(b != 125.5);
-}
-
-function checkContextuallyExpectedTypeFloatLiteralEqualityNegative() returns boolean {
-    decimal a = 10.0;
-    decimal b = 125.5;
-    return (a == 1.0) || !(a != 1.0) || (b == 120.5) || !(b != 120.5);
-}
-
 type ErrorDetail record {
     string message?;
     error cause?;
