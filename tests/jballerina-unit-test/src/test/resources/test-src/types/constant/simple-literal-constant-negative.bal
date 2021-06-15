@@ -292,4 +292,3 @@ class Bar {
 }
 
 const Bar BAR = new;
-
