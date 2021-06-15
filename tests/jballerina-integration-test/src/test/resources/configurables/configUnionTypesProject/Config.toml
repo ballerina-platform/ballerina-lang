@@ -15,9 +15,3 @@ countryCodes = ["Sri Lanka", "United States"]
 httpVersion = "HTTP_1_1"
 [configUnionTypes.mod2.country]
 countryCode = "Sri Lanka"
-
-[testOrg.configLib.mod1]
-num4 = 4
-word5 = "word 5"
-symbol2 = "@"
-symbol3 = "#"

@@ -37,12 +37,12 @@ public enum HttpVersion {
 public type IntMap map<int>;
 public type ManagerMap map<Manager>;
 
-configurable int num4 = ?;
-configurable string word5 = ?;
+configurable int num4 = 8;
+configurable string word5 = "word";
 
 final string symbol1 = "!";
-configurable string symbol2 = ?;
-configurable string symbol3 = ?;
+configurable string symbol2 = "a";
+configurable string symbol3 = "a";
 
 public type Symbols record {|
     string symbol1 = symbol1;
@@ -75,3 +75,32 @@ public type Address record {|
 public type Country record {
     string name = "LK";
 };
+
+const DEFAULT_PROVIDER = "choreo";
+
+public type MetricsConfig record {|
+    boolean enabled = enabled;
+    string reporter = DEFAULT_PROVIDER;
+|} & readonly;
+
+public type TracingConfig record {|
+    boolean enabled = enabled;
+    string provider = DEFAULT_PROVIDER;
+|} & readonly;
+
+// Enables both metrics and tracing
+configurable boolean enabled = false;
+configurable MetricsConfig metrics = {};
+configurable TracingConfig tracing = {};
+
+public function getMetrics() returns MetricsConfig {
+    return metrics;
+}
+
+public function getTracing() returns TracingConfig {
+    return tracing;
+}
+
+public function getEnabled() returns boolean {
+    return enabled;
+}

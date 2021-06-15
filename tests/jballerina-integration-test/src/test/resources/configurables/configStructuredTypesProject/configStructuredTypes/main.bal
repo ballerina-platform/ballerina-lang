@@ -155,7 +155,7 @@ public function main() {
     testComplexRecords();
     testMaps();
     mod2:testMaps();
-    mod3:testRecords();
+    mod3:testRecordsReferringConfigVariables();
     print("Tests passed");
 }
 

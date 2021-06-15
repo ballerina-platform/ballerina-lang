@@ -38,16 +38,20 @@ import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
+import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.values.AbstractArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.RefValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -75,6 +79,9 @@ import static io.ballerina.runtime.internal.values.DecimalValue.isDecimalWithinI
  * @since 0.995.0
  */
 public class TypeConverter {
+
+    private TypeConverter() {
+    }
 
     private static final String NaN = "NaN";
     private static final String POSITIVE_INFINITY = "Infinity";
@@ -279,8 +286,6 @@ public class TypeConverter {
                 if (isConvertibleToArrayType(inputValue, (BArrayType) targetType, unresolvedValues)) {
                     convertibleTypes.add(targetType);
                 }
-                convertibleTypes.addAll(getConvertibleTypes(inputValue, ((BArrayType) targetType).getElementType(),
-                                unresolvedValues));
                 break;
             case TypeTags.TABLE_TAG:
                 if (isConvertibleToTableType(inputValue, (BTableType) targetType, unresolvedValues)) {
@@ -302,31 +307,26 @@ public class TypeConverter {
 
     private static boolean isConvertibleToArrayType(Object sourceValue, BArrayType targetType,
                                                     List<TypeValuePair> unresolvedValues) {
-        if (!(sourceValue instanceof ArrayValueImpl)) {
+        if (!(sourceValue instanceof ArrayValueImpl || sourceValue instanceof TupleValueImpl)) {
             return false;
         }
-        ArrayValueImpl arr = (ArrayValueImpl) sourceValue;
-        Object[] values;
-
-        Type elementType = targetType.getElementType();
-        switch (elementType.getTag()) {
-            case TypeTags.INT_TAG:
-            case TypeTags.SIGNED32_INT_TAG:
-            case TypeTags.SIGNED16_INT_TAG:
-            case TypeTags.SIGNED8_INT_TAG:
-            case TypeTags.UNSIGNED32_INT_TAG:
-            case TypeTags.UNSIGNED16_INT_TAG:
-            case TypeTags.UNSIGNED8_INT_TAG:
-            case TypeTags.BOOLEAN_TAG:
-            case TypeTags.BYTE_TAG:
-            case TypeTags.FLOAT_TAG:
-            case TypeTags.STRING_TAG:
-            case TypeTags.CHAR_STRING_TAG:
-                return checkIsLikeType(sourceValue, targetType, true);
-            default:
-                values = arr.getValues();
+        int tag = ((AbstractArrayValue) sourceValue).getType().getTag();
+        if (tag == TypeTags.ARRAY_TAG) {
+            ArrayValueImpl arr = (ArrayValueImpl) sourceValue;
+            Type elementType = targetType.getElementType();
+            return checkArrayElementType(arr, targetType, unresolvedValues, elementType);
+        } else if (tag == TypeTags.TUPLE_TAG) {
+            return checkIsLikeType(sourceValue, targetType, true);
         }
+        return false;
+    }
 
+    private static boolean checkArrayElementType(ArrayValueImpl arrayValue, BType targetType,
+                                                 List<TypeValuePair> unresolvedValues, Type elementType) {
+        Object[] values = arrayValue.getValues();
+        if (values == null) {
+            return checkIsLikeType(arrayValue, targetType, true);
+        }
         for (Object arrayEntry : values) {
             if (arrayEntry != null && getConvertibleTypes(arrayEntry, elementType, unresolvedValues).size() != 1) {
                 return false;
@@ -441,7 +441,7 @@ public class TypeConverter {
 
     private static boolean isConvertibleToTableType(Object sourceValue, TableType targetType,
                                                     List<TypeValuePair> unresolvedValues) {
-        if (!(sourceValue instanceof TableValueImpl)) {
+        if (!(sourceValue instanceof TableValueImpl || sourceValue instanceof ArrayValueImpl)) {
             return false;
         }
         TypeValuePair typeValuePair = new TypeValuePair(sourceValue, targetType);
@@ -449,13 +449,29 @@ public class TypeConverter {
             return true;
         }
         unresolvedValues.add(typeValuePair);
-
-        for (Object tableEntry : ((TableValueImpl) sourceValue).values()) {
-            if (getConvertibleTypes(tableEntry, targetType.getConstrainedType(), unresolvedValues).size() != 1) {
-                return false;
+        Type tableConstrainedType = targetType.getConstrainedType();
+        if (((RefValue) sourceValue).getType().getTag() == TypeTags.TABLE_TAG) {
+            for (Object tableEntry : ((TableValueImpl) sourceValue).values()) {
+                if (getConvertibleTypes(tableEntry, tableConstrainedType, unresolvedValues).size() != 1) {
+                    return false;
+                }
             }
+            return true;
+        } else {
+            return checkTableConstraintType(tableConstrainedType);
         }
-        return true;
+    }
+
+    private static boolean checkTableConstraintType(Type tableConstrainedType) {
+        switch (tableConstrainedType.getTag()) {
+            case TypeTags.RECORD_TYPE_TAG:
+            case TypeTags.MAP_TAG:
+                return true;
+            case TypeTags.INTERSECTION_TAG:
+                return checkTableConstraintType(((BIntersectionType) tableConstrainedType).getEffectiveType());
+            default:
+                return false;
+        }
     }
 
     private static boolean isConvertibleToMapType(Object sourceValue, BMapType targetType,
@@ -699,9 +715,7 @@ public class TypeConverter {
     }
 
     public static BXml stringToXml(String value) throws BError {
-        StringBuilder sb = new StringBuilder();
-        sb.append("<root>").append(value).append("</root>");
-        BXml item = XmlUtils.parse(sb.toString());
+        BXml item = XmlUtils.parse("<root>" + value + "</root>");
         return item.children();
     }
 

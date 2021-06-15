@@ -882,6 +882,13 @@ num4 = 4
 word5 = "word 5"
 symbol2 = "@"
 symbol3 = "#"
+enabled = true
+
+[testOrg.configLib.mod1.metrics]
+enabled = false
+
+[testOrg.configLib.mod1.tracing]
+provider = "wso2"
 
 [configStructuredTypes.mod3]
 word2 = "word 2"
