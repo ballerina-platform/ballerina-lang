@@ -19,7 +19,6 @@ package io.ballerina.converters.util;
 
 import io.ballerina.converters.exception.ConverterException;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 /**
