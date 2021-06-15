@@ -157,8 +157,8 @@ public class NeverTypeTest {
                         "'never' or equivalent to type 'never'", 156, 5);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
                         "or equivalent to type 'never'", 159, 1);
-        BAssertUtil.validateError(negativeCompileResult, i++, "constant cannot be defined with type 'never', " +
-                        "expected a simple basic types or a map of a simple basic type", 161, 7);
+        BAssertUtil.validateError(negativeCompileResult, i++, "cannot declare a constant with type 'never', " +
+                "expected a subtype of 'anydata' that is not 'never'", 161, 7);
         BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected 'never', found '()'",
                 161, 17);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +

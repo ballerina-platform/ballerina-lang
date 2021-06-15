@@ -1682,7 +1682,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             analyzeNode(field, objectEnv);
         }
 
-        for (BLangSimpleVariable referencedField : objectTypeNode.referencedFields) {
+        for (BLangSimpleVariable referencedField : objectTypeNode.includedFields) {
             analyzeNode(referencedField, objectEnv);
         }
 
@@ -1735,7 +1735,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             analyzeNode(field, typeEnv);
         }
 
-        for (BLangSimpleVariable referencedField : recordTypeNode.referencedFields) {
+        for (BLangSimpleVariable referencedField : recordTypeNode.includedFields) {
             analyzeNode(referencedField, typeEnv);
         }
 
@@ -1974,6 +1974,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                                                                                    tsymbol.flags | Flags.ISOLATED,
                                                                                    tsymbol.pkgID, null, tsymbol.owner,
                                                                                    tsymbol.pos, tsymbol.origin);
+            dupInvokableTypeSymbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
             BInvokableType dupInvokableType = new BInvokableType(invokableType.paramTypes, invokableType.restType,
                                                                  invokableType.retType, dupInvokableTypeSymbol);
             dupInvokableType.flags |= Flags.ISOLATED;

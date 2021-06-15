@@ -35,7 +35,11 @@ public class BObject extends NamedCompoundVariable {
     private static final String OBJECT_FIELD_PATTERN_IDENTIFIER = "$value$";
 
     public BObject(SuspendedContext context, String name, Value value) {
-        super(context, name, BVariableType.OBJECT, value);
+        this(context, name, BVariableType.OBJECT, value);
+    }
+
+    public BObject(SuspendedContext context, String name, BVariableType bVarType, Value value) {
+        super(context, name, bVarType, value);
     }
 
     @Override
