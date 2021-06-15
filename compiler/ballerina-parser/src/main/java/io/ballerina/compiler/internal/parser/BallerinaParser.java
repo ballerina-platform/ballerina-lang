@@ -26,14 +26,12 @@ import io.ballerina.compiler.internal.parser.tree.STArrayTypeDescriptorNode;
 import io.ballerina.compiler.internal.parser.tree.STAsyncSendActionNode;
 import io.ballerina.compiler.internal.parser.tree.STBinaryExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STBracedExpressionNode;
-import io.ballerina.compiler.internal.parser.tree.STBuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.internal.parser.tree.STCheckExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STConditionalExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STDefaultableParameterNode;
 import io.ballerina.compiler.internal.parser.tree.STErrorConstructorExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STFieldAccessExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STFunctionArgumentNode;
-import io.ballerina.compiler.internal.parser.tree.STFunctionCallExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STFunctionSignatureNode;
 import io.ballerina.compiler.internal.parser.tree.STFunctionTypeDescriptorNode;
 import io.ballerina.compiler.internal.parser.tree.STIndexedExpressionNode;
@@ -66,6 +64,7 @@ import io.ballerina.compiler.internal.parser.tree.STTypeTestExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STTypedBindingPatternNode;
 import io.ballerina.compiler.internal.parser.tree.STUnaryExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STUnionTypeDescriptorNode;
+import io.ballerina.compiler.internal.parser.utils.ConditionalExprResolver;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
@@ -2657,13 +2656,9 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseQualifiedIdentifierWithPredeclPrefix(STToken preDeclaredPrefix, boolean isInConditionalExpr) {
-        if (isInConditionalExpr) {
-            return parseQualifiedIdentifier(createBuiltinSimpleNameReference(preDeclaredPrefix),
-                    true, true);
-        }
         STNode identifier = STNodeFactory.createIdentifierToken(preDeclaredPrefix.text(),
                 preDeclaredPrefix.leadingMinutiae(), preDeclaredPrefix.trailingMinutiae());
-        return parseQualifiedIdentifier(identifier, false, true);
+        return parseQualifiedIdentifier(identifier, isInConditionalExpr);
     }
 
     /**
@@ -2722,7 +2717,7 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode createBuiltinSimpleNameReference(STNode token) {
+    public static STNode createBuiltinSimpleNameReference(STNode token) {
         SyntaxKind typeKind = getBuiltinTypeSyntaxKind(token.kind);
         return STNodeFactory.createBuiltinSimpleNameReferenceNode(typeKind, token);
     }
@@ -3765,7 +3760,6 @@ public class BallerinaParser extends AbstractParser {
         // If the readonly-keyword is present, check whether its qualifier
         // or the readonly-type-desc.
         STNode type;
-        STNode fieldOrRestDesc;
         STNode readOnlyQualifier;
         readOnlyQualifier = parseReadonlyKeyword();
 
@@ -3891,18 +3885,13 @@ public class BallerinaParser extends AbstractParser {
         return parseQualifiedIdentifier(typeRefOrPkgRef, isInConditionalExpr);
     }
 
-    private STNode parseQualifiedIdentifier(STNode identifier, boolean isInConditionalExpr) {
-        return parseQualifiedIdentifier(identifier, isInConditionalExpr, false);
-    }
-
     /**
      * Parse identifier or qualified identifier, given the starting identifier.
      *
      * @param identifier Starting identifier
      * @return Parse node
      */
-    private STNode parseQualifiedIdentifier(STNode identifier, boolean isInConditionalExpr,
-                                            boolean isPredeclaredPrefix) {
+    private STNode parseQualifiedIdentifier(STNode identifier, boolean isInConditionalExpr) {
         STToken nextToken = peek(1);
         if (nextToken.kind != SyntaxKind.COLON_TOKEN) {
             return STNodeFactory.createSimpleNameReferenceNode(identifier);
@@ -3925,10 +3914,8 @@ public class BallerinaParser extends AbstractParser {
                 addInvalidTokenToNextToken(errorHandler.consumeInvalidToken());
                 return parseQualifiedIdentifier(identifier, isInConditionalExpr);
             default:
-                if (isInConditionalExpr && isPredeclaredPrefix) {
-                    return identifier;
-                } else if (isInConditionalExpr) {
-                    return STNodeFactory.createSimpleNameReferenceNode(identifier);
+                if (isInConditionalExpr) {
+                    return ConditionalExprResolver.getSimpleNameRefNode(identifier);
                 }
 
                 colon = consume();
@@ -4813,6 +4800,7 @@ public class BallerinaParser extends AbstractParser {
         if (isQualifiedIdentifierPredeclaredPrefix(nextToken.kind)) {
             return parseQualifiedIdentifierOrExpression(isInConditionalExpr, isRhsExpr);
         }
+
         switch (nextToken.kind) {
             case DECIMAL_INTEGER_LITERAL_TOKEN:
             case HEX_INTEGER_LITERAL_TOKEN:
@@ -4897,21 +4885,17 @@ public class BallerinaParser extends AbstractParser {
                     return parseSimpleTypeDescriptor();
                 }
 
-                break;
-        }
+                if (isRecoveryAtFuncBodyEnd(nextToken)) {
+                    // Special case the func-body-block end.
+                    // e.g. function foo() { if <cursor> }
+                    STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                            ParserRuleContext.VARIABLE_REF);
+                    return STNodeFactory.createSimpleNameReferenceNode(identifier);
+                }
 
-        nextToken = peek();
-        if (isRecoveryAtFuncBodyEnd(nextToken)) {
-            // Special case the func-body-block end.
-            // e.g. function foo() { if <cursor> }
-            STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
-                    ParserRuleContext.VARIABLE_REF);
-            return STNodeFactory.createSimpleNameReferenceNode(identifier);
+                recover(nextToken, ParserRuleContext.TERMINAL_EXPRESSION);
+                return parseTerminalExpression(annots, qualifiers, isRhsExpr, allowActions, isInConditionalExpr);
         }
-
-        recover(nextToken, ParserRuleContext.TERMINAL_EXPRESSION, annots, qualifiers, isRhsExpr, allowActions,
-                isInConditionalExpr);
-        return parseTerminalExpression(annots, qualifiers, isRhsExpr, allowActions, isInConditionalExpr);
     }
 
     private boolean isRecoveryAtFuncBodyEnd(STToken nextToken) {
@@ -5243,10 +5227,6 @@ public class BallerinaParser extends AbstractParser {
         OperatorPrecedence nextOperatorPrecedence = getOpPrecedence(nextTokenKind);
         if (currentPrecedenceLevel.isHigherThanOrEqual(nextOperatorPrecedence, allowActions)) {
             return lhsExpr;
-        }
-
-        if (isInConditionalExpr && lhsExpr.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            lhsExpr = generateQualifiedNameRef(lhsExpr);
         }
 
         STNode newLhsExpr;
@@ -6343,8 +6323,13 @@ public class BallerinaParser extends AbstractParser {
                 STNode type = parseTypeReferenceInTypeInclusion();
                 STNode semicolonToken = parseSemicolon();
                 return STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
+            case IDENTIFIER_TOKEN:
+                if (isObjectFieldStart()) {
+                    return parseObjectField(metadata, STNodeFactory.createEmptyNode(), qualifiers, isObjectTypeDesc);
+                }
+                // Else fall through
             default:
-                if (isTypeStartingToken(nextToken.kind)) {
+                if (isTypeStartingToken(nextToken.kind) && nextToken.kind != SyntaxKind.IDENTIFIER_TOKEN) {
                     return parseObjectField(metadata, STNodeFactory.createEmptyNode(), qualifiers, isObjectTypeDesc);
                 }
 
@@ -6358,6 +6343,23 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    /**
+     * Check whether the cursor is at the start of a object field.
+     *
+     * @return <code>true</code> if the cursor is at the start of a object field.
+     * <code>false</code> otherwise.
+     */
+    private boolean isObjectFieldStart() {
+        STToken nextNextToken = getNextNextToken();
+        switch (nextNextToken.kind) {
+            case ERROR_KEYWORD: // error-binding-pattern not allowed in fields
+            case OPEN_BRACE_TOKEN: // mapping-binding-pattern not allowed in fields
+                return false;
+            default:
+                return isModuleVarDeclStart(1);
+        }
+    }
+    
     /**
      * Parse an object member, given the visibility modifier. Object member can have
      * only one visibility qualifier. This mean the methodQualifiers list can have
@@ -9573,7 +9575,7 @@ public class BallerinaParser extends AbstractParser {
        return isPredeclaredPrefix(nodeKind) && getNextNextToken().kind == SyntaxKind.COLON_TOKEN;
     }
 
-    private SyntaxKind getBuiltinTypeSyntaxKind(SyntaxKind typeKeyword) {
+    private static SyntaxKind getBuiltinTypeSyntaxKind(SyntaxKind typeKeyword) {
         switch (typeKeyword) {
             case INT_KEYWORD:
                 return SyntaxKind.INT_TYPE_DESC;
@@ -11120,10 +11122,16 @@ public class BallerinaParser extends AbstractParser {
                 continue;
             }
 
-            if (intermediateClause.kind == SyntaxKind.SELECT_CLAUSE) {
-                selectClause = intermediateClause;
-            } else {
+            if (intermediateClause.kind != SyntaxKind.SELECT_CLAUSE) {
                 clauses.add(intermediateClause);
+                continue;
+            }
+
+            selectClause = intermediateClause;
+            
+            // Break the loop for nested query expressions, as remaining clauses belong to the parent.
+            if (isNestedQueryExpr()) {
+                break;
             }
         }
 
@@ -11158,6 +11166,15 @@ public class BallerinaParser extends AbstractParser {
                 onConflictClause);
     }
 
+    /**
+     * Check whether currently parsing query expr is a nested query expression.
+     *
+     * @return <code>true</code> if currently parsing query-expr is a nested query-expr. <code>false</code> otherwise.
+     */
+    private boolean isNestedQueryExpr() {
+        return Collections.frequency(this.errorHandler.getContextStack(), ParserRuleContext.QUERY_EXPRESSION) > 1;
+    }
+    
     /**
      * Parse an intermediate clause.
      * <p>
@@ -12539,30 +12556,33 @@ public class BallerinaParser extends AbstractParser {
         STNode middleExpr = parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, true, false, true);
 
         if (peek().kind != SyntaxKind.COLON_TOKEN) {
-            // There are two special cases when the nextToken is not `:`
-            // 1. Special case `a ? b : c`, since `b:c` matches to var-ref due to expr-precedence.
-            // 2. Special case `a ? b : c()`, since `b:c()` matches to func-call due to expr-precedence.
-            if (middleExpr.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-                STQualifiedNameReferenceNode qualifiedNameRef = (STQualifiedNameReferenceNode) middleExpr;
-                STNode endExpr = STNodeFactory.createSimpleNameReferenceNode(qualifiedNameRef.identifier);
-                return generateConditionalExpr(lhsExpr, qualifiedNameRef, questionMark, endExpr);
-            } else if (middleExpr.kind == SyntaxKind.FUNCTION_CALL) {
-                STFunctionCallExpressionNode functionCallExpr = (STFunctionCallExpressionNode) middleExpr;
-                if (functionCallExpr.functionName.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-                    STQualifiedNameReferenceNode qualifiedNameRef =
-                            (STQualifiedNameReferenceNode) functionCallExpr.functionName;
-                    STNode newFuncName = STNodeFactory.createSimpleNameReferenceNode(qualifiedNameRef.identifier);
-                    STNode endExpr = STNodeFactory.createFunctionCallExpressionNode(newFuncName,
-                            functionCallExpr.openParenToken, functionCallExpr.arguments,
-                            functionCallExpr.closeParenToken);
-                    return generateConditionalExpr(lhsExpr, qualifiedNameRef, questionMark, endExpr);
-                }
-            }
-        }
+            // There are special cases when the nextToken is not `:`. Any expression that contains qualified name ref at
+            // the beginning or at the end, is a possible match for conditionalExpr.
 
-        // Case identifier:identifier : expr or preDeclaredPrefix:identifier : expr
-        if (middleExpr.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            middleExpr = generateQualifiedNameRef(middleExpr);
+            // eg1. `a ? b : c`, since `b:c` matches to var-ref due to expr-precedence.
+            // eg2. `a ? b : c()`, since `b:c()` matches to func-call due to expr-precedence.
+            // eg3. `a ? <TargetType> b : c` since `b:c` matches to var-ref due to expr-precedence.
+            STNode leftMostQualifiedNameRef = ConditionalExprResolver.getQualifiedNameRefNode(middleExpr, true);
+            if (leftMostQualifiedNameRef != null) {
+                STQualifiedNameReferenceNode qualifiedNameRef = (STQualifiedNameReferenceNode) leftMostQualifiedNameRef;
+                STNode simpleNameRef = STNodeFactory.createSimpleNameReferenceNode(qualifiedNameRef.identifier);
+                STNode endExpr = middleExpr.replace(leftMostQualifiedNameRef, simpleNameRef);
+
+                middleExpr = ConditionalExprResolver.getSimpleNameRefNode(qualifiedNameRef.modulePrefix);
+                return generateConditionalExpr(lhsExpr, qualifiedNameRef, questionMark, middleExpr, endExpr);
+            }
+
+            STNode rightMostQualifiedNameRef = ConditionalExprResolver.getQualifiedNameRefNode(middleExpr, false);
+            if (rightMostQualifiedNameRef != null) {
+                STQualifiedNameReferenceNode qualifiedNameRef =
+                        (STQualifiedNameReferenceNode) rightMostQualifiedNameRef;
+                STNode endExpr = STNodeFactory.createSimpleNameReferenceNode(qualifiedNameRef.identifier);
+
+                STNode simpleNameRef =
+                        ConditionalExprResolver.getSimpleNameRefNode(qualifiedNameRef.modulePrefix);
+                middleExpr = middleExpr.replace(rightMostQualifiedNameRef, simpleNameRef);
+                return generateConditionalExpr(lhsExpr, qualifiedNameRef, questionMark, middleExpr, endExpr);
+            }
         }
 
         return parseConditionalExprRhs(lhsExpr, questionMark, middleExpr);
@@ -12578,37 +12598,10 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode generateConditionalExpr(STNode lhsExpr, STQualifiedNameReferenceNode qualifiedNameRef,
-                                           STNode questionMark, STNode endExpr) {
-        STNode middleExpr;
-        STNode modulePrefix = qualifiedNameRef.modulePrefix;
-        if (modulePrefix.kind == SyntaxKind.IDENTIFIER_TOKEN) {
-            middleExpr = STNodeFactory.createSimpleNameReferenceNode(modulePrefix);
-        } else {
-            // If it is not an identifier it will be a predeclared prefix and it is already a
-            // STBuiltinSimpleNameReferenceNode
-            middleExpr = modulePrefix;
-        }
-
+                                           STNode questionMark, STNode middleExpr, STNode endExpr) {
         STNode colon = qualifiedNameRef.colon;
         endContext();
         return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, colon, endExpr);
-    }
-
-    private STNode generateQualifiedNameRef(STNode qualifiedName) {
-        STQualifiedNameReferenceNode qualifiedNameRef = (STQualifiedNameReferenceNode) qualifiedName;
-        STNode modulePrefix =  qualifiedNameRef.modulePrefix;
-        // modulePrefix will be a STBuiltinSimpleNameReferenceNode if the module prefix is a predeclared prefix
-        // hence convert it to an identifier
-        if (modulePrefix.kind != SyntaxKind.IDENTIFIER_TOKEN) {
-            STBuiltinSimpleNameReferenceNode builtInType = (STBuiltinSimpleNameReferenceNode) modulePrefix;
-            STToken nameToken = (STToken) builtInType.name;
-            STNode preDeclaredPrefix = STNodeFactory.createIdentifierToken(nameToken.text(),
-                    nameToken.leadingMinutiae(), nameToken.trailingMinutiae());
-            return STNodeFactory.createQualifiedNameReferenceNode(preDeclaredPrefix,
-                    qualifiedNameRef.colon, qualifiedNameRef.identifier);
-        } else {
-            return qualifiedName;
-        }
     }
 
     /**

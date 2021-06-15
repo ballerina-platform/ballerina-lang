@@ -689,6 +689,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRollback rollbackNode) {
+        this.checkStatementExecutionValidity(rollbackNode);
         rollbackCount++;
         this.rollbackCountWithinBlock++;
         if (this.transactionCount == 0 && !withinTransactionScope) {

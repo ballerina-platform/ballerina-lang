@@ -2302,11 +2302,18 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (restParam.getBType() == symTable.semanticError) {
             bRecordType.restFieldType = symTable.mapType;
         } else {
-            // Rest variable type of Record ref (record destructuring assignment) is a map where T is the broad type of
-            // all fields that are not specified in the destructuring pattern. Here we set the rest type of record type
-            // to T.
-            BMapType restParamType = (BMapType) restParam.getBType();
-            bRecordType.restFieldType = restParamType.constraint;
+            // Rest variable type of Record ref (record destructuring assignment) is a record where T is the broad
+            // type of all fields that are not specified in the destructuring pattern. Here we set the rest type of
+            // record type to T.
+            BType restFieldType;
+            if (restParam.getBType().tag == TypeTags.RECORD) {
+                restFieldType = ((BRecordType) restParam.getBType()).restFieldType;
+            } else if (restParam.getBType().tag == TypeTags.MAP) {
+                restFieldType = ((BMapType) restParam.getBType()).constraint;
+            } else {
+                restFieldType = restParam.getBType();
+            }
+            bRecordType.restFieldType = restFieldType;
         }
 
         resultType = bRecordType;
@@ -5217,11 +5224,36 @@ public class TypeChecker extends BLangNodeVisitor {
         String operatorType = checkedExpr.getKind() == NodeKind.CHECK_EXPR ? "check" : "checkpanic";
         BLangExpression exprWithCheckingKeyword = checkedExpr.expr;
         boolean firstVisit = exprWithCheckingKeyword.getBType() == null;
+
+        BType checkExprCandidateType;
+        if (expType == symTable.noType) {
+            checkExprCandidateType = symTable.noType;
+        } else {
+            checkExprCandidateType = BUnionType.create(null, expType, symTable.errorType);
+        }
+
+        boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
+        this.nonErrorLoggingCheck = true;
+        int prevErrorCount = this.dlog.errorCount();
+        this.dlog.resetErrorCount();
+        this.dlog.mute();
+
+        checkedExpr.expr.cloneAttempt++;
+        BLangExpression clone = nodeCloner.clone(checkedExpr.expr);
+        BType rhsType = checkExpr(clone, env, checkExprCandidateType);
+
+        this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+        this.dlog.setErrorCount(prevErrorCount);
+        if (!prevNonErrorLoggingCheck) {
+            this.dlog.unmute();
+        }
+
+        BType errorType = getNonDefaultErrorErrorComponentsOrDefaultError(rhsType);
         BType typeOfExprWithCheckingKeyword;
         if (expType == symTable.noType) {
             typeOfExprWithCheckingKeyword = symTable.noType;
         } else {
-            typeOfExprWithCheckingKeyword = BUnionType.create(null, expType, symTable.errorType);
+            typeOfExprWithCheckingKeyword = BUnionType.create(null, expType, errorType);
         }
 
         if (exprWithCheckingKeyword.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
@@ -5317,6 +5349,23 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(checkedExpr, actualType, expType);
+    }
+
+    private BType getNonDefaultErrorErrorComponentsOrDefaultError(BType rhsType) {
+        List<BType> errorTypes = new ArrayList<>();
+        for (BType t : types.getAllTypes(rhsType)) {
+            if (!types.isSameType(t, symTable.errorType) && types.isAssignable(t, symTable.errorType)) {
+                errorTypes.add(t);
+            }
+        }
+        if (!errorTypes.isEmpty()) {
+            if (errorTypes.size() == 1) {
+                return errorTypes.get(0);
+            } else {
+                return BUnionType.create(null, errorTypes.toArray(new BType[0]));
+            }
+        }
+        return symTable.errorType;
     }
 
     @Override
