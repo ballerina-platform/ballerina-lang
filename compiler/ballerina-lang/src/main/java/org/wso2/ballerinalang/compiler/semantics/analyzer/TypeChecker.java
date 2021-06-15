@@ -263,7 +263,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private Stack<SymbolEnv> queryEnvs, prevEnvs;
     private Stack<BLangSelectClause> selectClauses;
     private BLangMissingNodesHelper missingNodesHelper;
-    private boolean breakQueryEnv = false;
+    private boolean breakToParallelQueryEnv = false;
 
     /**
      * Expected types or inherited types.
@@ -4878,7 +4878,7 @@ public class TypeChecker extends BLangNodeVisitor {
             cleanPrevEnvs = true;
         }
 
-        if (breakQueryEnv) {
+        if (breakToParallelQueryEnv) {
             queryEnvs.push(prevEnvs.peek());
         } else {
             queryEnvs.push(env);
@@ -5065,7 +5065,7 @@ public class TypeChecker extends BLangNodeVisitor {
             cleanPrevEnvs = true;
         }
 
-        if (breakQueryEnv) {
+        if (breakToParallelQueryEnv) {
             queryEnvs.push(prevEnvs.peek());
         } else {
             queryEnvs.push(env);
@@ -5087,6 +5087,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFromClause fromClause) {
+        boolean prevBreakToParallelEnv = this.breakToParallelQueryEnv;
+        this.breakToParallelQueryEnv = true;
         SymbolEnv fromEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, queryEnvs.pop());
         fromClause.env = fromEnv;
         queryEnvs.push(fromEnv);
@@ -5094,12 +5096,13 @@ public class TypeChecker extends BLangNodeVisitor {
         // Set the type of the foreach node's type node.
         types.setInputClauseTypedBindingPatternType(fromClause);
         handleInputClauseVariables(fromClause, queryEnvs.peek());
+        this.breakToParallelQueryEnv = prevBreakToParallelEnv;
     }
 
     @Override
     public void visit(BLangJoinClause joinClause) {
-        boolean prevBreakEnv = this.breakQueryEnv;
-        this.breakQueryEnv = true;
+        boolean prevBreakEnv = this.breakToParallelQueryEnv;
+        this.breakToParallelQueryEnv = true;
         SymbolEnv joinEnv = SymbolEnv.createTypeNarrowedEnv(joinClause, queryEnvs.pop());
         joinClause.env = joinEnv;
         queryEnvs.push(joinEnv);
@@ -5110,7 +5113,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (joinClause.onClause != null) {
             ((BLangOnClause) joinClause.onClause).accept(this);
         }
-        this.breakQueryEnv = prevBreakEnv;
+        this.breakToParallelQueryEnv = prevBreakEnv;
     }
 
     @Override
