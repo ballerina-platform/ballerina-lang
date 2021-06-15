@@ -2509,13 +2509,21 @@ public class TypeChecker {
         if (!(sourceValue instanceof TableValueImpl)) {
             return false;
         }
+        TableValueImpl tableValue = (TableValueImpl) sourceValue;
+        if (!(targetType.getKeyType() == null && targetType.getFieldNames() == null)) {
+            return false;
+        }
+
+        if (((BTableType) tableValue.getType()).getKeyType() != null && !checkIsType(tableValue.getKeyType(),
+                                                                                     targetType.getKeyType())) {
+            return false;
+        }
 
         TypeValuePair typeValuePair = new TypeValuePair(sourceValue, targetType);
         if (unresolvedValues.contains(typeValuePair)) {
             return true;
         }
 
-        TableValueImpl tableValue = (TableValueImpl) sourceValue;
         Object[] objects = tableValue.values().toArray();
         for (Object object : objects) {
             if (!checkIsLikeType(object, targetType.getConstrainedType(), allowNumericConversion)) {
