@@ -713,6 +713,33 @@ public class BuildCommandTest extends BaseCommandTest {
                 getOutput("build-empty-project-with-nondefault-modules-tests-only.txt"));
     }
 
+    @Test(description = "Compile an empty package with empty Non Default")
+    public void testCompileEmptyNonDefaultModule() {
+        Path projectPath = this.testResources.resolve("emptyNonDefaultModule");
+        System.setProperty("user.dir", projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala")
+                .resolve("wso2-emptyNonDefaultModule-any-0.1.0.bala").toFile().exists());
+    }
+
+    @Test(description = "Build an empty package with empty Non Default")
+    public void testBuildEmptyNonDefaultModule() throws IOException {
+        Path projectPath = this.testResources.resolve("emptyNonDefaultModule");
+        System.setProperty("user.dir", projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, false);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("build-empty-nondefault-module.txt"));
+    }
+
     static class Copy extends SimpleFileVisitor<Path> {
         private Path fromPath;
         private Path toPath;
