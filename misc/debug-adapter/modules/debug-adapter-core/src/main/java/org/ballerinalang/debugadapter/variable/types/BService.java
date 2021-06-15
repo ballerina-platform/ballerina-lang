@@ -26,7 +26,7 @@ import org.ballerinalang.debugadapter.variable.BVariableType;
 public class BService extends BObject {
 
     public BService(SuspendedContext context, String name, Value value) {
-        super(context, name, value);
+        super(context, name, BVariableType.SERVICE, value);
     }
 
     @Override
