@@ -52,6 +52,7 @@ public enum JVMValueType {
     XML_SEQUENCE("io.ballerina.runtime.internal.values.XmlSequence"),
     XML_TEXT("io.ballerina.runtime.internal.values.XmlText"),
     XML_ATTRIB_MAP("io.ballerina.runtime.internal.values.AttributeMapValueImpl"),
+    STRAND_WAIT_RESULT("io.ballerina.runtime.internal.scheduling.Strand$WaitResult"),
     FP_VALUE("io.ballerina.runtime.internal.values.FPValue"),
     ANON_SERVICE("anonService"),
     BTYPE_OBJECT("BObjectType"),

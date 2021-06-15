@@ -36,6 +36,7 @@ import org.ballerinalang.debugadapter.variable.types.BNil;
 import org.ballerinalang.debugadapter.variable.types.BObject;
 import org.ballerinalang.debugadapter.variable.types.BRecord;
 import org.ballerinalang.debugadapter.variable.types.BService;
+import org.ballerinalang.debugadapter.variable.types.BStrandWaitResult;
 import org.ballerinalang.debugadapter.variable.types.BStream;
 import org.ballerinalang.debugadapter.variable.types.BString;
 import org.ballerinalang.debugadapter.variable.types.BTable;
@@ -172,6 +173,8 @@ public class VariableFactory {
             return new BXmlItem(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.XML_ATTRIB_MAP.getString())) {
             return new BXmlItemAttributeMap(context, varName, value);
+        } else if (valueTypeName.equals(JVMValueType.STRAND_WAIT_RESULT.getString())) {
+            return new BStrandWaitResult(context, varName, value);
         } else if (valueTypeName.contains(JVMValueType.ANON_SERVICE.getString())) {
             return new BService(context, varName, value);
         } else if (valueTypeName.contains(JVMValueType.MAP_VALUE.getString()) && !isRecord(value)) {
