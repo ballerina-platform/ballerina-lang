@@ -1960,10 +1960,8 @@ public class TypeChecker {
                 visitedTypeSet.add(tupleType.getName());
                 List<Type> tupleTypes = tupleType.getTupleTypes();
                 for (Type mem : tupleTypes) {
-                    if (visitedTypeSet.contains(mem.getName())) {
+                    if (!visitedTypeSet.add(mem.getName())) {
                         continue;
-                    } else {
-                        visitedTypeSet.add(mem.getName());
                     }
                     if (checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(mem, visitedTypeSet)) {
                         return true;
