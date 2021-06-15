@@ -47,6 +47,9 @@ import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
+import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
+
 /**
  * Class providing utility methods to generate bala from package.
  *
@@ -129,9 +132,8 @@ public class BuildLangLib {
 
             // Copy generated jar to the target dir
             Path cacheDirPath = pkgTargetPath.resolve("cache");
-            String jarFileName = pkgDesc.org().value() + "-"
-                    + pkgDesc.name().value() + "-"
-                    + pkgDesc.version().value() + ".jar";
+            String jarFileName = getThinJarFileName(pkgDesc.org(), pkgDesc.name().value(), pkgDesc.version())
+                    + BLANG_COMPILED_JAR_EXT;
             Path generatedJarFilePath = cacheDirPath.resolve(pkgDesc.org().toString())
                     .resolve(pkgDesc.name().value())
                     .resolve(pkgDesc.version().toString())

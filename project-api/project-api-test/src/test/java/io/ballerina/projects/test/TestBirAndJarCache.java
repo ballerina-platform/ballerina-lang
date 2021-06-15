@@ -44,6 +44,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
+import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
+
 /**
  * Contains cases to test the BirWriter.
  *
@@ -93,11 +96,11 @@ public class TestBirAndJarCache {
         for (ModuleId moduleId : currentPackage.moduleIds()) {
             Module module = currentPackage.module(moduleId);
             ModuleName moduleName = module.moduleName();
-            String jarName = module.descriptor().org().value() + "-"
-                    + moduleName + "-"
-                    + module.descriptor().version().value();
-            Assert.assertTrue(foundPaths.contains(moduleName.toString() + ".bir"));
-            Assert.assertTrue(foundPaths.contains(jarName + ".jar"));
+            String jarName = getThinJarFileName(module.descriptor().org(),
+                                                moduleName.toString(),
+                                                module.descriptor().version());
+            Assert.assertTrue(foundPaths.contains(moduleName + ".bir"));
+            Assert.assertTrue(foundPaths.contains(jarName + BLANG_COMPILED_JAR_EXT));
         }
     }
 

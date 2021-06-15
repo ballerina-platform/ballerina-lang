@@ -70,6 +70,7 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
+import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 
 /**
@@ -344,9 +345,9 @@ public class JBallerinaBackend extends CompilerBackend {
             String documentName = moduleContext.documentContext(documentId).name();
             jarName = getFileNameWithoutExtension(documentName);
         } else {
-            jarName = moduleContext.descriptor().org().value() + "-" +
-                    moduleContext.moduleName().toString() + "-" +
-                    moduleContext.descriptor().version().value().toString();
+            jarName = getThinJarFileName(moduleContext.descriptor().org(),
+                                         moduleContext.moduleName().toString(),
+                                         moduleContext.descriptor().version());
         }
 
         return jarName;
