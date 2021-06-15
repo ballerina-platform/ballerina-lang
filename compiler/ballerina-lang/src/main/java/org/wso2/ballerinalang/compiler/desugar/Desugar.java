@@ -1008,7 +1008,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangObjectTypeNode objectTypeNode) {
         // Merge the fields defined within the object and the fields that
         // get inherited via the type references.
-        objectTypeNode.fields.addAll(objectTypeNode.referencedFields);
+        objectTypeNode.fields.addAll(objectTypeNode.includedFields);
         result = objectTypeNode;
     }
 
@@ -1097,7 +1097,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        recordTypeNode.fields.addAll(recordTypeNode.referencedFields);
+        recordTypeNode.fields.addAll(recordTypeNode.includedFields);
 
         for (BLangSimpleVariable bLangSimpleVariable : recordTypeNode.fields) {
             bLangSimpleVariable.typeNode = rewrite(bLangSimpleVariable.typeNode, env);
