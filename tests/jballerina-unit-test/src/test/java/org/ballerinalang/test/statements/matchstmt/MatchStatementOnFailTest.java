@@ -120,6 +120,11 @@ public class MatchStatementOnFailTest {
         Assert.assertEquals(results.getString(++i), msg + "'true'");
     }
 
+    @Test(description = "Test using var defined in match clause within on-fail")
+    public void testVarInMatchPatternWithinOnfail() {
+        BRunUtil.invoke(result, "testVarInMatchPatternWithinOnfail", new BValue[]{});
+    }
+
     @Test(description = "Check not incompatible types and reachable statements.")
     public void testNegative1() {
         Assert.assertEquals(resultNegative.getErrorCount(), 5);
