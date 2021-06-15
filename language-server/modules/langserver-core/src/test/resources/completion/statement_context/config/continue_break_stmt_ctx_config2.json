@@ -258,11 +258,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "runtime",
+      "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -276,53 +276,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/module1;\n"
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -373,11 +327,11 @@
       ]
     },
     {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "test",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -391,7 +345,53 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -645,27 +645,21 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "numberList",
-      "kind": "Variable",
-      "detail": "int[]",
-      "sortText": "B",
-      "insertText": "numberList",
+      "label": "true",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "true",
+      "insertText": "true",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "item",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "item",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "breakValue",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "breakValue",
+      "label": "false",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "false",
+      "insertText": "false",
       "insertTextFormat": "Snippet"
     },
     {
@@ -689,6 +683,30 @@
       "detail": "int",
       "sortText": "B",
       "insertText": "counter",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "item",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "item",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "breakValue",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "breakValue",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "numberList",
+      "kind": "Variable",
+      "detail": "int[]",
+      "sortText": "B",
+      "insertText": "numberList",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -70,6 +70,7 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
     protected static final String TABLE_VAR = "tableWithKeyVar";
     protected static final String STREAM_VAR = "oddNumberStream";
     protected static final String NEVER_VAR = "neverVar";
+    protected static final String SERVICE_VAR = "serviceVar";
 
     protected static final String GLOBAL_VAR_01 = "nameWithoutType";
     protected static final String GLOBAL_VAR_02 = "nameWithType";

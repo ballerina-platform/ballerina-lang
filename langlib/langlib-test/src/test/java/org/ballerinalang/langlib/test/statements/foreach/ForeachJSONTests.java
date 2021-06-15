@@ -42,7 +42,8 @@ public class ForeachJSONTests {
 
     @Test
     public void testJSONObject() {
-        String result = "bob 10 true [{\"subject\":\"maths\", \"marks\":75}, {\"subject\":\"English\", \"marks\":85}] ";
+        String result = "\"bob\" 10 true [{\"subject\":\"maths\", \"marks\":75}, " +
+                "{\"subject\":\"English\", \"marks\":85}] ";
         BValue[] returns = BRunUtil.invoke(program, "testJSONObject");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), result);
@@ -112,16 +113,17 @@ public class ForeachJSONTests {
 
     @Test()
     public void testAddWhileIteration() {
-        String result = "bob 10 true [{\"subject\":\"maths\", \"marks\":75}, {\"subject\":\"English\", \"marks\":85}] ";
+        String result = "\"bob\" 10 true [{\"subject\":\"maths\", \"marks\":75}, " +
+                "{\"subject\":\"English\", \"marks\":85}] ";
         BValue[] returns = BRunUtil.invoke(program, "testAddWhileIteration");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result + "smith ");
+        Assert.assertEquals(returns[0].stringValue(), result + "\"smith\" ");
     }
 
     @Test()
     public void testDeleteWhileIteration() {
-        String result = "bob 10 true [{\"subject\":\"maths\", \"marks\":75}, {\"subject\":\"English\", \"marks\":85}]" +
-                " bob 10 true ";
+        String result = "\"bob\" 10 true [{\"subject\":\"maths\", \"marks\":75}, " +
+                "{\"subject\":\"English\", \"marks\":85}] \"bob\" 10 true ";
         BValue[] returns = BRunUtil.invoke(program, "testDeleteWhileIteration");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), result);

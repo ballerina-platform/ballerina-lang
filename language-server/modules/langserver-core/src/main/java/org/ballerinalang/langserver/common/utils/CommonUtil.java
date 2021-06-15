@@ -420,7 +420,7 @@ public class CommonUtil {
                 requiredFields.put(entry.getKey(), entry.getValue());
             }
         }
-        
+
         String label;
         String detail = symbol.getName().isPresent() ? symbol.getName().get() : symbol.signature();
         if (!requiredFields.isEmpty()) {
@@ -1309,8 +1309,8 @@ public class CommonUtil {
     /**
      * Check if the symbol is a class symbol with self as the name.
      *
-     * @param symbol  Symbol
-     * @param context PositionedOperationContext
+     * @param symbol               Symbol
+     * @param context              PositionedOperationContext
      * @param enclosedModuleMember ModuleMemberDeclarationNode
      * @return {@link Boolean} whether the symbol is a self class symbol.
      */
@@ -1339,7 +1339,7 @@ public class CommonUtil {
         return classSymbol.equals(varTypeSymbol);
     }
 
-   /**
+    /**
      * Check if the cursor is positioned in a lock statement node context.
      *
      * @param context Completion context.
@@ -1355,5 +1355,16 @@ public class CommonUtil {
         }
         while (evalNode != null);
         return false;
+    }
+
+    /**
+     * Get the common predicate to filter the types.
+     *
+     * @return {@link Predicate}
+     */
+    public static Predicate<Symbol> typesFilter() {
+        return symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION ||
+                symbol.kind() == SymbolKind.CLASS || symbol.kind() == SymbolKind.ENUM
+                || symbol.kind() == SymbolKind.ENUM_MEMBER || symbol.kind() == SymbolKind.CONSTANT;
     }
 }

@@ -204,6 +204,14 @@ public function main() {
     string 'üňĩćőđę_var = "IL with unicode characters in var";
     json 'ĠĿŐΒȂɭ_\ \/\:\@\[\`\{\~\u{03C0}_json = {};
     
+    // service object
+    service object {} serviceVar = service object {
+        final int i = 5;
+        resource function get getResource() {
+            int k = self.i;
+        }
+    };
+
     // variable visibility in 'if' statement
     if (true) {
         intVar = 1;
