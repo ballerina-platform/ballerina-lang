@@ -55,7 +55,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNDEFINED_STRUCTURE_FIELD("BCE2024", "undefined.field.in.structure"),
     TYPE_NOT_ALLOWED_WITH_NEW("BCE2025", "type.not.allowed.with.new"),
     INVALID_INTERSECTION_TYPE("BCE2026", "invalid.intersection.type"),
-    INVALID_NON_READONLY_INTERSECTION_TYPE("BCE2027", "invalid.non.readonly.intersection.type"),
+    UNSUPPORTED_TYPE_INTERSECTION("BCE2027", "unsupported.type.intersection"),
     INVALID_READONLY_INTERSECTION_TYPE("BCE2028", "invalid.readonly.intersection.type"),
     INVALID_READONLY_OBJECT_INTERSECTION_TYPE("BCE2029", "invalid.readonly.object.intersection.type"),
     INVALID_READONLY_OBJECT_TYPE("BCE2030", "invalid.readonly.object.type"),
