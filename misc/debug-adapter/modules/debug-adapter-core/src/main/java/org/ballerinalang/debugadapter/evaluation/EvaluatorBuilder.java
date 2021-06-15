@@ -683,7 +683,8 @@ public class EvaluatorBuilder extends NodeVisitor {
     /**
      * Extracts the operands (future values) from a given binary expression node, recursively.
      */
-    private void extractWaitActionOperands(BinaryExpressionNode expr, List<Evaluator> result) throws EvaluationException {
+    private void extractWaitActionOperands(BinaryExpressionNode expr, List<Evaluator> result)
+            throws EvaluationException {
 
         if (expr.operator().kind() != PIPE_TOKEN) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.UNSUPPORTED_OPERATOR_INSIDE_WAIT
