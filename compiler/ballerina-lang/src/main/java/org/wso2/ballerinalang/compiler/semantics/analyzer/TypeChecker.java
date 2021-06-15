@@ -5258,11 +5258,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (checkedExpr.getKind() == NodeKind.CHECK_EXPR && types.isUnionOfSimpleBasicTypes(expType)) {
             switch (checkedExpr.expr.getKind()) {
-                case INVOCATION:
-                    BLangInvocation invocation = (BLangInvocation) clone;
-                    if (invocation.name.value.equals(FUNCTION_NAME_ENSURE_TYPE) && invocation.langLibInvocation) {
-                        break;
-                    }
                 case FIELD_BASED_ACCESS_EXPR:
                 case SIMPLE_VARIABLE_REF:
                 case BINARY_EXPR:
@@ -5270,6 +5265,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 case ELVIS_EXPR:
                     rewriteWithEnsureTypeFunc(checkedExpr, exprWithCheckingKeyword, typeOfExprWithCheckingKeyword);
                     break;
+                case INVOCATION:
+                    BLangInvocation invocation = (BLangInvocation) clone;
+                    if (invocation.name.value.equals(FUNCTION_NAME_ENSURE_TYPE) && invocation.langLibInvocation) {
+                        break;
+                    }
+                    rewriteWithEnsureTypeFunc(checkedExpr, exprWithCheckingKeyword, typeOfExprWithCheckingKeyword);
             }
         }
 
