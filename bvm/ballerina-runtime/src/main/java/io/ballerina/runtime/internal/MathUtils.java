@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 
@@ -33,8 +34,8 @@ public class MathUtils {
 
     private static final BString INT_RANGE_OVERFLOW_ERROR = StringUtils.fromString(" int range overflow");
 
-    private static void throwIntRangeOverflowError() {
-        throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_OVERFLOW, INT_RANGE_OVERFLOW_ERROR);
+    public static BError getIntOverflowError() {
+        return ErrorCreator.createError(BallerinaErrorReasons.NUMBER_OVERFLOW, INT_RANGE_OVERFLOW_ERROR);
     }
 
     public static long divide(long numerator, long denominator) {
@@ -42,7 +43,7 @@ public class MathUtils {
             if (numerator == Long.MIN_VALUE && denominator == -1) {
                 // a panic will occur on division by zero or overflow,
                 // which happens if the first operand is -2^63 and the second operand is -1
-                throwIntRangeOverflowError();
+                throw getIntOverflowError();
             }
             return numerator / denominator;
         } catch (ArithmeticException e) {
@@ -69,29 +70,26 @@ public class MathUtils {
     }
 
     public static long addExact(long num1, long num2) {
-        long result = num1 + num2;
-        // an overflow has happened on addition if the sign of the result is different from BOTH operands' sign
-        if (((num1 ^ result) & (num2 ^ result)) < 0) {
-            throwIntRangeOverflowError();
+        try {
+            return Math.addExact(num1, num2);
+        } catch (ArithmeticException e) {
+            throw getIntOverflowError();
         }
-        return result;
     }
 
     public static long subtractExact(long num1, long num2) {
-        long result = num1 - num2;
-        // an overflow has happened on subtraction when both operands have the same sign AND
-        // if the sign of the result is different from the first operand's sign
-        if (((num1 ^ num2) & (num1 ^ result)) < 0) {
-            throwIntRangeOverflowError();
+        try {
+            return Math.subtractExact(num1, num2);
+        } catch (ArithmeticException e) {
+            throw getIntOverflowError();
         }
-        return result;
     }
 
     public static long multiplyExact(long num1, long num2) {
-        long result = num1 * num2;
-        if ((num1 != 0 && result / num1 != num2) || (num2 != 0 && result / num2 != num1)) {
-            throwIntRangeOverflowError();
+        try {
+            return Math.multiplyExact(num1, num2);
+        } catch (ArithmeticException e) {
+            throw getIntOverflowError();
         }
-        return result;
     }
 }
