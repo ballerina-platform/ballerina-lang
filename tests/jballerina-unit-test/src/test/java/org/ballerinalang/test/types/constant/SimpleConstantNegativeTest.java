@@ -51,7 +51,8 @@ public class SimpleConstantNegativeTest {
                 9, 14);
         BAssertUtil.validateError(compileResult, index++, "underscore is not allowed here",
                 10, 7);
-        BAssertUtil.validateError(compileResult, index++, "type 'invalidType' is invalid in constant declaration",
+        BAssertUtil.validateError(compileResult, index++, "type 'invalidType' is invalid in constant declaration, " +
+                "expected a subtype of anydata and must not be never",
                 12, 7);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'invalidType'",
                 12, 7);
@@ -139,7 +140,8 @@ public class SimpleConstantNegativeTest {
                 "type 'int:Unsigned16'", 284, 14);
         BAssertUtil.validateError(compileResult, index++, "constant declaration not yet supported for " +
                 "type 'string:Char'", 286, 14);
-        BAssertUtil.validateError(compileResult, index++, "type 'Bar' is invalid in constant declaration",
+        BAssertUtil.validateError(compileResult, index++, "type 'Bar' is invalid in constant declaration, " +
+                "expected a subtype of anydata and must not be never",
                 294, 7);
         BAssertUtil.validateError(compileResult, index, "expression is not a constant expression",
                 294, 17);
