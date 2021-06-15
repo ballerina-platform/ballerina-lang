@@ -132,11 +132,12 @@ public class SemanticVersion {
             return VersionCompatibilityResult.EQUAL;
         }
 
-        if (this.major() != other.major()) {
+        // Eliminate initial versions, pre-release and build metadata
+        if (!this.isStable() || !other.isStable()) {
             return VersionCompatibilityResult.INCOMPATIBLE;
         }
 
-        if (this.isInitialVersion()) {
+        if (this.major() != other.major()) {
             return VersionCompatibilityResult.INCOMPATIBLE;
         }
 
