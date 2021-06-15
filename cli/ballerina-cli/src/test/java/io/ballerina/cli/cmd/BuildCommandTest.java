@@ -672,7 +672,7 @@ public class BuildCommandTest extends BaseCommandTest {
                 .resolve("wso2-emptyProjWithNonDefaultModules-any-0.1.0.bala").toFile().exists());
     }
 
-    @Test(description = "Compile an empty package with Non Default modules")
+    @Test(description = "Build an empty package with Non Default modules")
     public void testBuildEmptyProjectWithNonDefaultModules() throws IOException {
         Path projectPath = this.testResources.resolve("emptyProjectWithNonDefaultModules");
         System.setProperty("user.dir", projectPath.toString());
@@ -684,6 +684,33 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 getOutput("build-empty-project-with-nondefault-modules.txt"));
+    }
+
+    @Test(description = "Compile an empty package with Non Default modules with Tests only")
+    public void testCompileEmptyProjectWithNonDefaultModulesTestOnly() {
+        Path projectPath = this.testResources.resolve("emptyProjectWithNonDefaultModulesTestOnly");
+        System.setProperty("user.dir", projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala")
+                .resolve("wso2-emptyProjWithNonDefaultModulesTestOnly-any-0.1.0.bala").toFile().exists());
+    }
+
+    @Test(description = "Build an empty package with Non Default modules with Tests only")
+    public void testBuildEmptyProjectWithNonDefaultModulesTestOnly() throws IOException {
+        Path projectPath = this.testResources.resolve("emptyProjectWithNonDefaultModulesTestOnly");
+        System.setProperty("user.dir", projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, false);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("build-empty-project-with-nondefault-modules-tests-only.txt"));
     }
 
     static class Copy extends SimpleFileVisitor<Path> {
