@@ -54,7 +54,6 @@ function testMapVariableAccessInJSONInit () returns (json|error) {
     int intVal;
     val2 = <string> myMap["stirngVal"];
     intVal = check myMap["intVal"].ensureType();
-
     msg = {"val1":val2, "val2":intVal};
     return msg;
 }
