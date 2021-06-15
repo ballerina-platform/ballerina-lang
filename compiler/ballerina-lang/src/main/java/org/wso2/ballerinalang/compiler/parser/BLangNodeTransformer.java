@@ -4259,30 +4259,30 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 (BLangListMatchPattern) TreeBuilder.createListMatchPattern();
         bLangListMatchPattern.pos = pos;
 
-            SeparatedNodeList<Node> matchPatterns = listMatchPatternNode.matchPatterns();
-            int matchPatternListSize = matchPatterns.size();
+        SeparatedNodeList<Node> matchPatterns = listMatchPatternNode.matchPatterns();
+        int matchPatternListSize = matchPatterns.size();
 
-            if (matchPatternListSize == 0) {
-                return bLangListMatchPattern;
-            }
-
-            for (int i = 0; i < matchPatternListSize - 1; i++) {
-                BLangMatchPattern bLangMemberMatchPattern = transformMatchPattern(matchPatterns.get(i));
-                if (bLangMemberMatchPattern == null) {
-                    continue;
-                }
-                bLangListMatchPattern.addMatchPattern(bLangMemberMatchPattern);
-            }
-
-            BLangMatchPattern lastMember = transformMatchPattern(matchPatterns.get(matchPatternListSize - 1));
-            if (lastMember.getKind() == NodeKind.REST_MATCH_PATTERN) {
-                bLangListMatchPattern.setRestMatchPattern((BLangRestMatchPattern) lastMember);
-            } else {
-                bLangListMatchPattern.addMatchPattern(lastMember);
-            }
-
+        if (matchPatternListSize == 0) {
             return bLangListMatchPattern;
         }
+
+        for (int i = 0; i < matchPatternListSize - 1; i++) {
+            BLangMatchPattern bLangMemberMatchPattern = transformMatchPattern(matchPatterns.get(i));
+            if (bLangMemberMatchPattern == null) {
+                continue;
+            }
+            bLangListMatchPattern.addMatchPattern(bLangMemberMatchPattern);
+        }
+
+        BLangMatchPattern lastMember = transformMatchPattern(matchPatterns.get(matchPatternListSize - 1));
+        if (lastMember.getKind() == NodeKind.REST_MATCH_PATTERN) {
+            bLangListMatchPattern.setRestMatchPattern((BLangRestMatchPattern) lastMember);
+        } else {
+            bLangListMatchPattern.addMatchPattern(lastMember);
+        }
+
+        return bLangListMatchPattern;
+    }
 
     private BLangRestMatchPattern transformRestMatchPattern(RestMatchPatternNode restMatchPatternNode, Location pos) {
         BLangRestMatchPattern bLangRestMatchPattern = (BLangRestMatchPattern) TreeBuilder.createRestMatchPattern();

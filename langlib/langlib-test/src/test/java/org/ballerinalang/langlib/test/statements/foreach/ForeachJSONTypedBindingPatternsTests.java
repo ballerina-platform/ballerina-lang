@@ -44,16 +44,18 @@ public class ForeachJSONTypedBindingPatternsTests {
     public void testJsonWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testJsonWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:bob 1:10 2:true 3:[{\"subject\":\"maths\", \"marks\":75}, " +
-                                                      "{\"subject\":\"English\", \"marks\":85}] ");
+        Assert.assertEquals(returns[0].stringValue(), "0:\"bob\" 1:10 2:true " +
+                "3:[{\"subject\":\"maths\", \"marks\":75}, " +
+                "{\"subject\":\"English\", \"marks\":85}] ");
     }
 
     @Test
     public void testJsonWithType() {
         BValue[] returns = BRunUtil.invoke(program, "testJsonWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:bob 1:10 2:true 3:[{\"subject\":\"maths\", \"marks\":75}, " +
-                                                      "{\"subject\":\"English\", \"marks\":85}] ");
+        Assert.assertEquals(returns[0].stringValue(), "0:\"bob\" 1:10 2:true " +
+                "3:[{\"subject\":\"maths\", \"marks\":75}, " +
+                "{\"subject\":\"English\", \"marks\":85}] ");
     }
 
     @Test
@@ -113,16 +115,16 @@ public class ForeachJSONTypedBindingPatternsTests {
     public void testIteratingCompleteJsonWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testIteratingCompleteJsonWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:bob 1:10 2:true 3:{\"subject\":\"maths\", \"marks\":75} " +
-                                                      "3:{\"subject\":\"English\", \"marks\":85} ");
+        Assert.assertEquals(returns[0].stringValue(), "0:\"bob\" 1:10 2:true 3:{\"subject\":\"maths\", \"marks\":75} " +
+                "3:{\"subject\":\"English\", \"marks\":85} ");
     }
 
     @Test
     public void testIteratingCompleteJsonWithType() {
         BValue[] returns = BRunUtil.invoke(program, "testIteratingCompleteJsonWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:bob 1:10 2:true 3:{\"subject\":\"maths\", \"marks\":75} " +
-                                                      "3:{\"subject\":\"English\", \"marks\":85} ");
+        Assert.assertEquals(returns[0].stringValue(), "0:\"bob\" 1:10 2:true 3:{\"subject\":\"maths\", \"marks\":75} " +
+                "3:{\"subject\":\"English\", \"marks\":85} ");
     }
 
     @Test

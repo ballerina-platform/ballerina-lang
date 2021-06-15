@@ -284,3 +284,11 @@ public const int:Signed32 ONE = 1;
 public const int:Unsigned16 TWO = 2;
 
 public const string:Char A = "A";
+
+// -----------------------------------------------------------
+
+class Bar {
+    int i = 1;
+}
+
+const Bar BAR = new;

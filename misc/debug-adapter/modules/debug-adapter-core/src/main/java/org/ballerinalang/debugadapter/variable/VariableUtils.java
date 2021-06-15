@@ -142,6 +142,21 @@ public class VariableUtils {
     }
 
     /**
+     * Verifies whether a given JDI value is a ballerina service variable instance.
+     *
+     * @param value JDI value instance.
+     * @return true the given JDI value is a ballerina service variable instance.
+     */
+     static boolean isService(Value value) {
+        try {
+            return getFieldValue(value, FIELD_TYPE).map(type -> type.type().name().endsWith
+                (JVMValueType.BTYPE_SERVICE.getString())).orElse(false);
+        } catch (DebugVariableException e) {
+            return false;
+        }
+    }
+
+    /**
      * Verifies whether a given JDI value is a ballerina JSON variable instance.
      *
      * @param value JDI value instance.

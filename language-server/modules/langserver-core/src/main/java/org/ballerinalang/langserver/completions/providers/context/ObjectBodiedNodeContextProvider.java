@@ -45,10 +45,7 @@ public abstract class ObjectBodiedNodeContextProvider<T extends Node> extends Ab
      * @return {@link List} of completion items
      */
     protected List<LSCompletionItem> getBodyContextItems(BallerinaCompletionContext context, Node node) {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-
-        completionItems.addAll(this.getTypeItems(context));
-        completionItems.addAll(this.getModuleCompletionItems(context));
+        List<LSCompletionItem> completionItems = new ArrayList<>(this.getTypeDescContextItems(context));
 
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PRIVATE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PUBLIC.get()));

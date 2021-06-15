@@ -55,7 +55,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNDEFINED_STRUCTURE_FIELD("BCE2024", "undefined.field.in.structure"),
     TYPE_NOT_ALLOWED_WITH_NEW("BCE2025", "type.not.allowed.with.new"),
     INVALID_INTERSECTION_TYPE("BCE2026", "invalid.intersection.type"),
-    INVALID_NON_READONLY_INTERSECTION_TYPE("BCE2027", "invalid.non.readonly.intersection.type"),
+    UNSUPPORTED_TYPE_INTERSECTION("BCE2027", "unsupported.type.intersection"),
     INVALID_READONLY_INTERSECTION_TYPE("BCE2028", "invalid.readonly.intersection.type"),
     INVALID_READONLY_OBJECT_INTERSECTION_TYPE("BCE2029", "invalid.readonly.object.intersection.type"),
     INVALID_READONLY_OBJECT_TYPE("BCE2030", "invalid.readonly.object.type"),
@@ -152,6 +152,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE2114", "defaultable.param.not.allowed.after.included.record.param"),
     REQUIRED_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM(
             "BCE2115", "required.param.not.allowed.after.included.record.param"),
+    INCOMPATIBLE_SUB_TYPE_FIELD("BCE2116", "incompatible.sub.type.field"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
@@ -505,7 +506,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     TYPE_REQUIRED_FOR_CONST_WITH_EXPRESSIONS("BCE3500", "type.required.for.const.with.expressions"),
     CANNOT_UPDATE_CONSTANT_VALUE("BCE3501", "cannot.update.constant.value"),
     CANNOT_ASSIGN_VALUE_TO_CONSTANT("BCE3502", "cannot.assign.value.to.constant"),
-    CANNOT_DEFINE_CONSTANT_WITH_TYPE("BCE3503", "cannot.define.constant.with.type"),
+    INVALID_CONST_DECLARATION("BCE3503", "invalid.const.declaration"),
     EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION("BCE3504", "expression.is.not.a.constant.expression"),
     INVALID_CONST_EXPRESSION("BCE3505", "invalid.const.expression"),
     CONSTANT_EXPRESSION_NOT_SUPPORTED("BCE3506", "const.expression.not.supported"),

@@ -4365,15 +4365,8 @@ public class Types {
     private BType getIntersectionForErrorTypes(IntersectionContext intersectionContext,
                                                BType lhsType, BType rhsType, SymbolEnv env) {
 
-        BType detailTypeOne = ((BErrorType) lhsType).detailType;
-        BType detailTypeTwo = ((BErrorType) rhsType).detailType;
-
-        if (!intersectionContext.compilerInternalIntersectionTest
-                && (isSealedRecord(detailTypeOne) || isSealedRecord(detailTypeTwo))) {
-            return symTable.semanticError;
-        }
-
-        BType detailIntersectionType = getTypeIntersection(intersectionContext, detailTypeOne, detailTypeTwo, env);
+        BType detailIntersectionType = getTypeIntersection(intersectionContext,
+                ((BErrorType) lhsType).detailType, ((BErrorType) rhsType).detailType, env);
         if (detailIntersectionType == symTable.semanticError) {
             return symTable.semanticError;
         }
@@ -4528,7 +4521,7 @@ public class Types {
                                                          newTypeSymbol, lhsRecordField.pos, SOURCE);
                 BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) intersectionFieldType.tsymbol;
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) recordFieldSymbol;
-                invokableSymbol.params = tsymbol.params;
+                invokableSymbol.params = tsymbol == null ? null : new ArrayList<>(tsymbol.params);
                 invokableSymbol.restParam = tsymbol.restParam;
                 invokableSymbol.retType = tsymbol.returnType;
                 invokableSymbol.flags = tsymbol.flags;
@@ -4666,7 +4659,7 @@ public class Types {
             if (recordFieldType.tag == TypeTags.INVOKABLE && recordFieldType.tsymbol != null) {
                 BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) recordFieldType.tsymbol;
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) recordFieldSymbol;
-                invokableSymbol.params = tsymbol.params;
+                invokableSymbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
                 invokableSymbol.restParam = tsymbol.restParam;
                 invokableSymbol.retType = tsymbol.returnType;
                 invokableSymbol.flags = tsymbol.flags;

@@ -17,7 +17,7 @@
     {
       "label": "f1",
       "kind": "Field",
-      "detail": "int",
+      "detail": "(record {| int f1; string f2?; |}).f1",
       "sortText": "G",
       "insertText": "f1: ${1:0}",
       "insertTextFormat": "Snippet"
@@ -25,17 +25,18 @@
     {
       "label": "f2",
       "kind": "Field",
-      "detail": "string",
+      "detail": "(record {| int f1; string f2?; |}).f2",
       "sortText": "G",
       "insertText": "f2: \"${2}\"",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Add All Attributes",
+      "label": "Fill record {| int f1; string f2?; |} Required Fields",
       "kind": "Property",
-      "detail": "none",
+      "detail": "record {| int f1; string f2?; |}",
       "sortText": "Q",
-      "insertText": "f1: 0,\nf2: \"\"",
+      "filterText": "fill",
+      "insertText": "f1: 0",
       "insertTextFormat": "Snippet"
     }
   ]
