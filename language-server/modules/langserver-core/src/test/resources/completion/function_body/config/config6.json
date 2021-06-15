@@ -248,11 +248,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "runtime",
+      "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -266,7 +266,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "array",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.array;\n"
         }
       ]
     },
@@ -317,11 +340,11 @@
       ]
     },
     {
-      "label": "ballerina/lang.array",
+      "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "array",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -335,30 +358,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.array;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -612,11 +612,21 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "validator1",
-      "kind": "Variable",
-      "detail": "boolean",
-      "sortText": "B",
-      "insertText": "validator1",
+      "label": "true",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "true",
+      "insertText": "true",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "false",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "false",
+      "insertText": "false",
       "insertTextFormat": "Snippet"
     },
     {
@@ -644,6 +654,14 @@
       "detail": "boolean",
       "sortText": "B",
       "insertText": "validator2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "validator1",
+      "kind": "Variable",
+      "detail": "boolean",
+      "sortText": "B",
+      "insertText": "validator1",
       "insertTextFormat": "Snippet"
     },
     {

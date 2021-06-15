@@ -32,6 +32,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -39,6 +40,8 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static org.ballerinalang.langserver.commons.completion.LSCompletionItem.CompletionItemType.SNIPPET;
 
 /**
  * Enclose a set of utilities for sorting and ranking of completion items.
@@ -85,7 +88,7 @@ public class SortingUtil {
      * @return {@link Boolean} whether type completion or not
      */
     public static boolean isTypeCompletionItem(LSCompletionItem item) {
-        return (item instanceof SymbolCompletionItem
+        return (item.getType() == LSCompletionItem.CompletionItemType.SYMBOL
                 && ((SymbolCompletionItem) item).getSymbol().orElse(null) instanceof TypeSymbol)
                 || (item instanceof StaticCompletionItem
                 && ((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.TYPE);
@@ -142,6 +145,79 @@ public class SortingUtil {
         rank = rank < 0 ? 7 : rank;
 
         return genSortText(rank);
+    }
+
+    /**
+     * Get the sort text for a given completion item within a context where the type descriptors are allowed. 
+     * This assume that the user get the particular completion item by calling 
+     * AbstractCompletionProvider#getTypeDescContextItems. Hence, here we honour the module completion items as well
+     * 
+     * Sorting order is defined as follows
+     * 1. Types defined in the same module
+     * 2. Types visible from other modules (StrandData, Thread in lang.value)
+     * 3. Visible Modules
+     * 4. Constant
+     * 5. Enums
+     * 6. Enum Member
+     * 7. Basic Types (boolean, int, string, etc)
+     * 8. Type Descriptor snippets (record snippet, object snippet)
+     * 8+. keywords (true, false, record, object)
+     *
+     * @param context language server completion context
+     * @param item    completion item to evaluate
+     * @return {@link String} rank assigned to the completion item
+     */
+    public static String genSortTextForTypeDescContext(BallerinaCompletionContext context, LSCompletionItem item) {
+        if (item.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+            Optional<Symbol> symbol = ((SymbolCompletionItem) item).getSymbol();
+            // Case 6
+            if (symbol.isEmpty()) {
+                // Basic types such as int, boolean, string, and etc get a lower priority
+                return genSortText(7);
+            }
+            Optional<Project> currentProject = context.workspace().project(context.filePath());
+            String currentOrg = currentProject.get().currentPackage().packageOrg().value();
+            String currentPkgName = currentProject.get().currentPackage().packageName().value();
+
+            Optional<ModuleSymbol> symbolModule = symbol.get().getModule();
+            String orgName = symbolModule.isPresent() ? symbolModule.get().id().orgName() : "";
+            String moduleName = symbolModule.isPresent() ? symbolModule.get().id().moduleName() : "";
+
+            // Case 4
+            if (symbol.get().kind() == SymbolKind.CONSTANT) {
+                return genSortText(4);
+            }
+            if (symbol.get().kind() == SymbolKind.ENUM) {
+                return genSortText(5);
+            }
+            // Case 5
+            if (symbol.get().kind() == SymbolKind.ENUM_MEMBER) {
+                return genSortText(5);
+            }
+            /*
+            Case 1 and 2
+            Types in the same module get the priority.
+            Types coming from lang.value (StrandData, Thread) get the second highest priority
+            
+            Note: At this point there shouldn't be any symbol kind other than TYPE
+             */
+            String sortPrefix = currentOrg.equals(orgName) && currentPkgName.equals(moduleName)
+                    ? genSortText(1) : genSortText(2);
+            return sortPrefix + genSortText(toRank(item));
+        }
+        
+        // Case 3
+        if (isModuleCompletionItem(item)) {
+            return genSortText(3) + genSortTextForModule(context, item);
+        }
+
+        // Case 7
+        if (item.getType() == SNIPPET && ((SnippetCompletionItem) item).kind() == SnippetBlock.Kind.TYPE) {
+            return genSortText(8);
+        }
+        
+        // Case 7+ 
+        return genSortText(SortingUtil.toRank(item, 8));
     }
 
     /**
