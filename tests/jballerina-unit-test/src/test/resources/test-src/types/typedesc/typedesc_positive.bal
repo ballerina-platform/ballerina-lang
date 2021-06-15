@@ -198,7 +198,7 @@ function testCustomErrorTypeDescWithoutConstraint() {
 }
 
 type ImmutableIntArray int[] & readonly;
-type ImmutableTypleArray [int, int, int] & readonly;
+type ImmutableTupleArray [int, int, int] & readonly;
 type ImmutableJsonArray json[] & readonly;
 type ImmutableTableArray table<Employee> & readonly;
 
@@ -213,7 +213,7 @@ function testTypeDefWithIntersectionTypeDescAsTypedesc() {
     assertEquality(true, (<int[]> checkpanic b).isReadOnly());
     assertEquality(<int[]> [1, 2, 3], b);
 
-    typedesc<anydata> t = ImmutableTypleArray;
+    typedesc<anydata> t = ImmutableTupleArray;
     anydata|error t1 = arr.cloneWithType(a);
     assertEquality(true, t1 is [int, int, int]);
     assertEquality(true, (<int[]> checkpanic t1).isReadOnly());
@@ -231,24 +231,35 @@ function testTypeDefWithIntersectionTypeDescAsTypedesc() {
     assertEquality(true, (<int[]> checkpanic c).isReadOnly());
     assertEquality(<int[]> [1, 2, 3], c);
 
-    anydata|error t2 = arr.fromJsonWithType(ImmutableTypleArray);
+    anydata|error t2 = arr.fromJsonWithType(t);
     assertEquality(true, t2 is [int, int, int]);
     assertEquality(true, (<int[]> checkpanic t2).isReadOnly());
     assertEquality(<[int, int, int]> [1, 2, 3], t2);
 
-    anydata|error j2 = arr.fromJsonWithType(ImmutableJsonArray);
+    anydata|error j2 = arr.fromJsonWithType(j);
     assertEquality(true, j2 is json[]);
     assertEquality(true, (<json[]> checkpanic j2).isReadOnly());
     assertEquality(<json[]> [1, 2, 3], j2);
 
+    typedesc<anydata> tb = ImmutableTableArray;
     json arr2 = [{name:"waruna"}, {name:"manu"}];
-    table<Employee>|error table1 = checkpanic arr2.fromJsonWithType(ImmutableTableArray);
+    anydata|error table1 = checkpanic arr2.fromJsonWithType(tb);
     assertEquality(true, table1 is (table<Employee>));
     assertEquality(true, (<table<Employee>> checkpanic table1).isReadOnly());
     table<Employee> & readonly expectedTable = table [{name:"waruna"}, {name:"manu"}];
     assertEquality(expectedTable, table1);
+}
 
-    typedesc<readonly> d = ImmutableIntArray;
+function testTypeDefWithIntersectionTypeDescAsTypedescNegative() {
+    typedesc<anydata> a = ImmutableIntArray;
+    (int|string)[] arr = [1, 2, "3"];
+    anydata|error b = arr.cloneWithType(a);
+    assertEquality(b is error, true);
+
+    typedesc<anydata> tb = ImmutableTableArray;
+    json arr2 = [{name:"waruna"}, {country:"sl"}];
+    anydata|error table1 = arr2.fromJsonWithType(tb);
+    assertEquality(table1 is error, true);
 }
 
 type Foo "foo";
