@@ -210,9 +210,11 @@ public class RecordVariableReferenceTest {
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "unknown type 'Data'", 128, 6);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "incompatible types: expected 'map<int>', found 'map<anydata>'", 161, 16);
+                "incompatible types: expected 'map<int>', found 'record {| never name?; boolean married; int...; |}'",
+                161, 16);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "incompatible types: expected 'map<error>', found 'map'",
+                "incompatible types: expected 'map<error>', " +
+                        "found 'record {| never name?; boolean married; Object...; |}'",
                 164, 16);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid expr in assignment lhs", 198, 51);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);

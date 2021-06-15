@@ -54,6 +54,7 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.ST
 import static org.ballerinalang.debugadapter.variable.VariableUtils.isJson;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.isObject;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.isService;
 
 /**
  * Factory implementation of ballerina debug variable types.
@@ -175,8 +176,6 @@ public class VariableFactory {
             return new BXmlItemAttributeMap(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.STRAND_WAIT_RESULT.getString())) {
             return new BStrandWaitResult(context, varName, value);
-        } else if (valueTypeName.contains(JVMValueType.ANON_SERVICE.getString())) {
-            return new BService(context, varName, value);
         } else if (valueTypeName.contains(JVMValueType.MAP_VALUE.getString()) && !isRecord(value)) {
             if (isJson(value)) {
                 return new BJson(context, varName, value);
@@ -188,6 +187,8 @@ public class VariableFactory {
                 return new BObject(context, varName, value);
             } else if (isRecord(value)) {
                 return new BRecord(context, varName, value);
+            } else if (isService(value)) {
+                return new BService(context, varName, value);
             }
         }
         // If the variable doesn't match any of the above types, returns as a variable with type "unknown".

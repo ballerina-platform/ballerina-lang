@@ -166,6 +166,9 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, JSON_VAR, "map<json> (size = 2)", "json");
         // anonymous object variable test (AnonPerson object)
         debugTestRunner.assertExpression(context, ANON_OBJECT_VAR, "Person_\\ /<>:@[`{~π_ƮέŞŢ", "object");
+        // TODO - Need to enable
+        // service object variable test
+        // debugTestRunner.assertExpression(context, SERVICE_VAR, "service", "service");
 
         // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/26139
         // debugTestRunner.assertExpression(context, GL, "Ballerina", "string");
@@ -197,6 +200,9 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, RECORD_VAR + ".grades.maths", "80", "int");
         // optional field access
         debugTestRunner.assertExpression(context, RECORD_VAR + "?.undefined", "()", "nil");
+        // TODO - Need to enable
+        // service object field access
+        // debugTestRunner.assertExpression(context, SERVICE_VAR + ".i", "5", "int");
     }
 
     @Override

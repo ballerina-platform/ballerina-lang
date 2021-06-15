@@ -225,6 +225,107 @@ function barWithCheck(string | int | boolean a, string | int | boolean b) return
         return "Value is 'Default'";
 }
 
+const DECIMAL_NUMBER = 2;
+
+function testVarInMatchPatternWithinOnfail() {
+    string res1 = getDetailErrorWithMatchedInput([2, "10"]);
+    assertEquals("Error caught at onfail; input received: 2, 10", res1);
+    string res2 = getDetailErrorWithMatchedInput([10, "50"]);
+    assertEquals("Error caught at onfail; input received: 10, 50", res2);
+    string res3 = getDetailErrorWithMatchedInput([20, "100"]);
+    assertEquals("Error caught at onfail; input received: 20, 100", res3);
+    string res4 = getErrorDetailFromMultipleThrow([2, "100"]);
+    assertEquals("Error caught at onfail; input received: 2, 100-> Error caught at outer onfail.", res4);
+    string res5 = getErrorDetailFromMultipleThrow([10, "100"]);
+    assertEquals("Error caught at onfail; input received: 10, 100-> Error caught at outer onfail.", res5);
+    string res6 = getErrorDetailNestedMatch([DECIMAL_NUMBER, "10"]);
+    assertEquals("Error caught at onfail; input received; digits:10 num:10-> Error caught at outer onfail.", res6);
+}
+
+function getDetailErrorWithMatchedInput([int, string] dataEntry) returns string {
+    string str = "";
+    match dataEntry {
+        [DECIMAL_NUMBER, var digits] => {
+            do {
+                string val = check getError();
+            } on fail error cause {
+                str += "Error caught at onfail; input received: " + DECIMAL_NUMBER.toString() + ", " + digits;
+            }
+        }
+
+        [10, var digits] => {
+            do {
+                string val = check getError();
+            } on fail error cause {
+                str += "Error caught at onfail; input received: 10, " + digits;
+            }
+        }
+
+        [20, var digits] => {
+            do {
+                string val = check getError();
+            } on fail error cause {
+                str += "Error caught at onfail; input received: 20, " + digits;
+            }
+        }
+    }
+    return str;
+}
+
+function getErrorDetailFromMultipleThrow([int, string] dataEntry) returns string {
+    string str = "";
+    match dataEntry {
+        [DECIMAL_NUMBER, var digits] => {
+            do {
+                string val = check getError();
+            } on fail error cause {
+                str += "Error caught at onfail; input received: " + DECIMAL_NUMBER.toString() + ", " + digits;
+                fail cause;
+            }
+        }
+
+        [10, var digits] => {
+            do {
+                string val = check getError();
+            } on fail error cause {
+                str += "Error caught at onfail; input received: 10, " + digits;
+                fail cause;
+            }
+        }
+    } on fail error e {
+        str += "-> Error caught at outer onfail.";
+    }
+    return str;
+}
+
+function getErrorDetailNestedMatch([int, string] dataEntry) returns string {
+    string str = "";
+    match dataEntry {
+        [DECIMAL_NUMBER, var digits] => {
+            match digits {
+                var num => {
+                    do {
+                        string val = check getError();
+                    } on fail error cause {
+                        str += "Error caught at onfail; input received; digits:" + digits + " num:" + num;
+                        fail cause;
+                    }
+                }
+            }
+        }
+    } on fail error e {
+        str += "-> Error caught at outer onfail.";
+    }
+    return str;
+}
+
 public function println(any|error... values) = @java:Method {
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
+
+function assertEquals(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

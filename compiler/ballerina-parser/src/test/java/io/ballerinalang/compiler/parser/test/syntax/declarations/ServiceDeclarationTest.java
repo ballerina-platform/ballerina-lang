@@ -154,4 +154,9 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
     public void testMissingServiceMemberWithPublicQual() {
         testFile("service-decl/service_decl_source_21.bal", "service-decl/service_decl_assert_21.json");
     }
+
+    @Test
+    public void testMethodQualifierRecoveryWhenTyping() {
+        testFile("service-decl/service_decl_source_22.bal", "service-decl/service_decl_assert_22.json");
+    }
 }

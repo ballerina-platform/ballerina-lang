@@ -17,9 +17,11 @@
 function mappingMatchPattern1(any v) returns any|error {
     match v {
         {w: 1, x: 2, y: 3,  ...var a} => {
+            assertEquals(true, a is record {| never w?; never x?; never y?; (any|error)...; |});
             return a["z"];
         }
         {x: 2, y: 3, ...var a} => {
+            assertEquals(true, a is record {| never x?; never y?; (any|error)...; |});
             return a["z"];
         }
         _ => {
@@ -37,9 +39,11 @@ function testMappingMatchPattern1() {
 function mappingMatchPattern2(record { int x; int y; int z1; int z2; } v) returns anydata {
     match v {
         {x: 2, y: 3, z1: 5, ...var a} => {
+            assertEquals(true, a is record {| never x?; never y?; never z1?; (any|error)...; |});
             return a["z2"];
         }
         {x: 2, y: 3, ...var a} => {
+            assertEquals(true, a is record {| never x?; never y?; (any|error)...; |});
             return a["z2"];
         }
         _ => {
@@ -77,8 +81,8 @@ function testMappingMatchPattern3() {
 function mappingMatchPattern4(record {|int a; int b; string...;|} v) returns (string|int)? {
     match v {
         {a: 2, ...var rst} => {
-            map<string|int> mp = rst;
-            return mp["c"];
+            assertEquals(true, rst is record {| never a?; int b; string...; |});
+            return rst["c"];
         }
     }
     return "No match";
@@ -255,6 +259,7 @@ function mappingMatchPattern13(ClosedRecordWithOneField|EmptyClosedRecord rec) r
             return <int[2]> [m, n.length()];
         }
         {...var rest} => {
+            assertEquals(true, rest is record {|int i?; never...;|});
             map<int|never> n = rest;
             return n.length();
         }
@@ -297,7 +302,9 @@ public function testRestMappingAtRuntime() {
     var v1 = <[string, map<int|string>]> r1;
     assertEquals("hello", v1[0]);
     var m1 = v1[1];
-    assertEquals(101, m1["m"]);
+    assertEquals(true, m1 is record {| never p?; int m; string...;|});
+    var rec1 = <record {| never p?; int m; string...;|}>m1;
+    assertEquals(101, rec1.m);
     assertEquals("world", m1["q"]);
     assertEquals(2, m1.length());
     assertEquals(<RecTwo> {m: 101, "p": "hello", "q": "world"}, rec);
@@ -321,6 +328,7 @@ public function testRestMappingAtRuntime() {
     var v3 = <[int, map<string>]> r3;
     assertEquals(303, v3[0]);
     var m3 = v3[1];
+    assertEquals(true, m3 is record {| never m?; string...;|});
     assertEquals("ballerina", m3["b"]);
     assertEquals(1, m3.length());
     assertEquals(<RecTwo> {m: 303, "b": "ballerina"}, rec3);

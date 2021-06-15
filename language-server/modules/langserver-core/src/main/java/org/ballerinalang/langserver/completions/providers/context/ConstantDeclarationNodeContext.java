@@ -57,8 +57,7 @@ public class ConstantDeclarationNodeContext extends AbstractCompletionProvider<C
                 List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, qNameRef);
                 completionItems.addAll(this.getCompletionItemList(typesInModule, context));
             } else {
-                completionItems.addAll(this.getTypeItems(context));
-                completionItems.addAll(this.getModuleCompletionItems(context));
+                completionItems.addAll(this.getTypeDescContextItems(context));
             }
         } else if (this.onExpressionContext(context, node)) {
             Predicate<Symbol> predicate =

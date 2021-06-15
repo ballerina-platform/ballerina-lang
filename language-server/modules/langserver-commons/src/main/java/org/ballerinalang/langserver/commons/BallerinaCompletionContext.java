@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.Token;
+import org.eclipse.lsp4j.CompletionParams;
 
 import java.util.List;
 import java.util.Optional;
@@ -80,4 +81,11 @@ public interface BallerinaCompletionContext extends CompletionContext, Ballerina
      * @return {@link Optional<TypeSymbol>} Context TypeSymbol for node at cursor.
      */
     Optional<TypeSymbol> getContextType();
+
+    /**
+     * Get the Completion Parameters.
+     * 
+     * @return {@link CompletionParams}
+     */
+    CompletionParams getCompletionParams();
 }

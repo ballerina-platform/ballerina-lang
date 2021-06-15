@@ -103,7 +103,7 @@ function testToJsonStringForNonJsonTypes() {
     result["anAnyData"] = anAnyData.toJsonString();
 
     assert(result["aNil"], "null");
-    assert(result["aString"], "aString");
+    assert(result["aString"], "\"aString\"");
     assert(result["aNumber"], "10");
     assert(result["aFloatNumber"], "10.5");
     assert(result["anStringArray"], "[\"hello\", \"world\"]");
@@ -1144,7 +1144,7 @@ function testFromJsonStringWithTypeJson() {
     assert(result["aNull"] is (), true);
 
     json aStringJson = <json> checkpanic result["aString"];
-    assert(aStringJson.toJsonString(), "aString");
+    assert(aStringJson.toJsonString(), "\"aString\"");
 
     json anArrayJson = <json> checkpanic result["anArray"];
     assert(anArrayJson.toJsonString(), "[\"hello\", \"world\"]");
