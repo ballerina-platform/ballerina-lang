@@ -1,4 +1,4 @@
 [package]
 org = "wso2"
-name = "compilerPlugin"
+name = "emptyProjWithCompilerPlugin"
 version = "0.1.0"
