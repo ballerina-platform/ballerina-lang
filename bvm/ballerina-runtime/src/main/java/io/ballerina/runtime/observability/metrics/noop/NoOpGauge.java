@@ -15,45 +15,61 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.observe.noop;
+package io.ballerina.runtime.observability.metrics.noop;
 
-import io.ballerina.runtime.observability.metrics.Counter;
+import io.ballerina.runtime.observability.metrics.AbstractMetric;
 import io.ballerina.runtime.observability.metrics.Gauge;
 import io.ballerina.runtime.observability.metrics.MetricId;
-import io.ballerina.runtime.observability.metrics.PolledGauge;
+import io.ballerina.runtime.observability.metrics.Snapshot;
 import io.ballerina.runtime.observability.metrics.StatisticConfig;
-import io.ballerina.runtime.observability.metrics.spi.MetricProvider;
-
-import java.util.function.ToDoubleFunction;
 
 /**
- * Provide No-Op implementations of metrics.
+ * Implementation of No-Op {@link Gauge}.
  */
-public class NoOpMetricProvider implements MetricProvider {
-    public static final String NAME = "noop";
+public class NoOpGauge extends AbstractMetric implements Gauge {
 
-    @Override
-    public String getName() {
-        return NAME;
+    public NoOpGauge(MetricId id) {
+        super(id);
     }
 
+
     @Override
-    public void init() {
+    public void increment(double amount) {
         // Do nothing
     }
 
     @Override
-    public Counter newCounter(MetricId metricId) {
-        return new NoOpCounter(metricId);
+    public void decrement(double amount) {
+        // Do nothing
     }
 
     @Override
-    public Gauge newGauge(MetricId metricId, StatisticConfig... statisticConfigs) {
-        return new NoOpGauge(metricId);
+    public void setValue(double value) {
+        // Do nothing
     }
 
     @Override
-    public <T> PolledGauge newPolledGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction) {
-        return new NoOpPolledGauge(metricId);
+    public double getValue() {
+        return 0;
+    }
+
+    @Override
+    public long getCount() {
+        return 0;
+    }
+
+    @Override
+    public double getSum() {
+        return 0;
+    }
+
+    @Override
+    public Snapshot[] getSnapshots() {
+        return new Snapshot[0];
+    }
+
+    @Override
+    public StatisticConfig[] getStatisticsConfig() {
+        return new StatisticConfig[0];
     }
 }
