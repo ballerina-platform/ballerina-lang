@@ -30,13 +30,13 @@ import org.testng.annotations.Test;
  *
  * @since 2.0.0
  */
-public class QueryExpressionWithinTypeGuardTest {
+public class QueryExpressionTypeNarrowingTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/query/query-expr-within-type-guards.bal");
+        result = BCompileUtil.compile("test-src/query/query-expr-type-narrowing.bal");
     }
 
     @Test(description = "Test query expression within a type guard")
