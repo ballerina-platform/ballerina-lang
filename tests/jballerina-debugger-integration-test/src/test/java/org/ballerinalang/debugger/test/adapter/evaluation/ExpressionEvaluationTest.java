@@ -710,6 +710,14 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // "168", "int");
     }
 
+    @Override
+    @Test
+    public void waitActionEvaluationTest() throws BallerinaTestException {
+        debugTestRunner.assertExpression(context, String.format("wait %s", FUTURE_VAR), "Wait Result", "object");
+        debugTestRunner.assertExpression(context, String.format("wait %s | %s", FUTURE_VAR, FUTURE_VAR), "Wait Result",
+                "object");
+    }
+
     @AfterClass(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

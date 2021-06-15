@@ -365,6 +365,18 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                         "Student"));
     }
 
+    @Override
+    @Test
+    public void waitActionEvaluationTest() throws BallerinaTestException {
+        debugTestRunner.assertEvaluationError(context, String.format("wait %s", INT_VAR),
+                String.format(EvaluationExceptionKind.TYPE_MISMATCH.getString(), "future", "int", "intVar"));
+        debugTestRunner.assertEvaluationError(context, String.format("wait %s", STRING_VAR),
+                String.format(EvaluationExceptionKind.TYPE_MISMATCH.getString(), "future", "string", "stringVar"));
+        debugTestRunner.assertEvaluationError(context, String.format("wait %s & %s", FUTURE_VAR, FUTURE_VAR),
+                String.format(EvaluationExceptionKind.UNSUPPORTED_OPERATOR_INSIDE_WAIT.getString(), "&"));
+    }
+
+
     @AfterClass(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

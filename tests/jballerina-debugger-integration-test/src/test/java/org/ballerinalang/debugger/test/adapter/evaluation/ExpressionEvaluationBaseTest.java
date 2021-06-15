@@ -216,4 +216,7 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
 
     // 34. Remote method call actions
     public abstract void remoteCallActionEvaluationTest() throws BallerinaTestException;
+
+    // 34. Wait actions
+    public abstract void waitActionEvaluationTest() throws BallerinaTestException;
 }

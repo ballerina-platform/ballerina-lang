@@ -106,6 +106,8 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.RE
  * <li> Unary expression
  * <li> Type test expression
  * <li> Type cast expression
+ * <li> Remote method call action
+ * <li> Wait Action
  * </ul>
  * <br>
  * To be Implemented.
@@ -685,7 +687,7 @@ public class EvaluatorBuilder extends NodeVisitor {
 
         if (expr.operator().kind() != PIPE_TOKEN) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.UNSUPPORTED_OPERATOR_INSIDE_WAIT
-                    .getString(), expr.operator().toSourceCode()));
+                    .getString(), expr.operator().toSourceCode().trim()));
         }
 
         Node lhsExpr = expr.lhsExpr();
