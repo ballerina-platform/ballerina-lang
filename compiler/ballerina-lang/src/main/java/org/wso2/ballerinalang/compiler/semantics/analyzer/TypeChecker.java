@@ -2303,11 +2303,18 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (restParam.getBType() == symTable.semanticError) {
             bRecordType.restFieldType = symTable.mapType;
         } else {
-            // Rest variable type of Record ref (record destructuring assignment) is a map where T is the broad type of
-            // all fields that are not specified in the destructuring pattern. Here we set the rest type of record type
-            // to T.
-            BMapType restParamType = (BMapType) restParam.getBType();
-            bRecordType.restFieldType = restParamType.constraint;
+            // Rest variable type of Record ref (record destructuring assignment) is a record where T is the broad
+            // type of all fields that are not specified in the destructuring pattern. Here we set the rest type of
+            // record type to T.
+            BType restFieldType;
+            if (restParam.getBType().tag == TypeTags.RECORD) {
+                restFieldType = ((BRecordType) restParam.getBType()).restFieldType;
+            } else if (restParam.getBType().tag == TypeTags.MAP) {
+                restFieldType = ((BMapType) restParam.getBType()).constraint;
+            } else {
+                restFieldType = restParam.getBType();
+            }
+            bRecordType.restFieldType = restFieldType;
         }
 
         resultType = bRecordType;

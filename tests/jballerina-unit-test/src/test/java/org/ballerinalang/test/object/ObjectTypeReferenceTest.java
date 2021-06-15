@@ -107,6 +107,16 @@ public class ObjectTypeReferenceTest {
     }
 
     @Test
+    public void testOutOfOrderObjectTypeReferenceNegative() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/object" +
+                "/object_out_of_order_inclusion_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "included field 'body' of type 'anydata' cannot " +
+                "be overridden by a field of type 'Baz2': expected a subtype of 'anydata'", 24, 5);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
+    }
+
+    @Test
     public void testCyclicDependencyReferencesObjectTypeReferenceNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-cyclic-dependency" +
                                                                     "-negative.bal");
