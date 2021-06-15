@@ -102,9 +102,8 @@ public class RawTemplateLiteralTest {
         validateError(errors, indx++, "invalid raw template: expected 1 insertion(s), but found 0 insertion(s)",
                       150, 9);
         validateError(errors, indx++, "invalid raw template: expected 2 string(s), but found 1 string(s)", 150, 9);
-        validateError(errors, indx++, "redeclared symbol 'strings'", 154, 6);
-        validateError(errors, indx++, "incompatible subtype: '(string[] & readonly)' type field 'strings' " +
-                "cannot override included field type 'string[]'", 155, 5);
+        validateError(errors, indx++, "included field 'strings' of type '(string[] & readonly)' cannot be overridden " +
+                "by a field of type 'string[]': expected a subtype of '(string[] & readonly)'", 155, 5);
         validateError(errors, indx++, "invalid literal for type 'Temp3': raw templates can only be assigned to " +
                 "abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 160, 15);
 
