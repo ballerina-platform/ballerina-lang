@@ -219,6 +219,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private final Names names;
     private final Types types;
     private SymbolEnv env;
+    private boolean containsCheckExpr;
 
     private QueryDesugar(CompilerContext context) {
         context.put(QUERY_DESUGAR_KEY, this);
@@ -245,6 +246,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return desugared query expression.
      */
     BLangStatementExpression desugar(BLangQueryExpr queryExpr, SymbolEnv env) {
+        containsCheckExpr = false;
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         Location pos = clauses.get(0).pos;
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
@@ -285,8 +287,18 @@ public class QueryDesugar extends BLangNodeVisitor {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_ARRAY_FUNCTION,
                         Lists.of(streamRef, arr), pos);
             }
-            streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, result);
-            streamStmtExpr.type = result.type;
+            if (containsCheckExpr) {
+                // if there's a `check` expr within the query, wrap the whole query with a `check` expr,
+                // so that it will propagate the error properly.
+                BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckExpr(pos, result, queryExpr.type);
+                checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
+                streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, checkedExpr);
+                streamStmtExpr.type = checkedExpr.type;
+            } else {
+                streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
+                        addTypeConversionExpr(result, queryExpr.type));
+                streamStmtExpr.type = queryExpr.type;
+            }
         }
         return streamStmtExpr;
     }
@@ -1668,6 +1680,7 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
+        containsCheckExpr = true;
         checkedExpr.expr.accept(this);
     }
 
