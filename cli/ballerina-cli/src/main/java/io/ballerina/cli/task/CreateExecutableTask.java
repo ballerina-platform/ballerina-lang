@@ -18,6 +18,7 @@
 
 package io.ballerina.cli.task;
 
+import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
@@ -89,7 +90,15 @@ public class CreateExecutableTask implements Task {
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_11);
+            long start = 0;
+            if (project.buildOptions().dumpBuildTime()) {
+                start = System.currentTimeMillis();
+            }
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
+            if (project.buildOptions().dumpBuildTime()) {
+                BuildTime.getInstance().codeGenDuration = BuildTime.getInstance().codeGenDuration +
+                        (System.currentTimeMillis() - start);
+            }
 
             // Print warnings for conflicted jars
             if (!jBallerinaBackend.conflictedJars().isEmpty()) {
