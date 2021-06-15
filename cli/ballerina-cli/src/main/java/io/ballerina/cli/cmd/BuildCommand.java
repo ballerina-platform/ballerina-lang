@@ -28,6 +28,7 @@ import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
@@ -306,7 +307,8 @@ public class BuildCommand implements BLauncherCmd {
 
     private boolean isProjectEmpty(Project project) {
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
-            if (!project.currentPackage().module(moduleId).documentIds().isEmpty()) {
+            Module module = project.currentPackage().module(moduleId);
+            if (!module.documentIds().isEmpty() || !module.testDocumentIds().isEmpty()) {
                 return false;
             }
         }
