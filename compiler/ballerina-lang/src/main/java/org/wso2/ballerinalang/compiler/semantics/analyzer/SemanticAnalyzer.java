@@ -3508,7 +3508,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(constant.typeNode.pos, DiagnosticErrorCode.CONSTANT_DECLARATION_NOT_YET_SUPPORTED,
                         constant.typeNode);
             } else {
-                dlog.error(constant.typeNode.pos, DiagnosticErrorCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE,
+                dlog.error(constant.typeNode.pos, DiagnosticErrorCode.INVALID_CONST_DECLARATION,
                         constant.typeNode);
             }
         }
