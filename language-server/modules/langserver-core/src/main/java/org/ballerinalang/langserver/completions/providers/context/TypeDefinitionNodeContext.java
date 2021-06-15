@@ -28,6 +28,8 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
+import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,8 +64,7 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
                     = (QualifiedNameReferenceNode) context.getNodeAtCursor();
             return this.getCompletionItemList(QNameReferenceUtil.getTypesInModule(context, nameRef), context);
         }
-        List<LSCompletionItem> completionItems = this.getTypeItems(context);
-        completionItems.addAll(this.getModuleCompletionItems(context));
+        List<LSCompletionItem> completionItems = new ArrayList<>(this.getTypeDescContextItems(context));
         completionItems.addAll(this.getObjectTypeQualifierItems(context));
 
         return completionItems;
@@ -98,5 +99,13 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
         int cursorPosition = context.getCursorPositionInTree();
 
         return typeKWRange.endOffset() < cursorPosition;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, TypeDefinitionNode node, List<LSCompletionItem> lsCItems) {
+        for (LSCompletionItem lsCItem : lsCItems) {
+            CompletionItem completionItem = lsCItem.getCompletionItem();
+            completionItem.setSortText(SortingUtil.genSortTextForTypeDescContext(context, lsCItem));
+        }
     }
 }

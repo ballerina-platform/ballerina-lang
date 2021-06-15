@@ -74,7 +74,6 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.util.Names;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -82,6 +81,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
@@ -224,7 +225,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      * @param context LS Operation Context
      * @return {@link List}     List of completion items
      */
-    protected List<LSCompletionItem> getTypeItems(BallerinaCompletionContext context) {
+    private List<LSCompletionItem> getTypeItems(BallerinaCompletionContext context) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<LSCompletionItem> completionItems = new ArrayList<>();
         // Specifically remove the error type, since this is covered with langlib suggestion and type builtin types
@@ -248,6 +249,21 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 new SnippetCompletionItem(context, Snippet.KW_TRUE.get()),
                 new SnippetCompletionItem(context, Snippet.KW_FALSE.get())
         ));
+
+        return completionItems;
+    }
+
+    /**
+     * Get the type descriptor context completion items.
+     * For this context, we usually get the types as well as the modules since we need to suggest the types in modules
+     *
+     * @param context Completion context
+     * @return {@link List} of completion items
+     */
+    protected List<LSCompletionItem> getTypeDescContextItems(BallerinaCompletionContext context) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        completionItems.addAll(this.getTypeItems(context));
+        completionItems.addAll(this.getModuleCompletionItems(context));
 
         return completionItems;
     }
