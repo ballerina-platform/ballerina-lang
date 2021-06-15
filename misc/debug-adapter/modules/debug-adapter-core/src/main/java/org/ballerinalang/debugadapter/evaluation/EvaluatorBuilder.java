@@ -74,6 +74,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.BINARY_EXPRESSION;
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.PIPE_TOKEN;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.REST_ARG_IDENTIFIER;
 
 /**
@@ -354,10 +356,21 @@ public class EvaluatorBuilder extends NodeVisitor {
     @Override
     public void visit(WaitActionNode waitActionNode) {
         visitSyntaxNode(waitActionNode);
-        // visits object expression.
-        waitActionNode.waitFutureExpr().accept(this);
-        Evaluator futureExpression = result;
-        result = new WaitActionEvaluator(context, waitActionNode, futureExpression);
+        try {
+            // visits object expression.
+            Node futureExpr = waitActionNode.waitFutureExpr();
+            List<Evaluator> operandEvaluators = new ArrayList<>();
+            if (futureExpr.kind() == SyntaxKind.BINARY_EXPRESSION) {
+                extractWaitActionOperands(((BinaryExpressionNode) futureExpr), operandEvaluators);
+            } else {
+                waitActionNode.waitFutureExpr().accept(this);
+                operandEvaluators.add(result);
+            }
+
+            result = new WaitActionEvaluator(context, waitActionNode, operandEvaluators);
+        } catch (EvaluationException e) {
+            builderException = e;
+        }
     }
 
     @Override
@@ -663,5 +676,32 @@ public class EvaluatorBuilder extends NodeVisitor {
             }
         }
         return argEvaluators;
+    }
+
+    /**
+     * Extracts the operands (future values) from a given binary expression node, recursively.
+     */
+    private void extractWaitActionOperands(BinaryExpressionNode expr, List<Evaluator> result) throws EvaluationException {
+
+        if (expr.operator().kind() != PIPE_TOKEN) {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.UNSUPPORTED_OPERATOR_INSIDE_WAIT
+                    .getString(), expr.operator().toSourceCode()));
+        }
+
+        Node lhsExpr = expr.lhsExpr();
+        Node rhsExpr = expr.rhsExpr();
+        if (lhsExpr.kind() == BINARY_EXPRESSION) {
+            extractWaitActionOperands((BinaryExpressionNode) lhsExpr, result);
+        } else {
+            lhsExpr.accept(this);
+            result.add(this.result);
+        }
+
+        if (rhsExpr.kind() == BINARY_EXPRESSION) {
+            extractWaitActionOperands((BinaryExpressionNode) rhsExpr, result);
+        } else {
+            rhsExpr.accept(this);
+            result.add(this.result);
+        }
     }
 }

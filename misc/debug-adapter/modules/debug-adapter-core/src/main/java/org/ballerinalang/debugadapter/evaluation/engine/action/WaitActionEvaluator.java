@@ -44,24 +44,28 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.HA
 public class WaitActionEvaluator extends Evaluator {
 
     private final WaitActionNode syntaxNode;
-    private final Evaluator futureExpressionEvaluator;
+    private final List<Evaluator> operandEvaluators;
 
     public WaitActionEvaluator(SuspendedContext context, WaitActionNode waitActionNode,
-                               Evaluator futureExpressionEvaluator) {
+                               List<Evaluator> operandEvaluators) {
         super(context);
         this.syntaxNode = waitActionNode;
-        this.futureExpressionEvaluator = futureExpressionEvaluator;
+        this.operandEvaluators = operandEvaluators;
     }
 
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
         try {
-            BExpressionValue result = futureExpressionEvaluator.evaluate();
-            // If the expression result is an object, try invoking as an object method invocation.
-            if (result.getType() != BVariableType.FUTURE) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.TYPE_MISMATCH.getString(),
-                        BVariableType.FUTURE.getString(), result.getType().getString(),
-                        syntaxNode.waitFutureExpr().toSourceCode()));
+            List<Value> evaluationResults = new ArrayList<>();
+            for (Evaluator evaluator : operandEvaluators) {
+                BExpressionValue result = evaluator.evaluate();
+                // If the expression result is an object, try invoking as an object method invocation.
+                if (result.getType() != BVariableType.FUTURE) {
+                    throw new EvaluationException(String.format(EvaluationExceptionKind.TYPE_MISMATCH.getString(),
+                            BVariableType.FUTURE.getString(), result.getType().getString(),
+                            syntaxNode.waitFutureExpr().toSourceCode()));
+                }
+                evaluationResults.add(result.getJdiValue());
             }
 
             // Hack to classload the "FutureValue[]" class. Otherwise JVM method for invoking the wait action will fail
@@ -74,8 +78,7 @@ public class WaitActionEvaluator extends Evaluator {
             RuntimeInstanceMethod handleWaitAnyDebugger = EvaluationUtils.getRuntimeMethod(context, activeStrand,
                     HANDLE_WAIT_ANY_METHOD, argTypeNames);
 
-            List<Value> values = new ArrayList<>();
-            values.add(result.getJdiValue());
+            List<Value> values = new ArrayList<>(evaluationResults);
             handleWaitAnyDebugger.setArgValues(values);
             return new BExpressionValue(context, handleWaitAnyDebugger.invokeSafely());
         } catch (EvaluationException e) {

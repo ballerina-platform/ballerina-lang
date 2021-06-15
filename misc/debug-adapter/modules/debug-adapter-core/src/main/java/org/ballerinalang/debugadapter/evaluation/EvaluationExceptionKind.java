@@ -40,6 +40,7 @@ public enum EvaluationExceptionKind {
     TYPE_MISMATCH("Incompatible types: expected `%s`, but found '%s': in '%s'"),
     VARIABLE_EXECUTION_ERROR("Internal error occurred when processing variable: '%s'"),
     BLOCK_EVALUATION("Block expressions/statements are not supported"),
+    UNSUPPORTED_OPERATOR_INSIDE_WAIT("Operator `%s` is not allowed inside wait action."),
     EMPTY("Empty expressions cannot be evaluated."),
     INVALID("Invalid expression: '%s'"),
     SYNTAX_ERROR("Syntax errors found: " + System.lineSeparator() + "%s"),
