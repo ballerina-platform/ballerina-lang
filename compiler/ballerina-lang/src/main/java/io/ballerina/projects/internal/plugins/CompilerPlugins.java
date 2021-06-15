@@ -45,7 +45,7 @@ public class CompilerPlugins {
 
     static {
         ServiceLoader<CompilerPlugin> pluginServiceLoader = ServiceLoader
-                .load(CompilerPlugin.class, ClassLoader.getSystemClassLoader());
+                .load(CompilerPlugin.class, CompilerPlugins.class.getClassLoader());
         for (CompilerPlugin plugin : pluginServiceLoader) {
             builtInPlugins.add(plugin);
         }
