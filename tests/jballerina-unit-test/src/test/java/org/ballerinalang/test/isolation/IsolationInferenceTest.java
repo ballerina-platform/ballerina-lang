@@ -67,7 +67,9 @@ public class IsolationInferenceTest {
                 "testRecursiveFunctionIsolationInference",
                 "testMethodIsolationInference",
                 "testFunctionPointerIsolationInference",
-                "testServiceClassMethodIsolationInference"
+                "testServiceClassMethodIsolationInference",
+                "testObjectConstructorIsolatedInference",
+                "testFunctionsAccessingModuleLevelVarsIsolatedInference"
         };
     }
 

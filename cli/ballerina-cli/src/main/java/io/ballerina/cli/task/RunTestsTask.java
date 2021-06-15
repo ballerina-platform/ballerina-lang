@@ -99,25 +99,21 @@ public class RunTestsTask implements Task {
     private List<String> disableGroupList;
     private boolean report;
     private boolean coverage;
-    private boolean enableJacocoXML;
     private String coverageReportFormat;
     private boolean isSingleTestExecution;
     private boolean isRerunTestExecution;
     private List<String> singleExecTests;
     TestReport testReport;
 
-    public RunTestsTask(PrintStream out, PrintStream err, String includes, boolean enableJacocoXML,
-                        String coverageFormat) {
+    public RunTestsTask(PrintStream out, PrintStream err, String includes, String coverageFormat) {
         this.out = out;
         this.err = err;
         this.includesInCoverage = includes;
-        this.enableJacocoXML = enableJacocoXML;
         this.coverageReportFormat = coverageFormat;
     }
 
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, List<String> groupList,
-                        List<String> disableGroupList, List<String> testList, String includes, boolean enableJacocoXML,
-                        String coverageFormat) {
+                        List<String> disableGroupList, List<String> testList, String includes, String coverageFormat) {
         this.out = out;
         this.err = err;
         this.isSingleTestExecution = false;
@@ -139,7 +135,6 @@ public class RunTestsTask implements Task {
             singleExecTests = testList;
         }
         this.includesInCoverage = includes;
-        this.enableJacocoXML = enableJacocoXML;
         this.coverageReportFormat = coverageFormat;
     }
 
@@ -282,8 +277,7 @@ public class RunTestsTask implements Task {
             CoverageReport coverageReport = new CoverageReport(module, moduleCoverageMap,
                     packageNativeClassCoverageList, packageBalClassCoverageList, packageSourceCoverageList,
                     packageExecData, packageSessionInfo);
-            coverageReport.generateReport(jBallerinaBackend, this.includesInCoverage, this.enableJacocoXML,
-                    this.coverageReportFormat);
+            coverageReport.generateReport(jBallerinaBackend, this.includesInCoverage, this.coverageReportFormat);
         }
         // Traverse coverage map and add module wise coverage to test report
         for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
@@ -292,7 +286,7 @@ public class RunTestsTask implements Task {
             testReport.addCoverage(moduleName, moduleCoverage);
         }
         if (CodeCoverageUtils.isRequestedReportFormat(this.coverageReportFormat,
-                TesterinaConstants.JACOCO_XML_FORMAT) || enableJacocoXML) {
+                TesterinaConstants.JACOCO_XML_FORMAT)) {
             // Generate coverage XML report
             CodeCoverageUtils.createXMLReport(project, packageExecData, packageNativeClassCoverageList,
                     packageBalClassCoverageList, packageSourceCoverageList, packageSessionInfo);

@@ -151,7 +151,7 @@ public class ImmutableTypeCloner {
                 BType immutableFieldType = typeField.symbol.type = ImmutableTypeCloner.getImmutableIntersectionType(
                         pos, types, (SelectivelyImmutableReferenceType) type, typeDefEnv, symbolTable,
                         anonymousModelHelper, names, classDef.flagSet);
-                classField.type = typeField.type = immutableFieldType;
+                classField.setBType(typeField.type = immutableFieldType);
             }
 
             typeField.symbol.flags |= Flags.FINAL;
@@ -428,7 +428,7 @@ public class ImmutableTypeCloner {
                                                 pkgEnv);
         PackageID pkgID = env.enclPkg.symbol.pkgID;
 
-        BType immutableType = immutableTypeDefinition.type;
+        BType immutableType = immutableTypeDefinition.getBType();
         if (immutableType.tag == TypeTags.RECORD) {
             defineUndefinedImmutableRecordFields((BRecordType) immutableType, pos, pkgID, immutableTypeDefinition,
                                                  types, env, symTable, anonymousModelHelper, names);
@@ -512,7 +512,7 @@ public class ImmutableTypeCloner {
                                                             immutableStructureSymbol, origField.pos, SOURCE);
                 BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) immutableFieldType.tsymbol;
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) immutableFieldSymbol;
-                invokableSymbol.params = tsymbol.params;
+                invokableSymbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
                 invokableSymbol.restParam = tsymbol.restParam;
                 invokableSymbol.retType = tsymbol.returnType;
                 invokableSymbol.flags = tsymbol.flags;
@@ -536,7 +536,7 @@ public class ImmutableTypeCloner {
                                                                      origStructureType.tsymbol.pkgID)),
                 ASTBuilderUtil.createIdentifier(pos, origStructureType.tsymbol.name.value));
         origTypeRef.pos = pos;
-        origTypeRef.type = origStructureType;
+        origTypeRef.setBType(origStructureType);
         immutableStructureTypeNode.typeRefs.add(origTypeRef);
     }
 
@@ -762,7 +762,7 @@ public class ImmutableTypeCloner {
         }
 
         BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
-        unionTypeNode.type = effectiveType;
+        unionTypeNode.setBType(effectiveType);
         BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.addTypeDefinition(effectiveType,
                                                                                     effectiveType.tsymbol,
                                                                                     unionTypeNode, env);

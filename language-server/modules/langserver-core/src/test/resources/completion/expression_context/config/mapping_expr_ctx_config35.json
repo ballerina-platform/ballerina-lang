@@ -1,0 +1,43 @@
+{
+  "position": {
+    "line": 7,
+    "character": 9
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source35.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "f1",
+      "kind": "Field",
+      "detail": "(record {| int f1; string f2?; |}).f1",
+      "sortText": "G",
+      "insertText": "f1: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "f2",
+      "kind": "Field",
+      "detail": "(record {| int f1; string f2?; |}).f2",
+      "sortText": "G",
+      "insertText": "f2: \"${2}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill record {| int f1; string f2?; |} Required Fields",
+      "kind": "Property",
+      "detail": "record {| int f1; string f2?; |}",
+      "sortText": "Q",
+      "filterText": "fill",
+      "insertText": "f1: 0",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -21,7 +21,6 @@ dependencies {
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-parser')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-cli-module')
     implementation project(':toml-parser')
     implementation project(':central-client')
     implementation project(':maven-resolver')

@@ -115,7 +115,7 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++,
                                   "a type compatible with mapping constructor expressions not found in " +
                                           "type '(int|string|boolean)'", 137, 9);
-        BAssertUtil.validateError(negativeResult, i++, "pattern will not be matched", 144, 9);
+        BAssertUtil.validateWarning(negativeResult, i++, "pattern will not be matched", 144, 9);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|string)'",
                                   154, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|string)'",
@@ -151,7 +151,7 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++,
                                   "incompatible types: expected 'string', found '(Person|Student)'",
                                   240, 20);
-        BAssertUtil.validateError(negativeResult, i++, "pattern will not be matched", 247, 9);
+        BAssertUtil.validateWarning(negativeResult, i++, "pattern will not be matched", 247, 9);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found " +
                 "'(int|string|boolean)'", 257, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found '" +
@@ -210,7 +210,14 @@ public class TypeGuardTest {
                 "'map<int>'", 480, 30);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean[]', found '" +
                 "(string|boolean)[]'", 484, 23);
-        Assert.assertEquals(negativeResult.getErrorCount(), i);
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type '(Bar & readonly)' does not support " +
+                "optional field access for field 't'", 498, 17);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', found '(record {| " +
+                "string s; |} & readonly)?'", 499, 21);
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type '(Bar & readonly)' does not support " +
+                "field access for non-required field 'baz'", 500, 50);
+        Assert.assertEquals(negativeResult.getErrorCount(), i - 2);
+        Assert.assertEquals(negativeResult.getWarnCount(), 2);
     }
 
     @Test
@@ -699,6 +706,11 @@ public class TypeGuardTest {
     @Test
     public void testJsonIntersection() {
         BRunUtil.invoke(result, "testJsonIntersection");
+    }
+
+    @Test
+    public void testIntersectionWithIntersectionType() {
+        BRunUtil.invoke(result, "testIntersectionWithIntersectionType");
     }
 
     @Test

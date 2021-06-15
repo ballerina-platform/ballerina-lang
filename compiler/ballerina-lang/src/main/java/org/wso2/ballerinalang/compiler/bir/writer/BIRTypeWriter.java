@@ -146,12 +146,12 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     private void writeTypeIds(BTypeIdSet typeIdSet) {
-        buff.writeInt(typeIdSet.primary.size());
-        for (BTypeIdSet.BTypeId bTypeId : typeIdSet.primary) {
+        buff.writeInt(typeIdSet.getPrimary().size());
+        for (BTypeIdSet.BTypeId bTypeId : typeIdSet.getPrimary()) {
             writeTypeId(bTypeId);
         }
-        buff.writeInt(typeIdSet.secondary.size());
-        for (BTypeIdSet.BTypeId bTypeId : typeIdSet.secondary) {
+        buff.writeInt(typeIdSet.getSecondary().size());
+        for (BTypeIdSet.BTypeId bTypeId : typeIdSet.getSecondary()) {
             writeTypeId(bTypeId);
         }
     }
@@ -177,8 +177,8 @@ public class BIRTypeWriter implements TypeVisitor {
                 throw new AssertionError(
                         "Type serialization is not implemented for finite type with value: " + valueLiteral.getKind());
             }
-            writeTypeCpIndex(valueLiteral.type);
-            writeValue(((BLangLiteral) valueLiteral).value, valueLiteral.type);
+            writeTypeCpIndex(valueLiteral.getBType());
+            writeValue(((BLangLiteral) valueLiteral).value, valueLiteral.getBType());
         }
     }
 
@@ -404,6 +404,7 @@ public class BIRTypeWriter implements TypeVisitor {
             buff.writeInt(addStringCPEntry(field.name.value));
             // TODO add position
             buff.writeLong(field.symbol.flags);
+            buff.writeBoolean(field.symbol.isDefaultable);
             writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
         }

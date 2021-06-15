@@ -576,6 +576,18 @@ function mappingMatchPattern26(json j) returns json {
     return ();
 }
 
+function mappingMatchPattern27(json j) returns json {
+    match j {
+        {x: var x} => {
+            var lambdaFunc = function() returns json {
+                return x;
+            };
+            return lambdaFunc();
+        }
+    }
+    return ();
+}
+
 function testMappingMatchPattern26() {
     assertEquals("hello", mappingMatchPattern26({x: "hello"}));
     assertEquals(1, mappingMatchPattern26({y: "hello world", x: 1}));
@@ -583,6 +595,7 @@ function testMappingMatchPattern26() {
     assertEquals((), mappingMatchPattern26({a: "hello world", x1: 1}));
     assertEquals((), mappingMatchPattern26({}));
     assertEquals((), mappingMatchPattern26(1));
+    assertEquals(1, mappingMatchPattern27({y: "hello world", x: 1}));
 }
 
 function assertEquals(anydata expected, anydata actual) {

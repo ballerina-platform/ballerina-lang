@@ -20,3 +20,12 @@ type CyclicUnion int|CyclicUnion[];
 function UseCyclicUnion() {
     CyclicUnion x = 1;
 }
+
+enum Colour {
+    RED, GREEN, BLUE
+}
+
+function testEnumRename() returns Colour {
+    Colour clr = RED;
+    return RED;
+}

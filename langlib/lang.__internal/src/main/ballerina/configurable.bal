@@ -16,7 +16,7 @@
 
 import ballerina/jballerina.java;
 
-# Check whether a given key has a configuard value
+# Check whether there is a configurable variable with the given name.
 #
 # + orgName - Organization name
 # + moduleName - module name
@@ -29,7 +29,7 @@ returns boolean = @java:Method {
     name: "hasConfigurableValue"
 } external;
 
-# Get the value of the configurable variable
+# Get the value of the configurable variable.
 #
 # + orgName - Organization name
 # + moduleName - module name

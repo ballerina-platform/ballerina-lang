@@ -129,6 +129,26 @@ public final class FunctionCompletionItemBuilder {
         return item;
     }
 
+    /**
+     * Creates and returns a completion item.
+     *
+     * @param functionSymbol BSymbol
+     * @param context        LS context
+     * @return {@link CompletionItem}
+     */
+    public static CompletionItem buildMethod(FunctionSymbol functionSymbol, BallerinaCompletionContext context) {
+        CompletionItem item = new CompletionItem();
+        setMeta(item, functionSymbol, context);
+        if (functionSymbol != null) {
+            String funcName = functionSymbol.getName().get();
+            Pair<String, String> functionSignature = getFunctionInvocationSignature(functionSymbol, funcName, context);
+            item.setInsertText("self." + functionSignature.getLeft());
+            item.setLabel("self." + functionSignature.getRight());
+            item.setFilterText("self." + funcName);
+        }
+        return item;
+    }
+
     private static void setMeta(CompletionItem item, FunctionSymbol bSymbol, BallerinaCompletionContext ctx) {
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setDetail(ItemResolverConstants.FUNCTION_TYPE);
@@ -222,7 +242,7 @@ public final class FunctionCompletionItemBuilder {
                         .replaceAll(CommonUtil.MD_LINE_SEPARATOR) + CommonUtil.MD_LINE_SEPARATOR;
             }
             documentation.append(CommonUtil.MD_LINE_SEPARATOR).append(CommonUtil.MD_LINE_SEPARATOR)
-                    .append("**Returns**").append(" `")
+                    .append("**Return**").append(" `")
                     .append(CommonUtil.getModifiedTypeName(ctx, functionTypeDesc.returnTypeDescriptor().get()))
                     .append("` ").append(CommonUtil.MD_LINE_SEPARATOR).append(desc)
                     .append(CommonUtil.MD_LINE_SEPARATOR);
@@ -325,7 +345,10 @@ public final class FunctionCompletionItemBuilder {
     /**
      * Whether we skip the first parameter being included as a label in the signature.
      * When showing a lang lib invokable symbol over DOT(invocation) we do not show the first param, but when we
-     * showing the invocation over package of the langlib with the COLON we show the first param
+     * showing the invocation over package of the langlib with the COLON we show the first param.
+     * 
+     * When the langlib function is retrieved from the Semantic API, those functions are filtered where the first param
+     * type not being same as the langlib type. Hence we need to chek whether the function is from a langlib.
      *
      * @param context        context
      * @param functionSymbol invokable symbol

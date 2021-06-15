@@ -215,6 +215,16 @@ public class ErrorTest {
     }
 
     @Test
+    public void testLocalErrorTypeWithClosure() {
+        BRunUtil.invoke(errorTestResult, "testLocalErrorTypeWithClosure");
+    }
+
+    @Test
+    public void testLocalErrorTypeWithinLambda() {
+        BRunUtil.invoke(errorTestResult, "testLocalErrorTypeWithinLambda");
+    }
+
+    @Test
     public void testErrorNegative() {
         CompileResult negativeCompileResult = BCompileUtil.compile("test-src/error/error_test_negative.bal");
         int i = 0;
@@ -325,7 +335,7 @@ public class ErrorTest {
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
         Assert.assertEquals(message, "error: array index out of range: index: 4, size: 2\n\t" +
-                "at ballerina.lang.array.1_1_0:slice(array.bal:126)\n\t" +
+                "at ballerina.lang.array.1_1_0:slice(array.bal:128)\n\t" +
                 "   error_test:testStackTraceInNative(error_test.bal:339)");
     }
 

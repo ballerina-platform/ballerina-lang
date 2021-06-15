@@ -10,6 +10,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
+      "filterText": "field",
       "insertText": "field",
       "insertTextFormat": "Snippet"
     }
