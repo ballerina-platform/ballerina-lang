@@ -108,9 +108,11 @@ public class CyclicTypeDefinitionsTest {
                 "'[int,tupleCyclic[]]' and '[int]'", 22, 12);
         BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "G, G"), 25, 1);
         BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "H, H"), 26, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[Q, Q]'",
+                29, 1);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
-                "'(int|[int,string,([int,string,...,map<F>]|int),map<F>])', found '[int,string,[int,string]]'", 31, 20);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '[int,I[]]'", 33, 12);
+                "'(int|[int,string,([int,string,...,map<F>]|int),map<F>])', found '[int,string,[int,string]]'", 32, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '[int,I[]]'", 34, 12);
         Assert.assertEquals(i, negativeResult.getErrorCount());
     }
 

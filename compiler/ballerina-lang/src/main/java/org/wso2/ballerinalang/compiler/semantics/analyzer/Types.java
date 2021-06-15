@@ -5469,7 +5469,7 @@ public class Types {
                 BTupleType tupleType = (BTupleType) type;
                 List<BType> tupleTypes = tupleType.tupleTypes;
                 for (BType mem : tupleTypes) {
-                    if (!visitedTypeSet.add(tupleType)) {
+                    if (!visitedTypeSet.add(mem)) {
                         continue;
                     }
                     if (isNeverTypeOrStructureTypeWithARequiredNeverMember(mem, visitedTypeSet)) {

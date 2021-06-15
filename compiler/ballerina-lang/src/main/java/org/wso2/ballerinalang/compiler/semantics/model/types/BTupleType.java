@@ -154,12 +154,17 @@ public class BTupleType extends BType implements TupleType {
     // In the case of a cyclic tuple, this aids in
     // adding rest type of resolved node to a previously defined
     // empty tuple shell in main scope
-    public void addRestType(BType restType) {
+    public boolean addRestType(BType restType) {
+        if (restType != null && restType.isCyclic && restType.getQualifiedTypeName().equals(this.getQualifiedTypeName())
+                && this.tupleTypes.isEmpty()) {
+            return false;
+        }
         this.restType = restType;
         if (Symbols.isFlagOn(this.flags, Flags.READONLY) && !Symbols.isFlagOn(restType.flags, Flags.READONLY)) {
             this.flags ^= Flags.READONLY;
         }
         setCyclicFlag(restType);
+        return true;
     }
 
     public void setMemberTypes(List<BType> memberTypes) {

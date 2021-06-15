@@ -1688,18 +1688,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         switch (resolvedTypeNodes.tag) {
             case TypeTags.TUPLE:
                 BTupleType definedTupleType = (BTupleType) resolvedTypeNodes;
-                boolean status;
                 for (BType member : definedTupleType.getTupleTypes()) {
-                    status = ((BTupleType) newTypeNode).addMembers(member);
-                    if (!status) {
-                        List<String> dependencyList = new ArrayList<>();
-                        dependencyList.add(getTypeOrClassName(typeDef));
-                        dependencyList.add(member.tsymbol.name.value);
-                        dlog.error(typeDef.getPosition(), DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, dependencyList);
-                        return symTable.semanticError;
+                    if (!((BTupleType) newTypeNode).addMembers(member)) {
+                        return constructDependencyListError(typeDef, member);
                     }
                 }
-                ((BTupleType) newTypeNode).addRestType(definedTupleType.restType);
+                if (!((BTupleType) newTypeNode).addRestType(definedTupleType.restType)) {
+                    return constructDependencyListError(typeDef, definedTupleType.restType);
+                }
                 break;
             default:
                 BUnionType definedUnionType = (BUnionType) resolvedTypeNodes;
@@ -1713,6 +1709,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDef.symbol.type = newTypeNode;
         typeDef.setBType(newTypeNode);
         return newTypeNode;
+    }
+
+    private BType constructDependencyListError(BLangTypeDefinition typeDef, BType member) {
+        List<String> dependencyList = new ArrayList<>();
+        dependencyList.add(getTypeOrClassName(typeDef));
+        dependencyList.add(member.tsymbol.name.value);
+        dlog.error(typeDef.getPosition(), DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, dependencyList);
+        return symTable.semanticError;
     }
 
     private void validateUnionForDistinctType(BUnionType definedType, Location pos) {

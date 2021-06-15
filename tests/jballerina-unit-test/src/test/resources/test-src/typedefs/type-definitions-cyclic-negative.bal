@@ -26,9 +26,14 @@ type G [G];
 type H [int, H];
 type I [int, I[]];
 type F [int, string, F|int, map<F>];
+type Q [Q...];
 
 function testTupleCyclic() {
     int|F values = [1, "hello", [2, "hi"]];
     I a = [1];
     I b = [a];
 }
+
+
+
+
