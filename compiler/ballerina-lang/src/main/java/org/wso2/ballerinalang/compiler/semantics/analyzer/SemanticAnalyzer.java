@@ -238,17 +238,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public static final String COLON = ":";
     private static final String LISTENER_NAME = "listener";
 
-    private final SymbolTable symTable;
-    private final SymbolEnter symbolEnter;
-    private final Names names;
-    private final SymbolResolver symResolver;
-    private final TypeChecker typeChecker;
-    private final Types types;
-    private final BLangDiagnosticLog dlog;
-    private final TypeNarrower typeNarrower;
-    private final ConstantAnalyzer constantAnalyzer;
-    private final ConstantValueResolver constantValueResolver;
-    private final BLangAnonymousModelHelper anonModelHelper;
+    private SymbolTable symTable;
+    private SymbolEnter symbolEnter;
+    private Names names;
+    private SymbolResolver symResolver;
+    private TypeChecker typeChecker;
+    private Types types;
+    private BLangDiagnosticLog dlog;
+    private TypeNarrower typeNarrower;
+    private ConstantAnalyzer constantAnalyzer;
+    private ConstantValueResolver constantValueResolver;
+    private BLangAnonymousModelHelper anonModelHelper;
 
     private SymbolEnv env;
     private BType expType;
@@ -259,7 +259,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private Map<BVarSymbol, BType.NarrowedTypes> narrowedTypeInfo;
     // Stack holding the fall-back environments. fall-back env is the env to go back
     // after visiting the current env.
-    private final Stack<SymbolEnv> prevEnvs = new Stack<>();
+    private Stack<SymbolEnv> prevEnvs = new Stack<>();
 
     private int recordCount = 0;
 
@@ -2778,11 +2778,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMappingBindingPattern mappingBindingPattern) {
-        EnumSet<Flag> flags = EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS);
-        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
-                env.enclPkg.symbol.pkgID, null, env.scope.owner, mappingBindingPattern.pos, VIRTUAL);
-        recordSymbol.name = names.fromString(anonModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
-        LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
+        BRecordTypeSymbol recordSymbol = symbolEnter.createAnonRecordSymbol(env, mappingBindingPattern.pos);
+        LinkedHashMap<String, BField> fields = new LinkedHashMap<>(mappingBindingPattern.fieldBindingPatterns.size());
 
         for (BLangFieldBindingPattern fieldBindingPattern : mappingBindingPattern.fieldBindingPatterns) {
             fieldBindingPattern.accept(this);
