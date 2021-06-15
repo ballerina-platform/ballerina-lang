@@ -4365,15 +4365,8 @@ public class Types {
     private BType getIntersectionForErrorTypes(IntersectionContext intersectionContext,
                                                BType lhsType, BType rhsType, SymbolEnv env) {
 
-        BType detailTypeOne = ((BErrorType) lhsType).detailType;
-        BType detailTypeTwo = ((BErrorType) rhsType).detailType;
-
-        if (!intersectionContext.compilerInternalIntersectionTest
-                && (isSealedRecord(detailTypeOne) || isSealedRecord(detailTypeTwo))) {
-            return symTable.semanticError;
-        }
-
-        BType detailIntersectionType = getTypeIntersection(intersectionContext, detailTypeOne, detailTypeTwo, env);
+        BType detailIntersectionType = getTypeIntersection(intersectionContext,
+                ((BErrorType) lhsType).detailType, ((BErrorType) rhsType).detailType, env);
         if (detailIntersectionType == symTable.semanticError) {
             return symTable.semanticError;
         }

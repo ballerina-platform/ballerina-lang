@@ -212,6 +212,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final Types types;
     private final SourceDirectory sourceDirectory;
     private List<BLangNode> unresolvedTypes;
+    private Set<BLangNode> unresolvedRecordDueToFields;
+    private boolean resolveRecordsUnresolvedDueToFields;
     private List<BLangClassDefinition> unresolvedClasses;
     private HashSet<LocationData> unknownTypeRefs;
     private List<PackageID> importedPackages;
@@ -517,14 +519,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private Comparator<BLangNode> getTypePrecedenceComparator() {
-        return new Comparator<BLangNode>() {
-            @Override
-            public int compare(BLangNode l, BLangNode r) {
-                if (l instanceof OrderedNode && r instanceof OrderedNode) {
-                    return ((OrderedNode) l).getPrecedence() - ((OrderedNode) r).getPrecedence();
-                }
-                return 0;
+        return (l, r) -> {
+            if (l instanceof OrderedNode && r instanceof OrderedNode) {
+                return ((OrderedNode) l).getPrecedence() - ((OrderedNode) r).getPrecedence();
             }
+            return 0;
         };
     }
 
@@ -714,9 +713,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                                 DiagnosticErrorCode.MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD,
                                 existingVariable.name.value);
                     }
-                    if (types.isAssignable(existingVariable.getBType(), field.type)) {
-                        continue;
+                    if (!types.isAssignable(existingVariable.getBType(), field.type)) {
+                        dlog.error(existingVariable.pos, DiagnosticErrorCode.INCOMPATIBLE_SUB_TYPE_FIELD,
+                                field.name, field.getType(), existingVariable.getBType());
                     }
+                    continue;
                 }
 
                 BLangSimpleVariable var = ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type);
@@ -1094,7 +1095,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        this.unresolvedTypes = new ArrayList<>();
+        this.unresolvedTypes = new ArrayList<>(typeDefs.size());
+        this.unresolvedRecordDueToFields = new HashSet<>(typeDefs.size());
+        this.resolveRecordsUnresolvedDueToFields = false;
         for (BLangNode typeDef : typeDefs) {
             if (isErrorIntersectionType(typeDef, env)) {
                 populateUndefinedErrorIntersection((BLangTypeDefinition) typeDef, env);
@@ -1105,6 +1108,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         if (typeDefs.size() <= unresolvedTypes.size()) {
+
+            this.resolveRecordsUnresolvedDueToFields = true;
+            unresolvedTypes.removeAll(unresolvedRecordDueToFields);
+            for (BLangNode unresolvedType : unresolvedRecordDueToFields) {
+                defineNode(unresolvedType, env);
+            }
+            this.resolveRecordsUnresolvedDueToFields = false;
+
             // This situation can occur due to either a cyclic dependency or at least one of member types in type
             // definition node cannot be resolved. So we iterate through each node recursively looking for cyclic
             // dependencies or undefined types in type node.
@@ -1112,7 +1123,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             for (BLangNode unresolvedType : unresolvedTypes) {
                 Stack<String> references = new Stack<>();
-                var unresolvedKind = unresolvedType.getKind();
+                NodeKind unresolvedKind = unresolvedType.getKind();
                 if (unresolvedKind == NodeKind.TYPE_DEFINITION || unresolvedKind == NodeKind.CONSTANT) {
                     TypeDefinition def = (TypeDefinition) unresolvedType;
                     // We need to keep track of all visited types to print cyclic dependency.
@@ -1386,12 +1397,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         // Check for any circular type references
-        if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE ||
-                typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
+        boolean hasTypeInclusions = false;
+        NodeKind typeNodeKind = typeDefinition.typeNode.getKind();
+        if (typeNodeKind == NodeKind.OBJECT_TYPE || typeNodeKind == NodeKind.RECORD_TYPE) {
             BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
             // For each referenced type, check whether the types are already resolved.
             // If not, then that type should get a higher precedence.
             for (BLangType typeRef : structureTypeNode.typeRefs) {
+                hasTypeInclusions = true;
                 BType referencedType = symResolver.resolveTypeNode(typeRef, env);
                 if (referencedType == symTable.noType) {
                     if (!this.unresolvedTypes.contains(typeDefinition)) {
@@ -1402,19 +1415,20 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
-//        // check for unresolved fields. This record may be referencing another record
-//        if (typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
-//            BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
-//            for (BLangSimpleVariable variable : structureTypeNode.fields) {
-//                BType referencedType = symResolver.resolveTypeNode(variable.typeNode, env);
-//                if (referencedType == symTable.noType) {
-//                    if (!this.unresolvedTypes.contains(typeDefinition)) {
-//                        this.unresolvedTypes.add(typeDefinition);
-//                        return;
-//                    }
-//                }
-//            }
-//        }
+        // check for unresolved fields if there are type inclusions. This record may be referencing another record
+        if (hasTypeInclusions && !this.resolveRecordsUnresolvedDueToFields && typeNodeKind == NodeKind.RECORD_TYPE) {
+            BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
+            for (BLangSimpleVariable variable : structureTypeNode.fields) {
+                BType referencedType = symResolver.resolveTypeNode(variable.typeNode, env);
+                if (referencedType == symTable.noType) {
+                    if (this.unresolvedRecordDueToFields.add(typeDefinition) &&
+                            !this.unresolvedTypes.contains(typeDefinition)) {
+                        this.unresolvedTypes.add(typeDefinition);
+                        return;
+                    }
+                }
+            }
+        }
 
         if (typeDefinition.typeNode.getKind() == NodeKind.FUNCTION_TYPE && definedType.tsymbol == null) {
             definedType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, Flags.asMask(typeDefinition.flagSet),
@@ -3436,6 +3450,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Create typeDef type
         BStructureType structureType = (BStructureType) typeDef.symbol.type;
         BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDef.typeNode;
+
+        if (typeDef.symbol.kind == SymbolKind.RECORD) {
+            BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) structureTypeNode;
+            BRecordType recordType = (BRecordType) structureType;
+            // update this before resolving fields type checker to work properly for field resolution
+            recordType.sealed = recordTypeNode.sealed;
+        }
+
         SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(structureTypeNode, typeDef.symbol.scope, pkgEnv);
 
         // Define all the fields
@@ -3501,7 +3523,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .collect(getFieldCollector());
 
         // Resolve referenced types and their fields of structural type
-        resolveReferencedFields(structureTypeNode, typeDefEnv);
+        resolveIncludedFields(structureTypeNode, typeDefEnv);
 
         // collect resolved type refs from structural type
         structureType.typeInclusions = new ArrayList<>();
@@ -3516,7 +3538,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineReferencedFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode,
                                         SymbolEnv typeDefEnv) {
-        for (BLangSimpleVariable field : structureTypeNode.referencedFields) {
+        for (BLangSimpleVariable field : structureTypeNode.includedFields) {
             defineNode(field, typeDefEnv);
             if (field.symbol.type == symTable.semanticError) {
                 continue;
@@ -4289,7 +4311,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return docAttachment;
     }
 
-    private void resolveReferencedFields(BLangStructureTypeNode structureTypeNode, SymbolEnv typeDefEnv) {
+    private void resolveIncludedFields(BLangStructureTypeNode structureTypeNode, SymbolEnv typeDefEnv) {
         Set<BSymbol> referencedTypes = new HashSet<>();
         List<BLangType> invalidTypeRefs = new ArrayList<>();
         // Get the inherited fields from the type references
@@ -4299,7 +4321,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             fieldNames.put(fieldVariable.name.value, fieldVariable);
         }
 
-        structureTypeNode.referencedFields = structureTypeNode.typeRefs.stream().flatMap(typeRef -> {
+        structureTypeNode.includedFields = structureTypeNode.typeRefs.stream().flatMap(typeRef -> {
             BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
             if (referredType == symTable.semanticError) {
                 return Stream.empty();
@@ -4367,7 +4389,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                                 DiagnosticErrorCode.MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD,
                                 existingVariable.name.value);
                     }
-                    return !types.isAssignable(existingVariable.getBType(), f.type);
+                    if (!types.isAssignable(existingVariable.getBType(), f.type)) {
+                        dlog.error(existingVariable.pos, DiagnosticErrorCode.INCOMPATIBLE_SUB_TYPE_FIELD,
+                                f.name, f.getType(), existingVariable.getBType());
+                    }
+                    return false;
                 }
                 return true;
             }).map(field -> {
