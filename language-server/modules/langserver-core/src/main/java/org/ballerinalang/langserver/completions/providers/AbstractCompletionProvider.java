@@ -206,11 +206,11 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, xmlItem));
             } else if (symbol.kind() == RECORD_FIELD) {
                 RecordFieldSymbol recordFieldSymbol = (RecordFieldSymbol) symbol;
-                CompletionItem recFieldItem = FieldCompletionItemBuilder.build(recordFieldSymbol);
+                CompletionItem recFieldItem = FieldCompletionItemBuilder.build(recordFieldSymbol, ctx);
                 completionItems.add(new RecordFieldCompletionItem(ctx, recordFieldSymbol, recFieldItem));
             } else if (symbol.kind() == OBJECT_FIELD || symbol.kind() == CLASS_FIELD) {
                 ObjectFieldSymbol objectFieldSymbol = (ObjectFieldSymbol) symbol;
-                CompletionItem objFieldItem = FieldCompletionItemBuilder.build(objectFieldSymbol);
+                CompletionItem objFieldItem = FieldCompletionItemBuilder.build(objectFieldSymbol, ctx);
                 completionItems.add(new ObjectFieldCompletionItem(ctx, objectFieldSymbol, objFieldItem));
             }
 
@@ -541,7 +541,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         objectTypeDesc.fieldDescriptors().values().stream()
                 .map(classFieldSymbol -> {
                     CompletionItem completionItem = FieldCompletionItemBuilder.build(classFieldSymbol,
-                            true);
+                            true, ctx);
                     return new ObjectFieldCompletionItem(ctx, classFieldSymbol, completionItem);
                 }).forEach(completionItems::add);
 
