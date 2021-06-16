@@ -241,4 +241,9 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
         testFile("query-expr/query_expr_source_65.bal", "query-expr/query_expr_assert_65.json");
         testFile("query-expr/query_expr_source_66.bal", "query-expr/query_expr_assert_66.json");
     }
+
+    @Test
+    public void testIntermediateClauseStartRecovery() {
+        testFile("query-expr/query_expr_source_68.bal", "query-expr/query_expr_assert_68.json");
+    }
 }
