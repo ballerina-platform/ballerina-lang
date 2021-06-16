@@ -262,6 +262,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private int letCount = 0;
     private Stack<SymbolEnv> queryEnvs, prevEnvs;
     private Stack<BLangSelectClause> selectClauses;
+    private boolean checkWithinQueryExpr = false;
     private BLangMissingNodesHelper missingNodesHelper;
     private boolean breakToParallelQueryEnv = false;
 
@@ -378,7 +379,7 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = ((BIntersectionType) resultType).effectiveType;
         }
 
-        expr.setBType(resultType);
+        expr.setTypeCheckedType(resultType);
         expr.typeChecked = isTypeChecked;
         this.env = prevEnv;
         this.expType = preExpType;
@@ -4862,6 +4863,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
+        checkWithinQueryExpr = isWithinQuery();
         visitCheckAndCheckPanicExpr(checkedExpr);
     }
 
@@ -4906,8 +4908,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
             }
         }
-
+        checkWithinQueryExpr = false;
         resultType = actualType;
+    }
+
+    private boolean isWithinQuery() {
+        return !queryEnvs.isEmpty() && !selectClauses.isEmpty();
     }
 
     private BType resolveQueryType(SymbolEnv env, BLangExpression selectExp, BType collectionType,
@@ -4965,7 +4971,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (selectTypes.size() == 1) {
-            BType errorType = getErrorType(collectionType);
+            BType errorType = getErrorType(collectionType, queryExpr);
             selectType = selectTypes.get(0);
             if (queryExpr.isStream) {
                 return new BStreamType(TypeTags.STREAM, selectType, errorType, null);
@@ -4999,7 +5005,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
 
-    private BType getErrorType(BType collectionType) {
+    private BType getErrorType(BType collectionType, BLangQueryExpr queryExpr) {
         if (collectionType.tag == TypeTags.SEMANTIC_ERROR) {
             return null;
         }
@@ -5020,16 +5026,25 @@ public class TypeChecker extends BLangNodeVisitor {
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) itrSymbol;
                 returnType = types.getResultTypeOfNextInvocation((BObjectType) invokableSymbol.retType);
         }
+        List<BType> errorTypes = new ArrayList<>();
         if (returnType != null) {
-            List<BType> errorTypes = types.getAllTypes(returnType).stream()
+            types.getAllTypes(returnType).stream()
                     .filter(t -> types.isAssignable(t, symTable.errorType))
-                    .collect(Collectors.toList());
-            if (!errorTypes.isEmpty()) {
-                if (errorTypes.size() == 1) {
-                    errorType = errorTypes.get(0);
-                } else {
-                    errorType = BUnionType.create(null, errorTypes.toArray(new BType[0]));
-                }
+                    .forEach(errorTypes::add);
+        }
+        if (checkWithinQueryExpr && queryExpr.isStream) {
+            if (errorTypes.isEmpty()) {
+                // if there's no completion type at this point,
+                // then () gets added as a valid completion type for streams.
+                errorTypes.add(symTable.nilType);
+            }
+            errorTypes.add(symTable.errorType);
+        }
+        if (!errorTypes.isEmpty()) {
+            if (errorTypes.size() == 1) {
+                errorType = errorTypes.get(0);
+            } else {
+                errorType = BUnionType.create(null, errorTypes.toArray(new BType[0]));
             }
         }
         return errorType;
@@ -5238,36 +5253,11 @@ public class TypeChecker extends BLangNodeVisitor {
         String operatorType = checkedExpr.getKind() == NodeKind.CHECK_EXPR ? "check" : "checkpanic";
         BLangExpression exprWithCheckingKeyword = checkedExpr.expr;
         boolean firstVisit = exprWithCheckingKeyword.getBType() == null;
-
-        BType checkExprCandidateType;
-        if (expType == symTable.noType) {
-            checkExprCandidateType = symTable.noType;
-        } else {
-            checkExprCandidateType = BUnionType.create(null, expType, symTable.errorType);
-        }
-
-        boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
-        this.nonErrorLoggingCheck = true;
-        int prevErrorCount = this.dlog.errorCount();
-        this.dlog.resetErrorCount();
-        this.dlog.mute();
-
-        checkedExpr.expr.cloneAttempt++;
-        BLangExpression clone = nodeCloner.clone(checkedExpr.expr);
-        BType rhsType = checkExpr(clone, env, checkExprCandidateType);
-
-        this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
-        this.dlog.setErrorCount(prevErrorCount);
-        if (!prevNonErrorLoggingCheck) {
-            this.dlog.unmute();
-        }
-
-        BType errorType = getNonDefaultErrorErrorComponentsOrDefaultError(rhsType);
         BType typeOfExprWithCheckingKeyword;
         if (expType == symTable.noType) {
             typeOfExprWithCheckingKeyword = symTable.noType;
         } else {
-            typeOfExprWithCheckingKeyword = BUnionType.create(null, expType, errorType);
+            typeOfExprWithCheckingKeyword = BUnionType.create(null, expType, symTable.errorType);
         }
 
         if (exprWithCheckingKeyword.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
@@ -5363,23 +5353,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(checkedExpr, actualType, expType);
-    }
-
-    private BType getNonDefaultErrorErrorComponentsOrDefaultError(BType rhsType) {
-        List<BType> errorTypes = new ArrayList<>();
-        for (BType t : types.getAllTypes(rhsType)) {
-            if (!types.isSameType(t, symTable.errorType) && types.isAssignable(t, symTable.errorType)) {
-                errorTypes.add(t);
-            }
-        }
-        if (!errorTypes.isEmpty()) {
-            if (errorTypes.size() == 1) {
-                return errorTypes.get(0);
-            } else {
-                return BUnionType.create(null, errorTypes.toArray(new BType[0]));
-            }
-        }
-        return symTable.errorType;
     }
 
     @Override

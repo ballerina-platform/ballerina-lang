@@ -195,7 +195,9 @@ public class Types {
                            BType actualType,
                            BType expType,
                            DiagnosticCode diagCode) {
-        expr.setBType(checkType(expr.pos, actualType, expType, diagCode));
+        expr.setDeterminedType(actualType);
+        expr.setTypeCheckedType(checkType(expr.pos, actualType, expType, diagCode));
+
         if (expr.getBType().tag == TypeTags.SEMANTIC_ERROR) {
             return expr.getBType();
         }
