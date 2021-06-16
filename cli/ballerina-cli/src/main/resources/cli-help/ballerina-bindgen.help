@@ -37,7 +37,7 @@ OPTIONS
            directory specified doesn't need to be inside a Ballerina package.
 
        --public
-           Set the visibility modifier of generated binding objects to public. This flag
+           Set the visibility modifier of the generated binding objects to public. This flag
            will be applicable only if the bindings are generated inside a single directory.
 
        <class-name>...
