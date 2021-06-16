@@ -5059,17 +5059,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryAction queryAction) {
-        boolean cleanPrevEnvs = false;
         if (prevEnvs.empty()) {
             prevEnvs.push(env);
-            cleanPrevEnvs = true;
-        }
-
-        if (breakToParallelQueryEnv) {
-            queryEnvs.push(prevEnvs.peek());
         } else {
-            queryEnvs.push(env);
+            prevEnvs.push(prevEnvs.peek());
         }
+        queryEnvs.push(prevEnvs.peek());
         selectClauses.push(null);
         BLangDoClause doClause = queryAction.getDoClause();
         List<BLangNode> clauses = queryAction.getQueryClauses();
@@ -5080,9 +5075,7 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(doClause.pos, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         selectClauses.pop();
         queryEnvs.pop();
-        if (cleanPrevEnvs) {
-            prevEnvs.pop();
-        }
+        prevEnvs.pop();
     }
 
     @Override
