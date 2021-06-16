@@ -2510,12 +2510,12 @@ public class TypeChecker {
             return false;
         }
         TableValueImpl tableValue = (TableValueImpl) sourceValue;
-        if (!(targetType.getKeyType() == null && targetType.getFieldNames() == null)) {
+        BTableType sourceType = (BTableType) tableValue.getType();
+        if (targetType.getKeyType() != null && sourceType.getFieldNames() == null) {
             return false;
         }
 
-        if (((BTableType) tableValue.getType()).getKeyType() != null && !checkIsType(tableValue.getKeyType(),
-                                                                                     targetType.getKeyType())) {
+        if (sourceType.getKeyType() != null && !checkIsType(tableValue.getKeyType(), targetType.getKeyType())) {
             return false;
         }
 
