@@ -31,7 +31,7 @@ public class ConverterUtils {
      * Method for mapping openApi type to ballerina type.
      *
      * @param type  OpenApi parameter types
-     * @return ballerina type
+     * @return {@link String} Ballerina type
      */
     public static String convertOpenAPITypeToBallerina(String type) {
         String convertedType;
@@ -68,8 +68,8 @@ public class ConverterUtils {
     /**
      * This method will escape special characters used in method names and identifiers.
      *
-     * @param identifier - identifier or method name
-     * @return - escaped string
+     * @param identifier Identifier or method name
+     * @return {@link String} Escaped string
      */
     public static String escapeIdentifier(String identifier) {
 
@@ -108,10 +108,10 @@ public class ConverterUtils {
     /**
      * This method will extract reference type by splitting the reference string.
      *
-     * @param referenceVariable - Reference String
-     * @return Reference variable name
-     * @throws JsonToRecordConverterException - Throws an exception if the reference string is incompatible.
-     *                                     Note : Current implementation will not support external links a references.
+     * @param referenceVariable Reference String
+     * @return {@link String} Reference variable name
+     * @throws JsonToRecordConverterException Throws an exception if the reference string is incompatible.
+     *                      Note : Current implementation will not support external links a references.
      */
     public static String extractReferenceType(String referenceVariable) throws JsonToRecordConverterException {
         if (referenceVariable.startsWith("#") && referenceVariable.contains("/")) {

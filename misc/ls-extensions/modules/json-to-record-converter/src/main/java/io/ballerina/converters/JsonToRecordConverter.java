@@ -78,11 +78,11 @@ public class JsonToRecordConverter {
     /**
      * This method takes in a json string and returns the Ballerina code block.
      *
-     * @param jsonString json string for the schema
-     * @return {@link String} ballerina code block
-     * @throws IOException in case of Json parse error
-     * @throws JsonToRecordConverterException in case of invalid schema
-     * @throws FormatterException in case of invalid syntax
+     * @param jsonString Json string for the schema
+     * @return {@link String} Ballerina code block
+     * @throws IOException In case of Json parse error
+     * @throws JsonToRecordConverterException In case of invalid schema
+     * @throws FormatterException In case of invalid syntax
      */
     public static String convert(String jsonString) throws IOException,
             JsonToRecordConverterException, FormatterException {
@@ -110,7 +110,7 @@ public class JsonToRecordConverter {
      *
      * @param openApi OpenAPI model
      * @return {@link ArrayList}  List of Record Nodes
-     * @throws JsonToRecordConverterException in case of bad record fields
+     * @throws JsonToRecordConverterException In case of bad record fields
      */
     private static ArrayList<TypeDefinitionNode> generateRecords(OpenAPI openApi)
             throws JsonToRecordConverterException {
@@ -193,36 +193,33 @@ public class JsonToRecordConverter {
                 }
             }
         }
-
-
         return new ArrayList<>(typeDefinitionNodeList);
     }
 
     /**
      * Method for generating record fields with given schema properties.
      *
-     * @param field schema entry of the field
-     * @param recordFieldList record field list
-     * @param required is it a required field.
-     * @throws JsonToRecordConverterException in case of bad schema entries
+     * @param required List of required parameters
+     * @param recordFieldList Record field list to which the field will be added
+     * @param field Schema entry of the field
+     * @param typeDefinitionNodeList List of type definition nodes to be updated in case of object type fields
+     * @throws JsonToRecordConverterException In case of bad schema entries
      */
     private static void addRecordFields(List<String> required, List<Node> recordFieldList,
                                     Map.Entry<String, Schema> field, List<TypeDefinitionNode> typeDefinitionNodeList)
             throws JsonToRecordConverterException {
 
-        RecordFieldNode recordFieldNode;
-        IdentifierToken fieldName =
-                AbstractNodeFactory.createIdentifierToken(escapeIdentifier(field.getKey().trim()));
-
         TypeDescriptorNode fieldTypeName = extractOpenApiSchema(field.getValue(), field.getKey(),
                 typeDefinitionNodeList);
-        Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
+        IdentifierToken fieldName =
+                AbstractNodeFactory.createIdentifierToken(escapeIdentifier(field.getKey().trim()));
         Token questionMarkToken = (required != null && required.contains(field.getKey().trim()))
                 ? null
                 : AbstractNodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
+        Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
 
-        recordFieldNode = NodeFactory.createRecordFieldNode(null, null, fieldTypeName, fieldName,
-                questionMarkToken, semicolonToken);
+        RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
+                fieldTypeName, fieldName, questionMarkToken, semicolonToken);
 
         recordFieldList.add(recordFieldNode);
     }
@@ -232,8 +229,9 @@ public class JsonToRecordConverter {
      *
      * @param schema OpenApi Schema
      * @param name Name of the field
-     * @return {@link TypeDescriptorNode} type descriptor for record field
-     * @throws JsonToRecordConverterException in case of invalid schema
+     * @param typeDefinitionNodeList List of type definition nodes to be updated in case of object type fields
+     * @return {@link TypeDescriptorNode} Type descriptor for record field
+     * @throws JsonToRecordConverterException In case of invalid schema
      */
     private static TypeDescriptorNode extractOpenApiSchema(Schema<?> schema, String name,
                                                         List<TypeDefinitionNode> typeDefinitionNodeList)
@@ -313,10 +311,10 @@ public class JsonToRecordConverter {
     /**
      * Parse and get the {@link OpenAPI} for the given json Schema String contract.
      *
-     * @param schemaString     json Schema as a string
+     * @param schemaString     Json Schema as a string
      * @return {@link OpenAPI}  OpenAPI model
-     * @throws JsonToRecordConverterException in case of invalid schema
-     * @throws IOException in case of Json parse error
+     * @throws JsonToRecordConverterException In case of invalid schema
+     * @throws IOException In case of Json parse error
      */
     private static OpenAPI parseJSONSchema(String schemaString) throws JsonToRecordConverterException, IOException {
         final String prefix = "{\n" +
@@ -353,8 +351,8 @@ public class JsonToRecordConverter {
      * Take a schema and recursively clean unsupported keywords.
      *
      * @param schemaMap   Json Schema as a map
-     * @return {@link Map}  cleaned json schema
-     * @throws JsonToRecordConverterException in case of multiple types
+     * @return {@link Map}  Cleaned json schema
+     * @throws JsonToRecordConverterException In case of multiple types
      */
     private static Map<String, Object> cleanSchema(Map<String, Object> schemaMap)
             throws JsonToRecordConverterException {
@@ -386,7 +384,7 @@ public class JsonToRecordConverter {
      * Others like anyOf/allOf are redundant when converting to Ballerina records
      *
      * @param jsonMap   Json Schema as a map
-     * @return {@link Map}  cleaned json schema
+     * @return {@link Map}  Cleaned json schema
      */
     private static Map<String, Object> removeUnsupportedKeywords(Map<String, Object> jsonMap) {
         for (String keyword : Constants.OPEN_API_UNSUPPORTED_KEYWORDS) {
