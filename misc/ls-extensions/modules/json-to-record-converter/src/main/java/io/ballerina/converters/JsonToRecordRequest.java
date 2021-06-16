@@ -23,6 +23,7 @@ package io.ballerina.converters;
  * @since 2.0.0
  */
 public class JsonToRecordRequest {
+
     private String jsonString;
 
     public JsonToRecordRequest(String jsonString) {

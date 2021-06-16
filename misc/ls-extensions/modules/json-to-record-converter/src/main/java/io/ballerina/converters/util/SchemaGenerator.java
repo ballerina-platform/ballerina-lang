@@ -36,6 +36,7 @@ import java.util.Map;
  * @since 2.0.0
  */
 public class SchemaGenerator {
+
     private SchemaGenerator() {
         // not called
     }

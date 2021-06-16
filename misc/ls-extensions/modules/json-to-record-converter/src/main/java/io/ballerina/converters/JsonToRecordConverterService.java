@@ -36,6 +36,7 @@ import java.util.concurrent.CompletableFuture;
 @JavaSPIService("org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService")
 @JsonSegment("LSExtensions")
 public class JsonToRecordConverterService implements ExtendedLanguageServerService {
+
     @Override
     public Class<?> getRemoteInterface() {
         return getClass();

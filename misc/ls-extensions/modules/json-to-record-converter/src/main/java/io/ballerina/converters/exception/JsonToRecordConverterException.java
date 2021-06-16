@@ -23,6 +23,7 @@ package io.ballerina.converters.exception;
  * @since 2.0.0
  */
 public class JsonToRecordConverterException extends Exception {
+
     public JsonToRecordConverterException(String message, Throwable e) {
         super(message, e);
     }

@@ -23,6 +23,7 @@ package io.ballerina.converters;
  * @since 2.0.0
  */
 public class JsonToRecordResponse {
+
     private String codeBlock;
 
     public String getCodeBlock() {
