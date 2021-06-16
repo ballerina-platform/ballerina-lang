@@ -105,10 +105,7 @@ public class JsonToRecordConverter {
                 typeDefinitionNodeList.toArray(new TypeDefinitionNode[0]));
         Token eofToken = AbstractNodeFactory.createIdentifierToken("");
         ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
-        TextDocument textDocument = TextDocuments.from("");
-        SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
-        syntaxTree = syntaxTree.modifyWith(modulePartNode);
-        return Formatter.format(syntaxTree).toString();
+        return Formatter.format(modulePartNode.syntaxTree()).toSourceCode();
     }
 
     /**
