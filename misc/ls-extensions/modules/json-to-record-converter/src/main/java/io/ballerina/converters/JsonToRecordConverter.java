@@ -112,7 +112,8 @@ public class JsonToRecordConverter {
      * @return {@link ArrayList}  List of Record Nodes
      * @throws JsonToRecordConverterException in case of bad record fields
      */
-    private static ArrayList<TypeDefinitionNode> generateRecords(OpenAPI openApi) throws JsonToRecordConverterException {
+    private static ArrayList<TypeDefinitionNode> generateRecords(OpenAPI openApi)
+            throws JsonToRecordConverterException {
         List<TypeDefinitionNode> typeDefinitionNodeList = new LinkedList<>();
 
         if (openApi.getComponents() == null) {
@@ -355,7 +356,8 @@ public class JsonToRecordConverter {
      * @return {@link Map}  cleaned json schema
      * @throws JsonToRecordConverterException in case of multiple types
      */
-    private static Map<String, Object> cleanSchema(Map<String, Object> schemaMap) throws JsonToRecordConverterException {
+    private static Map<String, Object> cleanSchema(Map<String, Object> schemaMap)
+            throws JsonToRecordConverterException {
         Map<String, Object> cleanedMap = removeUnsupportedKeywords(schemaMap);
         // check for multiple or null types
         if (!(cleanedMap.get("type") instanceof String)) {
