@@ -34,7 +34,7 @@ OPTIONS
        (-o|--output) <output-path>
            Generate all bindings inside a single directory. This option could be used in
            instances where all the mappings are required inside a single module. The
-           directory specified doesn't need to be inside a Ballerina package.
+          specified directory doesn't need to be inside a Ballerina package.
 
        --public
            Set the visibility modifier of the generated binding objects to public. This flag
