@@ -31,21 +31,21 @@ function testSubString() returns [string,string, string] {
     return [str.substring(6, 9), str.substring(6), strings:substring(str,6)];
 }
 
-function testIterator(int test) returns string[] {
+function testIterator(int test) {
     string str = "Foo Bar";
+    string:Char[] expected = ["F", "o", "o", " ", "B", "a", "r"];
 
     object {
          public isolated function next() returns record {| string:Char value; |}?;
     } itr = str.iterator();
 
-    string[] chars = [];
     int i = 0;
 
     match test{
         1 => {
             record {| string:Char value; |}|() elem = itr.next();
             while (elem is record {| string:Char value; |}) {
-                chars[i] = elem.value;
+                assertEquals(expected[i], elem.value);
                 elem = itr.next();
                 i += 1;
             }
@@ -54,15 +54,14 @@ function testIterator(int test) returns string[] {
         2 => {
             record {| string value; |}|() elem = itr.next();
             while (elem is record {| string value; |}) {
-                chars[i] = elem.value;
+                assertEquals(expected[i], elem.value);
                 elem = itr.next();
-                i += 1;
+                i+= 1;
             }
         }
 
     }
 
-    return chars;
 }
 
 function testStartsWith() returns boolean {
@@ -156,4 +155,17 @@ function testChainedStringFunctions() returns string {
     string foo = "foo1";
     foo = foo.concat("foo2").concat("foo3").concat("foo4");
     return foo;
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquals(anydata expected, anydata actual) {
+    if (expected == actual) {
+        return;
+    }
+    typedesc<anydata> expT = typeof expected;
+    typedesc<anydata> actT = typeof actual;
+    string msg = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+    panic error(ASSERTION_ERROR_REASON, message = msg);
 }

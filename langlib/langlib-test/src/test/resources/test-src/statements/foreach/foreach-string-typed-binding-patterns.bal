@@ -10,9 +10,24 @@ function concatIntAny(int i, any a) {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-function testStringWithSimpleVariableWithCharType() returns string {
+function testStringWithSimpleVariableWithStringType() {
     output = "";
+    string expected = "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ";
+    string sdata = "Ballerina";
 
+    int i = 0;
+    foreach string s in sdata {
+        concatIntString(i, s);
+        i += 1;
+    }
+    assertEquals(expected, output);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+function testStringWithSimpleVariableWithCharType() {
+    output = "";
+    string expected = "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ";
     string sdata = "Ballerina";
 
     int i = 0;
@@ -20,7 +35,7 @@ function testStringWithSimpleVariableWithCharType() returns string {
         concatIntString(i, s);
         i += 1;
     }
-    return output;
+    assertEquals(expected, output);
 }
 
 function testStringWithSimpleVariableWithoutType() returns string {
@@ -97,14 +112,31 @@ function testIterationOnEmptyString() returns string {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-function testIterationTypeCheck() returns int{
+function testIterationTypeCheck() {
     string foo = "foo";
-    int count = 0;
+
     foreach var item in foo {
         string str = item;
-        if(str is string:Char){
-            count += 1;
-        }
+        assertTrue(str is string:Char);
     }
-    return count;
+
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(boolean actual) {
+    assertEquals(true, actual);
+}
+
+function assertEquals(anydata expected, anydata actual) {
+    if (expected == actual) {
+        return;
+    }
+    typedesc<anydata> expT = typeof expected;
+    typedesc<anydata> actT = typeof actual;
+    string msg = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+    panic error(ASSERTION_ERROR_REASON, message = msg);
 }
