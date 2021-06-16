@@ -213,12 +213,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "return",
+      "label": "return;",
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "O",
-      "filterText": "return",
-      "insertText": "return ",
+      "filterText": "return;",
+      "insertText": "return;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -248,11 +248,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "runtime",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -266,30 +266,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 2,
-              "character": 0
-            },
-            "end": {
-              "line": 2,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -317,11 +294,11 @@
       ]
     },
     {
-      "label": "ballerina/jballerina.java",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "java",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -335,7 +312,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jballerina.java;\n"
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -475,11 +475,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lsproject.module2",
+      "label": "lsproject.hierarchy.module4",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "module2",
+      "insertText": "module4",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -493,7 +493,7 @@
               "character": 0
             }
           },
-          "newText": "import lsproject.module2;\n"
+          "newText": "import lsproject.hierarchy.module4;\n"
         }
       ]
     },
@@ -521,11 +521,11 @@
       ]
     },
     {
-      "label": "lsproject.hierarchy.module4",
+      "label": "lsproject.module2",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "module4",
+      "insertText": "module2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -539,9 +539,17 @@
               "character": 0
             }
           },
-          "newText": "import lsproject.hierarchy.module4;\n"
+          "newText": "import lsproject.module2;\n"
         }
       ]
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "StrandData",
@@ -552,14 +560,6 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {

@@ -15,8 +15,11 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
@@ -35,6 +38,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.ReturnTypeFinder;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
@@ -137,9 +141,36 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY_TRANSACTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_MATCH.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN.get()));
+//
+//
+//        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+//        if (semanticModel.isEmpty()) {
+//            return completionItems;
+//        }
+//        ReturnTypeFinder finder = new ReturnTypeFinder(semanticModel.get());
+//        Optional<TypeSymbol> returnType = finder.getTypeSymbol(context.getNodeAtCursor());
+//
+//        if (returnType.isEmpty() || returnType.get().typeKind() == TypeDescKind.NIL) {
+//            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN_SC.get()));
+//        } else {
+//            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN.get()));
+//        }
+//
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_PANIC.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_STREAM.get()));
+
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (semanticModel.isPresent()) {
+            ReturnTypeFinder finder = new ReturnTypeFinder(semanticModel.get());
+            Optional<TypeSymbol> returnType = finder.getTypeSymbol(context.getNodeAtCursor());
+
+            if (returnType.isEmpty() || returnType.get().typeKind() == TypeDescKind.NIL) {
+                completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN_SC.get()));
+            } else {
+                completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN.get()));
+            }
+        }
+
         Optional<Node> nodeBeforeCursor = this.nodeBeforeCursor(context, node);
         if (nodeBeforeCursor.isPresent()) {
             switch (nodeBeforeCursor.get().kind()) {
