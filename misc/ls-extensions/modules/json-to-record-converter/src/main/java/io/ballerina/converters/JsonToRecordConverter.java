@@ -112,7 +112,7 @@ public class JsonToRecordConverter {
      * Generates Ballerina Record nodes for given OpenAPI model.
      *
      * @param openApi OpenAPI model
-     * @return {@link ArrayList<TypeDefinitionNode>}  List of Record Nodes
+     * @return {@link ArrayList}  List of Record Nodes
      * @throws ConverterException in case of bad record fields
      */
     private static ArrayList<TypeDefinitionNode> generateRecords(OpenAPI openApi) throws ConverterException {
@@ -234,6 +234,7 @@ public class JsonToRecordConverter {
      *
      * @param schema OpenApi Schema
      * @param name Name of the field
+     * @return {@link TypeDescriptorNode} type descriptor for record field
      * @throws ConverterException in case of invalid schema
      */
     private static TypeDescriptorNode extractOpenApiSchema(Schema<?> schema, String name,
