@@ -6,8 +6,8 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Format the Ballerina source files according to the Ballerina style guide
-       defined at https://github.com/ballerina-platform/ballerina-lang/tree/master/docs/style_guide.
+       Format the Ballerina source files according to the Ballerina style guide defined at 
+       https://github.com/ballerina-platform/ballerina-lang/tree/master/docs/style_guide.
 
        Formatting can be performed on a Ballerina package, on a Ballerina module, or
        on a Ballerina source file.

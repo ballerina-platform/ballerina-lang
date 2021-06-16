@@ -29,7 +29,8 @@ OPTIONS
            without generating the executable.
 
        --offline
-            Build offline using the local artifacts without downloading the latest artifacts of the dependencies from the remote repository (Ballerina Central).
+            Build offline using the local artifacts without downloading the latest artifacts of 
+            the dependencies from the remote repository (Ballerina Central).
 
        --skip-tests
            Skip test compilation and execution.
@@ -40,7 +41,8 @@ OPTIONS
        --code-coverage
            Enable code coverage. This will analyze the line coverage of the
            source `.bal` files in the Ballerina package and add a section
-           to the testerina report with the code coverage details. This feature is not supported with single BAL file executions.
+           to the testerina report with the code coverage details. This feature is not supported
+           with single BAL file executions.
 
        --test-report
            Generate an HTML report containing the test results. Defaults to 'true'
@@ -50,10 +52,12 @@ OPTIONS
            Run tests in remote debugging mode only when the '--skip-tests' flag is not used.
 
        --observability-included
-           Include the dependencies and artifacts in the  executable JAR file(s) of a Ballerina program that are required to enable the observability functionalities on it.
+           Include the dependencies and artifacts in the  executable JAR file(s) of a Ballerina 
+           program that are required to enable the observability functionalities on it.
 
        --cloud
-           Enable cloud artifact generation for cloud providers: (`--cloud=k8s`)for Kubernetes and (`--cloud=docker`) for Docker.
+           Enable cloud artifact generation for cloud providers: (`--cloud=k8s`)for Kubernetes 
+           and (`--cloud=docker`) for Docker.
 
        --list-conflicted-classes
        		List the conflicting classes of conflicting JARs in the project.
@@ -77,7 +81,7 @@ EXAMPLES
           $ bal build
 
        Build the 'hello' library package with '--compile'/'-c' flag. This will
-       generate the `<org-name>-<package-name>-<version>-<platform>.bala` file in
+       generate the `<org-name>-<package-name>-<version>-<platform>.bala` file in 
        the '<package-root>/target/bala' directory.
           $ bal build -c
 

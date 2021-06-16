@@ -27,7 +27,8 @@ DESCRIPTION
 
 OPTIONS
        --offline
-           Build offline using the local artifacts without downloading the latest artifacts of the dependencies from the remote repository (Ballerina Central).
+           Build offline using the local artifacts without downloading the latest artifacts of the
+           dependencies from the remote repository (Ballerina Central).
 
        --experimental
            Enable experimental language features.
@@ -36,7 +37,8 @@ OPTIONS
            Run in the remote debugging mode.
 
        --observability-included
-           Include the dependencies and artifacts in the  executable JAR file(s) of a Ballerina program that are required to enable the observability functionalities on it.
+           Include the dependencies and artifacts in the  executable JAR file(s) of a Ballerina 
+           program that are required to enable the observability functionalities on it.
 
 ARGUMENTS
        --

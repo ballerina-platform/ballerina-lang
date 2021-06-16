@@ -7,7 +7,8 @@ SYNOPSIS
 
 DESCRIPTION
        Compile and execute Ballerina test sources and print a summary of
-       the test results. You can execute tests in a Ballerina package or a standalone Ballerina file.
+       the test results. You can execute tests in a Ballerina package or a 
+       standalone Ballerina file.
     
        Use `bal test` to execute the tests in the current package.
 
@@ -86,7 +87,8 @@ OPTIONS
            Run test functions in remote debugging mode.
 
        --observability-included
-           Include the dependencies and artifacts in the  executable JAR file(s) of a Ballerina program that are required to enable the observability functionalities on it.
+           Include the dependencies and artifacts in the  executable JAR file(s) of a 
+           Ballerina program that are required to enable the observability functionalities on it.
 
 
 EXAMPLES

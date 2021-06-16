@@ -5,7 +5,8 @@ SYNOPSIS
        bal doc [<options>]
 
 DESCRIPTION
-       Build the documentation of a Ballerina package and write the module documentation to the 'target/apidocs' directory inside the package.
+       Build the documentation of a Ballerina package and write the module documentation to 
+       the 'target/apidocs' directory inside the package.
 
 OPTIONS
        -o <output>, --output <output>
@@ -18,7 +19,8 @@ OPTIONS
            Enable the experimental language features.
 
        --offline
-            Build offline using the local artifacts without downloading the latest artifacts of the dependencies from the remote repository (Ballerina Central).
+            Build offline using the local artifacts without downloading the latest artifacts of 
+            the dependencies from the remote repository (Ballerina Central).
 
 EXAMPLES
        Generate API documentation for the current package.

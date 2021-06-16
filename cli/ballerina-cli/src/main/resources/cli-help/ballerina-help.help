@@ -8,9 +8,10 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Ballerina is a statically-typed, concurrent programming language focusing on network interaction and structured
-       data. It is intended to be the core of a language-centric middleware platform. It not only has all the general-purpose
-       functionality expected from a modern programming language, but also has several unusual aspects that make it
+       Ballerina is a statically-typed, concurrent programming language focusing on network 
+       interaction and structured data. It is intended to be the core of a language-centric 
+       middleware platform. It not only has all the general-purpose functionality expected 
+       from a modern programming language, but also has several unusual aspects that make it
        particularly suitable for its intended purpose.
 
        Find more information at: https://ballerina.io
@@ -45,7 +46,8 @@ BALLERINA COMMANDS
 
    Other Commands:
         grpc            Generate the Ballerina sources for a given Protocol Buffer definition
-        openapi         Generate the Ballerina sources for a given OpenAPI definition and vice versa
+        openapi         Generate the Ballerina sources for a given OpenAPI definition and 
+                        vice versa [EXPERIMENTAL]
         version         Print the Ballerina version
         bindgen         Generate the Ballerina bindings for Java APIs
         shell           Run Ballerina interactive REPL [EXPERIMENTAL]
