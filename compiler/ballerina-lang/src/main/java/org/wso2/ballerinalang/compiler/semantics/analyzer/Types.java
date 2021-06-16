@@ -2184,7 +2184,7 @@ public class Types {
         // Use instanceof to check for anydata and json.
         if (sourceType instanceof BUnionType) {
             if (getTypeForUnionTypeMembersAssignableToType((BUnionType) sourceType, targetType, env,
-                    intersectionContext)
+                    intersectionContext, new LinkedHashSet<>())
                     != symTable.semanticError) {
                 // string|typedesc v1 = "hello world";
                 // json|table<Foo> v2 = <json|table<Foo>> v1;
@@ -2195,7 +2195,7 @@ public class Types {
         // Use instanceof to check for anydata and json.
         if (targetType instanceof BUnionType) {
             if (getTypeForUnionTypeMembersAssignableToType((BUnionType) targetType, sourceType, env,
-                    intersectionContext)
+                    intersectionContext, new LinkedHashSet<>())
                     != symTable.semanticError) {
                 // string|int v1 = "hello world";
                 // string|boolean v2 = <string|boolean> v1;
