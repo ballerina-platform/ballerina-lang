@@ -2,7 +2,11 @@
 //
 // If you need the implementation of this class generated, please use the following command.
 //
-// $ bal bindgen [(-cp|--classpath) <classpath>...] [(-o|--output) <output>] (<class-name>...)
+// $ bal bindgen [(-cp|--classpath) <classpath>...]
+//               [(-mvn|--maven) <groupId>:<artifactId>:<version>]
+//               [(-d|--directory) <directory-path>]
+//               [--public]
+//               (<class-name>...)
 //
 // E.g. $ bal bindgen java.lang.String
 
