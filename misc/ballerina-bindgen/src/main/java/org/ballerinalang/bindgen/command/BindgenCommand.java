@@ -162,9 +162,9 @@ public class BindgenCommand implements BLauncherCmd {
         }
 
         if (this.outputPath == null && project == null) {
-            setOutError("No Ballerina package detected. You could either generate the bindings inside a valid " +
-                    "Ballerina package or use the `[(-o|--output) <output-path>]` option to generate the " +
-                    "bindings inside a specific single directory.");
+            setOutError("unable to detect a Ballerina package: bindings should either be generated inside a valid " +
+                    "Ballerina package or the `[(-o|--output) <output-path>]` option should be used to generate " +
+                    "the bindings inside a specific directory");
             exitWithCode(1, this.exitWhenFinish);
             return;
         }

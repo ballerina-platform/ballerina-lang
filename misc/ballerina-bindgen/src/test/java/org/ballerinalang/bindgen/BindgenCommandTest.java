@@ -200,7 +200,7 @@ public class BindgenCommandTest extends CommandTest {
 
         bindgenCommand.execute();
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("No Ballerina package detected. You could either generate the bindings"));
+        Assert.assertTrue(output.contains("unable to detect a Ballerina package: bindings should either be"));
     }
 
     @Test(description = "Test if the correct error is given for invalid class names")
