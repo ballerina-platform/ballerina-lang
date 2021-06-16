@@ -91,20 +91,8 @@
         <Bug pattern="BC_UNCONFIRMED_CAST, BC_UNCONFIRMED_CAST_OF_RETURN_VALUE, EQ_DOESNT_OVERRIDE_EQUALS" />
     </Match>
     <Match>
-        <Class name = "org.ballerinalang.toml.model.Library"/>
-        <Bug pattern="UWF_UNWRITTEN_FIELD"/>
-    </Match>
-    <Match>
-        <Class name = "org.ballerinalang.toml.model.Repository"/>
-        <Bug pattern="UWF_UNWRITTEN_FIELD, NM_CONFUSING"/>
-    </Match>
-    <Match>
         <Class name = "org.ballerinalang.toml.model.Proxy"/>
         <Bug pattern="NM_CONFUSING"/>
-    </Match>
-    <Match>
-        <Class name = "org.ballerinalang.toml.model.Platform"/>
-        <Bug pattern="UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"/>
     </Match>
     <Match>
         <Package name="org.wso2.ballerinalang.programfile" />

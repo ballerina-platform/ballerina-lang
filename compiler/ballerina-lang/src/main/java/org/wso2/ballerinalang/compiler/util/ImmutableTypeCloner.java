@@ -300,9 +300,8 @@ public class ImmutableTypeCloner {
                     immutableMapTSymbol.type = immutableMapType;
                 }
 
-                BIntersectionType immutableMapIntersectionType = createImmutableIntersectionType(env, origMapType,
-                                                                                                 immutableMapType,
-                                                                                                 symTable);
+                BIntersectionType immutableMapIntersectionType = createImmutableIntersectionType(pkgId, owner,
+                        origMapType, immutableMapType, symTable);
                 origMapType.immutableType = immutableMapIntersectionType;
                 return immutableMapIntersectionType;
             case TypeTags.RECORD:

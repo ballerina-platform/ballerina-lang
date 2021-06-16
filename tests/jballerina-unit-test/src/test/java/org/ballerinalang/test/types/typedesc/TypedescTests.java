@@ -217,6 +217,12 @@ public class TypedescTests {
         BRunUtil.invoke(result, "testTypeDefWithFunctionTypeDescAsTypedesc");
     }
 
+    @Test
+    public void testTypeDefWithIntersectionTypeDescAsTypedescNegative() {
+        BRunUtil.invoke(result, "testTypeDefWithIntersectionTypeDescAsTypedescNegative");
+    }
+
+
     @AfterClass
     public void tearDown() {
         result = null;
