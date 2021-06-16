@@ -6,7 +6,7 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Compile Ballerina sources and produce executable JAR file(s). However, 
+       Compile Ballerina sources and produce the executable JAR file. However, 
        if the package does not contain an entry point, it will produce a non-executable
        JAR file, which can be used in another package/program.
 
