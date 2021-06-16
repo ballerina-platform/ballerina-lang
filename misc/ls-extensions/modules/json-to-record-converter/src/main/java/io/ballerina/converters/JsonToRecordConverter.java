@@ -102,7 +102,7 @@ public class JsonToRecordConverter {
         ArrayList<TypeDefinitionNode> typeDefinitionNodeList = generateRecords(model);
         NodeList<ImportDeclarationNode> imports = AbstractNodeFactory.createEmptyNodeList();
         NodeList<ModuleMemberDeclarationNode> moduleMembers = AbstractNodeFactory.createNodeList(
-                typeDefinitionNodeList.toArray(new TypeDefinitionNode[typeDefinitionNodeList.size()]));
+                typeDefinitionNodeList.toArray(new TypeDefinitionNode[0]));
         Token eofToken = AbstractNodeFactory.createIdentifierToken("");
         ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
         TextDocument textDocument = TextDocuments.from("");
