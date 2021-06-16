@@ -160,7 +160,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
                 throw ErrorUtils.createNumericConversionError(POSITIVE_INF, PredefinedTypes.TYPE_INT);
         }
 
-        if (!isDecimalWithinIntRange(value)) {
+        if (!isDecimalWithinIntRange(this)) {
             throw ErrorUtils.createNumericConversionError(this.stringValue(null), PredefinedTypes.TYPE_DECIMAL,
                                                           PredefinedTypes.TYPE_INT);
         }
@@ -172,9 +172,10 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * @param decimalValue value to be checked
      * @return true if the value is in int range
      */
-    public static boolean isDecimalWithinIntRange(BigDecimal decimalValue) {
-        return decimalValue.compareTo(RuntimeConstants.BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX) < 0 &&
-               decimalValue.compareTo(RuntimeConstants.BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN) > 0;
+    public static boolean isDecimalWithinIntRange(DecimalValue decimalValue) {
+        BigDecimal value = decimalValue.value;
+        return value.compareTo(RuntimeConstants.BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX) < 0 &&
+               value.compareTo(RuntimeConstants.BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN) > 0;
     }
 
     /**

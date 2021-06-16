@@ -209,6 +209,10 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BTupleType originalType, BType expType) {
+        if (!visitedTypes.add(originalType)) {
+            return originalType;
+        }
+
         boolean hasNewType = false;
 
         BTupleType matchingType = (BTupleType) getMatchingTypeForInferrableType(originalType, expType);
@@ -238,6 +242,9 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
         List<BType> tupleTypes = originalType.tupleTypes;
         for (int i = 0, j = 0; i < tupleTypes.size(); i++, j += delta) {
+            if (this.visitedTypes.contains(tupleTypes.get(i))) {
+                continue;
+            }
             BType member = tupleTypes.get(i);
             BType expMember = expTupleTypes.get(j);
             BType newMem = member.accept(this, expMember);

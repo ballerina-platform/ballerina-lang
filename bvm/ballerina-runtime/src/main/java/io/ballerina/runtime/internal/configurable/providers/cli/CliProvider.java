@@ -19,6 +19,7 @@
 package io.ballerina.runtime.internal.configurable.providers.cli;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
@@ -212,12 +213,15 @@ public class CliProvider implements ConfigProvider {
 
     @Override
     public Optional<Object> getAsUnionAndMark(Module module, VariableKey key) {
+        BUnionType unionType = (BUnionType) ((BIntersectionType) key.type).getEffectiveType();
+        if (!SymbolFlags.isFlagOn(unionType.getFlags(), SymbolFlags.ENUM)) {
+            throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, unionType);
+        }
         CliArg cliArg = getCliArg(module, key);
         if (cliArg.value == null) {
             return Optional.empty();
         }
         BString stringVal = StringUtils.fromString(cliArg.value);
-        BUnionType unionType = (BUnionType) ((BIntersectionType) key.type).getEffectiveType();
         List<Type> memberTypes = unionType.getMemberTypes();
         for (Type type : memberTypes) {
             if (((BFiniteType) type).valueSpace.contains(stringVal)) {

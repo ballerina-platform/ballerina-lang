@@ -23,8 +23,6 @@ import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.central.client.CentralAPIClient;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -32,9 +30,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.util.ProjectUtils.createAndGetHomeReposPath;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
-import static org.wso2.ballerinalang.util.RepoUtils.SET_BALLERINA_DEV_CENTRAL;
-import static org.wso2.ballerinalang.util.RepoUtils.SET_BALLERINA_STAGE_CENTRAL;
+import static io.ballerina.projects.util.RepoUtils.SET_BALLERINA_DEV_CENTRAL;
+import static io.ballerina.projects.util.RepoUtils.SET_BALLERINA_STAGE_CENTRAL;
 
 /**
  * {@code CentralUtils} has utilities for central commands.
@@ -54,7 +53,7 @@ public class CentralUtils {
      * Checks if the access token is available in Settings.toml or not.
      */
     public static void authenticate(PrintStream errStream, String ballerinaCentralCliTokenUrl,
-                                    Path settingsTomlFilePath, CentralAPIClient client) throws SettingsTomlException {
+                                    Path settingsTomlFilePath, CentralAPIClient client) {
         String accessToken = client.accessToken();
 
         if (accessToken.isEmpty()) {
@@ -126,8 +125,8 @@ public class CentralUtils {
      *
      * @return {@link Settings} settings object
      */
-    public static Settings readSettings() throws SettingsTomlException {
-        Path settingsFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectConstants.SETTINGS_FILE_NAME);
+    public static Settings readSettings() {
+        Path settingsFilePath = createAndGetHomeReposPath().resolve(ProjectConstants.SETTINGS_FILE_NAME);
         try {
             TomlDocument settingsTomlDocument = TomlDocument
                     .from(String.valueOf(settingsFilePath.getFileName()), Files.readString(settingsFilePath));

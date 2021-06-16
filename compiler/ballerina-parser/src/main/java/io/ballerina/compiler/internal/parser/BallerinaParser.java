@@ -11701,27 +11701,46 @@ public class BallerinaParser extends AbstractParser {
                 break;
             case SIMPLE_NAME_REFERENCE:
             case QUALIFIED_NAME_REFERENCE:
-                STNode openParenToken = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.OPEN_PAREN_TOKEN,
-                        DiagnosticErrorCode.ERROR_MISSING_OPEN_PAREN_TOKEN);
-                STNode arguments = STNodeFactory.createEmptyNodeList();
-                STNode closeParenToken = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.CLOSE_PAREN_TOKEN,
-                        DiagnosticErrorCode.ERROR_MISSING_CLOSE_PAREN_TOKEN);
-                expr = STNodeFactory.createFunctionCallExpressionNode(expr, openParenToken, arguments, closeParenToken);
+            case FIELD_ACCESS:
+            case ASYNC_SEND_ACTION:
+                expr = generateValidExprForStartAction(expr);
                 break;
             default:
                 startKeyword = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(startKeyword, expr,
                         DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_IN_START_ACTION);
                 STNode funcName = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
                 funcName = STNodeFactory.createSimpleNameReferenceNode(funcName);
-                openParenToken = SyntaxErrors.createMissingToken(SyntaxKind.OPEN_PAREN_TOKEN);
-                arguments = STNodeFactory.createEmptyNodeList();
-                closeParenToken = SyntaxErrors.createMissingToken(SyntaxKind.CLOSE_PAREN_TOKEN);
-                expr = STNodeFactory.createFunctionCallExpressionNode(funcName, openParenToken, arguments,
-                        closeParenToken);
+                STNode openParenToken = SyntaxErrors.createMissingToken(SyntaxKind.OPEN_PAREN_TOKEN);
+                STNode closeParenToken = SyntaxErrors.createMissingToken(SyntaxKind.CLOSE_PAREN_TOKEN);
+                expr = STNodeFactory.createFunctionCallExpressionNode(funcName, openParenToken,
+                        STNodeFactory.createEmptyNodeList(), closeParenToken);
                 break;
         }
 
         return STNodeFactory.createStartActionNode(getAnnotations(annots), startKeyword, expr);
+    }
+
+    private STNode generateValidExprForStartAction(STNode expr) {
+        STNode openParenToken = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.OPEN_PAREN_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_OPEN_PAREN_TOKEN);
+        STNode arguments = STNodeFactory.createEmptyNodeList();
+        STNode closeParenToken = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.CLOSE_PAREN_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_CLOSE_PAREN_TOKEN);
+
+        switch (expr.kind) {
+            case FIELD_ACCESS:
+                STFieldAccessExpressionNode fieldAccessExpr = (STFieldAccessExpressionNode) expr;
+                return STNodeFactory.createMethodCallExpressionNode(fieldAccessExpr.expression,
+                        fieldAccessExpr.dotToken, fieldAccessExpr.fieldName, openParenToken, arguments,
+                        closeParenToken);
+            case ASYNC_SEND_ACTION:
+                STAsyncSendActionNode asyncSendAction = (STAsyncSendActionNode) expr;
+                return STNodeFactory.createRemoteMethodCallActionNode(asyncSendAction.expression,
+                        asyncSendAction.rightArrowToken, asyncSendAction.peerWorker, openParenToken, arguments,
+                        closeParenToken);
+            default: // QualifiedNameRef or SimpleNameRef
+                return STNodeFactory.createFunctionCallExpressionNode(expr, openParenToken, arguments, closeParenToken);
+        }
     }
 
     /**

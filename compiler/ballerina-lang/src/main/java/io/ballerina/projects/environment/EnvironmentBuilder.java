@@ -30,7 +30,6 @@ import java.nio.file.Path;
 import java.util.Map;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_API_INITIATED_COMPILATION;
 
 /**
  * This class allows API users to build a custom {@code Environment}.
@@ -116,9 +115,6 @@ public class EnvironmentBuilder {
         CompilerContext compilerContext = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
-
-        // TODO Remove the following line, once we fully migrate the old project structures
-        options.put(PROJECT_API_INITIATED_COMPILATION, Boolean.toString(true));
         return compilerContext;
     }
 }

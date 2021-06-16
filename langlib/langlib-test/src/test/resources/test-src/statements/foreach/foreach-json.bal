@@ -124,7 +124,7 @@ function testDeleteWhileIteration () returns string|error {
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
     foreach var j in <map<json>>j1 {
         string str = j.toJsonString();
-        if (str == "bob") {
+        if (str == "\"bob\"") {
             map<json> temp = (<map<json>>j1);
             any x = temp.remove("subjects");
         }
