@@ -454,7 +454,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void processWorkers(BLangInvokableNode invNode, SymbolEnv invEnv) {
-        if (!invNode.workers.isEmpty()) {
+        if (invNode.workers.size() > 0) {
             invEnv.scope.entries.putAll(invNode.body.scope.entries);
             for (BLangWorker worker : invNode.workers) {
                 this.symbolEnter.defineNode(worker, invEnv);
@@ -499,7 +499,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             analyzeDef(typeDefinition.typeNode, env);
         }
 
-        final List<BAnnotationSymbol> annotSymbols = new ArrayList<>(typeDefinition.annAttachments.size());
+        final List<BAnnotationSymbol> annotSymbols = new ArrayList<>();
 
         typeDefinition.annAttachments.forEach(annotationAttachment -> {
             if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
@@ -2193,7 +2193,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         typeChecker.checkExpr(matchStatement.expr, env, symTable.noType);
 
         List<BLangMatchClause> matchClauses = matchStatement.matchClauses;
-        if (matchClauses.isEmpty()) {
+        if (matchClauses.size() == 0) {
             return;
         }
         analyzeNode(matchClauses.get(0), env);
@@ -2216,7 +2216,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangMatchClause matchClause) {
         List<BLangMatchPattern> matchPatterns = matchClause.matchPatterns;
-        if (matchPatterns.isEmpty()) {
+        if (matchPatterns.size() == 0) {
             return;
         }
 
@@ -2314,7 +2314,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 break;
             case LIST_MATCH_PATTERN:
                 BLangListMatchPattern listMatchPattern = (BLangListMatchPattern) matchPattern;
-                List<BType> memberTypes = new ArrayList<>(listMatchPattern.matchPatterns.size());
+                List<BType> memberTypes = new ArrayList<>();
                 for (BLangMatchPattern memberMatchPattern : listMatchPattern.matchPatterns) {
                     evaluateMatchPatternsTypeAccordingToMatchGuard(memberMatchPattern, env);
                     memberTypes.add(memberMatchPattern.getBType());
@@ -2347,7 +2347,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangMappingMatchPattern mappingMatchPattern) {
         BRecordTypeSymbol recordSymbol = symbolEnter.createAnonRecordSymbol(env, mappingMatchPattern.pos);
-        LinkedHashMap<String, BField> fields = new LinkedHashMap<>(mappingMatchPattern.fieldMatchPatterns.size());
+        LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
 
         for (BLangFieldMatchPattern fieldMatchPattern : mappingMatchPattern.fieldMatchPatterns) {
             analyzeNode(fieldMatchPattern, env);
@@ -2548,7 +2548,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BType bindingPatternType = wildCardBindingPattern.getBType();
         BType intersectionType = types.getTypeIntersection(
                 Types.IntersectionContext.compilerInternalIntersectionContext(),
-                bindingPatternType, symTable.anyType, this.env, new LinkedHashSet<>());
+                bindingPatternType, symTable.anyType, this.env);
         if (intersectionType == symTable.semanticError) {
             wildCardBindingPattern.setBType(symTable.noType);
             return;
@@ -2569,7 +2569,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangListBindingPattern listBindingPattern) {
-        List<BType> listMemberTypes = new ArrayList<>(listBindingPattern.bindingPatterns.size());
+        List<BType> listMemberTypes = new ArrayList<>();
         for (BLangBindingPattern bindingPattern : listBindingPattern.bindingPatterns) {
             analyzeNode(bindingPattern, env);
             listMemberTypes.add(bindingPattern.getBType());
@@ -2779,7 +2779,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangMappingBindingPattern mappingBindingPattern) {
         BRecordTypeSymbol recordSymbol = symbolEnter.createAnonRecordSymbol(env, mappingBindingPattern.pos);
-        LinkedHashMap<String, BField> fields = new LinkedHashMap<>(mappingBindingPattern.fieldBindingPatterns.size());
+        LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
 
         for (BLangFieldBindingPattern fieldBindingPattern : mappingBindingPattern.fieldBindingPatterns) {
             fieldBindingPattern.accept(this);
@@ -2991,7 +2991,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BType intersectionType = types.getTypeIntersection(
                 Types.IntersectionContext.compilerInternalIntersectionContext(),
-                matchExprType, symTable.anyType, this.env, new LinkedHashSet<>());
+                matchExprType, symTable.anyType, this.env);
         if (intersectionType == symTable.semanticError) {
             wildCardMatchPattern.setBType(symTable.noType);
             return;
@@ -3047,7 +3047,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 return recordLiteral.getBType();
             case LIST_CONSTRUCTOR_EXPR:
                 BLangListConstructorExpr listConstructor = (BLangListConstructorExpr) expression;
-                List<BType> results = new ArrayList<>(listConstructor.exprs.size());
+                List<BType> results = new ArrayList<>();
                 for (int i = 0; i < listConstructor.exprs.size(); i++) {
                     BType literalType = checkStaticMatchPatternLiteralType(listConstructor.exprs.get(i));
                     if (literalType.tag == TypeTags.NONE) { // not supporting '_' for now

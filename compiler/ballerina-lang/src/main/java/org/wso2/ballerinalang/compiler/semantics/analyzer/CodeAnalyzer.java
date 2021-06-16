@@ -3957,7 +3957,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         BType intersectionType = types.getTypeIntersection(
                 Types.IntersectionContext.compilerInternalNonGenerativeIntersectionContext(),
-                expressionType, testType, env, new LinkedHashSet<>());
+                expressionType, testType, env);
 
         if (intersectionType != symTable.semanticError) {
             return true;

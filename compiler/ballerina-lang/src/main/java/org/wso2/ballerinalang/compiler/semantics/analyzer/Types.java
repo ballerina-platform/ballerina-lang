@@ -399,7 +399,7 @@ public class Types {
         }
         BType intersectionType = getTypeIntersection(
                 IntersectionContext.compilerInternalIntersectionContext(),
-                matchExpr.getBType(), errorBindingPattern.getBType(), env, new LinkedHashSet<>());
+                matchExpr.getBType(), errorBindingPattern.getBType(), env);
         if (intersectionType == symTable.semanticError) {
             return symTable.noType;
         }
@@ -416,7 +416,7 @@ public class Types {
         BType matchExprType = varBindingPatternMatchPattern.matchExpr.getBType();
         BType intersectionType = getTypeIntersection(
                 IntersectionContext.compilerInternalIntersectionContext(),
-                matchExprType, listBindingPatternType, env, new LinkedHashSet<>());
+                matchExprType, listBindingPatternType, env);
         if (intersectionType != symTable.semanticError) {
             return intersectionType;
         }
@@ -431,7 +431,7 @@ public class Types {
         BType matchExprType = listMatchPattern.matchExpr.getBType();
         BType intersectionType = getTypeIntersection(
                 IntersectionContext.compilerInternalIntersectionContext(),
-                matchExprType, listMatchPatternType, env, new LinkedHashSet<>());
+                matchExprType, listMatchPatternType, env);
         if (intersectionType != symTable.semanticError) {
             return intersectionType;
         }
@@ -515,7 +515,7 @@ public class Types {
         }
         BType intersectionType = getTypeIntersection(
                 IntersectionContext.compilerInternalIntersectionContext(),
-                mappingMatchPattern.matchExpr.getBType(), patternType, env, new LinkedHashSet<>());
+                mappingMatchPattern.matchExpr.getBType(), patternType, env);
         if (intersectionType == symTable.semanticError) {
             return symTable.noType;
         }
@@ -532,7 +532,7 @@ public class Types {
         BType intersectionType = getTypeIntersection(
                 IntersectionContext.compilerInternalIntersectionContext(),
                 varBindingPatternMatchPattern.matchExpr.getBType(),
-                mappingBindingPatternType, env, new LinkedHashSet<>());
+                mappingBindingPatternType, env);
         if (intersectionType == symTable.semanticError) {
             return symTable.noType;
         }
@@ -2162,10 +2162,9 @@ public class Types {
 
         // Disallow casting away error, this forces user to handle the error via type-test, check, or checkpanic
         IntersectionContext intersectionContext = IntersectionContext.compilerInternalIntersectionTestContext();
-        BType errorIntersection = getTypeIntersection(intersectionContext, sourceType, symTable.errorType, env,
-                new LinkedHashSet<>());
+        BType errorIntersection = getTypeIntersection(intersectionContext, sourceType, symTable.errorType, env);
         if (errorIntersection != symTable.semanticError &&
-                getTypeIntersection(intersectionContext, symTable.errorType, targetType, env, new LinkedHashSet<>())
+                getTypeIntersection(intersectionContext, symTable.errorType, targetType, env)
                         == symTable.semanticError) {
             return false;
         }
@@ -2185,7 +2184,7 @@ public class Types {
         // Use instanceof to check for anydata and json.
         if (sourceType instanceof BUnionType) {
             if (getTypeForUnionTypeMembersAssignableToType((BUnionType) sourceType, targetType, env,
-                    intersectionContext, new LinkedHashSet<>())
+                    intersectionContext)
                     != symTable.semanticError) {
                 // string|typedesc v1 = "hello world";
                 // json|table<Foo> v2 = <json|table<Foo>> v1;
@@ -2196,7 +2195,7 @@ public class Types {
         // Use instanceof to check for anydata and json.
         if (targetType instanceof BUnionType) {
             if (getTypeForUnionTypeMembersAssignableToType((BUnionType) targetType, sourceType, env,
-                    intersectionContext, new LinkedHashSet<>())
+                    intersectionContext)
                     != symTable.semanticError) {
                 // string|int v1 = "hello world";
                 // string|boolean v2 = <string|boolean> v1;
@@ -4110,6 +4109,11 @@ public class Types {
     }
 
     public BType getTypeIntersection(IntersectionContext intersectionContext, BType lhsType, BType rhsType,
+                                     SymbolEnv env) {
+        return getTypeIntersection(intersectionContext, lhsType, rhsType, env, new LinkedHashSet<>());
+    }
+
+    private BType getTypeIntersection(IntersectionContext intersectionContext, BType lhsType, BType rhsType,
                                      SymbolEnv env,
                                      LinkedHashSet<BType> visitedTypes) {
         List<BType> rhsTypeComponents = getAllTypes(rhsType);
@@ -4727,8 +4731,7 @@ public class Types {
             return origField.type;
         }
 
-        BType fieldType = getTypeIntersection(intersectionContext, origField.type, constraint, env,
-                new LinkedHashSet<>());
+        BType fieldType = getTypeIntersection(intersectionContext, origField.type, constraint, env);
         if (fieldType.tag == TypeTags.NEVER && !Symbols.isOptional(origField.symbol)) {
             return symTable.semanticError;
         }

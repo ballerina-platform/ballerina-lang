@@ -323,17 +323,13 @@ public class TypeNarrower extends BLangNodeVisitor {
         BType trueType, falseType;
         var nonLoggingContext = Types.IntersectionContext.compilerInternalNonGenerativeIntersectionContext();
         if (operator == OperatorKind.AND) {
-            trueType = types.getTypeIntersection(nonLoggingContext, lhsTrueType, rhsTrueType, this.env,
-                    new LinkedHashSet<>());
-            BType tmpType = types.getTypeIntersection(nonLoggingContext, lhsTrueType, rhsFalseType, this.env,
-                    new LinkedHashSet<>());
+            trueType = types.getTypeIntersection(nonLoggingContext, lhsTrueType, rhsTrueType, this.env);
+            BType tmpType = types.getTypeIntersection(nonLoggingContext, lhsTrueType, rhsFalseType, this.env);
             falseType = getTypeUnion(lhsFalseType, tmpType);
         } else {
-            BType tmpType = types.getTypeIntersection(nonLoggingContext, lhsFalseType, rhsTrueType, this.env,
-                    new LinkedHashSet<>());
+            BType tmpType = types.getTypeIntersection(nonLoggingContext, lhsFalseType, rhsTrueType, this.env);
             trueType = getTypeUnion(lhsTrueType, tmpType);
-            falseType = types.getTypeIntersection(nonLoggingContext, lhsFalseType, rhsFalseType, this.env,
-                    new LinkedHashSet<>());
+            falseType = types.getTypeIntersection(nonLoggingContext, lhsFalseType, rhsFalseType, this.env);
         }
         return new NarrowedTypes(trueType, falseType);
     }
@@ -426,11 +422,9 @@ public class TypeNarrower extends BLangNodeVisitor {
         BType falseType;
         if (expr.getKind() == NodeKind.BINARY_EXPR && ((BLangBinaryExpr) expr).opKind == OperatorKind.NOT_EQUAL) {
             trueType = types.getRemainingType(varSymbol.type, narrowWithType);
-            falseType = types.getTypeIntersection(nonLoggingContext, varSymbol.type, narrowWithType, this.env,
-                    new LinkedHashSet<>());
+            falseType = types.getTypeIntersection(nonLoggingContext, varSymbol.type, narrowWithType, this.env);
         } else {
-            trueType = types.getTypeIntersection(nonLoggingContext, varSymbol.type, narrowWithType, this.env,
-                    new LinkedHashSet<>());
+            trueType = types.getTypeIntersection(nonLoggingContext, varSymbol.type, narrowWithType, this.env);
             falseType = types.getRemainingType(varSymbol.type, narrowWithType);
         }
 
