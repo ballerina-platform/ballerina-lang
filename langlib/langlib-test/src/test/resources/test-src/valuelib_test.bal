@@ -716,6 +716,34 @@ function testCloneWithTypeDecimalToInt() {
     assert(a2[2], 3);
 }
 
+function testCloneWithTypeDecimalToIntNegative() {
+    decimal a = 9223372036854775807.5;
+    int|error result = a.cloneWithType(int);
+    checkDecimalToIntError(result);
+
+    decimal[] a1 = [9223372036854775807.5, -9223372036854775807.6];
+    int[]|error a2e = a1.cloneWithType(IntArray);
+    checkDecimalToIntError(a2e);
+
+    decimal a2 = 0.0 / 0;
+    int|error nan = a2.cloneWithType(int);
+    assert(nan is error, true);
+    error err = <error>nan;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina}NumberConversionError");
+    assert(messageString, "'decimal' value 'NaN' cannot be converted to 'int'");
+}
+
+function checkDecimalToIntError(any|error result) {
+    assert(result is error, true);
+    error err = <error>result;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'decimal' value cannot be converted to 'int'");
+}
+
 type StringArray string[];
 function testCloneWithTypeStringArray() {
    string anArray = "[\"hello\", \"world\"]";

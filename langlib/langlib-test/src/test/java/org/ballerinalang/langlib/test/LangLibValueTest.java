@@ -327,6 +327,7 @@ public class LangLibValueTest {
                 { "testCloneWithTypeWithInferredArgument" },
                 { "testCloneWithTypeWithImmutableTypes" },
                 { "testCloneWithTypeDecimalToInt"},
+                {"testCloneWithTypeDecimalToIntNegative"},
         };
     }
 
