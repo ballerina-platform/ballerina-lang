@@ -83,8 +83,7 @@ OPTIONS
            Enable the experimental language features.
 
        --debug
-           Run tests in remote debugging mode only when the 
-            '--skip-tests' flag is not used.
+           Run test functions in remote debugging mode.
 
        --observability-included
            Include package observability in the executable JAR file(s).

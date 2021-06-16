@@ -4,7 +4,7 @@ NAME
 
 
 SYNOPSIS
-       bal openapi [(-i|--input) <openapi-contract-file-path> | <ballerina-service-file-path> ]
+       bal openapi [(-i|--input) <openapi-contract-file-path> | <ballerina-service-file-path>]
                          [(-o| --output) <output>]
 
 
@@ -23,7 +23,7 @@ OPTIONS
             This is a mandatory input. The given OpenAPI contract input will generate a Ballerina service and the client
             stub files for the given OpenAPI contract. This generated service can be used as a code template
             to start the service implementation. The generated sources contain a service definition, schema definition, and
-            a copy of the OpenAPI contract, which is used for the template generation. The generated client stub is used to
+            a copy of the OpenAPI contract, which are used for the template generation. The generated client stub is used to
             start the client application implementation to call the service defined in the OpenAPI file.
             The given Ballerina service file input will generate the relevant OpenAPI specification for the service
             file.
@@ -33,43 +33,36 @@ OPTIONS
             the output will be written to the same directory from which the command is run.
 
         (--mode) <mode-type>
-            Mode type can be service or client. The Ballerina service and client will be generated
-            according to the mode. This is an optional input.
+            Mode type is optional and can be service or client. The Ballerina service and client will be generated
+            according to the mode. 
 
         (-s| --service ) <current-service-name>
-            This service name is used to identify the service that need to be documented as an OpenAPI specification. This option is used
-            with the Ballerina to OpenAPI specification generation command.
+            This service name is used to identify the service that needs to be documented as an OpenAPI specification in the Ballerina to OpenAPI specification generation.
 
         (--tags) <tag-names>
-            These tags are used to filter the operations and generate the services. This option is used with the OpenAPI to Ballerina file generation command.
+            These tags are used to filter the operations and generate the services in the OpenAPI to Ballerina file generation.
 
         (--operations) <operation-names>
-            These operations are used to filter the operations that are needed to generate services. This option is used with the OpenAPI to Ballerina file generation command.
+            These operations are used to filter the operations that are needed to generate services in the OpenAPI to Ballerina file generation.
 
 DEFAULT BEHAVIOR
        If no options are provided, the help text for the OpenAPI Tool is shown.
 
 EXAMPLES
-       Print the usage details of the OpenAPI command.
-          $ bal openapi
-          $ bal openapi -h
+       Generate a Ballerina mock service using a `hello.yaml` OpenAPI contract.
+          $ bal openapi -i hello.yaml --mode service 
 
-       Generate a Ballerina mock service with the `hellomock` module name 
-       and `hello` service name  using the `hello.yaml` OpenAPI contract.
-          $ bal openapi -i hello.yaml --mode service
+       Generate a Ballerina client using a `hello.yaml` OpenAPI contract.
+          $ bal openapi -i hello.yaml --mode client  
 
-       Generate a Ballerina client with the `hello-client` client name 
-       and write the output to the `client_package` folder.
-          $ bal openapi -i hello.yaml --mode client -o ./output_path
+       Generate both the Ballerina client and service files using a `hello.yaml` OpenAPI contract and (optionally) write the output to the given directory.
+          $ bal openapi --input hello.yaml -o ./output_path
 
-       Export an OpenAPI definition for the `hello_service.bal` file for the `hello` service.
-          $ bal openapi -i hello_service.bal --service-name hello -o ./
+       Generate services for the tags given in the `hello.yaml` OpenAPI contract.
+          $ bal openapi -i hello.yaml --mode service --tags tag_ID
 
-       Generate both the Ballerina client and service files.
-          $ bal openapi --input petstore.yaml -o ./example
+       Generate services for the operations given in the `hello.yaml` OpenAPI contract.
+          $ bal openapi -i hello.yaml --mode service --operations operation_ID
 
-       Generate services for the given tags.
-          $ bal openapi -i hello.yaml --mode service --tags pets
-
-       Generate services for the given operations.
-          $ bal openapi -i hello.yaml --mode service --operations listPets
+       Export an OpenAPI definition for the `/hello` service of the `hello_service.bal` file.
+          $ bal openapi -i hello_service.bal --service-name /hello 

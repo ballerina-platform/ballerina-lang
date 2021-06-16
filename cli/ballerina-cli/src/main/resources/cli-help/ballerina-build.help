@@ -40,7 +40,7 @@ OPTIONS
        --code-coverage
            Enable code coverage. This will analyze the line coverage of the
            source `.bal` files in the Ballerina package and add a section
-           to the testerina report with the code coverage details. This feature is not supported with single file executions.
+           to the testerina report with the code coverage details. This feature is not supported with single BAL file executions.
 
        --test-report
            Generate an HTML report containing the test results. Defaults to 'true'
@@ -56,7 +56,7 @@ OPTIONS
            Enable cloud artifact generation for cloud providers such as Kubernetes.
 
        --list-conflicted-classes
-       		List conflicting classes of conflicting JARs in the project.
+       		List the conflicting classes of conflicting JARs in the project.
 
 
 CONFIG PROPERTIES

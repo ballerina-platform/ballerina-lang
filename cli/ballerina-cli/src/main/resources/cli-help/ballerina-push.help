@@ -1,49 +1,26 @@
 NAME
-       ballerina-push - Push packages to Ballerina Central or to a local repository
+       ballerina-push - Push the Ballerina Archive (BALA) of the current package to Ballerina Central or to a local repository
 
 SYNOPSIS
        bal push [--repository=local]
 
 
 DESCRIPTION
-       Push the current package to Ballerina
-       Central if no options are provided.
+       Push the BALA of the current package to Ballerina
+       Central or to a local repository. Once the package is pushed to Ballerina Central, it becomes public and sharable and will be permanent.
 
-       Follow the steps below to set up the prerequisites before pushing the package to Ballerina Central.
-       1) Create an organization by registering with Ballerina Central at
-          https://central.ballerina.io/.
-       2) Add the access token with the registration you receive to the
-          'Settings.toml' file in the home repository (<USER_HOME>/.ballerina/).
-       3) Add the created organization name and version to the
-          'Ballerina.toml' file in the package directory.
+       For more information, go to https://ballerina.io/learn/user-guide/ballerina-packages/sharing-a-library-package/#publishing-a-library-package-to-ballerina-central.
 
-             [package]
-             org= "abc"
-             name= "foo"
-             version= "1.0.0"
-
-       Providing the '--repository=local' option will push the BALA to the local
-       repository. To use a certain package from the local repository, the depender
-       package should specify the 'repository="local"' entry in the 'Dependencies.toml'
-       file under the `[[dependency]]` table of the dependee package.
-
-       E.g., The `Dependencies.toml` file content of 'abc/foo:1.0.0' depends on 'abc/bar:1.0.0'
-
-              [[dependency]]
-              org= "abc"
-              name= "bar"
-              version= "1.0.0"
-              repository="local"
 
 OPTIONS
        --repository
-           Push the BALA to a custom repository. Only the 'local' is allowed.
+           Push the BALA of the current package to a custom repository. Only the 'local' is allowed.
 
 
 EXAMPLES
-       Push the package of the current project to Ballerina Central after
+       Push the BALA of the current package to Ballerina Central after
        building it.
            $ bal push
 
-       Push the package of the current project to the local repository for testing.
+       Push the BALA of the current package to the local repository for testing.
            $ bal push --repository=local

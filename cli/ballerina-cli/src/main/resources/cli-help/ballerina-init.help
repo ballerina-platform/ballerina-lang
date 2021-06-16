@@ -32,13 +32,13 @@ DESCRIPTION
        creating a `Ballerina.toml` file inside the current directory.
 
 OPTIONS
-     -t <template-name>, --template <template-name>
+      -t <template-name>, --template <template-name>
          Create a package using a predefined template.
 
          There are three built-in templates named:
-        1. `main`
-        2. `service`
-        3. `lib`
+                 1. `main`
+                 2. `service`
+                 3. `lib`
 
 EXAMPLES
      Initialise a package.
