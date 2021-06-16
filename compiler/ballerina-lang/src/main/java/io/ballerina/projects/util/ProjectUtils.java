@@ -25,10 +25,12 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.Settings;
+import io.ballerina.projects.internal.ImportModuleRequest;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -36,6 +38,7 @@ import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.BufferedInputStream;
@@ -56,6 +59,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -73,6 +77,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static io.ballerina.projects.PackageName.LANG_LIB_PACKAGE_NAME_PREFIX;
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.ASM_COMMONS_JAR;
 import static io.ballerina.projects.util.ProjectConstants.ASM_JAR;
@@ -601,15 +606,31 @@ public class ProjectUtils {
         content.append("version = \"").append(version).append("\"\n");
     }
 
-    public static List<PackageName> getPossiblePackageNames(String moduleName) {
-        String[] modNameParts = moduleName.split("\\.");
-        StringJoiner pkgNameBuilder = new StringJoiner(".");
+    public static List<PackageName> getPossiblePackageNames(ImportModuleRequest importModuleRequest) {
+        var pkgNameBuilder = new StringJoiner(".");
+
+        // If built in package, return moduleName as it is
+        if (isBuiltInPackage(importModuleRequest)) {
+            pkgNameBuilder.add(importModuleRequest.moduleName());
+            return Collections.singletonList(PackageName.from(pkgNameBuilder.toString()));
+        }
+
+        String[] modNameParts = importModuleRequest.moduleName().split("\\.");
         List<PackageName> possiblePkgNames = new ArrayList<>(modNameParts.length);
         for (String modNamePart : modNameParts) {
             pkgNameBuilder.add(modNamePart);
             possiblePkgNames.add(PackageName.from(pkgNameBuilder.toString()));
         }
         return possiblePkgNames;
+    }
+
+    private static boolean isBuiltInPackage(ImportModuleRequest importModuleRequest) {
+        PackageOrg org = importModuleRequest.packageOrg();
+        String moduleName = importModuleRequest.moduleName();
+        return (org.isBallerinaOrg() && moduleName.startsWith(LANG_LIB_PACKAGE_NAME_PREFIX)) ||
+                (org.value().equals(Names.BALLERINA_INTERNAL_ORG.getValue())) ||
+                (org.isBallerinaOrg() && moduleName.equals(Names.JAVA.getValue())) ||
+                (org.isBallerinaOrg() && moduleName.equals(Names.TEST.getValue()));
     }
 
     /**

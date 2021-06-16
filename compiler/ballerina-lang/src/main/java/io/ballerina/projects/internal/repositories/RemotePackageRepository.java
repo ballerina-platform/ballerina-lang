@@ -133,6 +133,8 @@ public class RemotePackageRepository implements PackageRepository {
             }
         } catch (ConnectionErrorException e) {
             // ignore connect to remote repo failure
+            // set `offline` true
+            this.isOffline = true;
             return new ArrayList<>(packageVersions);
         } catch (CentralClientException e) {
             throw new ProjectException(e.getMessage());
