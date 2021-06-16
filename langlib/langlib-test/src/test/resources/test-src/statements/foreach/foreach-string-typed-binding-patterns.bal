@@ -8,8 +8,6 @@ function concatIntAny(int i, any a) {
     output = output + i.toString() + ":" + a.toString() + " ";
 }
 
-// ---------------------------------------------------------------------------------------------------------------------
-
 function testStringWithSimpleVariableWithStringType() {
     output = "";
     string expected = "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ";
@@ -22,8 +20,6 @@ function testStringWithSimpleVariableWithStringType() {
     }
     assertEquals(expected, output);
 }
-
-// ---------------------------------------------------------------------------------------------------------------------
 
 function testStringWithSimpleVariableWithCharType() {
     output = "";
@@ -64,8 +60,6 @@ function testStringWithSimpleVariableWithType() returns string {
     return output;
 }
 
-// ---------------------------------------------------------------------------------------------------------------------
-
 function testStringWithSimpleVariableWithAnydataType() returns string {
     output = "";
 
@@ -78,8 +72,6 @@ function testStringWithSimpleVariableWithAnydataType() returns string {
     }
     return output;
 }
-
-// ---------------------------------------------------------------------------------------------------------------------
 
 function testStringWithSimpleVariableWithAnyType() returns string {
     output = "";
@@ -94,9 +86,6 @@ function testStringWithSimpleVariableWithAnyType() returns string {
     return output;
 }
 
-
-// ---------------------------------------------------------------------------------------------------------------------
-
 function testIterationOnEmptyString() returns string {
     output = "";
 
@@ -110,8 +99,6 @@ function testIterationOnEmptyString() returns string {
     return output;
 }
 
-// ---------------------------------------------------------------------------------------------------------------------
-
 function testIterationTypeCheck() {
     string foo = "foo";
 
@@ -120,8 +107,6 @@ function testIterationTypeCheck() {
         assertTrue(str is string:Char);
     }
 }
-
-// ---------------------------------------------------------------------------------------------------------------------
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
