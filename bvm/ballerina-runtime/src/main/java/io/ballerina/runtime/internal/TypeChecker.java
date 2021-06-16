@@ -2062,6 +2062,9 @@ public class TypeChecker {
             case TypeTags.RECORD_TYPE_TAG:
                 return checkIsLikeRecordType(sourceValue, (BRecordType) targetType, unresolvedValues,
                         allowNumericConversion);
+            case TypeTags.TABLE_TAG:
+                return checkIsLikeTableType(sourceValue, (BTableType) targetType, unresolvedValues,
+                                             allowNumericConversion);
             case TypeTags.JSON_TAG:
                 return checkIsLikeJSONType(sourceValue, sourceType, (BJsonType) targetType, unresolvedValues,
                                            allowNumericConversion);
@@ -2496,6 +2499,35 @@ public class TypeChecker {
                 } else {
                     return false;
                 }
+            }
+        }
+        return true;
+    }
+
+    private static boolean checkIsLikeTableType(Object sourceValue, BTableType targetType,
+                                                List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
+        if (!(sourceValue instanceof TableValueImpl)) {
+            return false;
+        }
+        TableValueImpl tableValue = (TableValueImpl) sourceValue;
+        BTableType sourceType = (BTableType) tableValue.getType();
+        if (targetType.getKeyType() != null && sourceType.getFieldNames() == null) {
+            return false;
+        }
+
+        if (sourceType.getKeyType() != null && !checkIsType(tableValue.getKeyType(), targetType.getKeyType())) {
+            return false;
+        }
+
+        TypeValuePair typeValuePair = new TypeValuePair(sourceValue, targetType);
+        if (unresolvedValues.contains(typeValuePair)) {
+            return true;
+        }
+
+        Object[] objects = tableValue.values().toArray();
+        for (Object object : objects) {
+            if (!checkIsLikeType(object, targetType.getConstrainedType(), allowNumericConversion)) {
+                return false;
             }
         }
         return true;
