@@ -112,7 +112,9 @@ public class CyclicTypeDefinitionsTest {
                 29, 1);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
                 "'(int|[int,string,([int,string,...,map<F>]|int),map<F>])', found '[int,string,[int,string]]'", 32, 20);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '[int,I[]]'", 34, 12);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', " +
+                "found '[int,I[]]'", 34, 12);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'v'", 37, 19);
         Assert.assertEquals(i, negativeResult.getErrorCount());
     }
 

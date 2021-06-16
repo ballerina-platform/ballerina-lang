@@ -1616,8 +1616,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         BSymbol foundSym = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(typeDef.name));
         if (foundSym != symTable.notFoundSymbol) {
             newTypeNode = foundSym.type;
-            newTypeNode.tsymbol = (BTypeSymbol) foundSym;
-            newTypeNode.flags |= foundSym.flags;
             return newTypeNode;
         }
         switch (typeDef.typeNode.getKind()) {
@@ -1649,6 +1647,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Since we are calling this API we don't have to call
         // `markParameterizedType(unionType, memberTypes);` again for resolved members
         BType resolvedTypeNodes = symResolver.resolveTypeNode(typeDef.typeNode, env);
+
+        if (resolvedTypeNodes == symTable.noType) {
+            return symTable.semanticError;
+        }
 
         switch (resolvedTypeNodes.tag) {
             case TypeTags.TUPLE:

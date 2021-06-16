@@ -33,3 +33,5 @@ function testTupleCyclic() {
     I a = [1];
     I b = [a];
 }
+
+type R[int, R[1], v...];
