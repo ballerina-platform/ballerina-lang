@@ -19,7 +19,6 @@ package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 
@@ -32,18 +31,12 @@ public class MathUtils {
 
     private static final BString DIVIDE_BY_ZERO_ERROR = StringUtils.fromString(" / by zero");
 
-    private static final BString INT_RANGE_OVERFLOW_ERROR = StringUtils.fromString(" int range overflow");
-
-    public static BError getIntOverflowError() {
-        return ErrorCreator.createError(BallerinaErrorReasons.NUMBER_OVERFLOW, INT_RANGE_OVERFLOW_ERROR);
-    }
-
     public static long divide(long numerator, long denominator) {
         try {
             if (numerator == Long.MIN_VALUE && denominator == -1) {
                 // a panic will occur on division by zero or overflow,
                 // which happens if the first operand is -2^63 and the second operand is -1
-                throw getIntOverflowError();
+                throw ErrorUtils.createIntOverflowError();
             }
             return numerator / denominator;
         } catch (ArithmeticException e) {
@@ -73,7 +66,7 @@ public class MathUtils {
         try {
             return Math.addExact(num1, num2);
         } catch (ArithmeticException e) {
-            throw getIntOverflowError();
+            throw ErrorUtils.createIntOverflowError();
         }
     }
 
@@ -81,7 +74,7 @@ public class MathUtils {
         try {
             return Math.subtractExact(num1, num2);
         } catch (ArithmeticException e) {
-            throw getIntOverflowError();
+            throw ErrorUtils.createIntOverflowError();
         }
     }
 
@@ -89,7 +82,7 @@ public class MathUtils {
         try {
             return Math.multiplyExact(num1, num2);
         } catch (ArithmeticException e) {
-            throw getIntOverflowError();
+            throw ErrorUtils.createIntOverflowError();
         }
     }
 }
