@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.test;
 
 import io.ballerina.projects.JarResolver;
@@ -1311,7 +1312,7 @@ public class BRunUtil {
         return invoke(compileResult, function, functionName, new BValue[0], new Class<?>[0]);
     }
 
-    public static String runMain(CompileResult compileResult, String[] args) {
+    public static String runMain(CompileResult compileResult, String... args) {
         ExitDetails exitDetails = run(compileResult, args);
         if (exitDetails.exitCode != 0) {
             throw new RuntimeException(exitDetails.errorOutput);
@@ -1319,7 +1320,7 @@ public class BRunUtil {
         return exitDetails.consoleOutput;
     }
 
-    public static ExitDetails run(CompileResult compileResult, String[] args) {
+    public static ExitDetails run(CompileResult compileResult, String... args) {
         PackageManifest packageManifest = compileResult.packageManifest();
         String initClassName = JarResolver.getQualifiedClassName(packageManifest.org().toString(),
                 packageManifest.name().toString(),
@@ -1457,5 +1458,8 @@ public class BRunUtil {
             this.consoleOutput = consoleOutput;
             this.errorOutput = errorOutput;
         }
+    }
+
+    private BRunUtil() {
     }
 }

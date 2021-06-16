@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.test.run;
 
 import org.ballerinalang.test.BaseTest;
@@ -23,42 +24,32 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.Test;
 
-import java.io.File;
+import java.nio.file.Paths;
 
 /**
- * This class tests build a bal file and execute the jar via the java jar Command and the test the basic data
- * binding functionality.
+ * This class tests build a bal file and execute the jar via the java jar Command and the test the basic data binding
+ * functionality.
  */
 public class BasicJavaJarRunTestCase extends BaseTest {
 
-    private static final int LOG_LEECHER_TIMEOUT = 10000;
-
-    @Test(enabled = false)
+    @Test
     public void testNoArg() throws BallerinaTestException {
-        BMainInstance ballerinaClient = new BMainInstance(balServer);
-        String serverResponse = "1";
-        String balFile = (new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                                           "run" + File.separator + "file" + File.separator +
-                                           "test_main_with_no_params.bal")).getAbsolutePath();
-        LogLeecher clientLeecher = new LogLeecher(serverResponse);
-        ballerinaClient.runMain(balFile, new LogLeecher[] { clientLeecher });
-        clientLeecher.waitForText(LOG_LEECHER_TIMEOUT);
+        executeTest("1", "test_main_with_no_params.bal");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMultipleParam() throws BallerinaTestException {
+        executeTest(
+                "integer: 1000, float: 1.0, string: Hello Ballerina, Employee Name Field: Em, string rest args: just " +
+                        "the rest ", "test_main_with_multiple_typed_params.bal", "1000", "1.0", "Hello Ballerina",
+                "just", "the", "rest", "--name=Em");
+    }
+
+    private void executeTest(String serverResponse, String fileName, String... args) throws BallerinaTestException {
         BMainInstance ballerinaClient = new BMainInstance(balServer);
-        String serverResponse = "integer: 1000, float: 1.0, string: Hello Ballerina, byte: 255, boolean: true, JSON "
-                + "Name Field: Maryam, XML Element Name: book, Employee Name Field: Em, string rest args: just the "
-                + "rest";
-        String balFile = (new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                                           "run" + File.separator + "file" + File.separator +
-                                           "test_main_with_multiple_typed_params.bal")).getAbsolutePath();
+        String balFile = Paths.get("src", "test", "resources", "run", "file", fileName).toAbsolutePath().toString();
         LogLeecher clientLeecher = new LogLeecher(serverResponse);
-        ballerinaClient.runMain(balFile, null, new String[] {
-                "1000", "1.0", "Hello Ballerina", "255", "true", "{ " + "\"name\": \"Maryam\" }", "<book>Harry "
-                + "Potter</book>", "{ \"name\": \"Em\" }", "just", "the", "rest"
-        }, new LogLeecher[] { clientLeecher });
-        clientLeecher.waitForText(20000);
+        ballerinaClient.runMain(balFile, null, args, new LogLeecher[]{clientLeecher});
+        clientLeecher.waitForText(10000);
     }
 }
