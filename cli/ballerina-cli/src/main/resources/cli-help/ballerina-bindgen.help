@@ -10,7 +10,7 @@ SYNOPSIS
 
 
 DESCRIPTION
-       A CLI tool for generating Ballerina bridge code for Java APIs.
+       Generate Ballerina bridge code for Java APIs.
 
        Ballerina bindings could be generated for Java classes residing inside Java libraries
        or for standard Java classes. Here, the Java classes will be mapped onto Ballerina
