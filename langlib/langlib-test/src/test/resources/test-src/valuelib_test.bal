@@ -699,6 +699,8 @@ function testCloneWithTypeNumeric7() {
     assert(a2[2], <decimal> 3);
 }
 
+type ByteArray byte[];
+
 function testCloneWithTypeDecimalToInt() {
     decimal a = 12.3456;
     int|error result = a.cloneWithType(int);
@@ -714,6 +716,30 @@ function testCloneWithTypeDecimalToInt() {
     assert(a2[0], 1);
     assert(a2[1], 2);
     assert(a2[2], 3);
+}
+
+function testCloneWithTypeDecimalToByte() {
+    decimal a = 12.3456;
+    byte|error result = a.cloneWithType(byte);
+    assert(result is byte, true);
+    assert(checkpanic result, 12);
+
+    decimal[] a1 = [1.23, 2.34, 3.45];
+    byte[]|error a2e = a1.cloneWithType(ByteArray);
+    assert(a2e is byte[], true);
+
+    byte[] a2 = checkpanic a2e;
+    assert(a2.length(), a1.length());
+    assert(a2[0], 1);
+    assert(a2[1], 2);
+    assert(a2[2], 3);
+}
+
+function testCloneWithTypeDecimalToIntSubType() {
+    decimal a = 12.3456;
+    int:Signed32|error result = a.cloneWithType(int:Signed32);
+    assert(result is int:Signed32, true);
+    assert(checkpanic result, 12);
 }
 
 function testCloneWithTypeDecimalToIntNegative() {

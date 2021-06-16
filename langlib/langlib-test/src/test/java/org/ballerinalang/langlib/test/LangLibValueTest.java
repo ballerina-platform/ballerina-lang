@@ -328,6 +328,8 @@ public class LangLibValueTest {
                 { "testCloneWithTypeWithImmutableTypes" },
                 { "testCloneWithTypeDecimalToInt"},
                 {"testCloneWithTypeDecimalToIntNegative"},
+                { "testCloneWithTypeDecimalToByte"},
+                { "testCloneWithTypeDecimalToIntSubType"},
         };
     }
 

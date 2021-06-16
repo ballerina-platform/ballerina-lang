@@ -46,7 +46,6 @@ import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -193,7 +192,7 @@ public class TypeConverter {
                 if (!isDecimalWithinIntRange((DecimalValue) value)) {
                     return false;
                 }
-                val = ((BigDecimal) value).intValue();
+                val = ((DecimalValue) value).value().intValue();
                 break;
             default:
                 return false;
