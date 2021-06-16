@@ -100,16 +100,6 @@ function filterNonEmtyData (Data[] dataList) returns Data[] {
     return newData;
 }
 
-function filterNonEmtyData (Data[] dataList) returns Data[] {
-    Data[] newData = from Data d in dataList
-        select {
-            labels: let Label[]? l = d.labels
-                in (l != () ? from Label nl in l
-                    select {name: nl.name} : [{name: "John Doe"}])
-        };
-    return newData;
-}
-
 //---------------------------------------------------------------------------------------------------------
 const ASSERTION_ERROR_REASON = "AssertionError";
 
