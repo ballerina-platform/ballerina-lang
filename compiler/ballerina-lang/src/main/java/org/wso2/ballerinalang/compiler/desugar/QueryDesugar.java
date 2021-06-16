@@ -219,6 +219,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private final Names names;
     private final Types types;
     private SymbolEnv env;
+    private boolean containsCheckExpr;
 
     private QueryDesugar(CompilerContext context) {
         context.put(QUERY_DESUGAR_KEY, this);
@@ -245,6 +246,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return desugared query expression.
      */
     BLangStatementExpression desugar(BLangQueryExpr queryExpr, SymbolEnv env) {
+        containsCheckExpr = false;
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         Location pos = clauses.get(0).pos;
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
@@ -261,8 +263,8 @@ public class QueryDesugar extends BLangNodeVisitor {
             BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
                     QUERY_ADD_TO_TABLE_FUNCTION, Lists.of(streamRef, tableRef, onConflictExpr), pos);
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
-                                                                      addTypeConversionExpr(result,
-                                                                                            queryExpr.getBType()));
+                    addTypeConversionExpr(result,
+                            queryExpr.getBType()));
             streamStmtExpr.setBType(tableRef.getBType());
             onConflictExpr = null;
         } else {
@@ -286,8 +288,18 @@ public class QueryDesugar extends BLangNodeVisitor {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_ARRAY_FUNCTION,
                         Lists.of(streamRef, arr), pos);
             }
-            streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, result);
-            streamStmtExpr.setBType(result.getBType());
+            if (containsCheckExpr) {
+                // if there's a `check` expr within the query, wrap the whole query with a `check` expr,
+                // so that it will propagate the error properly.
+                BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckExpr(pos, result, queryExpr.getBType());
+                checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
+                streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, checkedExpr);
+                streamStmtExpr.setBType(checkedExpr.getBType());
+            } else {
+                streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
+                        addTypeConversionExpr(result, queryExpr.getBType()));
+                streamStmtExpr.setBType(queryExpr.getBType());
+            }
         }
         return streamStmtExpr;
     }
@@ -393,10 +405,10 @@ public class QueryDesugar extends BLangNodeVisitor {
                                        BLangExpression collection, BType resultType) {
         String name = getNewVarName();
         BVarSymbol dataSymbol = new BVarSymbol(0, names.fromString(name), env.scope.owner.pkgID,
-                                               collection.getBType(), this.env.scope.owner, pos, VIRTUAL);
+                collection.getBType(), this.env.scope.owner, pos, VIRTUAL);
         BLangSimpleVariable dataVariable =
                 ASTBuilderUtil.createVariable(pos, name, collection.getBType(),
-                                              addTypeConversionExpr(collection, collection.getBType()), dataSymbol);
+                        addTypeConversionExpr(collection, collection.getBType()), dataSymbol);
         BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(pos, dataVariable);
         BLangVariableReference valueVarRef = ASTBuilderUtil.createVariableRef(pos, dataSymbol);
         blockStmt.addStatement(dataVarDef);
@@ -1670,6 +1682,7 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
+        containsCheckExpr = true;
         checkedExpr.expr.accept(this);
     }
 
