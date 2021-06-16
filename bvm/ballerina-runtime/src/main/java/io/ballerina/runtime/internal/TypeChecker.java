@@ -1932,18 +1932,19 @@ public class TypeChecker {
     }
 
     private static boolean checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(Type type) {
-        Set<Type> visitedTypeSet = new HashSet<>();
-        visitedTypeSet.add(type);
+        Set<String> visitedTypeSet = new HashSet<>();
         return checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(type, visitedTypeSet);
     }
 
     private static boolean checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(Type type,
-                                                                                   Set<Type> visitedTypeSet) {
+                                                                                   Set<String> visitedTypeSet) {
         switch (type.getTag()) {
             case TypeTags.NEVER_TAG:
                 return true;
             case TypeTags.RECORD_TYPE_TAG:
-                for (Field field : ((BRecordType) type).getFields().values()) {
+                BRecordType recordType = (BRecordType) type;
+                visitedTypeSet.add(recordType.getName());
+                for (Field field : recordType.getFields().values()) {
                     // skip check for fields with self referencing type and not required fields.
                     if ((SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.REQUIRED) ||
                             !SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL)) &&
@@ -1956,9 +1957,12 @@ public class TypeChecker {
                 return false;
             case TypeTags.TUPLE_TAG:
                 BTupleType tupleType = (BTupleType) type;
+                visitedTypeSet.add(tupleType.getName());
                 List<Type> tupleTypes = tupleType.getTupleTypes();
                 for (Type mem : tupleTypes) {
-                    visitedTypeSet.add(mem);
+                    if (!visitedTypeSet.add(mem.getName())) {
+                        continue;
+                    }
                     if (checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(mem, visitedTypeSet)) {
                         return true;
                     }
@@ -1966,8 +1970,9 @@ public class TypeChecker {
                 return false;
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) type;
+                visitedTypeSet.add(arrayType.getName());
                 Type elemType = arrayType.getElementType();
-                visitedTypeSet.add(elemType);
+                visitedTypeSet.add(elemType.getName());
                 return arrayType.getState() != ArrayState.OPEN &&
                         checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(elemType, visitedTypeSet);
             default:
