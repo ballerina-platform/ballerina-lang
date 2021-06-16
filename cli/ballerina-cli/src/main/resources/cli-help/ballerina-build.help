@@ -53,7 +53,7 @@ OPTIONS
            Include package observability in the executable JAR file(s).
 
        --cloud
-           Enable cloud artifact generation for cloud providers such as Kubernetes.
+           Enable cloud artifact generation for cloud providers: (`--cloud=k8s`)for Kubernetes and (`--cloud=docker`) for Docker.
 
        --list-conflicted-classes
        		List the conflicting classes of conflicting JARs in the project.
