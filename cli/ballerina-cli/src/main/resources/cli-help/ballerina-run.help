@@ -36,7 +36,7 @@ OPTIONS
            Run in the remote debugging mode.
 
        --observability-included
-           Include package observability in the executable when the `bal run` command is used with a source file or a package.
+           Include the dependencies and artifacts in the  executable JAR file(s) of a Ballerina program that are required to enable the observability functionalities on it.
 
 ARGUMENTS
        --

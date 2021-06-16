@@ -86,7 +86,7 @@ OPTIONS
            Run test functions in remote debugging mode.
 
        --observability-included
-           Include package observability in the executable JAR file(s).
+           Include the dependencies and artifacts in the  executable JAR file(s) of a Ballerina program that are required to enable the observability functionalities on it.
 
 
 EXAMPLES

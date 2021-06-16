@@ -50,7 +50,7 @@ OPTIONS
            Run tests in remote debugging mode only when the '--skip-tests' flag is not used.
 
        --observability-included
-           Include package observability in the executable JAR file(s).
+           Include the dependencies and artifacts in the  executable JAR file(s) of a Ballerina program that are required to enable the observability functionalities on it.
 
        --cloud
            Enable cloud artifact generation for cloud providers: (`--cloud=k8s`)for Kubernetes and (`--cloud=docker`) for Docker.
