@@ -17,21 +17,16 @@
  */
 package io.ballerina.converters;
 
-import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.converters.exception.JsonToRecordConverterException;
 import io.ballerina.converters.util.ConverterUtils;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,7 +35,6 @@ import java.util.Map;
  */
 public class JsonToRecordConverterTests {
     private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
-    ArrayList<TypeDefinitionNode> records;
 
     private final Path basicSchemaJson = RES_DIR.resolve("json")
             .resolve("basic_schema.json");
@@ -96,19 +90,6 @@ public class JsonToRecordConverterTests {
             .resolve("crlf.json");
     private final Path crlfBal = RES_DIR.resolve("ballerina")
             .resolve("from_crlf.bal");
-
-    private final Path emptyBal = RES_DIR.resolve("ballerina")
-            .resolve("empty.bal");
-
-    // write the codeblock to an empty .bal file
-    public void writeToEmpty(String codeBlock) {
-        Charset charset = StandardCharsets.US_ASCII;
-        try (BufferedWriter writer = Files.newBufferedWriter(emptyBal, charset)) {
-            writer.write(codeBlock, 0, codeBlock.length());
-        } catch (IOException x) {
-            System.err.format("IOException: %s%n", x);
-        }
-    }
 
     @Test(description = "Test with basic json schema string")
     public void testBasicSchema() throws JsonToRecordConverterException, IOException, FormatterException {
