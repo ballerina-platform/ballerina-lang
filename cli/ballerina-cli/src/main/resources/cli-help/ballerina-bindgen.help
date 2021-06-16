@@ -28,7 +28,7 @@ OPTIONS
            is to be generated for standard Java classes.
 
        (-mvn|--maven) <groupId>:<artifactId>:<version>
-           Specify a Maven dependency with colon delimited groupId, artifactId and version.
+           Specify a Maven dependency with a colon-delimited group ID, artifact ID, and version.
            This would resolve the transitive dependencies and update the Ballerina.toml file.
 
        (-o|--output) <output-path>
