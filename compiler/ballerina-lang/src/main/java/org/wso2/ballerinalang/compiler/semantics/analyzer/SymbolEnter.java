@@ -1682,9 +1682,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv prevEnv = this.env;
         this.env = env;
         for (BLangNode unresolvedNode : unresolvedTypes) {
-            BLangTypeDefinition unresolvedTypeDef = (BLangTypeDefinition) unresolvedNode;
-            if (unresolvedTypeDef.hasCyclicReference && unresolvedTypeDef.getKind() == NodeKind.TYPE_DEFINITION) {
-                defineSymbolsForCyclicTypeDefinitions(unresolvedTypeDef, env);
+            if (unresolvedNode.getKind() == NodeKind.TYPE_DEFINITION && 
+                    ((BLangTypeDefinition) unresolvedNode).hasCyclicReference) {
+                defineSymbolsForCyclicTypeDefinitions((BLangTypeDefinition) unresolvedNode, env);
             }
         }
         this.env = prevEnv;
