@@ -57,8 +57,10 @@ public class FieldAccessExpressionEvaluator extends Evaluator {
         try {
             BExpressionValue result = objectExpressionEvaluator.evaluate();
             BVariable resultVar = VariableFactory.getVariable(context, result.getJdiValue());
-            if (resultVar.getBType() != BVariableType.OBJECT && resultVar.getBType() != BVariableType.RECORD &&
-                    resultVar.getBType() != BVariableType.JSON) {
+            if (resultVar.getBType() != BVariableType.OBJECT
+                    && resultVar.getBType() != BVariableType.SERVICE
+                    && resultVar.getBType() != BVariableType.RECORD
+                    && resultVar.getBType() != BVariableType.JSON) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Field " +
                         "access is not supported on type '" + resultVar.getBType().getString() + "'."));
             }
