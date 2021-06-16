@@ -33,7 +33,7 @@ OPTIONS
 
        (-o|--output) <output-path>
            Generate all bindings inside a single directory. This option could be used in
-           instances where all the mappings are required inside a single module. Here, the
+           instances where all the mappings are required inside a single module. The
            directory specified doesn't need to be inside a Ballerina package.
 
        --public
