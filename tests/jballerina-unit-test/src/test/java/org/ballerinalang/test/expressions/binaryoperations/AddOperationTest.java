@@ -20,6 +20,7 @@ import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -45,14 +46,21 @@ public class AddOperationTest {
 
     @Test(description = "Test two int add expression")
     public void testIntAddExpr() {
-        BValue[] args = { new BInteger(100), new BInteger(200)};
+        BValue[] args = { new BInteger(2147483647), new BInteger(2147483646)};
 
         BValue[] returns = BRunUtil.invoke(result, "intAdd", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         long actual = ((BInteger) returns[0]).intValue();
-        long expected = 300;
+        long expected = 4294967293L;
         Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test two int add overflow expression", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\" int range " +
+                    "overflow\"\\}.*")
+    public void testIntOverflowByAddition() {
+        BRunUtil.invoke(result, "overflowByAddition");
     }
 
     @Test(description = "Test two float add expression")
