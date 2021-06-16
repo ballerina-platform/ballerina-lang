@@ -687,7 +687,7 @@ public class TomlProviderTest {
                 // union variable with int value
                 {"intStringVar", TypeCreator.createUnionType(List.of(TYPE_INT, TYPE_FLOAT), true), 123456L},
                 // union variable with byte value
-                {"byteStringVar", TypeCreator.createUnionType(List.of(TYPE_STRING, TYPE_BYTE), true), 5},
+                {"byteStringVar", TypeCreator.createUnionType(List.of(TYPE_STRING, TYPE_BYTE), true), 5L},
                 // union variable with float value
                 {"floatIntStringVar", TypeCreator.createUnionType(List.of(TYPE_STRING, TYPE_INT,
                                                                           TYPE_FLOAT), true), 123.45},
