@@ -108,8 +108,7 @@ public class JsonToRecordConverter {
         TextDocument textDocument = TextDocuments.from("");
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
         syntaxTree = syntaxTree.modifyWith(modulePartNode);
-        String codeBlock = Formatter.format(syntaxTree).toString();
-        return codeBlock;
+        return Formatter.format(syntaxTree).toString();
     }
 
     /**
