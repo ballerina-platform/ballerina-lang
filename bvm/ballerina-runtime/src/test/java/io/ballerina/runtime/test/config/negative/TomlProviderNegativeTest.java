@@ -218,7 +218,7 @@ public class TomlProviderNegativeTest {
     public void testInvalidEnumTypeValue() {
         VariableKey mapInt = new VariableKey(ROOT_MODULE, "color", COLOR_ENUM, true);
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{mapInt}));
-        String errorMsg = "[InvalidEnumType.toml:(2:7,2:14)] configurable variable 'color' is expected to be of type " +
+        String errorMsg = "[InvalidEnumType.toml:(2:1,2:14)] configurable variable 'color' is expected to be of type " +
                 "'Colors', but found 'string'";
         validateTomlProviderErrors("InvalidEnumType", errorMsg, configVarMap, 1, 0);
     }

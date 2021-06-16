@@ -90,7 +90,7 @@ public class DivisionOperationTest {
                 "Result of the division operation is incorrect");
     }
 
-    @Test(description = "Test devide statement with errors")
+    @Test(description = "Test divide statement with errors")
     public void testDivideStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 12);
         BAssertUtil.validateError(resultNegative, 0, "operator '/' not defined for 'json' and 'json'", 8, 10);

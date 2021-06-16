@@ -102,17 +102,14 @@ import static org.objectweb.asm.Opcodes.ISTORE;
 import static org.objectweb.asm.Opcodes.IUSHR;
 import static org.objectweb.asm.Opcodes.IXOR;
 import static org.objectweb.asm.Opcodes.L2I;
-import static org.objectweb.asm.Opcodes.LADD;
 import static org.objectweb.asm.Opcodes.LAND;
 import static org.objectweb.asm.Opcodes.LCMP;
 import static org.objectweb.asm.Opcodes.LLOAD;
-import static org.objectweb.asm.Opcodes.LMUL;
 import static org.objectweb.asm.Opcodes.LNEG;
 import static org.objectweb.asm.Opcodes.LOR;
 import static org.objectweb.asm.Opcodes.LSHL;
 import static org.objectweb.asm.Opcodes.LSHR;
 import static org.objectweb.asm.Opcodes.LSTORE;
-import static org.objectweb.asm.Opcodes.LSUB;
 import static org.objectweb.asm.Opcodes.LUSHR;
 import static org.objectweb.asm.Opcodes.LXOR;
 import static org.objectweb.asm.Opcodes.NEW;
@@ -893,7 +890,7 @@ public class JvmInstructionGen {
         BType bType = binaryIns.lhsOp.variableDcl.type;
         this.generateBinaryRhsAndLhsLoad(binaryIns);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
-            this.mv.visitInsn(LADD);
+            this.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "addExact", "(JJ)J", false);
         } else if (bType.tag == TypeTags.BYTE) {
             this.mv.visitInsn(IADD);
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
@@ -921,7 +918,7 @@ public class JvmInstructionGen {
         BType bType = binaryIns.lhsOp.variableDcl.type;
         this.generateBinaryRhsAndLhsLoad(binaryIns);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
-            this.mv.visitInsn(LSUB);
+            this.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "subtractExact", "(JJ)J", false);
         } else if (bType.tag == TypeTags.FLOAT) {
             this.mv.visitInsn(DSUB);
         } else if (bType.tag == TypeTags.DECIMAL) {
@@ -957,7 +954,7 @@ public class JvmInstructionGen {
         BType bType = binaryIns.lhsOp.variableDcl.type;
         this.generateBinaryRhsAndLhsLoad(binaryIns);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
-            this.mv.visitInsn(LMUL);
+            this.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "multiplyExact", "(JJ)J", false);
         } else if (bType.tag == TypeTags.FLOAT) {
             this.mv.visitInsn(DMUL);
         } else if (bType.tag == TypeTags.DECIMAL) {
