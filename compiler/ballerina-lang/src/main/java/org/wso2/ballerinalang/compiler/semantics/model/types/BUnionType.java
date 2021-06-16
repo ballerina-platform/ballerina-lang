@@ -54,6 +54,8 @@ public class BUnionType extends BType implements UnionType {
     protected LinkedHashSet<BType> memberTypes;
     public Boolean isAnyData = null;
     public Boolean isPureType = null;
+    public boolean isCyclic = false;
+
 
     private LinkedHashSet<BType> originalMemberTypes;
     private static final String INT_CLONEABLE = "__Cloneable";
@@ -81,6 +83,24 @@ public class BUnionType extends BType implements UnionType {
         this.originalMemberTypes = originalMemberTypes;
         this.memberTypes = memberTypes;
         this.nullable = nullable;
+    }
+
+    private BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly,
+                       boolean isCyclic) {
+        super(TypeTags.UNION, tsymbol);
+
+        if (readonly) {
+            this.flags |= Flags.READONLY;
+
+            if (tsymbol != null) {
+                this.tsymbol.flags |= Flags.READONLY;
+            }
+        }
+
+        this.originalMemberTypes = memberTypes;
+        this.memberTypes = memberTypes;
+        this.nullable = nullable;
+        this.isCyclic = isCyclic;
     }
 
     @Override
@@ -158,6 +178,21 @@ public class BUnionType extends BType implements UnionType {
 
     public void setNullable(boolean nullable) {
         this.nullable = nullable;
+    }
+
+    /**
+     * Creates an empty union for cyclic union types.
+     *
+     * @param tsymbol Type symbol for the union.
+     * @param types   The types to be used to define the union.
+     * @param isCyclic The cyclic indicator.
+     * @return The created union type.
+     */
+    public static BUnionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types, boolean isCyclic) {
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(types.size());
+        boolean isImmutable = true;
+        boolean hasNilableType = false;
+        return new BUnionType(tsymbol, memberTypes, hasNilableType, isImmutable, isCyclic);
     }
 
     /**

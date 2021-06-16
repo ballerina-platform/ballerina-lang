@@ -1891,7 +1891,14 @@ public class JvmTypeGen {
     }
 
     private void loadCyclicFlag(MethodVisitor mv, BType valueType) {
-        mv.visitInsn(valueType.isCyclic ? ICONST_1 : ICONST_0);
+        switch (valueType.tag) {
+            case TypeTags.UNION:
+                mv.visitInsn(((BUnionType) valueType).isCyclic ? ICONST_1 : ICONST_0);
+                break;
+            case TypeTags.TUPLE:
+                mv.visitInsn(((BTupleType) valueType).isCyclic ? ICONST_1 : ICONST_0);
+                break;
+        }
     }
 
     private void createTupleMembersList(MethodVisitor mv, List<BType> members) {

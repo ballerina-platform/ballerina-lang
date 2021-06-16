@@ -1121,7 +1121,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     checkErrors(env, unresolvedType, classDefinition, references, true);
                 }
             }
-
+            defineAllUnresolvedCyclicTypesInScope(env);
             unresolvedTypes.forEach(type -> defineNode(type, env));
             return;
         }
@@ -1599,12 +1599,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         return definedObjType;
     }
 
-    private void defineTypeInMainScope(BTypeSymbol typeDefSymbol, BLangTypeDefinition typeDef) {
-        if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
+    private void defineTypeInMainScope(BTypeSymbol typeDefSymbol, BLangTypeDefinition typeDef, SymbolEnv env) {
+        if (PackageID.isLangLibPackageID(env.enclPkg.packageID)) {
             typeDefSymbol.origin = BUILTIN;
             handleLangLibTypes(typeDef);
         } else {
-            defineSymbol(typeDef.name.pos, typeDefSymbol);
+            defineSymbol(typeDef.name.pos, typeDefSymbol, env);
         }
     }
 
@@ -1613,71 +1613,36 @@ public class SymbolEnter extends BLangNodeVisitor {
         BTypeSymbol typeDefSymbol;
         BType newTypeNode;
 
+        BSymbol foundSym = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(typeDef.name));
+        if (foundSym != symTable.notFoundSymbol) {
+            newTypeNode = foundSym.type;
+            newTypeNode.tsymbol = (BTypeSymbol) foundSym;
+            newTypeNode.flags |= foundSym.flags;
+            return newTypeNode;
+        }
         switch (typeDef.typeNode.getKind()) {
             case TUPLE_TYPE_NODE:
-                newTypeNode = new BTupleType(null, new ArrayList<>());
+                newTypeNode = new BTupleType(null, new ArrayList<>(), true);
                 typeDefSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(typeDef.flagSet),
                         newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
                         typeDef.name.pos, SOURCE);
                 break;
             default:
-                newTypeNode = BUnionType.create(null, new LinkedHashSet<>());
+                newTypeNode = BUnionType.create(null, new LinkedHashSet<>(), true);
                 typeDefSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(typeDef.flagSet),
                         newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
                         typeDef.name.pos, SOURCE);
         }
-        newTypeNode.isCyclic = true;
-        BSymbol foundSym = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(typeDef.name));
-        if (foundSym == symTable.notFoundSymbol) {
-            typeDef.symbol = typeDefSymbol;
-            defineTypeInMainScope(typeDefSymbol, typeDef);
-            newTypeNode.tsymbol = typeDefSymbol;
-            newTypeNode.flags |= typeDefSymbol.flags;
-            return newTypeNode;
-        }
-        newTypeNode = foundSym.type;
-        newTypeNode.tsymbol = (BTypeSymbol) foundSym;
-        newTypeNode.flags |= foundSym.flags;
+        typeDef.symbol = typeDefSymbol;
+        defineTypeInMainScope(typeDefSymbol, typeDef, env);
+        newTypeNode.tsymbol = typeDefSymbol;
+        newTypeNode.flags |= typeDefSymbol.flags;
         return newTypeNode;
-    }
-
-    private void iterateMembersForCyclicTypes(List<BLangType> memberTypeNodes) {
-        for (BLangType member : memberTypeNodes) {
-            if (member.getKind() != NodeKind.USER_DEFINED_TYPE) {
-                continue;
-            }
-            for (BLangNode unresolvedNode : unresolvedTypes) {
-                BLangTypeDefinition unresolvedTypeInTypeDefinition = (BLangTypeDefinition) unresolvedNode;
-                Name unresolvedNodeName = names.fromIdNode(unresolvedTypeInTypeDefinition.name);
-                Name memberName = names.fromIdNode(((BLangUserDefinedType) member).typeName);
-
-                if (memberName.value.equals(unresolvedNodeName.value)) {
-                    BSymbol foundSym = symResolver.lookupSymbolInMainSpace(env, unresolvedNodeName);
-                    if (foundSym == symTable.notFoundSymbol) {
-                        defineSymbolsForCyclicTypeDefinitions(unresolvedTypeInTypeDefinition, env);
-                    }
-                    break;
-                }
-            }
-        }
     }
 
     private BType getCyclicDefinedType(BLangTypeDefinition typeDef, SymbolEnv env) {
         //define symbols in main scope
         BType newTypeNode = defineSymbolsForCyclicTypeDefinitions(typeDef, env);
-        switch (typeDef.typeNode.getKind()) {
-            case TUPLE_TYPE_NODE:
-                BLangTupleTypeNode tupleNode = (BLangTupleTypeNode) typeDef.typeNode;
-                List<BLangType> tupleMemberTypeNodes = new ArrayList<>(tupleNode.memberTypeNodes);
-                if (tupleNode.restParamType != null) {
-                    tupleMemberTypeNodes.add(tupleNode.restParamType);
-                }
-                iterateMembersForCyclicTypes(tupleMemberTypeNodes);
-                break;
-            default:
-                List<BLangType> unionMemberTypeNodes = ((BLangUnionTypeNode) typeDef.typeNode).memberTypeNodes;
-                iterateMembersForCyclicTypes(unionMemberTypeNodes);
-        }
 
         // Resolver only manages to resolve members as they are defined as user defined types.
         // Since we defined the symbols, the user defined types get resolved.
@@ -1709,6 +1674,18 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDef.symbol.type = newTypeNode;
         typeDef.setBType(newTypeNode);
         return newTypeNode;
+    }
+
+    private void defineAllUnresolvedCyclicTypesInScope(SymbolEnv env) {
+        SymbolEnv prevEnv = this.env;
+        this.env = env;
+        for (BLangNode unresolvedNode : unresolvedTypes) {
+            BLangTypeDefinition unresolvedTypeDef = (BLangTypeDefinition) unresolvedNode;
+            if (unresolvedTypeDef.hasCyclicReference && unresolvedTypeDef.getKind() == NodeKind.TYPE_DEFINITION) {
+                defineSymbolsForCyclicTypeDefinitions(unresolvedTypeDef, env);
+            }
+        }
+        this.env = prevEnv;
     }
 
     private BType constructDependencyListError(BLangTypeDefinition typeDef, BType member) {

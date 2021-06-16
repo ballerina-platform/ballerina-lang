@@ -100,6 +100,7 @@ public function testCyclicTypeDefInUnion() {
 
 type XType1 XNil|XBoolean|XInt|XString|XTuple1|XUnion1|XIntersection1|XNever|XAny|();
 type XType2 XNil|XBoolean|XInt|XString|XTuple2|XUnion2|XIntersection2|XNever|XAny|();
+type XType3 XNil|XTuple3[]|XNever|XAny|();
 
 const XNil = "nil";
 const XBoolean = "boolean";
@@ -118,6 +119,8 @@ type XTuple2 ["tuple", ApproxType, ApproxType];
 type XUnion2 ["union", ApproxType, ApproxType];
 type XIntersection2 ["intersection", ApproxType, ApproxType];
 
+type XTuple3 ["tuple", XType3, XType3];
+
 public function testCyclicUserDefinedTypes() {
     XType1 a = ["tuple"];
     assert(a is XTuple1, true);
@@ -128,6 +131,9 @@ public function testCyclicUserDefinedTypes() {
 
     XUnion2 b = ["union", "text1", "text2"];
     assert(b[1] is ApproxType, true);
+
+    XType3 d = [["tuple"], ["tuple"]];
+    assert(d is XTuple3[], true);
 }
 
 type G [int, string, G...];
