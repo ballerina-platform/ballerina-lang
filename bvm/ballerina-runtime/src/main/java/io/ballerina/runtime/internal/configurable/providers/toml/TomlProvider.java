@@ -555,21 +555,23 @@ public class TomlProvider implements ConfigProvider {
     }
 
     private Object retrieveUnionValue(TomlNode tomlValue, String variableName, BUnionType unionType) {
-        Object balValue = Utils.getBalValue(tomlValue, visitedNodes);
+        Object balValue = Utils.getBalValueFromToml(tomlValue, visitedNodes);
         List<Type> convertibleTypes = new ArrayList<>();
         for (Type type : unionType.getMemberTypes()) {
             if (TypeChecker.checkIsLikeType(balValue, type, false)) {
                 convertibleTypes.add(type);
+                if (convertibleTypes.size() > 1) {
+                    invalidTomlLines.add(tomlValue.location().lineRange());
+                    throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, getLineRange(tomlValue),
+                                              variableName, IdentifierUtils.decodeIdentifier(unionType.toString()));
+                }
             }
         }
         if (convertibleTypes.isEmpty()) {
+            invalidTomlLines.add(tomlValue.location().lineRange());
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
                                       IdentifierUtils.decodeIdentifier(unionType.toString()),
                                       getTomlTypeString(tomlValue));
-        }
-        if (convertibleTypes.size() > 1) {
-            throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, getLineRange(tomlValue), variableName,
-                                      IdentifierUtils.decodeIdentifier(unionType.toString()));
         }
         Type type = convertibleTypes.get(0);
         if (isPrimitiveType(type.getTag())) {
