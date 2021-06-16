@@ -1364,7 +1364,7 @@ public class JvmInstructionGen {
                 ((BIntersectionType) elementType).effectiveType.tsymbol;
         String typeOwner = JvmCodeGenUtil.getPackageName(elementType.tsymbol.pkgID) + MODULE_INIT_CLASS_NAME;
         String typedescFieldName =
-                jvmTypeGen.getTypedescFieldName(IdentifierUtils.encodeFunctionIdentifier(tsymbol.name.value));
+                jvmTypeGen.getTypedescFieldName(IdentifierUtils.encodeNonFunctionIdentifier(tsymbol.name.value));
         this.mv.visitFieldInsn(GETSTATIC, typeOwner, typedescFieldName, "L" + TYPEDESC_VALUE + ";");
         this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD, String.format("(L%s;J[L%s;" +
                 "L%s;)V", ARRAY_TYPE, B_LIST_INITIAL_VALUE_ENTRY, TYPEDESC_VALUE), false);
