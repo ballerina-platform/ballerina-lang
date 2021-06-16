@@ -35,7 +35,7 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.COMPONENT_IDENTIF
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
 
 /**
- * This class represents the "bal bindgen" command.
+ * This class represents the `bal bindgen` command.
  *
  * @since 1.2.0
  */
