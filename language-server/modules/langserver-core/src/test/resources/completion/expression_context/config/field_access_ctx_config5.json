@@ -18,8 +18,23 @@
       "kind": "Field",
       "detail": "int",
       "sortText": "A",
-      "insertText": "testOptional",
-      "insertTextFormat": "Snippet"
+      "insertText": "?.testOptional",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 20
+            },
+            "end": {
+              "line": 4,
+              "character": 21
+            }
+          },
+          "newText": ""
+        }
+      ]
     },
     {
       "label": "reduce(function () func, any|error initial)(any|error)",

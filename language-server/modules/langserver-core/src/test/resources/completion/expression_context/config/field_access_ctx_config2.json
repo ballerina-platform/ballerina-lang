@@ -70,8 +70,23 @@
       "kind": "Field",
       "detail": "int",
       "sortText": "A",
-      "insertText": "testOptional",
-      "insertTextFormat": "Snippet"
+      "insertText": "?.testOptional",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 24
+            },
+            "end": {
+              "line": 3,
+              "character": 25
+            }
+          },
+          "newText": ""
+        }
+      ]
     },
     {
       "label": "reduce(function () func, any|error initial)(any|error)",
