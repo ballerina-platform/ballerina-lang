@@ -25,6 +25,8 @@ import java.util.List;
  * @since 2.0.0
  */
 public class Constants {
+    private Constants() {}
+
     public static final String INTEGER = "integer";
     public static final String NUMBER = "number";
     public static final String STRING = "string";
@@ -36,7 +38,7 @@ public class Constants {
     public static final String DOUBLE = "double";
     public static final String ESCAPE_PATTERN = "([\\[\\]\\\\?!<>@#&~`*-=^+();:\\_{}\\s|.$])";
 
-    private static final String[] KEYWORDS = new String[]{"abort", "aborted", "abstract", "all", "annotation",
+    public static final List<String> BAL_KEYWORDS = List.of("abort", "aborted", "abstract", "all", "annotation",
             "any", "anydata", "boolean", "break", "byte", "catch", "channel", "check", "checkpanic", "client",
             "committed", "const", "continue", "decimal", "else", "error", "external", "fail", "final", "finally",
             "float", "flush", "fork", "function", "future", "handle", "if", "import", "in", "int", "is", "join",
@@ -47,18 +49,9 @@ public class Constants {
             "NULL_LITERAL", "ascending", "descending", "foreach", "map", "group", "from", "default", "field",
             "limit", "as", "on", "isolated", "readonly", "distinct", "where", "select", "do", "transactional"
             , "commit", "enum", "base16", "base64", "rollback", "configurable",  "class", "module", "never",
-            "outer", "order", "null", "key", "let", "by"};
+            "outer", "order", "null", "key", "let", "by");
 
-    public static final List<String> BAL_KEYWORDS;
-    static {
-        BAL_KEYWORDS = List.of(KEYWORDS);
-    }
-
-    private static final String[] UNSUPPORTED_KEYWORDS = new String[]{"$schema", "$id", "id", "additionalItems",
+    public static final List<String> OPEN_API_UNSUPPORTED_KEYWORDS = List.of("$schema", "$id", "id", "additionalItems",
             "const", "contains", "dependencies", "patternProperties", "propertyNames", "format", "examples", "title",
-            "description", "allOf", "oneOf", "anyOf", "not"};
-    public static final List<String> OPEN_API_UNSUPPORTED_KEYWORDS;
-    static {
-        OPEN_API_UNSUPPORTED_KEYWORDS = List.of(UNSUPPORTED_KEYWORDS);
-    }
+            "description", "allOf", "oneOf", "anyOf", "not");
 }
