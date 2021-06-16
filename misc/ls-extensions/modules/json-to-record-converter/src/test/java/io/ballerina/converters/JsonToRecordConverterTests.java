@@ -18,7 +18,7 @@
 package io.ballerina.converters;
 
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
-import io.ballerina.converters.exception.ConverterException;
+import io.ballerina.converters.exception.JsonToRecordConverterException;
 import io.ballerina.converters.util.ConverterUtils;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.testng.Assert;
@@ -111,7 +111,7 @@ public class JsonToRecordConverterTests {
     }
 
     @Test(description = "Test with basic json schema string")
-    public void testBasicSchema() throws ConverterException, IOException, FormatterException {
+    public void testBasicSchema() throws JsonToRecordConverterException, IOException, FormatterException {
         String jsonFileContent = Files.readString(basicSchemaJson);
         String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent).replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(basicSchemaBal).replaceAll("\\s+", "");
@@ -119,7 +119,7 @@ public class JsonToRecordConverterTests {
     }
 
     @Test(description = "Test with basic json object")
-    public void testBasicJson() throws ConverterException, IOException, FormatterException {
+    public void testBasicJson() throws JsonToRecordConverterException, IOException, FormatterException {
         String jsonFileContent = Files.readString(basicObjectJson);
         String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent).replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(basicObjectBal).replaceAll("\\s+", "");
@@ -127,7 +127,7 @@ public class JsonToRecordConverterTests {
     }
 
     @Test(description = "Test schema with nested objects")
-    public void testNestedSchema() throws ConverterException, IOException, FormatterException {
+    public void testNestedSchema() throws JsonToRecordConverterException, IOException, FormatterException {
         String jsonFileContent = Files.readString(nestedSchemaJson);
         String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent).replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(nestedSchemaBal).replaceAll("\\s+", "");
@@ -135,7 +135,7 @@ public class JsonToRecordConverterTests {
     }
 
     @Test(description = "Test json with nested objects")
-    public void testNestedJson() throws ConverterException, IOException, FormatterException {
+    public void testNestedJson() throws JsonToRecordConverterException, IOException, FormatterException {
         String jsonFileContent = Files.readString(nestedObjectJson);
         String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent).replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(nestedObjectBal).replaceAll("\\s+", "");
@@ -143,14 +143,14 @@ public class JsonToRecordConverterTests {
     }
 
     @Test(description = "Test reference type extraction")
-    public void testRefTypeExtraction() throws ConverterException {
+    public void testRefTypeExtraction() throws JsonToRecordConverterException {
         String refString = "#/definitions/address/state";
         String extracted = ConverterUtils.extractReferenceType(refString);
         Assert.assertEquals(extracted, "state");
     }
 
     @Test(description = "Test with CRLF formatted json file")
-    public void testCRLFJson() throws ConverterException, IOException, FormatterException {
+    public void testCRLFJson() throws JsonToRecordConverterException, IOException, FormatterException {
         String jsonFileContent = Files.readString(crlfJson);
         String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent).replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(crlfBal).replaceAll("\\s+", "");
@@ -158,7 +158,7 @@ public class JsonToRecordConverterTests {
     }
 
     @Test(description = "Test with sample json objects")
-    public void testSamples() throws ConverterException, IOException, FormatterException {
+    public void testSamples() throws JsonToRecordConverterException, IOException, FormatterException {
         Map<Path, Path> samples = new HashMap<>();
         samples.put(sample1Json, sample1Bal);
         samples.put(sample2Json, sample2Bal);

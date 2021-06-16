@@ -32,16 +32,13 @@ import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.converters.exception.ConverterException;
+import io.ballerina.converters.exception.JsonToRecordConverterException;
 import io.ballerina.converters.util.Constants;
 import io.ballerina.converters.util.ErrorMessages;
 import io.ballerina.converters.util.SchemaGenerator;
-import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextDocuments;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
@@ -84,11 +81,11 @@ public class JsonToRecordConverter {
      * @param jsonString json string for the schema
      * @return {@link String} ballerina code block
      * @throws IOException in case of Json parse error
-     * @throws ConverterException in case of invalid schema
+     * @throws JsonToRecordConverterException in case of invalid schema
      * @throws FormatterException in case of invalid syntax
      */
     public static String convert(String jsonString) throws IOException,
-            ConverterException, FormatterException {
+            JsonToRecordConverterException, FormatterException {
         ObjectMapper objectMapper = new ObjectMapper();
         OpenAPI model;
         JsonNode inputJson = objectMapper.readTree(jsonString);
@@ -113,9 +110,9 @@ public class JsonToRecordConverter {
      *
      * @param openApi OpenAPI model
      * @return {@link ArrayList}  List of Record Nodes
-     * @throws ConverterException in case of bad record fields
+     * @throws JsonToRecordConverterException in case of bad record fields
      */
-    private static ArrayList<TypeDefinitionNode> generateRecords(OpenAPI openApi) throws ConverterException {
+    private static ArrayList<TypeDefinitionNode> generateRecords(OpenAPI openApi) throws JsonToRecordConverterException {
         List<TypeDefinitionNode> typeDefinitionNodeList = new LinkedList<>();
 
         if (openApi.getComponents() == null) {
@@ -206,11 +203,11 @@ public class JsonToRecordConverter {
      * @param field schema entry of the field
      * @param recordFieldList record field list
      * @param required is it a required field.
-     * @throws ConverterException in case of bad schema entries
+     * @throws JsonToRecordConverterException in case of bad schema entries
      */
     private static void addRecordFields(List<String> required, List<Node> recordFieldList,
                                     Map.Entry<String, Schema> field, List<TypeDefinitionNode> typeDefinitionNodeList)
-            throws ConverterException {
+            throws JsonToRecordConverterException {
 
         RecordFieldNode recordFieldNode;
         IdentifierToken fieldName =
@@ -235,11 +232,11 @@ public class JsonToRecordConverter {
      * @param schema OpenApi Schema
      * @param name Name of the field
      * @return {@link TypeDescriptorNode} type descriptor for record field
-     * @throws ConverterException in case of invalid schema
+     * @throws JsonToRecordConverterException in case of invalid schema
      */
     private static TypeDescriptorNode extractOpenApiSchema(Schema<?> schema, String name,
                                                         List<TypeDefinitionNode> typeDefinitionNodeList)
-            throws ConverterException {
+            throws JsonToRecordConverterException {
 
         if (schema.getType() != null || schema.getProperties() != null) {
             String schemaType = schema.getType();
@@ -317,10 +314,10 @@ public class JsonToRecordConverter {
      *
      * @param schemaString     json Schema as a string
      * @return {@link OpenAPI}  OpenAPI model
-     * @throws ConverterException in case of invalid schema
+     * @throws JsonToRecordConverterException in case of invalid schema
      * @throws IOException in case of Json parse error
      */
-    private static OpenAPI parseJSONSchema(String schemaString) throws ConverterException, IOException {
+    private static OpenAPI parseJSONSchema(String schemaString) throws JsonToRecordConverterException, IOException {
         final String prefix = "{\n" +
                 "  \"openapi\" : \"3.0.1\",\n" +
                 "  \"info\" : {\n" +
@@ -346,7 +343,7 @@ public class JsonToRecordConverter {
         String openAPIFileContent = prefix + openAPISchemaString + suffix;
         SwaggerParseResult parseResult = new OpenAPIV3Parser().readContents(openAPIFileContent);
         if (!parseResult.getMessages().isEmpty()) {
-            throw new ConverterException(ErrorMessages.parserException(schemaString));
+            throw new JsonToRecordConverterException(ErrorMessages.parserException(schemaString));
         }
         return parseResult.getOpenAPI();
     }
@@ -356,13 +353,13 @@ public class JsonToRecordConverter {
      *
      * @param schemaMap   Json Schema as a map
      * @return {@link Map}  cleaned json schema
-     * @throws ConverterException in case of multiple types
+     * @throws JsonToRecordConverterException in case of multiple types
      */
-    private static Map<String, Object> cleanSchema(Map<String, Object> schemaMap) throws ConverterException {
+    private static Map<String, Object> cleanSchema(Map<String, Object> schemaMap) throws JsonToRecordConverterException {
         Map<String, Object> cleanedMap = removeUnsupportedKeywords(schemaMap);
         // check for multiple or null types
         if (!(cleanedMap.get("type") instanceof String)) {
-            throw new ConverterException(ErrorMessages.multipleTypes(cleanedMap.toString()));
+            throw new JsonToRecordConverterException(ErrorMessages.multipleTypes(cleanedMap.toString()));
         }
 
         if (cleanedMap.get("type").equals("object")) {

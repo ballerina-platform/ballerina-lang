@@ -22,12 +22,12 @@ package io.ballerina.converters.exception;
  *
  * @since 2.0.0
  */
-public class ConverterException extends Exception {
-    public ConverterException(String message, Throwable e) {
+public class JsonToRecordConverterException extends Exception {
+    public JsonToRecordConverterException(String message, Throwable e) {
         super(message, e);
     }
 
-    public ConverterException(String message) {
+    public JsonToRecordConverterException(String message) {
         super(message);
     }
 }

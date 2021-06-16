@@ -17,7 +17,7 @@
  */
 package io.ballerina.converters.util;
 
-import io.ballerina.converters.exception.ConverterException;
+import io.ballerina.converters.exception.JsonToRecordConverterException;
 
 import java.util.Optional;
 
@@ -110,15 +110,15 @@ public class ConverterUtils {
      *
      * @param referenceVariable - Reference String
      * @return Reference variable name
-     * @throws ConverterException - Throws an exception if the reference string is incompatible.
+     * @throws JsonToRecordConverterException - Throws an exception if the reference string is incompatible.
      *                                     Note : Current implementation will not support external links a references.
      */
-    public static String extractReferenceType(String referenceVariable) throws ConverterException {
+    public static String extractReferenceType(String referenceVariable) throws JsonToRecordConverterException {
         if (referenceVariable.startsWith("#") && referenceVariable.contains("/")) {
             String[] refArray = referenceVariable.split("/");
             return escapeIdentifier(refArray[refArray.length - 1]);
         } else {
-            throw new ConverterException(ErrorMessages.invalidReference(referenceVariable));
+            throw new JsonToRecordConverterException(ErrorMessages.invalidReference(referenceVariable));
         }
     }
 }

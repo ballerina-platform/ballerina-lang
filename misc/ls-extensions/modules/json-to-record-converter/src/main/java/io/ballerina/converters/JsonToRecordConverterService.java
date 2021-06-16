@@ -17,7 +17,7 @@
  */
 package io.ballerina.converters;
 
-import io.ballerina.converters.exception.ConverterException;
+import io.ballerina.converters.exception.JsonToRecordConverterException;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
@@ -49,7 +49,7 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
                 String jsonString = request.getJsonString();
                 String codeBlock = JsonToRecordConverter.convert(jsonString);
                 response.setCodeBlock(codeBlock);
-            } catch (IOException | ConverterException | FormatterException e) {
+            } catch (IOException | JsonToRecordConverterException | FormatterException e) {
                 response.setCodeBlock("");
             }
             return response;

@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.ballerina.converters.exception.ConverterException;
+import io.ballerina.converters.exception.JsonToRecordConverterException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,12 +39,12 @@ public class SchemaGenerator {
     private SchemaGenerator() {
         // not called
     }
-    public static Map<String, Object> generate(JsonNode json) throws ConverterException {
+    public static Map<String, Object> generate(JsonNode json) throws JsonToRecordConverterException {
         Map<String, Object> schema = new HashMap<>();
 
         if (json.getNodeType() == JsonNodeType.NULL || json.getNodeType() == JsonNodeType.MISSING
                 || json.getNodeType() == JsonNodeType.POJO || json.getNodeType() == JsonNodeType.BINARY) {
-            throw new ConverterException(ErrorMessages.unsupportedType());
+            throw new JsonToRecordConverterException(ErrorMessages.unsupportedType());
         }
 
         // handle primitives
@@ -83,7 +83,7 @@ public class SchemaGenerator {
         }
 
         if (!(json instanceof ObjectNode)) {
-            throw new ConverterException(ErrorMessages.parserException(json.toString()));
+            throw new JsonToRecordConverterException(ErrorMessages.parserException(json.toString()));
         }
         // handle object type
         ObjectNode object = (ObjectNode) json;
