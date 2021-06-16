@@ -42,6 +42,7 @@ import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
+import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -72,11 +73,9 @@ import javax.annotation.Nonnull;
  */
 public class FieldAccessCompletionResolver extends NodeTransformer<Optional<TypeSymbol>> {
     private final PositionedOperationContext context;
-    private final boolean optionalFieldAccess;
 
-    public FieldAccessCompletionResolver(PositionedOperationContext context, boolean optionalFieldAccess) {
+    public FieldAccessCompletionResolver(PositionedOperationContext context) {
         this.context = context;
-        this.optionalFieldAccess = optionalFieldAccess;
     }
 
     @Override
@@ -102,6 +101,31 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         }
         String name = ((SimpleNameReferenceNode) fieldName).name().text();
         List<Symbol> visibleEntries = this.getVisibleEntries(typeSymbol.orElseThrow(), node.expression());
+        Optional<Symbol> filteredSymbol = this.getSymbolByName(visibleEntries, name);
+
+        if (filteredSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return SymbolUtil.getTypeDescriptor(filteredSymbol.get());
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(OptionalFieldAccessExpressionNode node) {
+        // First capture the expression and the respective symbols
+        // In future we should use the following approach and get rid of this resolver. 
+        Optional<TypeSymbol> resolvedType = this.context.currentSemanticModel().get().type(node);
+        if (resolvedType.isPresent() && resolvedType.get().typeKind() != TypeDescKind.COMPILATION_ERROR) {
+            return SymbolUtil.getTypeDescriptor(resolvedType.get());
+        }
+
+        Optional<TypeSymbol> typeSymbol = node.expression().apply(this);
+        NameReferenceNode fieldName = node.fieldName();
+        if (fieldName.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE || typeSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        String name = ((SimpleNameReferenceNode) fieldName).name().text();
+        List<Symbol> visibleEntries = this.getVisibleEntries(typeSymbol.get(), node.expression());
         Optional<Symbol> filteredSymbol = this.getSymbolByName(visibleEntries, name);
 
         if (filteredSymbol.isEmpty()) {
@@ -222,10 +246,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
             case RECORD:
                 // If the invoked for field access expression, then avoid suggesting the optional fields
                 List<RecordFieldSymbol> filteredEntries =
-                        ((RecordTypeSymbol) rawType).fieldDescriptors().values().stream()
-                                .filter(recordFieldSymbol -> this.optionalFieldAccess
-                                        || !recordFieldSymbol.isOptional())
-                                .collect(Collectors.toList());
+                        new ArrayList<>(((RecordTypeSymbol) rawType).fieldDescriptors().values());
                 visibleEntries.addAll(filteredEntries);
                 break;
             case OBJECT:
