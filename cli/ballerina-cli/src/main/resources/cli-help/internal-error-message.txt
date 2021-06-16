@@ -1,7 +1,7 @@
 ballerina: Oh no, something really went wrong. Bad. Sad.
 
 If you are able to share the code that broke Ballerina, then
-we appreciate if you create a bug report in 
+please create a bug report in 
 https://github.com/ballerina-platform/ballerina-lang/issues
 with the `ballerina-internal.log` file in your current directory 
 and your sample code.
