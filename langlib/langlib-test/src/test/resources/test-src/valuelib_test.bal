@@ -988,7 +988,7 @@ function testCloneWithTypeWithFiniteArrayTypeFromIntArray() {
     FloatThreeOrFour[]|error c = y.cloneWithType();
     assert(c is error, false);
     FloatThreeOrFour[] d = checkpanic c;
-    assert(d, [3, 4]);
+    assert(d, [3.0, 4.0]);
 }
 
 function testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray() {
@@ -1009,15 +1009,16 @@ function testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray() {
 function testCloneWithTypeWithUnionTypeArrayFromIntArray() {
     int[] x = [1, 2, 3];
 
-    (float|IntOneOrTwo)[]|error a = x.cloneWithType();
+    (string|IntOneOrTwo|IntTwoOrThree)[]|error a = x.cloneWithType();
     assert(a is error, false);
-    (float|IntOneOrTwo)[] b = checkpanic a;
-    assert(b, [1.0,2.0,3.0]);
+    (string|IntOneOrTwo|IntTwoOrThree)[] b = checkpanic a;
+    assert(b, [1,2,3]);
 
-    (string|IntOneOrTwo|IntTwoOrThree)[]|error c = x.cloneWithType();
+    int[] y = [3, 4];
+    (float|FloatThreeOrFour)[]|error c = y.cloneWithType();
     assert(c is error, false);
-    (string|IntOneOrTwo|IntTwoOrThree)[] d = checkpanic c;
-    assert(d, [1,2,3]);
+    (float|FloatThreeOrFour)[] d = checkpanic c;
+    assert(d, [3.0, 4.0]);
 }
 
 function testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative() {
@@ -1036,7 +1037,16 @@ function testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative() {
     err = <error> c;
     message = err.detail()["message"];
     messageString = message is error? message.toString(): message.toString();
-    assert(messageString, "'int[]' value cannot be converted to '(IntTwoOrThree|IntThreeOrFour)[]'");
+    assert(messageString, "'int' value cannot be converted to '(IntTwoOrThree|IntThreeOrFour)'");
+
+    int[] y = [3, 4];
+
+    (IntThreeOrFour|FloatThreeOrFour)[]|error e = y.cloneWithType();
+    assert(c is error, true);
+    err = <error> e;
+    message = err.detail()["message"];
+    messageString = message is error? message.toString(): message.toString();
+    assert(messageString, "'int' value cannot be converted to '(IntThreeOrFour|FloatThreeOrFour)': ambiguous target type");
 }
 
 /////////////////////////// Tests for `fromJsonWithType()` ///////////////////////////
