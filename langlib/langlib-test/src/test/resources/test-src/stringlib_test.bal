@@ -31,37 +31,39 @@ function testSubString() returns [string,string, string] {
     return [str.substring(6, 9), str.substring(6), strings:substring(str,6)];
 }
 
-function testIterator(int test) {
+function testIterator() {
     string str = "Foo Bar";
     string:Char[] expected = ["F", "o", "o", " ", "B", "a", "r"];
+    int i;
 
-    object {
-         public isolated function next() returns record {| string:Char value; |}?;
-    } itr = str.iterator();
+    foreach int test in 1 ..< 3 {
+        i = 0;
+        match test{
+            1 => {
+                object {
+                    public isolated function next() returns record {| string:Char value; |}?;
+                    } itr = str.iterator();
+                record {| string:Char value; |}|() elem = itr.next();
+                while (elem is record {| string:Char value; |}) {
+                    assertEquals(expected[i], elem.value);
+                    elem = itr.next();
+                    i += 1;
+                }
+            }
 
-    int i = 0;
-
-    match test{
-        1 => {
-            record {| string:Char value; |}|() elem = itr.next();
-            while (elem is record {| string:Char value; |}) {
-                assertEquals(expected[i], elem.value);
-                elem = itr.next();
-                i += 1;
+            2 => {
+                object {
+                    public isolated function next() returns record {| string value; |}?;
+                    } itr = str.iterator();
+                record {| string value; |}|() elem = itr.next();
+                while (elem is record {| string:Char value; |}) {
+                    assertEquals(expected[i], elem.value);
+                    elem = itr.next();
+                    i+= 1;
+                }
             }
         }
-
-        2 => {
-            record {| string value; |}|() elem = itr.next();
-            while (elem is record {| string value; |}) {
-                assertEquals(expected[i], elem.value);
-                elem = itr.next();
-                i+= 1;
-            }
-        }
-
     }
-
 }
 
 function testStartsWith() returns boolean {
@@ -163,6 +165,7 @@ function assertEquals(anydata expected, anydata actual) {
     if (expected == actual) {
         return;
     }
+
     typedesc<anydata> expT = typeof expected;
     typedesc<anydata> actT = typeof actual;
     string msg = "expected [" + expected.toString() + "] of type [" + expT.toString()

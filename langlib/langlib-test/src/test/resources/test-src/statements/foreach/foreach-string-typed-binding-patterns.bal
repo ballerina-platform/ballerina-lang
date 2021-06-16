@@ -14,8 +14,8 @@ function testStringWithSimpleVariableWithStringType() {
     output = "";
     string expected = "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ";
     string sdata = "Ballerina";
-
     int i = 0;
+
     foreach string s in sdata {
         concatIntString(i, s);
         i += 1;
@@ -29,8 +29,8 @@ function testStringWithSimpleVariableWithCharType() {
     output = "";
     string expected = "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ";
     string sdata = "Ballerina";
-
     int i = 0;
+
     foreach string:Char s in sdata {
         concatIntString(i, s);
         i += 1;
@@ -119,7 +119,6 @@ function testIterationTypeCheck() {
         string str = item;
         assertTrue(str is string:Char);
     }
-
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -134,6 +133,7 @@ function assertEquals(anydata expected, anydata actual) {
     if (expected == actual) {
         return;
     }
+
     typedesc<anydata> expT = typeof expected;
     typedesc<anydata> actT = typeof actual;
     string msg = "expected [" + expected.toString() + "] of type [" + expT.toString()

@@ -74,13 +74,7 @@ public class LangLibStringTest {
 
     @Test
     public void testIterator() {
-
-        for (int test = 0; test < 2; test++) {
-
-            BRunUtil.invoke(compileResult, "testIterator", new BValue[]{new BInteger(test)});
-
-        }
-
+        BRunUtil.invoke(compileResult, "testIterator");
     }
 
     @Test
