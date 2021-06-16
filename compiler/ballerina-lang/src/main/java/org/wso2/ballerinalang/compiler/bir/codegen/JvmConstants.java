@@ -76,6 +76,7 @@ public class JvmConstants {
     public static final String B_HANDLE = "io/ballerina/runtime/api/values/BHandle";
 
     public static final String B_INITIAL_VALUE_ENTRY = "io/ballerina/runtime/api/values/BInitialValueEntry";
+    public static final String B_LIST_INITIAL_VALUE_ENTRY = "io/ballerina/runtime/api/values/BListInitialValueEntry";
     public static final String B_MAPPING_INITIAL_VALUE_ENTRY = "io/ballerina/runtime/api/values/BMapInitialValueEntry";
     public static final String MAPPING_INITIAL_VALUE_ENTRY =
             "io/ballerina/runtime/internal/values/MappingInitialValueEntry";

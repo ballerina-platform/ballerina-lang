@@ -58,6 +58,21 @@ type DistinctIntersectionError distinct ErrorOne & ErrorFive;
 
 type IntersectionOfDistinctErrors distinct DistinctErrorOne & DistinctErrorThree;
 
+type MyDetail record {|
+    string s;
+|};
+
+type Other record {|
+    string s;
+|};
+
+type MyError error<MyDetail> & error<Other>;
+
+type MyDError distinct error<MyDetail>;
+type MyOError distinct error<Other>;
+
+type MyDistinctError MyDError & MyOError;
+
 type RecordWithIntersectionReference record {
     IntersectionErrorThree err;
 };
@@ -175,6 +190,22 @@ function testAnonDistinctError() {
     if !(e is JsonParseError) {
         panic error("Assertion error");
     }
+}
+
+function testIntersectionOfSameSetOfErrorShapes() {
+    MyDistinctError d = error("d", s = "s");
+
+    MyDError de = d;
+    assertEquality(de.message(), "d");
+    assertEquality(de.detail().s, "s");
+
+    MyOError oe = d;
+    assertEquality(oe.message(), "d");
+    assertEquality(oe.detail().s, "s");
+
+    MyError m = error("m", s = "s");
+    assertEquality(m.message(), "m");
+    assertEquality(m.detail().s, "s");
 }
 
 type FreeError distinct error;

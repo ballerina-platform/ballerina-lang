@@ -1230,6 +1230,15 @@ public class SymbolResolver extends BLangNodeVisitor {
             tableType.keyPos = tableKeySpecifier.pos;
         }
 
+        if (constraintType.tag == TypeTags.MAP &&
+                (tableType.fieldNameList != null || tableType.keyTypeConstraint != null) &&
+                !tableType.tsymbol.owner.getFlags().contains(Flag.LANG_LIB)) {
+            dlog.error(tableType.keyPos,
+                    DiagnosticErrorCode.KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT);
+            resultType = symTable.semanticError;
+            return;
+        }
+
         markParameterizedType(tableType, constraintType);
         tableTypeNode.tableType = tableType;
 
@@ -1932,6 +1941,12 @@ public class SymbolResolver extends BLangNodeVisitor {
             isErrorIntersection = true;
         }
 
+        if (!(hasReadOnlyType || isErrorIntersection)) {
+            dlog.error(intersectionTypeNode.pos,
+                    DiagnosticErrorCode.UNSUPPORTED_TYPE_INTERSECTION, intersectionTypeNode);
+            return symTable.semanticError;
+        }
+
         BType potentialIntersectionType = getPotentialIntersection(
                 Types.IntersectionContext.from(dlog, bLangTypeOne.pos, bLangTypeTwo.pos),
                 typeOne, typeTwo, this.env);
@@ -1939,12 +1954,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             isAlreadyExistingType = true;
         }
 
-        LinkedHashSet<BType> constituentBTypes = new LinkedHashSet<>() {
-            {
-                add(typeOne);
-                add(typeTwo);
-            }
-        };
+        LinkedHashSet<BType> constituentBTypes = new LinkedHashSet<>();
+        constituentBTypes.add(typeOne);
+        constituentBTypes.add(typeTwo);
 
         if (potentialIntersectionType == symTable.semanticError) {
             validIntersection = false;
@@ -2005,12 +2017,6 @@ public class SymbolResolver extends BLangNodeVisitor {
 
             return defineIntersectionType((BErrorType) potentialIntersectionType, intersectionTypeNode.pos,
                                           constituentBTypes, existingErrorDetailType, env);
-        }
-
-        if (!hasReadOnlyType) {
-            dlog.error(intersectionTypeNode.pos, DiagnosticErrorCode.INVALID_NON_READONLY_INTERSECTION_TYPE,
-                       intersectionTypeNode);
-            return symTable.semanticError;
         }
 
         if (types.isInherentlyImmutableType(potentialIntersectionType)) {

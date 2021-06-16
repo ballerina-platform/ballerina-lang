@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BHandle;
+import io.ballerina.runtime.api.values.BListInitialValueEntry;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
@@ -46,10 +47,12 @@ import io.ballerina.runtime.internal.DecimalValueKind;
 import io.ballerina.runtime.internal.JsonDataSource;
 import io.ballerina.runtime.internal.ValueUtils;
 import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.HandleValue;
+import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
 import io.ballerina.runtime.internal.values.StreamValue;
@@ -209,6 +212,18 @@ public class ValueCreator {
     }
 
     /**
+     * Create a ref value array with given maximum length.
+     *
+     * @param type          {@code ArrayType} of the array.
+     * @param size          array size
+     * @param initialValues initial values
+     * @return fixed length ref value array
+     */
+    public static BArray createArrayValue(ArrayType type, long size, BListInitialValueEntry[] initialValues) {
+        return new ArrayValueImpl(type, size, initialValues);
+    }
+
+    /**
      * Creates a new tuple with given tuple type.
      *
      * @param type the {@code TupleType} object representing the type
@@ -216,6 +231,18 @@ public class ValueCreator {
      */
     public static BArray createTupleValue(TupleType type) {
         return new TupleValueImpl(type);
+    }
+
+    /**
+     * Creates a new tuple with given tuple type.
+     *
+     * @param type          the {@code TupleType} object representing the type
+     * @param size          size of the tuple
+     * @param initialValues initial values
+     * @return the new tuple
+     */
+    public static BArray createTupleValue(TupleType type, long size, BListInitialValueEntry[] initialValues) {
+        return new TupleValueImpl(type, size, initialValues);
     }
 
     /**
@@ -680,6 +707,16 @@ public class ValueCreator {
     }
 
     /**
+     * Create a list initial value entry.
+     *
+     * @param value value.
+     * @return list initial value entry
+     */
+    public static BListInitialValueEntry createListInitialValueEntry(Object value) {
+        return new ListInitialValueEntry.ExpressionEntry(value);
+    }
+
+    /**
      * Create a record value using the given package id and record type name.
      *
      * @param packageId      the package id that the record type resides.
@@ -766,6 +803,18 @@ public class ValueCreator {
      */
     public static BTable createTableValue(TableType tableType) {
         return new TableValueImpl(tableType);
+    }
+
+    /**
+     * Create an table value using the given type.
+     *
+     * @param tableType  table type.
+     * @param data       table data
+     * @param fieldNames table field names
+     * @return table value for given type.
+     */
+    public static BTable createTableValue(TableType tableType, BArray data, BArray fieldNames) {
+        return new TableValueImpl(tableType, (ArrayValue) data, (ArrayValue) fieldNames);
     }
 
     private ValueCreator() {

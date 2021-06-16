@@ -262,6 +262,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private int letCount = 0;
     private Stack<SymbolEnv> queryEnvs, prevEnvs;
     private Stack<BLangSelectClause> selectClauses;
+    private boolean checkWithinQueryExpr = false;
     private BLangMissingNodesHelper missingNodesHelper;
 
     /**
@@ -2302,11 +2303,18 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (restParam.getBType() == symTable.semanticError) {
             bRecordType.restFieldType = symTable.mapType;
         } else {
-            // Rest variable type of Record ref (record destructuring assignment) is a map where T is the broad type of
-            // all fields that are not specified in the destructuring pattern. Here we set the rest type of record type
-            // to T.
-            BMapType restParamType = (BMapType) restParam.getBType();
-            bRecordType.restFieldType = restParamType.constraint;
+            // Rest variable type of Record ref (record destructuring assignment) is a record where T is the broad
+            // type of all fields that are not specified in the destructuring pattern. Here we set the rest type of
+            // record type to T.
+            BType restFieldType;
+            if (restParam.getBType().tag == TypeTags.RECORD) {
+                restFieldType = ((BRecordType) restParam.getBType()).restFieldType;
+            } else if (restParam.getBType().tag == TypeTags.MAP) {
+                restFieldType = ((BMapType) restParam.getBType()).constraint;
+            } else {
+                restFieldType = restParam.getBType();
+            }
+            bRecordType.restFieldType = restFieldType;
         }
 
         resultType = bRecordType;
@@ -4854,6 +4862,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
+        checkWithinQueryExpr = isWithinQuery();
         visitCheckAndCheckPanicExpr(checkedExpr);
     }
 
@@ -4891,8 +4900,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
             }
         }
-
+        checkWithinQueryExpr = false;
         resultType = actualType;
+    }
+
+    private boolean isWithinQuery() {
+        return !queryEnvs.isEmpty() && !selectClauses.isEmpty();
     }
 
     private BType resolveQueryType(SymbolEnv env, BLangExpression selectExp, BType collectionType,
@@ -4950,7 +4963,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (selectTypes.size() == 1) {
-            BType errorType = getErrorType(collectionType);
+            BType errorType = getErrorType(collectionType, queryExpr);
             selectType = selectTypes.get(0);
             if (queryExpr.isStream) {
                 return new BStreamType(TypeTags.STREAM, selectType, errorType, null);
@@ -4984,7 +4997,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
 
-    private BType getErrorType(BType collectionType) {
+    private BType getErrorType(BType collectionType, BLangQueryExpr queryExpr) {
         if (collectionType.tag == TypeTags.SEMANTIC_ERROR) {
             return null;
         }
@@ -5005,16 +5018,25 @@ public class TypeChecker extends BLangNodeVisitor {
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) itrSymbol;
                 returnType = types.getResultTypeOfNextInvocation((BObjectType) invokableSymbol.retType);
         }
+        List<BType> errorTypes = new ArrayList<>();
         if (returnType != null) {
-            List<BType> errorTypes = types.getAllTypes(returnType).stream()
+            types.getAllTypes(returnType).stream()
                     .filter(t -> types.isAssignable(t, symTable.errorType))
-                    .collect(Collectors.toList());
-            if (!errorTypes.isEmpty()) {
-                if (errorTypes.size() == 1) {
-                    errorType = errorTypes.get(0);
-                } else {
-                    errorType = BUnionType.create(null, errorTypes.toArray(new BType[0]));
-                }
+                    .forEach(errorTypes::add);
+        }
+        if (checkWithinQueryExpr && queryExpr.isStream) {
+            if (errorTypes.isEmpty()) {
+                // if there's no completion type at this point,
+                // then () gets added as a valid completion type for streams.
+                errorTypes.add(symTable.nilType);
+            }
+            errorTypes.add(symTable.errorType);
+        }
+        if (!errorTypes.isEmpty()) {
+            if (errorTypes.size() == 1) {
+                errorType = errorTypes.get(0);
+            } else {
+                errorType = BUnionType.create(null, errorTypes.toArray(new BType[0]));
             }
         }
         return errorType;

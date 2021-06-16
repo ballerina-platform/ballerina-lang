@@ -32,7 +32,6 @@ import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Dependency;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -57,6 +56,8 @@ import static io.ballerina.projects.util.ProjectConstants.BALA_JSON;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
 import static io.ballerina.projects.util.ProjectUtils.getBalaName;
+import static io.ballerina.projects.util.ProjectUtils.getBallerinaShortVersion;
+import static io.ballerina.projects.util.ProjectUtils.getBallerinaSpecVersion;
 
 /**
  * {@code BalaWriter} writes a package to bala format.
@@ -73,8 +74,8 @@ public abstract class BalaWriter {
     // Set the target as any for default bala.
     protected String target = "any";
     private static final String IMPLEMENTATION_VENDOR = "WSO2";
-    private static final String BALLERINA_SHORT_VERSION = RepoUtils.getBallerinaShortVersion();
-    private static final String BALLERINA_SPEC_VERSION = RepoUtils.getBallerinaSpecVersion();
+    private static final String BALLERINA_SHORT_VERSION = getBallerinaShortVersion();
+    private static final String BALLERINA_SPEC_VERSION = getBallerinaSpecVersion();
     protected PackageContext packageContext;
     Optional<CompilerPluginDescriptor> compilerPluginToml;
 

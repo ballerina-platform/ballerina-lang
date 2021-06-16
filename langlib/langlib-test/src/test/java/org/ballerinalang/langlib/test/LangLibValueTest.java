@@ -79,7 +79,7 @@ public class LangLibValueTest {
 
         BMap<String, BString> arr = (BMap<String, BString>) returns[0];
         assertEquals(arr.get("aNil").stringValue(), "null");
-        assertEquals(arr.get("aString").stringValue(), "aString");
+        assertEquals(arr.get("aString").stringValue(), "\"aString\"");
         assertEquals(arr.get("aNumber").stringValue(), "10");
         assertEquals(arr.get("aFloatNumber").stringValue(), "10.5");
         assertEquals(arr.get("anArray").stringValue(), "[\"hello\", \"world\"]");

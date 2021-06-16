@@ -116,3 +116,12 @@ public function testErrorCallStack() {
     }
     test:assertValueEqual("object lang.error:CallStack", s);
 }
+
+public function testRetriableTest() {
+    string s = "";
+    error err = error error:Retriable("Custom error");
+    if (err is error:Retriable) {
+        s = err.message();
+    }
+    test:assertValueEqual("Custom error", s);
+}

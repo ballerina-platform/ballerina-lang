@@ -74,6 +74,11 @@ public class PackageCache {
         packageMap.put(getCacheID(packageID), bLangPackage);
     }
 
+    public void flush() {
+        packageMap.clear();
+        packageSymbolMap.clear();
+    }
+
     public static String getCacheID(PackageID packageID) {
         String bvmAlias = packageID.toString();
         if (packageID.sourceFileName != null) {

@@ -241,11 +241,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TR1",
+      "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
       "sortText": "L",
-      "insertText": "TR1",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -257,6 +260,22 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "STRING_VAL_TWO",
+      "kind": "TypeParameter",
+      "detail": "Singleton",
+      "sortText": "M",
+      "insertText": "STRING_VAL_TWO",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "STRING_VAL",
+      "kind": "TypeParameter",
+      "detail": "Singleton",
+      "sortText": "M",
+      "insertText": "STRING_VAL",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "T5",
       "kind": "Struct",
       "detail": "Record",
@@ -265,14 +284,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
+      "label": "TR1",
       "kind": "Struct",
       "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
       "sortText": "L",
-      "insertText": "StrandData",
+      "insertText": "TR1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -344,6 +360,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
+      "filterText": "record",
       "insertText": "record ",
       "insertTextFormat": "Snippet"
     },
@@ -352,6 +369,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
+      "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
@@ -360,6 +378,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
+      "filterText": "record",
       "insertText": "record {${1}}",
       "insertTextFormat": "Snippet"
     },
@@ -368,6 +387,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
+      "filterText": "record",
       "insertText": "record {|${1}|}",
       "insertTextFormat": "Snippet"
     },
@@ -376,6 +396,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
+      "filterText": "distinct",
       "insertText": "distinct",
       "insertTextFormat": "Snippet"
     },
@@ -384,7 +405,26 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
+      "filterText": "object",
       "insertText": "object {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "true",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "true",
+      "insertText": "true",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "false",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "false",
+      "insertText": "false",
       "insertTextFormat": "Snippet"
     }
   ]

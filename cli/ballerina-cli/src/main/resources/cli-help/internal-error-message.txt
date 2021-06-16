@@ -3,6 +3,10 @@ ballerina: Oh no, something really went wrong. Bad. Sad.
 If you are able to share the code that broke Ballerina, then
 we appreciate if you report it to us. 
 
+<<<<<<< HEAD
 Please create a bug report in https://github.com/ballerina-platform/ballerina-lang/issues by adding your sample code and the `ballerina-internal.log` file in you current directory.
 
 We thank you for helping us to be better.
+=======
+We thank you for helping make us better dancers.
+>>>>>>> b7cb5101220f914f32c93fec14eddf424c56ffe9

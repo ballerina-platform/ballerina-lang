@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.table;
 
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
@@ -33,11 +34,11 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 //)
 public class Put {
 
-    public static void put(BTable tbl, Object val) {
+    public static void put(BTable tbl, BMap val) {
         tbl.put(val);
     }
 
-    public static void put_bstring(Strand strand, BTable tbl, Object val) {
+    public static void put_bstring(Strand strand, BTable tbl, BMap val) {
         put(tbl, val);
     }
 }

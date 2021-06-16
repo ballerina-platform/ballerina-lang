@@ -24,7 +24,6 @@ import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -249,8 +248,8 @@ public class CommandUtil {
     }
 
     public static Path getJarCacheFromHome() {
-        return RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME + "-" +
-                RepoUtils.getBallerinaVersion());
+        return ProjectUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME + "-" +
+                ProjectUtils.getBallerinaVersion());
     }
 
 }

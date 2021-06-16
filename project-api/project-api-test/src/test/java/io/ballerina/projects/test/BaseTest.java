@@ -52,6 +52,9 @@ public class BaseTest {
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_c");
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_b");
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_e");
+
+        BCompileUtil.compileAndCacheBala("projects_for_edit_api_tests/package_dependency_v1");
+        BCompileUtil.compileAndCacheBala("projects_for_edit_api_tests/package_dependency_v2");
     }
 
     protected void cacheDependencyToLocalRepo(Path dependency) throws IOException {

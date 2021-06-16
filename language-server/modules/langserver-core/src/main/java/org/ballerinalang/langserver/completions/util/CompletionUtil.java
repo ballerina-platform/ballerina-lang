@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.completions.util;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
@@ -30,9 +31,11 @@ import org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionPr
 import org.ballerinalang.langserver.completions.ProviderFactory;
 import org.ballerinalang.langserver.util.TokensUtil;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionTriggerKind;
 import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,6 +55,17 @@ public class CompletionUtil {
     public static List<CompletionItem> getCompletionItems(BallerinaCompletionContext ctx) throws LSCompletionException {
         fillTokenInfoAtCursor(ctx);
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
+        /*
+        Here we skip auto completion for the cases where the token at cursor is `>`. `>` is added as a trigger 
+        character, in order to trigger completions for `->`. This leads to completion trigger for un wanted cases.
+         */
+        String triggerCharacter = ctx.getCompletionParams().getContext().getTriggerCharacter();
+        CompletionTriggerKind triggerKind = ctx.getCompletionParams().getContext().getTriggerKind();
+        if (triggerKind == CompletionTriggerKind.TriggerCharacter
+                && triggerCharacter.equals(SyntaxKind.GT_TOKEN.stringValue())
+                && ctx.getTokenAtCursor().kind() != SyntaxKind.RIGHT_ARROW_TOKEN) {
+            return Collections.emptyList();
+        }
         List<LSCompletionItem> items = route(ctx, nodeAtCursor);
 
         return items.stream()

@@ -300,9 +300,8 @@ public class ImmutableTypeCloner {
                     immutableMapTSymbol.type = immutableMapType;
                 }
 
-                BIntersectionType immutableMapIntersectionType = createImmutableIntersectionType(env, origMapType,
-                                                                                                 immutableMapType,
-                                                                                                 symTable);
+                BIntersectionType immutableMapIntersectionType = createImmutableIntersectionType(pkgId, owner,
+                        origMapType, immutableMapType, symTable);
                 origMapType.immutableType = immutableMapIntersectionType;
                 return immutableMapIntersectionType;
             case TypeTags.RECORD:
@@ -512,7 +511,7 @@ public class ImmutableTypeCloner {
                                                             immutableStructureSymbol, origField.pos, SOURCE);
                 BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) immutableFieldType.tsymbol;
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) immutableFieldSymbol;
-                invokableSymbol.params = tsymbol.params;
+                invokableSymbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
                 invokableSymbol.restParam = tsymbol.restParam;
                 invokableSymbol.retType = tsymbol.returnType;
                 invokableSymbol.flags = tsymbol.flags;

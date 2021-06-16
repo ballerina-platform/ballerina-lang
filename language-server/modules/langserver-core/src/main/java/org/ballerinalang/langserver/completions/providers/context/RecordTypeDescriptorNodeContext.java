@@ -70,8 +70,7 @@ public class RecordTypeDescriptorNodeContext extends AbstractCompletionProvider<
                     (QualifiedNameReferenceNode) nodeAtCursor, predicate);
             completionItems.addAll(this.getCompletionItemList(types, context));
         } else {
-            completionItems.addAll(this.getModuleCompletionItems(context));
-            completionItems.addAll(this.getTypeItems(context));
+            completionItems.addAll(this.getTypeDescContextItems(context));
         }
         this.sort(context, node, completionItems);
 

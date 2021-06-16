@@ -19,7 +19,6 @@ module io.ballerina.lang {
     exports io.ballerina.compiler.api.symbols.resourcepath;
     exports io.ballerina.compiler.api.symbols.resourcepath.util;
     exports org.wso2.ballerinalang.compiler.util;
-    exports org.ballerinalang.toml.model;
     exports org.wso2.ballerinalang.util;
     exports org.ballerinalang.model.types;
     exports org.wso2.ballerinalang.compiler.tree;
@@ -46,18 +45,12 @@ module io.ballerina.lang {
     exports org.ballerinalang.spi;
     exports org.wso2.ballerinalang.compiler;
     exports org.wso2.ballerinalang.programfile;
-    exports org.ballerinalang.toml.parser;
     exports org.ballerinalang.repository;
-    exports org.wso2.ballerinalang.compiler.packaging;
-    exports org.wso2.ballerinalang.compiler.packaging.converters;
-    exports org.wso2.ballerinalang.compiler.packaging.repo;
     exports org.wso2.ballerinalang.compiler.bir;
     exports org.wso2.ballerinalang.compiler.bir.model;
-    exports org.ballerinalang.toml.exceptions;
     exports org.ballerinalang.model.tree.types;
     exports org.wso2.ballerinalang.compiler.parser;
     exports org.ballerinalang.model.symbols;
-    exports org.ballerinalang.repository.fs;
     exports org.wso2.ballerinalang.compiler.spi;
     exports org.ballerinalang.util;
     exports org.wso2.ballerinalang.compiler.tree.clauses;
@@ -73,6 +66,6 @@ module io.ballerina.lang {
     exports io.ballerina.projects.repos;
     exports io.ballerina.projects.plugins;
     exports io.ballerina.projects.internal.model; // TODO Remove this exports
-    exports io.ballerina.projects.internal.environment; // TODO Remove these exports
-    exports io.ballerina.projects.internal to io.ballerina.cli;
+    exports io.ballerina.projects.internal.environment;
+    exports io.ballerina.projects.internal; // TODO Remove these exports
 }
