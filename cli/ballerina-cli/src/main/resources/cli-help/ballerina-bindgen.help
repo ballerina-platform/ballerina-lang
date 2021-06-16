@@ -41,7 +41,7 @@ OPTIONS
            will be applicable only if the bindings are generated inside a single directory.
 
        <class-name>...
-           One or more space separated fully qualified Java class names for which the bridge
+           One or more space-separated, fully-qualified Java class names for which the bridge
            code is to be generated.
 
 
