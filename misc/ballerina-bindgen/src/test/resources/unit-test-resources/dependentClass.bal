@@ -4,7 +4,7 @@
 //
 // $ bal bindgen [(-cp|--classpath) <classpath>...]
 //               [(-mvn|--maven) <groupId>:<artifactId>:<version>]
-//               [(-d|--directory) <directory-path>]
+//               [(-o|--output) <output-path>]
 //               [--public]
 //               (<class-name>...)
 //

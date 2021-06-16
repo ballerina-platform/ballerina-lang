@@ -4,7 +4,7 @@ NAME
 SYNOPSIS
        bal bindgen [(-cp|--classpath) <classpath>...]
                    [(-mvn|--maven) <groupId>:<artifactId>:<version>]
-                   [(-d|--directory) <directory-path>]
+                   [(-o|--output) <output-path>]
                    [--public]
                    (<class-name>...)
 
@@ -31,7 +31,7 @@ OPTIONS
            Specify a Maven dependency with colon delimited groupId, artifactId and version.
            This would resolve the transitive dependencies and update the Ballerina.toml file.
 
-       (-d|--directory) <directory-path>
+       (-o|--output) <output-path>
            Generate all bindings inside a single directory. This option could be used in
            instances where all the mappings are required inside a single module. Here, the
            directory specified doesn't need to be inside a Ballerina package.
@@ -50,7 +50,7 @@ EXAMPLES
            $ bal bindgen java.utils.ArrayDeque
 
        Generate Ballerina bridge code for library Java classes.
-           $ bal bindgen -cp ./libs/snakeyaml-1.25.jar,./libs/pdfbox-1.8.10.jar -d ./modules/sample
+           $ bal bindgen -cp ./libs/snakeyaml-1.25.jar,./libs/pdfbox-1.8.10.jar -o ./modules/sample
            org.yaml.snakeyaml.Yaml org.apache.pdfbox.pdmodel.PDDocument java.io.File
 
        Generate Ballerina bridge code using a Maven dependency.

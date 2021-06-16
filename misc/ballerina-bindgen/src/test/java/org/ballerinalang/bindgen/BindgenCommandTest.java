@@ -93,7 +93,7 @@ public class BindgenCommandTest extends CommandTest {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
         String incorrectJarPath = Paths.get("./incorrect.jar").toString();
         String invalidDirPath = Paths.get("/User/invalidDir").toString();
-        String[] args = {"-cp=" + incorrectJarPath + ", test.txt, " + invalidDirPath, "-d=" +
+        String[] args = {"-cp=" + incorrectJarPath + ", test.txt, " + invalidDirPath, "-o=" +
                 projectDir, "java.lang.Object"};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
@@ -110,7 +110,7 @@ public class BindgenCommandTest extends CommandTest {
     @Test(description = "Test if the correct error is given for incorrect maven option value")
     public void testIncorrectMavenLibrary() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-mvn=org.yaml.snakeyaml.1.25", "-d=" + projectDir, "java.lang.Object"};
+        String[] args = {"-mvn=org.yaml.snakeyaml.1.25", "-o=" + projectDir, "java.lang.Object"};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
@@ -123,7 +123,7 @@ public class BindgenCommandTest extends CommandTest {
     @Test(description = "Test if the correct error is given for an incorrect output path")
     public void testOutputPath() throws IOException {
         String incorrectPath = Paths.get("./incorrect").toString();
-        String[] args = {"-d=" + incorrectPath, "java.lang.Object"};
+        String[] args = {"-o=" + incorrectPath, "java.lang.Object"};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
@@ -154,7 +154,7 @@ public class BindgenCommandTest extends CommandTest {
     @Test(description = "Test if the directory flag works as expected for generating bindings inside a project")
     public void testDirectoryFlagInsideProject() {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-d=" + projectDir, "java.lang.Object"};
+        String[] args = {"-o=" + projectDir, "java.lang.Object"};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
@@ -166,7 +166,7 @@ public class BindgenCommandTest extends CommandTest {
 
     @Test(description = "Test if the directory flag works as expected for generating bindings outside a project")
     public void testDirectoryFlagOutsideProject() {
-        String[] args = {"-d=" + testResources.toString(), "java.lang.Object"};
+        String[] args = {"-o=" + testResources.toString(), "java.lang.Object"};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
@@ -179,7 +179,7 @@ public class BindgenCommandTest extends CommandTest {
     @Test(description = "Test if the correct error is given when no class names are provided")
     public void testNoClassNames() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-d=" + projectDir};
+        String[] args = {"-o=" + projectDir};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
@@ -263,7 +263,7 @@ public class BindgenCommandTest extends CommandTest {
     @Test(description = "Test if the correct error is given for a failure in the writing bal files")
     public void testFileWriteFailure() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject", "tests").toString();
-        String[] args = {"-d=" + projectDir, "java.lang.Object"};
+        String[] args = {"-o=" + projectDir, "java.lang.Object"};
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
@@ -285,7 +285,7 @@ public class BindgenCommandTest extends CommandTest {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
 
         // Scenario 1: ensure that complete implementations are not replaced by empty bindings
-        String[] args1 = {"-d" + projectDir, "java.io.FileInputStream"};
+        String[] args1 = {"-o" + projectDir, "java.io.FileInputStream"};
         BindgenCommand bindgenCommand1 = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand1).parseArgs(args1);
         bindgenCommand1.execute();
@@ -294,7 +294,7 @@ public class BindgenCommandTest extends CommandTest {
                 "the `java.io.File` Java class."));
 
         // Scenario 2: ensure that bindings are replaced by complete implementations
-        String[] args2 = {"-d" + projectDir, "java.io.File"};
+        String[] args2 = {"-o" + projectDir, "java.io.File"};
         BindgenCommand bindgenCommand2 = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand2).parseArgs(args2);
         bindgenCommand2.execute();

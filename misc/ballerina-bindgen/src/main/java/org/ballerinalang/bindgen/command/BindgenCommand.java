@@ -81,7 +81,7 @@ public class BindgenCommand implements BLauncherCmd {
             description = "A maven dependency with colon delimited groupId, artifactId and version.")
     private String mavenDependency;
 
-    @CommandLine.Option(names = {"-d", "--directory"},
+    @CommandLine.Option(names = {"-o", "--output"},
             description = "Generate all bindings inside the specified directory. This option could be " +
                     "used to generate mappings inside a single module."
     )
@@ -97,7 +97,7 @@ public class BindgenCommand implements BLauncherCmd {
 
     private static final String BINDGEN_CMD = "bal bindgen [(-cp|--classpath) <classpath>...]\n" +
             "                  [(-mvn|--maven) <groupId>:<artifactId>:<version>]\n" +
-            "                  [(-d|--directory) <directory-path>]\n" +
+            "                  [(-o|--output) <output-path>]\n" +
             "                  [--public]\n" +
             "                  (<class-name>...)";
 
@@ -163,7 +163,7 @@ public class BindgenCommand implements BLauncherCmd {
 
         if (this.outputPath == null && project == null) {
             setOutError("No Ballerina package detected. You could either generate the bindings inside a valid " +
-                    "Ballerina package or use the `[(-d|--directory) <directory-path>]` option to generate the " +
+                    "Ballerina package or use the `[(-o|--output) <output-path>]` option to generate the " +
                     "bindings inside a specific single directory.");
             exitWithCode(1, this.exitWhenFinish);
             return;
@@ -232,7 +232,7 @@ public class BindgenCommand implements BLauncherCmd {
     public void printUsage(StringBuilder out) {
         out.append("  $ bal " + COMPONENT_IDENTIFIER + " java.utils.ArrayDeque\n");
         out.append("  $ bal " + COMPONENT_IDENTIFIER + " -cp ./libs/snakeyaml-1.25.jar,./libs/pdfbox-1.8.10.jar " +
-                "-d ./modules/sample\n");
+                "-o ./modules/sample\n");
         out.append("  org.yaml.snakeyaml.Yaml org.apache.pdfbox.pdmodel.PDDocument java.io.File\n");
         out.append("  $ bal " + COMPONENT_IDENTIFIER + " -mvn org.yaml:snakeyaml:1.25 org.yaml.snakeyaml.Yaml\n");
     }
