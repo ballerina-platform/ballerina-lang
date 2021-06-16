@@ -29,7 +29,7 @@ OPTIONS
 
        (-mvn|--maven) <groupId>:<artifactId>:<version>
            Specify a Maven dependency with a colon-delimited group ID, artifact ID, and version.
-           This would resolve the transitive dependencies and update the Ballerina.toml file.
+           This would resolve the transitive dependencies and update the `Ballerina.toml` file.
 
        (-o|--output) <output-path>
            Generate all bindings inside a single directory. This option could be used in
