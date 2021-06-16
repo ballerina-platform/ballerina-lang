@@ -1954,8 +1954,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangJoinClause joinClause) {
         joinClause.collection.accept(this);
-        ((BLangNode)joinClause.onClause.getLeftExpression()).accept(this);
-        ((BLangNode)joinClause.onClause.getRightExpression()).accept(this);
+        ((BLangNode) joinClause.onClause.getLeftExpression()).accept(this);
+        ((BLangNode) joinClause.onClause.getRightExpression()).accept(this);
     }
 
     @Override
