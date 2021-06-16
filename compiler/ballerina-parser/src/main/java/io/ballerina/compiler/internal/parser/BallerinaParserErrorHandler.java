@@ -112,6 +112,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.TRANSACTION_STMT, ParserRuleContext.RETRY_STMT, ParserRuleContext.ROLLBACK_STMT,
             ParserRuleContext.DO_BLOCK, ParserRuleContext.FAIL_STATEMENT };
 
+    private static final ParserRuleContext[] ASSIGNMENT_STMT_RHS =
+            { ParserRuleContext.ASSIGN_OP, ParserRuleContext.COMPOUND_BINARY_OPERATOR };
+
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.ASSIGN_OP, ParserRuleContext.SEMICOLON };
 
@@ -319,11 +322,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] PARAM_END =
             { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_PARENTHESIS };
 
-    private static final ParserRuleContext[] STMT_START_WITH_EXPR_RHS = { ParserRuleContext.ASSIGN_OP,
-            ParserRuleContext.RIGHT_ARROW, ParserRuleContext.COMPOUND_BINARY_OPERATOR, ParserRuleContext.SEMICOLON };
-
-    private static final ParserRuleContext[] EXPR_STMT_RHS = { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP,
-            ParserRuleContext.RIGHT_ARROW, ParserRuleContext.COMPOUND_BINARY_OPERATOR };
+    private static final ParserRuleContext[] STMT_START_WITH_EXPR_RHS = { ParserRuleContext.ASSIGNMENT_STMT_RHS,
+            ParserRuleContext.RIGHT_ARROW, ParserRuleContext.SEMICOLON };
 
     private static final ParserRuleContext[] EXPRESSION_STATEMENT_START =
             { ParserRuleContext.VARIABLE_REF, ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.OPEN_PARENTHESIS,
@@ -1125,6 +1125,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                             nextToken.kind == SyntaxKind.ISOLATED_KEYWORD ||
                             nextToken.kind == SyntaxKind.CONFIGURABLE_KEYWORD;
                     break;
+                case COMPOUND_BINARY_OPERATOR:
+                    hasMatch = BallerinaParser.isCompoundBinaryOperator(nextToken.kind);
+                    break;
 
                 // start a context, so that we know where to fall back, and continue
                 // having the qualified-identifier as the next rule.
@@ -1502,6 +1505,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case EXPR_START_OR_INFERRED_TYPEDESC_DEFAULT_START:
             case TYPE_CAST_PARAM_START_OR_INFERRED_TYPEDESC_DEFAULT_END:
             case END_OF_PARAMS_OR_NEXT_PARAM_START:
+            case ASSIGNMENT_STMT_RHS:
                 return true;
             default:
                 return false;
@@ -1870,10 +1874,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 alternativeRules = ARRAY_LENGTH;
                 break;
             case STMT_START_WITH_EXPR_RHS:
-                alternativeRules = STMT_START_WITH_EXPR_RHS;
-                break;
             case EXPR_STMT_RHS:
-                alternativeRules = EXPR_STMT_RHS;
+                alternativeRules = STMT_START_WITH_EXPR_RHS;
                 break;
             case EXPRESSION_STATEMENT_START:
                 alternativeRules = EXPRESSION_STATEMENT_START;
@@ -2075,6 +2077,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case NAMED_WORKER_DECL_START:
                 alternativeRules = NAMED_WORKER_DECL_START;
+                break;
+            case ASSIGNMENT_STMT_RHS:
+                alternativeRules = ASSIGNMENT_STMT_RHS;
                 break;
             default:
                 return seekMatchInExprRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -4262,6 +4267,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
      */
     private ParserRuleContext getNextRuleForVarName() {
         ParserRuleContext parentCtx = getParentContext();
+        if (parentCtx == ParserRuleContext.ASSIGNMENT_STMT) {
+            return ParserRuleContext.ASSIGNMENT_STMT_RHS;
+        }
+
         if (isStatement(parentCtx)) {
             return ParserRuleContext.VAR_DECL_STMT_RHS;
         }
