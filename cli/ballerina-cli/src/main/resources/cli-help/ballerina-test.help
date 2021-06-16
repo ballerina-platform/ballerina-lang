@@ -50,21 +50,21 @@ OPTIONS
            '@test:Config' annotation.
 
        --tests <test_function_name, ...>
-            Specify the test functions to be executed. A specific set of
-            test functions can be executed using this command.
+           Specify the test functions to be executed. A specific set of
+           test functions can be executed using this command.
 
        --tests <PackageName>:<test_function_name, ...>
-            Specify the test functions to be executed only from the default
-            module. Wildcards can be used to specify the set of functions 
-            to be executed.
+           Specify the test functions to be executed only from the default
+           module. Wildcards can be used to specify the set of functions 
+           to be executed.
 
        --tests <PackageName>.<ModuleName>:<test_function_name, ...>
-            Specify the test functions to be executed only from the given
-            module. Wildcards can be used to specify the set of functions 
-            to be executed.
+           Specify the test functions to be executed only from the given
+           module. Wildcards can be used to specify the set of functions 
+           to be executed.
 
        --rerun-failed
-            Execute only the previously-failed test cases in the package.
+           Execute only the previously-failed test cases in the package.
 
        --code-coverage
            Enable code coverage. This will analyze the line coverage of
@@ -80,14 +80,14 @@ OPTIONS
            'xml' value is allowed.
 
        --experimental
-            Enable the experimental language features.
+           Enable the experimental language features.
 
        --debug
-            Run tests in remote debugging mode only when the 
+           Run tests in remote debugging mode only when the 
             '--skip-tests' flag is not used.
 
        --observability-included
-            Include package observability in the executable JAR file(s).
+           Include package observability in the executable JAR file(s).
 
 
 EXAMPLES

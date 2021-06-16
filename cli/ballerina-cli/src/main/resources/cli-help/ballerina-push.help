@@ -12,7 +12,7 @@ DESCRIPTION
        Follow the steps below to set up the prerequisites before pushing the package to Ballerina Central.
        1) Create an organization by registering with Ballerina Central at
           https://central.ballerina.io/.
-       2) Add the access token with the registration you receive  to the
+       2) Add the access token with the registration you receive to the
           'Settings.toml' file in the home repository (<USER_HOME>/.ballerina/).
        3) Add the created organization name and version to the
           'Ballerina.toml' file in the package directory.
@@ -41,9 +41,9 @@ OPTIONS
 
 
 EXAMPLES
-       Push the package of the current package to Ballerina Central after
+       Push the package of the current project to Ballerina Central after
        building it.
            $ bal push
 
-       Push the package of the current package to the local repository for testing.
+       Push the package of the current project to the local repository for testing.
            $ bal push --repository=local
