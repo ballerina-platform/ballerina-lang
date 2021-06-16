@@ -19,13 +19,14 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.cli.utils.PrintUtils;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Settings;
+import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.projects.util.RepoUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.model.PackageSearchResult;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
-import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -131,23 +132,16 @@ public class SearchCommand implements BLauncherCmd {
      */
     private void searchInCentral(String query) {
         try {
-            Settings settings;
-            try {
-                settings = readSettings();
-                // Ignore Settings.toml diagnostics in the search command
-            } catch (SettingsTomlException e) {
-                // Ignore 'Settings.toml' parsing errors and return empty Settings object
-                settings = Settings.from();
-            }
+            Settings settings = readSettings();
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                                                            initializeProxy(settings.getProxy()),
                                                            getAccessTokenOfCLI(settings));
             PackageSearchResult packageSearchResult = client.searchPackage(query,
                                                                            JvmTarget.JAVA_11.code(),
-                                                                           RepoUtils.getBallerinaVersion());
+                                                                           ProjectUtils.getBallerinaVersion());
 
             if (packageSearchResult.getCount() > 0) {
-                printPackages(packageSearchResult.getPackages(), RepoUtils.getTerminalWidth());
+                printPackages(packageSearchResult.getPackages(), PrintUtils.getTerminalWidth());
             } else {
                 outStream.println("no modules found");
             }
