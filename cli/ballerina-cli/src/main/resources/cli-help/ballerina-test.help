@@ -13,21 +13,25 @@ DESCRIPTION
 
        Use `bal test <balfile>` to execute the given Ballerina test file.
               
-       Note: Testing single `.bal` files, which belong to a Ballerina package is not allowed.
+       Note: Testing single `.bal` files, which belong to a Ballerina 
+       package is not allowed.
               
        The file path can be relative or absolute.
 
 
 OPTIONS
        --offline
-           Build offline using the local artifacts without downloading the latest artifacts of the dependencies from the remote repository (Ballerina Central).
+           Build offline using the local artifacts without downloading 
+           the latest artifacts of the dependencies from the remote 
+           repository (Ballerina Central).
 
        --list-groups
            List the test groups available in the test files. Groups are
            tags that are added to the test functions. They are used to
            control the execution of the test functions by specifying a
            group or a set of groups that need to be executed in a test
-           run. A test function can be grouped using the 'groups' parameter within the '@test:Config' annotation.
+           run. A test function can be grouped using the 'groups' 
+           parameter within the '@test:Config' annotation.
 
        --groups <test_group, ...>
            Specify the test groups to be executed. Groups are tags that are
@@ -51,11 +55,13 @@ OPTIONS
 
        --tests <PackageName>:<test_function_name, ...>
             Specify the test functions to be executed only from the default
-            module. Wildcards can be used to specify the set of functions to be executed.
+            module. Wildcards can be used to specify the set of functions 
+            to be executed.
 
        --tests <PackageName>.<ModuleName>:<test_function_name, ...>
             Specify the test functions to be executed only from the given
-            module. Wildcards can be used to specify the set of functions to be executed.
+            module. Wildcards can be used to specify the set of functions 
+            to be executed.
 
        --rerun-failed
             Execute only the previously-failed test cases in the package.
@@ -70,13 +76,15 @@ OPTIONS
            Generate an HTML report containing the test results.
 
        --coverage-format
-           Generate a coverage report in the specified format. Only the 'xml' value is allowed.
+           Generate a coverage report in the specified format. Only the 
+           'xml' value is allowed.
 
        --experimental
             Enable the experimental language features.
 
        --debug
-            Run tests in remote debugging mode only when the '--skip-tests' flag is not used.
+            Run tests in remote debugging mode only when the 
+            '--skip-tests' flag is not used.
 
        --observability-included
             Include package observability in the executable JAR file(s).
