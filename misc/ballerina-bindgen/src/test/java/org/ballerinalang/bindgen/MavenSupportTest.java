@@ -66,13 +66,13 @@ public class MavenSupportTest extends CommandTest {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
         Path mavenRepoPath = Paths.get(projectDir, "target", "platform-libs");
         String jarName = "snakeyaml-1.25.jar";
-        String[] args = {"-mvn=org.yaml:snakeyaml:1.25", "-o=" + projectDir, "org.yaml.snakeyaml.Yaml"};
+        String[] args = {"-mvn=org.yaml:snakeyaml:1.25", "-d=" + projectDir, "org.yaml.snakeyaml.Yaml"};
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("Ballerina project detected at:"));
+        Assert.assertTrue(output.contains("Ballerina package detected at:"));
         Assert.assertTrue(output.contains("Resolving maven dependencies..."));
         Assert.assertTrue(output.contains("Following jars were added to the classpath"));
         Assert.assertTrue(output.contains("snakeyaml-1.25.jar"));
@@ -82,7 +82,7 @@ public class MavenSupportTest extends CommandTest {
     @Test(description = "Test the maven support in the Bindgen tool to see if the Ballerina.toml is updated")
     public void testBindgenMvnToml() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-mvn=commons-logging:commons-logging:1.1.1", "-o=" + projectDir,
+        String[] args = {"-mvn=commons-logging:commons-logging:1.1.1", "-d=" + projectDir,
                 "org.apache.commons.logging.LogFactory"};
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
@@ -95,7 +95,7 @@ public class MavenSupportTest extends CommandTest {
     @Test(description = "Test the error given for a maven library that is unavailable")
     public void testUnavailableMvnLibrary() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-mvn=org.yamls:snakeyaml:1.25", "-o=" + projectDir, "org.yaml.snakeyaml.Yaml"};
+        String[] args = {"-mvn=org.yamls:snakeyaml:1.25", "-d=" + projectDir, "org.yaml.snakeyaml.Yaml"};
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 

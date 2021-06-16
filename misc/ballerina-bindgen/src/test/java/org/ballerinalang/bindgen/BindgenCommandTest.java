@@ -66,7 +66,8 @@ public class BindgenCommandTest extends CommandTest {
             "specified in the Ballerina.toml file")
     public void testExistingPlatformLibraries() throws IOException, MavenResolverException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-o=" + projectDir, "java.lang.Object", "org.apache.log4j.Logger"};
+        System.setProperty("user.dir", projectDir);
+        String[] args = {"java.lang.Object", "org.apache.log4j.Logger"};
 
         // Platform libraries specified through maven dependencies should be automatically resolved.
         // Explicitly add a jar to test the platform libraries specified as a path.
@@ -78,7 +79,7 @@ public class BindgenCommandTest extends CommandTest {
 
         bindgenCommand.execute();
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("Ballerina project detected at:"));
+        Assert.assertTrue(output.contains("Ballerina package detected at:"));
         Assert.assertTrue(output.contains("Following jars were added to the classpath:"));
         Assert.assertTrue(output.contains("snakeyaml-1.25.jar"));
         Assert.assertTrue(output.contains("commons-logging-1.1.1.jar"));
@@ -92,7 +93,7 @@ public class BindgenCommandTest extends CommandTest {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
         String incorrectJarPath = Paths.get("./incorrect.jar").toString();
         String invalidDirPath = Paths.get("/User/invalidDir").toString();
-        String[] args = {"-cp=" + incorrectJarPath + ", test.txt, " + invalidDirPath, "-o=" +
+        String[] args = {"-cp=" + incorrectJarPath + ", test.txt, " + invalidDirPath, "-d=" +
                 projectDir, "java.lang.Object"};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
@@ -109,7 +110,7 @@ public class BindgenCommandTest extends CommandTest {
     @Test(description = "Test if the correct error is given for incorrect maven option value")
     public void testIncorrectMavenLibrary() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-mvn=org.yaml.snakeyaml.1.25", "-o=" + projectDir, "java.lang.Object"};
+        String[] args = {"-mvn=org.yaml.snakeyaml.1.25", "-d=" + projectDir, "java.lang.Object"};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
@@ -122,7 +123,7 @@ public class BindgenCommandTest extends CommandTest {
     @Test(description = "Test if the correct error is given for an incorrect output path")
     public void testOutputPath() throws IOException {
         String incorrectPath = Paths.get("./incorrect").toString();
-        String[] args = {"-o=" + incorrectPath, "java.lang.Object"};
+        String[] args = {"-d=" + incorrectPath, "java.lang.Object"};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
@@ -136,33 +137,49 @@ public class BindgenCommandTest extends CommandTest {
     @Test(description = "Test a scenario where the output path resides inside a project")
     public void testOutputPathInsideProject() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject", "tests").toString();
-        String[] args = {"-o=" + projectDir, "java.lang.String"};
+        System.setProperty("user.dir", projectDir);
+        String[] args = {"java.lang.String"};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("Ballerina project detected at: "));
+        Assert.assertTrue(output.contains("Ballerina package detected at: "));
+        File file = new File(Paths.get(testResources.toString(), "balProject", "modules", "java.lang",
+                "String.bal").toString());
+        Assert.assertTrue(file.exists());
     }
 
-    @Test(description = "Test if the correct error is given when the output path is provided with the modules flag")
-    public void testOutputPathWithModulesFlag() throws IOException {
+    @Test(description = "Test if the directory flag works as expected for generating bindings inside a project")
+    public void testDirectoryFlagInsideProject() {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-o=" + projectDir, "-m", "java.lang.Object"};
+        String[] args = {"-d=" + projectDir, "java.lang.Object"};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
-        String output = readOutput(true);
-        Assert.assertTrue(output.contains("error: output path is not supported together with the modules flag"));
+        File file = new File(Paths.get(projectDir, "Object.bal").toString());
+        Assert.assertTrue(file.exists());
+    }
+
+    @Test(description = "Test if the directory flag works as expected for generating bindings outside a project")
+    public void testDirectoryFlagOutsideProject() {
+        String[] args = {"-d=" + testResources.toString(), "java.lang.Object"};
+
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        bindgenCommand.execute();
+        File file = new File(Paths.get(testResources.toString(), "Object.bal").toString());
+        Assert.assertTrue(file.exists());
     }
 
     @Test(description = "Test if the correct error is given when no class names are provided")
     public void testNoClassNames() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-o=" + projectDir};
+        String[] args = {"-d=" + projectDir};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
@@ -174,22 +191,23 @@ public class BindgenCommandTest extends CommandTest {
 
     @Test(description = "Test if the correct error is given when a user tries to generate " +
             "module level mappings outside a ballerina project")
-    public void testModuleFlagWithoutProject() throws IOException {
-        String[] args = {"-m", "java.lang.Object"};
-
+    public void testModuleMappingsWithoutProject() throws IOException {
+        String[] args = {"java.lang.Object"};
+        String projectDir = Paths.get(testResources.toString()).toString();
+        System.setProperty("user.dir", projectDir);
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("error: module level mappings can only be generated " +
-                "inside a ballerina project"));
+        Assert.assertTrue(output.contains("No Ballerina package detected. You could either generate the bindings"));
     }
 
     @Test(description = "Test if the correct error is given for invalid class names")
     public void testInvalidClassNames() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-o=" + projectDir, "java.lang.Objec", "java.lang.Apple", "java.lang.String"};
+        System.setProperty("user.dir", projectDir);
+        String[] args = {"java.lang.Objec", "java.lang.Apple", "java.lang.String"};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
@@ -205,7 +223,8 @@ public class BindgenCommandTest extends CommandTest {
     @Test(description = "Test if the correct error is given for failed method generations")
     public void testFailedMethodGenerations() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-o=" + projectDir, "org.ballerinalang.bindgen.MethodsTestResource", "java.invalid.Class"};
+        System.setProperty("user.dir", projectDir);
+        String[] args = {"org.ballerinalang.bindgen.MethodsTestResource", "java.invalid.Class"};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
@@ -223,7 +242,8 @@ public class BindgenCommandTest extends CommandTest {
     @Test(description = "Test if the correct error is given for a failure in the project loading")
     public void testFailedProjectLoad() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-o=" + projectDir, "java.lang.Object"};
+        System.setProperty("user.dir", projectDir);
+        String[] args = {"java.lang.Object"};
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
@@ -234,7 +254,7 @@ public class BindgenCommandTest extends CommandTest {
                 bindgenCommand.execute();
                 String output = readOutput(true);
                 file.setReadable(true);
-                Assert.assertTrue(output.contains("error: unable to load the project ["));
+                Assert.assertTrue(output.contains("error: unable to load the Ballerina package ["));
                 Assert.assertTrue(output.contains("Ballerina.toml' does not have read permissions"));
             }
         }
@@ -243,7 +263,7 @@ public class BindgenCommandTest extends CommandTest {
     @Test(description = "Test if the correct error is given for a failure in the writing bal files")
     public void testFileWriteFailure() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject", "tests").toString();
-        String[] args = {"-o=" + projectDir, "java.lang.Object"};
+        String[] args = {"-d=" + projectDir, "java.lang.Object"};
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
