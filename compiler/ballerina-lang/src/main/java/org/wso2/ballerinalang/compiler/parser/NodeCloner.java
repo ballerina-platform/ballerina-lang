@@ -266,7 +266,7 @@ public class NodeCloner extends BLangNodeVisitor {
         if (nodes == null) {
             return null;
         }
-        List<T> cloneList = new ArrayList<>();
+        List<T> cloneList = new ArrayList<>(nodes.size());
         for (T node : nodes) {
             T clone = (T) clone(node);
             cloneList.add(clone);
@@ -293,7 +293,7 @@ public class NodeCloner extends BLangNodeVisitor {
             result.pos = sourceNode.pos;
             result.internal = sourceNode.internal;
             result.addWS(source.getWS());
-            result.type = sourceNode.type;
+            result.setBType(sourceNode.getBType());
         }
         return (T) result;
     }
@@ -330,7 +330,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.originalValue = source.originalValue;
         clone.isFiniteContext = source.isFiniteContext;
         clone.isConstant = source.isConstant;
-        clone.type = source.type;
+        clone.setBType(source.getBType());
     }
 
     private void cloneBLangAccessExpression(BLangAccessExpression source, BLangAccessExpression clone) {
@@ -751,7 +751,6 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.restMatchPattern = clone(source.restMatchPattern);
         clone.matchGuardIsAvailable = source.matchGuardIsAvailable;
         clone.matchPatterns = cloneList(source.matchPatterns);
-        clone.declaredVars = source.declaredVars;
     }
 
     @Override
@@ -1585,7 +1584,7 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     private List<BLangLetVariable> cloneLetVarDeclarations(List<BLangLetVariable> letVarDeclarations) {
-        List<BLangLetVariable> cloneDefs = new ArrayList<>();
+        List<BLangLetVariable> cloneDefs = new ArrayList<>(letVarDeclarations.size());
         for (BLangLetVariable letVarDeclaration : letVarDeclarations) {
             BLangLetVariable clonedVar = new BLangLetVariable();
             clonedVar.definitionNode = clone(letVarDeclaration.definitionNode);
@@ -1839,6 +1838,8 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.detailType = clone(source.detailType);
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
+        clone.isAnonymous = source.isAnonymous;
+        clone.isLocal = source.isLocal;
         cloneBLangType(source, clone);
     }
 

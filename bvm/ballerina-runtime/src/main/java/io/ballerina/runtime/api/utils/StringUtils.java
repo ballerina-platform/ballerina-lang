@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.BalStringUtils;
 import io.ballerina.runtime.internal.CycleUtils;
+import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
@@ -356,6 +357,9 @@ public class StringUtils {
 
         Type type = TypeChecker.getType(value);
 
+        if (type.getTag() == TypeTags.STRING_TAG) {
+            return stringToJson((BString) value);
+        }
         if (type.getTag() < TypeTags.JSON_TAG) {
             return String.valueOf(value);
         }
@@ -372,6 +376,18 @@ public class StringUtils {
 
         RefValue refValue = (RefValue) value;
         return refValue.stringValue(null);
+    }
+
+    private static String stringToJson(BString value) {
+        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        JsonGenerator gen = new JsonGenerator(byteOut);
+        try {
+            gen.writeString(value.getValue());
+            gen.flush();
+        } catch (IOException e) {
+            throw new BallerinaException("Error in converting string value to a json string: " + e.getMessage(), e);
+        }
+        return new String(byteOut.toByteArray());
     }
 
     private StringUtils() {

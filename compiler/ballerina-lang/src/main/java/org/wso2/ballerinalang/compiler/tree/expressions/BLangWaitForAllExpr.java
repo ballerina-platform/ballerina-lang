@@ -110,7 +110,7 @@ public class BLangWaitForAllExpr extends BLangExpression implements WaitForAllEx
 
         public BLangWaitLiteral(List<BLangWaitKeyValue> keyValuePairs, BType structType) {
             this.keyValuePairs = keyValuePairs;
-            this.type = structType;
+            this.setBType(structType);
         }
 
         @Override

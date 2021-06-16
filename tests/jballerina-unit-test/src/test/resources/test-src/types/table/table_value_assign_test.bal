@@ -150,53 +150,6 @@ function testAssignKeylessTableValueToTableType() {
     assertEqual(a3, a4);
 }
 
-type Row record {
-  readonly int k;
-  readonly string[] v;
-  string m;
-};
-
-int id1 = 15;
-
-function testAssignVariableRefAsKey() {
-    int id2 = 16;
-    table<Row> key(k) tbl1 = table [
-        {k: id1, v:["Foo", "Bar"], m: "A"},
-        {k: id2, v:["Bam", "Boom"], m: "B"}
-    ];
-    int id3 = 17;
-    tbl1.add({k: id3, v:["Foo", "Boom"], m: "C"});
-
-    var tbl2 = table key(k) [
-        {k: id1, v:["Foo", "Bar"], m: "A"},
-        {k: id2, v:["Bam", "Boom"], m: "B"},
-        {k: id3, v:["Foo", "Boom"], m: "C"}
-    ];
-    assertEqual(tbl1, tbl2);
-
-    readonly & string[] s1 = ["foo", "bar"];
-    table<Row> key(k, v) tbl3 = table [
-        {k: id1, v:s1, m: "A"},
-        {k: id2, v:s1, m: "B"}
-    ];
-
-    Row row = {k: 16, v:["foo", "bar"], m: "B"};
-    assertEqual(row, tbl3.get([16, ["foo", "bar"]]));
-
-    error? err = trap tbl3.add({k: id1, v:s1, m: "A"});
-    assertEqual(true, err is error);
-    if (err is error) {
-        map<string> msg = {"message":"A value found for key '15 [\"foo\",\"bar\"]'"};
-        assertEqual(msg, err.detail());
-    }
-
-    table<Row> tbl4 = table [
-        {k: id1, v:s1, m: "A"},
-        {k: id2, v:s1, m: "B"}
-    ];
-    assertEqual(table [{k: 15, v:["foo", "bar"], m: "A"}, {k: 16, v:["foo", "bar"], m: "B"}], tbl4);
-}
-
 function assertEqual(any expected, any actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

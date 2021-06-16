@@ -38,7 +38,6 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
@@ -669,15 +668,12 @@ public class BTestRunner {
             if (e instanceof BError) {
                 return ((BError) e).getPrintableStackTrace();
             } else if (e instanceof Exception | e instanceof Error) {
-                RuntimeUtils.silentlyLogBadSad(e);
                 return TesterinaUtils.getPrintableStackTrace(e);
             } else {
-                RuntimeUtils.silentlyLogBadSad(e);
                 return TesterinaUtils.getPrintableStackTrace(e);
             }
         } catch (ClassCastException classCastException) {
             // If an unhandled error type is passed to format error message
-            RuntimeUtils.silentlyLogBadSad(e);
             return TesterinaUtils.getPrintableStackTrace(e);
         }
     }

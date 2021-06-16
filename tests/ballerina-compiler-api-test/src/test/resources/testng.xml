@@ -27,6 +27,7 @@
             <class name="io.ballerina.semantic.api.test.DiagnosticsTest" />
             <class name="io.ballerina.semantic.api.test.DocumentationTest" />
             <class name="io.ballerina.semantic.api.test.ExpressionTypeTest" />
+            <class name="io.ballerina.semantic.api.test.ExpressionTypeTestNew" />
             <class name="io.ballerina.semantic.api.test.FieldSymbolTest" />
             <class name="io.ballerina.semantic.api.test.LangLibFunctionTest" />
             <class name="io.ballerina.semantic.api.test.ParameterSymbolTest" />
@@ -71,20 +72,34 @@
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByWorkerTest" />
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByXMLNSTest" />
 
-            <class name="io.ballerina.semantic.api.test.typebynode.TypeByAccessExprTest" />
-            <class name="io.ballerina.semantic.api.test.typebynode.TypeByAnonFunctionTest" />
-            <class name="io.ballerina.semantic.api.test.typebynode.TypeByCallExprTest" />
-            <class name="io.ballerina.semantic.api.test.typebynode.TypeByConstructorExprTest" />
-            <class name="io.ballerina.semantic.api.test.typebynode.TypeByErrorHandlingExprTest" />
-            <class name="io.ballerina.semantic.api.test.typebynode.TypeByLiteralTest" />
-            <class name="io.ballerina.semantic.api.test.typebynode.TypeByMiscExprTest" />
-            <class name="io.ballerina.semantic.api.test.typebynode.TypeByReferenceTest" />
-            <class name="io.ballerina.semantic.api.test.typebynode.TypeByTemplateExprTest" />
-            <class name="io.ballerina.semantic.api.test.typebynode.TypeByTypeExprTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.deprecated.TypeByAccessExprTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.deprecated.TypeByAnonFunctionTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.deprecated.TypeByCallExprTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.deprecated.TypeByConstructorExprTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.deprecated.TypeByErrorHandlingExprTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.deprecated.TypeByLiteralTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.deprecated.TypeByMiscExprTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.deprecated.TypeByReferenceTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.deprecated.TypeByTemplateExprTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.deprecated.TypeByTypeExprTest" />
+
+            <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByAccessExprTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByAnonFunctionTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByCallExprTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByConstructorExprTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByErrorHandlingExprTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByLiteralTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByMiscExprTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByReferenceTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByTemplateExprTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByTypeExprTest" />
 
             <class name="io.ballerina.semantic.api.test.typedescriptors.TypeReferenceTSymbolTest" />
 
             <class name="io.ballerina.semantic.api.test.incompletesource.InvalidFieldTypeTest" />
+
+            <!--Expressions-->
+            <class name="io.ballerina.semantic.api.test.expressions.QueryExpressionTest" />
 
             <!--Statements-->
             <class name="io.ballerina.semantic.api.test.statements.SymbolsInMatchStmtTest" />

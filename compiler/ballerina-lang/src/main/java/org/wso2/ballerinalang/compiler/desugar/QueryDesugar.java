@@ -219,6 +219,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private final Names names;
     private final Types types;
     private SymbolEnv env;
+    private boolean containsCheckExpr;
 
     private QueryDesugar(CompilerContext context) {
         context.put(QUERY_DESUGAR_KEY, this);
@@ -245,14 +246,15 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return desugared query expression.
      */
     BLangStatementExpression desugar(BLangQueryExpr queryExpr, SymbolEnv env) {
+        containsCheckExpr = false;
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         Location pos = clauses.get(0).pos;
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
-        BLangVariableReference streamRef = buildStream(clauses, queryExpr.type, env, queryBlock);
+        BLangVariableReference streamRef = buildStream(clauses, queryExpr.getBType(), env, queryBlock);
         BLangStatementExpression streamStmtExpr;
         if (queryExpr.isStream) {
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, streamRef);
-            streamStmtExpr.type = streamRef.type;
+            streamStmtExpr.setBType(streamRef.getBType());
         } else if (queryExpr.isTable) {
             onConflictExpr = (onConflictExpr == null)
                     ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE)
@@ -261,19 +263,20 @@ public class QueryDesugar extends BLangNodeVisitor {
             BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
                     QUERY_ADD_TO_TABLE_FUNCTION, Lists.of(streamRef, tableRef, onConflictExpr), pos);
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
-                                                                      addTypeConversionExpr(result, queryExpr.type));
-            streamStmtExpr.type = tableRef.type;
+                    addTypeConversionExpr(result,
+                            queryExpr.getBType()));
+            streamStmtExpr.setBType(tableRef.getBType());
             onConflictExpr = null;
         } else {
             BLangVariableReference result;
-            if (TypeTags.isXMLTypeTag(queryExpr.type.tag) || (queryExpr.type.tag == TypeTags.UNION &&
-                    ((BUnionType) queryExpr.type).getMemberTypes().stream()
+            if (TypeTags.isXMLTypeTag(queryExpr.getBType().tag) || (queryExpr.getBType().tag == TypeTags.UNION &&
+                    ((BUnionType) queryExpr.getBType()).getMemberTypes().stream()
                             .allMatch(memType -> TypeTags.isXMLTypeTag(memType.tag)))) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION, Lists.of(streamRef), pos);
-            } else if (TypeTags.isStringTypeTag(queryExpr.type.tag)) {
+            } else if (TypeTags.isStringTypeTag(queryExpr.getBType().tag)) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);
             } else {
-                BType arrayType = queryExpr.type;
+                BType arrayType = queryExpr.getBType();
                 if (arrayType.tag == TypeTags.UNION) {
                     arrayType = ((BUnionType) arrayType).getMemberTypes()
                             .stream().filter(m -> m.tag == TypeTags.ARRAY)
@@ -281,12 +284,22 @@ public class QueryDesugar extends BLangNodeVisitor {
                 }
                 BLangArrayLiteral arr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
                 arr.exprs = new ArrayList<>();
-                arr.type = arrayType;
+                arr.setBType(arrayType);
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_ARRAY_FUNCTION,
                         Lists.of(streamRef, arr), pos);
             }
-            streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, result);
-            streamStmtExpr.type = result.type;
+            if (containsCheckExpr) {
+                // if there's a `check` expr within the query, wrap the whole query with a `check` expr,
+                // so that it will propagate the error properly.
+                BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckExpr(pos, result, queryExpr.getBType());
+                checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
+                streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, checkedExpr);
+                streamStmtExpr.setBType(checkedExpr.getBType());
+            } else {
+                streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
+                        addTypeConversionExpr(result, queryExpr.getBType()));
+                streamStmtExpr.setBType(queryExpr.getBType());
+            }
         }
         return streamStmtExpr;
     }
@@ -302,11 +315,11 @@ public class QueryDesugar extends BLangNodeVisitor {
         List<BLangNode> clauses = queryAction.getQueryClauses();
         Location pos = clauses.get(0).pos;
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
-        BLangVariableReference streamRef = buildStream(clauses, queryAction.type, env, queryBlock);
+        BLangVariableReference streamRef = buildStream(clauses, queryAction.getBType(), env, queryBlock);
         BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
                 QUERY_CONSUME_STREAM_FUNCTION, symTable.errorOrNilType, Lists.of(streamRef), pos);
         BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, result);
-        stmtExpr.type = symTable.errorOrNilType;
+        stmtExpr.setBType(symTable.errorOrNilType);
         return stmtExpr;
     }
 
@@ -392,9 +405,10 @@ public class QueryDesugar extends BLangNodeVisitor {
                                        BLangExpression collection, BType resultType) {
         String name = getNewVarName();
         BVarSymbol dataSymbol = new BVarSymbol(0, names.fromString(name), env.scope.owner.pkgID,
-                                               collection.type, this.env.scope.owner, pos, VIRTUAL);
-        BLangSimpleVariable dataVariable = ASTBuilderUtil.createVariable(pos, name,
-                collection.type, addTypeConversionExpr(collection, collection.type), dataSymbol);
+                collection.getBType(), this.env.scope.owner, pos, VIRTUAL);
+        BLangSimpleVariable dataVariable =
+                ASTBuilderUtil.createVariable(pos, name, collection.getBType(),
+                        addTypeConversionExpr(collection, collection.getBType()), dataSymbol);
         BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(pos, dataVariable);
         BLangVariableReference valueVarRef = ASTBuilderUtil.createVariableRef(pos, dataSymbol);
         blockStmt.addStatement(dataVarDef);
@@ -409,11 +423,11 @@ public class QueryDesugar extends BLangNodeVisitor {
         BType constraintTdType = new BTypedescType(constraintType, symTable.typeDesc.tsymbol);
         BLangTypedescExpr constraintTdExpr = new BLangTypedescExpr();
         constraintTdExpr.resolvedType = constraintType;
-        constraintTdExpr.type = constraintTdType;
+        constraintTdExpr.setBType(constraintTdType);
         BType completionTdType = new BTypedescType(completionType, symTable.typeDesc.tsymbol);
         BLangTypedescExpr completionTdExpr = new BLangTypedescExpr();
         completionTdExpr.resolvedType = completionType;
-        completionTdExpr.type = completionTdType;
+        completionTdExpr.setBType(completionTdType);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_PIPELINE_FUNCTION,
                 Lists.of(valueVarRef, constraintTdExpr, completionTdExpr), pos);
     }
@@ -446,7 +460,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangFieldBasedAccess valueAccessExpr = desugar.getValueAccessExpression(inputClause.pos,
                 symTable.anyOrErrorType, frameSymbol);
         valueAccessExpr.expr = desugar.addConversionExprIfRequired(valueAccessExpr.expr,
-                types.getSafeType(valueAccessExpr.expr.type, true, false));
+                types.getSafeType(valueAccessExpr.expr.getBType(), true, false));
         VariableDefinitionNode variableDefinitionNode = inputClause.variableDefinitionNode;
         BLangVariable variable = (BLangVariable) variableDefinitionNode.getVariable();
         setSymbolOwner(variable, env.scope.owner);
@@ -592,11 +606,11 @@ public class QueryDesugar extends BLangNodeVisitor {
 
         BLangArrayLiteral sortFieldsArrayExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         sortFieldsArrayExpr.exprs = new ArrayList<>();
-        sortFieldsArrayExpr.type = new BArrayType(symTable.anydataType);
+        sortFieldsArrayExpr.setBType(new BArrayType(symTable.anydataType));
 
         BLangArrayLiteral sortModesArrayExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         sortModesArrayExpr.exprs = new ArrayList<>();
-        sortModesArrayExpr.type = new BArrayType(symTable.booleanType);
+        sortModesArrayExpr.setBType(new BArrayType(symTable.booleanType));
 
         // Each order-key expression is added to sortFieldsArrayExpr.
         // Corresponding order-direction is added to sortModesArrayExpr.
@@ -725,7 +739,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     BLangVariableReference addTableConstructor(BLangQueryExpr queryExpr, BLangBlockStmt queryBlock) {
         // desugar `table<Customer> key(id, name) tab = table key(id, name);`
         Location pos = queryExpr.pos;
-        final BType type = queryExpr.type;
+        final BType type = queryExpr.getBType();
         String name = getNewVarName();
         BType tableType = type;
         if (type.tag == TypeTags.UNION) {
@@ -737,7 +751,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangTableConstructorExpr tableConstructorExpr = (BLangTableConstructorExpr)
                 TreeBuilder.createTableConstructorExpressionNode();
         tableConstructorExpr.pos = pos;
-        tableConstructorExpr.type = tableType;
+        tableConstructorExpr.setBType(tableType);
         if (!keyFieldIdentifiers.isEmpty()) {
             BLangTableKeySpecifier keySpecifier = (BLangTableKeySpecifier)
                     TreeBuilder.createTableKeySpecifierNode();
@@ -766,7 +780,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                 TreeBuilder.createTypeConversionNode();
         conversionExpr.expr = expr;
         conversionExpr.targetType = type;
-        conversionExpr.type = type;
+        conversionExpr.setBType(type);
         conversionExpr.pos = expr.pos;
         conversionExpr.checkTypes = false;
         return conversionExpr;
@@ -898,7 +912,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                                                                 Location pos) {
         String name = getNewVarName();
         BLangInvocation queryLibInvocation = createQueryLibInvocation(functionName, requiredArgs, pos);
-        type = (type == null) ? queryLibInvocation.type : type;
+        type = (type == null) ? queryLibInvocation.getBType() : type;
         BVarSymbol varSymbol = new BVarSymbol(0, new Name(name), env.scope.owner.pkgID, type, env.scope.owner, pos,
                                               VIRTUAL);
         BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, name, type,
@@ -931,7 +945,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BInvokableSymbol symbol = getQueryLibInvokableSymbol(functionName);
         BLangInvocation bLangInvocation = ASTBuilderUtil
                 .createInvocationExprForMethod(pos, symbol, requiredArgs, symResolver);
-        bLangInvocation.type = symbol.retType;
+        bLangInvocation.setBType(symbol.retType);
         return bLangInvocation;
     }
 
@@ -953,8 +967,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangIdentifier valueIdentifier = ASTBuilderUtil.createIdentifier(pos, key);
         BLangFieldBasedAccess valueAccess = ASTBuilderUtil.createFieldAccessExpr(frame, valueIdentifier);
         valueAccess.pos = pos;
-        valueAccess.type = symTable.anyOrErrorType;
-        valueAccess.originalType = valueAccess.type;
+        valueAccess.setBType(symTable.anyOrErrorType);
+        valueAccess.originalType = valueAccess.getBType();
         return ASTBuilderUtil.createAssignmentStmt(pos, valueAccess, value);
     }
 
@@ -1161,7 +1175,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     BLangValueType getNilTypeNode() {
         BLangValueType nilTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
         nilTypeNode.typeKind = TypeKind.NIL;
-        nilTypeNode.type = symTable.nilType;
+        nilTypeNode.setBType(symTable.nilType);
         return nilTypeNode;
     }
 
@@ -1173,7 +1187,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     BLangValueType getAnyTypeNode() {
         BLangValueType anyTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
         anyTypeNode.typeKind = TypeKind.ANY;
-        anyTypeNode.type = symTable.anyType;
+        anyTypeNode.setBType(symTable.anyType);
         return anyTypeNode;
     }
 
@@ -1185,7 +1199,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     BLangValueType getIntTypeNode() {
         BLangValueType intTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
         intTypeNode.typeKind = TypeKind.INT;
-        intTypeNode.type = symTable.intType;
+        intTypeNode.setBType(symTable.intType);
         return intTypeNode;
     }
 
@@ -1196,7 +1210,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     BLangErrorType getErrorTypeNode() {
         BLangErrorType errorTypeNode = (BLangErrorType) TreeBuilder.createErrorTypeNode();
-        errorTypeNode.type = symTable.errorType;
+        errorTypeNode.setBType(symTable.errorType);
         return errorTypeNode;
     }
 
@@ -1208,7 +1222,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private BLangValueType getBooleanTypeNode() {
         BLangValueType booleanTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
         booleanTypeNode.typeKind = TypeKind.BOOLEAN;
-        booleanTypeNode.type = symTable.booleanType;
+        booleanTypeNode.setBType(symTable.booleanType);
         return booleanTypeNode;
     }
 
@@ -1221,7 +1235,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BType frameType = getFrameTypeSymbol().type;
         BUnionType unionType = BUnionType.create(null, frameType, symTable.errorType, symTable.nilType);
         BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
-        unionTypeNode.type = unionType;
+        unionTypeNode.setBType(unionType);
         unionTypeNode.memberTypeNodes.add(getFrameTypeNode());
         unionTypeNode.memberTypeNodes.add(getErrorTypeNode());
         unionTypeNode.memberTypeNodes.add(getNilTypeNode());
@@ -1240,7 +1254,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         unionTypeNode.memberTypeNodes.add(getAnyTypeNode());
         unionTypeNode.memberTypeNodes.add(getErrorTypeNode());
         unionTypeNode.memberTypeNodes.add(getNilTypeNode());
-        unionTypeNode.type = unionType;
+        unionTypeNode.setBType(unionType);
         unionTypeNode.desugared = true;
         return unionTypeNode;
     }
@@ -1255,12 +1269,12 @@ public class QueryDesugar extends BLangNodeVisitor {
         BRecordType frameType = (BRecordType) frameTypeSymbol.type;
 
         BLangUnionTypeNode restFieldType = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
-        restFieldType.type = frameType.restFieldType;
+        restFieldType.setBType(frameType.restFieldType);
         restFieldType.memberTypeNodes.add(getErrorTypeNode());
         restFieldType.memberTypeNodes.add(getAnyTypeNode());
 
         BLangRecordTypeNode frameTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
-        frameTypeNode.type = frameType;
+        frameTypeNode.setBType(frameType);
         frameTypeNode.restFieldType = restFieldType;
         frameTypeNode.symbol = frameType.tsymbol;
         frameTypeNode.desugared = true;
@@ -1445,7 +1459,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                 BLangFieldBasedAccess frameAccessExpr = desugar.getFieldAccessExpression(pos, identifier,
                         symTable.anyOrErrorType, currentFrameSymbol);
                 frameAccessExpr.expr = desugar.addConversionExprIfRequired(frameAccessExpr.expr,
-                        types.getSafeType(frameAccessExpr.expr.type, true, false));
+                        types.getSafeType(frameAccessExpr.expr.getBType(), true, false));
 
                 if (symbol instanceof BVarSymbol) {
                     ((BVarSymbol) symbol).originalSymbol = null;
@@ -1668,6 +1682,7 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
+        containsCheckExpr = true;
         checkedExpr.expr.accept(this);
     }
 
@@ -1903,12 +1918,18 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangQueryExpr queryExpr) {
+        queryExpr.getQueryClauses().forEach(clause -> clause.accept(this));
+    }
+
+    @Override
     public void visit(BLangForeach foreach) {
-        throw new AssertionError();
+        foreach.collection.accept(this);
     }
 
     @Override
     public void visit(BLangFromClause fromClause) {
+        fromClause.collection.accept(this);
     }
 
     @Override
@@ -1917,18 +1938,22 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSelectClause selectClause) {
+        selectClause.expression.accept(this);
     }
 
     @Override
     public void visit(BLangWhereClause whereClause) {
+        whereClause.expression.accept(this);
     }
 
     @Override
     public void visit(BLangDoClause doClause) {
+        doClause.body.getStatements().forEach(statement -> statement.accept(this));
     }
 
     @Override
     public void visit(BLangLimitClause limitClause) {
+        limitClause.expression.accept(this);
     }
 
     @Override

@@ -20,7 +20,6 @@ package io.ballerina.cli.cmd;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -66,7 +65,7 @@ public class AddCommand implements BLauncherCmd {
     }
 
     public AddCommand(Path userDir, PrintStream errStream) {
-        this(userDir, errStream, RepoUtils.createAndGetHomeReposPath());
+        this(userDir, errStream, ProjectUtils.createAndGetHomeReposPath());
     }
 
     public AddCommand(Path userDir, PrintStream errStream, Path homeCache) {

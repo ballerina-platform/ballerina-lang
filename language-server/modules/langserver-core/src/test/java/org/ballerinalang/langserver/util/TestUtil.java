@@ -40,8 +40,10 @@ import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLensParams;
 import org.eclipse.lsp4j.CompletionCapabilities;
+import org.eclipse.lsp4j.CompletionContext;
 import org.eclipse.lsp4j.CompletionItemCapabilities;
 import org.eclipse.lsp4j.CompletionParams;
+import org.eclipse.lsp4j.CompletionTriggerKind;
 import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
@@ -108,7 +110,7 @@ public class TestUtil {
     private static final String REFERENCES = "textDocument/references";
 
     private static final String PREPARE_RENAME = "textDocument/prepareRename";
-    
+
     private static final String RENAME = "textDocument/rename";
 
     private static final String EXECUTE_COMMAND = "workspace/executeCommand";
@@ -149,7 +151,7 @@ public class TestUtil {
      * @return {@link String}   Response as String
      */
     public static String getHoverResponse(String filePath, Position position, Endpoint serviceEndpoint) {
-        CompletableFuture result = serviceEndpoint.request(HOVER, getHoverParams(filePath, position));
+        CompletableFuture<?> result = serviceEndpoint.request(HOVER, getHoverParams(filePath, position));
         return getResponseString(result);
     }
 
@@ -163,20 +165,23 @@ public class TestUtil {
     public static String getCodeLensesResponse(String filePath, Endpoint serviceEndpoint) {
         TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
         CodeLensParams codeLensParams = new CodeLensParams(identifier);
-        CompletableFuture result = serviceEndpoint.request(CODELENS, codeLensParams);
+        CompletableFuture<?> result = serviceEndpoint.request(CODELENS, codeLensParams);
         return getResponseString(result);
     }
 
     /**
      * Get the textDocument/completion response.
      *
-     * @param filePath Path of the Bal file
-     * @param position Cursor Position
-     * @param endpoint Service Endpoint to Language Server
+     * @param filePath    Path of the Bal file
+     * @param position    Cursor Position
+     * @param endpoint    Service Endpoint to Language Server
+     * @param triggerChar trigger character
      * @return {@link String}   Response as String
      */
-    public static String getCompletionResponse(String filePath, Position position, Endpoint endpoint) {
-        CompletableFuture result = endpoint.request(COMPLETION, getCompletionParams(filePath, position));
+    public static String getCompletionResponse(String filePath, Position position, Endpoint endpoint,
+                                               String triggerChar) {
+        CompletableFuture<?> result =
+                endpoint.request(COMPLETION, getCompletionParams(filePath, position, triggerChar));
         return getResponseString(result);
     }
 
@@ -189,7 +194,8 @@ public class TestUtil {
      * @return {@link String}   Response as String
      */
     public static String getSignatureHelpResponse(String filePath, Position position, Endpoint serviceEndpoint) {
-        CompletableFuture result = serviceEndpoint.request(SIGNATURE_HELP, getSignatureParams(filePath, position));
+        CompletableFuture<?> result =
+                serviceEndpoint.request(SIGNATURE_HELP, getSignatureParams(filePath, position));
         return getResponseString(result);
     }
 
@@ -202,7 +208,7 @@ public class TestUtil {
      * @return {@link String}   Response as String
      */
     public static String getDefinitionResponse(String filePath, Position position, Endpoint serviceEndpoint) {
-        CompletableFuture result = serviceEndpoint.request(DEFINITION, getDefinitionParams(filePath, position));
+        CompletableFuture<?> result = serviceEndpoint.request(DEFINITION, getDefinitionParams(filePath, position));
         return getResponseString(result);
     }
 
@@ -224,7 +230,7 @@ public class TestUtil {
         referenceParams.setTextDocument(getTextDocumentIdentifier(filePath));
         referenceParams.setContext(referenceContext);
 
-        CompletableFuture result = serviceEndpoint.request(REFERENCES, referenceParams);
+        CompletableFuture<?> result = serviceEndpoint.request(REFERENCES, referenceParams);
         return getResponseString(result);
     }
 
@@ -242,10 +248,10 @@ public class TestUtil {
         renameParams.setTextDocument(getTextDocumentIdentifier(filePath));
         renameParams.setPosition(new Position(position.getLine(), position.getCharacter()));
 
-        CompletableFuture result = serviceEndpoint.request(PREPARE_RENAME, renameParams);
+        CompletableFuture<?> result = serviceEndpoint.request(PREPARE_RENAME, renameParams);
         return getResponseString(result);
-    } 
-    
+    }
+
     /**
      * Get the textDocument/rename response.
      *
@@ -263,7 +269,7 @@ public class TestUtil {
         renameParams.setNewName(newName);
         renameParams.setPosition(new Position(position.getLine(), position.getCharacter()));
 
-        CompletableFuture result = serviceEndpoint.request(RENAME, renameParams);
+        CompletableFuture<?> result = serviceEndpoint.request(RENAME, renameParams);
         return getResponseString(result);
     }
 
@@ -280,7 +286,7 @@ public class TestUtil {
                                                CodeActionContext context) {
         TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
         CodeActionParams codeActionParams = new CodeActionParams(identifier, range, context);
-        CompletableFuture result = serviceEndpoint.request(CODE_ACTION, codeActionParams);
+        CompletableFuture<?> result = serviceEndpoint.request(CODE_ACTION, codeActionParams);
         return getResponseString(result);
     }
 
@@ -292,7 +298,7 @@ public class TestUtil {
      * @return {@link String}   Lang server Response as String
      */
     public static String getExecuteCommandResponse(ExecuteCommandParams params, Endpoint serviceEndpoint) {
-        CompletableFuture result = serviceEndpoint.request(EXECUTE_COMMAND, params);
+        CompletableFuture<?> result = serviceEndpoint.request(EXECUTE_COMMAND, params);
         return getResponseString(result);
     }
 
@@ -305,7 +311,7 @@ public class TestUtil {
      */
     public static String getDocumentSymbolResponse(Endpoint serviceEndpoint, String filePath) {
         DocumentSymbolParams params = new DocumentSymbolParams(getTextDocumentIdentifier(filePath));
-        CompletableFuture result = serviceEndpoint.request(DOCUMENT_SYMBOL, params);
+        CompletableFuture<?> result = serviceEndpoint.request(DOCUMENT_SYMBOL, params);
         return getResponseString(result);
     }
 
@@ -317,7 +323,7 @@ public class TestUtil {
      * @return {@link String} Language server response as String
      */
     public static String getFormattingResponse(DocumentFormattingParams params, Endpoint serviceEndpoint) {
-        CompletableFuture result = serviceEndpoint.request(FORMATTING, params);
+        CompletableFuture<?> result = serviceEndpoint.request(FORMATTING, params);
         return getResponseString(result);
     }
 
@@ -329,7 +335,7 @@ public class TestUtil {
      * @return {@link String} Language server response as String
      */
     public static String getRangeFormatResponse(DocumentRangeFormattingParams params, Endpoint serviceEndpoint) {
-        CompletableFuture result = serviceEndpoint.request(RANGE_FORMATTING, params);
+        CompletableFuture<?> result = serviceEndpoint.request(RANGE_FORMATTING, params);
         return getResponseString(result);
     }
 
@@ -343,7 +349,7 @@ public class TestUtil {
      */
     public static String getGotoImplementationResponse(Endpoint serviceEndpoint, String filePath, Position position) {
         TextDocumentPositionParams positionParams = getTextDocumentPositionParams(filePath, position);
-        CompletableFuture completableFuture = serviceEndpoint.request(IMPLEMENTATION, positionParams);
+        CompletableFuture<?> completableFuture = serviceEndpoint.request(IMPLEMENTATION, positionParams);
         return getResponseString(completableFuture);
     }
 
@@ -504,7 +510,7 @@ public class TestUtil {
      */
     public static String getWorkspaceSymbolResponse(Endpoint serviceEndpoint, String query) {
         WorkspaceSymbolParams parms = new WorkspaceSymbolParams(query);
-        CompletableFuture result = serviceEndpoint.request(WORKSPACE_SYMBOL_COMMAND, parms);
+        CompletableFuture<?> result = serviceEndpoint.request(WORKSPACE_SYMBOL_COMMAND, parms);
         return getResponseString(result);
     }
 
@@ -547,10 +553,18 @@ public class TestUtil {
         return signatureHelpParams;
     }
 
-    private static CompletionParams getCompletionParams(String filePath, Position position) {
+    private static CompletionParams getCompletionParams(String filePath, Position position, String triggerChar) {
         CompletionParams completionParams = new CompletionParams();
         completionParams.setTextDocument(getTextDocumentIdentifier(filePath));
         completionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
+        CompletionContext context = new CompletionContext();
+        if (triggerChar != null && !triggerChar.isEmpty()) {
+            context.setTriggerCharacter(triggerChar);
+            context.setTriggerKind(CompletionTriggerKind.TriggerCharacter);
+        } else {
+            context.setTriggerKind(CompletionTriggerKind.Invoked);
+        }
+        completionParams.setContext(context);
 
         return completionParams;
     }
@@ -591,7 +605,7 @@ public class TestUtil {
         return params;
     }
 
-    public static String getResponseString(CompletableFuture completableFuture) {
+    public static String getResponseString(CompletableFuture<?> completableFuture) {
         ResponseMessage jsonrpcResponse = new ResponseMessage();
         try {
             jsonrpcResponse.setId("324");

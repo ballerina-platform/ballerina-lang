@@ -34,6 +34,21 @@ function testRetryStatement() {
     } else {
         panic error("Expected an error");
     }
+
+    string|error retryDefaultSuccessRes = retrySuccessWithDefault();
+    if (retryDefaultSuccessRes is string) {
+        assertEquality("start attempt 1:error, attempt 2:error, attempt 3:result returned end.",
+        retryDefaultSuccessRes);
+    } else {
+        panic error("Expected a string");
+    }
+
+    string|error retryDefaultFailureRes = retryFailureWithDefault();
+    if (retryDefaultFailureRes is error) {
+        assertEquality("Custom Error", retryDefaultFailureRes.message());
+    } else {
+        panic error("Expected an error");
+    }
 }
 
 function retrySuccess() returns string |error {
@@ -74,6 +89,34 @@ function ignoreErrorReturn() returns string|error {
             return error("Custom Error");
         }
         str += (" attempt "+ count.toString() + ":result returned end.");
+        return str;
+    }
+}
+
+function retrySuccessWithDefault() returns string|error {
+    string str = "start";
+    int count = 0;
+    retry {
+        count = count + 1;
+        if (count < 3) {
+            str += (" attempt " + count.toString() + ":error,");
+            fail error error:Retriable("Custom error");
+        }
+        str += (" attempt " + count.toString() + ":result returned end.");
+        return str;
+    }
+}
+
+function retryFailureWithDefault() returns string|error {
+    string str = "start";
+    int count = 0;
+    retry {
+        count = count + 1;
+        if (count < 5) {
+            str += (" attempt " + count.toString() + ":error,");
+            fail error error:Retriable("Custom Error");
+        }
+        str += (" attempt " + count.toString() + ":result returned end.");
         return str;
     }
 }

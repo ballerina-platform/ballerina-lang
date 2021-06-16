@@ -65,8 +65,7 @@ public class JoinClauseNodeContext extends IntermediateClauseNodeContext<JoinCla
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
                 return this.getCompletionItemList(QNameReferenceUtil.getTypesInModule(context, qNameRef), context);
             }
-            completionItems.addAll(this.getModuleCompletionItems(context));
-            completionItems.addAll(this.getTypeItems(context));
+            completionItems.addAll(this.getTypeDescContextItems(context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
         } else if (this.onSuggestInKeyword(context, node)) {
             /*

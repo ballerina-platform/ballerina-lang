@@ -142,7 +142,7 @@ public class NeverTypeTest {
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "table key specifier mismatch with key constraint. expected: '1' fields but found '0'", 134, 37);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'xml<never>', found 'xml:Text'", 143, 26);
+                "incompatible types: expected 'xml<never>', found 'xml:Text'", 143, 21);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'string', found '(xml|xml:Text)'", 145, 17);
         BAssertUtil.validateError(negativeCompileResult, i++,
@@ -157,8 +157,8 @@ public class NeverTypeTest {
                         "'never' or equivalent to type 'never'", 156, 5);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
                         "or equivalent to type 'never'", 159, 1);
-        BAssertUtil.validateError(negativeCompileResult, i++, "constant cannot be defined with type 'never', " +
-                        "expected a simple basic types or a map of a simple basic type", 161, 7);
+        BAssertUtil.validateError(negativeCompileResult, i++, "cannot declare a constant with type 'never', " +
+                "expected a subtype of 'anydata' that is not 'never'", 161, 7);
         BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected 'never', found '()'",
                 161, 17);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
