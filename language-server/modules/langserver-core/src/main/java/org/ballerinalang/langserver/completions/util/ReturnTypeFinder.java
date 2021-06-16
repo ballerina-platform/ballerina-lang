@@ -62,8 +62,11 @@ public class ReturnTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
         Optional<Symbol> symbol = semanticModel.symbol(namedWorkerDeclarationNode);
-        WorkerSymbol workerSymbol = (WorkerSymbol) symbol.get();
-        return Optional.of(workerSymbol.returnType());
+        if (symbol.isPresent()) {
+            WorkerSymbol workerSymbol = (WorkerSymbol) symbol.get();
+            return Optional.of(workerSymbol.returnType());
+        }
+        return Optional.empty();
     }
 
     @Override
