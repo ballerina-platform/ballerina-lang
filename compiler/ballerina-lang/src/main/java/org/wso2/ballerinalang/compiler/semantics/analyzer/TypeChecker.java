@@ -5224,54 +5224,15 @@ public class TypeChecker extends BLangNodeVisitor {
         String operatorType = checkedExpr.getKind() == NodeKind.CHECK_EXPR ? "check" : "checkpanic";
         BLangExpression exprWithCheckingKeyword = checkedExpr.expr;
         boolean firstVisit = exprWithCheckingKeyword.getBType() == null;
-
-        BType checkExprCandidateType;
-        if (expType == symTable.noType) {
-            checkExprCandidateType = symTable.noType;
-        } else {
-            checkExprCandidateType = BUnionType.create(null, expType, symTable.errorType);
-        }
-
-        boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
-        this.nonErrorLoggingCheck = true;
-        int prevErrorCount = this.dlog.errorCount();
-        this.dlog.resetErrorCount();
-        this.dlog.mute();
-
-        checkedExpr.expr.cloneAttempt++;
-        BLangExpression clone = nodeCloner.clone(checkedExpr.expr);
-        BType rhsType = checkExpr(clone, env, checkExprCandidateType);
-
-        this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
-        this.dlog.setErrorCount(prevErrorCount);
-        if (!prevNonErrorLoggingCheck) {
-            this.dlog.unmute();
-        }
-
-        BType errorType = getNonDefaultErrorErrorComponentsOrDefaultError(rhsType);
         BType typeOfExprWithCheckingKeyword;
         if (expType == symTable.noType) {
             typeOfExprWithCheckingKeyword = symTable.noType;
         } else {
-            typeOfExprWithCheckingKeyword = BUnionType.create(null, expType, errorType);
+            typeOfExprWithCheckingKeyword = BUnionType.create(null, expType, symTable.errorType);
         }
 
         if (checkedExpr.getKind() == NodeKind.CHECK_EXPR && types.isUnionOfSimpleBasicTypes(expType)) {
-            switch (checkedExpr.expr.getKind()) {
-                case FIELD_BASED_ACCESS_EXPR:
-                case SIMPLE_VARIABLE_REF:
-                case BINARY_EXPR:
-                case TERNARY_EXPR:
-                case ELVIS_EXPR:
-                    rewriteWithEnsureTypeFunc(checkedExpr, exprWithCheckingKeyword, typeOfExprWithCheckingKeyword);
-                    break;
-                case INVOCATION:
-                    BLangInvocation invocation = (BLangInvocation) clone;
-                    if (invocation.name.value.equals(FUNCTION_NAME_ENSURE_TYPE) && invocation.langLibInvocation) {
-                        break;
-                    }
-                    rewriteWithEnsureTypeFunc(checkedExpr, exprWithCheckingKeyword, typeOfExprWithCheckingKeyword);
-            }
+            rewriteWithEnsureTypeFunc(checkedExpr, exprWithCheckingKeyword, typeOfExprWithCheckingKeyword);
         }
 
         BType exprType = checkExpr(checkedExpr.expr, env, typeOfExprWithCheckingKeyword);
@@ -5350,27 +5311,13 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(checkedExpr, actualType, expType);
     }
 
-    private BType getNonDefaultErrorErrorComponentsOrDefaultError(BType rhsType) {
-        List<BType> errorTypes = new ArrayList<>();
-        for (BType t : types.getAllTypes(rhsType)) {
-            if (!types.isSameType(t, symTable.errorType) && types.isAssignable(t, symTable.errorType)) {
-                errorTypes.add(t);
-            }
-        }
-        if (!errorTypes.isEmpty()) {
-            if (errorTypes.size() == 1) {
-                return errorTypes.get(0);
-            } else {
-                return BUnionType.create(null, errorTypes.toArray(new BType[0]));
-            }
-        }
-        return symTable.errorType;
-    }
-
     private void rewriteWithEnsureTypeFunc(BLangCheckedExpr checkedExpr, BLangExpression expr,
                                            BType typeOfExprWithCheckingKeyword) {
-        BType exprType = checkExpr(expr, env);
-        BType errorLiftedType = types.getSafeType(exprType, false, true);
+        BType rhsType = getCandidateType(checkedExpr);
+        if (rhsType == symTable.semanticError) {
+            rhsType = checkExpr(checkedExpr.expr, env);
+        }
+        BType errorLiftedType = types.getSafeType(rhsType, false, true);
         if (!types.isLax(errorLiftedType)) {
             return;
         }
@@ -5386,6 +5333,32 @@ public class TypeChecker extends BLangNodeVisitor {
                 names.fromString(invocation.name.value));
         invocation.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         checkedExpr.expr = invocation;
+    }
+
+    private BType getCandidateType(BLangCheckedExpr checkedExpr) {
+        BType checkExprCandidateType;
+        if (expType == symTable.noType) {
+            checkExprCandidateType = symTable.noType;
+        } else {
+            checkExprCandidateType = BUnionType.create(null, expType, symTable.errorType);
+        }
+
+        boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
+        this.nonErrorLoggingCheck = true;
+        int prevErrorCount = this.dlog.errorCount();
+        this.dlog.resetErrorCount();
+        this.dlog.mute();
+
+        checkedExpr.expr.cloneAttempt++;
+        BLangExpression clone = nodeCloner.clone(checkedExpr.expr);
+        BType rhsType = checkExpr(clone, env, checkExprCandidateType);
+
+        this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+        this.dlog.setErrorCount(prevErrorCount);
+        if (!prevNonErrorLoggingCheck) {
+            this.dlog.unmute();
+        }
+        return rhsType;
     }
 
     @Override
