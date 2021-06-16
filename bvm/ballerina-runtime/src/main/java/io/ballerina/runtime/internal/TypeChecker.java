@@ -2377,46 +2377,23 @@ public class TypeChecker {
                         return true;
                     }
 
-                    if (targetTypeElementType.getTag() == TypeTags.UNION_TAG) {
-                        List<Type> targetNumericTypes = new ArrayList<>();
-                        Set<Object> valueSpaceItems = new HashSet<>();
-                        List<Type> memberTypes = ((BUnionType) targetTypeElementType).getMemberTypes();
-                        for (int i = 0; i < memberTypes.size(); i++) {
-                            if (memberTypes.get(i).getTag() == TypeTags.FINITE_TYPE_TAG) {
-                                valueSpaceItems.addAll(((BFiniteType) memberTypes.get(i)).valueSpace);
-                            }
-
-                            if (isNumericType(memberTypes.get(i)) && !targetNumericTypes.contains(memberTypes.get(i))) {
-                                targetNumericTypes.add(memberTypes.get(i));
-                            }
-                        }
-
-                        if (targetNumericTypes.size() == 1) {
-                            return true;
-                        }
-
-                        if (!valueSpaceItems.isEmpty()) {
-                            for (int i = 0; i < source.size(); i++) {
-                                if (!checkFiniteTypeAssignable(source.get(i), sourceElementType, valueSpaceItems)) {
-                                    return false;
-                                }
-                            }
-                            return true;
-                        }
+                    if (targetTypeElementType.getTag() != TypeTags.UNION_TAG &&
+                            targetTypeElementType.getTag() != TypeTags.FINITE_TYPE_TAG) {
                         return false;
                     }
 
-                    if (targetTypeElementType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-                        for (int i = 0; i < source.size(); i++) {
-                            if (!checkFiniteTypeAssignable(source.get(i), sourceElementType,
-                                    (BFiniteType) targetTypeElementType)) {
-                                return false;
+                    if (targetTypeElementType.getTag() == TypeTags.UNION_TAG) {
+                        List<Type> targetNumericTypes = new ArrayList<>();
+                        for (Type memType : ((BUnionType) targetTypeElementType).getMemberTypes()) {
+                            if (memType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+                                return true;
+                            }
+                            if (isNumericType(memType) && !targetNumericTypes.contains(memType)) {
+                                targetNumericTypes.add(memType);
                             }
                         }
-                        return true;
+                        return targetNumericTypes.size() == 1;
                     }
-
-                    return false;
                 }
 
                 if (isNumericType(targetTypeElementType) && targetTypeElementType.getTag() != TypeTags.BYTE_TAG) {

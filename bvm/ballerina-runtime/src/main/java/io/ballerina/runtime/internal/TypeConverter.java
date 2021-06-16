@@ -34,6 +34,7 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
+import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
@@ -52,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
@@ -237,7 +239,11 @@ public class TypeConverter {
 
     // TODO: return only the first matching type
     public static List<Type> getConvertibleTypes(Object inputValue, Type targetType) {
-        return getConvertibleTypes(inputValue, targetType, new ArrayList<>());
+        List<Type> convertibleTypes = getConvertibleTypes(inputValue, targetType, new ArrayList<>())
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
+        return convertibleTypes;
     }
 
     public static List<Type> getConvertibleTypes(Object inputValue, Type targetType,
@@ -284,6 +290,13 @@ public class TypeConverter {
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((BIntersectionType) targetType).getEffectiveType();
                 convertibleTypes.addAll(getConvertibleTypes(inputValue, effectiveType, unresolvedValues));
+                break;
+            case TypeTags.FINITE_TYPE_TAG:
+                for (Object valueSpaceItem : ((BFiniteType) targetType).valueSpace) {
+                    if (TypeChecker.isFiniteTypeValue(inputValue, TypeChecker.getType(inputValue), valueSpaceItem)) {
+                        convertibleTypes.add(TypeChecker.getType(valueSpaceItem));
+                    }
+                }
                 break;
             default:
                 if (TypeChecker.checkIsLikeType(inputValue, targetType, true)) {
