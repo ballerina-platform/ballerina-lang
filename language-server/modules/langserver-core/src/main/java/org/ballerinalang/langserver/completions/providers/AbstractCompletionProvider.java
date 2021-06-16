@@ -189,7 +189,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, xmlItem));
             } else if (symbol.kind() == RECORD_FIELD) {
                 RecordFieldSymbol recordFieldSymbol = (RecordFieldSymbol) symbol;
-                CompletionItem recFieldItem = FieldCompletionItemBuilder.build(recordFieldSymbol);
+                CompletionItem recFieldItem = FieldCompletionItemBuilder.build(recordFieldSymbol, ctx);
                 completionItems.add(new RecordFieldCompletionItem(ctx, recordFieldSymbol, recFieldItem));
             } else if (symbol.kind() == OBJECT_FIELD || symbol.kind() == CLASS_FIELD) {
                 ObjectFieldSymbol objectFieldSymbol = (ObjectFieldSymbol) symbol;

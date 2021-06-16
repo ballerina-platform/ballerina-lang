@@ -20,8 +20,21 @@ package org.ballerinalang.langserver.completions.builder;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextEdit;
+
+import java.util.Collections;
+import java.util.Optional;
 
 /**
  * Completion item builder for the object fields and for record fields.
@@ -52,10 +65,26 @@ public class FieldCompletionItemBuilder {
      * Build the constant {@link CompletionItem}.
      *
      * @param symbol {@link RecordFieldSymbol}
+     * @param context Completion Context
      * @return {@link CompletionItem} generated completion item
      */
-    public static CompletionItem build(RecordFieldSymbol symbol) {
-        return getCompletionItem(symbol);
+    public static CompletionItem build(RecordFieldSymbol symbol, BallerinaCompletionContext context) {
+        String recordFieldName = symbol.getName().orElseThrow();
+        String insertText;
+        CompletionItem completionItem = new CompletionItem();
+        completionItem.setLabel(recordFieldName);
+        completionItem.setKind(CompletionItemKind.Field);
+
+        Optional<TextEdit> recordFieldAdditionalTextEdit = getRecordFieldAdditionalTextEdit(symbol, context);
+        if (recordFieldAdditionalTextEdit.isPresent()) {
+            insertText = "?." + recordFieldName;
+            completionItem.setAdditionalTextEdits(Collections.singletonList(recordFieldAdditionalTextEdit.get()));
+        } else {
+            insertText = recordFieldName;
+        }
+        completionItem.setInsertText(insertText);
+
+        return completionItem;
     }
 
     /**
@@ -66,5 +95,38 @@ public class FieldCompletionItemBuilder {
      */
     public static CompletionItem build(ObjectFieldSymbol symbol) {
         return getCompletionItem(symbol);
+    }
+
+    private static Optional<TextEdit> getRecordFieldAdditionalTextEdit(RecordFieldSymbol recordFieldSymbol,
+                                                                       BallerinaCompletionContext context) {
+        if (!recordFieldSymbol.isOptional()) {
+            return Optional.empty();
+        }
+
+        NonTerminalNode evalNode = context.getNodeAtCursor();
+        if (evalNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            evalNode = evalNode.parent();
+        }
+
+        LineRange dotTokenLineRange;
+        if (evalNode.kind() == SyntaxKind.FIELD_ACCESS) {
+            dotTokenLineRange = ((FieldAccessExpressionNode) evalNode).dotToken().lineRange();
+        } else if (evalNode.kind() == SyntaxKind.METHOD_CALL) {
+            // Added for safety
+            dotTokenLineRange = ((MethodCallExpressionNode) evalNode).dotToken().lineRange();
+        } else {
+            return Optional.empty();
+        }
+
+        LinePosition startLine = dotTokenLineRange.startLine();
+        LinePosition endLine = dotTokenLineRange.endLine();
+        TextEdit textEdit = new TextEdit();
+        Range range = new Range();
+        range.setStart(new Position(startLine.line(), startLine.offset()));
+        range.setEnd(new Position(endLine.line(), endLine.offset()));
+        textEdit.setRange(range);
+        textEdit.setNewText("");
+
+        return Optional.of(textEdit);
     }
 }

@@ -219,7 +219,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(FieldAccessExpressionNode node) {
-        FieldAccessCompletionResolver resolver = new FieldAccessCompletionResolver(context, false);
+        FieldAccessCompletionResolver resolver = new FieldAccessCompletionResolver(context);
         List<Symbol> visibleEntries = resolver.getVisibleEntries(node.expression());
         NameReferenceNode nameRef = node.fieldName();
         if (nameRef.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
