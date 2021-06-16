@@ -784,6 +784,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         tSymbol.type = objectType;
         classDefinition.setBType(objectType);
+        classDefinition.setDeterminedType(objectType);
         classDefinition.symbol = tSymbol;
 
         if (isDeprecated(classDefinition.annAttachments)) {

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.semantic.api.test.typebynode;
+package io.ballerina.semantic.api.test.typebynode.newapi;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -64,18 +64,7 @@ public class TypeByReferenceTest extends TypeByNodeTest {
 
             @Override
             public void visit(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
-                TypeDescKind typeKind;
-                switch (builtinSimpleNameReferenceNode.kind()) {
-                    case FLOAT_TYPE_DESC:
-                        typeKind = FLOAT;
-                        break;
-                    case INT_TYPE_DESC:
-                        typeKind = INT;
-                        break;
-                    default:
-                        throw new IllegalStateException();
-                }
-                assertType(builtinSimpleNameReferenceNode, model, typeKind);
+                assertType(builtinSimpleNameReferenceNode, model, null);
             }
         };
     }
@@ -85,9 +74,15 @@ public class TypeByReferenceTest extends TypeByNodeTest {
     }
 
     private void assertType(Node node, SemanticModel model, TypeDescKind typeKind) {
-        Optional<TypeSymbol> type = model.type(node);
-        assertTrue(type.isPresent());
-        assertEquals(type.get().typeKind(), typeKind);
+        Optional<TypeSymbol> type = model.typeOf(node);
+
+        if (typeKind != null) {
+            assertTrue(type.isPresent());
+            assertEquals(type.get().typeKind(), typeKind);
+        } else {
+            assertTrue(type.isEmpty());
+        }
+
         incrementAssertCount();
     }
 }

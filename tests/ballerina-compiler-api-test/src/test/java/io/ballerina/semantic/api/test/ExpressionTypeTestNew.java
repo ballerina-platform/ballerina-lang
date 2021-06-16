@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -33,12 +34,14 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.BOOLEAN;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.BYTE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
@@ -54,13 +57,14 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
- * Tests for the checking the types of expressions.
+ * Tests for the checking the types of expressions. This test is for the new API, typeOf().
  *
  * @since 2.0.0
  */
-public class ExpressionTypeTest {
+public class ExpressionTypeTestNew {
 
     private SemanticModel model;
 
@@ -245,22 +249,22 @@ public class ExpressionTypeTest {
     }
 
     @Test(dataProvider = "MiscExprPosProvider")
-    public void testMiscExprs(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
-        assertType(sLine, sCol, eLine, eCol, kind);
+    public void testMiscExprs(int sLine, int sCol, int eCol, TypeDescKind kind) {
+        assertType(sLine, sCol, eCol, kind);
     }
 
     @DataProvider(name = "MiscExprPosProvider")
     public Object[][] getExprPos() {
         return new Object[][]{
-                {72, 12, 72, 15, INT},
-                {73, 12, 73, 23, INT},
-                {73, 17, 73, 23, INT},
-                {74, 12, 74, 23, INT},
-                {75, 16, 75, 22, BOOLEAN},
-                {76, 17, 76, 22, STRING},
-                {78, 8, 78, 20, BOOLEAN},
-                {78, 8, 78, 10, ANYDATA},
-                {78, 14, 78, 20, STRING},
+                {72, 12, 15, INT},
+                {73, 12, 23, INT},
+                {73, 17, 23, INT},
+                {74, 12, 23, INT},
+                {75, 16, 22, BOOLEAN},
+                {76, 17, 22, STRING},
+                {78, 8, 20, BOOLEAN},
+                {78, 8, 10, ANYDATA},
+                {78, 14, 20, null},
         };
     }
 
@@ -307,40 +311,44 @@ public class ExpressionTypeTest {
     }
 
     @Test(dataProvider = "CallExprPosProvider")
-    public void testFunctionCall(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
-        assertType(sLine, sCol, eLine, eCol, kind);
+    public void testFunctionCall(int sLine, int sCol, int eCol, TypeDescKind kind) {
+        assertType(sLine, sCol, eCol, kind);
     }
 
     @DataProvider(name = "CallExprPosProvider")
     public Object[][] getCallExprPos() {
         return new Object[][]{
-                {109, 4, 109, 10, UNION},
-                {109, 4, 109, 9, UNION},
-                {112, 15, 112, 27, STRING},
-                {112, 15, 112, 26, STRING},
-                {127, 4, 127, 35, STRING},
-                {127, 4, 127, 34, STRING},
-                {129, 12, 129, 37, INT},
-                {130, 4, 130, 36, BOOLEAN}
+                {109, 4, 10, null},
+                {109, 4, 9, UNION},
+                {112, 15, 27, null},
+                {112, 15, 26, STRING},
+                {127, 4, 35, null},
+                {127, 4, 34, STRING},
+                {129, 12, 36, INT},
+                {129, 12, 37, null},
+                {130, 4, 35, BOOLEAN}
         };
     }
 
     @Test
     public void testExpressionsOfIntersectionTypes() {
-        assertType(135, 4, 135, 21, INTERSECTION);
-        assertType(135, 4, 135, 22, INTERSECTION);
-        assertType(137, 4, 137, 24, INTERSECTION);
-        assertType(137, 4, 137, 23, INTERSECTION);
-        assertType(139, 4, 139, 26, UNION);
-        TypeSymbol t1 = getExprType(139, 4, 139, 27);
+        assertType(135, 4, 21, INTERSECTION);
+        assertType(135, 4, 22, null);
+        assertType(137, 4, 24, null);
+        assertType(137, 4, 23, INTERSECTION);
+        assertType(139, 4, 26, UNION);
+
+        TypeSymbol t1 = getExprType(139, 4, 139, 26);
         assertEquals(t1.typeKind(), UNION);
         assertEquals(t1.signature(), "(Foo & readonly)|int|(string[] & readonly)");
-        assertType(141, 4, 141, 26, UNION);
-        TypeSymbol t2 = getExprType(141, 4, 141, 27);
+
+        assertType(141, 4, 27, null);
+        TypeSymbol t2 = getExprType(141, 4, 141, 26);
         assertEquals(t2.typeKind(), UNION);
         assertEquals(t2.signature(), "(int[] & readonly)?");
-        assertType(143, 4, 143, 26, UNION);
-        TypeSymbol t3 = getExprType(143, 4, 143, 27);
+
+        assertType(143, 4, 27, null);
+        TypeSymbol t3 = getExprType(143, 4, 143, 26);
         assertEquals(t3.typeKind(), UNION);
         assertEquals(t3.signature(), "(int[] & readonly)?");
     }
@@ -366,14 +374,35 @@ public class ExpressionTypeTest {
         assertEquals(exprType.typeKind(), INT);
     }
 
+    @Test
+    public void testTypeOfExprInErroredStmt() {
+        TypeSymbol type = getExprType(177, 12, 177, 23);
+        assertEquals(type.typeKind(), UNION);
+
+        UnionTypeSymbol union = (UnionTypeSymbol) type;
+        assertEquals(union.memberTypeDescriptors().get(0).typeKind(), INT);
+        assertEquals(union.memberTypeDescriptors().get(1).typeKind(), ERROR);
+    }
+
     private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
         TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
         assertEquals(type.typeKind(), kind);
     }
 
+    private void assertType(int line, int sCol, int eCol, TypeDescKind kind) {
+        Optional<TypeSymbol> type = model.typeOf(
+                LineRange.from("expressions_test.bal", LinePosition.from(line, sCol), LinePosition.from(line, eCol)));
+
+        if (kind == null) {
+            assertTrue(type.isEmpty());
+        } else {
+            assertEquals(type.get().typeKind(), kind);
+        }
+    }
+
     private TypeSymbol getExprType(int sLine, int sCol, int eLine, int eCol) {
         LinePosition start = LinePosition.from(sLine, sCol);
         LinePosition end = LinePosition.from(eLine, eCol);
-        return model.type(LineRange.from("expressions_test.bal", start, end)).get();
+        return model.typeOf(LineRange.from("expressions_test.bal", start, end)).get();
     }
 }

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.semantic.api.test.typebynode;
+package io.ballerina.semantic.api.test.typebynode.newapi;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -113,7 +113,7 @@ public class TypeByConstructorExprTest extends TypeByNodeTest {
     }
 
     private Optional<TypeSymbol> assertType(Node node, SemanticModel model, TypeDescKind typeKind) {
-        Optional<TypeSymbol> type = model.type(node);
+        Optional<TypeSymbol> type = model.typeOf(node);
         assertTrue(type.isPresent());
         assertEquals(type.get().typeKind(), typeKind);
         incrementAssertCount();
