@@ -27,10 +27,7 @@ DESCRIPTION
 
 OPTIONS
        --offline
-           When building a package, the remote repository (Ballerina Central) is
-           always checked for the latest artifacts of the dependencies. If the
-           '--offline' option is specified, this remote check is not done and
-           the local artifacts will be used instead.
+           Build offline using the local artifacts without downloading the latest artifacts of the dependencies from the remote repository (Ballerina Central).
 
        --experimental
            Enable experimental language features.

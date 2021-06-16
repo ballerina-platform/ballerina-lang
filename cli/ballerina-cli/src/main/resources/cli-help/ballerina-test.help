@@ -7,12 +7,11 @@ SYNOPSIS
 
 DESCRIPTION
        Compile and execute Ballerina test sources and print a summary of
-       the test results. You can execute tests in a Ballerina package or a standalone
-       Ballerina file.
+       the test results. You can execute tests in a Ballerina package or a standalone Ballerina file.
     
-       Use 'bal test` to execute the tests in the current package.
+       Use `bal test` to execute the tests in the current package.
 
-       Use 'bal test <balfile>' to execute the given Ballerina test file.
+       Use `bal test <balfile>` to execute the given Ballerina test file.
               
        Note: Testing single `.bal` files, which belong to a Ballerina package is not allowed.
               
@@ -21,18 +20,14 @@ DESCRIPTION
 
 OPTIONS
        --offline
-           When building a package, the remote repository (Ballerina Central) is
-           always checked for the latest artifacts of the dependencies. If the
-           '--offline' option is specified, this remote check is not done and
-           the local artifacts will be used instead.
+           Build offline using the local artifacts without downloading the latest artifacts of the dependencies from the remote repository (Ballerina Central).
 
        --list-groups
            List the test groups available in the test files. Groups are
            tags that are added to the test functions. They are used to
            control the execution of the test functions by specifying a
            group or a set of groups that need to be executed in a test
-           run. A test function can be grouped using the 'groups' parameter within the
-           '@test:Config' annotation.
+           run. A test function can be grouped using the 'groups' parameter within the '@test:Config' annotation.
 
        --groups <test_group, ...>
            Specify the test groups to be executed. Groups are tags that are
@@ -75,38 +70,38 @@ OPTIONS
            Generate an HTML report containing the test results.
 
        --coverage-format
-            Generate a coverage report in the specified format. Only the 'xml' value is allowed.
+           Generate a coverage report in the specified format. Only the 'xml' value is allowed.
 
        --experimental
-           Enable the experimental language features.
+            Enable the experimental language features.
 
        --debug
-           Run the tests in the remote debugging mode.
+            Run tests in remote debugging mode only when the '--skip-tests' flag is not used.
 
        --observability-included
-           Include package observability in the executable.
+            Include package observability in the executable JAR file(s).
 
 
 EXAMPLES
-        Run all the tests in the current package.
+        Run all the test functions in the current package.
            $ bal test
 
         List all the test groups in the current package.
            $ bal test --list-groups
 
-        Run only the set of tests belonging to the `group_x` in the current package.
+        Run only the set of test functions belonging to the `group_x` in the current package.
            $ bal test --groups group_x
 
-        Run only the given set of functions in the current package.
+        Run only the given set of test functions in the current package.
             $ bal test --tests testFunction
 
-        Run only the given set of functions in the default module.
-            $ bal test --tests PackageName:testA1,testB*
+        Run only the given set of test functions in the default module.
+            $ bal test --tests PackageName:testName1,testName2*
 
-        Run all the functions in the given module.
+        Run all the test functions in the given module.
             $ bal test --tests PackageName.ModuleName:*
 
-        Run only the previously-failed test cases in the current package.
+        Run only the previously-failed test functions in the current package.
             $ bal test --rerun-failed
 
         Run the tests in a single BAL file.
@@ -118,9 +113,9 @@ EXAMPLES
         Run the tests with the code coverage.
            $ bal test --code-coverage
 
-        Run the tests with the code coverage and generate a test report.
+        Run the test funcitons with the code coverage and generate a test report.
         with test statuses and code coverage information.
            $ bal test --test-report --code-coverage
 
-        Run the tests with the code coverage and generate a coverage report in the XML format.
+        Run the test functions with the code coverage and generate a coverage report in the XML format.
            $ bal test --test-report --code-coverage --coverage-format=xml

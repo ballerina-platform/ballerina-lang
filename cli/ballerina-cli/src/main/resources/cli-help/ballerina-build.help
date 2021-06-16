@@ -29,7 +29,7 @@ OPTIONS
            without generating the executable.
 
        --offline
-           Build offline without downloading the dependencies.
+            Build offline using the local artifacts without downloading the latest artifacts of the dependencies from the remote repository (Ballerina Central).
 
        --skip-tests
            Skip test compilation and execution.
