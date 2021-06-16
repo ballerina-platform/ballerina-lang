@@ -79,12 +79,13 @@ public class JsonToRecordConverter {
     }
 
     /**
-     * This method takes in a json string and returns the Ballerina record nodes.
+     * This method takes in a json string and returns the Ballerina code block.
      *
      * @param jsonString json string for the schema
-     * @return {@link ArrayList<TypeDefinitionNode>} arraylist of type nodes
+     * @return {@link String} ballerina code block
      * @throws IOException in case of Json parse error
      * @throws ConverterException in case of invalid schema
+     * @throws FormatterException in case of invalid syntax
      */
     public static String convert(String jsonString) throws IOException,
             ConverterException, FormatterException {
