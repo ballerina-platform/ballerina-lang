@@ -50,8 +50,7 @@ public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForE
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (withinTypeDescContext(context, node)) {
-            completionItems.addAll(this.getModuleCompletionItems(context));
-            completionItems.addAll(this.getTypeItems(context));
+            completionItems.addAll(this.getTypeDescContextItems(context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
         } else if (node.inKeyword().isMissing()) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IN.get()));

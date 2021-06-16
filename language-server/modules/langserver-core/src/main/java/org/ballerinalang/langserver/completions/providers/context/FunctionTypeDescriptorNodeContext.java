@@ -60,13 +60,12 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
             /*
             Covers the completions when the cursor is within the parameter context
              */
-            if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context,
                         ((QualifiedNameReferenceNode) nodeAtCursor));
                 completionItems.addAll(this.getCompletionItemList(typesInModule, context));
             } else {
-                completionItems.addAll(this.getModuleCompletionItems(context));
-                completionItems.addAll(this.getTypeItems(context));
+                completionItems.addAll(this.getTypeDescContextItems(context));
             }
         } else if (this.withinReturnKWContext(context, node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_RETURNS.get()));

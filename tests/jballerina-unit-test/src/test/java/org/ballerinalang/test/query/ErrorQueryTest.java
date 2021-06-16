@@ -44,6 +44,46 @@ public class ErrorQueryTest {
         BRunUtil.invoke(result, "queryAnErrorStream");
     }
 
+    @Test
+    public void queryWithoutErrors() {
+        BRunUtil.invoke(result, "queryWithoutErrors");
+    }
+
+    @Test
+    public void queryWithAnError() {
+        BRunUtil.invoke(result, "queryWithAnError");
+    }
+
+    @Test
+    public void queryWithACheckFail() {
+        BRunUtil.invoke(result, "queryWithACheckFailEncl");
+    }
+
+    @Test
+    public void queryWithAPanic() {
+        BRunUtil.invoke(result, "queryWithAPanicEncl");
+    }
+
+    @Test
+    public void streamFromQueryWithoutErrors() {
+        BRunUtil.invoke(result, "streamFromQueryWithoutErrors");
+    }
+
+    @Test
+    public void streamFromQueryWithAnError() {
+        BRunUtil.invoke(result, "streamFromQueryWithAnError");
+    }
+
+    @Test
+    public void streamFromQueryWithACheckFail() {
+        BRunUtil.invoke(result, "streamFromQueryWithACheckFail");
+    }
+
+    @Test
+    public void streamFromQueryWithAPanic() {
+        BRunUtil.invoke(result, "streamFromQueryWithAPanicEncl");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

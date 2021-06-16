@@ -131,7 +131,9 @@ public interface SemanticModel {
      *
      * @param range the text range of the expression
      * @return the type of the expression
+     * @deprecated This method will be removed in a later version. Use typeOf() instead.
      */
+    @Deprecated
     Optional<TypeSymbol> type(LineRange range);
 
     /**
@@ -140,8 +142,28 @@ public interface SemanticModel {
      *
      * @param node The expression node of which the type is needed
      * @return The type if it's a valid expression node, if not, returns empty
+     * @deprecated Deprecated since this returns type for non-expression nodes as well. Use typeOf() instead.
      */
+    @Deprecated
     Optional<TypeSymbol> type(Node node);
+
+    /**
+     * Retrieves the type of the node in the specified text range. The node matching the specified range should be an
+     * expression. For any other kind of node, this will return empty.
+     *
+     * @param range the text range of the expression
+     * @return the type of the expression
+     */
+    Optional<TypeSymbol> typeOf(LineRange range);
+
+    /**
+     * Given a syntax tree node, returns the type of that node, if it is an expression node. For any other node, this
+     * will return empty.
+     *
+     * @param node The expression node of which the type is needed
+     * @return The type if it's a valid expression node, if not, returns empty
+     */
+    Optional<TypeSymbol> typeOf(Node node);
 
     /**
      * Get the diagnostics within the given text Span.

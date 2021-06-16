@@ -89,8 +89,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
              */
             completionItems.addAll(getStaticCompletionItems(context));
             completionItems.addAll(getStatementCompletionItems(context, node));
-            completionItems.addAll(this.getModuleCompletionItems(context));
-            completionItems.addAll(this.getTypeItems(context));
+            completionItems.addAll(this.getTypeDescContextItems(context));
             completionItems.addAll(this.getSymbolCompletions(context));
         }
         this.sort(context, node, completionItems);

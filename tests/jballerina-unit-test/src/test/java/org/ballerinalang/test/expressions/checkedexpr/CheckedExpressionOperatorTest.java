@@ -31,7 +31,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This class contain check expression related test cases.
+ * This class contain safe assignment operator '=?' related test scenarios.
  */
 public class CheckedExpressionOperatorTest {
 
@@ -226,11 +226,6 @@ public class CheckedExpressionOperatorTest {
     @Test
     public void testCheckedErrorsWithReadOnlyInUnion() {
         BRunUtil.invoke(result, "testCheckedErrorsWithReadOnlyInUnion");
-    }
-
-    @Test
-    public void testCheckWithTernaryOperator() {
-        BRunUtil.invoke(result, "testCheckWithTernaryOperator");
     }
 
     @Test(description = "Test service resource that returns an error containing check expression")
