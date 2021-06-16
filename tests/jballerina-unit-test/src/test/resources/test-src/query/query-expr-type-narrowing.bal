@@ -77,10 +77,12 @@ function testTernaryWithinQueryExpression () {
     Label[] res1 = getFirstOrDefaultLabel(data2);
     Data[] res2 = filterNonEmtyData(data1);
     Data[] res3 = filterNonEmtyData(data2);
+    Data[] res4 = filterCommonLabels(data2);
 
     assertEquality(label1, res1[0]);
     assertEquality(data3, res2[0]);
     assertEquality(data2, res3);
+    assertEquality(data2, res4);
 }
 
 function getFirstOrDefaultLabel(Data[] data) returns Label[] {
@@ -95,6 +97,18 @@ function filterNonEmtyData (Data[] dataList) returns Data[] {
         select {
             labels: let Label[]? l = d.labels
                 in (l != () ? from Label nl in l
+                    select {name: nl.name} : [{name: "John Doe"}])
+        };
+    return newData;
+}
+
+function filterCommonLabels(Data[] dataList) returns Data[] {
+    string[] strArr = ["A", "B", "C"];
+    Data[] newData = from Data d in dataList
+        select {
+            labels: let Label[]? l = d.labels
+                in (l != () ? from string str in strArr
+                    join Label nl in l on str equals nl.name
                     select {name: nl.name} : [{name: "John Doe"}])
         };
     return newData;
