@@ -4820,15 +4820,20 @@ public class Types {
     public BType getSafeType(BType type, boolean liftNil, boolean liftError) {
         // Since JSON, ANY and ANYDATA by default contain null, we need to create a new respective type which
         // is not-nullable.
-        switch (type.tag) {
-            case TypeTags.JSON:
-                return new BJSONType((BJSONType) type, false);
-            case TypeTags.ANY:
-                return new BAnyType(type.tag, type.tsymbol, false);
-            case TypeTags.ANYDATA:
-                return new BAnydataType((BAnydataType) type, false);
-            case TypeTags.READONLY:
-                return new BReadonlyType(type.tag, type.tsymbol, false);
+        if (liftNil) {
+            switch (type.tag) {
+                case TypeTags.JSON:
+                    return new BJSONType((BJSONType) type, false);
+                case TypeTags.ANY:
+                    return new BAnyType(type.tag, type.tsymbol, false);
+                case TypeTags.ANYDATA:
+                    return new BAnydataType((BAnydataType) type, false);
+                case TypeTags.READONLY:
+                    if (liftError) {
+                        return symTable.anyAndReadonly;
+                    }
+                    return new BReadonlyType(type.tag, type.tsymbol, false);
+            }
         }
 
         if (type.tag != TypeTags.UNION) {
@@ -4844,7 +4849,9 @@ public class Types {
         }
 
         if (liftError) {
-            errorLiftedType.remove(symTable.errorType);
+            memTypes = errorLiftedType.getMemberTypes().stream().filter(t -> t.tag != TypeTags.ERROR)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            errorLiftedType = BUnionType.create(null, memTypes);
         }
 
         if (errorLiftedType.getMemberTypes().size() == 1) {
