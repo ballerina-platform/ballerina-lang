@@ -1,0 +1,5 @@
+# Package goes here
+[package]
+org = "ballerina"
+name = "lang.annotations"
+version = "1.0.0"

@@ -43,6 +43,7 @@ public class ErrorUtils {
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
     private static final BString ERROR_CAUSE_FIELD = StringUtils.fromString("cause");
     private static final BString NULL_REF_EXCEPTION = StringUtils.fromString("NullReferenceException");
+    private static final BString INT_RANGE_OVERFLOW_ERROR = StringUtils.fromString(" int range overflow");
 
     /**
      * Create balleria error using java exception for interop.
@@ -97,6 +98,10 @@ public class ErrorUtils {
 
     public static ErrorValue createCancelledFutureError() {
         return (ErrorValue) createError(BallerinaErrorReasons.FUTURE_CANCELLED);
+    }
+
+    public static BError createIntOverflowError() {
+        throw createError(BallerinaErrorReasons.NUMBER_OVERFLOW, INT_RANGE_OVERFLOW_ERROR);
     }
 
     public static BError createTypeCastError(Object sourceVal, Type targetType) {

@@ -23,12 +23,12 @@ import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.metrics.BallerinaMetricsObserver;
 import io.ballerina.runtime.observability.metrics.DefaultMetricRegistry;
 import io.ballerina.runtime.observability.metrics.MetricRegistry;
+import io.ballerina.runtime.observability.metrics.noop.NoOpMetricProvider;
 import io.ballerina.runtime.observability.metrics.spi.MetricProvider;
 import io.ballerina.runtime.observability.tracer.BallerinaTracingObserver;
 import io.ballerina.runtime.observability.tracer.TracersStore;
+import io.ballerina.runtime.observability.tracer.noop.NoOpTracerProvider;
 import io.ballerina.runtime.observability.tracer.spi.TracerProvider;
-import org.ballerinalang.observe.noop.NoOpMetricProvider;
-import org.ballerinalang.observe.noop.NoOpTracerProvider;
 
 import java.io.PrintStream;
 import java.util.ServiceLoader;

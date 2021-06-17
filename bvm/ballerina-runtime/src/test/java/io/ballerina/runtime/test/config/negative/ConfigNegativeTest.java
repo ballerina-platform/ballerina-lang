@@ -40,6 +40,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.test.TestUtils.getConfigPathForNegativeCases;
 
 /**
@@ -49,9 +51,6 @@ public class ConfigNegativeTest {
 
     private static final Module ROOT_MODULE = new Module("rootOrg", "rootMod", "1.0.0");
     private static final Module MODULE = new Module("org", "mod1", "1.0.0");
-    private static final Type UNION_TYPE = new BIntersectionType(MODULE, new Type[]{}, new BUnionType(Arrays.asList(
-                                                            PredefinedTypes.TYPE_INT,
-                                                            PredefinedTypes.TYPE_STRING)), 0, true);
 
     @Test(dataProvider = "different-config-use-cases-data-provider")
     public void testConfigErrors(String[] args, String tomlFilePath, VariableKey[] varKeys, int errorCount,
@@ -81,6 +80,15 @@ public class ConfigNegativeTest {
 
     @DataProvider(name = "different-config-use-cases-data-provider")
     public Object[][] configErrorCases() {
+        Type incompatibleUnionType = new BIntersectionType(MODULE, new Type[]{},
+                                                           new BUnionType(Arrays.asList(PredefinedTypes.TYPE_INT,
+                                                                                        PredefinedTypes.TYPE_STRING)),
+                                                           0, true);
+        Type ambiguousUnionType = new BIntersectionType(MODULE, new Type[]{},
+                                                        new BUnionType(
+                                                                Arrays.asList(TypeCreator.createMapType(TYPE_ANYDATA),
+                                                                              TypeCreator.createMapType(TYPE_STRING))),
+                                                        0, true);
         return new Object[][]{
                 // Required but not given
                 {new String[]{}, null,
@@ -169,6 +177,11 @@ public class ConfigNegativeTest {
                         new VariableKey[]{new VariableKey(MODULE, "myMap", PredefinedTypes.TYPE_MAP, null, true)}, 1
                         , 5, new String[]{"error: configurable variable 'myMap' with type 'map' is not supported",
                         "warning: [org.mod1.myMap=4] unused command line argument"}},
+                // not supported cli union type
+                {new String[]{"-Corg.mod1.myUnion=5"}, null, new VariableKey[]{
+                        new VariableKey(MODULE, "myUnion", incompatibleUnionType, null, true)}, 1, 1,
+                        new String[]{"error: value for configurable variable 'myUnion' with type '(int|string)' is " +
+                                "not supported as a command line argument"}},
                 // not supported cli type
                 {new String[]{"-Corg.mod1.myMap=5"}, null,
                         new VariableKey[]{
@@ -178,10 +191,14 @@ public class ConfigNegativeTest {
                         , 1, new String[]{"error: value for configurable variable 'myMap' with type 'map' is not " +
                 "supported as a command line argument"}},
                 // not supported union type
-                {new String[]{""}, null, new VariableKey[]{
-                        new VariableKey(MODULE, "myUnion", UNION_TYPE, null, true)}, 1, 0,
-                        new String[]{
-                                "error: configurable variable 'myUnion' with type '(int|string)' is not supported"}},
+                {new String[]{""}, "InvalidUnionType.toml", new VariableKey[]{
+                        new VariableKey(MODULE, "floatUnionVar", incompatibleUnionType, null, true)}, 1, 2,
+                        new String[]{"error: [InvalidUnionType.toml:(2:1,2:19)] configurable variable 'floatUnionVar'" +
+                                " is expected to be of type '(int|string)', but found 'float'"}},
+                {new String[]{""}, "InvalidUnionType.toml", new VariableKey[]{
+                        new VariableKey(MODULE, "ambiguousUnionVar", ambiguousUnionType, null, true)}, 1, 1,
+                        new String[]{"error: [InvalidUnionType.toml:(4:1,5:16)] ambiguous target types found for " +
+                                "configurable variable 'ambiguousUnionVar' with type '(map<anydata>|map<string>)'"}},
         };
     }
 }

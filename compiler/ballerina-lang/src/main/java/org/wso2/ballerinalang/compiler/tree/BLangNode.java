@@ -29,7 +29,7 @@ import java.util.Set;
  */
 public abstract class BLangNode implements Node {
 
-    private BType type;
+    protected BType type;
     public BLangNode parent = null;
 
     /**
@@ -60,12 +60,18 @@ public abstract class BLangNode implements Node {
     public int cloneAttempt;
 
     /**
+     * The actual type derived for this expression.
+     */
+    protected BType determinedType;
+
+    /**
      * Sets the specified type as the type of the node.
      *
      * @param type The type of the node
      */
     public void setBType(BType type) {
         this.type = type;
+        this.determinedType = type;
     }
 
     /**
@@ -75,6 +81,14 @@ public abstract class BLangNode implements Node {
      */
     public BType getBType() {
         return this.type;
+    }
+
+    public void setDeterminedType(BType type) {
+        this.determinedType = type;
+    }
+
+    public BType getDeterminedType() {
+        return this.determinedType;
     }
 
     public Location getPosition() {

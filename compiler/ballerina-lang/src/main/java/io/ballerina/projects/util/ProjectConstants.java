@@ -55,6 +55,7 @@ public class ProjectConstants {
 
     public static final String USER_DIR = "user.dir";
     public static final String USER_NAME = "user.name";
+    public static final String USER_HOME = "user.home";
 
     // Bala specific constants
     public static final String MODULES_ROOT = "modules";

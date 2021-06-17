@@ -35,9 +35,8 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
-import org.wso2.ballerinalang.compiler.packaging.converters.URIDryConverter;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.Lists;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -48,6 +47,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Authenticator;
 import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -98,9 +98,9 @@ import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
  * @since 2.0.0
  */
 public class ProjectUtils {
-    private static final String USER_HOME = "user.home";
     private static final Pattern separatedIdentifierPattern = Pattern.compile("^[a-zA-Z0-9_.]*$");
     private static final Pattern orgNamePattern = Pattern.compile("^[a-zA-Z0-9_]*$");
+    private static final String UNKNOWN = "unknown";
 
     /**
      * Validates the org-name.
@@ -258,18 +258,8 @@ public class ProjectUtils {
         return Paths.get(System.getProperty(BALLERINA_HOME));
     }
 
-    public static String getBallerinaPackVersion() {
-        try (InputStream inputStream = ProjectUtils.class.getResourceAsStream(PROPERTIES_FILE)) {
-            Properties properties = new Properties();
-            properties.load(inputStream);
-            return properties.getProperty(BALLERINA_PACK_VERSION);
-        } catch (Throwable ignore) {
-        }
-        return "unknown";
-    }
-
     public static Path getBallerinaRTJarPath() {
-        String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
+        String ballerinaVersion = getBallerinaPackVersion();
         String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
         return getBalHomePath().resolve("bre").resolve("lib").resolve(runtimeJarName);
     }
@@ -278,7 +268,7 @@ public class ProjectUtils {
         List<JarLibrary> dependencies = new ArrayList<>();
         String testPkgName = "ballerina/test";
 
-        String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
+        String ballerinaVersion = getBallerinaPackVersion();
         Path homeLibPath = getBalHomePath().resolve(BALLERINA_HOME_BRE).resolve(LIB_DIR);
         String testRuntimeJarName = TEST_RUNTIME_JAR_PREFIX + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
         String testCoreJarName = TEST_CORE_JAR_PREFIX + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
@@ -459,7 +449,7 @@ public class ProjectUtils {
         Path homeRepoPath;
         String homeRepoDir = System.getenv(ProjectConstants.HOME_REPO_ENV_KEY);
         if (homeRepoDir == null || homeRepoDir.isEmpty()) {
-            String userHomeDir = System.getProperty(USER_HOME);
+            String userHomeDir = System.getProperty(ProjectConstants.USER_HOME);
             if (userHomeDir == null || userHomeDir.isEmpty()) {
                 throw new BLangCompilerException("Error creating home repository: unable to get user home directory");
             }
@@ -497,7 +487,7 @@ public class ProjectUtils {
         if (proxy != null && !"".equals(proxy.host()) && proxy.port() > 0) {
             InetSocketAddress proxyInet = new InetSocketAddress(proxy.host(), proxy.port());
             if (!"".equals(proxy.username()) && "".equals(proxy.password())) {
-                Authenticator authenticator = new URIDryConverter.RemoteAuthenticator();
+                Authenticator authenticator = new RemoteAuthenticator(proxy);
                 Authenticator.setDefault(authenticator);
             }
             return new Proxy(Proxy.Type.HTTP, proxyInet);
@@ -515,7 +505,7 @@ public class ProjectUtils {
         // The access token can be specified as an environment variable or in 'Settings.toml'. First we would check if
         // the access token was specified as an environment variable. If not we would read it from 'Settings.toml'
         String tokenAsEnvVar = System.getenv(ProjectConstants.BALLERINA_CENTRAL_ACCESS_TOKEN);
-        if (tokenAsEnvVar != null) {
+        if (tokenAsEnvVar != null && !tokenAsEnvVar.isEmpty()) {
             return tokenAsEnvVar;
         }
         if (settings.getCentral() != null) {
@@ -692,5 +682,80 @@ public class ProjectUtils {
             }
         }
         return directory.delete();
+    }
+
+    /**
+     * Get the ballerina version the package is built with.
+     *
+     * @return ballerina version
+     */
+    public static String getBallerinaVersion() {
+        try (InputStream inputStream = ProjectUtils.class.getResourceAsStream(ProjectDirConstants.PROPERTIES_FILE)) {
+            var properties = new Properties();
+            properties.load(inputStream);
+            return properties.getProperty(ProjectDirConstants.BALLERINA_VERSION);
+        } catch (Throwable ignore) {
+        }
+        return UNKNOWN;
+    }
+
+    /**
+     * Get the ballerina pack version.
+     *
+     * @return ballerina pack version
+     */
+    public static String getBallerinaPackVersion() {
+        try (InputStream inputStream = ProjectUtils.class.getResourceAsStream(PROPERTIES_FILE)) {
+            var properties = new Properties();
+            properties.load(inputStream);
+            return properties.getProperty(BALLERINA_PACK_VERSION);
+        } catch (Throwable ignore) {
+        }
+        return UNKNOWN;
+    }
+
+    /**
+     * Get the ballerina short version.
+     *
+     * @return ballerina short version
+     */
+    public static String getBallerinaShortVersion() {
+        try (InputStream inputStream = ProjectUtils.class.getResourceAsStream(ProjectDirConstants.PROPERTIES_FILE)) {
+            var properties = new Properties();
+            properties.load(inputStream);
+            return properties.getProperty(ProjectDirConstants.BALLERINA_SHORT_VERSION);
+        } catch (Throwable ignore) {
+        }
+        return UNKNOWN;
+    }
+
+    /**
+     * Get the ballerina specification version.
+     *
+     * @return ballerina spec version
+     */
+    public static String getBallerinaSpecVersion() {
+        try (InputStream inputStream = ProjectUtils.class.getResourceAsStream(ProjectDirConstants.PROPERTIES_FILE)) {
+            var properties = new Properties();
+            properties.load(inputStream);
+            return properties.getProperty(ProjectDirConstants.BALLERINA_SPEC_VERSION);
+        } catch (Throwable ignore) {
+        }
+        return UNKNOWN;
+    }
+
+    /**
+     * Authenticator for the proxy server if provided.
+     */
+    public static class RemoteAuthenticator extends Authenticator {
+        io.ballerina.projects.internal.model.Proxy proxy;
+        public RemoteAuthenticator(io.ballerina.projects.internal.model.Proxy proxy) {
+            this.proxy = proxy;
+        }
+
+        @Override
+        protected PasswordAuthentication getPasswordAuthentication() {
+            return (new PasswordAuthentication(this.proxy.username(), this.proxy.password().toCharArray()));
+        }
     }
 }
