@@ -195,6 +195,11 @@ class NodeFinder extends BaseVisitor {
     private LineRange range;
     private BLangNode enclosingNode;
     private BLangNode enclosingContainer;
+    private boolean allowExprStmts;
+
+    NodeFinder(boolean allowExprStmts) {
+        this.allowExprStmts = allowExprStmts;
+    }
 
     BLangNode lookup(BLangPackage module, LineRange range) {
         List<TopLevelNode> topLevelNodes = new ArrayList<>(module.topLevelNodes);
@@ -425,7 +430,10 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
         lookupNode(exprStmtNode.expr);
-        setEnclosingNode(exprStmtNode.expr, exprStmtNode.pos);
+
+        if (this.allowExprStmts) {
+            setEnclosingNode(exprStmtNode.expr, exprStmtNode.pos);
+        }
     }
 
     @Override
@@ -622,13 +630,15 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
+        // Looking up args expressions since requiredArgs and restArgs get set only when compilation is successful
+        lookupNodes(invocationExpr.argExprs);
+        lookupNode(invocationExpr.expr);
+
         if (setEnclosingNode(invocationExpr, invocationExpr.name.pos)) {
             return;
         }
 
-        // Looking up args expressions since requiredArgs and restArgs get set only when compilation is successful
-        lookupNodes(invocationExpr.argExprs);
-        lookupNode(invocationExpr.expr);
+        setEnclosingNode(invocationExpr, invocationExpr.pos);
     }
 
     @Override
@@ -639,14 +649,15 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
+        lookupNodes(actionInvocationExpr.argExprs);
+        lookupNodes(actionInvocationExpr.restArgs);
+        lookupNode(actionInvocationExpr.expr);
+
         if (setEnclosingNode(actionInvocationExpr, actionInvocationExpr.name.pos)) {
             return;
         }
 
-        lookupNodes(actionInvocationExpr.requiredArgs);
-        lookupNodes(actionInvocationExpr.restArgs);
-        lookupNode(actionInvocationExpr.expr);
-        lookupNodes(actionInvocationExpr.argExprs);
+        setEnclosingNode(actionInvocationExpr, actionInvocationExpr.pos);
     }
 
     @Override

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -37,6 +38,7 @@ import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
@@ -208,6 +210,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final SymbolResolver symResolver;
     private final BLangDiagnosticLog dlog;
     private final Types types;
+    private final SourceDirectory sourceDirectory;
     private List<BLangNode> unresolvedTypes;
     private Set<BLangNode> unresolvedRecordDueToFields;
     private boolean resolveRecordsUnresolvedDueToFields;
@@ -222,6 +225,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private List<BLangNode> intersectionTypes;
 
     private SymbolEnv env;
+    private final boolean projectAPIInitiatedCompilation;
 
     private static final String DEPRECATION_ANNOTATION = "deprecated";
     private static final String ANONYMOUS_RECORD_NAME = "anonymous-record";
@@ -245,6 +249,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
+        this.sourceDirectory = context.get(SourceDirectory.class);
         this.importedPackages = new ArrayList<>();
         this.unknownTypeRefs = new HashSet<>();
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
@@ -252,6 +257,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.intersectionTypes = new ArrayList<>();
 
         CompilerOptions options = CompilerOptions.getInstance(context);
+        projectAPIInitiatedCompilation = Boolean.parseBoolean(
+                options.get(CompilerOptionName.PROJECT_API_INITIATED_COMPILATION));
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
@@ -784,6 +791,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         tSymbol.type = objectType;
         classDefinition.setBType(objectType);
+        classDefinition.setDeterminedType(objectType);
         classDefinition.symbol = tSymbol;
 
         if (isDeprecated(classDefinition.annAttachments)) {
@@ -882,7 +890,19 @@ public class SymbolEnter extends BLangNodeVisitor {
                 version = names.fromIdNode(importPkgNode.version);
             } else {
                 // TODO We are removing the version in the import declaration anyway
-                version = Names.EMPTY;
+                if (projectAPIInitiatedCompilation) {
+                    version = Names.EMPTY;
+                } else {
+                    String pkgName = importPkgNode.getPackageName().stream()
+                            .map(id -> id.value)
+                            .collect(Collectors.joining("."));
+                    if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)
+                            && orgName.value.equals(enclPackageID.orgName.value)) {
+                        version = enclPackageID.version;
+                    } else {
+                        version = Names.EMPTY;
+                    }
+                }
             }
         } else {
             orgName = enclPackageID.orgName;
@@ -1101,7 +1121,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             // definition node cannot be resolved. So we iterate through each node recursively looking for cyclic
             // dependencies or undefined types in type node.
 
-
             for (BLangNode unresolvedType : unresolvedTypes) {
                 Stack<String> references = new Stack<>();
                 NodeKind unresolvedKind = unresolvedType.getKind();
@@ -1116,7 +1135,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     checkErrors(env, unresolvedType, classDefinition, references, true);
                 }
             }
-
+            defineAllUnresolvedCyclicTypesInScope(env);
             unresolvedTypes.forEach(type -> defineNode(type, env));
             return;
         }
@@ -1178,9 +1197,16 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
                 break;
             case TUPLE_TYPE_NODE:
-                memberTypeNodes = ((BLangTupleTypeNode) currentTypeOrClassNode).memberTypeNodes;
+                BLangTupleTypeNode tupleNode = (BLangTupleTypeNode) currentTypeOrClassNode;
+                memberTypeNodes = tupleNode.memberTypeNodes;
                 for (BLangType memberTypeNode : memberTypeNodes) {
                     checkErrors(env, unresolvedType, memberTypeNode, visitedNodes, true);
+                    if (((BLangTypeDefinition) unresolvedType).hasCyclicReference) {
+                        break;
+                    }
+                }
+                if (tupleNode.restParamType != null) {
+                    checkErrors(env, unresolvedType, tupleNode.restParamType, visitedNodes, true);
                 }
                 break;
             case CONSTRAINED_TYPE:
@@ -1251,15 +1277,15 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (sameTypeNode || isVisited) {
             if (typeDef) {
                 BLangTypeDefinition typeDefinition = (BLangTypeDefinition) unresolvedType;
-                if (fromStructuredType && typeDefinition.getTypeNode().getKind() == NodeKind.UNION_TYPE_NODE) {
+                if (fromStructuredType && (typeDefinition.getTypeNode().getKind() == NodeKind.UNION_TYPE_NODE
+                        || typeDefinition.getTypeNode().getKind() == NodeKind.TUPLE_TYPE_NODE)) {
                     // Valid cyclic dependency
-                    // type A int|map<A>;
                     typeDefinition.hasCyclicReference = true;
                     return;
                 }
             }
 
-            // Only type definitions with unions are allowed to have cyclic reference
+            //type definitions with tuple and unions are allowed to have cyclic reference atm
             if (isVisited) {
                 // Invalid dependency detected. But in here, all the types in the list might not
                 // be necessary for the cyclic dependency error message.
@@ -1609,45 +1635,103 @@ public class SymbolEnter extends BLangNodeVisitor {
         return definedObjType;
     }
 
-    private BType getCyclicDefinedType(BLangTypeDefinition typeDef, SymbolEnv env) {
-        BUnionType unionType = BUnionType.create(null, new LinkedHashSet<>());
-        unionType.isCyclic = true;
-        Name typeDefName = names.fromIdNode(typeDef.name);
-
-        BTypeSymbol typeDefSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(typeDef.flagSet),
-                typeDefName, env.enclPkg.symbol.pkgID, unionType, env.scope.owner,
-                typeDef.name.pos, SOURCE);
-
-        typeDef.symbol = typeDefSymbol;
-        unionType.tsymbol = typeDefSymbol;
-
-        // We define the unionType in the main scope here
-        if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
+    private void defineTypeInMainScope(BTypeSymbol typeDefSymbol, BLangTypeDefinition typeDef, SymbolEnv env) {
+        if (PackageID.isLangLibPackageID(env.enclPkg.packageID)) {
             typeDefSymbol.origin = BUILTIN;
             handleLangLibTypes(typeDef);
         } else {
-            defineSymbol(typeDef.name.pos, typeDefSymbol);
+            defineSymbol(typeDef.name.pos, typeDefSymbol, env);
+        }
+    }
+
+    private BType defineSymbolsForCyclicTypeDefinitions(BLangTypeDefinition typeDef, SymbolEnv env) {
+        Name newTypeDefName = names.fromIdNode(typeDef.name);
+        BTypeSymbol typeDefSymbol;
+        BType newTypeNode;
+
+        BSymbol foundSym = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(typeDef.name));
+        if (foundSym != symTable.notFoundSymbol) {
+            newTypeNode = foundSym.type;
+            return newTypeNode;
+        }
+        switch (typeDef.typeNode.getKind()) {
+            case TUPLE_TYPE_NODE:
+                newTypeNode = new BTupleType(null, new ArrayList<>(), true);
+                typeDefSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(typeDef.flagSet),
+                        newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
+                        typeDef.name.pos, SOURCE);
+                break;
+            default:
+                newTypeNode = BUnionType.create(null, new LinkedHashSet<>(), true);
+                typeDefSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(typeDef.flagSet),
+                        newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
+                        typeDef.name.pos, SOURCE);
+        }
+        typeDef.symbol = typeDefSymbol;
+        defineTypeInMainScope(typeDefSymbol, typeDef, env);
+        newTypeNode.tsymbol = typeDefSymbol;
+        newTypeNode.flags |= typeDefSymbol.flags;
+        return newTypeNode;
+    }
+
+    private BType getCyclicDefinedType(BLangTypeDefinition typeDef, SymbolEnv env) {
+        //define symbols in main scope
+        BType newTypeNode = defineSymbolsForCyclicTypeDefinitions(typeDef, env);
+
+        // Resolver only manages to resolve members as they are defined as user defined types.
+        // Since we defined the symbols, the user defined types get resolved.
+        // Since we are calling this API we don't have to call
+        // `markParameterizedType(unionType, memberTypes);` again for resolved members
+        BType resolvedTypeNodes = symResolver.resolveTypeNode(typeDef.typeNode, env);
+
+        if (resolvedTypeNodes == symTable.noType) {
+            return symTable.semanticError;
         }
 
-        // resolvedUnionWrapper is not the union we need. Resolver tries to create a union for us but only manages to
-        // resolve members as they are defined as user defined types. Since we define the symbol user defined types
-        // gets resolved. We also expect becaue we are calling this API we dont have to call
-        // `markParameterizedType(unionType, memberTypes);` again for resolved members
-        BType resolvedUnionWrapper = symResolver.resolveTypeNode(typeDef.typeNode, env);
-        // Transform all members from union wrapper to defined union type
-        if (resolvedUnionWrapper.tag == TypeTags.UNION) {
-            BUnionType definedUnionType = (BUnionType) resolvedUnionWrapper;
-            definedUnionType.tsymbol = typeDefSymbol;
-            unionType.flags |= typeDefSymbol.flags;
-            for (BType member : definedUnionType.getMemberTypes()) {
-                unionType.add(member);
+        switch (resolvedTypeNodes.tag) {
+            case TypeTags.TUPLE:
+                BTupleType definedTupleType = (BTupleType) resolvedTypeNodes;
+                for (BType member : definedTupleType.getTupleTypes()) {
+                    if (!((BTupleType) newTypeNode).addMembers(member)) {
+                        return constructDependencyListError(typeDef, member);
+                    }
+                }
+                if (!((BTupleType) newTypeNode).addRestType(definedTupleType.restType)) {
+                    return constructDependencyListError(typeDef, definedTupleType.restType);
+                }
+                break;
+            default:
+                BUnionType definedUnionType = (BUnionType) resolvedTypeNodes;
+                for (BType member : definedUnionType.getMemberTypes()) {
+                    ((BUnionType) newTypeNode).add(member);
+                }
+                break;
+        }
+        typeDef.typeNode.setBType(newTypeNode);
+        typeDef.typeNode.getBType().tsymbol.type = newTypeNode;
+        typeDef.symbol.type = newTypeNode;
+        typeDef.setBType(newTypeNode);
+        return newTypeNode;
+    }
+
+    private void defineAllUnresolvedCyclicTypesInScope(SymbolEnv env) {
+        SymbolEnv prevEnv = this.env;
+        this.env = env;
+        for (BLangNode unresolvedNode : unresolvedTypes) {
+            if (unresolvedNode.getKind() == NodeKind.TYPE_DEFINITION && 
+                    ((BLangTypeDefinition) unresolvedNode).hasCyclicReference) {
+                defineSymbolsForCyclicTypeDefinitions((BLangTypeDefinition) unresolvedNode, env);
             }
         }
-        typeDef.typeNode.setBType(unionType);
-        typeDef.typeNode.getBType().tsymbol.type = unionType;
-        typeDef.symbol.type = unionType;
-        typeDef.setBType(unionType);
-        return unionType;
+        this.env = prevEnv;
+    }
+
+    private BType constructDependencyListError(BLangTypeDefinition typeDef, BType member) {
+        List<String> dependencyList = new ArrayList<>();
+        dependencyList.add(getTypeOrClassName(typeDef));
+        dependencyList.add(member.tsymbol.name.value);
+        dlog.error(typeDef.getPosition(), DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, dependencyList);
+        return symTable.semanticError;
     }
 
     private void validateUnionForDistinctType(BUnionType definedType, Location pos) {
