@@ -2302,6 +2302,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWhile whileNode) {
+        boolean prevLoopAlterNotAllowed = loopAlterNotAllowed;
+        loopAlterNotAllowed = false;
         this.loopWithinTransactionCheckStack.push(true);
         this.errorTypes.push(new LinkedHashSet<>());
         boolean statementReturns = this.statementReturns;
@@ -2320,6 +2322,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(whileNode.expr);
         analyzeOnFailClause(whileNode.onFailClause);
         this.errorTypes.pop();
+        this.loopAlterNotAllowed = prevLoopAlterNotAllowed;
     }
 
     @Override
