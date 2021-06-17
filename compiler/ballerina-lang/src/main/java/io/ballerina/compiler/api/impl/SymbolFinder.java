@@ -1133,6 +1133,9 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangArrayType arrayType) {
         lookupNode(arrayType.elemtype);
+        for (BLangExpression size : arrayType.sizes) {
+            lookupNode(size);
+        }
     }
 
     @Override
