@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.semantic.api.test.typebynode;
+package io.ballerina.semantic.api.test.typebynode.newapi;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;

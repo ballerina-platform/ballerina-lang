@@ -19,6 +19,7 @@ package org.ballerinalang.test.expressions.binaryoperations;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -44,15 +45,22 @@ public class MultiplyOperationTest {
 
     @Test(description = "Test two int multiply expression")
     public void testIntMultiplyExpr() {
-        BValue[] args = { new BInteger(100), new BInteger(50) };
+        BValue[] args = { new BInteger(4611686018427387904L), new BInteger(-2L) };
         BValue[] returns = BRunUtil.invoke(result, "intMultiply", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
         long actual = ((BInteger) returns[0]).intValue();
-        long expected = 5000;
+        long expected = -9223372036854775808L;
         Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test two int multiply overflow expression", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\" int range " +
+                    "overflow\"\\}.*")
+    public void testIntOverflowByMultiplication() {
+        BRunUtil.invoke(result, "overflowByMultiplication");
     }
 
     @Test(description = "Test two float multiply expression")

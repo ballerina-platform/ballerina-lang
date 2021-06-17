@@ -61,7 +61,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -892,7 +891,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case ANYDATA:
                 break;
             case FINITE:
-                return ((BFiniteType) type).isAnyData;
+                return types.isAnydata(type);
             case ARRAY:
                 BType elementType = ((BArrayType) type).eType;
                 if (elementType.tag == TypeTags.INTERSECTION) {

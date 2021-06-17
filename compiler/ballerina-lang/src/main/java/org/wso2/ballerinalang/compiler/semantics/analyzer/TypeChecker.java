@@ -378,7 +378,7 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = ((BIntersectionType) resultType).effectiveType;
         }
 
-        expr.setBType(resultType);
+        expr.setTypeCheckedType(resultType);
         expr.typeChecked = isTypeChecked;
         this.env = prevEnv;
         this.expType = preExpType;

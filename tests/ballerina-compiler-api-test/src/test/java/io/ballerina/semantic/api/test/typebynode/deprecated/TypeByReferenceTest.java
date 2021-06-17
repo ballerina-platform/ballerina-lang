@@ -16,37 +16,36 @@
  * under the License.
  */
 
-package io.ballerina.semantic.api.test.typebynode;
+package io.ballerina.semantic.api.test.typebynode.deprecated;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
-import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
-import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import org.testng.annotations.Test;
 
 import java.util.Optional;
 
-import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
- * Tests for getting the type of template expressions.
+ * Tests for getting the type of name references.
  *
  * @since 2.0.0
  */
 @Test
-public class TypeByTemplateExprTest extends TypeByNodeTest {
+public class TypeByReferenceTest extends TypeByNodeTest {
 
     @Override
     String getTestSourcePath() {
-        return "test-src/type-by-node/type_by_template_expr.bal";
+        return "test-src/type-by-node/type_by_reference_test.bal";
     }
 
     @Override
@@ -54,41 +53,41 @@ public class TypeByTemplateExprTest extends TypeByNodeTest {
         return new NodeVisitor() {
 
             @Override
-            public void visit(TemplateExpressionNode templateExpressionNode) {
-                TypeDescKind expTypeKind;
-                switch (templateExpressionNode.kind()) {
-                    case STRING_TEMPLATE_EXPRESSION:
-                        expTypeKind = STRING;
+            public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
+                assertType(simpleNameReferenceNode, model, FLOAT);
+            }
+
+            @Override
+            public void visit(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
+                assertType(qualifiedNameReferenceNode, model, INT);
+            }
+
+            @Override
+            public void visit(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
+                TypeDescKind typeKind;
+                switch (builtinSimpleNameReferenceNode.kind()) {
+                    case FLOAT_TYPE_DESC:
+                        typeKind = FLOAT;
                         break;
-                    case XML_TEMPLATE_EXPRESSION:
-                        expTypeKind = XML;
-                        break;
-                    case RAW_TEMPLATE_EXPRESSION:
-                        expTypeKind = TYPE_REFERENCE;
+                    case INT_TYPE_DESC:
+                        typeKind = INT;
                         break;
                     default:
                         throw new IllegalStateException();
                 }
-
-                assertType(templateExpressionNode, model, expTypeKind);
+                assertType(builtinSimpleNameReferenceNode, model, typeKind);
             }
         };
     }
 
     void verifyAssertCount() {
-        assertEquals(getAssertCount(), 3);
+        assertEquals(getAssertCount(), 4);
     }
 
     private void assertType(Node node, SemanticModel model, TypeDescKind typeKind) {
         Optional<TypeSymbol> type = model.type(node);
         assertTrue(type.isPresent());
         assertEquals(type.get().typeKind(), typeKind);
-
-        if (typeKind == TYPE_REFERENCE) {
-            assertEquals(((TypeReferenceTypeSymbol) type.get()).name(), "RawTemplate");
-            assertEquals(((TypeReferenceTypeSymbol) type.get()).typeDescriptor().typeKind(), OBJECT);
-        }
-
         incrementAssertCount();
     }
 }

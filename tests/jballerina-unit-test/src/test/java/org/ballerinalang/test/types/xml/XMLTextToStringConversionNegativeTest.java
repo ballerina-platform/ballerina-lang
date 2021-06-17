@@ -43,7 +43,7 @@ public class XMLTextToStringConversionNegativeTest {
         int i = 0;
         Assert.assertEquals(negativeResult.getErrorCount(), 20);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: " +
-                "expected 'string', found 'xml:Text'", 22, 22);
+                "expected 'string', found 'xml:Text'", 22, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: " +
                 "expected 'string', found 'xml:Text'", 23, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: " +
@@ -51,18 +51,18 @@ public class XMLTextToStringConversionNegativeTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: " +
                 "expected 'string', found 'xml:Text'", 28, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: " +
-                "expected 'string', found 'xml:Text'", 29, 42);
+                "expected 'string', found 'xml:Text'", 29, 37);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: " +
-                "expected 'string', found 'xml:Text'", 31, 31);
+                "expected 'string', found 'xml:Text'", 31, 26);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: " +
-                "expected 'string', found 'xml:Text'", 32, 13);
+                "expected 'string', found 'xml:Text'", 32, 8);
 
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: " +
-                "expected 'string', found 'xml:Text'", 40, 46);
+                "expected 'string', found 'xml:Text'", 40, 41);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: " +
-                "expected 'string', found 'xml:Text'", 41, 36);
+                "expected 'string', found 'xml:Text'", 41, 31);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: " +
-                "expected 'string', found 'xml:Text'", 42, 26);
+                "expected 'string', found 'xml:Text'", 42, 21);
 
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: " +
                 "expected 'string', found 'xml:Text'", 48, 9);

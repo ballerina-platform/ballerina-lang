@@ -36,6 +36,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
@@ -210,39 +211,16 @@ public class ArrayTest {
         Assert.assertEquals(value.intValue(), 4);
     }
 
-    @Test
-    public void createAbstractObjectEmptyArray() {
-        BRunUtil.invokeFunction(compileResult, "createAbstractObjectEmptyArray");
+    @Test(dataProvider = "functionNamesProvider")
+    public void testInvokeFunctions(String funcName) {
+        BRunUtil.invokeFunction(compileResult, funcName);
     }
 
-    @Test
-    public void testObjectDynamicArrayFilling() {
-        BRunUtil.invokeFunction(compileResult, "testObjectDynamicArrayFilling");
-    }
-
-    @Test
-    public void testMultidimensionalArrayString() {
-        BRunUtil.invokeFunction(compileResult, "testMultidimensionalArrayString");
-    }
-
-    @Test
-    public void testArrayMapString() {
-        BRunUtil.invokeFunction(compileResult, "testArrayMapString");
-    }
-
-    @Test
-    public void testArrayUnionType() {
-        BRunUtil.invokeFunction(compileResult, "testArrayUnionType");
-    }
-
-    @Test
-    public void testArrayTupleType() {
-        BRunUtil.invokeFunction(compileResult, "testArrayTupleType");
-    }
-
-    @Test
-    public void testUpdatingJsonTupleViaArrayTypedVar() {
-        BRunUtil.invokeFunction(compileResult, "testUpdatingJsonTupleViaArrayTypedVar");
+    @DataProvider(name = "functionNamesProvider")
+    public Object[] getFunctionNames() {
+        return new String[]{"createAbstractObjectEmptyArray", "testObjectDynamicArrayFilling",
+                "testMultidimensionalArrayString", "testArrayMapString", "testArrayUnionType", "testArrayTupleType",
+                "testUpdatingJsonTupleViaArrayTypedVar", "testVarArgsArray"};
     }
 
     @Test
