@@ -332,6 +332,8 @@ public class LangLibValueTest {
                 { "testCloneWithTypeDecimalToIntSubType"},
                 { "testCloneWithTypeImmutableStructuredTypes"},
                 {"testCloneWithTypeWithFiniteArrayTypeFromIntArray"},
+                { "testCloneWithTypeWithFiniteType" },
+                { "testCloneWithTypeWithUnionOfFiniteType" },
                 { "testCloneWithTypeWithFiniteArrayTypeFromIntArray" },
                 { "testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray" },
                 { "testCloneWithTypeWithUnionTypeArrayFromIntArray" },

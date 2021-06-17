@@ -49,11 +49,12 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
@@ -238,17 +239,13 @@ public class TypeConverter {
     }
 
     // TODO: return only the first matching type
-    public static List<Type> getConvertibleTypes(Object inputValue, Type targetType) {
-        List<Type> convertibleTypes = getConvertibleTypes(inputValue, targetType, new ArrayList<>())
-                .stream()
-                .distinct()
-                .collect(Collectors.toList());
-        return convertibleTypes;
+    public static Set<Type> getConvertibleTypes(Object inputValue, Type targetType) {
+        return getConvertibleTypes(inputValue, targetType, new ArrayList<>());
     }
 
-    public static List<Type> getConvertibleTypes(Object inputValue, Type targetType,
+    public static Set<Type> getConvertibleTypes(Object inputValue, Type targetType,
                                                   List<TypeValuePair> unresolvedValues) {
-        List<Type> convertibleTypes = new ArrayList<>();
+        Set<Type> convertibleTypes = new LinkedHashSet<>();
 
         int targetTypeTag = targetType.getTag();
 
@@ -256,7 +253,7 @@ public class TypeConverter {
             case TypeTags.UNION_TAG:
                 for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
                     if (TypeChecker.getType(inputValue) == memType) {
-                        return List.of(memType);
+                        return Set.of(memType);
                     }
                     convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, unresolvedValues));
                 }
