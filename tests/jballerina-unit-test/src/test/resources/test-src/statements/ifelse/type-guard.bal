@@ -760,6 +760,30 @@ function testTypeNarrowingForIntersectingDirectUnion_1() returns boolean {
     return false;
 }
 
+type CyclicComplexUnion int|CyclicComplexUnion[]|object {};
+type CyclicFloatUnion float|CyclicComplexUnion[]|object {};
+
+function testTypeNarrowingForIntersectingCyclicUnion() returns boolean {
+    CyclicComplexUnion s = 1;
+    anydata ma = <anydata> s;
+    float|CyclicComplexUnion m = <CyclicComplexUnion>ma;
+    if (m is CyclicComplexUnion|string) {
+        CyclicComplexUnion f2 = m;
+        return f2 === s;
+    }
+    return false;
+}
+
+function testTypeNarrowingForIntersectingCyclicUnionNegative() returns boolean {
+    CyclicComplexUnion s = 1;
+    anydata ma = <anydata> s;
+    float|CyclicComplexUnion m = <CyclicComplexUnion>ma;
+    if (m is CyclicFloatUnion|string) {
+        return false;
+    }
+    return true;
+}
+
 function testTypeNarrowingForIntersectingDirectUnion_2() returns boolean {
     xml x = xml `Hello World`;
     string|xml st = x;

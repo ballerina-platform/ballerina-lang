@@ -5709,7 +5709,7 @@ public class BallerinaParser extends AbstractParser {
     private boolean isEndOfExpression(SyntaxKind tokenKind, boolean isRhsExpr, boolean isInMatchGuard,
                                       SyntaxKind precedingNodeKind) {
         if (!isRhsExpr) {
-            if (isCompoundBinaryOperator(tokenKind)) {
+            if (isCompoundAssignment(tokenKind)) {
                 return true;
             }
 
@@ -7338,7 +7338,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseCompoundBinaryOperator() {
         STToken token = peek();
-        if (isCompoundBinaryOperator(token.kind)) {
+        if (isCompoundAssignment(token.kind)) {
             return consume();
         } else {
             recover(token, ParserRuleContext.COMPOUND_BINARY_OPERATOR);
@@ -7637,7 +7637,7 @@ public class BallerinaParser extends AbstractParser {
      * @param tokenKind STToken kind
      * @return <code>true</code> if the token kind refers to a binary operator. <code>false</code> otherwise
      */
-    private boolean isCompoundBinaryOperator(SyntaxKind tokenKind) {
+    static boolean isCompoundBinaryOperator(SyntaxKind tokenKind) {
         switch (tokenKind) {
             case PLUS_TOKEN:
             case MINUS_TOKEN:
@@ -7649,10 +7649,14 @@ public class BallerinaParser extends AbstractParser {
             case DOUBLE_LT_TOKEN:
             case DOUBLE_GT_TOKEN:
             case TRIPPLE_GT_TOKEN:
-                return getNextNextToken().kind == SyntaxKind.EQUAL_TOKEN;
+                return true;
             default:
                 return false;
         }
+    }
+
+    private boolean isCompoundAssignment(SyntaxKind tokenKind) {
+        return isCompoundBinaryOperator(tokenKind) && getNextNextToken().kind == SyntaxKind.EQUAL_TOKEN;
     }
 
     /**
@@ -8340,7 +8344,7 @@ public class BallerinaParser extends AbstractParser {
             case IDENTIFIER_TOKEN:
             default:
                 // If its a binary operator then this can be a compound assignment statement
-                if (isCompoundBinaryOperator(nextTokenKind)) {
+                if (isCompoundAssignment(nextTokenKind)) {
                     return parseCompoundAssignmentStmtRhs(expression);
                 }
 
@@ -14587,7 +14591,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseTypeBindingPatternStartsWithAmbiguousNode(typeDesc);
             default:
                 // If its a binary operator then this can be a compound assignment statement
-                if (isCompoundBinaryOperator(nextToken.kind)) {
+                if (isCompoundAssignment(nextToken.kind)) {
                     return typeOrExpr;
                 }
 
@@ -14911,7 +14915,7 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createRestDescriptorNode(typeOrExpr, ellipsis);
             default:
                 // If its a binary operator then this can be a compound assignment statement
-                if (isCompoundBinaryOperator(nextToken.kind)) {
+                if (isCompoundAssignment(nextToken.kind)) {
                     return typeOrExpr;
                 }
 

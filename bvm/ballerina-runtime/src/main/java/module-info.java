@@ -64,4 +64,6 @@ module io.ballerina.runtime {
             io.ballerina.lang.xml;
     exports io.ballerina.runtime.internal.configurable to io.ballerina.lang.internal;
     exports io.ballerina.runtime.internal.types to io.ballerina.lang.typedesc;
+    exports io.ballerina.runtime.observability.metrics.noop;
+    exports io.ballerina.runtime.observability.tracer.noop;
 }

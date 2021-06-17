@@ -59,6 +59,61 @@ function merge(string[]? tokens) returns string {
     return "";
 }
 
+type Label record {
+    string name;
+};
+
+type Data record {
+    Label[]? labels;
+};
+
+function testTernaryWithinQueryExpression () {
+    Label label1 = {name: "A"};
+    Label[] labelList = [label1, {name: "B"}];
+    Data[] data1 = [{labels: ()}];
+    Data[] data2 = [{labels: labelList}];
+    Data data3 = {labels: [{name: "John Doe"}]};
+
+    Label[] res1 = getFirstOrDefaultLabel(data2);
+    Data[] res2 = filterNonEmtyData(data1);
+    Data[] res3 = filterNonEmtyData(data2);
+    Data[] res4 = filterCommonLabels(data2);
+
+    assertEquality(label1, res1[0]);
+    assertEquality(data3, res2[0]);
+    assertEquality(data2, res3);
+    assertEquality(data2, res4);
+}
+
+function getFirstOrDefaultLabel(Data[] data) returns Label[] {
+    Label[] labelList = from Data d in data
+        let Label[]? l = d.labels
+        select (l != () ? l[0] : {name: "John Doe"});
+    return labelList;
+}
+
+function filterNonEmtyData (Data[] dataList) returns Data[] {
+    Data[] newData = from Data d in dataList
+        select {
+            labels: let Label[]? l = d.labels
+                in (l != () ? from Label nl in l
+                    select {name: nl.name} : [{name: "John Doe"}])
+        };
+    return newData;
+}
+
+function filterCommonLabels(Data[] dataList) returns Data[] {
+    string[] strArr = ["A", "B", "C"];
+    Data[] newData = from Data d in dataList
+        select {
+            labels: let Label[]? l = d.labels
+                in (l != () ? from string str in strArr
+                    join Label nl in l on str equals nl.name
+                    select {name: nl.name} : [{name: "John Doe"}])
+        };
+    return newData;
+}
+
 //---------------------------------------------------------------------------------------------------------
 const ASSERTION_ERROR_REASON = "AssertionError";
 

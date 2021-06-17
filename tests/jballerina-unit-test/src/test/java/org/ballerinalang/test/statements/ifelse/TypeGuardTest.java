@@ -90,6 +90,12 @@ public class TypeGuardTest {
                 8);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'map<(int|string)>' will not be matched " +
                         "to 'map<boolean>'", 221, 8);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'CyclicComplexUnion' will not" +
+                " be matched to 'float'", 232, 8);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'CyclicComplexUnion' will not" +
+                " be matched to 'floatUnion'", 239, 8);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'CyclicComplexUnion' will not" +
+                " be matched to 'float[]'", 245, 8);
 
         Assert.assertEquals(negativeResult.getDiagnostics().length, i);
     }
@@ -561,7 +567,9 @@ public class TypeGuardTest {
                 {"testTypeNarrowingForIntersectingDirectUnion_2"},
                 {"testTypeNarrowingForIntersectingAssignableUnion_1"},
                 {"testTypeNarrowingForIntersectingAssignableUnion_2"},
-                {"testTypeNarrowingForIntersectingUnionWithRecords"}
+                {"testTypeNarrowingForIntersectingUnionWithRecords"},
+                {"testTypeNarrowingForIntersectingCyclicUnion"},
+                {"testTypeNarrowingForIntersectingCyclicUnionNegative"}
         };
     }
 

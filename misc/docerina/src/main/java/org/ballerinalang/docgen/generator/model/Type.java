@@ -43,6 +43,9 @@ import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
+import io.ballerina.compiler.syntax.tree.RecordRestDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
@@ -141,6 +144,8 @@ public class Type {
             }
             if (symbol != null && symbol.isPresent()) {
                 resolveSymbol(type, symbol.get());
+            } else {
+                type.generateUserDefinedTypeLink = false;
             }
         } else if (node instanceof QualifiedNameReferenceNode) {
             QualifiedNameReferenceNode qualifiedNameReferenceNode = (QualifiedNameReferenceNode) node;
@@ -155,6 +160,8 @@ public class Type {
             }
             if (symbol != null && symbol.isPresent()) {
                 resolveSymbol(type, symbol.get());
+            } else {
+                type.generateUserDefinedTypeLink = false;
             }
         } else if (node instanceof BuiltinSimpleNameReferenceNode) {
             BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode = (BuiltinSimpleNameReferenceNode) node;
@@ -176,13 +183,36 @@ public class Type {
             type.isNullable = true;
         } else if (node instanceof UnionTypeDescriptorNode) {
             type.isAnonymousUnionType = true;
-            addUnionMemberTypes(type.memberTypes, node, semanticModel);
+            addUnionMemberTypes(node, semanticModel, type.memberTypes);
         } else if (node instanceof IntersectionTypeDescriptorNode) {
             type.isIntersectionType = true;
-            addIntersectionMemberTypes(type.memberTypes, node, semanticModel);
+            addIntersectionMemberTypes(node, semanticModel, type.memberTypes);
         } else if (node instanceof RecordTypeDescriptorNode) {
-            type.name = node.toString();
-            type.generateUserDefinedTypeLink = false;
+            RecordTypeDescriptorNode recordNode = (RecordTypeDescriptorNode) node;
+            List<Type> fields = new ArrayList<>();
+            recordNode.fields().forEach(node1 -> {
+                if (node1 instanceof RecordFieldWithDefaultValueNode) {
+                    RecordFieldWithDefaultValueNode recordField = (RecordFieldWithDefaultValueNode) node1;
+                    Type defField = new Type();
+                    defField.name = recordField.fieldName().text();
+                    defField.elementType = fromNode(recordField.typeName(), semanticModel);
+                    fields.add(defField);
+                } else if (node1 instanceof RecordFieldNode) {
+                    RecordFieldNode recordField = (RecordFieldNode) node1;
+                    Type recField = new Type();
+                    recField.name = recordField.fieldName().text();
+                    recField.elementType = fromNode(recordField.typeName(), semanticModel);
+                    fields.add(recField);
+                }
+            });
+            if (recordNode.recordRestDescriptor().isPresent()) {
+                Type restField = new Type();
+                restField.elementType = fromNode(recordNode.recordRestDescriptor().get(), semanticModel);
+                fields.add(restField);
+            }
+            type.category = (recordNode.bodyStartDelimiter()).kind().equals(SyntaxKind.OPEN_BRACE_PIPE_TOKEN) ?
+                    "inline_closed_record" : "inline_record";
+            type.memberTypes = fields;
         } else if (node instanceof StreamTypeDescriptorNode) {
             StreamTypeDescriptorNode streamNode = (StreamTypeDescriptorNode) node;
             StreamTypeParamsNode streamParams = streamNode.streamTypeParamsNode().isPresent() ?
@@ -225,6 +255,10 @@ public class Type {
                 type.name = parameterizedTypeNode.keywordToken().text();
                 type.version = ballerinaShotVersion;
                 type.category = "builtin";
+            } else if (typeKind == SyntaxKind.FUTURE_TYPE_DESC) {
+                type.category = "future";
+                type.elementType = parameterizedTypeNode.typeParamNode().map(typeParameterNode ->
+                        Type.fromNode(typeParameterNode.typeNode(), semanticModel)).orElse(null);
             } else if (typeKind == SyntaxKind.TYPEDESC_TYPE_DESC) {
                 type.elementType = parameterizedTypeNode.typeParamNode().map(typeParameterNode ->
                         Type.fromNode(typeParameterNode.typeNode(), semanticModel)).orElse(null);
@@ -250,6 +284,10 @@ public class Type {
             type.memberTypes.addAll(typeDescriptor.memberTypeDesc().stream().map(memberType ->
                     Type.fromNode(memberType, semanticModel)).collect(Collectors.toList()));
             type.isTuple = true;
+        } else if (node instanceof RecordRestDescriptorNode) {
+            RecordRestDescriptorNode recordRestDescriptorNode = (RecordRestDescriptorNode) node;
+            type.isRestParam = true;
+            type.elementType = fromNode(recordRestDescriptorNode.typeName(), semanticModel);
         } else {
             type.name = node.toSourceCode();
             type.generateUserDefinedTypeLink = false;
@@ -258,46 +296,24 @@ public class Type {
         return type;
     }
 
-    public static void addUnionMemberTypes(List<Type> memberTypes, Node typeNode, SemanticModel semanticModel) {
-        if (typeNode.kind() != SyntaxKind.UNION_TYPE_DESC) {
-             memberTypes.add(fromNode(typeNode, semanticModel));
-             return;
-        }
-
-        // flatten the types inside the union and add it to the list.
-        UnionTypeDescriptorNode unionType = (UnionTypeDescriptorNode) typeNode;
-        updateListWithNonUnionMembers(memberTypes, unionType.leftTypeDesc(), semanticModel);
-        updateListWithNonUnionMembers(memberTypes, unionType.rightTypeDesc(), semanticModel);
-    }
-
-    private static void updateListWithNonUnionMembers(List<Type> memberTypes, Node type,
-                                                      SemanticModel semanticModel) {
-        if (type.kind() != SyntaxKind.UNION_TYPE_DESC) {
-            memberTypes.add(fromNode(type, semanticModel));
-        } else {
-            addUnionMemberTypes(memberTypes, type, semanticModel);
-        }
-    }
-
-    public static void addIntersectionMemberTypes(List<Type> memberTypes, Node typeNode, SemanticModel semanticModel) {
-        if (typeNode.kind() != SyntaxKind.INTERSECTION_TYPE_DESC) {
-            memberTypes.add(fromNode(typeNode, semanticModel));
+    public static void addUnionMemberTypes(Node node, SemanticModel semanticModel, List<Type> members) {
+        if (node instanceof UnionTypeDescriptorNode) {
+            UnionTypeDescriptorNode unionTypeNode = (UnionTypeDescriptorNode) node;
+            addUnionMemberTypes(unionTypeNode.leftTypeDesc(), semanticModel, members);
+            addUnionMemberTypes(unionTypeNode.rightTypeDesc(), semanticModel, members);
             return;
         }
-
-        // flatten the types inside the intersection and add it to the list.
-        IntersectionTypeDescriptorNode intersectionType = (IntersectionTypeDescriptorNode) typeNode;
-        updateListWithNonIntersectionMembers(memberTypes, intersectionType.leftTypeDesc(), semanticModel);
-        updateListWithNonIntersectionMembers(memberTypes, intersectionType.rightTypeDesc(), semanticModel);
+        members.add(fromNode(node, semanticModel));
     }
 
-    private static void updateListWithNonIntersectionMembers(List<Type> memberTypes, Node type,
-                                                             SemanticModel semanticModel) {
-        if (type.kind() != SyntaxKind.INTERSECTION_TYPE_DESC) {
-            memberTypes.add(fromNode(type, semanticModel));
-        } else {
-            addIntersectionMemberTypes(memberTypes, type, semanticModel);
+    public static void addIntersectionMemberTypes(Node node, SemanticModel semanticModel, List<Type> members) {
+        if (node instanceof IntersectionTypeDescriptorNode) {
+            IntersectionTypeDescriptorNode intersectionTypeNode = (IntersectionTypeDescriptorNode) node;
+            addIntersectionMemberTypes(intersectionTypeNode.leftTypeDesc(), semanticModel, members);
+            addIntersectionMemberTypes(intersectionTypeNode.rightTypeDesc(), semanticModel, members);
+            return;
         }
+        members.add(fromNode(node, semanticModel));
     }
 
     public static void resolveSymbol(Type type, Symbol symbol) {
@@ -359,7 +375,8 @@ public class Type {
                 return getTypeCategory(((TypeReferenceTypeSymbol) typeDescriptor).typeDescriptor());
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.DECIMAL) ||
                     typeDescriptor.typeKind().isXMLType() ||
-                    typeDescriptor.typeKind().equals(TypeDescKind.FUNCTION)) {
+                    typeDescriptor.typeKind().equals(TypeDescKind.FUNCTION) ||
+                    typeDescriptor.typeKind().equals(TypeDescKind.STRING_CHAR)) {
                 return "types";
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.INTERSECTION)) {
                 return getIntersectionTypeCategory((IntersectionTypeSymbol) typeDescriptor);

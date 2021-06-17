@@ -26,6 +26,7 @@ import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
@@ -443,6 +444,18 @@ public class ProjectUtils {
             }
         }
         return jarName;
+    }
+
+    /**
+     * Construct and return the thin jar moduleName.
+     *
+     * @param org        organization
+     * @param moduleName module name
+     * @param version    version
+     * @return the moduleName of the thin jar
+     */
+    public static String getThinJarFileName(PackageOrg org, String moduleName, PackageVersion version) {
+        return org.value() + "-" + moduleName + "-" + version.value();
     }
 
     /**

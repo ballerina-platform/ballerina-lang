@@ -237,7 +237,7 @@ public class JvmConstants {
     public static final String BLOCKED_ON_EXTERN_FIELD = "blockedOnExtern";
     public static final String IS_BLOCKED_ON_EXTERN_FIELD = "isBlockedOnExtern";
 
-    // union related constants
+    // union and tuple related constants
     public static final String SET_MEMBERS_METHOD = "setMemberTypes";
     public static final String SET_ORIGINAL_MEMBERS_METHOD = "setOriginalMemberTypes";
     public static final String SET_CYCLIC_METHOD = "setCyclic";
@@ -250,7 +250,8 @@ public class JvmConstants {
             "io/ballerina/runtime/internal/util/exceptions/BLangRuntimeException";
     public static final String THROWABLE = "java/lang/Throwable";
     public static final String STACK_OVERFLOW_ERROR = "java/lang/StackOverflowError";
-    public static final String HANDLE_THROWABLE_METHOD = "handleRuntimeErrorsAndExit";
+    public static final String HANDLE_THROWABLE_METHOD = "handleBErrorAndExit";
+    public static final String HANDLE_ALL_THROWABLE_METHOD = "handleAllRuntimeErrorsAndExit";
     public static final String HANDLE_RETURNED_ERROR_METHOD = "handleRuntimeReturnValues";
     public static final String UNSUPPORTED_OPERATION_EXCEPTION = "java/lang/UnsupportedOperationException";
     public static final String HANDLE_STOP_PANIC_METHOD = "handleRuntimeErrors";

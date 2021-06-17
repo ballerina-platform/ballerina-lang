@@ -20,15 +20,39 @@ package io.ballerina.runtime.internal.configurable.providers.toml;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
+import io.ballerina.runtime.internal.types.BIntersectionType;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.values.ListInitialValueEntry;
+import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.toml.semantic.TomlType;
+import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
+import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
+import io.ballerina.toml.semantic.ast.TomlDoubleValueNodeNode;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
+import io.ballerina.toml.semantic.ast.TomlLongValueNode;
 import io.ballerina.toml.semantic.ast.TomlNode;
+import io.ballerina.toml.semantic.ast.TomlStringValueNode;
+import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
+import io.ballerina.toml.semantic.ast.TomlTableNode;
+import io.ballerina.toml.semantic.ast.TomlValueNode;
+import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_READONLY_ANYDATA;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILE_NAME;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TYPE_NOT_SUPPORTED;
@@ -39,6 +63,9 @@ import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG
  * @since 2.0.0
  */
 public class Utils {
+
+    private static final Type TYPE_READONLY_ANYDATA_INTERSECTION =
+            new BIntersectionType(null, new Type[]{ TYPE_READONLY_ANYDATA}, TYPE_READONLY_ANYDATA, 0, true);
 
     private Utils() {
     }
@@ -64,6 +91,73 @@ public class Utils {
             default:
                 return "unsupported type";
         }
+    }
+
+    static Object getBalValueFromToml(TomlNode tomlNode, Set<TomlNode> visitedNodes) {
+        visitedNodes.add(tomlNode);
+        switch (tomlNode.kind()) {
+            case STRING:
+                return StringUtils.fromString(((TomlStringValueNode) tomlNode).getValue());
+            case INTEGER:
+                return ((TomlLongValueNode) tomlNode).getValue();
+            case DOUBLE:
+                return ((TomlDoubleValueNodeNode) tomlNode).getValue();
+            case BOOLEAN:
+                return ((TomlBooleanValueNode) tomlNode).getValue();
+            case KEY_VALUE:
+                return getBalValueFromToml(((TomlKeyValueNode) tomlNode).value(), visitedNodes);
+            case ARRAY:
+                return getAnydataArray((TomlArrayValueNode) tomlNode, visitedNodes);
+            case TABLE:
+                return getAnydataMap((TomlTableNode) tomlNode, visitedNodes);
+            case TABLE_ARRAY:
+                return getAnydataTable((TomlTableArrayNode) tomlNode, visitedNodes);
+            default:
+                // should not come here
+                return null;
+        }
+    }
+
+    private static Object getAnydataTable(TomlTableArrayNode tomlNode, Set<TomlNode> visitedNodes) {
+        List<TomlTableNode> tableNodeList = tomlNode.children();
+        int tableSize = tableNodeList.size();
+        ListInitialValueEntry.ExpressionEntry[] tableEntries =
+                new ListInitialValueEntry.ExpressionEntry[tableSize];
+        int count = 0;
+        for (TomlTableNode tomlTableNode : tableNodeList) {
+            Object value = getBalValueFromToml(tomlTableNode, visitedNodes);
+            tableEntries[count++] = new ListInitialValueEntry.ExpressionEntry(value);
+        }
+        ArrayValue tableData = new ArrayValueImpl(TypeCreator.createArrayType(TYPE_READONLY_ANYDATA_INTERSECTION,
+                                                                              true), tableSize, tableEntries);
+        ArrayValue keyNames = (ArrayValue) StringUtils.fromStringArray(new String[0]);
+        TableType tableType = TypeCreator.createTableType(TypeCreator.createMapType(TYPE_READONLY_ANYDATA_INTERSECTION,
+                                                                                    true), true);
+        return new TableValueImpl<>(tableType, tableData, keyNames);
+    }
+
+    private static Object getAnydataMap(TomlTableNode tomlNode, Set<TomlNode> visitedNodes) {
+        BMapInitialValueEntry[] initialValues = new BMapInitialValueEntry[tomlNode.entries().size()];
+        int count = 0;
+        for (Map.Entry<String, TopLevelNode> entry : tomlNode.entries().entrySet()) {
+            initialValues[count++] = ValueCreator.createKeyFieldEntry(StringUtils.fromString(entry.getKey()),
+                                                                      getBalValueFromToml(entry.getValue(),
+                                                                                          visitedNodes));
+        }
+        return ValueCreator.createMapValue(TypeCreator.createMapType(TYPE_READONLY_ANYDATA_INTERSECTION,
+                                                                     true), initialValues);
+    }
+
+    private static Object getAnydataArray(TomlArrayValueNode tomlNode, Set<TomlNode> visitedNodes) {
+        ListInitialValueEntry[] arrayValues = new ListInitialValueEntry[tomlNode.elements().size()];
+        List<TomlValueNode> elements = tomlNode.elements();
+        int count = 0;
+        for (TomlValueNode tomlValueNode : elements) {
+            arrayValues[count++] = new ListInitialValueEntry.ExpressionEntry(
+                    getBalValueFromToml(tomlValueNode, visitedNodes));
+        }
+        return new ArrayValueImpl(TypeCreator.createArrayType(TYPE_READONLY_ANYDATA_INTERSECTION, true),
+                                  arrayValues.length, arrayValues);
     }
 
     static TomlType getEffectiveTomlType(Type expectedType, String variableName) {
