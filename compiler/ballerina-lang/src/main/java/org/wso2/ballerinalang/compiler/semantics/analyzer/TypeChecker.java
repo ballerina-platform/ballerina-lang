@@ -5232,7 +5232,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (checkedExpr.getKind() == NodeKind.CHECK_EXPR && types.isUnionOfSimpleBasicTypes(expType)) {
-            rewriteWithEnsureTypeFunc(checkedExpr, exprWithCheckingKeyword, typeOfExprWithCheckingKeyword);
+            rewriteWithEnsureTypeFunc(checkedExpr, typeOfExprWithCheckingKeyword);
         }
 
         BType exprType = checkExpr(checkedExpr.expr, env, typeOfExprWithCheckingKeyword);
@@ -5311,9 +5311,8 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(checkedExpr, actualType, expType);
     }
 
-    private void rewriteWithEnsureTypeFunc(BLangCheckedExpr checkedExpr, BLangExpression expr,
-                                           BType typeOfExprWithCheckingKeyword) {
-        BType rhsType = getCandidateType(checkedExpr);
+    private void rewriteWithEnsureTypeFunc(BLangCheckedExpr checkedExpr, BType type) {
+        BType rhsType = getCandidateType(checkedExpr, type);
         if (rhsType == symTable.semanticError) {
             rhsType = checkExpr(checkedExpr.expr, env);
         }
@@ -5328,21 +5327,14 @@ public class TypeChecker extends BLangNodeVisitor {
         typedescExpr.setBType(typedescType);
         argExprs.add(typedescExpr);
         BLangInvocation invocation = ASTBuilderUtil.createLangLibInvocationNode(FUNCTION_NAME_ENSURE_TYPE,
-                argExprs, expr, checkedExpr.pos);
-        invocation.symbol = symResolver.lookupLangLibMethod(typeOfExprWithCheckingKeyword,
+                argExprs, checkedExpr.expr, checkedExpr.pos);
+        invocation.symbol = symResolver.lookupLangLibMethod(type,
                 names.fromString(invocation.name.value));
         invocation.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         checkedExpr.expr = invocation;
     }
 
-    private BType getCandidateType(BLangCheckedExpr checkedExpr) {
-        BType checkExprCandidateType;
-        if (expType == symTable.noType) {
-            checkExprCandidateType = symTable.noType;
-        } else {
-            checkExprCandidateType = BUnionType.create(null, expType, symTable.errorType);
-        }
-
+    private BType getCandidateType(BLangCheckedExpr checkedExpr, BType checkExprCandidateType) {
         boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
         this.nonErrorLoggingCheck = true;
         int prevErrorCount = this.dlog.errorCount();
