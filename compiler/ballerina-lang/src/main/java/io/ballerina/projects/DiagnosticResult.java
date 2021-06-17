@@ -32,13 +32,18 @@ public abstract class DiagnosticResult {
     protected Collection<Diagnostic> errors;
     protected Collection<Diagnostic> warnings;
     protected Collection<Diagnostic> hints;
+    protected Collection<Diagnostic> internalExcluded;
 
     protected DiagnosticResult(Collection<Diagnostic> allDiagnostics) {
         this.allDiagnostics = Collections.unmodifiableCollection(allDiagnostics);
     }
 
     public Collection<Diagnostic> diagnostics() {
-        return allDiagnostics;
+        return diagnostics(true);
+    }
+
+    public Collection<Diagnostic> diagnostics(boolean includeInternal) {
+        return includeInternal ? allDiagnostics : getInternalExcluded(allDiagnostics);
     }
 
     public Collection<Diagnostic> errors() {
@@ -102,5 +107,14 @@ public abstract class DiagnosticResult {
 
         hints = Diagnostics.filterHints(diagnostics);
         return hints;
+    }
+
+    private Collection<Diagnostic> getInternalExcluded(Collection<Diagnostic> diagnostics) {
+        if (internalExcluded != null) {
+            return hints;
+        }
+
+        internalExcluded = Diagnostics.excludeInternal(diagnostics);
+        return internalExcluded;
     }
 }
