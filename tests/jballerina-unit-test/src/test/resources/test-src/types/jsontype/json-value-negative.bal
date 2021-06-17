@@ -29,6 +29,14 @@ public function testLaxAccessJSONArray() {
     int[] y = check x;
 }
 
+public function testJSONReturnTypeDistinctErrorLifting() returns error? {
+    int x = check func();
+}
+
+function func() returns json|error {
+    return 1;
+}
+
 type Person record {|
     string name = "";
     int age = 10;
