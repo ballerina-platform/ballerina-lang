@@ -904,6 +904,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
         SymbolEnv symbolEnv = env.createClone();
         bLangLambdaFunction.capturedClosureEnv = symbolEnv;
         BLangFunction enclInvokable = (BLangFunction) symbolEnv.enclInvokable;
+        // Since anonymous lambda functions enclosed in a query lambda are not included in the
+        // package node lambda list need to visit them here.
+        if (enclInvokable.flagSet.contains(Flag.QUERY_LAMBDA)) {
+            bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function,
+                    bLangLambdaFunction.capturedClosureEnv);
+        }
         // Save param closure map of the encl invokable.
         bLangLambdaFunction.paramMapSymbolsOfEnclInvokable = enclInvokable.paramClosureMap;
         boolean isWorker = bLangLambdaFunction.function.flagSet.contains(Flag.WORKER);
@@ -1036,6 +1042,16 @@ public class ClosureDesugar extends BLangNodeVisitor {
         // If it is marked as a closure variable then the following calculations are carried out.
         // 1) Find the resolved level i.e. the absolute level : level the variable was resolved from.
         int absoluteLevel = findResolvedLevel(env, (BVarSymbol) localVarRef.varSymbol);
+
+        // If the symbol is not found and it's enclosed in a query lambda, it should be
+        // in the current block.
+        if (absoluteLevel == 0 && env.enclInvokable.flagSet.contains(Flag.QUERY_LAMBDA)) {
+            BVarSymbol mapSym = createMapSymbolIfAbsent(env.node, blockClosureMapCount);
+            if (mapSym != null) {
+                updateClosureVars(localVarRef, mapSym);
+                return;
+            }
+        }
 
         // self absolute level : level I'm currently in.
         int selfAbsoluteLevel = env.envCount;
