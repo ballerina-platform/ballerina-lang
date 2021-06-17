@@ -75,7 +75,7 @@ public class BJSONValueTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected 'map<json>', found 'PersonWithTypedesc'", 23, 25);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: expected '(int[]|error)', found 'json'", 29, 22);
+                "incompatible types: expected '(int[]|error)', found 'json'", 29, 21);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
