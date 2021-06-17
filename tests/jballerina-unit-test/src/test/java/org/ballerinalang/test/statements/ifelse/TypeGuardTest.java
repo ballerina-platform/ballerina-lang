@@ -90,6 +90,10 @@ public class TypeGuardTest {
                 8);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'map<(int|string)>' will not be matched " +
                         "to 'map<boolean>'", 221, 8);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'CyclicComplexUnion' will not" +
+                " be matched to 'float'", 232, 8);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'CyclicComplexUnion' will not" +
+                " be matched to 'floatUnion'", 240, 8);
 
         Assert.assertEquals(negativeResult.getDiagnostics().length, i);
     }
