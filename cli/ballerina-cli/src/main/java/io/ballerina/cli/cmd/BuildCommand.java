@@ -197,7 +197,7 @@ public class BuildCommand implements BLauncherCmd {
         if (FileUtils.hasExtension(this.projectPath)) {
             if (this.compile) {
                 CommandUtil.printError(this.errStream,
-                        "'-c' or '--compile' can only be used with a Ballerina package.", null, false);
+                        "'-c' or '--compile' can only be used with a Ballerina package", null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -214,7 +214,7 @@ public class BuildCommand implements BLauncherCmd {
             if (null != this.output) {
                 CommandUtil.printError(this.errStream,
                         "'-o' and '--output' are only supported when building a single Ballerina " +
-                                "file.",
+                                "file",
                         "bal build -o <output-file> <ballerina-file> ",
                         true);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -257,7 +257,7 @@ public class BuildCommand implements BLauncherCmd {
             if (coverageFormat != null) {
                 if (!coverageFormat.equals(JACOCO_XML_FORMAT)) {
                     String errMsg = "unsupported coverage report format '" + coverageFormat + "' found. Only '" +
-                            JACOCO_XML_FORMAT + "' format is supported.";
+                            JACOCO_XML_FORMAT + "' format is supported";
                     CommandUtil.printError(this.errStream, errMsg, null, false);
                     CommandUtil.exitError(this.exitWhenFinish);
                     return;

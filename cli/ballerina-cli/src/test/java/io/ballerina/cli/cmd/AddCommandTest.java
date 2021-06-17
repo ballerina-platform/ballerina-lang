@@ -85,7 +85,7 @@ public class AddCommandTest extends BaseCommandTest {
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("required arguments were not provided"));
+        Assert.assertTrue(readOutput().contains("module name is not provided"));
     }
 
     @Test(description = "Test add command with multiple arguments")
@@ -142,6 +142,6 @@ public class AddCommandTest extends BaseCommandTest {
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("module already exists with the given name"));
+        Assert.assertTrue(readOutput().contains("a module already exists with the given name"));
     }
 }

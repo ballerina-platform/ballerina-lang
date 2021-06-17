@@ -93,7 +93,7 @@ public class InitCommand implements BLauncherCmd {
         // Check if one argument is given and not more than one argument.
         if (argList != null && !(1 == argList.size())) {
             CommandUtil.printError(errStream,
-                    "too many arguments.",
+                    "too many arguments",
                     "bal init <project-name>",
                     true);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -117,7 +117,7 @@ public class InitCommand implements BLauncherCmd {
         // Check if the template exists
         if (!template.equals("") && !CommandUtil.getTemplates().contains(template)) {
             CommandUtil.printError(errStream,
-                    "template not found, use `bal init --help` to view available templates.",
+                    "template not found, use `bal init --help` to view available templates",
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);

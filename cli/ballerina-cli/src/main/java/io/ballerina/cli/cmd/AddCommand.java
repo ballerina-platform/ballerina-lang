@@ -113,8 +113,7 @@ public class AddCommand implements BLauncherCmd {
         // Check if an argument is provided
         if (null == argList) {
             CommandUtil.printError(errStream,
-                    "required arguments were not provided:\n" +
-                            "    <module-name>",
+                    "module name is not provided",
                     "bal add <module-name> [-t|--template <template-name>]",
                     true);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -124,7 +123,7 @@ public class AddCommand implements BLauncherCmd {
         // Check if more than one argument is provided
         if (!(1 == argList.size())) {
             CommandUtil.printError(errStream,
-                    "too many arguments.",
+                    "too many arguments",
                     "bal add <module-name>",
                     true);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -148,7 +147,7 @@ public class AddCommand implements BLauncherCmd {
         // Check if the module already exists
         if (ProjectUtils.isModuleExist(projectPath, moduleName)) {
             CommandUtil.printError(errStream,
-                    "module already exists with the given name : '" + moduleName + "' :\n" +
+                    "a module already exists with the given name : '" + moduleName + "' :\n" +
                             "Existing module path "
                             + projectPath.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName),
                     null,
@@ -160,7 +159,7 @@ public class AddCommand implements BLauncherCmd {
         // Check if the template exists
         if (!(template.equalsIgnoreCase("service") || template.equalsIgnoreCase("lib"))) {
             CommandUtil.printError(errStream,
-                    "unsupported template provided. run 'bal add --help' to see available templates.",
+                    "unsupported template provided. run 'bal add --help' to see available templates",
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -175,7 +174,7 @@ public class AddCommand implements BLauncherCmd {
             createModule(projectPath, moduleName, template);
         } catch (AccessDeniedException e) {
             CommandUtil.printError(errStream,
-                    "error occurred while creating module : " + "Insufficient Permission",
+                    "error occurred while creating module : " + "Insufficient Permission" + e.getMessage(),
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);

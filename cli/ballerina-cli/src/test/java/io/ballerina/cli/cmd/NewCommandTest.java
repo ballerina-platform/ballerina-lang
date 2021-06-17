@@ -202,7 +202,7 @@ public class NewCommandTest extends BaseCommandTest {
         new CommandLine(newCommand).parse(args);
         newCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("required arguments were not provided"));
+        Assert.assertTrue(readOutput().contains("project name is not provided"));
     }
 
     @Test(description = "Test new command with multiple arguments")

@@ -144,7 +144,7 @@ public class DocCommand implements BLauncherCmd {
 
         if (this.argList != null && this.argList.get(0).endsWith(ProjectConstants.BLANG_SOURCE_EXT)) {
             CommandUtil.printError(this.errStream,
-                    "generating API Documentation is not supported for a single Ballerina file.",
+                    "generating API Documentation is not supported for a single Ballerina file",
                     null,
                     false);
             CommandUtil.exitError(true);
@@ -154,7 +154,7 @@ public class DocCommand implements BLauncherCmd {
         // check if there are too many arguments.
         if (this.argList != null && this.argList.size() > 1) {
             CommandUtil.printError(this.errStream,
-                    "too many arguments.",
+                    "too many arguments",
                     "bal doc <project_path> [--offline]\n",
                     false);
             CommandUtil.exitError(true);

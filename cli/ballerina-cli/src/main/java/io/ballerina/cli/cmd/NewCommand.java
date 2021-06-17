@@ -83,8 +83,7 @@ public class NewCommand implements BLauncherCmd {
         // Check if the project name is given
         if (null == argList) {
             CommandUtil.printError(errStream,
-                    "required arguments were not provided:\n" +
-                         "    <project-name>",
+                    "project name is not provided",
                     "bal new <project-name>",
                     true);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -93,7 +92,7 @@ public class NewCommand implements BLauncherCmd {
         // Check if one argument is given and not more than one argument.
         if (!(1 == argList.size())) {
             CommandUtil.printError(errStream,
-                    "too many arguments.",
+                    "too many arguments",
                     "bal new <project-name>",
                     true);
             CommandUtil.exitError(this.exitWhenFinish);
