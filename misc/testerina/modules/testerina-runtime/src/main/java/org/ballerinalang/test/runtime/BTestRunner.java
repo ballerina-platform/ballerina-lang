@@ -45,7 +45,6 @@ import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
-import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.XmlValue;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
@@ -68,11 +67,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.DATA_KEY_SEPARATOR;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 
 /**
  * BTestRunner entity class.
@@ -469,6 +471,41 @@ public class BTestRunner {
         }
     }
 
+    /**
+     * Get key values from the given Map.
+     *
+     * @param dataMap BMap
+     * @return List<String>
+     */
+    private List<String> getKeyValues(BMap dataMap) {
+        List<String> keyValues = new ArrayList<>();
+        if (((BMapType) dataMap.getType()).getConstrainedType() instanceof TupleType) {
+            for (BString key : (BString[]) dataMap.getKeys()) {
+                keyValues.add(key.getValue());
+            }
+        }
+        return keyValues;
+    }
+
+    /**
+     * Check if the given key is included in the provided list of cases.
+     *
+     * @param suite
+     * @param testName
+     * @param key
+     * @return
+     */
+    private boolean isIncludedKey(TestSuite suite, String testName, String key) {
+        boolean isIncluded = false;
+        List<String> keyList = suite.getDataKeyValues().get(testName);
+        for (String keyValue : keyList) {
+            isIncluded = Pattern.matches(keyValue.replace(TesterinaConstants.WILDCARD, DOT +
+                            TesterinaConstants.WILDCARD),
+                    key);
+        }
+        return isIncluded;
+    }
+
     private void executeFunction(Test test, TestSuite suite, String packageName, ClassLoader classLoader,
                                  Scheduler scheduler, AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest,
                                  List<String> failedOrSkippedTests, List<String> failedAfterFuncTests) {
@@ -491,47 +528,35 @@ public class BTestRunner {
             } else {
                 if (valueSets instanceof BMap) {
                     // Handle map data sets
-                    List<String> keyValues = new ArrayList<>();
-                    BMap dataMap = (BMap)valueSets;
-                    if (((BMapType) dataMap.getType()).getConstrainedType() instanceof TupleType) {
-                        BString[] keyArray = (BString[]) dataMap.getKeys();
-                        for (BString key : keyArray) {
-                            keyValues.add(key.getValue());
-                        }
-                    }
-                    Class<?>[] argTypes = extractArgumentTypes(valueSets);
-                    List<Object[]> argList = extractArguments(valueSets);
-                    Map<String, List<String>> dataKeyValues;
-                    int i =0;
+                    List<String> keyValues = getKeyValues((BMap) valueSets);
+                    Class<?>[] argTypes = extractArgumentTypes((BMap) valueSets);
+                    List<Object[]> argList = extractArguments((BMap) valueSets);
+                    int i = 0;
                     for (Object[] arg : argList) {
-                        if(suite.isSingleDDTExecution()){
-                            dataKeyValues = suite.getDataKeyValues();
-                            if(dataKeyValues.containsKey(test.getTestName())){
-                                List<String> keyList = dataKeyValues.get(test.getTestName());
-                                if(keyList.contains(keyValues.get(i))){
-                                    valueSets = invokeTestFunction(suite, test.getTestName(), classLoader, scheduler, argTypes,
-                                            arg);
-                                    computeFunctionResult(test.getTestName() + "#" + keyValues.get(i), packageName,
-                                            shouldSkip, failedOrSkippedTests, valueSets);
-                                }
+                        if (suite.isSingleDDTExecution()) {
+                            if (isIncludedKey(suite, test.getTestName(), keyValues.get(i))) {
+                                valueSets = invokeTestFunction(suite, test.getTestName(), classLoader, scheduler,
+                                        argTypes, arg);
+                                computeFunctionResult(test.getTestName() + DATA_KEY_SEPARATOR + keyValues.get(i),
+                                        packageName, shouldSkip, failedOrSkippedTests, valueSets);
                             }
-
-                        }else {
+                        } else {
                             valueSets = invokeTestFunction(suite, test.getTestName(), classLoader, scheduler, argTypes,
                                     arg);
-                            computeFunctionResult(test.getTestName() + "#" + keyValues.get(i), packageName,
-                                    shouldSkip, failedOrSkippedTests, valueSets);
+                            computeFunctionResult(test.getTestName() + DATA_KEY_SEPARATOR + keyValues.get(i),
+                                    packageName, shouldSkip, failedOrSkippedTests, valueSets);
                         }
                         i++;
                     }
                 } else if (valueSets instanceof BArray) {
                     // Handle array data sets
-                    Class<?>[] argTypes = extractArgumentTypes(valueSets);
-                    List<Object[]> argList = extractArguments(valueSets);
+                    Class<?>[] argTypes = extractArgumentTypes((BArray) valueSets);
+                    List<Object[]> argList = extractArguments((BArray) valueSets);
                     for (Object[] arg : argList) {
                         valueSets = invokeTestFunction(suite, test.getTestName(), classLoader, scheduler, argTypes,
                                 arg);
-                        computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests, valueSets);
+                        computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
+                                valueSets);
                     }
                 }
 
@@ -727,63 +752,79 @@ public class BTestRunner {
     }
 
     /**
-     * Extract function arguments from the values sets.
+     * Extract function arguments from the data sets.
      *
-     * @param valueSets user provided value sets
+     * @param bArray user provided data sets
      * @return a list of function arguments
      */
-    private List<Object[]> extractArguments(Object valueSets) {
+    private List<Object[]> extractArguments(BArray bArray) {
         List<Object[]> argsList = new ArrayList<>();
-
-        if (valueSets instanceof BArray) {
-            BArray bArray = (BArray) valueSets;
-            if (bArray.getElementType() instanceof ArrayType) {
-                // Ok we have an array of an array
-                for (int i = 0; i < bArray.size(); i++) {
-                    // Iterate array elements and set parameters
-                    setTestFunctionParams(argsList, (BArray) bArray.get(i));
-                }
-            } else {
+        if (bArray.getElementType() instanceof ArrayType) {
+            // Ok we have an array of an array
+            for (int i = 0; i < bArray.size(); i++) {
                 // Iterate array elements and set parameters
-                setTestFunctionParams(argsList, bArray);
+                setTestFunctionParams(argsList, (BArray) bArray.get(i));
             }
-        } else if(valueSets instanceof BMap){
-            BMap dataMap = (BMap) valueSets;
-            if (((BMapType) dataMap.getType()).getConstrainedType() instanceof TupleType) {
-                for (BString keyValue: (BString[] )dataMap.getKeys()) {
-                    setTestFunctionParams(argsList, dataMap.getArrayValue(keyValue));
-                }
+        } else {
+            // Iterate array elements and set parameters
+            setTestFunctionParams(argsList, bArray);
+        }
+        return argsList;
+    }
+
+    /**
+     * Extract function arguments from the data sets.
+     *
+     * @param dataMap user provided data sets
+     * @return a list of function arguments
+     */
+    private List<Object[]> extractArguments(BMap dataMap) {
+        List<Object[]> argsList = new ArrayList<>();
+        if (((BMapType) dataMap.getType()).getConstrainedType() instanceof TupleType) {
+            for (BString keyValue : (BString[]) dataMap.getKeys()) {
+                setTestFunctionParams(argsList, dataMap.getArrayValue(keyValue));
             }
         }
         return argsList;
     }
 
     /**
-     * Extract the parameter types from a valueset.
-     * @param valueSets use provided value sets
-     * @return a list of calss types.
+     * Extract the argument types from a data set.
+     *
+     * @param bArray use provided array data sets
+     * @return a list of class types
      */
-    private static Class<?>[] extractArgumentTypes(Object valueSets) {
+    private static Class<?>[] extractArgumentTypes(BArray bArray) {
         List<Class<?>> typeList = new ArrayList<>();
         typeList.add(Strand.class);
-        if (valueSets instanceof BArray) {
-            BArray bArray = (BArray) valueSets;
-            if (bArray.getElementType() instanceof ArrayType) {
-                // Ok we have an array of an array
-                // Get the first entry
-                // Iterate elements and get class types.
-                setTestFunctionSignature(typeList, (BArray) bArray.get(0));
-            } else {
-                // Iterate elements and get class types.
-                setTestFunctionSignature(typeList, bArray);
-            }
-        } else if(valueSets instanceof BMap){
-            BMap dataMap = (BMap) valueSets;
-            if (((BMapType) dataMap.getType()).getConstrainedType() instanceof TupleType) {
-                BString keyValue = (BString)dataMap.getKeys()[0];
-                setTestFunctionSignature(typeList, dataMap.getArrayValue(keyValue));
-            }
+        if (bArray.getElementType() instanceof ArrayType) {
+            // Ok we have an array of an array
+            // Get the first entry
+            // Iterate elements and get class types.
+            setTestFunctionSignature(typeList, (BArray) bArray.get(0));
+        } else {
+            // Iterate elements and get class types.
+            setTestFunctionSignature(typeList, bArray);
         }
+        Class<?>[] typeListArray = new Class[typeList.size()];
+        typeList.toArray(typeListArray);
+        return typeListArray;
+    }
+
+    /**
+     * Extract the argument types from a data set.
+     *
+     * @param dataMap use provided map data sets
+     * @return a list of class types
+     */
+    private static Class<?>[] extractArgumentTypes(BMap dataMap) {
+        List<Class<?>> typeList = new ArrayList<>();
+        typeList.add(Strand.class);
+        if (((BMapType) dataMap.getType()).getConstrainedType() instanceof TupleType) {
+            setTestFunctionSignature(typeList, dataMap.getArrayValue(
+                    (BString) dataMap.getKeys()[0]));
+        }
+
         Class<?>[] typeListArray = new Class[typeList.size()];
         typeList.toArray(typeListArray);
         return typeListArray;
@@ -791,8 +832,8 @@ public class BTestRunner {
 
     private static void setTestFunctionSignature(List<Class<?>> typeList, BArray bArray) {
         if (bArray.getType() instanceof BTupleType) {
-            List<Type> types = ((BTupleType)bArray.getType()).getTupleTypes();
-            for (Type type : types){
+            List<Type> types = ((BTupleType) bArray.getType()).getTupleTypes();
+            for (Type type : types) {
                 Class<?> classMapping = getArgTypeToClassMapping(type);
                 typeList.add(classMapping);
                 typeList.add(Boolean.TYPE);
@@ -814,8 +855,6 @@ public class BTestRunner {
         params.add(new Object());
 
         if (bArray.getType() instanceof BTupleType) {
-            List<Type> types = ((BTupleType)bArray.getType()).getTupleTypes();
-
             for (int i = 0; i < bArray.size(); i++) {
                 // Add the param type.
                 params.add(bArray.getRefValue(i));

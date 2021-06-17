@@ -328,11 +328,11 @@ public class TestSuite {
         this.isSingleDDTExecution = isSingleDDTExecution;
     }
 
-    public Map<String,List<String>> getDataKeyValues() {
+    public Map<String, List<String>> getDataKeyValues() {
         return dataKeyValues;
     }
 
-    public void setDataKeyValues(Map<String,List<String>> dataKeyValues) {
+    public void setDataKeyValues(Map<String, List<String>> dataKeyValues) {
         this.dataKeyValues = dataKeyValues;
     }
 }

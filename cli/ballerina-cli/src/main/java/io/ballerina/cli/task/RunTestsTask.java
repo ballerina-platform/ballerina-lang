@@ -76,8 +76,10 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.COVERAGE_DIR;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.DATA_KEY_SEPARATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.MODULE_SEPARATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DATA_PLACEHOLDER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_ZIP_NAME;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RERUN_TEST_JSON_FILE;
@@ -260,44 +262,67 @@ public class RunTestsTask implements Task {
         cleanTempCache(project, cachesRoot);
     }
 
-    private boolean includesModule(String testName, String packageID, String moduleName){
-        if(testName.contains(":")) {
-            String[] functionDetail = testName.split(":");
+    /**
+     * Check whether this module is included in the provided test name.
+     *
+     * @param testName String
+     * @param packageID String
+     * @param moduleName String
+     * @return boolean
+     */
+    private boolean includesModule(String testName, String packageID, String moduleName) {
+        boolean flag = false;
+        if (testName.contains(MODULE_SEPARATOR)) {
+            String[] functionDetail = testName.split(MODULE_SEPARATOR);
             try {
                 if (functionDetail[0].equals(packageID) || functionDetail[0].equals(packageID + DOT + moduleName)) {
-                    return true;
+                    flag = true;
                 }
-                return false;
-            }catch (IndexOutOfBoundsException e) {
+            } catch (IndexOutOfBoundsException e) {
                 throw createLauncherException("error occurred while executing tests. Test list cannot be empty", e);
             }
         } else {
-            return true;
+            flag = true;
         }
+        return flag;
     }
+
+    /**
+     * Update test filters using the given data keys.
+     *
+     * @param moduleName String
+     * @param suite TestSuite
+     * @param singleExecTests List<String>
+     */
     private void filterKeyBasedTests(String moduleName, TestSuite suite, List<String> singleExecTests) {
-        //List<String> keyValues = new ArrayList<>();
         Map<String, List<String>> keyValues = new HashMap<>();
-        for (String testName: singleExecTests) {
-            if(testName.contains("#") && includesModule(testName, suite.getPackageID(), moduleName)){
-                String[] parts = testName.split("#");
-                if (parts.length == 2) {
+        int i = 0;
+        for (String testName : singleExecTests) {
+            if (testName.contains(DATA_KEY_SEPARATOR) && includesModule(testName, suite.getPackageID(), moduleName)) {
+                // Separate test name and the data set key
+                // parts[0] - test name
+                // parts[1] - data set key
+                String[] parts = testName.split(DATA_KEY_SEPARATOR);
+                try {
                     String originalTestName = parts[0];
-                    if(parts[0].contains(":")){
-                        originalTestName = parts[0].split(":")[1];
+                    if (parts[0].contains(MODULE_SEPARATOR)) {
+                        originalTestName = parts[0].split(MODULE_SEPARATOR)[1];
                     }
-                    String dataSetCase = parts[1];
-                    if(keyValues.containsKey(originalTestName)){
-                        keyValues.get(originalTestName).add(dataSetCase);
-                    }else{
-                        keyValues.put(originalTestName, new ArrayList<>(Arrays.asList(dataSetCase)));
+                    if (keyValues.containsKey(originalTestName)) {
+                        keyValues.get(originalTestName).add(parts[1]);
+                    } else {
+                        keyValues.put(originalTestName, new ArrayList<>(Arrays.asList(parts[1])));
                     }
-                    singleExecTests.remove(testName);
-                    singleExecTests.add(originalTestName);
+                    // Update the test name in the filtered test list
+                    singleExecTests.set(i, originalTestName);
+                } catch (IndexOutOfBoundsException e) {
+                    throw createLauncherException("error occurred while filtering tests based on provided key values",
+                            e);
                 }
             }
+            i++;
         }
-        if(!keyValues.isEmpty()){
+        if (!keyValues.isEmpty()) {
             suite.setSingleDDTExecution(true);
             suite.setDataKeyValues(keyValues);
         }
