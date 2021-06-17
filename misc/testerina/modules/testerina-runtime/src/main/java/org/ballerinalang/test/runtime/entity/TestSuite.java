@@ -60,6 +60,8 @@ public class TestSuite {
     private List<String> testExecutionDependencies = new ArrayList<>();
 
     private boolean isReportRequired;
+    private boolean isSingleDDTExecution;
+    private Map<String, List<String>> dataKeyValues;
 
     /**
      * Key - unique identifier for the function to be mocked.
@@ -226,8 +228,8 @@ public class TestSuite {
         this.testUtilityFunctions.put(functionName, functionClassName);
     }
 
-    public void addTests(Test tests) {
-        this.tests.add(tests);
+    public void addTests(Test test) {
+        this.tests.add(test);
     }
 
     public boolean isReportRequired() {
@@ -316,5 +318,21 @@ public class TestSuite {
 
     public List<String> getTestExecutionDependencies() {
         return this.testExecutionDependencies;
+    }
+
+    public boolean isSingleDDTExecution() {
+        return this.isSingleDDTExecution;
+    }
+
+    public void setSingleDDTExecution(boolean isSingleDDTExecution) {
+        this.isSingleDDTExecution = isSingleDDTExecution;
+    }
+
+    public Map<String,List<String>> getDataKeyValues() {
+        return dataKeyValues;
+    }
+
+    public void setDataKeyValues(Map<String,List<String>> dataKeyValues) {
+        this.dataKeyValues = dataKeyValues;
     }
 }

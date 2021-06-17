@@ -65,6 +65,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,6 +76,7 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.COVERAGE_DIR;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DATA_PLACEHOLDER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_ZIP_NAME;
@@ -205,6 +207,8 @@ public class RunTestsTask implements Task {
                 singleExecTests = readFailedTestsFromFile(target.path());
             }
             if (isSingleTestExecution || isRerunTestExecution) {
+                // Update data driven tests with key
+                filterKeyBasedTests(moduleName.moduleNamePart(), suite, singleExecTests);
                 suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, singleExecTests));
             }
             if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
@@ -254,6 +258,49 @@ public class RunTestsTask implements Task {
 
         // Cleanup temp cache for SingleFileProject
         cleanTempCache(project, cachesRoot);
+    }
+
+    private boolean includesModule(String testName, String packageID, String moduleName){
+        if(testName.contains(":")) {
+            String[] functionDetail = testName.split(":");
+            try {
+                if (functionDetail[0].equals(packageID) || functionDetail[0].equals(packageID + DOT + moduleName)) {
+                    return true;
+                }
+                return false;
+            }catch (IndexOutOfBoundsException e) {
+                throw createLauncherException("error occurred while executing tests. Test list cannot be empty", e);
+            }
+        } else {
+            return true;
+        }
+    }
+    private void filterKeyBasedTests(String moduleName, TestSuite suite, List<String> singleExecTests) {
+        //List<String> keyValues = new ArrayList<>();
+        Map<String, List<String>> keyValues = new HashMap<>();
+        for (String testName: singleExecTests) {
+            if(testName.contains("#") && includesModule(testName, suite.getPackageID(), moduleName)){
+                String[] parts = testName.split("#");
+                if (parts.length == 2) {
+                    String originalTestName = parts[0];
+                    if(parts[0].contains(":")){
+                        originalTestName = parts[0].split(":")[1];
+                    }
+                    String dataSetCase = parts[1];
+                    if(keyValues.containsKey(originalTestName)){
+                        keyValues.get(originalTestName).add(dataSetCase);
+                    }else{
+                        keyValues.put(originalTestName, new ArrayList<>(Arrays.asList(dataSetCase)));
+                    }
+                    singleExecTests.remove(testName);
+                    singleExecTests.add(originalTestName);
+                }
+            }
+        }
+        if(!keyValues.isEmpty()){
+            suite.setSingleDDTExecution(true);
+            suite.setDataKeyValues(keyValues);
+        }
     }
 
     private void generateCoverage(Project project, JBallerinaBackend jBallerinaBackend)
