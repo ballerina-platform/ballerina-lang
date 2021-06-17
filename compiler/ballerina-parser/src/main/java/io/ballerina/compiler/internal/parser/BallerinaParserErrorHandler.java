@@ -322,8 +322,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] PARAM_END =
             { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_PARENTHESIS };
 
-    private static final ParserRuleContext[] STMT_START_WITH_EXPR_RHS = { ParserRuleContext.ASSIGNMENT_STMT_RHS,
-            ParserRuleContext.RIGHT_ARROW, ParserRuleContext.SEMICOLON };
+    private static final ParserRuleContext[] STMT_START_WITH_EXPR_RHS = { ParserRuleContext.ASSIGN_OP,
+            ParserRuleContext.RIGHT_ARROW, ParserRuleContext.COMPOUND_BINARY_OPERATOR, ParserRuleContext.SEMICOLON };
+
+    private static final ParserRuleContext[] EXPR_STMT_RHS = { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP,
+            ParserRuleContext.RIGHT_ARROW, ParserRuleContext.COMPOUND_BINARY_OPERATOR };
 
     private static final ParserRuleContext[] EXPRESSION_STATEMENT_START =
             { ParserRuleContext.VARIABLE_REF, ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.OPEN_PARENTHESIS,
@@ -1874,8 +1877,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 alternativeRules = ARRAY_LENGTH;
                 break;
             case STMT_START_WITH_EXPR_RHS:
-            case EXPR_STMT_RHS:
                 alternativeRules = STMT_START_WITH_EXPR_RHS;
+                break;
+            case EXPR_STMT_RHS:
+                alternativeRules = EXPR_STMT_RHS;
                 break;
             case EXPRESSION_STATEMENT_START:
                 alternativeRules = EXPRESSION_STATEMENT_START;
