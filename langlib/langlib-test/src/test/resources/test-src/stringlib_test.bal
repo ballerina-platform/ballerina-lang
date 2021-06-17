@@ -38,7 +38,7 @@ function testIterator() {
 
     foreach int test in 1 ..< 3 {
         i = 0;
-        match test{
+        match test {
             1 => {
                 object {
                     public isolated function next() returns record {| string:Char value; |}?;
