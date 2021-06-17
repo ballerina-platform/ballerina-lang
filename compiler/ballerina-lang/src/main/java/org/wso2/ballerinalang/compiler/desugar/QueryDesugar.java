@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.OrderKeyNode;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -44,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -215,6 +217,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private BLangExpression onConflictExpr;
     private BVarSymbol currentFrameSymbol;
     private BLangBlockFunctionBody currentLambdaBody;
+    private SymbolEnv currentLambdaEnv;
     private Map<String, BSymbol> identifiers;
     private int streamElementCount = 0;
     private final Desugar desugar;
@@ -877,6 +880,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                                                      BLangFunctionBody lambdaBody) {
         BLangLambdaFunction lambdaFunction = desugar.createLambdaFunction(pos, "$streamLambda$",
                 requiredParams, returnType, lambdaBody);
+        lambdaFunction.function.addFlag(Flag.QUERY_LAMBDA);
         lambdaFunction.capturedClosureEnv = env;
         return lambdaFunction;
     }
@@ -1299,16 +1303,28 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangLambdaFunction lambda) {
         BLangFunction function = lambda.function;
-        currentFrameSymbol = function.requiredParams.get(0).symbol;
-        identifiers = new HashMap<>();
-        currentLambdaBody = (BLangBlockFunctionBody) function.getBody();
-        List<BLangStatement> stmts = new ArrayList<>(currentLambdaBody.getStatements());
-        stmts.forEach(stmt -> {
-            stmt.accept(this);
-        });
-        currentFrameSymbol = null;
-        identifiers = null;
-        currentLambdaBody = null;
+        if (function.flagSet.contains(Flag.QUERY_LAMBDA)) {
+            currentFrameSymbol = function.requiredParams.get(0).symbol;
+            identifiers = new HashMap<>();
+            currentLambdaBody = (BLangBlockFunctionBody) function.getBody();
+            currentLambdaEnv = SymbolEnv.createFuncBodyEnv(currentLambdaBody, env);
+            List<BLangStatement> stmts = new ArrayList<>(currentLambdaBody.getStatements());
+            stmts.forEach(stmt -> stmt.accept(this));
+            currentFrameSymbol = null;
+            identifiers = null;
+            currentLambdaBody = null;
+            currentLambdaEnv = null;
+        } else {
+            // module-level anonymous function has an expr function body.
+            if (function.getBody().getKind() == NodeKind.EXPR_FUNCTION_BODY) {
+                BLangExprFunctionBody anonLambdaBody = (BLangExprFunctionBody) function.getBody();
+                anonLambdaBody.expr.accept(this);
+            } else {
+                BLangBlockFunctionBody anonLambdaBody = (BLangBlockFunctionBody) function.getBody();
+                List<BLangStatement> stmts = new ArrayList<>(anonLambdaBody.getStatements());
+                stmts.forEach(stmt -> stmt.accept(this));
+            }
+        }
     }
 
     @Override
@@ -1366,6 +1382,11 @@ public class QueryDesugar extends BLangNodeVisitor {
         if (invocationExpr.expr != null) {
             invocationExpr.expr.accept(this);
         }
+    }
+
+    @Override
+    public void visit(BLangInvocation.BFunctionPointerInvocation functionPointerInvocationExpr) {
+        visit((BLangInvocation) functionPointerInvocationExpr);
     }
 
     @Override
@@ -1475,6 +1496,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                             desugar.addConversionExprIfRequired(frameAccessExpr, symbol.type), (BVarSymbol) symbol);
                     BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);
                     currentLambdaBody.stmts.add(0, variableDef);
+                    currentLambdaEnv.scope.define(symbol.name, symbol);
                 }
                 identifiers.put(identifier, symbol);
             }
@@ -1496,9 +1518,19 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangSimpleVarRef.BLangLocalVarRef bLangLocalVarRef) {
+        visit(((BLangSimpleVarRef) bLangLocalVarRef));
+    }
+
+    @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         indexAccessExpr.indexExpr.accept(this);
         indexAccessExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr bLangStructFieldAccessExpr) {
+        visit((BLangIndexBasedAccess) bLangStructFieldAccessExpr);
     }
 
     @Override
