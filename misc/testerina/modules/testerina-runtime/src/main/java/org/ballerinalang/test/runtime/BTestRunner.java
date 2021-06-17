@@ -35,13 +35,17 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlType;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.types.BMapType;
+import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.XmlValue;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
@@ -703,6 +707,13 @@ public class BTestRunner {
                 // Iterate array elements and set parameters
                 setTestFunctionParams(argsList, bArray);
             }
+        } else if(valueSets instanceof BMap){
+            BMap dataMap = (BMap) valueSets;
+            if (((BMapType) dataMap.getType()).getConstrainedType() instanceof TupleType) {
+                for (BString keyValue: (BString[] )dataMap.getKeys()) {
+                    setTestFunctionParams(argsList, dataMap.getArrayValue(keyValue));
+                }
+            }
         }
         return argsList;
     }
@@ -726,6 +737,12 @@ public class BTestRunner {
                 // Iterate elements and get class types.
                 setTestFunctionSignature(typeList, bArray);
             }
+        } else if(valueSets instanceof BMap){
+            BMap dataMap = (BMap) valueSets;
+            if (((BMapType) dataMap.getType()).getConstrainedType() instanceof TupleType) {
+                BString keyValue = (BString)dataMap.getKeys()[0];
+                setTestFunctionSignature(typeList, dataMap.getArrayValue(keyValue));
+            }
         }
         Class<?>[] typeListArray = new Class[typeList.size()];
         typeList.toArray(typeListArray);
@@ -733,12 +750,21 @@ public class BTestRunner {
     }
 
     private static void setTestFunctionSignature(List<Class<?>> typeList, BArray bArray) {
-        Class<?> type = getArgTypeToClassMapping(bArray.getElementType());
-        for (int i = 0; i < bArray.size(); i++) {
-            // Add the param type.
-            typeList.add(type);
-            // This is in jvm function signature to tel if args is passed or not.
-            typeList.add(Boolean.TYPE);
+        if (bArray.getType() instanceof BTupleType) {
+            List<Type> types = ((BTupleType)bArray.getType()).getTupleTypes();
+            for (Type type : types){
+                Class<?> classMapping = getArgTypeToClassMapping(type);
+                typeList.add(classMapping);
+                typeList.add(Boolean.TYPE);
+            }
+        } else {
+            Class<?> type = getArgTypeToClassMapping(bArray.getElementType());
+            for (int i = 0; i < bArray.size(); i++) {
+                // Add the param type.
+                typeList.add(type);
+                // This is in jvm function signature to tel if args is passed or not.
+                typeList.add(Boolean.TYPE);
+            }
         }
     }
 
@@ -746,13 +772,26 @@ public class BTestRunner {
         List<Object> params = new ArrayList<>();
         // Add a place holder to Strand
         params.add(new Object());
-        for (int i = 0; i < bArray.size(); i++) {
-            // Add the param type.
-            params.add(bArray.get(i));
-            // This is in jvm function signature to tel if args is passed or not.
-            params.add(Boolean.TRUE);
+        if (bArray.getType() instanceof BTupleType) {
+            for (int i = 0; i < bArray.size(); i++) {
+                // Add the param type.
+                params.add(bArray.get(i));
+                // This is in jvm function signature to tel if args is passed or not.
+                params.add(Boolean.TRUE);
+            }
+            valueList.add(params.toArray());
+        } else {
+            for (int i = 0; i < bArray.size(); i++) {
+                // Add the param type.
+                params.add(bArray.get(i));
+                // This is in jvm function signature to tel if args is passed or not.
+                params.add(Boolean.TRUE);
+            }
+            valueList.add(params.toArray());
         }
-        valueList.add(params.toArray());
+
+
+
     }
 
     private static Class<?> getArgTypeToClassMapping(Type elementType) {
