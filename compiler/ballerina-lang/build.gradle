@@ -32,6 +32,7 @@ dependencies {
     implementation 'org.ow2.asm:asm-tree'
     implementation 'commons-io:commons-io'
     implementation 'com.github.zafarkhaja:java-semver'
+    implementation 'com.squareup.okhttp3:okhttp'
     testCompile 'org.testng:testng'
 }
 
