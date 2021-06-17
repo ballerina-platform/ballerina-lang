@@ -143,16 +143,16 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_PANIC.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_STREAM.get()));
 
-        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
-        if (semanticModel.isPresent()) {
-            ReturnTypeFinder finder = new ReturnTypeFinder(semanticModel.get());
-            Optional<TypeSymbol> returnType = finder.getTypeSymbol(context.getNodeAtCursor());
+        Optional<TypeSymbol> returnType = context.currentSemanticModel()
+                .flatMap(semanticModel -> {
+                    ReturnTypeFinder finder = new ReturnTypeFinder(semanticModel);
+                    return finder.getTypeSymbol(context.getNodeAtCursor());
+                });
 
-            if (returnType.isEmpty() || returnType.get().typeKind() == TypeDescKind.NIL) {
-                completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN_SC.get()));
-            } else {
-                completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN.get()));
-            }
+        if (returnType.isEmpty() || returnType.get().typeKind() == TypeDescKind.NIL) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN_SC.get()));
+        } else {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN.get()));
         }
 
         Optional<Node> nodeBeforeCursor = this.nodeBeforeCursor(context, node);

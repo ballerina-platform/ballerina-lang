@@ -32,8 +32,9 @@ import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import java.util.Optional;
 
 /**
- * Visits the parent finds out the return type of the block.
- *
+ * Finds the expected return type of a given node's context.
+ * That is, this class will visit the parents until it finds a context to
+ * which a return type is applicable and returns the expected type.
  *
  * @since 2.0.0
  */
@@ -51,12 +52,8 @@ public class ReturnTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(FunctionDefinitionNode functionDefinitionNode) {
-        Optional<Symbol> symbol = semanticModel.symbol(functionDefinitionNode);
-        if (symbol.isPresent()) {
-            FunctionSymbol functionSymbol = (FunctionSymbol) symbol.get();
-            return functionSymbol.typeDescriptor().returnTypeDescriptor();
-        }
-        return Optional.empty();
+        return semanticModel.symbol(functionDefinitionNode)
+                .flatMap(symbol -> ((FunctionSymbol) symbol).typeDescriptor().returnTypeDescriptor());
     }
 
     @Override
