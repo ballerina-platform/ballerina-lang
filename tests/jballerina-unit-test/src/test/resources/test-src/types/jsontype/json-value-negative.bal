@@ -26,7 +26,7 @@ public function testCloseRecordToMapJsonAssigment() returns [map<json>, map<json
 
 public function testLaxAccessJSONArray() {
     json x = [23, 45, 21, 12];
-    int [] y = check x;
+    int[] y = check x;
 }
 
 type Person record {|
