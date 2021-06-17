@@ -18,6 +18,7 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -111,6 +112,7 @@ public class SymbolAtCursorTest {
                 {93, 78, "v3"},
                 {102, 2, "v4"},
                 {112, 4, null},
+                {115, 29, "CONST1"},
         };
     }
 
