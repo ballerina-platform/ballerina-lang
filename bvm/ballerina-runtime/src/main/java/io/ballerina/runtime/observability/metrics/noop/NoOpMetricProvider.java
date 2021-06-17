@@ -15,61 +15,45 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.observe.noop;
+package io.ballerina.runtime.observability.metrics.noop;
 
-import io.ballerina.runtime.observability.metrics.AbstractMetric;
+import io.ballerina.runtime.observability.metrics.Counter;
 import io.ballerina.runtime.observability.metrics.Gauge;
 import io.ballerina.runtime.observability.metrics.MetricId;
-import io.ballerina.runtime.observability.metrics.Snapshot;
+import io.ballerina.runtime.observability.metrics.PolledGauge;
 import io.ballerina.runtime.observability.metrics.StatisticConfig;
+import io.ballerina.runtime.observability.metrics.spi.MetricProvider;
+
+import java.util.function.ToDoubleFunction;
 
 /**
- * Implementation of No-Op {@link Gauge}.
+ * Provide No-Op implementations of metrics.
  */
-public class NoOpGauge extends AbstractMetric implements Gauge {
-
-    public NoOpGauge(MetricId id) {
-        super(id);
-    }
-
+public class NoOpMetricProvider implements MetricProvider {
+    public static final String NAME = "noop";
 
     @Override
-    public void increment(double amount) {
+    public String getName() {
+        return NAME;
+    }
+
+    @Override
+    public void init() {
         // Do nothing
     }
 
     @Override
-    public void decrement(double amount) {
-        // Do nothing
+    public Counter newCounter(MetricId metricId) {
+        return new NoOpCounter(metricId);
     }
 
     @Override
-    public void setValue(double value) {
-        // Do nothing
+    public Gauge newGauge(MetricId metricId, StatisticConfig... statisticConfigs) {
+        return new NoOpGauge(metricId);
     }
 
     @Override
-    public double getValue() {
-        return 0;
-    }
-
-    @Override
-    public long getCount() {
-        return 0;
-    }
-
-    @Override
-    public double getSum() {
-        return 0;
-    }
-
-    @Override
-    public Snapshot[] getSnapshots() {
-        return new Snapshot[0];
-    }
-
-    @Override
-    public StatisticConfig[] getStatisticsConfig() {
-        return new StatisticConfig[0];
+    public <T> PolledGauge newPolledGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction) {
+        return new NoOpPolledGauge(metricId);
     }
 }
