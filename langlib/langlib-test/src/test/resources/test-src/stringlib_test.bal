@@ -34,36 +34,30 @@ function testSubString() returns [string,string, string] {
 function testIterator() {
     string str = "Foo Bar";
     string:Char[] expected = ["F", "o", "o", " ", "B", "a", "r"];
-    int i;
+    int i = 0;
 
-    foreach int test in 1 ..< 3 {
-        i = 0;
-        match test{
-            1 => {
-                object {
-                    public isolated function next() returns record {| string:Char value; |}?;
-                    } itr = str.iterator();
-                record {| string:Char value; |}|() elem = itr.next();
-                while (elem is record {| string:Char value; |}) {
-                    assertEquals(expected[i], elem.value);
-                    elem = itr.next();
-                    i += 1;
-                }
-            }
-
-            2 => {
-                object {
-                    public isolated function next() returns record {| string value; |}?;
-                    } itr = str.iterator();
-                record {| string value; |}|() elem = itr.next();
-                while (elem is record {| string:Char value; |}) {
-                    assertEquals(expected[i], elem.value);
-                    elem = itr.next();
-                    i+= 1;
-                }
-            }
-        }
+    object {
+        public isolated function next() returns record {| string:Char value; |}?;
+    } itr1 = str.iterator();
+    record {| string:Char value; |}|() elem1 = itr1.next();
+    while (elem1 is record {| string:Char value; |}) {
+        assertEquals(expected[i], elem1.value);
+        elem1 = itr1.next();
+        i += 1;
     }
+    assertEquals(7, i);
+
+    i = 0;
+    object {
+        public isolated function next() returns record {| string value; |}?;
+    } itr2 = str.iterator();
+    record {| string value; |}|() elem2 = itr2.next();
+    while (elem2 is record {| string:Char value; |}) {
+        assertEquals(expected[i], elem2.value);
+        elem2 = itr2.next();
+        i+= 1;
+    }
+    assertEquals(7, i);
 }
 
 function testStartsWith() returns boolean {
