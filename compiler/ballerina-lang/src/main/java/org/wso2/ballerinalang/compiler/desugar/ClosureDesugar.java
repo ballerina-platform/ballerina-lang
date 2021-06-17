@@ -904,7 +904,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         SymbolEnv symbolEnv = env.createClone();
         bLangLambdaFunction.capturedClosureEnv = symbolEnv;
         BLangFunction enclInvokable = (BLangFunction) symbolEnv.enclInvokable;
-        // Since anonymous lambda functions enclosed in a query lambda are not included in the
+        // Since lambda functions enclosed in a query lambda are not included in the
         // package node lambda list need to visit them here.
         if (enclInvokable.flagSet.contains(Flag.QUERY_LAMBDA)) {
             bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function,
