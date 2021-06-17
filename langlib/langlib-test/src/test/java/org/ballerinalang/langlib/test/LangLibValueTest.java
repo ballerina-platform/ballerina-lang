@@ -323,6 +323,8 @@ public class LangLibValueTest {
                 { "testCloneWithTypeNumeric5" },
                 { "testCloneWithTypeNumeric6" },
                 { "testCloneWithTypeNumeric7" },
+                { "testCloneWithTypeIntArrayToUnionArray" },
+                { "testCloneWithTypeIntSubTypeArray" },
                 { "testCloneWithTypeStringArray" },
                 { "testCloneWithTypeWithInferredArgument" },
                 { "testCloneWithTypeWithImmutableTypes" },

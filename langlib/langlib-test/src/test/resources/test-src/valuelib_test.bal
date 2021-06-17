@@ -771,6 +771,49 @@ function testCloneWithTypeDecimalToIntNegative() {
     assert(messageString, "'decimal' value 'NaN' cannot be converted to 'int'");
 }
 
+function checkDecimalToIntError(any|error result) {
+    assert(result is error, true);
+    error err = <error>result;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'decimal' value cannot be converted to 'int'");
+}
+
+type IntSubtypeArray1 int:Signed32[];
+type IntSubtypeArray2 int:Unsigned16[];
+function testCloneWithTypeIntSubTypeArray() {
+    float[] a = [1.25, 3.46, 7.52];
+    int:Signed32[]|error b = a.cloneWithType(IntSubtypeArray1);
+    assert(b is error, false);
+    assert(checkpanic b, [1, 3, 8]);
+
+    decimal[] d = [12.763445, 23.4578923, 31.674895374];
+    int:Unsigned16[]|error e = d.cloneWithType(IntSubtypeArray2);
+    assert(e is error, false);
+    assert(checkpanic e, [13, 23, 32]);
+}
+
+function testCloneWithTypeIntArrayToUnionArray() {
+    int[] x = [1, 2, 3];
+
+    (int|float)[]|error a = x.cloneWithType();
+    assert(a is error, false);
+    assert(checkpanic a, [1, 2, 3]);
+
+    (float|string)[]|error c = x.cloneWithType();
+    assert(c is error, false);
+    assert(checkpanic c, [1.0, 2.0, 3.0]);
+
+    (byte|float)[]|error e = x.cloneWithType();
+    assert(e is error, true);
+    error err = <error> e;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'int[]' value cannot be converted to '(byte|float)[]'");
+}
+
 type StringArray string[];
 function testCloneWithTypeStringArray() {
    string anArray = "[\"hello\", \"world\"]";
