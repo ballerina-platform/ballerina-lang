@@ -46,6 +46,7 @@ public class AddCommand implements BLauncherCmd {
 
     private Path userDir;
     private PrintStream errStream;
+    private boolean exitWhenFinish;
 //    private Path homeCache;
 
     @CommandLine.Parameters
@@ -58,19 +59,21 @@ public class AddCommand implements BLauncherCmd {
     private String template = "lib";
 
     public AddCommand() {
-        userDir = Paths.get(System.getProperty("user.dir"));
-        errStream = System.err;
+        this.userDir = Paths.get(System.getProperty("user.dir"));
+        this.errStream = System.err;
+        this.exitWhenFinish = true;
 //        homeCache = RepoUtils.createAndGetHomeReposPath();
         CommandUtil.initJarFs();
     }
 
-    public AddCommand(Path userDir, PrintStream errStream) {
-        this(userDir, errStream, ProjectUtils.createAndGetHomeReposPath());
+    public AddCommand(Path userDir, PrintStream errStream, boolean exitWhenFinish) {
+        this(userDir, errStream, exitWhenFinish, ProjectUtils.createAndGetHomeReposPath());
     }
 
-    public AddCommand(Path userDir, PrintStream errStream, Path homeCache) {
+    public AddCommand(Path userDir, PrintStream errStream, boolean exitWhenFinish, Path homeCache) {
         this.userDir = userDir;
         this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
         CommandUtil.initJarFs();
 //        this.homeCache = homeCache;
     }
@@ -103,16 +106,18 @@ public class AddCommand implements BLauncherCmd {
             CommandUtil.printError(errStream,
                     "not a Ballerina project (or any parent up to mount point)\n" +
                             "You should run this command inside a Ballerina project", null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
         // Check if an argument is provided
         if (null == argList) {
             CommandUtil.printError(errStream,
-                    "The following required arguments were not provided:\n" +
+                    "required arguments were not provided:\n" +
                             "    <module-name>",
                     "bal add <module-name> [-t|--template <template-name>]",
                     true);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
@@ -122,6 +127,7 @@ public class AddCommand implements BLauncherCmd {
                     "too many arguments.",
                     "bal add <module-name>",
                     true);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
@@ -130,31 +136,34 @@ public class AddCommand implements BLauncherCmd {
         boolean matches = ProjectUtils.validateModuleName(moduleName);
         if (!matches) {
             CommandUtil.printError(errStream,
-                    "Invalid module name : '" + moduleName + "' :\n" +
+                    "invalid module name : '" + moduleName + "' :\n" +
                             "Module name can only contain alphanumerics, underscores and periods " +
                             "and the maximum length is 256 characters",
                     null,
                     false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
         // Check if the module already exists
         if (ProjectUtils.isModuleExist(projectPath, moduleName)) {
             CommandUtil.printError(errStream,
-                    "A module already exists with the given name : '" + moduleName + "' :\n" +
+                    "module already exists with the given name : '" + moduleName + "' :\n" +
                             "Existing module path "
                             + projectPath.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName),
                     null,
                     false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
         // Check if the template exists
         if (!(template.equalsIgnoreCase("service") || template.equalsIgnoreCase("lib"))) {
             CommandUtil.printError(errStream,
-                    "Unsupported template provided. run 'bal add --help' to see available templates.",
+                    "unsupported template provided. run 'bal add --help' to see available templates.",
                     null,
                     false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
@@ -166,15 +175,17 @@ public class AddCommand implements BLauncherCmd {
             createModule(projectPath, moduleName, template);
         } catch (AccessDeniedException e) {
             CommandUtil.printError(errStream,
-                    "error: Error occurred while creating module : " + "Insufficient Permission",
+                    "error occurred while creating module : " + "Insufficient Permission",
                     null,
                     false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         } catch (IOException | URISyntaxException e) {
             CommandUtil.printError(errStream,
-                    "Error occurred while creating module : " + e.getMessage(),
+                    "error occurred while creating module : " + e.getMessage(),
                     null,
                     false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 

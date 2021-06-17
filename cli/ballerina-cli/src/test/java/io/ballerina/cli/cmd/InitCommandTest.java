@@ -43,7 +43,7 @@ public class InitCommandTest extends BaseCommandTest {
         Files.createFile(balFile);
 
         String[] args = {};
-        InitCommand initCommand = new InitCommand(projectPath, printStream);
+        InitCommand initCommand = new InitCommand(projectPath, printStream, false);
         new CommandLine(initCommand).parse(args);
         initCommand.execute();
 
@@ -72,7 +72,7 @@ public class InitCommandTest extends BaseCommandTest {
         Path packageDir = tmpDir.resolve("sample2");
         Files.createDirectory(packageDir);
         String[] args = {"myproject", "-t", "main"};
-        InitCommand initCommand = new InitCommand(packageDir, printStream);
+        InitCommand initCommand = new InitCommand(packageDir, printStream, false);
         new CommandLine(initCommand).parseArgs(args);
         initCommand.execute();
         // Check with spec
@@ -108,7 +108,7 @@ public class InitCommandTest extends BaseCommandTest {
         Path packageDir = tmpDir.resolve("sample3");
         Files.createDirectory(packageDir);
         String[] args = {"myproject", "-t", "service"};
-        InitCommand initCommand = new InitCommand(packageDir, printStream);
+        InitCommand initCommand = new InitCommand(packageDir, printStream, false);
         new CommandLine(initCommand).parseArgs(args);
         initCommand.execute();
         // Check with spec
@@ -144,7 +144,7 @@ public class InitCommandTest extends BaseCommandTest {
         Path packageDir = tmpDir.resolve("sample4");
         Files.createDirectory(packageDir);
         String[] args = {"myproject", "-t", "lib"};
-        InitCommand initCommand = new InitCommand(packageDir, printStream);
+        InitCommand initCommand = new InitCommand(packageDir, printStream, false);
         new CommandLine(initCommand).parseArgs(args);
         initCommand.execute();
         // Check with spec
@@ -183,17 +183,17 @@ public class InitCommandTest extends BaseCommandTest {
     public void testInitCommandWithInvalidTemplate() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"myproject", "-t", "invalid"};
-        InitCommand initCommand = new InitCommand(tmpDir, printStream);
+        InitCommand initCommand = new InitCommand(tmpDir, printStream, false);
         new CommandLine(initCommand).parseArgs(args);
         initCommand.execute();
-        Assert.assertTrue(readOutput().contains("Template not found"));
+        Assert.assertTrue(readOutput().contains("template not found"));
     }
 
     @Test(description = "Test init command with multiple arguments")
     public void testInitCommandMultipleArgs() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"sample2", "sample3"};
-        InitCommand initCommand = new InitCommand(tmpDir, printStream);
+        InitCommand initCommand = new InitCommand(tmpDir, printStream, false);
         new CommandLine(initCommand).parse(args);
         initCommand.execute();
 
@@ -204,7 +204,7 @@ public class InitCommandTest extends BaseCommandTest {
     public void testInitCommandArgAndHelp() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"sample2", "--help"};
-        InitCommand initCommand = new InitCommand(tmpDir, printStream);
+        InitCommand initCommand = new InitCommand(tmpDir, printStream, false);
         new CommandLine(initCommand).parse(args);
         initCommand.execute();
 
@@ -216,7 +216,7 @@ public class InitCommandTest extends BaseCommandTest {
     public void testInitCommandWithHelp() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"-h"};
-        InitCommand initCommand = new InitCommand(tmpDir, printStream);
+        InitCommand initCommand = new InitCommand(tmpDir, printStream, false);
         new CommandLine(initCommand).parse(args);
         initCommand.execute();
 
@@ -230,13 +230,13 @@ public class InitCommandTest extends BaseCommandTest {
         Path projectPath = tmpDir.resolve("my-app");
         Files.createDirectory(projectPath);
         String[] args = {};
-        InitCommand initCommand = new InitCommand(projectPath, printStream);
+        InitCommand initCommand = new InitCommand(projectPath, printStream, false);
         new CommandLine(initCommand).parseArgs(args);
         initCommand.execute();
         Assert.assertTrue(Files.exists(projectPath));
         Assert.assertTrue(Files.exists(projectPath.resolve(ProjectConstants.BALLERINA_TOML)));
 
-        Assert.assertTrue(readOutput().contains("Unallowed characters in the project name were replaced by " +
+        Assert.assertTrue(readOutput().contains("unallowed characters in the project name were replaced by " +
                 "underscores when deriving the package name. Edit the Ballerina.toml to change it."));
     }
 
@@ -246,11 +246,11 @@ public class InitCommandTest extends BaseCommandTest {
         Path projectPath = tmpDir.resolve("sample5");
         Files.createDirectory(projectPath);
         String[] args = {"hello-app"};
-        InitCommand initCommand = new InitCommand(projectPath, printStream);
+        InitCommand initCommand = new InitCommand(projectPath, printStream, false);
         new CommandLine(initCommand).parseArgs(args);
         initCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("Invalid package name :"));
+        Assert.assertTrue(readOutput().contains("invalid package name :"));
     }
 
     @Test(description = "Test init command inside a ballerina project", dependsOnMethods = "testInitCommand")
@@ -258,12 +258,12 @@ public class InitCommandTest extends BaseCommandTest {
         // Test if no arguments was passed in
         Path projectPath = tmpDir.resolve("sample1");
         String[] args = {};
-        InitCommand initCommand = new InitCommand(projectPath, printStream);
+        InitCommand initCommand = new InitCommand(projectPath, printStream, false);
         new CommandLine(initCommand).parse(args);
         initCommand.execute();
 
         //initialize a project again
-        Assert.assertTrue(readOutput().contains("Directory is already a Ballerina project"));
+        Assert.assertTrue(readOutput().contains("directory is already a Ballerina project"));
     }
 
     @Test(description = "Test init command within a ballerina project", dependsOnMethods = "testInitCommand")
@@ -275,9 +275,9 @@ public class InitCommandTest extends BaseCommandTest {
         Path projectDir = projectPath.resolve("project1");
         Files.createDirectory(projectDir);
         //initialize a project again
-        InitCommand initCommand = new InitCommand(projectDir, printStream);
+        InitCommand initCommand = new InitCommand(projectDir, printStream, false);
         new CommandLine(initCommand).parse(args);
         initCommand.execute();
-        Assert.assertTrue(readOutput().contains("Directory is already within a Ballerina project"));
+        Assert.assertTrue(readOutput().contains("directory is already within a Ballerina project"));
     }
 }
