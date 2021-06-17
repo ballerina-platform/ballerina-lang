@@ -3500,12 +3500,8 @@ public class Types {
      */
     BType getTypeForUnionTypeMembersAssignableToType(BUnionType unionType, BType targetType, SymbolEnv env,
                                                      IntersectionContext intersectionContext,
-                                                     LinkedHashSet<BType> visitedTypes) {
+                                                     LinkedHashSet<TypePair> visitedTypes) {
         List<BType> intersection = new LinkedList<>();
-        if (!visitedTypes.add(unionType)) {
-            return unionType;
-        }
-
         unionType.getMemberTypes().forEach(memType -> {
             BType memberIntersectionType = getTypeIntersection(intersectionContext, memType, targetType,
                         env, visitedTypes);
@@ -4114,8 +4110,13 @@ public class Types {
     }
 
     private BType getTypeIntersection(IntersectionContext intersectionContext, BType lhsType, BType rhsType,
-                                     SymbolEnv env,
-                                     LinkedHashSet<BType> visitedTypes) {
+                                      SymbolEnv env,
+                                      LinkedHashSet<TypePair> visitedTypes) {
+        if (!visitedTypes.add(new TypePair(lhsType, rhsType))) {
+            // have gone through a cycle finding for and intersection. Assume that both intersect completely but
+            // one of them is cyclic
+            return rhsType;
+        }
         List<BType> rhsTypeComponents = getAllTypes(rhsType);
         LinkedHashSet<BType> intersection = new LinkedHashSet<>(rhsTypeComponents.size());
         for (BType rhsComponent : rhsTypeComponents) {
@@ -4141,7 +4142,7 @@ public class Types {
     }
 
     private BType getIntersection(IntersectionContext intersectionContext, BType lhsType, SymbolEnv env, BType type,
-                                  LinkedHashSet<BType> visitedTypes) {
+                                  LinkedHashSet<TypePair> visitedTypes) {
         lhsType = getEffectiveTypeForIntersection(lhsType);
         type = getEffectiveTypeForIntersection(type);
 
@@ -4321,7 +4322,7 @@ public class Types {
 
     private BType createArrayAndTupleIntersection(IntersectionContext intersectionContext,
                                                   BArrayType arrayType, BTupleType tupleType, SymbolEnv env,
-                                                  LinkedHashSet<BType> visitedTypes) {
+                                                  LinkedHashSet<TypePair> visitedTypes) {
         List<BType> tupleTypes = tupleType.tupleTypes;
         if (arrayType.state == BArrayState.CLOSED && tupleTypes.size() != arrayType.size) {
             if (tupleTypes.size() > arrayType.size) {
@@ -4358,7 +4359,7 @@ public class Types {
 
     private BType createTupleAndTupleIntersection(IntersectionContext intersectionContext,
                                                   BTupleType lhsTupleType, BTupleType tupleType, SymbolEnv env,
-                                                  LinkedHashSet<BType> visitedTypes) {
+                                                  LinkedHashSet<TypePair> visitedTypes) {
         if (lhsTupleType.restType == null && tupleType.restType != null) {
             return symTable.semanticError;
         }
@@ -4399,7 +4400,7 @@ public class Types {
 
     private BType getIntersectionForErrorTypes(IntersectionContext intersectionContext,
                                                BType lhsType, BType rhsType, SymbolEnv env,
-                                               LinkedHashSet<BType> visitedTypes) {
+                                               LinkedHashSet<TypePair> visitedTypes) {
 
         BType detailIntersectionType = getTypeIntersection(intersectionContext,
                 ((BErrorType) lhsType).detailType, ((BErrorType) rhsType).detailType, env, visitedTypes);
@@ -4423,7 +4424,7 @@ public class Types {
 
     private BType createRecordIntersection(IntersectionContext intersectionContext,
                                            BRecordType recordTypeOne, BRecordType recordTypeTwo, SymbolEnv env,
-                                           LinkedHashSet<BType> visitedTypes) {
+                                           LinkedHashSet<TypePair> visitedTypes) {
         LinkedHashMap<String, BField> recordOneFields = recordTypeOne.fields;
         LinkedHashMap<String, BField> recordTwoFields = recordTypeTwo.fields;
 
@@ -4485,7 +4486,7 @@ public class Types {
                                    boolean isRhsRecordClosed, BType effectiveRhsRecordRestFieldType,
                                    BTypeSymbol newTypeSymbol, Set<String> addedKeys,
                                    LinkedHashMap<String, BField> newTypeFields,
-                                   LinkedHashSet<BType> visitedTypes) {
+                                   LinkedHashSet<TypePair> visitedTypes) {
         for (String key : lhsRecordKeys) {
             BField lhsRecordField = lhsRecordFields.get(key);
 
