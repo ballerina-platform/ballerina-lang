@@ -2306,6 +2306,7 @@ public class Types {
         implicitConversionExpr.setBType(expType);
         implicitConversionExpr.targetType = expType;
         implicitConversionExpr.internal = true;
+        implicitConversionExpr.checkTypes = false;
         expr.impConversionExpr = implicitConversionExpr;
     }
 
