@@ -139,6 +139,22 @@ public class BindgenUnitTest {
         Assert.assertFalse(throwableSyntaxTree.hasDiagnostics());
     }
 
+    @Test(description = "Test the bindings generated for an dependent inner class mapping.")
+    public void dependentInnerClassMapping() throws FormatterException, ClassNotFoundException,
+            BindgenException, IOException {
+        BindgenEnv bindgenEnv = new BindgenEnv();
+        bindgenEnv.setDirectJavaClass(false);
+        BindgenFileGenerator bindingsGenerator = new BindgenFileGenerator(bindgenEnv);
+
+        Path assertFilePath = Paths.get(resourceDirectory.toString(), "unit-test-resources",
+                "innerDependentClass.bal");
+        String assertValue = Files.readString(resourceDirectory.resolve(assertFilePath));
+        SyntaxTree syntaxTree = bindingsGenerator.generate(new JClass(this.getClass().getClassLoader()
+                .loadClass("java.lang.Character$Subset"), bindgenEnv));
+        Assert.assertEquals(Formatter.format(syntaxTree.toSourceCode()), Formatter.format(assertValue));
+        Assert.assertFalse(syntaxTree.hasDiagnostics());
+    }
+
     private BindgenEnv getBindgenEnv() {
         BindgenEnv bindgenEnv = new BindgenEnv();
         bindgenEnv.setDirectJavaClass(true);

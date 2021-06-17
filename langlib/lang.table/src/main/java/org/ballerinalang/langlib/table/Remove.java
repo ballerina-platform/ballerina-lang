@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.table;
 
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BTable;
 
 /**
@@ -33,7 +34,7 @@ import io.ballerina.runtime.api.values.BTable;
 //)
 public class Remove {
 
-    public static Object remove(BTable tbl, Object key) {
-        return tbl.removeOrThrow(key);
+    public static BMap remove(BTable tbl, Object key) {
+        return (BMap) tbl.removeOrThrow(key);
     }
 }

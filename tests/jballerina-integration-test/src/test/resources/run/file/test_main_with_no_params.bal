@@ -13,8 +13,25 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
+
+import ballerina/jballerina.java;
 
 public function main() {
-    io:print(1);
+    print("1");
 }
+
+function print(string str) {
+    printVal(system_out(), java:fromString(str));
+}
+
+function system_out() returns handle = @java:FieldGet {
+    name: "out",
+    'class: "java.lang.System"
+} external;
+
+function printVal(handle receiver, handle arg0) = @java:Method {
+    name: "print",
+    'class: "java.io.PrintStream",
+    paramTypes: ["java.lang.String"]
+} external;
+

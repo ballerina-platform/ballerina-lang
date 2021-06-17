@@ -1,3 +1,31 @@
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+import ballerina/test;
+
+function testVarArgsArray() {
+    validateVarArgs("val0", "val1", "val2");
+}
+
+function validateVarArgs(string... arr) {
+    test:assertEquals(arr[0], "val0");
+    test:assertEquals(arr[1], "val1");
+    test:assertEquals(arr[2], "val2");
+}
+
 function testFloatArrayLength(float[] arg) returns [int, int]{
     float[] defined;
     defined = [10.1, 11.1];
@@ -205,43 +233,27 @@ const TYPEDESC_ARRAY = "typedesc int[][2]";
 function testMultidimensionalArrayString() {
     int[][2] arr = [];
     typedesc<any> t = typeof arr;
-    assertEquality(TYPEDESC_ARRAY, t.toString());
+    test:assertEquals(TYPEDESC_ARRAY, t.toString());
 
 }
 
 function testArrayMapString() {
     map<Foo>[2][] arr = [];
     typedesc<any> t = typeof arr;
-    assertEquality("typedesc map<Foo>[2][]", t.toString());
+    test:assertEquals("typedesc map<Foo>[2][]", t.toString());
 
 }
 
 function testArrayUnionType() {
     (int|string[4][3])[][2][4] arr = [];
     typedesc<any> t = typeof arr;
-    assertEquality("typedesc (int|string[4][3])[][2][4]", t.toString());
+    test:assertEquals("typedesc (int|string[4][3])[][2][4]", t.toString());
 }
 
 function testArrayTupleType() {
     [string[2],int,float[3][4]][][] arr = [];
     typedesc<any> t = typeof arr;
-    assertEquality("typedesc [string[2],int,float[3][4]][][]", t.toString());
-}
-
-const ASSERTION_ERROR_REASON = "AssertionError";
-
-function assertEquality(any|error expected, any|error actual) {
-    if expected is anydata && actual is anydata && expected == actual {
-        return;
-    }
-    if expected === actual {
-        return;
-    }
-
-    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
-    string actualValAsString = actual is error ? actual.toString() : actual.toString();
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+    test:assertEquals("typedesc [string[2],int,float[3][4]][][]", t.toString());
 }
 
 function testUpdatingJsonTupleViaArrayTypedVar() {

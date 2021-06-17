@@ -192,7 +192,7 @@ public class ReadOnlyUtils {
                 BTupleType immutableTupleType =
                         new BTupleType(immutableMemTypes, origTupleRestType == null ? null :
                                 getImmutableType(origTupleRestType, unresolvedTypes), origTupleType.getTypeFlags(),
-                                       true);
+                                origTupleType.isCyclic, true);
                 return createAndSetImmutableIntersectionType(origTupleType, immutableTupleType);
             case TypeTags.MAP_TAG:
                 BMapType origMapType = (BMapType) type;
