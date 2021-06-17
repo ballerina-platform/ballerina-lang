@@ -2026,7 +2026,9 @@ public class BIRGen extends BLangNodeVisitor {
         BIRBasicBlock nextBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(nextBB);
         env.enclBasicBlocks.add(nextBB);
-        this.env.enclBB.terminator = new BIRTerminator.GOTO(trapExpr.pos, nextBB);
+        if (this.env.enclBB.terminator == null) {
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(trapExpr.pos, nextBB);
+        }
 
         env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(trappedBlocks.get(0),
                 trappedBlocks.get(trappedBlocks.size() - 1), env.targetOperand, nextBB));
