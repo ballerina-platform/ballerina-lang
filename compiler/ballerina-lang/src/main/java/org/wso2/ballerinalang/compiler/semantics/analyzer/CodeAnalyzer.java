@@ -606,6 +606,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
+        boolean prevLoopAlterNotAllowed = loopAlterNotAllowed;
+        loopAlterNotAllowed = true;
         this.checkStatementExecutionValidity(transactionNode);
         //Check whether transaction statement occurred in a transactional scope
         if (!transactionalFuncCheckStack.empty() && transactionalFuncCheckStack.peek()) {
@@ -650,15 +652,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.doneWithinTransactionCheckStack.pop();
         analyzeOnFailClause(transactionNode.onFailClause);
         this.errorTypes.pop();
+        this.loopAlterNotAllowed = prevLoopAlterNotAllowed;
     }
 
     private void analyzeOnFailClause(BLangOnFailClause onFailClause) {
         if (onFailClause != null) {
+            boolean prevLoopAlterNotAllowed = loopAlterNotAllowed;
+            loopAlterNotAllowed = true;
             boolean currentStatementReturns = this.statementReturns;
             this.resetStatementReturns();
             this.resetLastStatement();
             analyzeNode(onFailClause, env);
             this.statementReturns = currentStatementReturns;
+            loopAlterNotAllowed = prevLoopAlterNotAllowed;
         }
     }
 
