@@ -2227,7 +2227,7 @@ public class TypeChecker {
         }
     }
     public static boolean isNumericType(Type type) {
-        return type.getTag() < TypeTags.STRING_TAG;
+        return type.getTag() < TypeTags.STRING_TAG || TypeTags.isIntegerTypeTag(type.getTag());
     }
 
     private static boolean checkIsLikeAnydataType(Object sourceValue, Type sourceType,
@@ -2385,18 +2385,18 @@ public class TypeChecker {
                     if (targetTypeElementType.getTag() == TypeTags.UNION_TAG) {
                         List<Type> targetNumericTypes = new ArrayList<>();
                         for (Type memType : ((BUnionType) targetTypeElementType).getMemberTypes()) {
-                            if (memType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-                                return true;
-                            }
                             if (isNumericType(memType) && !targetNumericTypes.contains(memType)) {
                                 targetNumericTypes.add(memType);
                             }
                         }
-                        return targetNumericTypes.size() == 1;
+                        if (targetNumericTypes.size() > 1) {
+                            return false;
+                        }
                     }
                 }
 
-                if (isNumericType(targetTypeElementType) && targetTypeElementType.getTag() != TypeTags.BYTE_TAG) {
+                if (isNumericType(targetTypeElementType) && targetTypeElementType.getTag() != TypeTags.BYTE_TAG &&
+                        !TypeTags.isIntegerTypeTag(targetTypeElementType.getTag())) {
                     return false;
                 }
             }
@@ -2551,16 +2551,6 @@ public class TypeChecker {
         }
         return true;
     }
-
-    private static boolean checkFiniteTypeAssignable(Object sourceValue, Type sourceType, Set<Object> valueSpaceItems) {
-        for (Object valueSpaceItem : valueSpaceItems) {
-            if (isFiniteTypeValue(sourceValue, sourceType, valueSpaceItem)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 
     private static boolean checkFiniteTypeAssignable(Object sourceValue, Type sourceType, BFiniteType targetType) {
         for (Object valueSpaceItem : targetType.valueSpace) {

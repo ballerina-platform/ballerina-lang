@@ -53,6 +53,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CONVERSION_ERROR;
@@ -107,7 +108,7 @@ public class CloneWithType {
             return createError(CONSTRUCT_FROM_CONVERSION_ERROR,
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
         }
-        List<Type> convertibleTypes;
+        Set<Type> convertibleTypes;
         convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType);
         if (convertibleTypes.isEmpty()) {
             throw createConversionError(value, targetType);
@@ -116,7 +117,7 @@ public class CloneWithType {
         }
 
         Type sourceType = TypeChecker.getType(value);
-        Type matchingType = convertibleTypes.get(0);
+        Type matchingType = convertibleTypes.iterator().next();
         // handle primitive values
         if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG) {
             if (TypeChecker.checkIsType(value, matchingType)) {

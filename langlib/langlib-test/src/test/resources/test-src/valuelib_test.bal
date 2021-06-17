@@ -972,7 +972,37 @@ function testCloneWithTypeImmutableStructuredTypes() {
 type IntOneOrTwo 1|2;
 type IntTwoOrThree 2|3;
 type IntThreeOrFour 3|4;
+type FloatOneOrTwo 1.0|2.0;
+type FloatTwoOrThree 2.0|3.0;
 type FloatThreeOrFour 3.0|4.0;
+
+function testCloneWithTypeWithFiniteType() {
+    int x = 2;
+
+    IntOneOrTwo|error a = x.cloneWithType();
+    assert(a is IntOneOrTwo, true);
+    IntOneOrTwo b = checkpanic a;
+    assert(b, 2);
+
+    FloatOneOrTwo|error c = x.cloneWithType();
+    assert(c is error, false);
+    FloatOneOrTwo d = checkpanic c;
+    assert(d, 2.0);
+}
+
+function testCloneWithTypeWithUnionOfFiniteType() {
+    int x = 3;
+
+    (IntTwoOrThree|IntThreeOrFour)|error a = x.cloneWithType();
+    assert(a is error, false);
+    IntTwoOrThree|IntThreeOrFour b = checkpanic a;
+    assert(b, 3);
+
+    (FloatTwoOrThree|FloatThreeOrFour)|error c = x.cloneWithType();
+    assert(c is error, false);
+    FloatTwoOrThree|FloatThreeOrFour d = checkpanic c;
+    assert(d, 3.0);
+}
 
 function testCloneWithTypeWithFiniteArrayTypeFromIntArray() {
     int[] x = [1, 2];
@@ -1037,7 +1067,7 @@ function testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative() {
     err = <error> c;
     message = err.detail()["message"];
     messageString = message is error? message.toString(): message.toString();
-    assert(messageString, "'int' value cannot be converted to '(IntTwoOrThree|IntThreeOrFour)'");
+    assert(messageString, "'int[]' value cannot be converted to '(IntTwoOrThree|IntThreeOrFour)[]'");
 
     int[] y = [3, 4];
 
