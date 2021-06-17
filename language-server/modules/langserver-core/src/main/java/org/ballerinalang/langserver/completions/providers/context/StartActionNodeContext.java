@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 
 /**
@@ -83,8 +82,7 @@ public class StartActionNodeContext extends AbstractCompletionProvider<StartActi
         
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<Symbol> filteredList = visibleSymbols.stream()
-                .filter(symbol -> (symbol instanceof VariableSymbol || symbol.kind() == FUNCTION
-                        || symbol.kind() == CLASS))
+                .filter(symbol -> (symbol instanceof VariableSymbol || symbol.kind() == FUNCTION))
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         return completionItems;
