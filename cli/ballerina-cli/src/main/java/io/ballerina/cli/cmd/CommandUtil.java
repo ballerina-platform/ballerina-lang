@@ -134,7 +134,7 @@ public class CommandUtil {
                     StandardCopyOption.REPLACE_EXISTING);
 
             String packageMd = FileUtils.readFileAsString(
-                    NEW_CMD_DEFAULTS + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME);
+                    NEW_CMD_DEFAULTS + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME) + "\n";
 
             Files.write(path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME),
                     packageMd.getBytes(StandardCharsets.UTF_8));
@@ -145,7 +145,7 @@ public class CommandUtil {
         if (Files.notExists(gitignore)) {
             Files.createFile(gitignore);
         }
-        String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + GITIGNORE);
+        String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + GITIGNORE) + "\n";
         Files.write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -219,7 +219,7 @@ public class CommandUtil {
         Path ballerinaToml = path.resolve(ProjectConstants.BALLERINA_TOML);
         Files.createFile(ballerinaToml);
 
-        String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-app.toml");
+        String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-app.toml") + "\n";
         Files.write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -239,7 +239,7 @@ public class CommandUtil {
         Path ballerinaToml = path.resolve(ProjectConstants.BALLERINA_TOML);
         Files.createFile(ballerinaToml);
 
-        String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-lib.toml");
+        String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-lib.toml") + "\n";
         // replace manifest org and name with a guessed value.
         defaultManifest = defaultManifest.replaceAll(ORG_NAME, ProjectUtils.guessOrgName()).
                 replaceAll(PKG_NAME, ProjectUtils.guessPkgName(packageName));
