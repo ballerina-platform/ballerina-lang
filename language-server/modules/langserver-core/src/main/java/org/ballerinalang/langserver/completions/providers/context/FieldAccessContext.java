@@ -58,7 +58,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                                                 ExpressionNode expr,
                                                 boolean optionalFieldAccess) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        FieldAccessCompletionResolver resolver = new FieldAccessCompletionResolver(ctx, optionalFieldAccess);
+        FieldAccessCompletionResolver resolver = new FieldAccessCompletionResolver(ctx);
         List<Symbol> symbolList = resolver.getVisibleEntries(expr);
         //Add typegurad and foreach snippets.
         if (expr.parent().kind() == SyntaxKind.FIELD_ACCESS) {
