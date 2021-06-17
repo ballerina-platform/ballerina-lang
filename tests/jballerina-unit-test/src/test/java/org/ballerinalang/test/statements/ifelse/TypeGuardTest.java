@@ -93,7 +93,9 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'CyclicComplexUnion' will not" +
                 " be matched to 'float'", 232, 8);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'CyclicComplexUnion' will not" +
-                " be matched to 'floatUnion'", 240, 8);
+                " be matched to 'floatUnion'", 239, 8);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'CyclicComplexUnion' will not" +
+                " be matched to 'float[]'", 245, 8);
 
         Assert.assertEquals(negativeResult.getDiagnostics().length, i);
     }

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.observe.noop;
+package io.ballerina.runtime.observability.tracer.noop;
 
 import io.ballerina.runtime.observability.tracer.spi.TracerProvider;
 import io.opentelemetry.api.trace.Tracer;

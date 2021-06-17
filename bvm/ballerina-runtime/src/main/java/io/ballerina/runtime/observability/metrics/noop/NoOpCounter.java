@@ -15,23 +15,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.observe.noop;
+package io.ballerina.runtime.observability.metrics.noop;
 
 import io.ballerina.runtime.observability.metrics.AbstractMetric;
+import io.ballerina.runtime.observability.metrics.Counter;
 import io.ballerina.runtime.observability.metrics.MetricId;
-import io.ballerina.runtime.observability.metrics.PolledGauge;
 
 /**
- * Implementation of No-Op {@link PolledGauge}.
+ * Implementation of No-Op {@link Counter}.
  */
-public class NoOpPolledGauge extends AbstractMetric implements PolledGauge {
+public class NoOpCounter extends AbstractMetric implements Counter {
 
-    public NoOpPolledGauge(MetricId id) {
-        super(id);
+    public NoOpCounter(MetricId metricId) {
+        super(metricId);
     }
 
     @Override
-    public double getValue() {
+    public void reset() {
+        //no nothing.
+    }
+
+    @Override
+    public void increment(long amount) {
+        // Do nothing
+    }
+
+    @Override
+    public long getValue() {
+        return 0;
+    }
+
+    @Override
+    public long getValueThenReset() {
         return 0;
     }
 }
