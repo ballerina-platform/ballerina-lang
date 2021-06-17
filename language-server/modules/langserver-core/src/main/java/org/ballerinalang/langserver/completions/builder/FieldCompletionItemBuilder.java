@@ -24,7 +24,6 @@ import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -49,11 +48,10 @@ public class FieldCompletionItemBuilder {
     /**
      * Build the constant {@link CompletionItem}.
      *
-     * @param symbol  record field symbol or the object field symbol
-     * @param context Completion Context
+     * @param symbol record field symbol or the object field symbol
      * @return {@link CompletionItem} generated completion item
      */
-    private static CompletionItem getCompletionItem(Symbol symbol, BallerinaCompletionContext context) {
+    private static CompletionItem getCompletionItem(Symbol symbol) {
         String recordFieldName = symbol.getName().orElseThrow();
 
         CompletionItem completionItem = new CompletionItem();
@@ -85,8 +83,30 @@ public class FieldCompletionItemBuilder {
             insertText = recordFieldName;
         }
         completionItem.setInsertText(insertText);
-        
+
         return completionItem;
+    }
+
+    /**
+     * Build the constant {@link CompletionItem}.
+     *
+     * @param objectFieldSymbol {@link ObjectFieldSymbol}
+     * @param withSelfPrefix    {@link Boolean}
+     * @return {@link CompletionItem} generated completion item
+     */
+    public static CompletionItem build(ObjectFieldSymbol objectFieldSymbol, boolean withSelfPrefix) {
+        if (withSelfPrefix) {
+            String label = "self." + objectFieldSymbol.getName().get();
+
+            CompletionItem item = new CompletionItem();
+            item.setLabel(label);
+            item.setInsertText(label);
+            item.setKind(CompletionItemKind.Field);
+
+            return item;
+        }
+        
+        return build(objectFieldSymbol);
     }
 
     /**
@@ -95,44 +115,21 @@ public class FieldCompletionItemBuilder {
      * @param symbol {@link ObjectFieldSymbol}
      * @return {@link CompletionItem} generated completion item
      */
-    public static CompletionItem build(ObjectFieldSymbol symbol, BallerinaCompletionContext context) {
-        return getCompletionItem(symbol, context);
+    private static CompletionItem build(ObjectFieldSymbol symbol) {
+        return getCompletionItem(symbol);
     }
 
-    /**
-     * Build the constant {@link CompletionItem}.
-     *
-     * @param objectFieldSymbol {@link ObjectFieldSymbol}
-     * @param withSelfPrefix    {@link Boolean}
-     * @param context           CompletionContext
-     * @return {@link CompletionItem} generated completion item
-     */
-    public static CompletionItem build(ObjectFieldSymbol objectFieldSymbol, boolean withSelfPrefix,
-                                       BallerinaCompletionContext context) {
-        if (withSelfPrefix) {
-            String label = "self." + objectFieldSymbol.getName().get();
-
-            CompletionItem item = new CompletionItem();
-            item.setLabel(label);
-            item.setInsertText(label);
-            item.setKind(CompletionItemKind.Field);
-            return item;
-        } else {
-            return build(objectFieldSymbol, context);
-        }
-    }
-    
     private static Optional<TextEdit> getRecordFieldAdditionalTextEdit(RecordFieldSymbol recordFieldSymbol,
                                                                        BallerinaCompletionContext context) {
         if (!recordFieldSymbol.isOptional()) {
             return Optional.empty();
         }
-        
+
         NonTerminalNode evalNode = context.getNodeAtCursor();
         if (evalNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            evalNode = evalNode.parent(); 
+            evalNode = evalNode.parent();
         }
-        
+
         LineRange dotTokenLineRange;
         if (evalNode.kind() == SyntaxKind.FIELD_ACCESS) {
             dotTokenLineRange = ((FieldAccessExpressionNode) evalNode).dotToken().lineRange();
@@ -151,7 +148,7 @@ public class FieldCompletionItemBuilder {
         range.setEnd(new Position(endLine.line(), endLine.offset()));
         textEdit.setRange(range);
         textEdit.setNewText("");
-        
+
         return Optional.of(textEdit);
     }
 }
