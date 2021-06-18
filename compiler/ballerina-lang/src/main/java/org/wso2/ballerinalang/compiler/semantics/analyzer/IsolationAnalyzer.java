@@ -2427,7 +2427,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (type != null &&
                 isSubTypeOfReadOnlyOrIsolatedObjectUnionWithInference(publiclyExposedObjectTypes, classDefinitions,
-                                                                      inferring, type)) {
+                                                                      inferring, type, unresolvedSymbols)) {
             return true;
         }
 
@@ -2730,7 +2730,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean isSubTypeOfReadOnlyOrIsolatedObjectUnionWithInference(Set<BType> publiclyExposedObjectTypes,
                                                                           List<BLangClassDefinition> classDefinitions,
-                                                                          boolean inferring, BType type) {
+                                                                          boolean inferring, BType type,
+                                                                          Set<BSymbol> unresolvedSymbols) {
         if (types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(type)) {
             return true;
         }
@@ -2744,7 +2745,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         if (tag == TypeTags.OBJECT) {
             if (this.nonPublicPotentiallyIsolatedConstructs.containsKey(tsymbol)) {
                 return inferIsolated(publiclyExposedObjectTypes, classDefinitions, tsymbol,
-                                     this.nonPublicPotentiallyIsolatedConstructs.get(tsymbol), true);
+                                     this.nonPublicPotentiallyIsolatedConstructs.get(tsymbol), true,
+                                     unresolvedSymbols);
             }
 
             return false;
@@ -2756,7 +2758,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         for (BType memberType : ((BUnionType) type).getMemberTypes()) {
             if (!isSubTypeOfReadOnlyOrIsolatedObjectUnionWithInference(publiclyExposedObjectTypes, classDefinitions,
-                    inferring, memberType)) {
+                                                                       inferring, memberType, unresolvedSymbols)) {
                 return false;
             }
         }
@@ -3395,7 +3397,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             BSymbol symbol = entry.getKey();
             boolean isObjectType = symbol.kind == SymbolKind.OBJECT;
 
-            if (inferIsolated(publiclyExposedObjectTypes, classDefinitions, symbol, entry.getValue(), isObjectType)) {
+            if (inferIsolated(publiclyExposedObjectTypes, classDefinitions, symbol, entry.getValue(), isObjectType,
+                    new HashSet<>())) {
                 symbol.flags |= Flags.ISOLATED;
 
                 if (isObjectType) {
@@ -3420,7 +3423,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean inferIsolated(Set<BType> publiclyExposedObjectTypes, List<BLangClassDefinition> classDefinitions,
-                                  BSymbol symbol, AccessInfo accessInfo, boolean isObjectType) {
+                                  BSymbol symbol, AccessInfo accessInfo, boolean isObjectType,
+                                  Set<BSymbol> unresolvedSymbols) {
+        if (!unresolvedSymbols.add(symbol)) {
+            return true;
+        }
+
         if (accessInfo.accessedOutsideLockStatement) {
             if (!accessInfo.accessOutsideLockStatementValidIfInferredIsolated) {
                 return false;
@@ -3428,7 +3436,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
             for (BType bType : accessInfo.typesOfFinalFieldsAccessedOutsideLock) {
                 if (!isSubTypeOfReadOnlyOrIsolatedObjectUnionWithInference(publiclyExposedObjectTypes, classDefinitions,
-                        true, bType)) {
+                        true, bType, unresolvedSymbols)) {
                     return false;
                 }
             }
@@ -3470,7 +3478,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     BType fieldType = field.typeNode.getBType();
                     if (!types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(fieldType) &&
                             !isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(publiclyExposedObjectTypes,
-                                    classDefinitions, fieldType)) {
+                                    classDefinitions, fieldType, unresolvedSymbols)) {
                         return false;
                     }
                 }
@@ -3478,7 +3486,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 for (BLangSimpleVariable field : classDefinition.fields) {
                     BLangExpression expr = field.expr;
                     if (expr != null && !isIsolatedExpression(expr, false, false, new ArrayList<>(),
-                            true, publiclyExposedObjectTypes, classDefinitions, new HashSet<>())) {
+                            true, publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols)) {
                         return false;
                     }
                 }
@@ -3511,7 +3519,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                         }
 
                         if (!isIsolatedExpression(assignmentStmt.expr, false, false, new ArrayList<>(), true,
-                                publiclyExposedObjectTypes, classDefinitions, new HashSet<>())) {
+                                publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols)) {
                             return false;
                         }
                     }
@@ -3545,7 +3553,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(Set<BType> publiclyExposedObjectTypes,
                                                                          List<BLangClassDefinition> classDefinitions,
-                                                                         BType fieldType) {
+                                                                         BType fieldType,
+                                                                         Set<BSymbol> unresolvedSymbols) {
         if (types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(fieldType)) {
             return true;
         }
@@ -3554,7 +3563,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             BTypeSymbol tsymbol = fieldType.tsymbol;
             if (this.nonPublicPotentiallyIsolatedConstructs.containsKey(tsymbol)) {
                 return inferIsolated(publiclyExposedObjectTypes, classDefinitions, tsymbol,
-                                     this.nonPublicPotentiallyIsolatedConstructs.get(tsymbol), true);
+                                     this.nonPublicPotentiallyIsolatedConstructs.get(tsymbol), true,
+                                     unresolvedSymbols);
             }
             return false;
         }
@@ -3565,7 +3575,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         for (BType memberType : ((BUnionType) fieldType).getMemberTypes()) {
             if (!isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(publiclyExposedObjectTypes, classDefinitions,
-                    memberType)) {
+                    memberType, unresolvedSymbols)) {
                 return false;
             }
         }
