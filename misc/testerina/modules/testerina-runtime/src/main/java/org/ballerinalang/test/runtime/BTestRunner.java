@@ -490,10 +490,10 @@ public class BTestRunner {
     /**
      * Check if the given key is included in the provided list of cases.
      *
-     * @param suite
-     * @param testName
-     * @param key
-     * @return
+     * @param suite TestSuite
+     * @param testName String
+     * @param key String
+     * @return boolean
      */
     private boolean isIncludedKey(TestSuite suite, String testName, String key) {
         boolean isIncluded = false;
@@ -762,7 +762,7 @@ public class BTestRunner {
     /**
      * Extract function arguments from the data sets.
      *
-     * @param bArray user provided data sets
+     * @param bArray user provided array data sets
      * @return a list of function arguments
      */
     private List<Object[]> extractArguments(BArray bArray) {
@@ -783,7 +783,7 @@ public class BTestRunner {
     /**
      * Extract function arguments from the data sets.
      *
-     * @param dataMap user provided data sets
+     * @param dataMap user provided map data sets
      * @return a list of function arguments
      */
     private List<Object[]> extractArguments(BMap dataMap) {
@@ -799,19 +799,18 @@ public class BTestRunner {
     /**
      * Extract the argument types from a data set.
      *
-     * @param bArray use provided array data sets
+     * @param bArray user provided array data sets
      * @return a list of class types
      */
     private static Class<?>[] extractArgumentTypes(BArray bArray) {
         List<Class<?>> typeList = new ArrayList<>();
         typeList.add(Strand.class);
         if (bArray.getElementType() instanceof ArrayType) {
-            // Ok we have an array of an array
-            // Get the first entry
-            // Iterate elements and get class types.
+            // Iterate elements of first entry in array of array
+            // to get the class types
             setTestFunctionSignature(typeList, (BArray) bArray.get(0));
         } else {
-            // Iterate elements and get class types.
+            // Iterate elements and get class types
             setTestFunctionSignature(typeList, bArray);
         }
         Class<?>[] typeListArray = new Class[typeList.size()];
@@ -832,7 +831,6 @@ public class BTestRunner {
             setTestFunctionSignature(typeList, dataMap.getArrayValue(
                     (BString) dataMap.getKeys()[0]));
         }
-
         Class<?>[] typeListArray = new Class[typeList.size()];
         typeList.toArray(typeListArray);
         return typeListArray;
@@ -851,7 +849,7 @@ public class BTestRunner {
             for (int i = 0; i < bArray.size(); i++) {
                 // Add the param type.
                 typeList.add(type);
-                // This is in jvm function signature to tel if args is passed or not.
+                // This is in jvm function signature to denote if args is passed or not.
                 typeList.add(Boolean.TYPE);
             }
         }
@@ -861,12 +859,11 @@ public class BTestRunner {
         List<Object> params = new ArrayList<>();
         // Add a place holder to Strand
         params.add(new Object());
-
         if (bArray.getType() instanceof BTupleType) {
             for (int i = 0; i < bArray.size(); i++) {
                 // Add the param type.
                 params.add(bArray.getRefValue(i));
-                // This is in jvm function signature to tel if args is passed or not.
+                // This is in jvm function signature to denote if args is passed or not.
                 params.add(Boolean.TRUE);
             }
             valueList.add(params.toArray());
@@ -874,14 +871,11 @@ public class BTestRunner {
             for (int i = 0; i < bArray.size(); i++) {
                 // Add the param type.
                 params.add(bArray.get(i));
-                // This is in jvm function signature to tel if args is passed or not.
+                // This is in jvm function signature to denote if args is passed or not.
                 params.add(Boolean.TRUE);
             }
             valueList.add(params.toArray());
         }
-
-
-
     }
 
     private static Class<?> getArgTypeToClassMapping(Type elementType) {
