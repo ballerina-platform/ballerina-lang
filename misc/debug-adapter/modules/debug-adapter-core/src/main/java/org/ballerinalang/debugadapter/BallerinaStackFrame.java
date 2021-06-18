@@ -150,21 +150,21 @@ public class BallerinaStackFrame {
      */
     private static String getFilteredStackFrame(StackFrameProxyImpl stackFrame) throws JdiProxyException {
         String stackFrameName = stackFrame.location().method().name();
-        LocalVariableProxyImpl selfVisibleVariable = stackFrame.visibleVariableByName(SELF_VAR_NAME);
-        if (selfVisibleVariable == null) {
+        LocalVariableProxyImpl selfVariable = stackFrame.visibleVariableByName(SELF_VAR_NAME);
+        if (selfVariable == null) {
             return stackFrameName;
         }
-        Value stackFrameValue = stackFrame.getValue(selfVisibleVariable);
-        if (isService(stackFrameValue)) {
+        Value selfValue = stackFrame.getValue(selfVariable);
+        if (isService(selfValue)) {
             if (stackFrameName.equals(METHOD_INIT)) {
                 return BVariableType.SERVICE.getString();
             } else {
                 // Here stackFrameName format will be `$resourceAccessor$resourceName$otherResourceParts`
                 String[] stackFrameNameParts = stackFrameName.split("\\$");
-                if (!stackFrameNameParts[1].isEmpty() && stackFrameNameParts[1].equals(ACCESSOR_DEFAULT)) {
-                    return ACCESSOR_DEFAULT;
+                if (stackFrameNameParts.length > 1 && stackFrameNameParts[1].equals(ACCESSOR_DEFAULT)) {
+                    return stackFrameNameParts[1];
                 }
-                return !stackFrameNameParts[2].isEmpty() ? stackFrameNameParts[2] : stackFrameName;
+                return stackFrameNameParts.length > 2 ? stackFrameNameParts[2] : stackFrameName;
             }
         }
         return stackFrameName;
