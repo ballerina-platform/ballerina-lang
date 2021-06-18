@@ -11,10 +11,6 @@ DESCRIPTION
        folder by default).
 
 
-OPTIONS
-       Ballerina uninstall command takes no options.
-
-
 DEFAULT BEHAVIOR
        Uninstall a module from home repository.
 

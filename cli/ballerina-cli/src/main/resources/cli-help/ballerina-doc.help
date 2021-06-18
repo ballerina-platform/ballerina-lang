@@ -2,7 +2,11 @@ NAME
        ballerina-doc - Build the documentation of a Ballerina package
 
 SYNOPSIS
-       bal doc [<options>]
+       bal doc 
+       bal doc <package-path>
+       bal doc <package-path> [-o | --output] <output-path>]
+       bal doc [--offline] [--experimental] <package-path>
+      
 
 DESCRIPTION
        Doc command builds the documentation for a Ballerina package.
