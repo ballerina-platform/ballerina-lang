@@ -62,7 +62,14 @@ function invalidDataProviderTest(int value1, int value2, int result1) returns er
 }
 function testFunction1(int value1, int value2, int result1) returns error? {
     test:assertEquals(value1 + value2, result1, msg = "The sum is not correct");
-}    
+}
+
+@test:Config {
+    dataProvider: dataGen7
+}
+function intArrayDataProviderTest(int value1, int value2, int result1) returns error? {
+    test:assertEquals(value1 + value2, result1, msg = "The sum is not correct");
+}
 
 function dataGen() returns map<[int, int, int]>|error {
     map<[int, int, int]> dataSet = {
@@ -104,4 +111,8 @@ function dataGen6() returns map<[int, int, int]>|error {
         "Case3": [5, 6, 11]
     };
     return dataSet;
+}
+
+function dataGen7() returns int[][] {
+    return [[1, 2, 4], [10, 20, 31], [5, 6, 11]];
 }

@@ -115,4 +115,28 @@ public class DataProviderTest extends BaseTestCase {
             Assert.fail("Test failed due to failure in handling errors in data provider.");
         }
     }
+
+    @Test
+    public void testArrayDataProviderWithFail() throws BallerinaTestException {
+        String msg1 = "1 passing";
+        String msg2 = "2 failing";
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "intArrayDataProviderTest", "data-providers"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            Assert.fail("Test failed due to array based data provider failure.");
+        }
+    }
+
+    @Test (dependsOnMethods = "testArrayDataProviderWithFail")
+    public void testArrayDataRerunFailedTest() throws BallerinaTestException {
+        String msg1 = "0 passing";
+        String msg2 = "2 failing";
+        String[] args = mergeCoverageArgs(new String[]{"--rerun-failed", "data-providers"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            Assert.fail("Test failed due to rerun failed tests failure with array based data provider.");
+        }
+    }
 }

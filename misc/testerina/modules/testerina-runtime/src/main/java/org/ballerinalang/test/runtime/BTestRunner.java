@@ -508,6 +508,25 @@ public class BTestRunner {
         return isIncluded;
     }
 
+    private void invokeDataDrivenTest(TestSuite suite, String testName, String key, ClassLoader classLoader,
+                                      Scheduler scheduler, AtomicBoolean shouldSkip, String packageName, Object[] arg,
+                                      Class<?>[] argTypes, List<String> failedOrSkippedTests) {
+        Object valueSets;
+        if (suite.isSingleDDTExecution()) {
+            if (isIncludedKey(suite, testName, key)) {
+                valueSets = invokeTestFunction(suite, testName, classLoader, scheduler,
+                        argTypes, arg);
+                computeFunctionResult(testName + DATA_KEY_SEPARATOR + key,
+                        packageName, shouldSkip, failedOrSkippedTests, valueSets);
+            }
+        } else {
+            valueSets = invokeTestFunction(suite, testName, classLoader, scheduler, argTypes,
+                    arg);
+            computeFunctionResult(testName + DATA_KEY_SEPARATOR + key,
+                    packageName, shouldSkip, failedOrSkippedTests, valueSets);
+        }
+    }
+
     private void executeFunction(Test test, TestSuite suite, String packageName, ClassLoader classLoader,
                                  Scheduler scheduler, AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest,
                                  List<String> failedOrSkippedTests, List<String> failedAfterFuncTests) {
@@ -535,30 +554,19 @@ public class BTestRunner {
                     List<Object[]> argList = extractArguments((BMap) valueSets);
                     int i = 0;
                     for (Object[] arg : argList) {
-                        if (suite.isSingleDDTExecution()) {
-                            if (isIncludedKey(suite, test.getTestName(), keyValues.get(i))) {
-                                valueSets = invokeTestFunction(suite, test.getTestName(), classLoader, scheduler,
-                                        argTypes, arg);
-                                computeFunctionResult(test.getTestName() + DATA_KEY_SEPARATOR + keyValues.get(i),
-                                        packageName, shouldSkip, failedOrSkippedTests, valueSets);
-                            }
-                        } else {
-                            valueSets = invokeTestFunction(suite, test.getTestName(), classLoader, scheduler, argTypes,
-                                    arg);
-                            computeFunctionResult(test.getTestName() + DATA_KEY_SEPARATOR + keyValues.get(i),
-                                    packageName, shouldSkip, failedOrSkippedTests, valueSets);
-                        }
+                        invokeDataDrivenTest(suite, test.getTestName(), keyValues.get(i), classLoader, scheduler,
+                                shouldSkip, packageName, arg, argTypes, failedOrSkippedTests);
                         i++;
                     }
                 } else if (valueSets instanceof BArray) {
                     // Handle array data sets
                     Class<?>[] argTypes = extractArgumentTypes((BArray) valueSets);
                     List<Object[]> argList = extractArguments((BArray) valueSets);
+                    int i = 0;
                     for (Object[] arg : argList) {
-                        valueSets = invokeTestFunction(suite, test.getTestName(), classLoader, scheduler, argTypes,
-                                arg);
-                        computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
-                                valueSets);
+                        invokeDataDrivenTest(suite, test.getTestName(), String.valueOf(i), classLoader, scheduler,
+                                shouldSkip, packageName, arg, argTypes, failedOrSkippedTests);
+                        i++;
                     }
                 } else if (valueSets instanceof BError || valueSets instanceof Error ||
                         valueSets instanceof Exception) {
