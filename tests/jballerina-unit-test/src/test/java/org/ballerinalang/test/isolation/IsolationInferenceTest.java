@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.types.TypedescType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.types.BObjectType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -35,6 +36,10 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.Lists;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
@@ -92,6 +97,12 @@ public class IsolationInferenceTest {
         assertEquals(result.getErrorCount(), i);
     }
 
+    @Test
+    public void testIsolatedInferenceWithObjects() {
+        CompileResult result = BCompileUtil.compile("test-src/isolation-analysis/isolation_inference_with_objects.bal");
+        BRunUtil.invoke(result, "testIsolatedInference");
+    }
+
     // This is called from the test file via the attach method of the listener.
     public static Object testServiceDeclarationMethodIsolationInference(BObject listener, BObject s, Object name) {
         assertTrue(isResourceIsolated(s, "get", "foo"));
@@ -128,7 +139,18 @@ public class IsolationInferenceTest {
     }
 
     public static boolean isRemoteMethodIsolated(Object val, String methodName) {
-        return isIsolated(((ServiceType) getType(val)).getRemoteMethods(), methodName);
+        ObjectType type = (ObjectType) getType(val);
+        if (SymbolFlags.isFlagOn(type.getFlags(), SymbolFlags.SERVICE)) {
+            return isIsolated(Lists.of(((ServiceType) type).getRemoteMethods()), methodName);
+        }
+
+        List<MethodType> remoteMethods = new ArrayList<>();
+        for (MethodType method : type.getMethods()) {
+            if (SymbolFlags.isFlagOn(method.getFlags(), SymbolFlags.REMOTE)) {
+                remoteMethods.add(method);
+            }
+        }
+        return isIsolated(remoteMethods, methodName);
     }
 
     public static boolean isMethodIsolated(Object val, BString methodName) {
@@ -136,7 +158,15 @@ public class IsolationInferenceTest {
     }
 
     public static boolean isMethodIsolated(Object val, String methodName) {
-        return isIsolated(((ObjectType) getType(val)).getMethods(), methodName);
+        BObjectType objectType = (BObjectType) getType(val);
+
+        List<MethodType> methodTypes = Lists.of(objectType.getMethods());
+
+        MethodType initializer = objectType.initializer;
+        if (initializer != null) {
+            methodTypes.add(initializer);
+        }
+        return isIsolated(methodTypes, methodName);
     }
 
     private static Type getType(Object val) {
@@ -147,7 +177,7 @@ public class IsolationInferenceTest {
         return ((TypedescType) type).getConstraint();
     }
 
-    private static boolean isIsolated(MethodType[] methods, String methodNameString) {
+    private static boolean isIsolated(List<MethodType> methods, String methodNameString) {
         for (MethodType methodType : methods) {
             if (methodType.getName().equals(methodNameString)) {
                 return SymbolFlags.isFlagOn(methodType.getFlags(), SymbolFlags.ISOLATED);

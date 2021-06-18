@@ -261,7 +261,7 @@ function testServiceClassMethodIsolationInference() {
     assertTrue(isResourceIsolated(NonPublicServiceClass, "get", "foo"));
     assertTrue(isRemoteMethodIsolated(NonPublicServiceClass, "bar"));
     assertTrue(isMethodIsolated(NonPublicServiceClass, "func"));
-    assertFalse(isMethodIsolated(NonPublicServiceClass, "func2"));
+    assertTrue(isMethodIsolated(NonPublicServiceClass, "func2"));
     assertFalse(isMethodIsolated(NonPublicServiceClass, "func3"));
 
     assertFalse(isResourceIsolated(PublicServiceClass, "get", "foo"));
