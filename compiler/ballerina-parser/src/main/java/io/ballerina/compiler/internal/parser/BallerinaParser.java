@@ -2492,6 +2492,7 @@ public class BallerinaParser extends AbstractParser {
         if (isQualifiedIdentifierPredeclaredPrefix(nextToken.kind)) {
             return parseQualifiedTypeRefOrTypeDesc(qualifiers, isInConditionalExpr);
         }
+        
         switch (nextToken.kind) {
             case IDENTIFIER_TOKEN:
                 reportInvalidQualifierList(qualifiers);
@@ -2541,7 +2542,11 @@ public class BallerinaParser extends AbstractParser {
                     reportInvalidQualifierList(qualifiers);
                     return parseSimpleTypeDescriptor();
                 }
-                
+
+                if (!qualifiers.isEmpty()) {
+                    break;
+                }
+
                 nextToken = peek();
                 if (isRecoveryAtFuncBodyEnd(nextToken)) {
                     // Special case the func-body-block end.
@@ -2550,16 +2555,45 @@ public class BallerinaParser extends AbstractParser {
                             DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC);
                     return STNodeFactory.createSimpleNameReferenceNode(identifier);
                 }
+        }
 
-                Solution solution = recover(nextToken, ParserRuleContext.TYPE_DESCRIPTOR, qualifiers, context,
-                        isInConditionalExpr);
+        ParserRuleContext recoveryCtx = getTypeDescRecoveryCtx(qualifiers);
+        Solution solution = recover(nextToken, recoveryCtx);
 
-                if (solution.action == Action.KEEP) {
-                    reportInvalidQualifierList(qualifiers);
-                    return parseSingletonTypeDesc();
-                }
+        if (solution.action == Action.KEEP) {
+            reportInvalidQualifierList(qualifiers);
+            return parseSingletonTypeDesc();
+        }
 
-                return parseTypeDescriptorInternal(qualifiers, context, isInConditionalExpr);
+        return parseTypeDescriptorInternal(qualifiers, context, isInConditionalExpr);
+    }
+
+    /**
+     * Returns recovery context for the type descriptor.
+     * <br><br/>
+     * Note that, when recovering for the type descriptor in presence of pre-parsed qualifiers,
+     * <br/>
+     * {@link ParserRuleContext#TYPE_DESCRIPTOR} should be narrowed down to applicable types.
+     *
+     * @param qualifiers Pre-parsed qualifiers
+     * @return Context to recover
+     */
+    private ParserRuleContext getTypeDescRecoveryCtx(List<STNode> qualifiers) {
+        if (qualifiers.isEmpty()) {
+            return ParserRuleContext.TYPE_DESCRIPTOR;
+        }
+
+        STNode lastQualifier = qualifiers.get(qualifiers.size() - 1);
+        switch (lastQualifier.kind) {
+            case ISOLATED_KEYWORD:
+                return ParserRuleContext.TYPE_DESC_WITH_ISOLATED;
+            case TRANSACTIONAL_KEYWORD:
+                return ParserRuleContext.FUNC_TYPE_DESC;
+            case ABSTRACT_KEYWORD:
+            case SERVICE_KEYWORD:
+            case CLIENT_KEYWORD:
+            default:
+                return ParserRuleContext.OBJECT_TYPE_DESCRIPTOR;
         }
     }
 

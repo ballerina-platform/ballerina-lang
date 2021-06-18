@@ -169,6 +169,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.FUNC_TYPE_DESC, ParserRuleContext.PARENTHESISED_TYPE_DESC_START,
             ParserRuleContext.CONSTANT_EXPRESSION };
 
+    private static final ParserRuleContext[] TYPE_DESCRIPTOR_WITH_ISOLATED =
+            { ParserRuleContext.FUNC_TYPE_DESC, ParserRuleContext.OBJECT_TYPE_DESCRIPTOR };
+    
     private static final ParserRuleContext[] CLASS_DESCRIPTOR =
             { ParserRuleContext.TYPE_REFERENCE, ParserRuleContext.STREAM_KEYWORD };
 
@@ -1304,6 +1307,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RECORD_BODY_END:
             case RECORD_BODY_START:
             case TYPE_DESCRIPTOR:
+            case TYPE_DESC_WITH_ISOLATED:
             case RECORD_FIELD_OR_RECORD_END:
             case RECORD_FIELD_START:
             case RECORD_FIELD_WITHOUT_METADATA:
@@ -1592,6 +1596,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESCRIPTOR:
                 assert isInTypeDescContext();
                 alternativeRules = TYPE_DESCRIPTORS;
+                break;
+            case TYPE_DESC_WITH_ISOLATED:
+                alternativeRules = TYPE_DESCRIPTOR_WITH_ISOLATED;
                 break;
             case CLASS_DESCRIPTOR:
                 alternativeRules = CLASS_DESCRIPTOR;
@@ -3223,7 +3230,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_METHOD_THIRD_QUALIFIER:
                 return ParserRuleContext.OBJECT_METHOD_WITHOUT_THIRD_QUALIFIER;
             case OBJECT_METHOD_FOURTH_QUALIFIER:
-                return ParserRuleContext.FUNCTION_KEYWORD;
+                return ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE;
             case MODULE_VAR_DECL:
                 return ParserRuleContext.MODULE_VAR_DECL_START;
             case MODULE_VAR_FIRST_QUAL:
@@ -3334,9 +3341,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.SEMICOLON;
             case FUNCTION_KEYWORD:
                 parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.ANON_FUNC_EXPRESSION ||
-                        parentCtx == ParserRuleContext.FUNC_TYPE_DESC) {
+                if (parentCtx == ParserRuleContext.ANON_FUNC_EXPRESSION) {
                     return ParserRuleContext.OPEN_PARENTHESIS;
+                } else if (parentCtx == ParserRuleContext.FUNC_TYPE_DESC) {
+                    return ParserRuleContext.FUNC_TYPE_FUNC_KEYWORD_RHS;
                 }
                 return ParserRuleContext.FUNCTION_KEYWORD_RHS;
             case RETURNS_KEYWORD:
@@ -4867,6 +4875,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
      */
     private ParserRuleContext getNextRuleForFuncTypeFuncKeywordRhs() {
         ParserRuleContext parentCtx = getParentContext();
+        if (parentCtx == ParserRuleContext.FUNC_TYPE_DESC) {
+            return ParserRuleContext.FUNC_TYPE_FUNC_KEYWORD_RHS_START;
+        }
+        
         if (parentCtx == ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE) {
             endContext();
             parentCtx = getParentContext();
@@ -5006,6 +5018,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FUNC_DEF_OR_FUNC_TYPE:
             case FUNC_TYPE_DESC:
             case FUNC_TYPE_DESC_OR_ANON_FUNC:
+            case TYPE_DESC_WITH_ISOLATED:
                 return SyntaxKind.FUNCTION_KEYWORD;
             case SIMPLE_TYPE_DESCRIPTOR:
                 return SyntaxKind.ANY_KEYWORD;
@@ -5263,6 +5276,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_KEYWORD:
                 return SyntaxKind.TYPE_KEYWORD;
             case OBJECT_KEYWORD:
+            case OBJECT_IDENT:
+            case OBJECT_TYPE_DESCRIPTOR:
                 return SyntaxKind.OBJECT_KEYWORD;
             case PRIVATE_KEYWORD:
                 return SyntaxKind.PRIVATE_KEYWORD;
@@ -5337,8 +5352,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.FIELD_KEYWORD;
             case FUNCTION_IDENT:
                 return SyntaxKind.FUNCTION_KEYWORD;
-            case OBJECT_IDENT:
-                return SyntaxKind.OBJECT_KEYWORD;
             case RECORD_IDENT:
                 return SyntaxKind.RECORD_KEYWORD;
             case XMLNS_KEYWORD:

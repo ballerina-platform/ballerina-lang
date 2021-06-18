@@ -73,6 +73,7 @@ public enum ParserRuleContext {
     RECORD_FIELD_START("record-field-start"),
     RECORD_FIELD_WITHOUT_METADATA("record-field-without-metadata"),
     TYPE_DESCRIPTOR("type-descriptor"),
+    TYPE_DESC_WITH_ISOLATED("type-desc-with-isolated"),
     CLASS_DESCRIPTOR("class-descriptor"),
     RECORD_TYPE_DESCRIPTOR("record-type-desc"),
     TYPE_REFERENCE("type-reference"),
