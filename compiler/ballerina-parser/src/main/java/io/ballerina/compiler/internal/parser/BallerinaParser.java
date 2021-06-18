@@ -2782,9 +2782,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
             }
 
-            //Local type def is not allowed in new spec, hence add it as invalid node minutia.
-            if (stmt.kind == SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT) {
-                addInvalidNodeToNextToken(stmt, DiagnosticErrorCode.ERROR_LOCAL_TYPE_DEFINITION_NOT_ALLOWED);
+            if (isStmtNotAllowedInLocalLevel(stmt)) {
                 continue;
             }
 
@@ -2891,7 +2889,6 @@ public class BallerinaParser extends AbstractParser {
             case CLOSE_BRACE_TOKEN:
             case CLOSE_BRACE_PIPE_TOKEN:
             case IMPORT_KEYWORD:
-            case CONST_KEYWORD:
             case ANNOTATION_KEYWORD:
             case LISTENER_KEYWORD:
             case CLASS_KEYWORD:
@@ -4032,9 +4029,7 @@ public class BallerinaParser extends AbstractParser {
                 continue;
             }
 
-            //Local type def is not allowed in new spec, hence add it as invalid node minutia.
-            if (stmt.kind == SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT) {
-                addInvalidNodeToNextToken(stmt, DiagnosticErrorCode.ERROR_LOCAL_TYPE_DEFINITION_NOT_ALLOWED);
+            if (isStmtNotAllowedInLocalLevel(stmt)) {
                 continue;
             }
             stmts.add(stmt);
@@ -4078,6 +4073,19 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return parseStatement(annots);
+    }
+
+    boolean isStmtNotAllowedInLocalLevel(STNode statement) {
+        switch (statement.kind) {
+            case LOCAL_TYPE_DEFINITION_STATEMENT:
+                addInvalidNodeToNextToken(statement, DiagnosticErrorCode.ERROR_LOCAL_TYPE_DEFINITION_NOT_ALLOWED);
+                return true;
+            case CONST_DECLARATION:
+                addInvalidNodeToNextToken(statement, DiagnosticErrorCode.ERROR_LOCAL_CONST_DECL_NOT_ALLOWED);
+                return true;
+            default:
+                return false;
+        }
     }
 
     private STNode getAnnotations(STNode nullbaleAnnot) {
@@ -4153,6 +4161,10 @@ public class BallerinaParser extends AbstractParser {
             case TYPE_KEYWORD:
                 reportInvalidQualifierList(qualifiers);
                 return parseLocalTypeDefinitionStatement(getAnnotations(annots));
+            case CONST_KEYWORD:
+                // This is done to give proper error msg by invalidating local const-decl after parsing.
+                reportInvalidQualifierList(qualifiers);
+                return parseConstantDeclaration(annots, STNodeFactory.createEmptyNode());
             case LOCK_KEYWORD:
                 reportInvalidStatementAnnots(annots, qualifiers);
                 reportInvalidQualifierList(qualifiers);
@@ -9643,9 +9655,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
             }
 
-            //Local type def is not allowed in new spec, hence add it as invalid node minutia.
-            if (stmt.kind == SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT) {
-                addInvalidNodeToNextToken(stmt, DiagnosticErrorCode.ERROR_LOCAL_TYPE_DEFINITION_NOT_ALLOWED);
+            if (isStmtNotAllowedInLocalLevel(stmt)) {
                 continue;
             }
 
@@ -12939,7 +12949,6 @@ public class BallerinaParser extends AbstractParser {
             case CONTINUE_KEYWORD:
             case BREAK_KEYWORD:
             case RETURN_KEYWORD:
-            case TYPE_KEYWORD:
             case LOCK_KEYWORD:
             case OPEN_BRACE_TOKEN:
             case FORK_KEYWORD:
@@ -12965,6 +12974,8 @@ public class BallerinaParser extends AbstractParser {
                 // then validates it based on the context. This is done to provide
                 // better error messages
             case WORKER_KEYWORD:
+            case TYPE_KEYWORD: // This is done to give proper error msg by invalidating local type-def after parsing.
+            case CONST_KEYWORD: // This is done to give proper error msg by invalidating local const-decl after parsing.
                 return true;
             default:
                 // Var-decl-stmt start
