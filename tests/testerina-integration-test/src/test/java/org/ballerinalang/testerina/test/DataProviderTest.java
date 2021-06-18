@@ -20,15 +20,16 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
 
 /**
- * Test class to test positive scenarios of testerina using a ballerina project.
+ * Test class to test map based data provider implementation.
  */
-public class BasicCasesTest extends BaseTestCase {
+public class DataProviderTest extends BaseTestCase {
 
     private BMainInstance balClient;
     private String projectPath;
@@ -40,115 +41,78 @@ public class BasicCasesTest extends BaseTestCase {
     }
 
     @Test
-    public void testAssertions() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"assertions"});
+    public void testValidDataProvider() throws BallerinaTestException {
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "jsonDataProviderTest", "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "assertion failure");
+                new HashMap<>(), projectPath, false);
+        AssertionUtils.assertForTestFailures(output, "map based data provider failure");
     }
 
     @Test
-    public void testAssertDiffError() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"assertions-diff-error"});
+    public void testValidDataProviderWithFail() throws BallerinaTestException {
+        String msg1 = "1 passing";
+        String msg2 = "2 failing";
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "intDataProviderTest", "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "assertion diff message failure in test framework");
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            Assert.fail("Test failed due to map based data provider failure.");
+        }
+    }
+
+    @Test (dependsOnMethods = "testValidDataProviderWithFail")
+    public void testRerunFailedTest() throws BallerinaTestException {
+        String msg1 = "0 passing";
+        String msg2 = "2 failing";
+        String[] args = mergeCoverageArgs(new String[]{"--rerun-failed", "data-providers"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            Assert.fail("Test failed due to rerun failed tests failure with map based data provider.");
+        }
     }
 
     @Test
-    public void testAssertionErrorMessage() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"assertions-error-messages"});
+    public void testValidDataProviderCase() throws BallerinaTestException {
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "dataproviders:jsonDataProviderTest#json1",
+                "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "assertion diff message failure");
+                new HashMap<>(), projectPath, false);
+        AssertionUtils.assertForTestFailures(output, "map based data provider failure");
     }
 
     @Test
-    public void testAssertBehavioralTypes() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"assertions-behavioral-types"});
+    public void testDataProviderWithMixedType() throws BallerinaTestException {
+        String msg1 = "2 passing";
+        String msg2 = "0 failing";
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunction1#CaseNew*",
+                "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "assertion failure for behavioral data types");
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            Assert.fail("Test failed due to wildcard cases failure with map based data provider.");
+        }
     }
 
     @Test
-    public void testAssertStructuralTypes() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"assertions-structural-types"});
+    public void testInvalidDataProvider() throws BallerinaTestException {
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "invalidDataProviderTest",
+                "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "assertion failure for structural data types");
+                new HashMap<>(), projectPath, false);
+        if (!output.contains("The provided data set does not match the supported formats.")) {
+            Assert.fail("Test failed due to failure in handling invalid data provider.");
+        }
     }
 
     @Test
-    public void testAssertSequenceTypes() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"assertions-sequence-types"});
+    public void testErrorDataProvider() throws BallerinaTestException {
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "errorDataProviderTest",
+                "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "assertion failure for sequence data types");
+                new HashMap<>(), projectPath, false);
+        if (!output.contains("Error occurred while generating data set.")) {
+            Assert.fail("Test failed due to failure in handling errors in data provider.");
+        }
     }
-
-    @Test
-    public void testAnnotationAccess() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"annotation-access"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "test annotation access failure");
-    }
-
-    @Test
-    public void testJavaInterops() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"interops"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "interops failure");
-    }
-
-    @Test
-    public void testBeforeAfter() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"before-after"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "before-after annotation attribute failure");
-    }
-
-    @Test
-    public void testBeforeEachAfterEach() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"before-each-after-each"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "before-each-after-each annotation attribute failure");
-    }
-
-    @Test(dependsOnMethods = "testBeforeAfter")
-    public void testDependsOn() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"depends-on"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "depends-on annotation attribute failure");
-    }
-
-    @Test(dependsOnMethods = "testDependsOn")
-    public void testAnnotations() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"annotations"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "annotations failure");
-    }
-
-    @Test
-    public void testIsolatedFunctions() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"isolated-functions"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "isolated functions failure");
-    }
-
-    @Test
-    public void testIntersectionTypes() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"intersections-type-test"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "intersection type failure");
-    }
-
 }
