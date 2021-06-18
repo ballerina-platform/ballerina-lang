@@ -5317,7 +5317,7 @@ public class Desugar extends BLangNodeVisitor {
                 trxOnFailError);
         trxOnFailClause.body.scope.define(trxOnFailErrorSym.name, trxOnFailErrorSym);
 
-        // if (($trxError$ is error) && !($trxError$ is TransactionError) && transctional) {
+        // if (($trxError$ is error) && !($trxError$ is TransactionError) && transactional) {
         //     $shouldCleanUp$ = true;
         //     check panic rollback $trxError$;
         // }
@@ -5445,7 +5445,8 @@ public class Desugar extends BLangNodeVisitor {
             //                                  <Transaction Body>
             //                                 }
             //      if($trapResult$ is error) {
-            //          panic $trapResult$;
+            //          $shouldPanic$ = true;
+            //          error $trxError$ = <error> $trapResult$;
             //      }
             //      if ($shouldCleanUp$) {
             //          cleanupTransactionContext(1);
