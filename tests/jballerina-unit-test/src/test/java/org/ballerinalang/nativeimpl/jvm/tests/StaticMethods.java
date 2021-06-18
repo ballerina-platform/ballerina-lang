@@ -148,6 +148,19 @@ public class StaticMethods {
             case 1:
                 return 25;
             case 2:
+                return StringUtils.fromString("sample value return");
+            case 3:
+                return 54.88;
+            default:
+                return true;
+        }
+    }
+
+    public static Object acceptIntAnyReturn(int flag) {
+        switch (flag) {
+            case 1:
+                return 25;
+            case 2:
                 return "sample value return";
             case 3:
                 return 54.88;
@@ -388,7 +401,7 @@ public class StaticMethods {
 
     public static ArrayValue getJsonArray() {
         ArrayValue array = (ArrayValue) ValueCreator.createArrayValue(jsonArrayType);
-        array.add(0, (Object) "John");
+        array.add(0, (Object) StringUtils.fromString("John"));
         return array;
     }
 
@@ -610,7 +623,7 @@ public class StaticMethods {
         BMap<BString, Object> bmap = ValueCreator.createRecordValue(module, "(Student & readonly)");
         BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
                 StringUtils.fromString("name"), StringUtils.fromString("Riyafa")), ValueCreator.createKeyFieldEntry(
-                StringUtils.fromString("birth"), "Sri Lanka")};
+                StringUtils.fromString("birth"), StringUtils.fromString("Sri Lanka"))};
         return ValueCreator.createMapValue(bmap.getType(), mapInitialValueEntries);
     }
 
