@@ -3,8 +3,8 @@ NAME
                         definition
 
 SYNOPSIS
-       bal grpc --input <proto-file-path> [--output <path>]
-                        [--mode client | service | proxy]
+       bal grpc [--input <proto-file-path>] [--output <path>]
+                        [--mode] (client | service | proxy)
 
 DESCRIPTION
        GRPC generates the Ballerina gRPC client/service sources for a given

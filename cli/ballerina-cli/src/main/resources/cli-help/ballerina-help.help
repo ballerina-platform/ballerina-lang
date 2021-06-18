@@ -2,9 +2,9 @@ NAME
        The Ballerina Tool
 
 SYNOPSIS
-       bal <-v | --version>
-       bal [command] <-h | --help>
-       bal <command> [<args>]
+       bal [-v | --version]
+       bal [command] [-h | --help]
+       bal [command] <args>
 
 
 DESCRIPTION

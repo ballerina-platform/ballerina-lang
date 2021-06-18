@@ -2,6 +2,7 @@ NAME
        ballerina-push - Push packages to Ballerina Central or local repository
 
 SYNOPSIS
+       bal push
        bal push [--repository=local]
 
 

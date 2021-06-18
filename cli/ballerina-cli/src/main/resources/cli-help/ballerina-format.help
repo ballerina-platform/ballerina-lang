@@ -2,7 +2,8 @@ NAME
        ballerina-format - Format the Ballerina source files
 
 SYNOPSIS
-       bal format [-d | --dry-run] [<ballerina-file-path> | <module-name>]
+       bal format [-d | --dry-run] <ballerina-file-path> 
+       bal format [-d | --dry-run] <module-name>
 
 
 DESCRIPTION
