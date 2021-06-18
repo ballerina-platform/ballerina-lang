@@ -103,6 +103,13 @@ public class IsolationInferenceTest {
         BRunUtil.invoke(result, "testIsolatedInference");
     }
 
+    @Test
+    public void testIsolatedInferenceWithVariables() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/isolation-analysis/isolation_inference_with_variables.bal");
+        BRunUtil.invoke(result, "testIsolatedInference");
+    }
+
     // This is called from the test file via the attach method of the listener.
     public static Object testServiceDeclarationMethodIsolationInference(BObject listener, BObject s, Object name) {
         assertTrue(isResourceIsolated(s, "get", "foo"));
