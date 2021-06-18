@@ -37,6 +37,8 @@ function func() returns json|error {
     return 1;
 }
 
+type Error distinct error;
+
 type Person record {|
     string name = "";
     int age = 10;

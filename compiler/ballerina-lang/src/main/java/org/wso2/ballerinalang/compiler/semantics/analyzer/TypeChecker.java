@@ -5314,9 +5314,9 @@ public class TypeChecker extends BLangNodeVisitor {
     private void rewriteWithEnsureTypeFunc(BLangCheckedExpr checkedExpr, BType type) {
         BType rhsType = getCandidateType(checkedExpr, type);
         if (rhsType == symTable.semanticError) {
-            checkExpr(checkedExpr.expr, env);
+            rhsType = checkExpr(checkedExpr.expr, env);
         }
-        BType candidateLaxType = getLaxType(checkedExpr.expr);
+        BType candidateLaxType = getCandidateLaxType(checkedExpr.expr, rhsType);
         if (!types.isLax(candidateLaxType)) {
             return;
         }
@@ -5334,11 +5334,11 @@ public class TypeChecker extends BLangNodeVisitor {
         checkedExpr.expr = invocation;
     }
 
-    private BType getLaxType(BLangExpression expr) {
+    private BType getCandidateLaxType(BLangNode expr, BType rhsType) {
         if (expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-            return getLaxType(((BLangFieldBasedAccess) expr).expr);
+            return types.getSafeType(rhsType, false, true);
         }
-        return expr.getBType();
+        return rhsType;
     }
 
     private BType getCandidateType(BLangCheckedExpr checkedExpr, BType checkExprCandidateType) {
