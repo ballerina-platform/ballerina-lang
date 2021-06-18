@@ -152,6 +152,11 @@ public class RefTypeTests {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test
+    public void interopWithHandleOrErrorReturn() {
+        BRunUtil.invoke(result, "interopWithHandleOrErrorReturn");
+    }
+
     @Test(description = "Test interoperability with ballerina json return")
     public void testInteropWithJsonReturns() {
         BValue[] returns = BRunUtil.invoke(result, "testJsonReturns");

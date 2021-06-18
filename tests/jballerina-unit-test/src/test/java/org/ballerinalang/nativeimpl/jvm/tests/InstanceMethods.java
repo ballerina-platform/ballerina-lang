@@ -25,6 +25,8 @@ import io.ballerina.runtime.internal.values.BmpStringValue;
 import io.ballerina.runtime.internal.values.HandleValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * This class contains a set of utility instance methods required for interoperability testing.
  *
@@ -149,6 +151,22 @@ public class InstanceMethods {
             throw new InterruptedException();
         }
         return "handle ret";
+    }
+
+    public byte[] unionWithErrorReturnByteArray() throws InterruptedException {
+        byte[] byteArray = "Byte Test".getBytes();
+        if (false) {
+            throw new InterruptedException();
+        }
+        return byteArray;
+    }
+
+    public String[] unionWithErrorReturnStringArray() throws InterruptedException {
+        String[] strArray = {"makes", "integration", "easy"};
+        if (false) {
+            throw new InterruptedException();
+        }
+        return strArray;
     }
 
     public void errorDetail() throws JavaInteropTestCheckedException {

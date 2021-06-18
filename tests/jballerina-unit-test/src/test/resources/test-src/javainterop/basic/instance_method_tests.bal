@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/jballerina.java;
+import ballerina/test;
 
 function testAcceptNothingAndReturnNothing(handle receiver) {
     increaseCounterByOne(receiver);
@@ -78,6 +79,18 @@ function testUnionWithErrorReturnThrows(handle receiver) returns error|int|boole
 
 function testUnionWithErrorReturnHandle(handle receiver) returns error|int|boolean|byte|handle {
      return unionWithErrorReturnHandle(receiver);
+}
+
+function testUnionWithErrorReturnByteArray(handle receiver) {
+    handle|error handleOrError = unionWithErrorReturnByteArray(receiver);
+    test:assertEquals(handleOrError is handle, true);
+    test:assertEquals(handleOrError is error, false);
+}
+
+function testUnionWithErrorReturnStringArray(handle receiver) {
+    any|error anyOrError = unionWithErrorReturnStringArray(receiver);
+    test:assertEquals(anyOrError is any, true);
+    test:assertEquals(anyOrError is error, false);
 }
 
 function testInstanceResolve() {
@@ -179,6 +192,14 @@ public function unionWithErrorReturnThrows(handle receiver) returns error|int|bo
 } external;
 
 public function unionWithErrorReturnHandle(handle receiver) returns error|int|boolean|byte|handle = @java:Method{
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function unionWithErrorReturnByteArray(handle receiver) returns handle|error = @java:Method{
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function unionWithErrorReturnStringArray(handle receiver) returns any|error = @java:Method{
     'class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
 } external;
 
