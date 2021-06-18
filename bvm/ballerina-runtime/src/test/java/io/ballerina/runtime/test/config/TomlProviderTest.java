@@ -863,4 +863,40 @@ public class TomlProviderTest {
             }
         }
     }
+
+    @Test
+    public void testMultipleTomlModuleSections() {
+        Field name = TypeCreator.createField(TYPE_STRING, "name", SymbolFlags.REQUIRED);
+        Field age = TypeCreator.createField(TYPE_INT, "age", SymbolFlags.OPTIONAL);
+        Map<String, Field> fields = Map.ofEntries(Map.entry("name", name), Map.entry("age", age));
+        RecordType type =
+                TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY, fields, null, true, 6);
+        VariableKey person1 = new VariableKey(ROOT_MODULE, "person1", type, true);
+        VariableKey person2 = new VariableKey(ROOT_MODULE, "person2", type, true);
+        VariableKey person3 = new VariableKey(ROOT_MODULE, "person3", type, true);
+        Map<Module, VariableKey[]> configVarMap =
+                Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{person1, person2, person3}));
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
+                List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("DifferentModuleSections_record.toml"),
+                        configVarMap.keySet())));
+        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+        validateRecordValues(fields, Map.ofEntries(Map.entry("name", fromString("John")), Map.entry("age", 12L)),
+                configValueMap.get(person1), person1);
+        validateRecordValues(fields, Map.ofEntries(Map.entry("name", fromString("Jack")), Map.entry("age", 14L)),
+                configValueMap.get(person2), person2);
+        validateRecordValues(fields, Map.ofEntries(Map.entry("name", fromString("Jim")), Map.entry("age", 16L)),
+                configValueMap.get(person3), person3);
+    }
+
+    private void validateRecordValues(Map<String, Field> fields, Map<String, Object> expectedValues, Object record,
+                                      VariableKey variableKey) {
+        Assert.assertTrue(record instanceof BMap<?, ?>,
+                "Non-map value received for variable : " + variableKey.variable);
+        BMap<?, ?> recordValue = (BMap<?, ?>) record;
+        for (Map.Entry<String, Object> expectedField : expectedValues.entrySet()) {
+            BString fieldName = fromString(fields.get(expectedField.getKey()).getFieldName());
+            Assert.assertEquals((recordValue.get(fieldName)), expectedField.getValue());
+        }
+    }
 }
