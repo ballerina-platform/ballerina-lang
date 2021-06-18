@@ -14,7 +14,7 @@ DESCRIPTION
        executable will not be created.
 
        You may use the 'bal build' command to compile a source and
-       provide the generated binary file (.jar file) to the run command.
+       provide the generated binary (JAR) file to the run command.
        The binary runs much faster than a source file because running a source
        file requires a compilation phase.
 
