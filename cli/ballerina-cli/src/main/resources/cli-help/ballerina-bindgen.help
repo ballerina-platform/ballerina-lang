@@ -2,11 +2,12 @@ NAME
        ballerina-bindgen - A CLI tool for generating Ballerina bindings for Java APIs
 
 SYNOPSIS
-       bal bindgen [-cp|--classpath] <classpath>...
-                   [(-mvn|--maven) <groupId>:<artifactId>:<version>]
-                   [(-o|--output) <output-path>]
-                   [--public]
-                   (<class-name>...)
+       bal bindgen <class-name>...
+       bal bindgen [-cp|--classpath] <classpath>... <class-name>...
+       bal bindgen [-mvn|--maven] <groupId>:<artifactId>:<version> <class-name>...
+       bal bindgen [--public] [-o|--output] <output-path> <class-name>...
+       bal bindgen [--public] [-o|--output] <output-path> [-cp|--classpath] <classpath>...
+                   [-mvn|--maven] <groupId>:<artifactId>:<version> <class-name>...
 
 
 DESCRIPTION
@@ -23,7 +24,7 @@ DESCRIPTION
 
 OPTIONS
        (-cp|--classpath) <classpath>...
-           One or more comma-delimited classpaths for obtaining the jar files required for
+           One or more comma-delimited classpaths for obtaining the JAR files required for
            generating the Ballerina bindings. This is not needed if the Ballerina bridge code
            is to be generated for standard Java classes.
 
@@ -32,12 +33,12 @@ OPTIONS
            This would resolve the transitive dependencies and update the `Ballerina.toml` file.
 
        (-o|--output) <output-path>
-           Generate all bindings inside a single directory. This option could be used in
+           Generate all the bindings inside a single directory. This option could be used in
            instances where all the mappings are required inside a single module. The
            specified directory doesn't need to be inside a Ballerina package.
 
        --public
-           Set the visibility modifier of the generated binding objects to public. This flag
+           Set the visibility modifier of the generated binding objects to `public`. This flag
            will be applicable only if the bindings are generated inside a single directory.
 
        <class-name>...
