@@ -29,11 +29,11 @@ public function testLaxAccessJSONArray() {
     int[] y = check x;
 }
 
-public function testJSONReturnTypeDistinctErrorLifting() returns error? {
+public function testJSONReturnTypeDistinctErrorLifting() returns Error? {
     int x = check func();
 }
 
-function func() returns json|error {
+function func() returns json|Error {
     return 1;
 }
 
