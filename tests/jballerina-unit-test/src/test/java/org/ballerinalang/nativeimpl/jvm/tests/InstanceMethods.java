@@ -25,8 +25,6 @@ import io.ballerina.runtime.internal.values.BmpStringValue;
 import io.ballerina.runtime.internal.values.HandleValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
 
-import java.nio.charset.StandardCharsets;
-
 /**
  * This class contains a set of utility instance methods required for interoperability testing.
  *
