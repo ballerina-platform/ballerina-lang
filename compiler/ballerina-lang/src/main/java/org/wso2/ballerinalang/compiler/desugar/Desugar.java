@@ -4988,8 +4988,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangFail createOnFailInvocation(BLangOnFailClause onFailClause, BLangFail fail) {
         BLangBlockStmt onFailBody = ASTBuilderUtil.createBlockStmt(onFailClause.pos);
         onFailBody.stmts.addAll(onFailClause.body.stmts);
-        onFailBody.scope = onFailClause.body.scope;
-        onFailBody.mapSymbol = onFailClause.body.mapSymbol;
+        env.scope.entries.putAll(onFailClause.body.scope.entries);
         onFailBody.failureBreakMode = onFailClause.body.failureBreakMode;
 
         BVarSymbol onFailErrorVariableSymbol =
@@ -4998,7 +4997,7 @@ public class Desugar extends BLangNodeVisitor {
                 onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
                 onFailErrorVariableSymbol);
         BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
-        onFailBody.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
+        env.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
         onFailBody.stmts.add(0, errorVarDef);
 
         if (onFailClause.isInternal && fail.exprStmt != null) {
@@ -5317,7 +5316,7 @@ public class Desugar extends BLangNodeVisitor {
                 trxOnFailError);
         trxOnFailClause.body.scope.define(trxOnFailErrorSym.name, trxOnFailErrorSym);
 
-        // if (($trxError$ is error) && !($trxError$ is TransactionError) && transactional) {
+        // if (($trxError$ is error) && !($trxError$ is TransactionError) && transctional) {
         //     $shouldCleanUp$ = true;
         //     check panic rollback $trxError$;
         // }

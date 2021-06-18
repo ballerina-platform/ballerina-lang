@@ -27,7 +27,9 @@ function testOnFailEdgeTestcases() {
     testBreakWithinOnfail();
     assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Error caught at levet #2",
     testReturnWithinOnfail());
+    assertEquality(1, testIntReturnWithinOnfail());
     testBreakWithinOnfailForOuterLoop();
+    assertEquality(44, testLambdaFunctionWithOnFail());
 }
 
 function testUnreachableCodeWithIf(){
@@ -284,6 +286,21 @@ function testReturnWithinOnfail() returns string {
     return "should not reach here";
 }
 
+function testIntReturnWithinOnfail() returns int {
+    int i = 1;
+    while (i < 2) {
+        do {
+            fail getError();
+        } on fail error e {
+            fail getError();
+        }
+        i = i + 1;
+    } on fail error e {
+        return i;
+    }
+    return 0;
+}
+
 function testBreakWithinOnfailForOuterLoop() {
     string str = "";
     foreach int digit in 1...5 {
@@ -298,6 +315,24 @@ function testBreakWithinOnfailForOuterLoop() {
         str += "Looping with digit: " + digit.toString() + " ";
     }
     assertEquality("Looping with digit: 1 Looping with digit: 2 Looping with digit: 3 Loop broke with digit: 4", str);
+}
+
+function testLambdaFunctionWithOnFail() returns int {
+    var lambdaFunc = function () returns int {
+          int a = 10;
+          int b = 11;
+          int c = 0;
+          do {
+              error err = error("custom error", message = "error value");
+              c = a + b;
+              fail err;
+          } on fail error e {
+              function (int, int) returns int arrow = (x, y) => x + y + a + b + c;
+              a = arrow(1, 1);
+          }
+          return a;
+    };
+    return lambdaFunc();
 }
 
 function getCheckError()  returns int|error {
