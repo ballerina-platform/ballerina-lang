@@ -35,9 +35,9 @@ dependencies {
     }
     implementation 'org.apache.commons:commons-lang3'
     implementation 'io.opentelemetry:opentelemetry-api'
-    implementation ('org.awaitility:awaitility') {
-        exclude group: 'org.hamcrest', module: 'hamcrest-core'
-    }
+//    implementation ('org.awaitility:awaitility') {
+//        exclude group: 'org.hamcrest', module: 'hamcrest-core'
+//    }
     implementation('com.atomikos:transactions-jta:5.0.8') {
         exclude group: 'org.hibernate', module: 'hibernate'
     }
