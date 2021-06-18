@@ -22,7 +22,7 @@ DESCRIPTION
 
 OPTIONS
        (-cp|--classpath) <classpath>...
-           One or more comma-delimited classpaths for obtaining the JAR files are required for
+           One or more comma-delimited classpaths for obtaining the JAR files required for
            generating the Ballerina bindings. This is not needed if the Ballerina bridge code
            is to be generated for standard Java classes.
 
