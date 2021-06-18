@@ -1130,7 +1130,9 @@ public class BIRGen extends BLangNodeVisitor {
         // Visit condition expression
         this.env.enclBB = onFailBB;
         failNode.exprStmt.accept(this);
-        this.env.enclBB.terminator = new BIRTerminator.GOTO(failNode.pos, this.env.enclOnFailEndBB);
+        if (this.env.enclBB.terminator == null) {
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(failNode.pos, this.env.enclOnFailEndBB);
+        }
 
         // Statements after fail expression are unreachable, hence ignored
         BIRBasicBlock ignoreBlock = new BIRBasicBlock(this.env.nextBBId(names));
