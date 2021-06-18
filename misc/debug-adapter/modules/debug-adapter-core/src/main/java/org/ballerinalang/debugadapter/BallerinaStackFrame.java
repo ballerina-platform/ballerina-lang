@@ -22,6 +22,7 @@ import com.sun.jdi.ArrayReference;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
+import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Source;
@@ -57,6 +58,7 @@ public class BallerinaStackFrame {
     private static final String FRAME_SEPARATOR = ":";
     private static final String ACCESSOR_DEFAULT = "default";
     private static final String METHOD_INIT = "$init$";
+    private static final String SELF_VAR_NAME = "self";
     private static final String WORKER_LAMBDA_REGEX = "(\\$lambda\\$)\\b(.*)\\b(\\$lambda)(.*)";
 
     public BallerinaStackFrame(ExecutionContext context, Integer frameId, StackFrameProxyImpl stackFrameProxy) {
@@ -147,18 +149,22 @@ public class BallerinaStackFrame {
      * @return filtered ballerina stack frame name
      */
     private static String getFilteredStackFrame(StackFrameProxyImpl stackFrame) throws JdiProxyException {
-        Value value = stackFrame.getValue(stackFrame.visibleVariables().get(0));
         String stackFrameName = stackFrame.location().method().name();
-        if (isService(value)) {
+        LocalVariableProxyImpl selfVisibleVariable = stackFrame.visibleVariableByName(SELF_VAR_NAME);
+        if (selfVisibleVariable == null) {
+            return stackFrameName;
+        }
+        Value stackFrameValue = stackFrame.getValue(selfVisibleVariable);
+        if (isService(stackFrameValue)) {
             if (stackFrameName.equals(METHOD_INIT)) {
                 return BVariableType.SERVICE.getString();
             } else {
                 // Here stackFrameName format will be `$resourceAccessor$resourceName$otherResourceParts`
-                String[] serviceResources = stackFrameName.split("\\$");
-                if (serviceResources[1].equals(ACCESSOR_DEFAULT)) {
+                String[] stackFrameNameParts = stackFrameName.split("\\$");
+                if (!stackFrameNameParts[1].isEmpty() && stackFrameNameParts[1].equals(ACCESSOR_DEFAULT)) {
                     return ACCESSOR_DEFAULT;
                 }
-                return serviceResources[2];
+                return !stackFrameNameParts[2].isEmpty() ? stackFrameNameParts[2] : stackFrameName;
             }
         }
         return stackFrameName;
