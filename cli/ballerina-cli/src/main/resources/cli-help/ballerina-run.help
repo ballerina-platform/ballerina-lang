@@ -2,8 +2,14 @@ NAME
        ballerina-run - Build and execute a Ballerina program
 
 SYNOPSIS
-       bal run [<options>][<ballerina-file-path> | <executable-jar> | <ballerina-package-path>]
-       				 [-- <args...>]
+       bal run 
+       bal run <executable-jar> 
+       bal run [--offline] [--experimental] [--debug] [--observability-included] 
+               <ballerina-file-path> 
+       bal run [--offline] [--experimental] [--debug] [--observability-included] 
+               <ballerina-file-path> [--] <args...>
+       bal run [--offline] [--experimental] [--debug] [--observability-included] 
+               <ballerina-package-path> [--] <args...>
 
 
 DESCRIPTION

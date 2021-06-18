@@ -3,8 +3,8 @@ NAME
 
 SYNOPSIS
        bal [-v | --version]
-       bal [command] [-h | --help]
-       bal [command] <args>
+       bal help
+       bal <command> [-h | --help]
 
 
 DESCRIPTION

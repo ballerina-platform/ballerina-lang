@@ -6,7 +6,6 @@ SYNOPSIS
        bal doc <package-path>
        bal doc <package-path> [-o | --output] <output-path>]
        bal doc [--offline] [--experimental] <package-path>
-      
 
 DESCRIPTION
        Doc command builds the documentation for a Ballerina package.

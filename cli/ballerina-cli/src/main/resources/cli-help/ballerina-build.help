@@ -3,8 +3,16 @@ NAME
 
 SYNOPSIS
        bal build
-       bal build [<options>] [<ballerina-file-path> | <ballerina-package-path>]
-
+       bal build <ballerina-file-path> 
+       bal build <ballerina-package-path>
+       bal build [--test-report] [--offline] [--experimental] [-o | --output] <output-path> 
+                  <ballerina-file-path> 
+       bal build [-c | --compile] [--offline] [experimental] [--cloud] [--observability-included] 
+                 [--skip-tests] [--list-conflicted-classes] <ballerina-package-path> 
+       bal build [-c | --compile] [--offline] [experimental] [--cloud] [--observability-included] 
+                 [--list-conflicted-classes] [--debug]  [--test-report] [--code-coverage] 
+                 <ballerina-package-path>
+         
 
 DESCRIPTION
        Build compiles Ballerina sources and produces executable JAR file(s). However, 
@@ -62,15 +70,6 @@ OPTIONS
 
        --list-conflicted-classes
        		List conflicting classes of conflicting jars in the project.
-
-
-CONFIG PROPERTIES
-       (--key=value)...
-           Set the Ballerina environment parameters as key/value pairs.
-           If multiple parameters need to be provided, each parameter
-           has to be prefixed with '--'. Details of the environment parameters
-           supported by the Ballerina standard library packages are specified
-           in the relevant API documentation.
 
 
 EXAMPLES
