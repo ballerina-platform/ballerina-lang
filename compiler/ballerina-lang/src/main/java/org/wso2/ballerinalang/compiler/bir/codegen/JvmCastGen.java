@@ -1290,6 +1290,9 @@ public class JvmCastGen {
     private void generateCheckCastToUnionType(MethodVisitor mv, BType sourceType, BUnionType targetType) {
 
         generateCastToAny(mv, sourceType);
+        if (targetType.getMemberTypes().contains(sourceType)) {
+            return;
+        }
         checkCast(mv, targetType);
     }
 
