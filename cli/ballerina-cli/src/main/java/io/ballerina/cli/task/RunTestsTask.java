@@ -296,7 +296,7 @@ public class RunTestsTask implements Task {
      */
     private void filterKeyBasedTests(String moduleName, TestSuite suite, List<String> singleExecTests) {
         Map<String, List<String>> keyValues = new HashMap<>();
-        int i = 0;
+        List<String> updatedSingleExecTests = new ArrayList<>();
         for (String testName : singleExecTests) {
             if (testName.contains(DATA_KEY_SEPARATOR) && includesModule(testName, suite.getPackageID(), moduleName)) {
                 // Separate test name and the data set key
@@ -314,17 +314,25 @@ public class RunTestsTask implements Task {
                         keyValues.put(originalTestName, new ArrayList<>(Arrays.asList(parts[1])));
                     }
                     // Update the test name in the filtered test list
-                    singleExecTests.set(i, originalTestName);
+                    if (!updatedSingleExecTests.contains(originalTestName)) {
+                        updatedSingleExecTests.add(originalTestName);
+                    }
                 } catch (IndexOutOfBoundsException e) {
                     throw createLauncherException("error occurred while filtering tests based on provided key values",
                             e);
                 }
+            } else {
+                if (!updatedSingleExecTests.contains(testName)) {
+                    updatedSingleExecTests.add(testName);
+                }
             }
-            i++;
         }
         if (!keyValues.isEmpty()) {
             suite.setSingleDDTExecution(true);
             suite.setDataKeyValues(keyValues);
+            //Update the single exec test list
+            singleExecTests.clear();
+            singleExecTests.addAll(updatedSingleExecTests);
         }
     }
 

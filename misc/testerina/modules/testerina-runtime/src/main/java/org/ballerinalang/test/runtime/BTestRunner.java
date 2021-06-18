@@ -500,8 +500,10 @@ public class BTestRunner {
         List<String> keyList = suite.getDataKeyValues().get(testName);
         for (String keyValue : keyList) {
             isIncluded = Pattern.matches(keyValue.replace(TesterinaConstants.WILDCARD, DOT +
-                            TesterinaConstants.WILDCARD),
-                    key);
+                            TesterinaConstants.WILDCARD), key);
+            if (isIncluded) {
+                break;
+            }
         }
         return isIncluded;
     }
@@ -558,8 +560,14 @@ public class BTestRunner {
                         computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
                                 valueSets);
                     }
+                } else if (valueSets instanceof BError || valueSets instanceof Error ||
+                        valueSets instanceof Exception) {
+                    computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
+                            valueSets);
+                } else {
+                    computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
+                            new Error("The provided data set does not match the supported formats."));
                 }
-
             }
         } else {
             // If the test function is skipped lets add it to the failed test list
