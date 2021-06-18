@@ -61,6 +61,7 @@ public class CyclicTypeDefinitionsTest {
                 {"testCyclicUserDefinedTypes"},
                 {"testCyclicRestType"},
                 {"testCastingToImmutableCyclicTuple"},
+                {"recursiveTupleArrayCloneTest"},
         };
     }
 
