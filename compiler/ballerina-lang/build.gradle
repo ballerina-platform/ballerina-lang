@@ -29,7 +29,7 @@ dependencies {
     implementation 'io.netty:netty-buffer'
     implementation 'org.ow2.asm:asm'
     //implementation 'org.ow2.asm:asm-util'
-    implementation 'org.ow2.asm:asm-tree'
+    //implementation 'org.ow2.asm:asm-tree'
     implementation 'commons-io:commons-io'
     implementation 'com.github.zafarkhaja:java-semver'
     testCompile 'org.testng:testng'
