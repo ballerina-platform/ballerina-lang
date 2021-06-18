@@ -270,6 +270,16 @@ public class TomlProviderTest {
         Module clashingModule4 = new Module("test_module", "util", "1.0.0");
         VariableKey[] clashingVariableKeys4 = getSimpleVariableKeys(clashingModule4);
 
+        VariableKey[] rootVariables = {new VariableKey(ROOT_MODULE, "a", PredefinedTypes.TYPE_STRING, true),
+                new VariableKey(ROOT_MODULE, "b", PredefinedTypes.TYPE_STRING, true),
+                new VariableKey(ROOT_MODULE, "c", PredefinedTypes.TYPE_STRING, true)};
+        VariableKey[] subModuleVariables = {new VariableKey(subModule, "a", PredefinedTypes.TYPE_STRING, true),
+                new VariableKey(subModule, "b", PredefinedTypes.TYPE_STRING, true),
+                new VariableKey(subModule, "c", PredefinedTypes.TYPE_STRING, true)};
+        VariableKey[] importedVariables = {new VariableKey(importedModule, "a", PredefinedTypes.TYPE_STRING, true),
+                new VariableKey(importedModule, "b", PredefinedTypes.TYPE_STRING, true),
+                new VariableKey(importedModule, "c", PredefinedTypes.TYPE_STRING, true)};
+
         Set<Module> moduleSet = Set.of(ROOT_MODULE);
         return new Object[][]{
                 {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys), Map.entry(subModule, subVariableKeys),
@@ -467,6 +477,59 @@ public class TomlProviderTest {
                                 Map.entry(importedVariableKeys[1], fromString("four"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule10.toml"),
                                 Set.of(ROOT_MODULE, subModule, clashingModule3)))
+                },
+                {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariables)),
+                        Map.ofEntries(Map.entry(rootVariables[0], fromString("value a")),
+                                Map.entry(rootVariables[1], fromString("value b")),
+                                Map.entry(rootVariables[2], fromString("value c"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("DifferentModuleSections_root.toml"),
+                                Set.of(ROOT_MODULE)))
+                },
+                {Map.ofEntries(Map.entry(subModule, subModuleVariables)),
+                        Map.ofEntries(Map.entry(subModuleVariables[0], fromString("value a")),
+                                Map.entry(subModuleVariables[1], fromString("value b")),
+                                Map.entry(subModuleVariables[2], fromString("value c"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("DifferentModuleSections_sub.toml"),
+                                Set.of(subModule)))
+                },
+                {Map.ofEntries(Map.entry(importedModule, importedVariables)),
+                        Map.ofEntries(Map.entry(importedVariables[0], fromString("value a")),
+                                Map.entry(importedVariables[1], fromString("value b")),
+                                Map.entry(importedVariables[2], fromString("value c"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("DifferentModuleSections_imported" +
+                                ".toml"), Set.of(importedModule)))
+                },
+                {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariables), Map.entry(subModule, subModuleVariables),
+                        Map.entry(importedModule, importedVariables)),
+                        Map.ofEntries(Map.entry(rootVariables[0], fromString("value a")),
+                                Map.entry(rootVariables[1], fromString("value b")),
+                                Map.entry(rootVariables[2], fromString("value c")),
+                                Map.entry(subModuleVariables[0], fromString("value a")),
+                                Map.entry(subModuleVariables[1], fromString("value b")),
+                                Map.entry(subModuleVariables[2], fromString("value c")),
+                                Map.entry(importedVariables[0], fromString("value a")),
+                                Map.entry(importedVariables[1], fromString("value b")),
+                                Map.entry(importedVariables[2], fromString("value c"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("DifferentModuleSections.toml"),
+                                Set.of(ROOT_MODULE, subModule, importedModule)))
+                },
+                {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
+                        Map.entry(clashingModule1, clashingVariableKeys1)),
+                        Map.ofEntries(Map.entry(rootVariableKeys[0], 54L),
+                                Map.entry(rootVariableKeys[1], fromString("abc")),
+                                Map.entry(clashingVariableKeys1[0], 32L),
+                                Map.entry(clashingVariableKeys1[1], fromString("pqr"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("DifferentModuleSections_clash1.toml"),
+                                Set.of(ROOT_MODULE, clashingModule1)))
+                },
+                {Map.ofEntries(Map.entry(subModule, subVariableKeys),
+                        Map.entry(clashingModule2, clashingVariableKeys2)),
+                        Map.ofEntries(Map.entry(subVariableKeys[0], 12L),
+                                Map.entry(subVariableKeys[1], fromString("apple")),
+                                Map.entry(clashingVariableKeys2[0], 34L),
+                                Map.entry(clashingVariableKeys2[1], fromString("orange"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("DifferentModuleSections_clash2.toml"),
+                                Set.of(subModule, clashingModule2)))
                 },
         };
 
