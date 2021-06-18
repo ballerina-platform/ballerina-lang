@@ -41,10 +41,8 @@ public class BLangOnFailClause extends BLangNode implements OnFailClauseNode {
     public VariableDefinitionNode variableDefinitionNode;
     public BType varType;
     public boolean isDeclaredWithVar;
-    public boolean statementBlockReturns;
     public boolean bodyContainsFail;
     public boolean isInternal;
-    public Set<BSymbol> possibleClosureSymbols = new HashSet<>();
 
     public BLangOnFailClause() {
     }

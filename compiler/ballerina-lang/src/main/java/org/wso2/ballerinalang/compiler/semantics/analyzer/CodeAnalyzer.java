@@ -304,7 +304,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private Stack<Boolean> returnWithinTransactionCheckStack = new Stack<>();
     private Stack<Boolean> doneWithinTransactionCheckStack = new Stack<>();
     private Stack<Boolean> transactionalFuncCheckStack = new Stack<>();
-    private Stack<Boolean> returnWithinLambdaWrappingCheckStack = new Stack<>();
     private BLangNode parent;
     private Names names;
     private SymbolEnv env;
@@ -790,10 +789,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (checkReturnValidityInTransaction()) {
             this.dlog.error(returnStmt.pos, DiagnosticErrorCode.RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
-        }
-        if (!this.returnWithinLambdaWrappingCheckStack.empty()) {
-            this.returnWithinLambdaWrappingCheckStack.pop();
-            this.returnWithinLambdaWrappingCheckStack.push(true);
         }
 
         this.statementReturns = true;
@@ -3897,7 +3892,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.failVisited = false;
         this.resetLastStatement();
         this.resetErrorThrown();
-        this.returnWithinLambdaWrappingCheckStack.push(false);
         BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
         for (BType errorType : errorTypes.peek()) {
             if (!types.isAssignable(errorType, onFailVarNode.getBType())) {
@@ -3907,8 +3901,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         analyzeNode(onFailClause.body, env);
         onFailClause.bodyContainsFail = this.failVisited;
-        onFailClause.statementBlockReturns = this.returnWithinLambdaWrappingCheckStack.peek();
-        this.returnWithinLambdaWrappingCheckStack.pop();
         this.resetErrorThrown();
         this.failVisited = currentFailVisited;
     }
