@@ -472,7 +472,7 @@ public class Main {
         @CommandLine.Option(names = { "--version", "-v" }, hidden = true)
         private boolean versionFlag;
 
-        @CommandLine.Parameters
+        @CommandLine.Parameters(arity = "0..1")
         private List<String> argList = new ArrayList<>();
 
         @Override
@@ -482,11 +482,9 @@ public class Main {
                 return;
             }
 
-            if (helpFlag) {
-                if (!argList.isEmpty()) {
-                    printUsageInfo(argList.get(0));
-                    return;
-                }
+            if (!argList.isEmpty()) {
+                printUsageInfo(argList.get(0));
+                return;
             }
 
             printUsageInfo(BallerinaCliCommands.HELP);
