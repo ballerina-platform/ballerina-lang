@@ -6,7 +6,7 @@ SYNOPSIS
 
 
 DESCRIPTION
-       The search command searches Ballerina Central for the given keyword appearing
+       Search Ballerina Central for the given keyword appearing
        in the organization name, package name, or package descriptions.
 
-       The keyword is treated as case-insensitive when search is executed.
+       The keyword is treated as case-insensitive when the search is executed.

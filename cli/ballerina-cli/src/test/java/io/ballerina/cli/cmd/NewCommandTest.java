@@ -62,7 +62,7 @@ public class NewCommandTest extends BaseCommandTest {
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[build-options]\n" +
-                "observabilityIncluded = true";
+                "observabilityIncluded = true\n";
         Assert.assertEquals(tomlContent, expectedContent);
 
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
@@ -86,7 +86,7 @@ public class NewCommandTest extends BaseCommandTest {
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[build-options]\n" +
-                "observabilityIncluded = true";
+                "observabilityIncluded = true\n";
         Assert.assertEquals(tomlContent, expectedContent);
 
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
@@ -120,7 +120,7 @@ public class NewCommandTest extends BaseCommandTest {
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[build-options]\n" +
-                "observabilityIncluded = true";
+                "observabilityIncluded = true\n";
         Assert.assertEquals(tomlContent, expectedContent);
 
         Assert.assertTrue(Files.exists(packageDir.resolve("service.bal")));
@@ -161,7 +161,7 @@ public class NewCommandTest extends BaseCommandTest {
                 "version = \"0.1.0\"\n" +
                 "\n" +
                 "[build-options]\n" +
-                "observabilityIncluded = true";
+                "observabilityIncluded = true\n";
         Assert.assertEquals(tomlContent, expectedTomlContent);
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve("lib_sample.bal")));
