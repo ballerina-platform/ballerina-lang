@@ -10,11 +10,6 @@ DESCRIPTION
        The nhome repository resides within the home folder (the ‘.ballerina’
        folder by default).
 
-
-OPTIONS
-       This command does not take any options.
-
-
 DEFAULT BEHAVIOR
        Uninstall a module from the home repository.
 

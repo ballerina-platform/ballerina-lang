@@ -3,6 +3,7 @@ NAME
        Central or to a local repository
 
 SYNOPSIS
+       bal push
        bal push [--repository=local]
 
 

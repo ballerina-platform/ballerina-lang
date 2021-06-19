@@ -2,7 +2,7 @@ NAME
        ballerina-version - Print the Ballerina version
 
 SYNOPSIS
-       bal version
+       bal [-v | version]
 
 
 DESCRIPTION

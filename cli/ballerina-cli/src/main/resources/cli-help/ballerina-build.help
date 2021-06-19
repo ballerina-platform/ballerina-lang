@@ -2,8 +2,17 @@ NAME
        ballerina-build - Build the Ballerina package and generate an executable
 
 SYNOPSIS
-       bal build [<options>] [<ballerina-file-path> | <ballerina-package-path>]
-
+       bal build
+       bal build <ballerina-file-path> 
+       bal build <ballerina-package-path>
+       bal build [--test-report] [--offline] [--experimental] [-o | --output] <output-path> 
+                  <ballerina-file-path> 
+       bal build [-c | --compile] [--offline] [experimental] [--cloud] [--observability-included] 
+                 [--skip-tests] [--list-conflicted-classes] <ballerina-package-path> 
+       bal build [-c | --compile] [--offline] [experimental] [--cloud] [--observability-included] 
+                 [--list-conflicted-classes] [--debug]  [--test-report] [--code-coverage] 
+                 <ballerina-package-path>
+         
 
 DESCRIPTION
        Compile Ballerina sources and produce the executable JAR file. However, 
@@ -63,22 +72,13 @@ OPTIONS
        		List the conflicting classes of conflicting JARs in the project.
 
 
-CONFIG PROPERTIES
-       (--key=value)...
-           Set the Ballerina environment parameters as key/value pairs.
-           If multiple parameters need to be provided, each parameter
-           has to be prefixed with '--'. Details of the environment parameters
-           supported by the Ballerina standard library packages are specified
-           in the relevant API documentation.
-
-
 EXAMPLES
-       Compile a Ballerina source file and create an executable JAR.
-          $ bal build hello.bal
-
        Build the 'hello' package that has an entry point. This will generate a
         `hello.jar` file in the '<package-root>/target/bin' directory.
           $ bal build
+       
+       Compile a Ballerina source file and create an executable JAR.
+          $ bal build hello.bal
 
        Build the 'hello' library package with '--compile'/'-c' flag. This will
        generate the `<org-name>-<package-name>-<version>-<platform>.bala` file in 

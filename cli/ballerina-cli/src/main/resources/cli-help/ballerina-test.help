@@ -2,8 +2,18 @@ NAME
        ballerina-test - Run package tests
 
 SYNOPSIS
-       bal test [<options>] [<ballerina-file-path> | <ballerina-package-path>]
-
+       bal test
+       bal test [--debug] <port>
+       bal test [--offline] [--rerun-failed] [--experimental] [--observability-included]
+       bal test [--code-coverage] [--coverage-format] <xml> [--test-report]
+       bal test [<ballerina-file-path> | <ballerina-package-path>] [--list-groups]
+       bal test [<ballerina-file-path> | <ballerina-package-path>] [--groups] <test_group, ...>
+       bal test [<ballerina-file-path> | <ballerina-package-path>] 
+                [--disable-groups] <test_group, ...>
+       bal test [<ballerina-file-path> | <ballerina-package-path>] 
+                <PackageName>.<ModuleName>:<test_function_name, ...>        
+               
+            
 
 DESCRIPTION
        Compile and execute Ballerina test sources and print a summary of

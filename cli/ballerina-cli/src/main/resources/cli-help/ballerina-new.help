@@ -3,6 +3,7 @@ NAME
 
 SYNOPSIS
        bal new <package-path>
+       bal new <package-path> [-t |--template] <template-name>
 
 
 DESCRIPTION

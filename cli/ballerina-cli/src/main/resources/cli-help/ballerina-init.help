@@ -4,6 +4,7 @@ NAME
 SYNOPSIS
        bal init
        bal init <package-name>
+       bal init <package-name> [-t | --template] <template-name>
 
 
 DESCRIPTION
