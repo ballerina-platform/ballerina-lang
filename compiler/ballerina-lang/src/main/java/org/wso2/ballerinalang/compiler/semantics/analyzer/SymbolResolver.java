@@ -313,7 +313,10 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private boolean hasSameOwner(BSymbol symbol, BSymbol foundSym) {
         // check whether the given symbol owner is same as found symbol's owner
-        if (foundSym.owner == symbol.owner) {
+        if (foundSym.owner == symbol.owner || (foundSym.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE &&
+                (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE &&
+                (foundSym.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE &&
+                foundSym.pkgID.equals(symbol.pkgID)) {
             return true;
         } else if ((foundSym.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE && foundSym.pkgID.equals(symbol.pkgID) &&
                 symbol.tag == SymTag.TYPE_DEF) {
