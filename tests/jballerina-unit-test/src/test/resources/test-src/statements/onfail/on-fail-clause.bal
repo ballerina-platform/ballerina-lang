@@ -303,18 +303,22 @@ function testIntReturnWithinOnfail() returns int {
 
 function testBreakWithinOnfailForOuterLoop() {
     string str = "";
-    foreach int digit in 1...5 {
+    foreach int digit in 1 ... 5 {
         do {
-            if (digit > 3) {
-                fail getError();
-            }
+            fail getError();
         } on fail error e {
-            str += "Loop broke with digit: " + digit.toString();
-            break;
+            if (digit < 4) {
+                str += "Loop continued with digit: " + digit.toString() + " ->";
+                continue;
+            } else {
+                str += "Loop broke with digit: " + digit.toString();
+                break;
+            }
         }
-        str += "Looping with digit: " + digit.toString() + " ";
+        str += "-> should not reach here!";
     }
-    assertEquality("Looping with digit: 1 Looping with digit: 2 Looping with digit: 3 Loop broke with digit: 4", str);
+    assertEquality("Loop continued with digit: 1 ->Loop continued with digit: 2 ->Loop continued with digit: 3 " +
+    "->Loop broke with digit: 4", str);
 }
 
 function testLambdaFunctionWithOnFail() returns int {
