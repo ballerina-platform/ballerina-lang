@@ -63,6 +63,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -72,8 +73,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -137,6 +140,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -1381,6 +1385,10 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangCommitExpr commitExpr) {
+    }
+
+    @Override
     public void visit(BLangAssignment bLangAssignment) {
         bLangAssignment.varRef.accept(this);
         bLangAssignment.expr.accept(this);
@@ -1502,6 +1510,12 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
         actionInvocationExpr.argExprs.forEach(arg -> arg.accept(this));
+        actionInvocationExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        errorConstructorExpr.errorDetail.accept(this);
     }
 
     @Override
@@ -1546,6 +1560,10 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
         listConstructorExpr.exprs.forEach(expression -> expression.accept(this));
+    }
+
+    @Override
+    public void visit(BLangTableConstructorExpr tableConstructorExpr) {
     }
 
     @Override
@@ -1902,6 +1920,7 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryAction queryAction) {
+        queryAction.getQueryClauses().forEach(clause -> clause.accept(this));
     }
 
     @Override
@@ -1933,6 +1952,13 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangJoinClause joinClause) {
+        joinClause.collection.accept(this);
+        ((BLangNode) joinClause.onClause.getLeftExpression()).accept(this);
+        ((BLangNode) joinClause.onClause.getRightExpression()).accept(this);
+    }
+
+    @Override
     public void visit(BLangLetClause letClause) {
     }
 
@@ -1952,14 +1978,34 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangOnConflictClause onConflictClause) {
+        onConflictClause.expression.accept(this);
+    }
+
+    @Override
     public void visit(BLangLimitClause limitClause) {
         limitClause.expression.accept(this);
+    }
+
+    @Override
+    public void visit(BLangOrderByClause orderByClause) {
+        orderByClause.orderByKeyList.forEach(key -> ((BLangOrderKey) key).expression.accept(this));
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
         whileNode.expr.accept(this);
         whileNode.body.accept(this);
+    }
+
+    @Override
+    public void visit(BLangDo doNode) {
+        doNode.body.stmts.forEach(stmt -> stmt.accept(this));
+    }
+
+    @Override
+    public void visit(BLangOnFailClause onFailClause) {
+        onFailClause.body.stmts.forEach(stmt -> stmt.accept(this));
     }
 
     @Override

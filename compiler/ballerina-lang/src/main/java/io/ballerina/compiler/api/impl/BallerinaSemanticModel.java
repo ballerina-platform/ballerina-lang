@@ -30,6 +30,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -41,10 +42,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
@@ -190,7 +195,8 @@ public class BallerinaSemanticModel implements SemanticModel {
             return Collections.emptyList();
         }
 
-        BLangNode node = new NodeFinder().lookupEnclosingContainer(this.bLangPackage, symbolLocation.get().lineRange());
+        BLangNode node = new NodeFinder(false)
+                .lookupEnclosingContainer(this.bLangPackage, symbolLocation.get().lineRange());
 
         ReferenceFinder refFinder = new ReferenceFinder(withDefinition);
         return refFinder.findReferences(node, getInternalSymbol(symbol));
@@ -206,7 +212,8 @@ public class BallerinaSemanticModel implements SemanticModel {
             return Collections.emptyList();
         }
 
-        BLangNode node = new NodeFinder().lookupEnclosingContainer(this.bLangPackage, symbolAtCursor.pos.lineRange());
+        BLangNode node = new NodeFinder(false)
+                .lookupEnclosingContainer(this.bLangPackage, symbolAtCursor.pos.lineRange());
 
         ReferenceFinder refFinder = new ReferenceFinder(withDefinition);
         return refFinder.findReferences(node, symbolAtCursor);
@@ -218,7 +225,7 @@ public class BallerinaSemanticModel implements SemanticModel {
     @Override
     public Optional<TypeSymbol> type(LineRange range) {
         BLangCompilationUnit compilationUnit = getCompilationUnit(range.filePath());
-        NodeFinder nodeFinder = new NodeFinder();
+        NodeFinder nodeFinder = new NodeFinder(true);
         BLangNode node = nodeFinder.lookup(compilationUnit, range);
 
         if (node == null) {
@@ -226,6 +233,19 @@ public class BallerinaSemanticModel implements SemanticModel {
         }
 
         return Optional.ofNullable(typesFactory.getTypeDescriptor(node.getBType()));
+    }
+
+    @Override
+    public Optional<TypeSymbol> typeOf(LineRange range) {
+        BLangCompilationUnit compilationUnit = getCompilationUnit(range.filePath());
+        NodeFinder nodeFinder = new NodeFinder(false);
+        BLangNode node = nodeFinder.lookup(compilationUnit, range);
+
+        if (!(node instanceof BLangExpression) && !isObjectConstructorExpr(node) && !isAnonFunctionExpr(node)) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(typesFactory.getTypeDescriptor(node.getDeterminedType()));
     }
 
     /**
@@ -240,6 +260,17 @@ public class BallerinaSemanticModel implements SemanticModel {
         }
 
         return type(node.location().lineRange());
+    }
+
+    @Override
+    public Optional<TypeSymbol> typeOf(Node node) {
+        Optional<Location> nodeIdentifierLocation = node.apply(new SyntaxNodeToLocationMapper());
+
+        if (nodeIdentifierLocation.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return typeOf(node.location().lineRange());
     }
 
     /**
@@ -395,5 +426,14 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private boolean isFilteredVarSymbol(BSymbol symbol, Set<DiagnosticState> states) {
         return symbol instanceof BVarSymbol && !states.contains(((BVarSymbol) symbol).state);
+    }
+
+    private boolean isObjectConstructorExpr(BLangNode node) {
+        return node instanceof BLangClassDefinition && ((BLangClassDefinition) node).flagSet.contains(Flag.OBJECT_CTOR);
+    }
+
+    private boolean isAnonFunctionExpr(BLangNode node) {
+        return (node instanceof BLangFunction && ((BLangFunction) node).flagSet.contains(Flag.LAMBDA))
+                || node instanceof BLangArrowFunction;
     }
 }

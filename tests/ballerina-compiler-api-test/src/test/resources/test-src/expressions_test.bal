@@ -173,6 +173,11 @@ function testDependentlyTypedSignatures() {
     int x = p.depFoo("bar", 10, 20);
 }
 
+function testExpr() {
+    TestClass tc = new;
+    int x = tc.testFn();
+}
+
 // utils
 
 class PersonObj {
@@ -204,5 +209,11 @@ public class Listener {
     }
 
     public function attach(service object {} s, string[]? name = ()) returns error? {
+    }
+}
+
+class TestClass {
+    function testFn() returns int|error {
+        return 1;
     }
 }

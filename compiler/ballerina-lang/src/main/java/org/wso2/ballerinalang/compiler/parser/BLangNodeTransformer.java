@@ -2216,7 +2216,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         SyntaxKind kind = expressionNode.kind();
         switch (kind) {
             case XML_TEMPLATE_EXPRESSION:
-                return createXmlTemplateLiteral(expressionNode);
+                BLangNode xmlTemplateLiteral = createXmlTemplateLiteral(expressionNode);
+                xmlTemplateLiteral.pos = getPosition(expressionNode);
+                return xmlTemplateLiteral;
             case STRING_TEMPLATE_EXPRESSION:
                 return createStringTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
             case RAW_TEMPLATE_EXPRESSION:
@@ -2531,6 +2533,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         var.pos = getPositionWithoutMetadata(listenerDeclarationNode);
         var.name.pos = getPosition(listenerDeclarationNode.variableName());
         var.annAttachments = applyAll(getAnnotations(listenerDeclarationNode.metadata()));
+        var.markdownDocumentationAttachment =
+                createMarkdownDocumentationAttachment(getDocumentationString(listenerDeclarationNode.metadata()));
         return var;
     }
 

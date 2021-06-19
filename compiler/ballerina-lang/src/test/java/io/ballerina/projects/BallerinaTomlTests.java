@@ -302,58 +302,6 @@ public class BallerinaTomlTests {
                             "invalid 'version' under [package]: 'version' should be compatible with semver");
     }
 
-    @Test
-    public void testIncompleteBallerinaToml() throws IOException {
-        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("incomplete-syntax.toml"));
-        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
-        Assert.assertEquals(packageManifest.diagnostics().errors().iterator().next().message(),
-                            "missing close bracket token");
-    }
-
-    @Test
-    public void testBallerinaTomlStartsWithComment() throws IOException {
-        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("starts-with-comment.toml"));
-        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
-        Assert.assertEquals(packageManifest.descriptor().org().value(), "ballerina");
-        Assert.assertEquals(packageManifest.descriptor().name().value(), "lang.annotations");
-        Assert.assertEquals(packageManifest.descriptor().version().value().toString(), "1.0.0");
-    }
-
-    @Test
-    public void testBallerinaTomlStartsWithMultiLineComment() throws IOException {
-        PackageManifest packageManifest =
-                getPackageManifest(BAL_TOML_REPO.resolve("starts-with-multi-line-comment.toml"));
-        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
-        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
-        Assert.assertEquals(packageManifest.descriptor().org().value(), "ballerina");
-        Assert.assertEquals(packageManifest.descriptor().name().value(), "lang.annotations");
-        Assert.assertEquals(packageManifest.descriptor().version().value().toString(), "1.0.0");
-    }
-
-    @Test
-    public void testBallerinaTomlWithEmptyAuthorsArray() throws IOException {
-        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("empty-authors.toml"));
-        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
-        Assert.assertEquals(packageManifest.authors(), Collections.emptyList());
-    }
-
-    @Test
-    public void testBallerinaTomlWithNoPackage() throws IOException {
-        // Instead of [package] Ballerina.toml consists [patch]
-        // Package org, name and version will be set to defaults
-        System.setProperty(USER_NAME, "john");
-        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("no-package.toml"));
-        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
-
-        PackageDescriptor descriptor = packageManifest.descriptor();
-        // Package name is the root directory name
-        Assert.assertEquals(descriptor.name().value(), "ballerina_toml");
-        // Org is user name
-        Assert.assertEquals(descriptor.org().value(), "john");
-        // Version is 0.1.0
-        Assert.assertEquals(descriptor.version().value().toString(), INTERNAL_VERSION);
-    }
-
     private PackageManifest getPackageManifest(Path tomlPath) throws IOException {
         String tomlContent = Files.readString(tomlPath);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);

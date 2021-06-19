@@ -1054,6 +1054,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     Name typeName = names.fromIdNode(sizeReference.variableName);
 
                     BSymbol sizeSymbol = lookupMainSpaceSymbolInPackage(size.pos, env, pkgAlias, typeName);
+                    sizeReference.symbol = sizeSymbol;
 
                     if (symTable.notFoundSymbol == sizeSymbol) {
                         dlog.error(arrayTypeNode.pos, DiagnosticErrorCode.UNDEFINED_SYMBOL, size);
@@ -1286,7 +1287,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         tupleTypeSymbol.type = tupleType;
 
         if (tupleTypeNode.restParamType != null) {
-            tupleType.restType = resolveTypeNode(tupleTypeNode.restParamType, env);
+            BType tupleRestType = resolveTypeNode(tupleTypeNode.restParamType, env);
+            if (tupleRestType == symTable.noType) {
+                resultType = symTable.noType;
+                return;
+            }
+            tupleType.restType = tupleRestType;
             markParameterizedType(tupleType, tupleType.restType);
         }
 

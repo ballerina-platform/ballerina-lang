@@ -142,7 +142,7 @@ public class NeverTypeTest {
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "table key specifier mismatch with key constraint. expected: '1' fields but found '0'", 134, 37);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'xml<never>', found 'xml:Text'", 143, 26);
+                "incompatible types: expected 'xml<never>', found 'xml:Text'", 143, 21);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'string', found '(xml|xml:Text)'", 145, 17);
         BAssertUtil.validateError(negativeCompileResult, i++,

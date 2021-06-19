@@ -121,7 +121,8 @@ public class Generator {
                 if (node.kind().equals(SyntaxKind.TYPE_DEFINITION)) {
                     TypeDefinitionNode typeDefinition = (TypeDefinitionNode) node;
                     if (typeDefinition.visibilityQualifier().isPresent() && typeDefinition.visibilityQualifier().get()
-                            .kind().equals(SyntaxKind.PUBLIC_KEYWORD) || isTypePram(typeDefinition.metadata())) {
+                            .kind().equals(SyntaxKind.PUBLIC_KEYWORD) ||
+                            isTypePramOrBuiltinSubtype(typeDefinition.metadata())) {
                         hasPublicConstructs = addTypeDefinition(typeDefinition, module, semanticModel);
                     }
                 } else if (node.kind() == SyntaxKind.CLASS_DEFINITION) {
@@ -255,7 +256,9 @@ public class Generator {
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.INT_TYPE_DESC ||
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.DECIMAL_TYPE_DESC ||
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.XML_TYPE_DESC ||
-                typeDefinition.typeDescriptor().kind() == SyntaxKind.FUNCTION_TYPE_DESC) {
+                typeDefinition.typeDescriptor().kind() == SyntaxKind.FUNCTION_TYPE_DESC ||
+                typeDefinition.typeDescriptor().kind() == SyntaxKind.ANYDATA_TYPE_DESC ||
+                typeDefinition.typeDescriptor().kind() == SyntaxKind.STRING_TYPE_DESC) {
             module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode, semanticModel));
         } else {
             return false;
@@ -370,7 +373,7 @@ public class Generator {
             }
         }
         List<Type> memberTypes = new ArrayList<>();
-        Type.addIntersectionMemberTypes(memberTypes, typeDescriptor, semanticModel);
+        Type.addIntersectionMemberTypes(typeDescriptor, semanticModel, memberTypes);
         BType bType = new BType(typeName, getDocFromMetadata(optionalMetadataNode),
                 isDeprecated(optionalMetadataNode), memberTypes);
         bType.isIntersectionType = true;
@@ -405,7 +408,7 @@ public class Generator {
     private static BType getUnionTypeModel(Node unionTypeDescriptor, String unionName,
                                            Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel) {
         List<Type> memberTypes = new ArrayList<>();
-        Type.addUnionMemberTypes(memberTypes, unionTypeDescriptor, semanticModel);
+        Type.addUnionMemberTypes(unionTypeDescriptor, semanticModel, memberTypes);
         BType bType = new BType(unionName, getDocFromMetadata(optionalMetadataNode),
                                 isDeprecated(optionalMetadataNode), memberTypes);
         bType.isAnonymousUnionType = true;
@@ -616,6 +619,11 @@ public class Generator {
         List<DefaultableVariable> fields = getDefaultableVariableList(recordTypeDesc.fields(),
                 optionalMetadataNode, semanticModel);
         boolean isClosed = (recordTypeDesc.bodyStartDelimiter()).kind().equals(SyntaxKind.OPEN_BRACE_PIPE_TOKEN);
+        if (recordTypeDesc.recordRestDescriptor().isPresent()) {
+            DefaultableVariable restVariable = new DefaultableVariable("", "Rest field",
+                    false, Type.fromNode(recordTypeDesc.recordRestDescriptor().get(), semanticModel), "");
+            fields.add(restVariable);
+        }
         return new Record(recordName, getDocFromMetadata(optionalMetadataNode),
                           isDeprecated(optionalMetadataNode), isClosed, fields);
     }
@@ -770,17 +778,13 @@ public class Generator {
         return variables;
     }
 
-    private static boolean isTypePram(Optional<MetadataNode> metadataNode) {
+    private static boolean isTypePramOrBuiltinSubtype(Optional<MetadataNode> metadataNode) {
         if (metadataNode.isEmpty()) {
             return false;
         }
-        NodeList<AnnotationNode> annotations = metadataNode.get().annotations();
-        for (AnnotationNode annotationNode : annotations) {
-            if (annotationNode.toString().contains("@typeParam")) {
-                return true;
-            }
-        }
-        return false;
+        return metadataNode.get().annotations().stream().anyMatch(annotationNode ->
+                annotationNode.toString().contains("@typeParam") ||
+                        annotationNode.toString().contains("@builtinSubtype"));
     }
 
     private static boolean isDeprecated(NodeList<AnnotationNode> annotations) {

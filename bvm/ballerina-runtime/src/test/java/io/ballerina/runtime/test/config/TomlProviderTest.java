@@ -30,10 +30,11 @@ import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
@@ -44,6 +45,8 @@ import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvide
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BType;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -54,6 +57,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_BYTE;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_DECIMAL;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_FLOAT;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
+import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 import static io.ballerina.runtime.test.TestUtils.getConfigPath;
 import static io.ballerina.runtime.test.TestUtils.getSimpleVariableKeys;
 
@@ -100,20 +110,20 @@ public class TomlProviderTest {
         return new Object[][]{
                 // Int array
                 {new VariableKey(ROOT_MODULE, "intArr", new BIntersectionType(ROOT_MODULE, new BType[]{}, TypeCreator
-                        .createArrayType(PredefinedTypes.TYPE_INT), 0, false), true), intArrayGetFunction,
+                        .createArrayType(TYPE_INT), 0, false), true), intArrayGetFunction,
                         new long[]{123456, 1234567, 987654321}
                 },
                 // Byte array
                 {new VariableKey(ROOT_MODULE, "byteArr", new BIntersectionType(ROOT_MODULE, new BType[]{}, TypeCreator
-                        .createArrayType(PredefinedTypes.TYPE_BYTE), 0, false), true), byteArrayGetFunction,
+                        .createArrayType(TYPE_BYTE), 0, false), true), byteArrayGetFunction,
                         new byte[]{1, 2, 3}},
                 // Float array
                 {new VariableKey(ROOT_MODULE, "floatArr", new BIntersectionType(ROOT_MODULE, new BType[]{}, TypeCreator
-                        .createArrayType(PredefinedTypes.TYPE_FLOAT), 0, false), true), floatArrayGetFunction,
+                        .createArrayType(TYPE_FLOAT), 0, false), true), floatArrayGetFunction,
                         new double[]{9.0, 5.6}},
                 // String array
                 {new VariableKey(ROOT_MODULE, "stringArr", new BIntersectionType(ROOT_MODULE, new BType[]{}, TypeCreator
-                        .createArrayType(PredefinedTypes.TYPE_STRING), 0, false), true), stringArrayGetFunction,
+                        .createArrayType(TYPE_STRING), 0, false), true), stringArrayGetFunction,
                         new String[]{"red", "yellow", "green"}},
                 // Boolean array
                 {new VariableKey(
@@ -123,7 +133,7 @@ public class TomlProviderTest {
                 // Decimal array
                 {new VariableKey(
                         ROOT_MODULE, "decimalArr", new BIntersectionType(ROOT_MODULE, new BType[]{}, TypeCreator
-                        .createArrayType(PredefinedTypes.TYPE_DECIMAL), 0, false), true), decimalArrayGetFunction,
+                        .createArrayType(TYPE_DECIMAL), 0, false), true), decimalArrayGetFunction,
                         expectedDecimalArray}
         };
     }
@@ -146,25 +156,25 @@ public class TomlProviderTest {
                 "Non-map value received for variable : " + variableName);
         BMap<?, ?> record = (BMap<?, ?>) configValueMap.get(recordVar);
         for (Map.Entry<String, Object> expectedField : expectedValues.entrySet()) {
-            BString fieldName = StringUtils.fromString(fields.get(expectedField.getKey()).getFieldName());
+            BString fieldName = fromString(fields.get(expectedField.getKey()).getFieldName());
             Assert.assertEquals((record.get(fieldName)), expectedField.getValue());
         }
     }
 
     @DataProvider(name = "record-data-provider")
     public Object[][] recordDataProvider() {
-        Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
-        Field nameReadOnly = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.READONLY);
-        Field age = TypeCreator.createField(PredefinedTypes.TYPE_INT, "age", SymbolFlags.OPTIONAL);
+        Field name = TypeCreator.createField(TYPE_STRING, "name", SymbolFlags.REQUIRED);
+        Field nameReadOnly = TypeCreator.createField(TYPE_STRING, "name", SymbolFlags.READONLY);
+        Field age = TypeCreator.createField(TYPE_INT, "age", SymbolFlags.OPTIONAL);
         return new Object[][]{
                 {"requiredFieldRecord", Map.ofEntries(Map.entry("name", name)),
-                        Map.ofEntries(Map.entry("name", StringUtils.fromString("John")))},
+                        Map.ofEntries(Map.entry("name", fromString("John")))},
                 {"readonlyFieldRecord", Map.ofEntries(Map.entry("name", nameReadOnly)),
-                        Map.ofEntries(Map.entry("name", StringUtils.fromString("Jade")))},
+                        Map.ofEntries(Map.entry("name", fromString("Jade")))},
                 {"optionalFieldRecord", Map.ofEntries(Map.entry("name", nameReadOnly), Map.entry("age", age)),
-                        Map.ofEntries(Map.entry("name", StringUtils.fromString("Anna")), Map.entry("age", 21L))},
+                        Map.ofEntries(Map.entry("name", fromString("Anna")), Map.entry("age", 21L))},
                 {"optionalMissingField", Map.ofEntries(Map.entry("name", nameReadOnly), Map.entry("age", age)),
-                        Map.ofEntries(Map.entry("name", StringUtils.fromString("Peter")))},
+                        Map.ofEntries(Map.entry("name", fromString("Peter")))},
         };
     }
 
@@ -194,7 +204,7 @@ public class TomlProviderTest {
             Assert.assertTrue(table.containsKey(keyValue), "The key '" + key + "'is not found in table");
             BMap<?, ?> record = (BMap<?, ?>) table.get(keyValue);
             for (Map.Entry<String, Object> expectedField : tableEntry.entrySet()) {
-                BString fieldName = StringUtils.fromString(fields.get(expectedField.getKey()).getFieldName());
+                BString fieldName = fromString(fields.get(expectedField.getKey()).getFieldName());
                 Assert.assertEquals((record.get(fieldName)), expectedField.getValue());
             }
         }
@@ -202,23 +212,23 @@ public class TomlProviderTest {
 
     @DataProvider(name = "table-data-provider")
     public Object[][] tableDataProvider() {
-        Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
-        Field nameReadOnly = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.READONLY);
-        Field age = TypeCreator.createField(PredefinedTypes.TYPE_INT, "age", SymbolFlags.OPTIONAL);
+        Field name = TypeCreator.createField(TYPE_STRING, "name", SymbolFlags.REQUIRED);
+        Field nameReadOnly = TypeCreator.createField(TYPE_STRING, "name", SymbolFlags.READONLY);
+        Field age = TypeCreator.createField(TYPE_INT, "age", SymbolFlags.OPTIONAL);
         return new Object[][]{
                 {"requiredFieldTable", Map.ofEntries(Map.entry("name", name)), "name",
-                        new Map[]{Map.ofEntries(Map.entry("name", StringUtils.fromString("AAA"))),
-                                Map.ofEntries(Map.entry("name", StringUtils.fromString("BBB"))),
-                                Map.ofEntries(Map.entry("name", StringUtils.fromString("CCC")))}},
+                        new Map[]{Map.ofEntries(Map.entry("name", fromString("AAA"))),
+                                Map.ofEntries(Map.entry("name", fromString("BBB"))),
+                                Map.ofEntries(Map.entry("name", fromString("CCC")))}},
                 {"readonlyFieldTable", Map.ofEntries(Map.entry("name", nameReadOnly)), "name",
-                        new Map[]{Map.ofEntries(Map.entry("name", StringUtils.fromString("Tom"))),
-                                Map.ofEntries(Map.entry("name", StringUtils.fromString("Daniel"))),
-                                Map.ofEntries(Map.entry("name", StringUtils.fromString("Emma")))}},
+                        new Map[]{Map.ofEntries(Map.entry("name", fromString("Tom"))),
+                                Map.ofEntries(Map.entry("name", fromString("Daniel"))),
+                                Map.ofEntries(Map.entry("name", fromString("Emma")))}},
                 {"optionalFieldTable", Map.ofEntries(Map.entry("name", nameReadOnly), Map.entry("age", age)), "name",
                         new Map[]{
-                                Map.ofEntries(Map.entry("name", StringUtils.fromString("Ann")), Map.entry("age", 21L)),
-                                Map.ofEntries(Map.entry("name", StringUtils.fromString("Bob"))),
-                                Map.ofEntries(Map.entry("name", StringUtils.fromString("Charlie")), Map.entry("age",
+                                Map.ofEntries(Map.entry("name", fromString("Ann")), Map.entry("age", 21L)),
+                                Map.ofEntries(Map.entry("name", fromString("Bob"))),
+                                Map.ofEntries(Map.entry("name", fromString("Charlie")), Map.entry("age",
                                         23L))}},
         };
     }
@@ -265,182 +275,182 @@ public class TomlProviderTest {
                 {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys), Map.entry(subModule, subVariableKeys),
                         Map.entry(importedModule, importedVariableKeys)),
                         Map.ofEntries(Map.entry(rootVariableKeys[0], 42L),
-                                Map.entry(rootVariableKeys[1], StringUtils.fromString("abc")),
+                                Map.entry(rootVariableKeys[1], fromString("abc")),
                                 Map.entry(subVariableKeys[0], 24L), Map.entry(subVariableKeys[1],
-                                        StringUtils.fromString("world")), Map.entry(importedVariableKeys[0], 99L),
-                                Map.entry(importedVariableKeys[1], StringUtils.fromString("imported"))),
+                                        fromString("world")), Map.entry(importedVariableKeys[0], 99L),
+                                Map.entry(importedVariableKeys[1], fromString("imported"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("MultiModuleConfig.toml"),
                                 Set.of(ROOT_MODULE, subModule, importedModule)))},
                 {Map.ofEntries(Map.entry(subModule, subVariableKeys)),
                         Map.ofEntries(Map.entry(subVariableKeys[0], 89L), Map.entry(subVariableKeys[1],
-                                StringUtils.fromString("Hello World!"))),
+                                fromString("Hello World!"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("SubModuleConfig.toml"),
                                 Set.of(subModule)))},
                 {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys)),
                         Map.ofEntries(Map.entry(rootVariableKeys[0], 77L), Map.entry(rootVariableKeys[1],
-                                StringUtils.fromString("test string"))),
+                                fromString("test string"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_A.toml"), moduleSet),
                                 new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_B.toml"), moduleSet))},
                 {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys)),
                         Map.ofEntries(Map.entry(rootVariableKeys[0], 54L), Map.entry(rootVariableKeys[1],
-                                StringUtils.fromString("final string"))),
+                                fromString("final string"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_2.toml"), moduleSet),
                                 new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_1.toml"), moduleSet))
                 },
                 {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys)),
                         Map.ofEntries(Map.entry(rootVariableKeys[0], 26L), Map.entry(rootVariableKeys[1],
-                                StringUtils.fromString("root module string"))),
+                                fromString("root module string"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_root1.toml"),
                                 moduleSet))
                 },
                 {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys)),
                         Map.ofEntries(Map.entry(rootVariableKeys[0], 26L), Map.entry(rootVariableKeys[1],
-                                StringUtils.fromString("root module string"))),
+                                fromString("root module string"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_root2.toml"),
                                 moduleSet))
                 },
                 {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys)),
                         Map.ofEntries(Map.entry(rootVariableKeys[0], 26L), Map.entry(rootVariableKeys[1],
-                                StringUtils.fromString("root module string"))),
+                                fromString("root module string"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_root3.toml"),
                                 moduleSet))
                 },
                 {Map.ofEntries(Map.entry(subModule, subVariableKeys)),
                         Map.ofEntries(Map.entry(subVariableKeys[0], 11L), Map.entry(subVariableKeys[1],
-                                StringUtils.fromString("module string"))),
+                                fromString("module string"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_module1.toml"),
                                 Set.of(subModule)))
                 },
                 {Map.ofEntries(Map.entry(subModule, subVariableKeys)),
                         Map.ofEntries(Map.entry(subVariableKeys[0], 11L), Map.entry(subVariableKeys[1],
-                                StringUtils.fromString("module string"))),
+                                fromString("module string"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_module2.toml"),
                                 Set.of(subModule)))
                 },
                 {Map.ofEntries(Map.entry(importedModule, importedVariableKeys)),
                         Map.ofEntries(Map.entry(importedVariableKeys[0], 89L),
-                                Map.entry(importedVariableKeys[1], StringUtils.fromString("imported string"))),
+                                Map.entry(importedVariableKeys[1], fromString("imported string"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_imported.toml"),
                                 Set.of(importedModule)))
                 },
                 {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
                         Map.entry(clashingModule1, clashingVariableKeys1)),
                         Map.ofEntries(Map.entry(rootVariableKeys[0], 98L),
-                                Map.entry(rootVariableKeys[1], StringUtils.fromString("xyz")),
+                                Map.entry(rootVariableKeys[1], fromString("xyz")),
                                 Map.entry(clashingVariableKeys1[0], 76L),
-                                Map.entry(clashingVariableKeys1[1], StringUtils.fromString("lmn"))),
+                                Map.entry(clashingVariableKeys1[1], fromString("lmn"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule1.toml"),
                                 Set.of(ROOT_MODULE, clashingModule1)))
                 },
                 {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
                         Map.entry(clashingModule1, clashingVariableKeys1)),
                         Map.ofEntries(Map.entry(rootVariableKeys[0], 98L),
-                                Map.entry(rootVariableKeys[1], StringUtils.fromString("xyz")),
+                                Map.entry(rootVariableKeys[1], fromString("xyz")),
                                 Map.entry(clashingVariableKeys1[0], 76L),
-                                Map.entry(clashingVariableKeys1[1], StringUtils.fromString("lmn"))),
+                                Map.entry(clashingVariableKeys1[1], fromString("lmn"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModuleInline1.toml"),
                                 Set.of(ROOT_MODULE, clashingModule1)))
                 },
                 {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
                         Map.entry(clashingModule1, clashingVariableKeys1)),
                         Map.ofEntries(Map.entry(rootVariableKeys[0], 54L),
-                                Map.entry(rootVariableKeys[1], StringUtils.fromString("abc")),
+                                Map.entry(rootVariableKeys[1], fromString("abc")),
                                 Map.entry(clashingVariableKeys1[0], 32L),
-                                Map.entry(clashingVariableKeys1[1], StringUtils.fromString("pqr"))),
+                                Map.entry(clashingVariableKeys1[1], fromString("pqr"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule2.toml"),
                                 Set.of(ROOT_MODULE, clashingModule1)))
                 },
                 {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
                         Map.entry(clashingModule1, clashingVariableKeys1)),
                         Map.ofEntries(Map.entry(rootVariableKeys[0], 54L),
-                                Map.entry(rootVariableKeys[1], StringUtils.fromString("abc")),
+                                Map.entry(rootVariableKeys[1], fromString("abc")),
                                 Map.entry(clashingVariableKeys1[0], 32L),
-                                Map.entry(clashingVariableKeys1[1], StringUtils.fromString("pqr"))),
+                                Map.entry(clashingVariableKeys1[1], fromString("pqr"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModuleInline2.toml"),
                                 Set.of(ROOT_MODULE, clashingModule1)))
                 },
                 {Map.ofEntries(Map.entry(subModule, subVariableKeys),
                         Map.entry(clashingModule2, clashingVariableKeys2)),
                         Map.ofEntries(Map.entry(subVariableKeys[0], 12L),
-                                Map.entry(subVariableKeys[1], StringUtils.fromString("apple")),
+                                Map.entry(subVariableKeys[1], fromString("apple")),
                                 Map.entry(clashingVariableKeys2[0], 34L),
-                                Map.entry(clashingVariableKeys2[1], StringUtils.fromString("orange"))),
+                                Map.entry(clashingVariableKeys2[1], fromString("orange"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule3.toml"),
                                 Set.of(subModule, clashingModule2)))
                 },
                 {Map.ofEntries(Map.entry(subModule, subVariableKeys),
                         Map.entry(clashingModule2, clashingVariableKeys2)),
                         Map.ofEntries(Map.entry(subVariableKeys[0], 12L),
-                                Map.entry(subVariableKeys[1], StringUtils.fromString("apple")),
+                                Map.entry(subVariableKeys[1], fromString("apple")),
                                 Map.entry(clashingVariableKeys2[0], 34L),
-                                Map.entry(clashingVariableKeys2[1], StringUtils.fromString("orange"))),
+                                Map.entry(clashingVariableKeys2[1], fromString("orange"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModuleInline3.toml"),
                                 Set.of(subModule, clashingModule2)))
                 },
                 {Map.ofEntries(Map.entry(subModule, subVariableKeys),
                         Map.entry(clashingModule2, clashingVariableKeys2)),
                         Map.ofEntries(Map.entry(subVariableKeys[0], 56L),
-                                Map.entry(subVariableKeys[1], StringUtils.fromString("green")),
+                                Map.entry(subVariableKeys[1], fromString("green")),
                                 Map.entry(clashingVariableKeys2[0], 78L),
-                                Map.entry(clashingVariableKeys2[1], StringUtils.fromString("blue"))),
+                                Map.entry(clashingVariableKeys2[1], fromString("blue"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule4.toml"),
                                 Set.of(subModule, clashingModule2)))
                 },
                 {Map.ofEntries(Map.entry(subModule, subVariableKeys),
                         Map.entry(clashingModule2, clashingVariableKeys2)),
                         Map.ofEntries(Map.entry(subVariableKeys[0], 56L),
-                                Map.entry(subVariableKeys[1], StringUtils.fromString("green")),
+                                Map.entry(subVariableKeys[1], fromString("green")),
                                 Map.entry(clashingVariableKeys2[0], 78L),
-                                Map.entry(clashingVariableKeys2[1], StringUtils.fromString("blue"))),
+                                Map.entry(clashingVariableKeys2[1], fromString("blue"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModuleInline4.toml"),
                                 Set.of(subModule, clashingModule2)))
                 },
                 {Map.ofEntries(Map.entry(subModule, subVariableKeys),
                         Map.entry(clashingModule3, clashingVariableKeys3)),
                         Map.ofEntries(Map.entry(subVariableKeys[0], 11L),
-                                Map.entry(subVariableKeys[1], StringUtils.fromString("white")),
+                                Map.entry(subVariableKeys[1], fromString("white")),
                                 Map.entry(clashingVariableKeys3[0], 99L),
-                                Map.entry(clashingVariableKeys3[1], StringUtils.fromString("black"))),
+                                Map.entry(clashingVariableKeys3[1], fromString("black"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule5.toml"),
                                 Set.of(subModule, clashingModule3)))
                 },
                 {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
                         Map.entry(clashingModule3, clashingVariableKeys3)),
                         Map.ofEntries(Map.entry(rootVariableKeys[0], 56L),
-                                Map.entry(rootVariableKeys[1], StringUtils.fromString("green")),
+                                Map.entry(rootVariableKeys[1], fromString("green")),
                                 Map.entry(clashingVariableKeys3[0], 78L),
-                                Map.entry(clashingVariableKeys3[1], StringUtils.fromString("blue"))),
+                                Map.entry(clashingVariableKeys3[1], fromString("blue"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule6.toml"),
                                 Set.of(ROOT_MODULE, clashingModule2)))
                 },
                 {Map.ofEntries(Map.entry(subModule, subVariableKeys), Map.entry(clashingModule2, clashingVariableKeys2),
                         Map.entry(ROOT_MODULE, rootVariableKeys)),
                         Map.ofEntries(Map.entry(subVariableKeys[0], 56L),
-                                Map.entry(subVariableKeys[1], StringUtils.fromString("green")),
+                                Map.entry(subVariableKeys[1], fromString("green")),
                                 Map.entry(clashingVariableKeys2[0], 78L),
-                                Map.entry(clashingVariableKeys2[1], StringUtils.fromString("blue")),
+                                Map.entry(clashingVariableKeys2[1], fromString("blue")),
                                 Map.entry(rootVariableKeys[0], 90L),
-                                Map.entry(rootVariableKeys[1], StringUtils.fromString("red"))),
+                                Map.entry(rootVariableKeys[1], fromString("red"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule7.toml"),
                                 Set.of(ROOT_MODULE, subModule, clashingModule2)))
                 },
                 {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
                         Map.entry(clashingModule4, clashingVariableKeys4)),
                         Map.ofEntries(Map.entry(rootVariableKeys[0], 100L),
-                                Map.entry(rootVariableKeys[1], StringUtils.fromString("aaa")),
+                                Map.entry(rootVariableKeys[1], fromString("aaa")),
                                 Map.entry(clashingVariableKeys4[0], 200L),
-                                Map.entry(clashingVariableKeys4[1], StringUtils.fromString("bbb"))),
+                                Map.entry(clashingVariableKeys4[1], fromString("bbb"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule8.toml"),
                                 Set.of(ROOT_MODULE, clashingModule4)))
                 },
                 {Map.ofEntries(Map.entry(subModule, subVariableKeys), Map.entry(subModule2, subVariableKeys2),
                         Map.entry(clashingModule3, clashingVariableKeys3)),
                         Map.ofEntries(Map.entry(subVariableKeys[0], 100L),
-                                Map.entry(subVariableKeys[1], StringUtils.fromString("aaa")),
+                                Map.entry(subVariableKeys[1], fromString("aaa")),
                                 Map.entry(clashingVariableKeys3[0], 200L),
-                                Map.entry(clashingVariableKeys3[1], StringUtils.fromString("bbb")),
+                                Map.entry(clashingVariableKeys3[1], fromString("bbb")),
                         Map.entry(subVariableKeys2[0], 300L),
-                        Map.entry(subVariableKeys2[1], StringUtils.fromString("ccc"))),
+                        Map.entry(subVariableKeys2[1], fromString("ccc"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule9.toml"),
                                 Set.of(subModule, subModule2, clashingModule3)))
                 },
@@ -448,13 +458,13 @@ public class TomlProviderTest {
                         Map.entry(clashingModule3, clashingVariableKeys3), Map.entry(importedModule,
                                 importedVariableKeys)),
                         Map.ofEntries(Map.entry(rootVariableKeys[0], 111L),
-                                Map.entry(rootVariableKeys[1], StringUtils.fromString("one")),
+                                Map.entry(rootVariableKeys[1], fromString("one")),
                                 Map.entry(subVariableKeys[0], 222L),
-                                Map.entry(subVariableKeys[1], StringUtils.fromString("two")),
+                                Map.entry(subVariableKeys[1], fromString("two")),
                                 Map.entry(clashingVariableKeys3[0], 333L),
-                                Map.entry(clashingVariableKeys3[1], StringUtils.fromString("three")),
+                                Map.entry(clashingVariableKeys3[1], fromString("three")),
                                 Map.entry(importedVariableKeys[0], 444L),
-                                Map.entry(importedVariableKeys[1], StringUtils.fromString("four"))),
+                                Map.entry(importedVariableKeys[1], fromString("four"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule10.toml"),
                                 Set.of(ROOT_MODULE, subModule, clashingModule3)))
                 },
@@ -464,7 +474,7 @@ public class TomlProviderTest {
 
     @Test()
     public void testMultiDimensionalArray() {
-        ArrayType arrayElementType = TypeCreator.createArrayType(PredefinedTypes.TYPE_INT, true);
+        ArrayType arrayElementType = TypeCreator.createArrayType(TYPE_INT, true);
         BType elementType =
                 new BIntersectionType(ROOT_MODULE, new Type[]{arrayElementType, PredefinedTypes.TYPE_READONLY},
                         arrayElementType, 0, true);
@@ -496,13 +506,13 @@ public class TomlProviderTest {
 
     @Test()
     public void testComplexTableValue() {
-        ArrayType arrayElementType = TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, true);
+        ArrayType arrayElementType = TypeCreator.createArrayType(TYPE_STRING, true);
         BType elementType =
                 new BIntersectionType(ROOT_MODULE, new Type[]{arrayElementType, PredefinedTypes.TYPE_READONLY},
                                                   arrayElementType, 0, true);
         ArrayType arrayType = TypeCreator.createArrayType(elementType, true);
         Field intArr = TypeCreator.createField(arrayType, "array", SymbolFlags.REQUIRED);
-        Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
+        Field name = TypeCreator.createField(TYPE_STRING, "name", SymbolFlags.REQUIRED);
         Map<String, Field> fields = Map.ofEntries(Map.entry("name", name), Map.entry("array", intArr));
         RecordType type =
                 TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY, fields, null, true, 6);
@@ -521,9 +531,9 @@ public class TomlProviderTest {
         Assert.assertTrue(bValue instanceof BTable);
         BTable<?, ?> bTable = (BTable<?, ?>) bValue;
         BMap<?, ?>  bmap = (BMap<?, ?> ) bTable.get("abc");
-        Assert.assertEquals(((BString) bmap.get(StringUtils.fromString("name"))).getValue(), "abc");
-        Assert.assertTrue(bmap.get(StringUtils.fromString("array")) instanceof BArray);
-        BArray bArray = (BArray) bmap.get(StringUtils.fromString("array"));
+        Assert.assertEquals(((BString) bmap.get(fromString("name"))).getValue(), "abc");
+        Assert.assertTrue(bmap.get(fromString("array")) instanceof BArray);
+        BArray bArray = (BArray) bmap.get(fromString("array"));
         BArray bArray1 = (BArray) bArray.get(0);
         BArray bArray2 = (BArray) bArray.get(1);
         Assert.assertEquals(bArray1.get(0).toString(), "a");
@@ -542,9 +552,9 @@ public class TomlProviderTest {
         Map<Module, VariableKey[]> variableMap = Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
                 Map.entry(clashingModule3, clashingVariableKeys3));
                 Map<VariableKey, Object> expectedValues = Map.ofEntries(Map.entry(rootVariableKeys[0], 56L),
-                        Map.entry(rootVariableKeys[1], StringUtils.fromString("green")),
+                        Map.entry(rootVariableKeys[1], fromString("green")),
                         Map.entry(clashingVariableKeys3[0], 78L),
-                        Map.entry(clashingVariableKeys3[1], StringUtils.fromString("blue")));
+                        Map.entry(clashingVariableKeys3[1], fromString("blue")));
                List<ConfigProvider> providers =  List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath(
                        "ConfigClashingModule6.toml"), Set.of(ROOT_MODULE, clashingModule3)));
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
@@ -569,9 +579,9 @@ public class TomlProviderTest {
         Map<Module, VariableKey[]> variableMap = Map.ofEntries(Map.entry(subModule, subVariableKeys),
                 Map.entry(clashingModule3, clashingVariableKeys3));
         Map<VariableKey, Object> expectedValues = Map.ofEntries(Map.entry(subVariableKeys[0], 11L),
-                        Map.entry(subVariableKeys[1], StringUtils.fromString("white")),
+                        Map.entry(subVariableKeys[1], fromString("white")),
                         Map.entry(clashingVariableKeys3[0], 99L),
-                        Map.entry(clashingVariableKeys3[1], StringUtils.fromString("black")));
+                        Map.entry(clashingVariableKeys3[1], fromString("black")));
         List<ConfigProvider> providers =
                 List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule5.toml"),
                 Set.of(subModule, clashingModule3)));
@@ -591,10 +601,10 @@ public class TomlProviderTest {
     public void testTomlProviderWithString() {
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
         VariableKey[] keys = {
-                new VariableKey(ROOT_MODULE, "intVar", PredefinedTypes.TYPE_INT, true),
-                new VariableKey(ROOT_MODULE, "stringVar", PredefinedTypes.TYPE_STRING, true),
+                new VariableKey(ROOT_MODULE, "intVar", TYPE_INT, true),
+                new VariableKey(ROOT_MODULE, "stringVar", TYPE_STRING, true),
                 new VariableKey(ROOT_MODULE, "stringArr", new BIntersectionType(ROOT_MODULE, new BType[]{}, TypeCreator
-                        .createArrayType(PredefinedTypes.TYPE_STRING), 0, false), true),
+                        .createArrayType(TYPE_STRING), 0, false), true),
                 new VariableKey(ROOT_MODULE, "booleanArr", new BIntersectionType(ROOT_MODULE, new BType[]{}, TypeCreator
                         .createArrayType(PredefinedTypes.TYPE_BOOLEAN), 0, false), true),
         };
@@ -639,7 +649,7 @@ public class TomlProviderTest {
         Assert.assertTrue(obj instanceof BMap<?, ?>, "Non-map value received for variable : " + variableName);
         BMap<?, ?> mapValue = (BMap<?, ?>) obj;
         for (Map.Entry<String, Object> expectedField : expectedValues.entrySet()) {
-            BString fieldName = StringUtils.fromString(expectedField.getKey());
+            BString fieldName = fromString(expectedField.getKey());
             Assert.assertEquals((mapValue.get(fieldName)), expectedField.getValue());
         }
     }
@@ -647,10 +657,147 @@ public class TomlProviderTest {
     @DataProvider(name = "map-data-provider")
     public Object[][] mapDataProvider() {
         return new Object[][]{
-                {"intMap", PredefinedTypes.TYPE_INT, Map.ofEntries(Map.entry("int1", 12L), Map.entry("int2", 34L))},
-                {"decimalMap", PredefinedTypes.TYPE_DECIMAL,
+                {"intMap", TYPE_INT, Map.ofEntries(Map.entry("int1", 12L), Map.entry("int2", 34L))},
+                {"decimalMap", TYPE_DECIMAL,
                         Map.ofEntries(Map.entry("d1", ValueCreator.createDecimalValue("56.78")),
                         Map.entry("d2", ValueCreator.createDecimalValue("32.94")))}
         };
+    }
+
+    @Test(dataProvider = "union-data-provider")
+    public void testTomlProviderUnions(String variableName, Type type, Object expectedValues) {
+        IntersectionType unionType = new BIntersectionType(ROOT_MODULE, new Type[]{type, PredefinedTypes.TYPE_READONLY}
+                , type, 1, true);
+        VariableKey unionVar = new VariableKey(ROOT_MODULE, variableName, unionType, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{unionVar}));
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
+                                                           List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath(
+                                                                   "UnionTypeConfig.toml"), configVarMap.keySet())));
+        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+
+        Object obj = configValueMap.get(unionVar);
+        Assert.assertEquals(expectedValues, obj);
+    }
+
+    @DataProvider(name = "union-data-provider")
+    public Object[][] unionDataProvider() {
+        ArrayType arrayType = TypeCreator.createArrayType(TYPE_INT, true);
+        return new Object[][]{
+                // union variable with int value
+                {"intStringVar", TypeCreator.createUnionType(List.of(TYPE_INT, TYPE_FLOAT), true), 123456L},
+                // union variable with byte value
+                {"byteStringVar", TypeCreator.createUnionType(List.of(TYPE_STRING, TYPE_BYTE), true), 5L},
+                // union variable with float value
+                {"floatIntStringVar", TypeCreator.createUnionType(List.of(TYPE_STRING, TYPE_INT,
+                                                                          TYPE_FLOAT), true), 123.45},
+                // union variable with string value
+                {"stringIntVar", TypeCreator.createUnionType(List.of(TYPE_INT, TYPE_STRING), true),
+                        fromString("hello")},
+                // union variable with map value
+                {"mapUnionVar", TypeCreator.createUnionType(List.of(TYPE_INT,
+                                                                    TypeCreator.createMapType(TYPE_ANYDATA)), true),
+                        ValueCreator
+                                .createMapValue(TypeCreator.createMapType(TYPE_ANYDATA),
+                                                new BMapInitialValueEntry[]
+                                                        {
+                                                                ValueCreator.createKeyFieldEntry(fromString("name"),
+                                                                                                 fromString("Waruna")),
+                                                                ValueCreator.createKeyFieldEntry(fromString("age"),
+                                                                                                 14L),
+                                                        })},
+                // union variable with array value
+                {"arrayUnionVar", TypeCreator.createUnionType(List.of(TYPE_INT, arrayType), true),
+                        new ArrayValueImpl(arrayType, 3, new ListInitialValueEntry.ExpressionEntry[]{
+                                new ListInitialValueEntry.ExpressionEntry(123L),
+                                new ListInitialValueEntry.ExpressionEntry(456L),
+                                new ListInitialValueEntry.ExpressionEntry(789L)
+                        })},
+                // anydata variable with float value
+                {"anyDataPrimitiveTypeVar", TYPE_ANYDATA, 9.87},
+                // anydata variable with map value
+                {"anyDataStructuredTypeVar",
+                        TYPE_ANYDATA, ValueCreator
+                        .createMapValue(TypeCreator.createMapType(TYPE_ANYDATA),
+                                        new BMapInitialValueEntry[]
+                                                {
+                                                        ValueCreator.createKeyFieldEntry(fromString("name"),
+                                                                                         fromString("Riyafa")),
+                                                        ValueCreator.createKeyFieldEntry(fromString("age"), 10L),
+                                                })},
+        };
+    }
+
+    @Test
+    public void testTomlProviderRecordUnions() {
+        String variableName = "recordUnionVar";
+        Field name = TypeCreator.createField(TYPE_STRING, "name", SymbolFlags.REQUIRED);
+        Field age = TypeCreator.createField(TYPE_INT, "age", SymbolFlags.OPTIONAL);
+        Map<String, Field> fields = Map.ofEntries(Map.entry("name", name), Map.entry("age", age));
+        RecordType recordType =
+                TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY, fields, null, false, 6);
+        UnionType type = TypeCreator.createUnionType(List.of(TYPE_INT, recordType), true);
+        IntersectionType unionType = new BIntersectionType(ROOT_MODULE, new Type[]{type, PredefinedTypes.TYPE_READONLY}
+                , type, 1, true);
+        VariableKey recordVar = new VariableKey(ROOT_MODULE, variableName, unionType, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{recordVar}));
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
+                                                           List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath(
+                                                                   "UnionTypeConfig.toml"),
+                                                                                        configVarMap.keySet())));
+        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+        Assert.assertTrue(configValueMap.get(recordVar) instanceof BMap<?, ?>,
+                          "Non-map value received for variable : " + variableName);
+        BMap<?, ?> record = (BMap<?, ?>) configValueMap.get(recordVar);
+        Map<String, Object> expectedValues =  Map.ofEntries(Map.entry("name", fromString("Manu")), Map.entry("age",
+                                                                                                             12L));
+        for (Map.Entry<String, Object> expectedField : expectedValues.entrySet()) {
+            BString fieldName = fromString(fields.get(expectedField.getKey()).getFieldName());
+            Assert.assertEquals((record.get(fieldName)), expectedField.getValue());
+        }
+    }
+
+    @Test
+    public void testTomlProviderUnionTables() {
+
+        String variableName = "tableUnionVar";
+        String key = "name";
+        Field name = TypeCreator.createField(TYPE_STRING, "name", SymbolFlags.REQUIRED);
+        Field age = TypeCreator.createField(TYPE_INT, "age", SymbolFlags.OPTIONAL);
+
+        Map<String, Field> fields = Map.ofEntries(Map.entry("name", name), Map.entry("age", age));
+        RecordType recordType =
+                TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY, fields, null, false, 6);
+        TableType tableType = TypeCreator.createTableType(recordType, new String[]{key}, true);
+        UnionType type = TypeCreator.createUnionType(List.of(TYPE_INT, tableType), true);
+        IntersectionType unionType = new BIntersectionType(ROOT_MODULE, new Type[]{type, PredefinedTypes.TYPE_READONLY}
+                , type, 1, true);
+        VariableKey tableVar = new VariableKey(ROOT_MODULE, variableName, unionType, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{tableVar}));
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver =
+                new ConfigResolver(configVarMap, diagnosticLog,
+                                   List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("UnionTypeConfig.toml"),
+                                                                configVarMap.keySet())));
+        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+
+        Assert.assertTrue(configValueMap.get(tableVar) instanceof BTable<?, ?>, "Non-table value received for " +
+                "variable : " + variableName);
+        BTable<?, ?> table = (BTable<?, ?>) configValueMap.get(tableVar);
+
+        Map<String, Object>[] expectedValues = new Map[]{
+                Map.ofEntries(Map.entry("name", fromString("Nadeeshan")), Map.entry("age", 11L)),
+                Map.ofEntries(Map.entry("name", fromString("Gabilan"))),
+                Map.ofEntries(Map.entry("name", fromString("Hinduja")), Map.entry("age", 15L))};
+        for (Map<String, Object> tableEntry : expectedValues) {
+            Object keyValue = tableEntry.get(key);
+            Assert.assertTrue(table.containsKey(keyValue), "The key '" + key + "'is not found in table");
+            BMap<?, ?> record = (BMap<?, ?>) table.get(keyValue);
+            for (Map.Entry<String, Object> expectedField : tableEntry.entrySet()) {
+                BString fieldName = fromString(fields.get(expectedField.getKey()).getFieldName());
+                Assert.assertEquals((record.get(fieldName)), expectedField.getValue());
+            }
+        }
     }
 }

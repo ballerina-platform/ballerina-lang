@@ -13,23 +13,35 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
-import ballerina/lang.'xml as xmllib;
 
-public function main(int i, float f, string s, byte b, boolean bool, json j, xml x, Employee e, string... args) {
+import ballerina/jballerina.java;
+
+public function main(int i, float f, string s, *Employee e, string... args) {
     string restArgs = "";
     foreach var str in args {
         restArgs += str + " ";
     }
 
-    xmllib:Element elem = <xmllib:Element> x;
-
-    io:print("integer: " + i.toString() + ", float: " + f.toString() + ", string: " + s + ", byte: " +
-            b.toString() + ", boolean: " + bool.toString() + ", JSON Name Field: " +
-            j.name.toString() + ", XML Element Name: " + elem.getName() + ", Employee Name Field: " + e.name +
-            ", string rest args: " + restArgs);
+    print("integer: " + i.toString() + ", float: " + f.toString() + ", string: " + s + ", Employee Name Field: " +
+        e.name + ", string rest args: " + restArgs);
 }
 
 public type Employee record {
     string name = "";
 };
+
+function print(string str) {
+    printVal(system_out(), java:fromString(str));
+}
+
+function system_out() returns handle = @java:FieldGet {
+    name: "out",
+    'class: "java.lang.System"
+} external;
+
+function printVal(handle receiver, handle arg0) = @java:Method {
+    name: "print",
+    'class: "java.io.PrintStream",
+    paramTypes: ["java.lang.String"]
+} external;
+
