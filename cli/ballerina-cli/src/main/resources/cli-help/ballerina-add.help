@@ -6,9 +6,9 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Add creates a new directory and initializes a Ballerina module inside
-       the 'modules' directory of the package. The command should be run inside
-       the package root.
+       Add a new directory inside the 'modules' directory of the package
+       and initialize a Ballerina module in it. 
+       The command should be run from within the package root.
 
        A template can also be specified when creating the new module.
 
@@ -17,12 +17,17 @@ DESCRIPTION
 
 OPTIONS
        -t <template-name>, --template <template-name>
-           Add a module using a pre-defined template.
+          Create a package using a predefined template.
+
+                 There are three built-in templates named:
+                 1. `main`
+                 2. `service`
+                 3. `lib`
 
 
 EXAMPLES
        Add a module.
           $ bal add hello
 
-       Add a module with a Ballerina service.
+       Add a module with a Ballerina service (template).
           $ bal add helloservice -t service

@@ -10,8 +10,11 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Shell runs a REPL instance of Ballerina to enable users to run small
-       snippets of code. Please note that this is an experimental feature.
+       Run a REPL instance of Ballerina to enable users to execute small
+       snippets of code. 
+       
+       Note: This is an experimental feeature, which supports only a limited
+       set of functionality.
 
        Debug messages can be enabled using the '-d' option.
 
@@ -19,23 +22,23 @@ OPTIONS
        -d, --debug
            Enable debug mode from the beginning.
        --force-dumb
-           Force dumb terminal mode.
+           Force the dumb terminal mode.
        -f <file-name>, --file <file-name>
-           Open file and load initial declarations.
+           Open a file and load the initial declarations.
        -t <time-out-duration>, --time-out <time-out-duration>
-           Set tree parsing timeout. Default is 100ms. Value should be
+           Set the tree parsing timeout value. Default is 100ms. Value should be
            given in milliseconds.
 
 
 EXAMPLES
-       Run Ballerina shell.
+       Run the Ballerina Shell.
           $ bal shell
 
-       Run Ballerina shell in debug mode.
+       Run the Ballerina Shell in the debug mode.
           $ bal shell -d
 
-       Run Ballerina shell with 1s time out.
+       Run the Ballerina Shell with a one second time out.
           $ bal shell -t 1000
 
-       Run Ballerina shell loading initial declarations from "main.bal".
+       Run the Ballerina Shell by loading the initial declarations from the `main.bal` file.
           $ bal shell -f main.bal

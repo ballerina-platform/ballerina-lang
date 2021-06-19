@@ -6,10 +6,10 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Version prints the Ballerina distribution version and the supported
+       Print the Ballerina distribution version and the supported
        language specification version.
 
-       Note: The 'bal -v' and 'bal --version' are
+       Note: The 'bal -v' and 'bal --version' commands are
        identical to 'bal version'.
 
 

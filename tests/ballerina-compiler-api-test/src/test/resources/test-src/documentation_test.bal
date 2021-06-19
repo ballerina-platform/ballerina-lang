@@ -85,3 +85,6 @@ public function createPerson(string fname, string lname, @deprecated string stre
                              string city, @deprecated string countryCode) returns string {
     return "";
 }
+
+# This is a listener declaration
+listener udp:Listener ul = new(8080);
