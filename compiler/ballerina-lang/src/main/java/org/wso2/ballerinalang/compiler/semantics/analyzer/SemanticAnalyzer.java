@@ -35,7 +35,6 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.Field;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
-import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
@@ -877,7 +876,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void checkSupportedConfigType(BType type, Location location, String varName) {
         List<String> errors = new ArrayList<>();
-        if (!isSupportedConfigType(type, errors, varName) || !errors.isEmpty()) {
+        if (!isSupportedConfigType(type, errors, varName, new HashSet<>()) || !errors.isEmpty()) {
             StringBuilder errorMsg = new StringBuilder();
             for (String error : errors) {
                 errorMsg.append("\n\t").append(error);
@@ -886,7 +885,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean isSupportedConfigType(BType type, List<String> errors, String varName) {
+    private boolean isSupportedConfigType(BType type, List<String> errors, String varName,
+                                          Set<BType> unresolvedTypes) {
+        if (!unresolvedTypes.add(type) && isRecordType(type)) {
+            return true;
+        }
         switch (type.getKind()) {
             case ANYDATA:
                 break;
@@ -898,16 +901,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     elementType = ((BIntersectionType) elementType).getEffectiveType();
                 }
 
-                if (elementType.tag == TypeTags.TABLE || !isSupportedConfigType(elementType, errors, varName)) {
+                if (elementType.tag == TypeTags.TABLE || !isSupportedConfigType(elementType, errors, varName,
+                        unresolvedTypes)) {
                     errors.add("array element type '" + elementType + "' is not supported");
                 }
                 break;
             case RECORD:
                 BRecordType recordType = (BRecordType) type;
                 for (Field field : recordType.getFields().values()) {
-                    Type fieldType = field.getType();
+                    BType fieldType = (BType) field.getType();
                     String fieldName = varName + "." + field.getName();
-                    if (!isSupportedConfigType((BType) fieldType, errors, fieldName)) {
+                    if (!isSupportedConfigType(fieldType, errors, fieldName, unresolvedTypes)) {
                         errors.add("record field type '" + fieldType + "' of field '" + fieldName + "' is not" +
                                 " supported");
                     }
@@ -915,22 +919,23 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 break;
             case MAP:
                 BMapType mapType = (BMapType) type;
-                if (!isSupportedConfigType(mapType.constraint, errors, varName)) {
+                if (!isSupportedConfigType(mapType.constraint, errors, varName, unresolvedTypes)) {
                     errors.add("map constraint type '" + mapType.constraint + "' is not supported");
                 }
                 break;
             case TABLE:
                 BTableType tableType = (BTableType) type;
-                if (!isSupportedConfigType(tableType.constraint, errors, varName)) {
+                if (!isSupportedConfigType(tableType.constraint, errors, varName, unresolvedTypes)) {
                     errors.add("table constraint type '" + tableType.constraint + "' is not supported");
                 }
                 break;
             case INTERSECTION:
-                return isSupportedConfigType(((BIntersectionType) type).effectiveType, errors, varName);
+                return isSupportedConfigType(((BIntersectionType) type).effectiveType, errors, varName,
+                        unresolvedTypes);
             case UNION:
                 BUnionType unionType = (BUnionType) type;
                 for (BType memberType : unionType.getMemberTypes()) {
-                    if (!isSupportedConfigType(memberType, errors, varName)) {
+                    if (!isSupportedConfigType(memberType, errors, varName, unresolvedTypes)) {
                         errors.add("union member type '" + memberType + "' is not supported");
                     }
                 }
@@ -944,6 +949,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         types.isAssignable(type, symTable.xmlType);
         }
         return true;
+    }
+
+    private boolean isRecordType(BType type) {
+        switch (type.tag) {
+            case TypeTags.RECORD:
+                return true;
+            case TypeTags.INTERSECTION:
+                return isRecordType(((BIntersectionType) type).effectiveType);
+            default:
+                return false;
+        }
     }
 
     private void analyzeTypeNode(BLangType typeNode, SymbolEnv env) {
