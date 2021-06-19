@@ -65,6 +65,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +76,10 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.COVERAGE_DIR;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.DATA_KEY_SEPARATOR;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.MODULE_SEPARATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DATA_PLACEHOLDER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_ZIP_NAME;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RERUN_TEST_JSON_FILE;
@@ -205,6 +209,8 @@ public class RunTestsTask implements Task {
                 singleExecTests = readFailedTestsFromFile(target.path());
             }
             if (isSingleTestExecution || isRerunTestExecution) {
+                // Update data driven tests with key
+                filterKeyBasedTests(moduleName.moduleNamePart(), suite, singleExecTests);
                 suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, singleExecTests));
             }
             if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
@@ -254,6 +260,78 @@ public class RunTestsTask implements Task {
 
         // Cleanup temp cache for SingleFileProject
         cleanTempCache(project, cachesRoot);
+    }
+
+    /**
+     * Check whether this module is included in the provided test name.
+     *
+     * @param testName String
+     * @param packageID String
+     * @param moduleName String
+     * @return boolean
+     */
+    private boolean includesModule(String testName, String packageID, String moduleName) {
+        boolean flag = false;
+        if (testName.contains(MODULE_SEPARATOR)) {
+            String[] functionDetail = testName.split(MODULE_SEPARATOR);
+            try {
+                if (functionDetail[0].equals(packageID) || functionDetail[0].equals(packageID + DOT + moduleName)) {
+                    flag = true;
+                }
+            } catch (IndexOutOfBoundsException e) {
+                throw createLauncherException("error occurred while executing tests. Test list cannot be empty", e);
+            }
+        } else {
+            flag = true;
+        }
+        return flag;
+    }
+
+    /**
+     * Update test filters using the given data keys.
+     *
+     * @param moduleName String
+     * @param suite TestSuite
+     * @param singleExecTests List<String>
+     */
+    private void filterKeyBasedTests(String moduleName, TestSuite suite, List<String> singleExecTests) {
+        Map<String, List<String>> keyValues = new HashMap<>();
+        List<String> updatedSingleExecTests = new ArrayList<>();
+        for (String testName : singleExecTests) {
+            if (testName.contains(DATA_KEY_SEPARATOR) && includesModule(testName, suite.getPackageID(), moduleName)) {
+                try {
+                    // Separate test name and the data set key
+                    String originalTestName = testName.substring(0, testName.indexOf(DATA_KEY_SEPARATOR));
+                    String caseValue = testName.substring(testName.indexOf(DATA_KEY_SEPARATOR) + 1);
+                    if (originalTestName.contains(MODULE_SEPARATOR)) {
+                        originalTestName = originalTestName.split(MODULE_SEPARATOR)[1];
+                    }
+                    if (keyValues.containsKey(originalTestName)) {
+                        keyValues.get(originalTestName).add(caseValue);
+                    } else {
+                        keyValues.put(originalTestName, new ArrayList<>(Arrays.asList(caseValue)));
+                    }
+                    // Update the test name in the filtered test list
+                    if (!updatedSingleExecTests.contains(originalTestName)) {
+                        updatedSingleExecTests.add(originalTestName);
+                    }
+                } catch (IndexOutOfBoundsException e) {
+                    throw createLauncherException("error occurred while filtering tests based on provided key values",
+                            e);
+                }
+            } else {
+                if (!updatedSingleExecTests.contains(testName)) {
+                    updatedSingleExecTests.add(testName);
+                }
+            }
+        }
+        if (!keyValues.isEmpty()) {
+            suite.setSingleDDTExecution(true);
+            suite.setDataKeyValues(keyValues);
+            //Update the single exec test list
+            singleExecTests.clear();
+            singleExecTests.addAll(updatedSingleExecTests);
+        }
     }
 
     private void generateCoverage(Project project, JBallerinaBackend jBallerinaBackend)

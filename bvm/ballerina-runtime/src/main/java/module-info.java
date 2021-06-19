@@ -63,7 +63,7 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.internal.values to io.ballerina.testerina.core, io.ballerina.testerina.runtime,
             io.ballerina.lang.xml;
     exports io.ballerina.runtime.internal.configurable to io.ballerina.lang.internal;
-    exports io.ballerina.runtime.internal.types to io.ballerina.lang.typedesc;
+    exports io.ballerina.runtime.internal.types to io.ballerina.lang.typedesc, io.ballerina.testerina.runtime;
     exports io.ballerina.runtime.observability.metrics.noop;
     exports io.ballerina.runtime.observability.tracer.noop;
 }
