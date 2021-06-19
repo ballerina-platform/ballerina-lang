@@ -48,7 +48,7 @@ public class DataProviderTest extends BaseTestCase {
         AssertionUtils.assertForTestFailures(output, "map based data provider failure");
     }
 
-    @Test
+    @Test (dependsOnMethods = "testValidDataProvider")
     public void testValidDataProviderWithFail() throws BallerinaTestException {
         String msg1 = "1 passing";
         String msg2 = "2 failing";
@@ -72,7 +72,7 @@ public class DataProviderTest extends BaseTestCase {
         }
     }
 
-    @Test
+    @Test (dependsOnMethods = "testValidDataProviderWithFail")
     public void testValidDataProviderCase() throws BallerinaTestException {
         String[] args = mergeCoverageArgs(new String[]{"--tests", "dataproviders:jsonDataProviderTest#json1",
                 "data-providers"});
@@ -81,7 +81,7 @@ public class DataProviderTest extends BaseTestCase {
         AssertionUtils.assertForTestFailures(output, "map based data provider failure");
     }
 
-    @Test
+    @Test (dependsOnMethods = "testValidDataProviderCase")
     public void testDataProviderWithMixedType() throws BallerinaTestException {
         String msg1 = "2 passing";
         String msg2 = "0 failing";
@@ -94,7 +94,7 @@ public class DataProviderTest extends BaseTestCase {
         }
     }
 
-    @Test
+    @Test (dependsOnMethods = "testDataProviderWithMixedType")
     public void testInvalidDataProvider() throws BallerinaTestException {
         String[] args = mergeCoverageArgs(new String[]{"--tests", "invalidDataProviderTest",
                 "data-providers"});
@@ -105,7 +105,7 @@ public class DataProviderTest extends BaseTestCase {
         }
     }
 
-    @Test
+    @Test (dependsOnMethods = "testInvalidDataProvider")
     public void testErrorDataProvider() throws BallerinaTestException {
         String[] args = mergeCoverageArgs(new String[]{"--tests", "errorDataProviderTest",
                 "data-providers"});
@@ -116,7 +116,16 @@ public class DataProviderTest extends BaseTestCase {
         }
     }
 
-    @Test
+    @Test (dependsOnMethods = "testErrorDataProvider")
+    public void testWithSpecialKeys() throws BallerinaTestException {
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunction2",
+                "data-providers"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        AssertionUtils.assertForTestFailures(output, "data provider fails with special characters in keys.");
+    }
+
+    @Test (dependsOnMethods = "testWithSpecialKeys")
     public void testArrayDataProviderWithFail() throws BallerinaTestException {
         String msg1 = "1 passing";
         String msg2 = "2 failing";

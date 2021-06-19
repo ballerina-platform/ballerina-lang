@@ -299,19 +299,17 @@ public class RunTestsTask implements Task {
         List<String> updatedSingleExecTests = new ArrayList<>();
         for (String testName : singleExecTests) {
             if (testName.contains(DATA_KEY_SEPARATOR) && includesModule(testName, suite.getPackageID(), moduleName)) {
-                // Separate test name and the data set key
-                // parts[0] - test name
-                // parts[1] - data set key
-                String[] parts = testName.split(DATA_KEY_SEPARATOR);
                 try {
-                    String originalTestName = parts[0];
-                    if (parts[0].contains(MODULE_SEPARATOR)) {
-                        originalTestName = parts[0].split(MODULE_SEPARATOR)[1];
+                    // Separate test name and the data set key
+                    String originalTestName = testName.substring(0, testName.indexOf(DATA_KEY_SEPARATOR));
+                    String caseValue = testName.substring(testName.indexOf(DATA_KEY_SEPARATOR) + 1);
+                    if (originalTestName.contains(MODULE_SEPARATOR)) {
+                        originalTestName = originalTestName.split(MODULE_SEPARATOR)[1];
                     }
                     if (keyValues.containsKey(originalTestName)) {
-                        keyValues.get(originalTestName).add(parts[1]);
+                        keyValues.get(originalTestName).add(caseValue);
                     } else {
-                        keyValues.put(originalTestName, new ArrayList<>(Arrays.asList(parts[1])));
+                        keyValues.put(originalTestName, new ArrayList<>(Arrays.asList(caseValue)));
                     }
                     // Update the test name in the filtered test list
                     if (!updatedSingleExecTests.contains(originalTestName)) {
