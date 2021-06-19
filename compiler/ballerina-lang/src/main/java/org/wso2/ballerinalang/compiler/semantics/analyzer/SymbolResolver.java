@@ -315,6 +315,9 @@ public class SymbolResolver extends BLangNodeVisitor {
         // check whether the given symbol owner is same as found symbol's owner
         if (foundSym.owner == symbol.owner) {
             return true;
+        } else if ((foundSym.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE && foundSym.pkgID.equals(symbol.pkgID) &&
+                symbol.tag == SymTag.TYPE_DEF) {
+            return true;
         } else if (Symbols.isFlagOn(symbol.owner.flags, Flags.LAMBDA) &&
                 ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE)) {
             // If the symbol being defined is inside a lambda and the existing symbol is defined inside a function, both
