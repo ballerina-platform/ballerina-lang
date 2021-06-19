@@ -154,6 +154,13 @@ public class DocumentationTest {
                 (param, doc) -> assertEquals(documentation.get().deprecatedParametersMap().get(param), doc));
     }
 
+    @Test
+    public void testListenerDeclarationDocs() {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(89, 22));
+        Optional<Documentation> documentation = ((Documentable) symbol.get()).documentation();
+        assertDescriptionOnly(documentation.get(), "This is a listener declaration");
+    }
+
     // util methods
 
     private void assertDescriptionOnly(Documentation documentation, String description) {

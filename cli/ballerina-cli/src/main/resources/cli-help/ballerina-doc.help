@@ -8,23 +8,22 @@ SYNOPSIS
        bal doc [--offline] [--experimental] <package-path>
 
 DESCRIPTION
-       Doc command builds the documentation for a Ballerina package.
-
-       This command writes the module documentation to the 'target/apidocs'
-       directory inside the package.
+       Build the documentation of a Ballerina package and write the module documentation to 
+       the 'target/apidocs' directory inside the package.
 
 OPTIONS
        -o <output>, --output <output>
-           Write output to the given folder.
+           Write the output to the given folder.
 
        -e, --exclude
-           List of modules to be excluded.
+           Exclude the given list of modules.
 
        --experimental
-           Enable experimental language features.
+           Enable the experimental language features.
 
        --offline
-           Build offline without downloading dependencies.
+            Build offline using the local artifacts without downloading the latest artifacts of 
+            the dependencies from the remote repository (Ballerina Central).
 
 EXAMPLES
        Generate API documentation for the current package.

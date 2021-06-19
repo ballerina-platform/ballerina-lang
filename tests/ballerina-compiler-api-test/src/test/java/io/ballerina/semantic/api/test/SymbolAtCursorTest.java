@@ -111,6 +111,7 @@ public class SymbolAtCursorTest {
                 {93, 78, "v3"},
                 {102, 2, "v4"},
                 {112, 4, null},
+                {115, 29, "CONST1"},
         };
     }
 
