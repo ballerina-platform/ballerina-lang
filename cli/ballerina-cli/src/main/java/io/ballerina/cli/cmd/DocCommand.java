@@ -144,7 +144,7 @@ public class DocCommand implements BLauncherCmd {
 
         if (this.argList != null && this.argList.get(0).endsWith(ProjectConstants.BLANG_SOURCE_EXT)) {
             CommandUtil.printError(this.errStream,
-                    "generating API Documentation is not supported for a single Ballerina file",
+                    "generating API Documentation is not supported for a single Ballerina file.",
                     null,
                     false);
             CommandUtil.exitError(true);

@@ -180,7 +180,7 @@ public class TestCommand implements BLauncherCmd {
             if (coverageFormat != null) {
                 if (!coverageFormat.equals(JACOCO_XML_FORMAT)) {
                     String errMsg = "unsupported coverage report format '" + coverageFormat + "' found. Only '" +
-                            JACOCO_XML_FORMAT + "' format is supported";
+                            JACOCO_XML_FORMAT + "' format is supported.";
                     CommandUtil.printError(this.errStream, errMsg, null, false);
                     CommandUtil.exitError(this.exitWhenFinish);
                     return;

@@ -105,7 +105,7 @@ public class AddCommand implements BLauncherCmd {
         if (null == projectPath) {
             CommandUtil.printError(errStream,
                     "not a Ballerina project (or any parent up to mount point)\n" +
-                            "You should run this command inside a Ballerina project", null, false);
+                            "You should run this command inside a Ballerina project.", null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -113,7 +113,7 @@ public class AddCommand implements BLauncherCmd {
         // Check if an argument is provided
         if (null == argList) {
             CommandUtil.printError(errStream,
-                    "module name is not provided",
+                    "module name is not provided.",
                     "bal add <module-name> [-t|--template <template-name>]",
                     true);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -137,7 +137,7 @@ public class AddCommand implements BLauncherCmd {
             CommandUtil.printError(errStream,
                     "invalid module name : '" + moduleName + "' :\n" +
                             "Module name can only contain alphanumerics, underscores and periods " +
-                            "and the maximum length is 256 characters",
+                            "and the maximum length is 256 characters.",
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -159,7 +159,7 @@ public class AddCommand implements BLauncherCmd {
         // Check if the template exists
         if (!(template.equalsIgnoreCase("service") || template.equalsIgnoreCase("lib"))) {
             CommandUtil.printError(errStream,
-                    "unsupported template provided. run 'bal add --help' to see available templates",
+                    "unsupported template provided. run 'bal add --help' to see available templates.",
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -200,7 +200,7 @@ public class AddCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("add a new Ballerina module");
+        out.append("Add a new Ballerina module");
     }
 
     @Override

@@ -83,7 +83,7 @@ public class InitCommand implements BLauncherCmd {
         // If the current directory is a ballerina project ignore.
         if (ProjectUtils.isBallerinaProject(this.userDir)) {
             CommandUtil.printError(errStream,
-                    "directory is already a Ballerina project",
+                    "directory is already a Ballerina project.",
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -117,7 +117,7 @@ public class InitCommand implements BLauncherCmd {
         // Check if the template exists
         if (!template.equals("") && !CommandUtil.getTemplates().contains(template)) {
             CommandUtil.printError(errStream,
-                    "template not found, use `bal init --help` to view available templates",
+                    "template not found, use `bal init --help` to view available templates.",
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -131,7 +131,7 @@ public class InitCommand implements BLauncherCmd {
                 CommandUtil.printError(errStream,
                         "invalid package name : '" + packageName + "' :\n" +
                                 "Package name can only contain alphanumerics and underscores" +
-                                "and the maximum length is 256 characters",
+                                "and the maximum length is 256 characters.",
                         null,
                         false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -176,7 +176,7 @@ public class InitCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("initialize a Ballerina project in current directory");
+        out.append("Initialize a Ballerina project in current directory");
     }
 
     @Override

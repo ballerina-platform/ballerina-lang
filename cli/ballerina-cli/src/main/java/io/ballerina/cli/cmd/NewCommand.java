@@ -83,7 +83,7 @@ public class NewCommand implements BLauncherCmd {
         // Check if the project name is given
         if (null == argList) {
             CommandUtil.printError(errStream,
-                    "project name is not provided",
+                    "project name is not provided.",
                     "bal new <project-name>",
                     true);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -102,7 +102,7 @@ public class NewCommand implements BLauncherCmd {
         // If the current directory is a ballerina project, fail the command.
         if (ProjectUtils.isBallerinaProject(this.userDir)) {
             CommandUtil.printError(errStream,
-                    "directory is already a Ballerina project",
+                    "directory is already a Ballerina project.",
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -114,7 +114,7 @@ public class NewCommand implements BLauncherCmd {
         // Check if the directory or file exists with the given project name
         if (Files.exists(path)) {
             CommandUtil.printError(errStream,
-                    "destination '" + path.toString() + "' already exists",
+                    "destination '" + path.toString() + "' already exists.",
                     "bal new <project-name>",
                     true);
             CommandUtil.exitError(this.exitWhenFinish);

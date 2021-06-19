@@ -263,7 +263,7 @@ public class InitCommandTest extends BaseCommandTest {
         initCommand.execute();
 
         //initialize a project again
-        Assert.assertTrue(readOutput().contains("directory is already a Ballerina project"));
+        Assert.assertTrue(readOutput().contains("directory is already a Ballerina project."));
     }
 
     @Test(description = "Test init command within a ballerina project", dependsOnMethods = "testInitCommand")

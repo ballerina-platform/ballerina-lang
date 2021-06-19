@@ -566,7 +566,7 @@ public class BuildCommandTest extends BaseCommandTest {
             buildCommand.execute();
         } catch (BLauncherException e) {
             Assert.assertTrue(e.getDetailedMessages().get(0)
-                    .contains("'-c' or '--compile' can only be used with a Ballerina package"));
+                    .contains("'-c' or '--compile' can only be used with a Ballerina package."));
         }
     }
 
@@ -786,6 +786,6 @@ public class BuildCommandTest extends BaseCommandTest {
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.contains("unsupported coverage report format 'html' found. Only 'xml' format is " +
-                "supported"));
+                "supported."));
     }
 }

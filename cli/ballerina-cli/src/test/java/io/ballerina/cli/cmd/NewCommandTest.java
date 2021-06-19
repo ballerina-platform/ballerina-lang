@@ -268,7 +268,7 @@ public class NewCommandTest extends BaseCommandTest {
         new CommandLine(newCommand).parse(args2);
         newCommand.execute();
 
-        Assert.assertFalse(readOutput().contains("directory is already a ballerina project"));
+        Assert.assertFalse(readOutput().contains("directory is already a ballerina project."));
         Assert.assertFalse(Files.isDirectory(tmpDir.resolve("parent").resolve("sub_dir").resolve("subdir")));
     }
 
@@ -282,7 +282,7 @@ public class NewCommandTest extends BaseCommandTest {
         new CommandLine(newCommand).parse(args);
         newCommand.execute();
 
-        Assert.assertFalse(readOutput().contains("directory is already within a ballerina project"));
+        Assert.assertFalse(readOutput().contains("directory is already within a ballerina project."));
         Assert.assertFalse(Files.isDirectory(tmpDir.resolve("parent").resolve("sub_dir").resolve("sample")));
     }
 
