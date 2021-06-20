@@ -1,5 +1,6 @@
 import ballerina/lang.'float as floats;
 import ballerina/lang.'int as ints;
+import ballerina/test;
 
 function floattoint(float value) returns (int) {
     int result;
@@ -25,6 +26,62 @@ function stringtoint(string value) returns int|error {
     //string to int should be a unsafe conversion
     result = check ints:fromString(value);
     return result;
+}
+
+function testByteArrayToIntArray() {
+    byte[] arr = [1, 128, 255];
+    any a = arr;
+    test:assertEquals(a is int[], true);
+    int[] intArray = <int[]> a;
+    test:assertEquals(intArray, [1, 128, 255]);
+}
+
+function testSigned32IntArrayToIntArray() {
+    int:Signed32[] arr = [1, 2, 3];
+    any a =  arr;
+    test:assertEquals(a is int[], true);
+    int[] intArray = <int[]> a;
+    test:assertEquals(intArray, [1, 2, 3]);
+}
+
+function testUnsigned16IntArrayToSigned32IntArray() {
+    int:Unsigned16[] arr = [5, 5050, 65535];
+    any a =  arr;
+    test:assertEquals(a is int[], true);
+    int:Signed32[] res = <int:Signed32[]> a;
+    test:assertEquals(res, [5, 5050, 65535]);
+}
+
+function testUnsigned8IntArrayToSigned16IntArray() {
+    int:Unsigned8[] arr = [5, 55, 255];
+    any a =  arr;
+    test:assertEquals(a is int[], true);
+    int:Signed16[] res = <int:Signed16[]> a;
+    test:assertEquals(res, [5, 55, 255]);
+}
+
+function testUnsigned8IntArrayToUnsigned16IntArray() {
+    int:Unsigned8[] arr = [5, 55, 255];
+    any a =  arr;
+    test:assertEquals(a is int[], true);
+    int:Unsigned16[] res = <int:Unsigned16[]> a;
+    test:assertEquals(res, [5, 55, 255]);
+}
+
+function testCharArrayToStringArray() {
+    string:Char[] arr = ["A", "a"];
+    any a =  arr;
+    test:assertEquals(a is string[], true);
+    string[] res = <string[]> a;
+    test:assertEquals(res, ["A", "a"]);
+}
+
+function testMapOfCharToMapOfString() {
+    map<string:Char> m = {};
+    any a = m;
+    test:assertEquals(a is map<string>, true);
+    map<string> res = <map<string>> a;
+    test:assertEquals(res, {});
 }
 
 function testJsonIntToString() returns string|error {

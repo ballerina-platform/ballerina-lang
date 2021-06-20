@@ -630,9 +630,27 @@ public class TypeCastExprTest {
         Assert.assertEquals(returns[0].stringValue(), "{name:\"Pubudu\"}");
     }
 
+    @Test(dataProvider = "ArrayTypesTestFunction")
+    public void testTypeTestsOfArrayTypes(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
     @Test(dataProvider = "immutableArrayTypesTestFunctions")
     public void testCastOfImmutableArrayTypes(String function) {
         BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "ArrayTypesTestFunction")
+    public Object[][] ArrayTypesTestFunction() {
+        return new Object[][] {
+                { "testByteArrayToIntArray" },
+                { "testSigned32IntArrayToIntArray" },
+                { "testUnsigned16IntArrayToSigned32IntArray" },
+                { "testUnsigned8IntArrayToSigned16IntArray" },
+                { "testUnsigned8IntArrayToUnsigned16IntArray" },
+                { "testCharArrayToStringArray" },
+                { "testMapOfCharToMapOfString" }
+        };
     }
 
     @DataProvider(name = "immutableArrayTypesTestFunctions")
