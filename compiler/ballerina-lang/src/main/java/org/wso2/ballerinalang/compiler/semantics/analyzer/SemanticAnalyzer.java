@@ -887,7 +887,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private boolean isSupportedConfigType(BType type, List<String> errors, String varName,
                                           Set<BType> unresolvedTypes) {
-        if (!unresolvedTypes.add(type) && isRecordType(type)) {
+        if (!unresolvedTypes.add(type)) {
             return true;
         }
         switch (type.getKind()) {
@@ -949,17 +949,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         types.isAssignable(type, symTable.xmlType);
         }
         return true;
-    }
-
-    private boolean isRecordType(BType type) {
-        switch (type.tag) {
-            case TypeTags.RECORD:
-                return true;
-            case TypeTags.INTERSECTION:
-                return isRecordType(((BIntersectionType) type).effectiveType);
-            default:
-                return false;
-        }
     }
 
     private void analyzeTypeNode(BLangType typeNode, SymbolEnv env) {

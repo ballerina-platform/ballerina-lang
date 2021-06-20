@@ -55,3 +55,7 @@ type Parent record {|
 |};
 
 configurable Parent p = ?;
+
+type CyclicUnion int|CyclicUnion[];
+
+configurable CyclicUnion unionVar = ?;
