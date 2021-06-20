@@ -1,0 +1,6 @@
+
+Compiling source
+	sameera/myproject:0.1.0
+
+Creating bala
+	target\bala\sameera-myproject-java11-0.1.0.bala
