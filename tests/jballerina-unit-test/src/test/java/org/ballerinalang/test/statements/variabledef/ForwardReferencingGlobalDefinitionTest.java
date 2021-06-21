@@ -58,6 +58,16 @@ public class ForwardReferencingGlobalDefinitionTest {
         Assert.assertEquals(employeeName, "Sumedha");
     }
 
+    @Test
+    public void moduleVarReOrderingViaTypes() {
+        CompileResult resultReOrdered =
+                BCompileUtil.compile("test-src/statements/variabledef/moduleVarReOrderingViaTypes");
+        Diagnostic[] diagnostics = resultReOrdered.getDiagnostics();
+        Assert.assertEquals(diagnostics.length, 0);
+
+        BRunUtil.invoke(resultReOrdered, "testModuleVariables");
+    }
+
     @Test(description = "Test global variable reference in function")
     @SuppressWarnings("unchecked")
     public void inFunctionGlobalReference() {
