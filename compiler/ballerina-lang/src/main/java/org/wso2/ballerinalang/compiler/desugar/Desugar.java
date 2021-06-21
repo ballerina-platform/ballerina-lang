@@ -592,7 +592,7 @@ public class Desugar extends BLangNodeVisitor {
         // Since the expression of the requiredParam of both init functions refer to same object,
         // expression should be cloned.
         expr.cloneAttempt++;
-        BLangExpression expression = this.nodeCloner.clone(expr);
+        BLangExpression expression = this.nodeCloner.cloneNode(expr);
         if (expression.getKind() == NodeKind.ARROW_EXPR) {
             BLangIdentifier func = (BLangIdentifier) ((BLangArrowFunction) expression).functionName;
             ((BLangArrowFunction) expression).functionName = ASTBuilderUtil.createIdentifier(func.pos,
@@ -9516,7 +9516,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariable successPatternVar = ASTBuilderUtil.createVariable(accessExpr.pos, successPatternVarName,
                 type, null, successPatternSymbol);
 
-        BLangAccessExpression tempAccessExpr = nodeCloner.clone(accessExpr);
+        BLangAccessExpression tempAccessExpr = nodeCloner.cloneNode(accessExpr);
         if (accessExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
             ((BLangIndexBasedAccess) tempAccessExpr).indexExpr = ((BLangIndexBasedAccess) accessExpr).indexExpr;
         }
