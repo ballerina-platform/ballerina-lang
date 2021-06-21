@@ -1,7 +1,0 @@
-# Package goes here
-# Very good package
-# Nicely written
-[package]
-org = "ballerina"
-name = "lang.annotations"
-version = "1.0.0"

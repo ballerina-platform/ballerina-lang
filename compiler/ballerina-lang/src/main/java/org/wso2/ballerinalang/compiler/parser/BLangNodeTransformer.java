@@ -2525,6 +2525,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         var.pos = getPositionWithoutMetadata(listenerDeclarationNode);
         var.name.pos = getPosition(listenerDeclarationNode.variableName());
         var.annAttachments = applyAll(getAnnotations(listenerDeclarationNode.metadata()));
+        var.markdownDocumentationAttachment =
+                createMarkdownDocumentationAttachment(getDocumentationString(listenerDeclarationNode.metadata()));
         return var;
     }
 

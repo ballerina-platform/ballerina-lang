@@ -81,7 +81,7 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
                     completionItems.add(this.getExplicitNewCompletionItem(classSymbol, context));
                 }
                 completionItems.addAll(this.getModuleCompletionItems(context));
-            } else if (this.onQualifiedNameIdentifier(context, typeDescriptor)) {
+            } else if (QNameReferenceUtil.onQualifiedNameIdentifier(context, typeDescriptor)) {
                 /*
                 Supports the following
                 (1) new module:<cursor>

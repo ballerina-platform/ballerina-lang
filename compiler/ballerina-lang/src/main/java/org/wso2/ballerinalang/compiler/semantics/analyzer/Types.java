@@ -1573,7 +1573,7 @@ public class Types {
         BType varType;
         switch (collectionType.tag) {
             case TypeTags.STRING:
-                varType = symTable.stringType;
+                varType = symTable.charStringType;
                 break;
             case TypeTags.ARRAY:
                 BArrayType arrayType = (BArrayType) collectionType;

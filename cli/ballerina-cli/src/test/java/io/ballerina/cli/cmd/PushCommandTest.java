@@ -21,7 +21,6 @@ package io.ballerina.cli.cmd;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.io.FileUtils;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
@@ -29,6 +28,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -46,7 +46,7 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
  *
  * @since 2.0.0
  */
-@PrepareForTest({ ProjectUtils.class })
+@PrepareForTest({ RepoUtils.class })
 @PowerMockIgnore({"jdk.internal.reflect.*", "javax.net.*", "com.sun.*"})
 public class PushCommandTest extends BaseCommandTest {
 
@@ -162,8 +162,8 @@ public class PushCommandTest extends BaseCommandTest {
         String[] args = { "--repository=local" };
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
         new CommandLine(pushCommand).parse(args);
-        PowerMockito.mockStatic(ProjectUtils.class);
-        PowerMockito.when(ProjectUtils.createAndGetHomeReposPath()).thenReturn(mockRepo);
+        PowerMockito.mockStatic(RepoUtils.class);
+        PowerMockito.when(RepoUtils.createAndGetHomeReposPath()).thenReturn(mockRepo);
         pushCommand.execute();
         try {
             ProjectFiles.validateBalaProjectPath(mockRepo.resolve("repositories").resolve("local").resolve("bala")
@@ -237,7 +237,7 @@ public class PushCommandTest extends BaseCommandTest {
         PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream, false);
         new CommandLine(pushCommand).parse(args);
         pushCommand.execute();
-        String errMsg = "unsupported repository 'stdlib.local' found. Only 'local' repository is supported";
+        String errMsg = "unsupported repository 'stdlib.local' found. Only 'local' repository is supported.";
         Assert.assertTrue(readOutput().contains(errMsg));
     }
 }

@@ -154,7 +154,7 @@ public class DocCommand implements BLauncherCmd {
         // check if there are too many arguments.
         if (this.argList != null && this.argList.size() > 1) {
             CommandUtil.printError(this.errStream,
-                    "too many arguments.",
+                    "too many arguments",
                     "bal doc <project_path> [--offline]\n",
                     false);
             CommandUtil.exitError(true);

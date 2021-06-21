@@ -9,16 +9,16 @@
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "N",
+      "sortText": "P",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "test",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -32,7 +32,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "value",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
         }
       ]
     },
@@ -83,11 +106,11 @@
       ]
     },
     {
-      "label": "ballerina/lang.value",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "value",
+      "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -101,30 +124,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -244,7 +244,7 @@
       "label": "display",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "display {\n\tlabel: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -253,7 +253,7 @@
       "label": "classAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "A",
       "insertText": "classAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -262,7 +262,7 @@
       "label": "classAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "A",
       "insertText": "classAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -271,7 +271,7 @@
       "label": "classAnnotation3",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "A",
       "insertText": "classAnnotation3",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -280,7 +280,7 @@
       "label": "deprecated",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "deprecated",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
