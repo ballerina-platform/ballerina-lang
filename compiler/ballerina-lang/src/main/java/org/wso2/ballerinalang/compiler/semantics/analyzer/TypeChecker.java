@@ -3274,14 +3274,14 @@ public class TypeChecker extends BLangNodeVisitor {
                     SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
 
                     if (Symbols.isFlagOn(expType.flags, Flags.READONLY)) {
-                        handleObjectConstrExprForReadOnly(cIExpr, actualObjectType, classDefForConstructor, pkgEnv,
+                        handleObjectConstrExprForReadOnly(cIExpr, actualObjectType, classDefForConstructor, env,
                                                           false);
                     } else if (!typeRefs.isEmpty() && Symbols.isFlagOn(typeRefs.get(0).getBType().flags,
                                                                        Flags.READONLY)) {
-                        handleObjectConstrExprForReadOnly(cIExpr, actualObjectType, classDefForConstructor, pkgEnv,
+                        handleObjectConstrExprForReadOnly(cIExpr, actualObjectType, classDefForConstructor, env,
                                                           true);
                     } else {
-                        semanticAnalyzer.analyzeNode(classDefForConstructor, pkgEnv);
+                        semanticAnalyzer.analyzeNode(classDefForConstructor, env);
                     }
 
                     markConstructedObjectIsolatedness(actualObjectType);
