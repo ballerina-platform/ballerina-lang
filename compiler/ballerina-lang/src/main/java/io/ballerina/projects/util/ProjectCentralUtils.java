@@ -26,7 +26,11 @@ public class ProjectCentralUtils {
 
     private static final String SUPPORTED_PLATFORM = "java11";
 
-    public static boolean pullPackage(String orgName, String packageName, String version) throws ProjectException {
+    public static void pullPackage(String orgName, String packageName) throws ProjectException {
+        pullPackage(orgName, packageName, "");
+    }
+
+    public static void pullPackage(String orgName, String packageName, String version) throws ProjectException {
         Settings settings = readSettings();
         Proxy proxy = ProjectUtils.initializeProxy(settings.getProxy());
         String accessToken = ProjectUtils.getAccessTokenOfCLI(settings);
@@ -42,16 +46,12 @@ public class ProjectCentralUtils {
                         .resolve(packageName);
 
         try {
-//            centralAPIClient.resolvePackage(orgName, packageName, version, SUPPORTED_PLATFORM,
-//                    ProjectUtils.getBallerinaVersion());
-
             centralAPIClient.pullPackage(orgName, packageName, version, packagePathInBalaCache, SUPPORTED_PLATFORM,
-                    ProjectUtils.getBallerinaVersion(), false);
-            return true;
+                        ProjectUtils.getBallerinaVersion(), false);
         } catch (PackageAlreadyExistsException e) {
             throw new PackageExistsException(e.getMessage());
         } catch (CentralClientException e) {
-            return false;
+            throw new ProjectException(e.getMessage());
         }
 
     }
