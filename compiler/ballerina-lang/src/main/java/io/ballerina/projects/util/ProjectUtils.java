@@ -78,7 +78,6 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static io.ballerina.projects.PackageName.LANG_LIB_PACKAGE_NAME_PREFIX;
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.ASM_COMMONS_JAR;
 import static io.ballerina.projects.util.ProjectConstants.ASM_JAR;
@@ -633,7 +632,7 @@ public class ProjectUtils {
         var pkgNameBuilder = new StringJoiner(".");
 
         // If built in package, return moduleName as it is
-        if (isBuiltInPackage(importModuleRequest)) {
+        if (isBuiltInPackage(importModuleRequest.packageOrg(), importModuleRequest.moduleName())) {
             pkgNameBuilder.add(importModuleRequest.moduleName());
             return Collections.singletonList(PackageName.from(pkgNameBuilder.toString()));
         }
@@ -647,13 +646,16 @@ public class ProjectUtils {
         return possiblePkgNames;
     }
 
-    private static boolean isBuiltInPackage(ImportModuleRequest importModuleRequest) {
-        PackageOrg org = importModuleRequest.packageOrg();
-        String moduleName = importModuleRequest.moduleName();
-        return (org.isBallerinaOrg() && moduleName.startsWith(LANG_LIB_PACKAGE_NAME_PREFIX)) ||
+    public static boolean isBuiltInPackage(PackageOrg org, String moduleName) {
+        return (org.isBallerinaOrg() && moduleName.startsWith("lang.")) ||
                 (org.value().equals(Names.BALLERINA_INTERNAL_ORG.getValue())) ||
                 (org.isBallerinaOrg() && moduleName.equals(Names.JAVA.getValue())) ||
                 (org.isBallerinaOrg() && moduleName.equals(Names.TEST.getValue()));
+    }
+
+    public static boolean isLangLibPackage(PackageOrg org, PackageName packageName) {
+        return (org.isBallerinaOrg() && packageName.value().startsWith("lang.")) ||
+                (org.isBallerinaOrg() && packageName.value().equals(Names.JAVA.getValue()));
     }
 
     /**
