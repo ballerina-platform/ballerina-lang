@@ -115,7 +115,7 @@ public class PullCommand implements BLauncherCmd {
         // Get org name
         String[] moduleInfo = resourceName.split("/");
         if (moduleInfo.length != 2) {
-            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization ",
+            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization.",
                                    USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -132,7 +132,7 @@ public class PullCommand implements BLauncherCmd {
             packageName = moduleNameAndVersion;
             version = Names.EMPTY.getValue();
         } else {
-            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization ",
+            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization.",
                                    USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -140,13 +140,13 @@ public class PullCommand implements BLauncherCmd {
 
         // Validate package org, name and version
         if (!validateOrgName(orgName)) {
-            CommandUtil.printError(errStream, "invalid organization. Provide the package name with the organization ",
+            CommandUtil.printError(errStream, "invalid organization. Provide the package name with the organization.",
                                    USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
         if (!validatePackageName(packageName)) {
-            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization ",
+            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization.",
                                    USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -211,7 +211,7 @@ public class PullCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("download modules to the user repository \n");
+        out.append("Download modules to the user repository \n");
     }
 
     @Override

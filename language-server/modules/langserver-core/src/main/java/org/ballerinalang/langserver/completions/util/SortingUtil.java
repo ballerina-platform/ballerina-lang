@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -29,9 +30,11 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Project;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.FunctionPointerCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
@@ -148,10 +151,10 @@ public class SortingUtil {
     }
 
     /**
-     * Get the sort text for a given completion item within a context where the type descriptors are allowed. 
-     * This assume that the user get the particular completion item by calling 
+     * Get the sort text for a given completion item within a context where the type descriptors are allowed.
+     * This assumes that the user gets the particular completion item by calling
      * AbstractCompletionProvider#getTypeDescContextItems. Hence, here we honour the module completion items as well
-     * 
+     * <p>
      * Sorting order is defined as follows
      * 1. Types defined in the same module
      * 2. Types visible from other modules (StrandData, Thread in lang.value)
@@ -205,7 +208,7 @@ public class SortingUtil {
                     ? genSortText(1) : genSortText(2);
             return sortPrefix + genSortText(toRank(item));
         }
-        
+
         // Case 3
         if (isModuleCompletionItem(item)) {
             return genSortText(3) + genSortTextForModule(context, item);
@@ -215,9 +218,52 @@ public class SortingUtil {
         if (item.getType() == SNIPPET && ((SnippetCompletionItem) item).kind() == SnippetBlock.Kind.TYPE) {
             return genSortText(8);
         }
-        
+
         // Case 7+ 
         return genSortText(SortingUtil.toRank(item, 8));
+    }
+
+    /**
+     * Generate the sort text based on the assignability to particular type symbol.
+     * <p>
+     * Sorting order is defined as follows
+     * 1.Variables assignable to the given type symbol
+     * 2.Functions with return type descriptor assignable to given type symbol
+     * 3.Other symbols follow the default sorting order
+     *
+     * @param completionItem Completion item.
+     * @return {@link String} Sort text.
+     */
+    public static String genSortTextByAssignability(LSCompletionItem completionItem, TypeSymbol typeSymbol) {
+        if (completionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+            Optional<Symbol> completionSymbol = ((SymbolCompletionItem) completionItem).getSymbol();
+            if (completionSymbol.isEmpty()) {
+                return genSortText(toRank(completionItem, 2));
+            }
+            Optional<TypeSymbol> evalTypeSymbol = SymbolUtil.getTypeDescriptor(completionSymbol.get());
+            if (evalTypeSymbol.isPresent()) {
+                if (completionSymbol.get() instanceof FunctionSymbol) {
+                    Optional<TypeSymbol> returnType = ((FunctionSymbol) completionSymbol.get())
+                            .typeDescriptor().returnTypeDescriptor();
+                    if (returnType.isPresent() && returnType.get().assignableTo(typeSymbol)) {
+                        return genSortText(1) + genSortText(toRank(completionItem));
+                    }
+                } else {
+                    if (evalTypeSymbol.get().assignableTo(typeSymbol)) {
+                        return genSortText(1) + genSortText(toRank(completionItem));
+                    }
+                }
+            }
+        } else if (completionItem.getType() == LSCompletionItem.CompletionItemType.FUNCTION_POINTER) {
+            Optional<Symbol> cSymbol = ((FunctionPointerCompletionItem) completionItem).getSymbol();
+            if (cSymbol.isPresent()) {
+                Optional<TypeSymbol> evalTypeSymbol = SymbolUtil.getTypeDescriptor(cSymbol.get());
+                if (evalTypeSymbol.isPresent() && evalTypeSymbol.get().assignableTo(typeSymbol)) {
+                    return genSortText(1) + genSortText(toRank(completionItem));
+                }
+            }
+        }
+        return genSortText(toRank(completionItem, 2));
     }
 
     /**

@@ -147,7 +147,7 @@ public class VariableUtils {
      * @param value JDI value instance.
      * @return true the given JDI value is a ballerina service variable instance.
      */
-     static boolean isService(Value value) {
+     public static boolean isService(Value value) {
         try {
             return getFieldValue(value, FIELD_TYPE).map(type -> type.type().name().endsWith
                 (JVMValueType.BTYPE_SERVICE.getString())).orElse(false);
