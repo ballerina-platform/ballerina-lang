@@ -86,6 +86,7 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
             Covers the following
             (1) [typedesc | map | future]<mod:*cursor*>
             (2) [typedesc | map | future]<mod:x*cursor*>
+            (3) table<R1> key<mod:*cursor*>
              */
             List<Symbol> moduleContent = QNameReferenceUtil.getTypesInModule(context, refNode);
             return this.getCompletionItemList(moduleContent, context);
@@ -94,6 +95,7 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
                 Covers the following
                 (1) [typedesc | map | future]<*cursor*>
                 (2) [typedesc | map | future]<x*cursor*>
+                (3) table<R1> key<*cursor*>
                  */
             return this.getTypeDescContextItems(context);
         }
