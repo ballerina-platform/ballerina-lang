@@ -63,6 +63,7 @@ function testFunction2() {
 ```
 
 The `dataProvider` attribute can be used to assign a function to act as a data provider for a test.
+The data provider can return data as a map of tuples or as an array of arrays.
 
 ```ballerina
 @test:Config{  
