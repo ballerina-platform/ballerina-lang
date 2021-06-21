@@ -2134,7 +2134,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode, BTupleType tupleTypeNode,
                                                     SymbolEnv env) {
-
+        BType possibleRestTypeForUnion = null;
         if (tupleTypeNode == null) {
         /*
           This switch block will resolve the tuple type of the tuple variable.
@@ -2189,11 +2189,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                             }
                         }
                         tupleTypeNode = new BTupleType(memberTupleTypes);
+                        possibleRestTypeForUnion = getPossibleRestTypeForUnion(varNode, possibleTypes);
                         break;
                     }
 
                     if (possibleTypes.get(0).tag == TypeTags.TUPLE) {
                         tupleTypeNode = (BTupleType) possibleTypes.get(0);
+                        possibleRestTypeForUnion = getPossibleRestTypeForUnion(varNode, possibleTypes);
                         break;
                     }
 
@@ -2202,6 +2204,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         memberTypes.add(possibleTypes.get(0));
                     }
                     tupleTypeNode = new BTupleType(memberTypes);
+                    possibleRestTypeForUnion = getPossibleRestTypeForUnion(varNode, possibleTypes);
                     break;
                 case TypeTags.ANY:
                 case TypeTags.ANYDATA:
@@ -2261,25 +2264,18 @@ public class SymbolEnter extends BLangNodeVisitor {
             int tupleNodeMemCount = tupleTypeNode.tupleTypes.size();
             int varNodeMemCount = varNode.memberVariables.size();
             BType restType = tupleTypeNode.restType;
+            List<BType> memberTypes = new ArrayList<>();
             if (varNodeMemCount < tupleNodeMemCount) {
-                LinkedHashSet<BType> varTypes = new LinkedHashSet<>();
                 for (int j = varNodeMemCount; j < tupleNodeMemCount; j++) {
-                    varTypes.add(tupleTypeNode.tupleTypes.get(j));
-                }
-                if (restType != null) {
-                    varTypes.add(restType);
-                }
-                if (varTypes.size() > 1) {
-                    restType = BUnionType.create(null, varTypes);
-                } else {
-                    restType = varTypes.iterator().next();
+                    memberTypes.add(tupleTypeNode.tupleTypes.get(j));
                 }
             }
-            if (restType != null) {
-                type = new BArrayType(restType);
+            if (!memberTypes.isEmpty()) {
+                BTupleType restTupleType = new BTupleType(memberTypes);
+                restTupleType.restType = restType;
+                type = restTupleType;
             } else {
-                LinkedHashSet<BType> varTypes = new LinkedHashSet<>(tupleTypeNode.tupleTypes);
-                type = new BArrayType(BUnionType.create(null, varTypes));
+                type = restType != null ? new BArrayType(restType) : possibleRestTypeForUnion;
             }
             defineMemberNode(varNode.restVariable, env, type);
         }
@@ -2290,6 +2286,34 @@ public class SymbolEnter extends BLangNodeVisitor {
             return false;
         }
         return true;
+    }
+
+    private BType getPossibleRestTypeForUnion(BLangTupleVariable varNode, List<BType> possibleTypes) {
+        LinkedHashSet<BType> memberRestTypes = new LinkedHashSet<>();
+        if (varNode.restVariable != null) {
+            for (BType possibleType : possibleTypes) {
+                if (possibleType.tag == TypeTags.TUPLE) {
+                    BTupleType tupleType = (BTupleType) possibleType;
+                    for (int j = varNode.memberVariables.size(); j < tupleType.tupleTypes.size();
+                         j++) {
+                        memberRestTypes.add(tupleType.tupleTypes.get(j));
+                    }
+                    if (tupleType.restType != null) {
+                        memberRestTypes.add(tupleType.restType);
+                    }
+                } else if (possibleType.tag == TypeTags.ARRAY) {
+                    memberRestTypes.add(((BArrayType) possibleType).eType);
+                } else {
+                    memberRestTypes.add(possibleType);
+                }
+            }
+            if (!memberRestTypes.isEmpty()) {
+                return new BArrayType(BUnionType.create(null, memberRestTypes));
+            } else {
+                return varNode.getBType();
+            }
+        }
+        return null;
     }
 
     private boolean checkMemVarCountMatchWithMemTypeCount(BLangTupleVariable varNode, BTupleType tupleTypeNode) {
