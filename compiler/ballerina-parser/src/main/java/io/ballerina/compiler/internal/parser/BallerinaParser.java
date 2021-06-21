@@ -2782,7 +2782,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
             }
 
-            if (isStmtNotAllowedInLocalLevel(stmt)) {
+            if (validateStatement(stmt)) {
                 continue;
             }
 
@@ -4029,7 +4029,7 @@ public class BallerinaParser extends AbstractParser {
                 continue;
             }
 
-            if (isStmtNotAllowedInLocalLevel(stmt)) {
+            if (validateStatement(stmt)) {
                 continue;
             }
             stmts.add(stmt);
@@ -4075,7 +4075,13 @@ public class BallerinaParser extends AbstractParser {
         return parseStatement(annots);
     }
 
-    boolean isStmtNotAllowedInLocalLevel(STNode statement) {
+    /**
+     * Invalidate top-level nodes which are allowed to be parsed as statements to improve the error messages.
+     *
+     * @param statement Statement to validate
+     * @return <code>true</code> if the statement is valid <code>false</code> otherwise
+     */
+    boolean validateStatement(STNode statement) {
         switch (statement.kind) {
             case LOCAL_TYPE_DEFINITION_STATEMENT:
                 addInvalidNodeToNextToken(statement, DiagnosticErrorCode.ERROR_LOCAL_TYPE_DEFINITION_NOT_ALLOWED);
@@ -9659,7 +9665,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
             }
 
-            if (isStmtNotAllowedInLocalLevel(stmt)) {
+            if (validateStatement(stmt)) {
                 continue;
             }
 
