@@ -9,14 +9,13 @@ import io.ballerina.projects.internal.SettingsBuilder;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.net.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import static io.ballerina.projects.util.ProjectUtils.createAndGetHomeReposPath;
-
 
 /**
  * Utilities related to Central functionality.
@@ -33,7 +32,14 @@ public class ProjectCentralUtils {
 
     public static void pullPackage(String orgName, String packageName, String version)
             throws RemotePackageRepositoryException {
-        Settings settings = readSettings();
+        Settings settings;
+
+        try {
+            settings = readSettings();
+        } catch (SettingsTomlException e) {
+            settings = Settings.from();
+        }
+
         Proxy proxy = ProjectUtils.initializeProxy(settings.getProxy());
         String accessToken = ProjectUtils.getAccessTokenOfCLI(settings);
 
@@ -49,7 +55,7 @@ public class ProjectCentralUtils {
 
         try {
             centralAPIClient.pullPackage(orgName, packageName, version, packagePathInBalaCache, SUPPORTED_PLATFORM,
-                        ProjectUtils.getBallerinaVersion(), false);
+                        RepoUtils.getBallerinaVersion(), false);
         } catch (PackageAlreadyExistsException e) {
             throw new PackageExistsException(e.getMessage());
         } catch (CentralClientException e) {
@@ -62,8 +68,8 @@ public class ProjectCentralUtils {
      *
      * @return {@link Settings} settings object
      */
-    private static Settings readSettings() {
-        Path settingsFilePath = createAndGetHomeReposPath().resolve(ProjectConstants.SETTINGS_FILE_NAME);
+    public static Settings readSettings() throws SettingsTomlException {
+        Path settingsFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectConstants.SETTINGS_FILE_NAME);
         try {
             TomlDocument settingsTomlDocument = TomlDocument
                     .from(String.valueOf(settingsFilePath.getFileName()), Files.readString(settingsFilePath));

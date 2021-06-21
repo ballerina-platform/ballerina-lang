@@ -21,6 +21,7 @@ package io.ballerina.cli.cmd;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.PackageExistsException;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.RemotePackageRepositoryException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.util.ProjectCentralUtils;
 import io.ballerina.projects.util.ProjectConstants;
@@ -172,7 +173,7 @@ public class PullCommand implements BLauncherCmd {
         } catch (PackageExistsException e) {
             errStream.println(e.getMessage());
             CommandUtil.exitError(this.exitWhenFinish);
-        } catch (ProjectException e) {
+        } catch (RemotePackageRepositoryException e) {
             errStream.println("unexpected error occurred while pulling package:" + e.getMessage());
             CommandUtil.exitError(this.exitWhenFinish);
         }
