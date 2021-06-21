@@ -123,16 +123,20 @@ public class BSymbol implements Symbol {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof BSymbol)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BSymbol)) {
+            return false;
+        }
         BSymbol bSymbol = (BSymbol) o;
         return tag == bSymbol.tag && flags == bSymbol.flags && tainted == bSymbol.tainted &&
                 closure == bSymbol.closure &&
                 Objects.equals(name, bSymbol.name) && Objects.equals(pkgID, bSymbol.pkgID) &&
-                kind == bSymbol.kind && Objects.equals(type, bSymbol.type) && Objects.equals(owner,
-                                                                                             bSymbol.owner) &&
-                Objects.equals(markdownDocumentation, bSymbol.markdownDocumentation) && Objects.equals(
-                pos, bSymbol.pos) && origin == bSymbol.origin && Objects.equals(scope, bSymbol.scope);
+                kind == bSymbol.kind && Objects.equals(type, bSymbol.type)
+                && Objects.equals(owner, bSymbol.owner)
+                && Objects.equals(markdownDocumentation, bSymbol.markdownDocumentation)
+                && Objects.equals(pos, bSymbol.pos) && origin == bSymbol.origin && Objects.equals(scope, bSymbol.scope);
     }
 
     @Override

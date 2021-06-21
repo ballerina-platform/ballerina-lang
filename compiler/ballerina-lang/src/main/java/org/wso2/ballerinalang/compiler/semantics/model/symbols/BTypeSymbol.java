@@ -64,12 +64,18 @@ public class BTypeSymbol extends BSymbol implements TypeSymbol {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof BTypeSymbol)) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BTypeSymbol)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         BTypeSymbol that = (BTypeSymbol) o;
-        return isLabel == that.isLabel && isTypeParamResolved == that.isTypeParamResolved && Objects.equals(
-                typeParamTSymbol, that.typeParamTSymbol);
+        return isLabel == that.isLabel && isTypeParamResolved == that.isTypeParamResolved
+                && Objects.equals(typeParamTSymbol, that.typeParamTSymbol);
     }
 
     @Override
