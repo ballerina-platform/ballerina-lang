@@ -63,15 +63,18 @@ public class EvaluatorMiscTest {
                 .treeParser(TestUtils.getTestTreeParser())
                 .build();
         evaluator.initialize();
+        evaluator.evaluate("import ballerina/jballerina.'java");
         evaluator.evaluate("import ballerina/lang.'int as prefix");
         evaluator.evaluate("import ballerina/lang.'float as prefix2");
         Assert.assertEquals(new HashSet<>(evaluator.availableImports()),
                 Set.of(
+                        "('java) import ballerina/'jballerina.'java as 'java;",
                         "('prefix) import ballerina/'lang.'int as 'prefix;",
                         "('prefix2) import ballerina/'lang.'float as 'prefix2;"
                 )
         );
         Assert.assertTrue(evaluator.availableVariables().isEmpty());
+        Assert.assertEquals(evaluator.availableImports().size(), 3);
         Assert.assertTrue(evaluator.availableModuleDeclarations().isEmpty());
     }
 
