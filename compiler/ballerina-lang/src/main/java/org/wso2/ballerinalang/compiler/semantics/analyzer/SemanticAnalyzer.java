@@ -317,7 +317,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             if (pkgLevelNode.getKind() == NodeKind.CLASS_DEFN &&
-                    ((BLangClassDefinition) pkgLevelNode).flagSet.contains(Flag.ANONYMOUS)) {
+                    ((BLangClassDefinition) pkgLevelNode).flagSet.contains(Flag.OBJECT_CTOR)) {
                 // This is a class defined for an object-constructor-expression (OCE). This will be analyzed when
                 // visiting the OCE in the type checker.
                 // This is a temporary workaround until we fix
