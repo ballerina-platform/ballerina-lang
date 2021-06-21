@@ -84,6 +84,22 @@ function testMapOfCharToMapOfString() {
     test:assertEquals(res, {});
 }
 
+type IntOneOrTwo 1|2;
+
+function testFiniteTypeArrayToSigned32IntArray() {
+    IntOneOrTwo[] a = [1, 2];
+    any[] b = a;
+    int:Signed32[] c = <int:Signed32[]> b;
+    test:assertEquals(c, [1, 2]);
+}
+
+function testFiniteTypeToUnsigned32Int() {
+    IntOneOrTwo a = 2;
+    any b = a;
+    int:Unsigned32 c = <int:Unsigned32> b;
+    test:assertEquals(c, 2);
+}
+
 function testJsonIntToString() returns string|error {
     json j = 5;
     int value;
