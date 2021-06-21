@@ -2446,12 +2446,16 @@ public class TypeChecker extends BLangNodeVisitor {
             BLangExpression restExpr = (BLangExpression) varRefExpr.restParam;
             ((BLangVariableReference) restExpr).isLValue = true;
             BType checkedType = checkExpr(restExpr, env, symTable.noType);
-            if (checkedType.tag != TypeTags.ARRAY) {
+            if (!(checkedType.tag == TypeTags.ARRAY || checkedType.tag == TypeTags.TUPLE)) {
                 dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_TYPE_FOR_REST_DESCRIPTOR, checkedType);
                 resultType = symTable.semanticError;
                 return;
             }
-            actualType.restType = ((BArrayType) checkedType).eType;
+            if (checkedType.tag == TypeTags.ARRAY) {
+                actualType.restType = ((BArrayType) checkedType).eType;
+            } else {
+                actualType.restType = checkedType;
+            }
         }
         resultType = types.checkType(varRefExpr, actualType, expType);
     }
