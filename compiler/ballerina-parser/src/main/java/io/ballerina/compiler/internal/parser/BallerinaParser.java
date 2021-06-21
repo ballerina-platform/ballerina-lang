@@ -5709,7 +5709,7 @@ public class BallerinaParser extends AbstractParser {
     private boolean isEndOfExpression(SyntaxKind tokenKind, boolean isRhsExpr, boolean isInMatchGuard,
                                       SyntaxKind precedingNodeKind) {
         if (!isRhsExpr) {
-            if (isCompoundBinaryOperator(tokenKind)) {
+            if (isCompoundAssignment(tokenKind)) {
                 return true;
             }
 
@@ -7338,7 +7338,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseCompoundBinaryOperator() {
         STToken token = peek();
-        if (isCompoundBinaryOperator(token.kind)) {
+        if (isCompoundAssignment(token.kind)) {
             return consume();
         } else {
             recover(token, ParserRuleContext.COMPOUND_BINARY_OPERATOR);
@@ -7637,7 +7637,7 @@ public class BallerinaParser extends AbstractParser {
      * @param tokenKind STToken kind
      * @return <code>true</code> if the token kind refers to a binary operator. <code>false</code> otherwise
      */
-    private boolean isCompoundBinaryOperator(SyntaxKind tokenKind) {
+    static boolean isCompoundBinaryOperator(SyntaxKind tokenKind) {
         switch (tokenKind) {
             case PLUS_TOKEN:
             case MINUS_TOKEN:
@@ -7649,10 +7649,14 @@ public class BallerinaParser extends AbstractParser {
             case DOUBLE_LT_TOKEN:
             case DOUBLE_GT_TOKEN:
             case TRIPPLE_GT_TOKEN:
-                return getNextNextToken().kind == SyntaxKind.EQUAL_TOKEN;
+                return true;
             default:
                 return false;
         }
+    }
+
+    private boolean isCompoundAssignment(SyntaxKind tokenKind) {
+        return isCompoundBinaryOperator(tokenKind) && getNextNextToken().kind == SyntaxKind.EQUAL_TOKEN;
     }
 
     /**
@@ -8340,7 +8344,7 @@ public class BallerinaParser extends AbstractParser {
             case IDENTIFIER_TOKEN:
             default:
                 // If its a binary operator then this can be a compound assignment statement
-                if (isCompoundBinaryOperator(nextTokenKind)) {
+                if (isCompoundAssignment(nextTokenKind)) {
                     return parseCompoundAssignmentStmtRhs(expression);
                 }
 
@@ -11701,27 +11705,46 @@ public class BallerinaParser extends AbstractParser {
                 break;
             case SIMPLE_NAME_REFERENCE:
             case QUALIFIED_NAME_REFERENCE:
-                STNode openParenToken = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.OPEN_PAREN_TOKEN,
-                        DiagnosticErrorCode.ERROR_MISSING_OPEN_PAREN_TOKEN);
-                STNode arguments = STNodeFactory.createEmptyNodeList();
-                STNode closeParenToken = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.CLOSE_PAREN_TOKEN,
-                        DiagnosticErrorCode.ERROR_MISSING_CLOSE_PAREN_TOKEN);
-                expr = STNodeFactory.createFunctionCallExpressionNode(expr, openParenToken, arguments, closeParenToken);
+            case FIELD_ACCESS:
+            case ASYNC_SEND_ACTION:
+                expr = generateValidExprForStartAction(expr);
                 break;
             default:
                 startKeyword = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(startKeyword, expr,
                         DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_IN_START_ACTION);
                 STNode funcName = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
                 funcName = STNodeFactory.createSimpleNameReferenceNode(funcName);
-                openParenToken = SyntaxErrors.createMissingToken(SyntaxKind.OPEN_PAREN_TOKEN);
-                arguments = STNodeFactory.createEmptyNodeList();
-                closeParenToken = SyntaxErrors.createMissingToken(SyntaxKind.CLOSE_PAREN_TOKEN);
-                expr = STNodeFactory.createFunctionCallExpressionNode(funcName, openParenToken, arguments,
-                        closeParenToken);
+                STNode openParenToken = SyntaxErrors.createMissingToken(SyntaxKind.OPEN_PAREN_TOKEN);
+                STNode closeParenToken = SyntaxErrors.createMissingToken(SyntaxKind.CLOSE_PAREN_TOKEN);
+                expr = STNodeFactory.createFunctionCallExpressionNode(funcName, openParenToken,
+                        STNodeFactory.createEmptyNodeList(), closeParenToken);
                 break;
         }
 
         return STNodeFactory.createStartActionNode(getAnnotations(annots), startKeyword, expr);
+    }
+
+    private STNode generateValidExprForStartAction(STNode expr) {
+        STNode openParenToken = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.OPEN_PAREN_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_OPEN_PAREN_TOKEN);
+        STNode arguments = STNodeFactory.createEmptyNodeList();
+        STNode closeParenToken = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.CLOSE_PAREN_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_CLOSE_PAREN_TOKEN);
+
+        switch (expr.kind) {
+            case FIELD_ACCESS:
+                STFieldAccessExpressionNode fieldAccessExpr = (STFieldAccessExpressionNode) expr;
+                return STNodeFactory.createMethodCallExpressionNode(fieldAccessExpr.expression,
+                        fieldAccessExpr.dotToken, fieldAccessExpr.fieldName, openParenToken, arguments,
+                        closeParenToken);
+            case ASYNC_SEND_ACTION:
+                STAsyncSendActionNode asyncSendAction = (STAsyncSendActionNode) expr;
+                return STNodeFactory.createRemoteMethodCallActionNode(asyncSendAction.expression,
+                        asyncSendAction.rightArrowToken, asyncSendAction.peerWorker, openParenToken, arguments,
+                        closeParenToken);
+            default: // QualifiedNameRef or SimpleNameRef
+                return STNodeFactory.createFunctionCallExpressionNode(expr, openParenToken, arguments, closeParenToken);
+        }
     }
 
     /**
@@ -14568,7 +14591,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseTypeBindingPatternStartsWithAmbiguousNode(typeDesc);
             default:
                 // If its a binary operator then this can be a compound assignment statement
-                if (isCompoundBinaryOperator(nextToken.kind)) {
+                if (isCompoundAssignment(nextToken.kind)) {
                     return typeOrExpr;
                 }
 
@@ -14892,7 +14915,7 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createRestDescriptorNode(typeOrExpr, ellipsis);
             default:
                 // If its a binary operator then this can be a compound assignment statement
-                if (isCompoundBinaryOperator(nextToken.kind)) {
+                if (isCompoundAssignment(nextToken.kind)) {
                     return typeOrExpr;
                 }
 

@@ -24,6 +24,7 @@ function testOnFailEdgeTestcases() {
     testCheckExprWithinOnFail();
     testFailPassWithinOnFail();
     testTypeNarrowingInsideOnfail();
+    testBreakWithinOnfail();
 }
 
 function testUnreachableCodeWithIf(){
@@ -240,6 +241,25 @@ function testTypeNarrowingInsideOnfail() {
 
     assertEquality("-> Before error thrown -> Error caught at level #1. Retrying... -> Retry failed"
         + " -> Error caught at level #2 -> After handling all failures", str);
+}
+
+function testBreakWithinOnfail() {
+    string str = "";
+    do {
+        str += "-> Before error thrown";
+        fail getError();
+    } on fail error e {
+        str += " -> Error caught! ";
+        int[] arr = [1, 2, 3];
+        foreach int digit in arr {
+            if (digit > 1) {
+                break;
+            }
+            str += "Loop broke with digit: " + digit.toString();
+        }
+    }
+
+    assertEquality("-> Before error thrown -> Error caught! Loop broke with digit: 1", str);
 }
 
 function getCheckError()  returns int|error {

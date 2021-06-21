@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/jballerina.java;
-import ballerina/lang.'value as value;
 
 # Type for value that can be cloned.
 # This is the same as in lang.value, but is copied here to avoid a dependency.

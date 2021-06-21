@@ -78,7 +78,7 @@ public class ShellCommand implements BLauncherCmd {
             BShellConfiguration configuration = builder.build();
             ReplShellApplication.execute(configuration);
         } catch (Exception e) {
-            errStream.println("Something went wrong while executing REPL: " + e.toString());
+            errStream.println("something went wrong while executing REPL: " + e.toString());
         }
     }
 
@@ -89,7 +89,7 @@ public class ShellCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("run ballerina interactive REPL");
+        out.append("Run ballerina interactive REPL");
     }
 
     @Override

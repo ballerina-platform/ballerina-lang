@@ -472,6 +472,100 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "func()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "func",
+      "insertText": "func()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myStr",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "D",
+      "insertText": "myStr",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myInt",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "D",
+      "insertText": "myInt",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MyType",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "AL",
+      "insertText": "MyType",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myType",
+      "kind": "Variable",
+      "detail": "MyType",
+      "sortText": "AB",
+      "insertText": "myType",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "paramStr",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "D",
+      "insertText": "paramStr",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "hello",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "D",
+      "insertText": "hello",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getInt()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "getInt",
+      "insertText": "getInt()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "O",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "mytype",
+      "kind": "Variable",
+      "detail": "MyType",
+      "sortText": "AB",
+      "insertText": "mytype",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "getString(string myStr)(string)",
       "kind": "Function",
       "detail": "Function",
@@ -489,22 +583,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "myStr",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "D",
-      "insertText": "myStr",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "hello",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "D",
-      "insertText": "hello",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "myFunction(function () returns string func, string paramStr, MyType myType)",
@@ -526,14 +604,6 @@
       }
     },
     {
-      "label": "MyType",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "N",
-      "insertText": "MyType",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -542,76 +612,6 @@
       },
       "sortText": "N",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "mytype",
-      "kind": "Variable",
-      "detail": "MyType",
-      "sortText": "A",
-      "insertText": "mytype",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "func()(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "func",
-      "insertText": "func()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myInt",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "D",
-      "insertText": "myInt",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "paramStr",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "D",
-      "insertText": "paramStr",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getInt()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "getInt",
-      "insertText": "getInt()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myType",
-      "kind": "Variable",
-      "detail": "MyType",
-      "sortText": "A",
-      "insertText": "myType",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "O",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {

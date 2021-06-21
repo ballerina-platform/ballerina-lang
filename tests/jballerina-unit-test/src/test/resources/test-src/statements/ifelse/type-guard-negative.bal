@@ -222,3 +222,26 @@ function testMapIntersectionNegative() {
         map<int> x = m;
     }
 }
+
+type CyclicComplexUnion int|CyclicComplexUnion[]|object {};
+type floatUnion float|string;
+
+function testCyclicUnionNegative() {
+    CyclicComplexUnion m = 1;
+
+    if m is float {
+    }
+}
+
+function testCyclicUnionNegative2() {
+    CyclicComplexUnion m = 1;
+
+    if m is floatUnion {
+    }
+}
+
+function testCyclicUnionNegative3() {
+    CyclicComplexUnion m = 1;
+    if m is float[] {
+    }
+}
