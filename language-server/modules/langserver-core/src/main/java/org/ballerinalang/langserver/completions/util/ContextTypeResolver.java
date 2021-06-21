@@ -68,11 +68,12 @@ import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+
+import javax.annotation.Nonnull;
 
 /**
  * This visitor is used to resolve a type of a given context.
