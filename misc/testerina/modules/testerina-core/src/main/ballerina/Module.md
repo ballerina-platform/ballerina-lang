@@ -63,18 +63,22 @@ function testFunction2() {
 ```
 
 The `dataProvider` attribute can be used to assign a function to act as a data provider for a test.
-The data provider can return data as a map of tuples or as an array of arrays.
+The data provider can return data as a map of tuples or as an array of arrays. If there is an issue
+ while generating the data set, it can return an error which will be handled by the test framework.
 
 ```ballerina
-@test:Config{  
-    dataProvider: dataGen
-}
-function dataProviderTest (int value) returns error? {
-    test:assertEquals(value, 1, msg = "value is not correct");
+function mapDataProviderTest(int value1, int value2, string fruit) returns error? {
+    test:assertEquals(value1, value2, msg = "The provided values are not equal");
+    test:assertEquals(fruit.length(), 6);
 }
 
-function dataGen() returns (int[][]) {
-    return [[1]];
+// The data provider function, which returns a  data set as a map of tuples.
+function mapDataProvider() returns map<[int, int, string]>|error {
+    map<[int, int, string]> dataSet = {
+        "banana": [10, 10, "banana"],
+        "cherry": [5, 5, "cherry"]
+    };
+    return dataSet;
 }
 ```
 
