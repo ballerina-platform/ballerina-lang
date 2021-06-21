@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -261,6 +262,25 @@ public class NodeCloner extends BLangNodeVisitor {
         return clone;
     }
 
+    public <T extends Node> T cloneNode(T source) {
+
+        if (source == null) {
+            return null;
+        }
+        BLangNode sourceNode = (BLangNode) source;
+        sourceNode.cloneAttempt += 1;
+        int prevCloneAttempt = currentCloneAttempt;
+        currentCloneAttempt = ((BLangNode) source).cloneAttempt;
+        sourceNode.accept(this);
+        BLangNode result = sourceNode.cloneRef;
+        result.pos = sourceNode.pos;
+        result.internal = sourceNode.internal;
+        result.addWS(source.getWS());
+        result.setBType(sourceNode.getBType());
+        currentCloneAttempt = prevCloneAttempt;
+        return (T) result;
+    }
+
     private <T extends Node> List<T> cloneList(List<T> nodes) {
 
         if (nodes == null) {
@@ -275,7 +295,7 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Node> T clone(T source) {
+    private <T extends Node> T clone(T source) {
 
         if (source == null) {
             return null;
@@ -1846,6 +1866,12 @@ public class NodeCloner extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
         // Ignore
+        BLangSimpleVarRef.BLangLocalVarRef clone = new BLangSimpleVarRef.BLangLocalVarRef(
+                (BVarSymbol) localVarRef.varSymbol);
+        localVarRef.cloneRef = clone;
+        clone.pkgAlias = localVarRef.pkgAlias;
+        clone.variableName = localVarRef.variableName;
+
     }
 
     @Override
@@ -2285,5 +2311,13 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.isClient = source.isClient;
 
         source.cloneRef = clone;
+    }
+
+    public int getCloneAttempt() {
+        return this.currentCloneAttempt;
+    }
+
+    public void setCloneAttempt(int attempt) {
+        this.currentCloneAttempt = attempt;
     }
 }
