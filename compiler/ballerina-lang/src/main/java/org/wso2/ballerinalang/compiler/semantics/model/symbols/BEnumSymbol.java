@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Represents an enum.
@@ -65,5 +66,23 @@ public class BEnumSymbol extends BTypeSymbol implements Annotatable {
     @Override
     public List<? extends AnnotationSymbol> getAnnotations() {
         return this.annots;
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BEnumSymbol)) {
+            return false;
+        }
+        BEnumSymbol that = (BEnumSymbol) o;
+        return Objects.equals(members, that.members) && Objects.equals(annots, that.annots);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), members, annots);
     }
 }

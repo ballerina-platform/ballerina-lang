@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANNOTATION;
@@ -99,5 +100,24 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
             points = EnumSet.noneOf(AttachPoint.Point.class);
         }
         return AttachPoints.asMask(points);
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BAnnotationSymbol)) {
+            return false;
+        }
+        BAnnotationSymbol that = (BAnnotationSymbol) o;
+        return maskedPoints == that.maskedPoints && Objects.equals(attachedType, that.attachedType) &&
+                Objects.equals(points, that.points) && Objects.equals(annots, that.annots);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), attachedType, points, maskedPoints, annots);
     }
 }

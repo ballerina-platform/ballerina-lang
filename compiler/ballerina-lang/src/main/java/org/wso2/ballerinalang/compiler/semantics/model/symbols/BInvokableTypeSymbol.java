@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents a function type symbol.
@@ -51,6 +52,27 @@ public class BInvokableTypeSymbol extends BTypeSymbol {
         this.params = new ArrayList<>();
         this.returnTypeAnnots = new ArrayList<>();
         this.paramDefaultValTypes = new HashMap<>();
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BInvokableTypeSymbol)) {
+            return false;
+        }
+        BInvokableTypeSymbol that = (BInvokableTypeSymbol) o;
+        return Objects.equals(params, that.params) && Objects.equals(restParam, that.restParam) &&
+                Objects.equals(returnType, that.returnType) && Objects.equals(returnTypeAnnots,
+                                                                              that.returnTypeAnnots) &&
+                Objects.equals(paramDefaultValTypes, that.paramDefaultValTypes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), params, restParam, returnType, returnTypeAnnots, paramDefaultValTypes);
     }
 
     @Override
