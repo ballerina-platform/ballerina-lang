@@ -39,7 +39,7 @@ dependencies {
     implementation 'io.netty:netty-codec-http'
 //    implementation 'io.opentelemetry:opentelemetry-api'
 //    implementation 'io.opentelemetry:opentelemetry-sdk-trace'
-    implementation 'io.opentelemetry:opentelemetry-sdk-testing'
+//    implementation 'io.opentelemetry:opentelemetry-sdk-testing'
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang:jballerina.java')
 
