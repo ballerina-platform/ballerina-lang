@@ -34,6 +34,7 @@ import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
+import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
@@ -67,12 +68,11 @@ import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-
-import javax.annotation.Nonnull;
 
 /**
  * This visitor is used to resolve a type of a given context.
@@ -389,16 +389,35 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     }
 
     @Override
-    public Optional<TypeSymbol> transform(DefaultableParameterNode defaultableParameterNode) {
+    public Optional<TypeSymbol> transform(DefaultableParameterNode node) {
 
         Optional<Symbol> symbol = context.currentSemanticModel()
-                .flatMap(semanticModel -> semanticModel.symbol(defaultableParameterNode));
+                .flatMap(semanticModel -> semanticModel.symbol(node));
 
         if (symbol.isPresent() && symbol.get().kind() == SymbolKind.PARAMETER) {
             ParameterSymbol parameterSymbol = (ParameterSymbol) symbol.get();
             return Optional.of(parameterSymbol.typeDescriptor());
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(ExplicitAnonymousFunctionExpressionNode node) {
+        /*
+        For the function definition, we consider the return type.
+         */
+        Optional<ReturnTypeDescriptorNode> returnTypeDesc = node.functionSignature().returnTypeDesc();
+        if (returnTypeDesc.isEmpty() || context.currentSemanticModel().isEmpty()) {
+            return Optional.empty();
+        }
+
+        Optional<Symbol> typeSymbol = context.currentSemanticModel().get().symbol(returnTypeDesc.get().type());
+
+        if (typeSymbol.isEmpty() || typeSymbol.get().kind() != SymbolKind.TYPE) {
+            return Optional.empty();
+        }
+
+        return Optional.of((TypeSymbol) typeSymbol.get());
     }
 
     @Override
