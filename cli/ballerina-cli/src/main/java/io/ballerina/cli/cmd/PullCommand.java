@@ -19,17 +19,14 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.projects.PackageExistsException;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.RemotePackageRepositoryException;
 import io.ballerina.projects.SemanticVersion;
-import io.ballerina.projects.Settings;
+import io.ballerina.projects.util.ProjectCentralUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import org.ballerinalang.central.client.CentralAPIClient;
-import org.ballerinalang.central.client.exceptions.CentralClientException;
-import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -39,14 +36,10 @@ import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
-import static io.ballerina.cli.utils.CentralUtils.readSettings;
-import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
-import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.projects.util.ProjectUtils.validateOrgName;
 import static io.ballerina.projects.util.ProjectUtils.validatePackageName;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static java.nio.file.Files.createDirectories;
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
 /**
  * This class represents the "bal pull" command.
@@ -175,28 +168,14 @@ public class PullCommand implements BLauncherCmd {
                     "unexpected error occurred while creating package repository in bala cache: " + e.getMessage());
         }
 
-        for (String supportedPlatform : SUPPORTED_PLATFORMS) {
-            try {
-                Settings settings;
-                try {
-                    settings = readSettings();
-                    // Ignore Settings.toml diagnostics in the pull command
-                } catch (SettingsTomlException e) {
-                    // Ignore 'Settings.toml' parsing errors and return empty Settings object
-                    settings = Settings.from();
-                }
-                CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                                                               initializeProxy(settings.getProxy()),
-                                                               getAccessTokenOfCLI(settings));
-                client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
-                                   RepoUtils.getBallerinaVersion(), false);
-            } catch (PackageAlreadyExistsException e) {
-                errStream.println(e.getMessage());
-                CommandUtil.exitError(this.exitWhenFinish);
-            } catch (CentralClientException e) {
-                errStream.println("unexpected error occurred while pulling package:" + e.getMessage());
-                CommandUtil.exitError(this.exitWhenFinish);
-            }
+        try {
+            ProjectCentralUtils.pullPackage(orgName, packageName, version);
+        } catch (PackageExistsException e) {
+            errStream.println(e.getMessage());
+            CommandUtil.exitError(this.exitWhenFinish);
+        } catch (RemotePackageRepositoryException e) {
+            errStream.println("unexpected error occurred while pulling package:" + e.getMessage());
+            CommandUtil.exitError(this.exitWhenFinish);
         }
 
         if (this.exitWhenFinish) {
