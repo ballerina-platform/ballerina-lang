@@ -256,11 +256,20 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "deprecated",
+      "label": "display",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
-      "insertText": "deprecated",
+      "sortText": "B",
+      "insertText": "display {\n\tlabel: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "AnnonType1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "A",
+      "insertText": "AnnonType1 {\n\tm: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
@@ -268,7 +277,7 @@
       "label": "AnnonType3",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "A",
       "insertText": "AnnonType3 {\n\ti: ${1:0}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -277,26 +286,17 @@
       "label": "AnnonType2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "A",
       "insertText": "AnnonType2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
     {
-      "label": "AnnonType1",
+      "label": "deprecated",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
-      "insertText": "AnnonType1 {\n\tm: \"${1}\"\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
-      "label": "display",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "Q",
-      "insertText": "display {\n\tlabel: \"${1}\"\n}",
+      "sortText": "B",
+      "insertText": "deprecated",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     }
