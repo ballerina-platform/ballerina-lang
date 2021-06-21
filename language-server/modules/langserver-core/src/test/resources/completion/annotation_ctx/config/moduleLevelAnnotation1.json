@@ -9,7 +9,7 @@
       "label": "annotationCommon",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "annotationCommon {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -18,7 +18,7 @@
       "label": "a1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "a1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -27,7 +27,7 @@
       "label": "a2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "a2 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -36,7 +36,7 @@
       "label": "typeAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "typeAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -45,7 +45,7 @@
       "label": "typeAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "typeAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -54,7 +54,7 @@
       "label": "typeAnnotation3",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "typeAnnotation3",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -63,7 +63,7 @@
       "label": "classAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "classAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -72,7 +72,7 @@
       "label": "classAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "classAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -81,7 +81,7 @@
       "label": "classAnnotation3",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "classAnnotation3",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -90,7 +90,7 @@
       "label": "functionAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "functionAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -99,7 +99,7 @@
       "label": "functionAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "functionAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -108,7 +108,7 @@
       "label": "objectFunctionAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "objectFunctionAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -117,7 +117,7 @@
       "label": "objectFunctionAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "objectFunctionAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -126,7 +126,7 @@
       "label": "parameterAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "parameterAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -135,7 +135,7 @@
       "label": "parameterAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "parameterAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -144,7 +144,7 @@
       "label": "returnAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "returnAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -153,7 +153,7 @@
       "label": "returnAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "returnAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -162,7 +162,7 @@
       "label": "serviceAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "serviceAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -171,7 +171,7 @@
       "label": "serviceAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "serviceAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -180,7 +180,7 @@
       "label": "fieldAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "fieldAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -189,7 +189,7 @@
       "label": "fieldAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "fieldAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -198,7 +198,7 @@
       "label": "objectFieldAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "objectFieldAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -207,7 +207,7 @@
       "label": "objectFieldAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "objectFieldAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -216,7 +216,7 @@
       "label": "recordFieldAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "recordFieldAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -225,7 +225,7 @@
       "label": "recordFieldAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "recordFieldAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -234,7 +234,7 @@
       "label": "sourceAnnotationAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "sourceAnnotationAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -243,7 +243,7 @@
       "label": "sourceAnnotationAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "sourceAnnotationAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -252,7 +252,7 @@
       "label": "sourceExternalAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "sourceExternalAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -261,7 +261,7 @@
       "label": "sourceExternalAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "sourceExternalAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -270,7 +270,7 @@
       "label": "sourceVarAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "sourceVarAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -279,7 +279,7 @@
       "label": "sourceVarAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "sourceVarAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -288,7 +288,7 @@
       "label": "sourceConstAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "sourceConstAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -297,7 +297,7 @@
       "label": "sourceConstAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "sourceConstAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -306,7 +306,7 @@
       "label": "sourceListenerAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "sourceListenerAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -315,7 +315,7 @@
       "label": "sourceListenerAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "sourceListenerAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -324,7 +324,7 @@
       "label": "sourceWorkerAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "sourceWorkerAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -333,7 +333,7 @@
       "label": "sourceWorkerAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "sourceWorkerAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -342,7 +342,7 @@
       "label": "commonAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "commonAnnotation1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -351,7 +351,7 @@
       "label": "commonAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "commonAnnotation2 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -360,7 +360,7 @@
       "label": "serviceRemoteFunctionAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "serviceRemoteFunctionAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -369,7 +369,7 @@
       "label": "serviceRemoteFunctionAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "serviceRemoteFunctionAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
