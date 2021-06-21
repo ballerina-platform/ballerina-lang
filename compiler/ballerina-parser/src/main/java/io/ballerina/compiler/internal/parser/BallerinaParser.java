@@ -12163,16 +12163,22 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse signed right shift token (>>).
+     * This method should only be called by seeing a `DOUBLE_GT_TOKEN` or
+     * by seeing a `GT_TOKEN` followed by a `GT_TOKEN`
      *
      * @return Parsed node
      */
     private STNode parseSignedRightShiftToken() {
-        STNode openGTToken = consume();
+        STNode firstToken = consume();
+        if (firstToken.kind == SyntaxKind.DOUBLE_GT_TOKEN) {
+            return firstToken;
+        }
+
         STToken endLGToken = consume();
-        STNode doubleGTToken = STNodeFactory.createToken(SyntaxKind.DOUBLE_GT_TOKEN, openGTToken.leadingMinutiae(),
+        STNode doubleGTToken = STNodeFactory.createToken(SyntaxKind.DOUBLE_GT_TOKEN, firstToken.leadingMinutiae(),
                 endLGToken.trailingMinutiae());
 
-        if (hasTrailingMinutiae(openGTToken)) {
+        if (hasTrailingMinutiae(firstToken)) {
             doubleGTToken = SyntaxErrors.addDiagnostic(doubleGTToken,
                     DiagnosticErrorCode.ERROR_NO_WHITESPACES_ALLOWED_IN_RIGHT_SHIFT_OP);
         }
@@ -12181,17 +12187,23 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse unsigned right shift token (>>>).
+     * This method should only be called by seeing a `TRIPPLE_GT_TOKEN` or
+     * by seeing a `GT_TOKEN` followed by two `GT_TOKEN`s
      *
      * @return Parsed node
      */
     private STNode parseUnsignedRightShiftToken() {
-        STNode openGTToken = consume();
+        STNode firstToken = consume();
+        if (firstToken.kind == SyntaxKind.TRIPPLE_GT_TOKEN) {
+            return firstToken;
+        }
+
         STNode middleGTToken = consume();
         STNode endLGToken = consume();
         STNode unsignedRightShiftToken = STNodeFactory.createToken(SyntaxKind.TRIPPLE_GT_TOKEN,
-                openGTToken.leadingMinutiae(), endLGToken.trailingMinutiae());
+                firstToken.leadingMinutiae(), endLGToken.trailingMinutiae());
 
-        boolean validOpenGTToken = !hasTrailingMinutiae(openGTToken);
+        boolean validOpenGTToken = !hasTrailingMinutiae(firstToken);
         boolean validMiddleGTToken = !hasTrailingMinutiae(middleGTToken);
         if (validOpenGTToken && validMiddleGTToken) {
             return unsignedRightShiftToken;
