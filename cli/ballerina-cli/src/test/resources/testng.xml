@@ -23,7 +23,6 @@ under the License.
     <test name="command-tests" preserve-order="true" parallel="false">
         <packages>
             <package name="io.ballerina.cli.cmd.*"/>
-            <package name="io.ballerina.cli.utils"/>
         </packages>
     </test>
 </suite>

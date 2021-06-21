@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'value;
+import ballerina/test;
 // ========================== Basics ==========================
 
 
@@ -259,6 +260,7 @@ function testComplexTernary_1() returns string {
 
 function testComplexTernary_2() returns string {
     int|string|float|boolean|xml x = "string";
+    if(x is boolean) {return "boolean";}
     if (x is int|string|float|boolean) {
         return x is int ? "int" : (x is float ? "float" : (x is boolean ? "boolean" : x));
     } else {
@@ -760,6 +762,30 @@ function testTypeNarrowingForIntersectingDirectUnion_1() returns boolean {
     return false;
 }
 
+type CyclicComplexUnion int|CyclicComplexUnion[]|object {};
+type CyclicFloatUnion float|CyclicComplexUnion[]|object {};
+
+function testTypeNarrowingForIntersectingCyclicUnion() returns boolean {
+    CyclicComplexUnion s = 1;
+    anydata ma = <anydata> s;
+    float|CyclicComplexUnion m = <CyclicComplexUnion>ma;
+    if (m is CyclicComplexUnion|string) {
+        CyclicComplexUnion f2 = m;
+        return f2 === s;
+    }
+    return false;
+}
+
+function testTypeNarrowingForIntersectingCyclicUnionNegative() returns boolean {
+    CyclicComplexUnion s = 1;
+    anydata ma = <anydata> s;
+    float|CyclicComplexUnion m = <CyclicComplexUnion>ma;
+    if (m is CyclicFloatUnion|string) {
+        return false;
+    }
+    return true;
+}
+
 function testTypeNarrowingForIntersectingDirectUnion_2() returns boolean {
     xml x = xml `Hello World`;
     string|xml st = x;
@@ -929,6 +955,25 @@ function testTypeGuardForCustomErrorPositive() returns [boolean, boolean] {
 
     boolean isGenericError = a1 is error && a2 is error;
     return [isSpecificError, isGenericError];
+}
+function testCustomErrorType() {
+    Details d = { message: "detail message" };
+    MyError|MyErrorTwo e = error MyError(ERR_REASON, message = d.message);
+    if (e is MyErrorTwo) {
+        test:assertFail();
+    }
+    if (e is MyError) {
+    } else {
+        test:assertFail();
+    }
+    MyErrorTwo|MyError e1 = error MyError(ERR_REASON, message = d.message);
+    if (e1 is MyErrorTwo) {
+        test:assertFail();
+    }
+    if (e1 is MyError) {
+    } else {
+        test:assertFail();
+    }
 }
 
 function testTypeGuardForCustomErrorNegative() returns boolean {

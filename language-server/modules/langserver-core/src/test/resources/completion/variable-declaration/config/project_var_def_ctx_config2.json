@@ -480,6 +480,97 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "getAge()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "getAge",
+      "insertText": "getAge()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stringFunction()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "stringFunction",
+      "insertText": "stringFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "main()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "main",
+      "insertText": "main()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getOddNumber()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "getOddNumber",
+      "insertText": "getOddNumber()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getPerson()(models:Person)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Return** `models:Person`   \n  \n"
+        }
+      },
+      "sortText": "AC",
+      "filterText": "getPerson",
+      "insertText": "getPerson()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "O",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "person",
+      "kind": "Variable",
+      "detail": "models:Person",
+      "sortText": "AB",
+      "insertText": "person",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "getDriver(models:Person person)(models:Driver)",
       "kind": "Function",
       "detail": "Function",
@@ -499,85 +590,6 @@
       }
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "N",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "stringFunction()(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "stringFunction",
-      "insertText": "stringFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getPerson()(models:Person)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Return** `models:Person`   \n  \n"
-        }
-      },
-      "sortText": "B",
-      "filterText": "getPerson",
-      "insertText": "getPerson()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getAge()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "getAge",
-      "insertText": "getAge()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "person",
-      "kind": "Variable",
-      "detail": "models:Person",
-      "sortText": "A",
-      "insertText": "person",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "main()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "main",
-      "insertText": "main()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "num",
       "kind": "Variable",
       "detail": "int",
@@ -586,26 +598,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getOddNumber()(int)",
-      "kind": "Function",
-      "detail": "Function",
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
       "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
-        }
+        "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "E",
-      "filterText": "getOddNumber",
-      "insertText": "getOddNumber()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "O",
-      "insertText": "Thread",
+      "sortText": "N",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {

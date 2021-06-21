@@ -28,10 +28,8 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
-import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.repos.FileSystemCache;
-import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
@@ -39,23 +37,18 @@ import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
+import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
 
 /**
  * Class providing utility methods to generate bala from package.
@@ -139,7 +132,8 @@ public class BuildLangLib {
 
             // Copy generated jar to the target dir
             Path cacheDirPath = pkgTargetPath.resolve("cache");
-            String jarFileName = pkgDesc.name().value() + ".jar";
+            String jarFileName = getThinJarFileName(pkgDesc.org(), pkgDesc.name().value(), pkgDesc.version())
+                    + BLANG_COMPILED_JAR_EXT;
             Path generatedJarFilePath = cacheDirPath.resolve(pkgDesc.org().toString())
                     .resolve(pkgDesc.name().value())
                     .resolve(pkgDesc.version().toString())
