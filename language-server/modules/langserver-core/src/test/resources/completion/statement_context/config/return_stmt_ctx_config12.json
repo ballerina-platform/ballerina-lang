@@ -231,6 +231,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -239,14 +247,6 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -621,19 +621,19 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "self",
+      "kind": "Variable",
+      "detail": "isolated service object {resource function get . () returns () ;}",
+      "sortText": "B",
+      "insertText": "self",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "l1",
       "kind": "Variable",
       "detail": "module1:Listener",
       "sortText": "B",
       "insertText": "l1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "self",
-      "kind": "Variable",
-      "detail": "isolated service object {resource function testFunction . () returns () ;}",
-      "sortText": "B",
-      "insertText": "self",
       "insertTextFormat": "Snippet"
     },
     {
