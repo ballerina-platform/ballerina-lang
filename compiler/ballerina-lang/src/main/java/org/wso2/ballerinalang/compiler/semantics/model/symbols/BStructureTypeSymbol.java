@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * {@code BStructureTypeSymbol} represents a structure type symbol in a scope.
@@ -42,5 +43,28 @@ public abstract class BStructureTypeSymbol extends BTypeSymbol {
         super(symTag, flags, name, pkgID, type, owner, pos, origin);
         this.attachedFuncs = new ArrayList<>(0);
         this.kind = kind;
+    }
+
+    // Generated equals() and hashCode() implementations
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BStructureTypeSymbol)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        BStructureTypeSymbol that = (BStructureTypeSymbol) o;
+        return Objects.equals(attachedFuncs, that.attachedFuncs) && Objects.equals(initializerFunc,
+                                                                                   that.initializerFunc);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), attachedFuncs, initializerFunc);
     }
 }

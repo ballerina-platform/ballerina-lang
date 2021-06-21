@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * {@code BObjectTypeSymbol} represents a object symbol in a scope.
@@ -52,5 +53,28 @@ public class BObjectTypeSymbol extends BStructureTypeSymbol {
         copy.initializerFunc = initializerFunc;
         copy.isLabel = true;
         return copy;
+    }
+
+    // Generated equals() and hashCode() implementations
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BObjectTypeSymbol)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        BObjectTypeSymbol that = (BObjectTypeSymbol) o;
+        return Objects.equals(referencedFunctions, that.referencedFunctions) && Objects.equals(
+                generatedInitializerFunc, that.generatedInitializerFunc);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), referencedFunctions, generatedInitializerFunc);
     }
 }

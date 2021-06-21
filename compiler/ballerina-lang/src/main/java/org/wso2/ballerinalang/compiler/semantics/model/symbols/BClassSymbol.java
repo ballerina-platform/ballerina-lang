@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * {@code BClassSymbol} represents a class symbol in a scope.
@@ -67,5 +68,27 @@ public class BClassSymbol extends BObjectTypeSymbol implements Annotatable {
         copy.initializerFunc = initializerFunc;
         copy.isLabel = true;
         return copy;
+    }
+
+    // Generated equals() and hashCode() implementations
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BClassSymbol)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        BClassSymbol that = (BClassSymbol) o;
+        return isServiceDecl == that.isServiceDecl && Objects.equals(annots, that.annots);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), isServiceDecl, annots);
     }
 }

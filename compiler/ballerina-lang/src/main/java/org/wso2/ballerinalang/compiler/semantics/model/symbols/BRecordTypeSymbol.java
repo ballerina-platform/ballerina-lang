@@ -45,4 +45,15 @@ public class BRecordTypeSymbol extends BStructureTypeSymbol {
         copy.isLabel = true;
         return copy;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BRecordTypeSymbol)) {
+            return false;
+        }
+        return super.equals(o);
+    }
 }
