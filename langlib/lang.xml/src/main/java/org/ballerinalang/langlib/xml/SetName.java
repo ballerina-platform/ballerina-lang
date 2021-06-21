@@ -53,9 +53,9 @@ public class SetName {
             if (xmlVal.getNodeType() == XmlNodeType.ELEMENT) {
                 QName newQName;
                 if (newName.startsWith("{")) {
-                    int endCurly = newName.indexOf('}');
+                    int endCurly = newName.indexOf('}') + 1;
                     String nsUri = newName.substring(0, endCurly);
-                    String localPart = newName.substring(endCurly + 1, newName.length() - 1);
+                    String localPart = newName.substring(endCurly, newName.length());
                     newQName = new QName(nsUri, localPart);
                 } else {
                     newQName = new QName(newName);
