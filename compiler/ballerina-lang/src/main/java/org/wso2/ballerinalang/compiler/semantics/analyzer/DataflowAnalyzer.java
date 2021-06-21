@@ -38,7 +38,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -478,6 +480,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         Stream.concat(classDefinition.fields.stream(), classDefinition.referencedFields.stream())
+                .map(field -> {
+                    addTypeDependency(classDefinition.symbol, field.getBType());
+                    return field; })
                 .filter(field -> !Symbols.isPrivate(field.symbol))
                 .forEach(field -> {
                     if (this.uninitializedVars.containsKey(field.symbol)) {
@@ -1625,14 +1630,37 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
+        BTypeSymbol tsymbol = recordTypeNode.getBType().tsymbol;
         for (TypeNode type : recordTypeNode.getTypeReferences()) {
             BLangType bLangType = (BLangType) type;
             analyzeNode(bLangType, env);
             recordGlobalVariableReferenceRelationship(bLangType.getBType().tsymbol);
         }
         for (BLangSimpleVariable field : recordTypeNode.fields) {
+            addTypeDependency(tsymbol, field.getBType());
             analyzeNode(field, env);
             recordGlobalVariableReferenceRelationship(field.symbol);
+        }
+    }
+
+    private void addTypeDependency(BTypeSymbol dependentTypeSymbol, BType providerType) {
+        switch (providerType.tag) {
+            case TypeTags.UNION:
+                for (BType memberType : ((BUnionType) providerType).getMemberTypes()) {
+                    BType effectiveType = types.getTypeWithEffectiveIntersectionTypes(memberType);
+                    addTypeDependency(dependentTypeSymbol, effectiveType);
+                }
+                break;
+            case TypeTags.ARRAY:
+                addTypeDependency(dependentTypeSymbol,
+                        types.getTypeWithEffectiveIntersectionTypes(((BArrayType) providerType).getElementType()));
+                break;
+            case TypeTags.MAP:
+                addTypeDependency(dependentTypeSymbol,
+                        types.getTypeWithEffectiveIntersectionTypes(((BMapType) providerType).getConstraint()));
+                break;
+            default:
+                addDependency(dependentTypeSymbol, providerType.tsymbol);
         }
     }
 

@@ -41,14 +41,7 @@ public class ForwardReferencingGlobalDefinitionTest {
                 "test-src/statements/variabledef/globalcycle/simpleProject");
         Diagnostic[] diagnostics = resultNegativeCycleFound.getDiagnostics();
         Assert.assertTrue(diagnostics.length > 0);
-        BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[employee, person]'", 33, 1);
-
-        String message = diagnostics[1].message();
-        // https://github.com/ballerina-platform/ballerina-lang/issues/30505
-        if (message.contains("illegal cyclic reference '[dep1, dep2]'")) {
-            BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference '[dep1, dep2]'", 50, 1);
-            return;
-        }
+        BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[person, employee]'", 17, 1);
         BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference '[dep2, dep1]'", 24, 1);
     }
 
@@ -98,6 +91,22 @@ public class ForwardReferencingGlobalDefinitionTest {
         Assert.assertTrue(cycle.getDiagnostics().length > 0);
         BAssertUtil.validateError(cycle, 0, "illegal cyclic reference '[fromFuncA, fromFunc, getPersonOuter, " +
                 "getPersonInner, getfromFuncA]'", 22, 1);
+    }
+
+    @Test
+    public void recordDefaultValueCausingModuleLevelVariableCycle() {
+        CompileResult cycle = BCompileUtil.compile("test-src/statements/variabledef/globalcycle/viaRecordFieldDefault");
+        int i = 0;
+        BAssertUtil.validateError(cycle, i++,
+                "illegal cyclic reference '[gVarNested, nestedRec, $anonType$_2, $anonType$_1]'", 26, 1);
+        BAssertUtil.validateError(cycle, i++, "illegal cyclic reference '[name, person, Person]'", 17, 1);
+        BAssertUtil.validateError(cycle, i++, "illegal cyclic reference '[gVar, p, $anonType$_0]'", 19, 1);
+        BAssertUtil.validateError(cycle, i++,
+                "illegal cyclic reference '[nillableNestedRecordGVar, nillableNestedRec, $anonType$_4, $anonType$_3]'",
+                21, 1);
+        BAssertUtil.validateError(cycle, i++,
+                "illegal cyclic reference '[nestedRecordFieldDefaultValue, A, $anonType$_5]'", 23, 1);
+        Assert.assertEquals(cycle.getDiagnostics().length, i);
     }
 
     @Test(description = "Test compiler rejecting cyclic references in global variable definitions via object def")
