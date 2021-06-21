@@ -32,6 +32,7 @@ import picocli.CommandLine;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -125,7 +126,16 @@ public class Main {
 
             List<CommandLine> parsedCommands = cmdParser.parse(args);
 
-            if (parsedCommands.size() < 1) {
+            if (defaultCmd.argList.size() > 0 && cmdParser.getSubcommands().get(defaultCmd.argList.get(0)) == null) {
+                throw LauncherUtils.createUsageExceptionWithHelp("unknown command '"
+                        + defaultCmd.argList.get(0) + "'");
+            }
+
+            if (parsedCommands.size() < 1 || defaultCmd.helpFlag) {
+                if (parsedCommands.size() > 1) {
+                    defaultCmd.argList.add(parsedCommands.get(1).getCommandName());
+                }
+
                 return Optional.of(defaultCmd);
             }
 
@@ -462,10 +472,18 @@ public class Main {
         @CommandLine.Option(names = { "--version", "-v" }, hidden = true)
         private boolean versionFlag;
 
+        @CommandLine.Parameters(arity = "0..1")
+        private List<String> argList = new ArrayList<>();
+
         @Override
         public void execute() {
             if (versionFlag) {
                 printVersionInfo();
+                return;
+            }
+
+            if (!argList.isEmpty()) {
+                printUsageInfo(argList.get(0));
                 return;
             }
 
