@@ -25,6 +25,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.util.Objects;
+
 /**
  * @since 0.94
  */
@@ -56,5 +58,22 @@ public class BTypeSymbol extends BSymbol implements TypeSymbol {
                                                           origin);
         typeSymbol.isLabel = true;
         return typeSymbol;
+    }
+
+    // Generated equals() and hashCode() implementations
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BTypeSymbol)) return false;
+        if (!super.equals(o)) return false;
+        BTypeSymbol that = (BTypeSymbol) o;
+        return isLabel == that.isLabel && isTypeParamResolved == that.isTypeParamResolved && Objects.equals(
+                typeParamTSymbol, that.typeParamTSymbol);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), isLabel, isTypeParamResolved, typeParamTSymbol);
     }
 }
