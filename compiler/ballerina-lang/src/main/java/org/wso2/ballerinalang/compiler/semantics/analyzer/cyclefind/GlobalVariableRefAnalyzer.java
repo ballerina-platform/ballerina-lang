@@ -30,13 +30,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayDeque;
@@ -493,17 +493,21 @@ public class GlobalVariableRefAnalyzer {
     }
 
     private void emitErrorMessage(List<BSymbol> symbolsOfCycle) {
-        Optional<BSymbol> firstGlobalVar = symbolsOfCycle.stream().filter(s -> s.kind != SymbolKind.FUNCTION).findAny();
-        if (!firstGlobalVar.isPresent()) {
-            return;
+        List<TopLevelNode> nodesInCycle = new ArrayList<>();
+        for (TopLevelNode topLevelNode : pkgNode.topLevelNodes) {
+            BSymbol topLevelSymbol = getSymbol(topLevelNode);
+            for (BSymbol symbol : symbolsOfCycle) {
+                if (topLevelSymbol == symbol) {
+                    nodesInCycle.add(topLevelNode);
+                }
+            }
         }
 
-        BSymbol firstNodeSymbol = firstGlobalVar.get();
-        Optional<BLangNode> firstNode = pkgNode.topLevelNodes.stream()
-                .filter(t -> (t.getKind() == NodeKind.VARIABLE || t.getKind() == NodeKind.FUNCTION)
-                        && getSymbol(t) == firstNodeSymbol)
-                .map(t -> (BLangNode) t)
-                .findAny();
+        Optional<TopLevelNode> firstNode = nodesInCycle.stream()
+                .filter(node -> node.getKind() == NodeKind.VARIABLE)
+                .min(Comparator.comparingInt(o -> o.getPosition().lineRange().startLine().line()));
+
+        BSymbol firstNodeSymbol = getSymbol(firstNode.get());
 
         int splitFrom = symbolsOfCycle.indexOf(firstNodeSymbol);
         int len = symbolsOfCycle.size();
@@ -511,10 +515,8 @@ public class GlobalVariableRefAnalyzer {
         List<BSymbol> secondSubList = new ArrayList<>(symbolsOfCycle.subList(splitFrom, len));
         secondSubList.addAll(firstSubList);
 
-        if (firstNode.isPresent()) {
-            List<BLangIdentifier> names = secondSubList.stream().map(this::getNodeName).collect(Collectors.toList());
-            dlog.error(firstNode.get().pos, DiagnosticErrorCode.GLOBAL_VARIABLE_CYCLIC_DEFINITION, names);
-        }
+        List<BLangIdentifier> names = secondSubList.stream().map(this::getNodeName).collect(Collectors.toList());
+        dlog.error(firstNode.get().getPosition(), DiagnosticErrorCode.GLOBAL_VARIABLE_CYCLIC_DEFINITION, names);
     }
 
     private boolean doesContainAGlobalVar(List<BSymbol> symbolsOfCycle) {
@@ -533,7 +535,8 @@ public class GlobalVariableRefAnalyzer {
                 } else if (node.getKind() == NodeKind.CLASS_DEFN) {
                     return ((BLangClassDefinition) node).name;
                 } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
-                    if (((BLangTypeDefinition) node).typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+                    BLangType typeNode = ((BLangTypeDefinition) node).typeNode;
+                    if (typeNode.getKind() == NodeKind.OBJECT_TYPE || typeNode.getKind() == NodeKind.RECORD_TYPE) {
                         return ((BLangTypeDefinition) node).name;
                     }
                 }
@@ -550,8 +553,9 @@ public class GlobalVariableRefAnalyzer {
         } else if (node.getKind() == NodeKind.CLASS_DEFN) {
             return ((BLangClassDefinition) node).symbol;
         } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
-            if (((BLangTypeDefinition) node).typeNode.getKind() == NodeKind.OBJECT_TYPE) {
-                return ((BLangObjectTypeNode) ((BLangTypeDefinition) node).typeNode).symbol;
+            BLangType typeNode = ((BLangTypeDefinition) node).typeNode;
+            if (typeNode.getKind() == NodeKind.OBJECT_TYPE || typeNode.getKind() == NodeKind.RECORD_TYPE) {
+                return ((BLangStructureTypeNode) typeNode).symbol;
             }
         }
         return null;
