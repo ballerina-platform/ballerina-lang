@@ -1170,10 +1170,18 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         BLangNode parent = varRefExpr.parent;
         boolean isolatedModuleVariableReference = isIsolatedModuleVariableSymbol(symbol);
 
-        boolean accessOfIsolationInferableConstruct =
-                (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE &&
-                        this.isolationInferenceInfoMap.containsKey(symbol) &&
-                        this.isolationInferenceInfoMap.get(symbol).getKind() != IsolationInferenceKind.FUNCTION;
+        boolean accessOfPotentiallyIsolatedVariable = false;
+        boolean accessOfPotentiallyReadOnlyOrIsolatedObjectTypedFinalVariable = false;
+        Set<BSymbol> inferableClasses = new HashSet<>();
+
+        if ((symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE) {
+            accessOfPotentiallyIsolatedVariable = this.isolationInferenceInfoMap.containsKey(symbol) &&
+                            this.isolationInferenceInfoMap.get(symbol).getKind() != IsolationInferenceKind.FUNCTION;
+
+            accessOfPotentiallyReadOnlyOrIsolatedObjectTypedFinalVariable = Symbols.isFlagOn(symbol.flags, Flags.FINAL)
+                    && !types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(accessType)
+                    && isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(symbol.owner, accessType, inferableClasses);
+        }
 
         if (inLockStatement) {
             LockInfo exprInfo = copyInLockInfoStack.peek();
@@ -1193,17 +1201,22 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 exprInfo.nonIsolatedTransferInExpressions.add(varRefExpr);
             }
 
-            if (accessOfIsolationInferableConstruct) {
+            if (accessOfPotentiallyIsolatedVariable) {
                 ((VariableIsolationInferenceInfo) this.isolationInferenceInfoMap.get(symbol)).accessedLockInfo
                         .add(exprInfo);
-                accessOfIsolationInferableConstruct = true;
+                accessOfPotentiallyIsolatedVariable = true;
                 exprInfo.accessedPotentiallyIsolatedVars.add(symbol);
             }
-        } else if (accessOfIsolationInferableConstruct) {
+        } else if (accessOfPotentiallyIsolatedVariable ||
+                accessOfPotentiallyReadOnlyOrIsolatedObjectTypedFinalVariable) {
             VariableIsolationInferenceInfo inferenceInfo =
                     (VariableIsolationInferenceInfo) this.isolationInferenceInfoMap.get(symbol);
             inferenceInfo.accessedOutsideLockStatement = true;
             inferenceInfo.accessOutsideLockStatementValidIfInferredIsolated = false;
+
+            if (accessOfPotentiallyReadOnlyOrIsolatedObjectTypedFinalVariable) {
+                inferenceInfo.dependsOnVariablesAndClasses.addAll(inferableClasses);
+            }
         }
 
         boolean inIsolatedFunction = isInIsolatedFunction(enclInvokable);
@@ -1260,7 +1273,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (accessOfIsolationInferableConstruct) {
+        if (accessOfPotentiallyIsolatedVariable) {
             if (isObjectFieldDefaultValue(env)) {
                 BLangFunction initMethod = ((BLangClassDefinition) env.node).initFunction;
                 if (initMethod != null) {
@@ -3412,6 +3425,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (inferenceInfo.accessedOutsideLockStatement) {
             if (!inferenceInfo.accessOutsideLockStatementValidIfInferredIsolated) {
+                if (inferenceInfo.getKind() == IsolationInferenceKind.CLASS) {
+                    return false;
+                }
+
+                if (Symbols.isFlagOn(symbol.flags, Flags.FINAL)) {
+                    return isSubTypeOfReadOnlyOrIsolatedObjectUnionWithInference(publiclyExposedObjectTypes,
+                            classDefinitions, true, symbol.type, unresolvedSymbols);
+                }
+
                 return false;
             }
 
@@ -3434,6 +3456,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             for (BLangClassDefinition classDef : classDefinitions) {
                 if (classDef.symbol == symbol) {
                     classDefinition = classDef;
+                    break;
                 }
             }
 
@@ -3533,6 +3556,25 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 for (BLangExpression expr : lockInfo.nonIsolatedTransferOutExpressions) {
                     if (isIsolatedExpression(expr, false, false, new ArrayList<>(), true, publiclyExposedObjectTypes,
                             classDefinitions, unresolvedSymbols)) {
+                        continue;
+                    }
+
+                    inferredIsolated = false;
+                    break;
+                }
+            }
+
+            if (inferredIsolated) {
+                for (BLangInvocation nonIsolatedInvocation : lockInfo.nonIsolatedInvocations) {
+                    BSymbol funcSymbol = nonIsolatedInvocation.symbol;
+
+                    if (!this.isolationInferenceInfoMap.containsKey(funcSymbol)) {
+                        inferredIsolated = false;
+                        break;
+                    }
+
+                    if (inferFunctionIsolation(funcSymbol, this.isolationInferenceInfoMap.get(funcSymbol),
+                                               publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols)) {
                         continue;
                     }
 

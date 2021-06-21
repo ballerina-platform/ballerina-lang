@@ -183,6 +183,80 @@ function copyOutAccessingIsolatedVar() returns map<int>[] {
      }
 }
 
+class NonIsolatedClass {
+    int i = 2;
+}
+
+IsolatedClass varInferredAsIsolated1 = new;
+NonIsolatedClass varInferredAsIsolated2 = new;
+
+final IsolatedClass varWithTypeInferredAsIsolated1 = new;
+final IsolatedClass|int varWithTypeInferredAsIsolated2 = new;
+
+function f1() returns IsolatedClass {
+    varWithTypeInferredAsIsolated1.func();
+    lock {
+        return varInferredAsIsolated1;
+    }
+}
+
+function f2() {
+    lock {
+        _ = varInferredAsIsolated2;
+    }
+
+    var val = varWithTypeInferredAsIsolated2;
+    int x = val is int ? val : 0;
+
+    lock {
+        // TODO: fall back to one isolated and one final and readonly/isolated object.
+        // var val = varWithTypeInferredAsIsolated2;
+        // varInferredAsIsolated2.i += val is int ? val : 0;
+        varInferredAsIsolated2.i += x;
+    }
+}
+
+class IsolatedClass {
+    private int y = 1;
+
+    function init() {
+    }
+
+    function func() {
+    }
+}
+
+class OtherIsolatedClass {
+    final IsolatedClass x = f1();
+    private int y = 1;
+
+    function init() {
+    }
+
+    function func() {
+        lock {
+            lock {
+                _ = f1();
+                self.y += 1;
+                f2();
+            }
+        }
+    }
+}
+
+final NonIsolatedClass varInferredAsIsolatedWithTypeNotInferredAsIsolated = new;
+final NonIsolatedClass varNotInferredAsIsolateWithTypeNotInferredAsIsolated = new;
+
+function f3() {
+    lock {
+        varInferredAsIsolatedWithTypeNotInferredAsIsolated.i = 3;
+    }
+}
+
+function f4() {
+    varNotInferredAsIsolateWithTypeNotInferredAsIsolated.i = 3;
+}
+
 public function testIsolatedInference() {
     assertTrue(getIntArray is isolated function() returns int[]);
     assertTrue(testAccessingIsolatedVariableInIsolatedFunction is isolated function() returns function (int));
@@ -197,6 +271,13 @@ public function testIsolatedInference() {
     assertTrue(<any> copyInInMethodCall1 is isolated function);
     assertTrue(<any> copyInInMethodCall2 is isolated function);
     assertTrue(<any> copyOutAccessingIsolatedVar is isolated function);
+    assertTrue(<any> f1 is isolated function);
+    assertTrue(<any> f2 is isolated function);
+    assertTrue(<any> f3 is isolated function);
+    assertFalse(<any> f4 is isolated function);
+    assertTrue(<any> new IsolatedClass() is isolated object {});
+    assertTrue(<any> new OtherIsolatedClass() is isolated object {});
+    assertFalse(<any> new NonIsolatedClass() is isolated object {});
 }
 
 isolated function assertTrue(any|error actual) {
