@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -146,5 +147,25 @@ public class BIntersectionType extends BType implements IntersectionType {
     @Override
     public void setIntersectionType(BIntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BIntersectionType)) {
+            return false;
+        }
+        BIntersectionType that = (BIntersectionType) o;
+        return Objects.equals(effectiveType, that.effectiveType) && Objects.equals(constituentTypes,
+                                                                                   that.constituentTypes) &&
+                Objects.equals(intersectionType, that.intersectionType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), effectiveType, constituentTypes, intersectionType);
     }
 }

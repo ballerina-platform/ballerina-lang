@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -133,5 +134,25 @@ public class BObjectType extends BStructureType implements ObjectType {
     @Override
     public void setIntersectionType(BIntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BObjectType)) {
+            return false;
+        }
+        BObjectType that = (BObjectType) o;
+        return Objects.equals(intersectionType, that.intersectionType) && Objects.equals(immutableType,
+                                                                                         that.immutableType) &&
+                Objects.equals(mutableType, that.mutableType) && Objects.equals(typeIdSet, that.typeIdSet);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), intersectionType, immutableType, mutableType, typeIdSet);
     }
 }

@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -96,5 +97,24 @@ public class BXMLSubType extends BType implements SelectivelyImmutableReferenceT
     @Override
     public void setIntersectionType(BIntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BXMLSubType)) {
+            return false;
+        }
+        BXMLSubType that = (BXMLSubType) o;
+        return Objects.equals(immutableType, that.immutableType) && Objects.equals(intersectionType,
+                                                                                   that.intersectionType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), immutableType, intersectionType);
     }
 }

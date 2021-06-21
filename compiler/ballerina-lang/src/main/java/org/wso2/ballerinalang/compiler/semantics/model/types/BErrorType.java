@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -83,5 +84,24 @@ public class BErrorType extends BType implements ErrorType {
     @Override
     public void setIntersectionType(BIntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BErrorType)) {
+            return false;
+        }
+        BErrorType that = (BErrorType) o;
+        return Objects.equals(detailType, that.detailType) && Objects.equals(typeIdSet, that.typeIdSet) &&
+                Objects.equals(intersectionType, that.intersectionType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), detailType, typeIdSet, intersectionType);
     }
 }

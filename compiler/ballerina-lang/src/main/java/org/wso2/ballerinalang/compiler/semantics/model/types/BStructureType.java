@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * {@code BStructureType} represents structure type in Ballerina.
@@ -78,5 +79,23 @@ public abstract class BStructureType extends BType {
         }
 
         return value.startsWith("($");
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BStructureType)) {
+            return false;
+        }
+        BStructureType that = (BStructureType) o;
+        return Objects.equals(fields, that.fields) && Objects.equals(typeInclusions, that.typeInclusions);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), fields, typeInclusions);
     }
 }

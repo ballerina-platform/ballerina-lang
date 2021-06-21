@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -116,5 +117,27 @@ public class BRecordType extends BStructureType implements RecordType {
     @Override
     public void setIntersectionType(BIntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BRecordType)) {
+            return false;
+        }
+        BRecordType that = (BRecordType) o;
+        return sealed == that.sealed && Objects.equals(restFieldType, that.restFieldType) &&
+                Objects.equals(isAnyData, that.isAnyData) && Objects.equals(immutableType, that.immutableType) &&
+                Objects.equals(mutableType, that.mutableType) && Objects.equals(intersectionType,
+                                                                                that.intersectionType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), sealed, restFieldType, isAnyData, immutableType, mutableType,
+                            intersectionType);
     }
 }

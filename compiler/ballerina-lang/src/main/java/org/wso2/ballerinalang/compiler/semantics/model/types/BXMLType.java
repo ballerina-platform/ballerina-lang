@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -85,5 +86,25 @@ public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableRef
     @Override
     public void setIntersectionType(BIntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BXMLType)) {
+            return false;
+        }
+        BXMLType bxmlType = (BXMLType) o;
+        return Objects.equals(constraint, bxmlType.constraint) && Objects.equals(immutableType,
+                                                                                 bxmlType.immutableType) &&
+                Objects.equals(intersectionType, bxmlType.intersectionType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), constraint, immutableType, intersectionType);
     }
 }

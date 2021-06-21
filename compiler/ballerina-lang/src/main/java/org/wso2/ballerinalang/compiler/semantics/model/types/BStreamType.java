@@ -24,6 +24,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.Objects;
+
 /**
  * {@code BStreamType} represents stream data in Ballerina.
  *
@@ -68,5 +70,23 @@ public class BStreamType extends BBuiltInRefType implements StreamType {
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BStreamType)) {
+            return false;
+        }
+        BStreamType that = (BStreamType) o;
+        return Objects.equals(constraint, that.constraint) && Objects.equals(completionType, that.completionType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), constraint, completionType);
     }
 }

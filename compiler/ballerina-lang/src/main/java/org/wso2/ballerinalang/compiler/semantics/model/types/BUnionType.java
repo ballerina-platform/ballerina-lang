@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -494,5 +495,29 @@ public class BUnionType extends BType implements UnionType {
     @Override
     public void setIntersectionType(BIntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BUnionType)) {
+            return false;
+        }
+        BUnionType that = (BUnionType) o;
+        return resolvingToString == that.resolvingToString && nullable == that.nullable && isCyclic == that.isCyclic &&
+                Objects.equals(immutableType, that.immutableType) &&
+                Objects.equals(intersectionType, that.intersectionType) &&
+                Objects.equals(cachedToString, that.cachedToString) && Objects.equals(memberTypes, that.memberTypes) &&
+                Objects.equals(isAnyData, that.isAnyData) && Objects.equals(isPureType, that.isPureType) &&
+                Objects.equals(originalMemberTypes, that.originalMemberTypes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), immutableType, resolvingToString, intersectionType, nullable,
+                            cachedToString, memberTypes, isAnyData, isPureType, isCyclic, originalMemberTypes);
     }
 }

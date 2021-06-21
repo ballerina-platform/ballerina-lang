@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -113,5 +114,29 @@ public class BTableType extends BType implements TableType {
     @Override
     public void setIntersectionType(BIntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BTableType)) {
+            return false;
+        }
+        BTableType that = (BTableType) o;
+        return isTypeInlineDefined == that.isTypeInlineDefined && Objects.equals(constraint, that.constraint) &&
+                Objects.equals(keyTypeConstraint, that.keyTypeConstraint) &&
+                Objects.equals(fieldNameList, that.fieldNameList) && Objects.equals(keyPos, that.keyPos) &&
+                Objects.equals(constraintPos, that.constraintPos) && Objects.equals(immutableType,
+                                                                                    that.immutableType) &&
+                Objects.equals(intersectionType, that.intersectionType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), constraint, keyTypeConstraint, fieldNameList, keyPos, isTypeInlineDefined,
+                            constraintPos, immutableType, intersectionType);
     }
 }

@@ -21,6 +21,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.Objects;
+
 /**
  * Represents an future type.
  *
@@ -64,5 +66,23 @@ public class BFutureType extends BBuiltInRefType implements ConstrainedType {
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BFutureType)) {
+            return false;
+        }
+        BFutureType that = (BFutureType) o;
+        return workerDerivative == that.workerDerivative && Objects.equals(constraint, that.constraint);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), constraint, workerDerivative);
     }
 }

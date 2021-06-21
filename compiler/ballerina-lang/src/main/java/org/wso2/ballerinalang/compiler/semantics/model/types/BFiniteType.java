@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -99,5 +100,24 @@ public class BFiniteType extends BType implements FiniteType {
         if (!nullable && value.getBType().isNullable()) {
             nullable = true;
         }
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BFiniteType)) {
+            return false;
+        }
+        BFiniteType that = (BFiniteType) o;
+        return nullable == that.nullable && Objects.equals(valueSpace, that.valueSpace) &&
+                Objects.equals(isAnyData, that.isAnyData);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), valueSpace, nullable, isAnyData);
     }
 }

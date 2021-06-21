@@ -23,6 +23,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.Objects;
+
 /**
  * @since 0.94
  */
@@ -62,5 +64,23 @@ public class BTypedescType extends BBuiltInRefType implements ConstrainedType {
     public void accept(TypeVisitor visitor) {
 
         visitor.visit(this);
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BTypedescType)) {
+            return false;
+        }
+        BTypedescType that = (BTypedescType) o;
+        return Objects.equals(constraint, that.constraint);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), constraint);
     }
 }

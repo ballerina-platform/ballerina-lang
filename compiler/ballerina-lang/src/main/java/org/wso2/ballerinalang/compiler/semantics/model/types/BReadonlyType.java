@@ -22,6 +22,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.Objects;
+
 /**
  * {@code BReadonlyType} represents the shapes that have their read-only bit on.
  * 
@@ -61,5 +63,23 @@ public class BReadonlyType extends BBuiltInRefType {
     @Override
     public TypeKind getKind() {
         return TypeKind.READONLY;
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BReadonlyType)) {
+            return false;
+        }
+        BReadonlyType that = (BReadonlyType) o;
+        return nullable == that.nullable;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), nullable);
     }
 }

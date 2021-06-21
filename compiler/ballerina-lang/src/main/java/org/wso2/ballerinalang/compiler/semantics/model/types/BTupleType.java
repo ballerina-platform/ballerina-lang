@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -178,6 +179,28 @@ public class BTupleType extends BType implements TupleType {
     public void setMemberTypes(List<BType> memberTypes) {
         assert memberTypes.size() == 0;
         this.tupleTypes = memberTypes;
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BTupleType)) {
+            return false;
+        }
+        BTupleType that = (BTupleType) o;
+        return resolvingToString == that.resolvingToString && isCyclic == that.isCyclic &&
+                Objects.equals(tupleTypes, that.tupleTypes) && Objects.equals(restType, that.restType) &&
+                Objects.equals(isAnyData, that.isAnyData) && Objects.equals(immutableType, that.immutableType) &&
+                Objects.equals(intersectionType, that.intersectionType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), tupleTypes, restType, isAnyData, resolvingToString, isCyclic,
+                            immutableType, intersectionType);
     }
 
     private void setCyclicFlag(BType type) {

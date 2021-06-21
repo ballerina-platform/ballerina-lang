@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -126,5 +127,25 @@ public class BArrayType extends BType implements ArrayType {
     @Override
     public void setIntersectionType(BIntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BArrayType)) {
+            return false;
+        }
+        BArrayType that = (BArrayType) o;
+        return size == that.size && Objects.equals(eType, that.eType) && Objects.equals(immutableType,
+                                                                                        that.immutableType) &&
+                state == that.state && Objects.equals(intersectionType, that.intersectionType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), eType, immutableType, size, state, intersectionType);
     }
 }

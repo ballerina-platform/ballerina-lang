@@ -23,6 +23,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.Objects;
+
 /**
  * This is a special type introduced to be used in the return type of an extern function. In extern function return
  * types, typedesc typed parameters of the function can be referred. This type is basically a wrapper created around
@@ -63,5 +65,24 @@ public class BParameterizedType extends BType {
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BParameterizedType)) {
+            return false;
+        }
+        BParameterizedType that = (BParameterizedType) o;
+        return paramIndex == that.paramIndex && Objects.equals(paramSymbol, that.paramSymbol) &&
+                Objects.equals(paramValueType, that.paramValueType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), paramSymbol, paramValueType, paramIndex);
     }
 }

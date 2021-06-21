@@ -24,6 +24,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.util.Objects;
+
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BOOLEAN;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BYTE;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.DECIMAL;
@@ -130,6 +132,25 @@ public class BType implements ValueType {
 
     protected String getQualifiedTypeName() {
         return tsymbol.pkgID.toString() + ":" + tsymbol.name;
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BType)) {
+            return false;
+        }
+        BType bType = (BType) o;
+        return tag == bType.tag && flags == bType.flags && Objects.equals(tsymbol, bType.tsymbol) &&
+                Objects.equals(name, bType.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tag, tsymbol, name, flags);
     }
 
     /**

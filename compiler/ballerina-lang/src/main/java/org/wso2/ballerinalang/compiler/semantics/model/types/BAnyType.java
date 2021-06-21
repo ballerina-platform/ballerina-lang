@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -98,5 +99,24 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
     @Override
     public void setIntersectionType(BIntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BAnyType)) {
+            return false;
+        }
+        BAnyType bAnyType = (BAnyType) o;
+        return nullable == bAnyType.nullable && Objects.equals(intersectionType, bAnyType.intersectionType) &&
+                Objects.equals(immutableType, bAnyType.immutableType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), intersectionType, nullable, immutableType);
     }
 }
