@@ -618,7 +618,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        validateTransferOut(expr, this.copyInLockInfoStack.peek().nonIsolatedCopyOutExpressions);
+        validateTransferOut(expr, this.copyInLockInfoStack.peek().nonIsolatedTransferOutExpressions);
     }
 
     @Override
@@ -956,11 +956,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 dlog.error(varRef.pos, DiagnosticErrorCode.INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE);
             }
 
-            for (BLangExpression expr : copyInLockInfo.nonIsolatedCopyInExpressions) {
+            for (BLangExpression expr : copyInLockInfo.nonIsolatedTransferInExpressions) {
                 dlog.error(expr.pos, DiagnosticErrorCode.INVALID_TRANSFER_INTO_LOCK_WITH_RESTRICTED_VAR_USAGE);
             }
 
-            for (BLangExpression expr : copyInLockInfo.nonIsolatedCopyOutExpressions) {
+            for (BLangExpression expr : copyInLockInfo.nonIsolatedTransferOutExpressions) {
                 dlog.error(expr.pos, DiagnosticErrorCode.INVALID_TRANSFER_OUT_OF_LOCK_WITH_RESTRICTED_VAR_USAGE);
             }
 
@@ -1009,8 +1009,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
             prevCopyInLockInfo.nonCaptureBindingPatternVarRefsOnLhs.addAll(
                     copyInLockInfo.nonCaptureBindingPatternVarRefsOnLhs);
-            prevCopyInLockInfo.nonIsolatedCopyInExpressions.addAll(copyInLockInfo.nonIsolatedCopyInExpressions);
-            prevCopyInLockInfo.nonIsolatedCopyOutExpressions.addAll(copyInLockInfo.nonIsolatedCopyOutExpressions);
+            prevCopyInLockInfo.nonIsolatedTransferInExpressions.addAll(copyInLockInfo.nonIsolatedTransferInExpressions);
+            prevCopyInLockInfo.nonIsolatedTransferOutExpressions.addAll(copyInLockInfo.nonIsolatedTransferOutExpressions);
             prevCopyInLockInfo.nonIsolatedInvocations.addAll(copyInLockInfo.nonIsolatedInvocations);
             prevCopyInLockInfo.accessedPotentiallyIsolatedVars.addAll(copyInLockInfo.accessedPotentiallyIsolatedVars);
         }
@@ -1190,7 +1190,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     !isIsolated(varRefExpr.symbol.flags) &&
                     !isSelfOfIsolatedObject(varRefExpr) &&
                     isInvalidCopyIn(varRefExpr, env)) {
-                exprInfo.nonIsolatedCopyInExpressions.add(varRefExpr);
+                exprInfo.nonIsolatedTransferInExpressions.add(varRefExpr);
             }
 
             if (accessOfIsolationInferableConstruct) {
@@ -2874,7 +2874,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        validateTransferOutViaAssignment(expr, varRef, this.copyInLockInfoStack.peek().nonIsolatedCopyOutExpressions);
+        validateTransferOutViaAssignment(expr, varRef, this.copyInLockInfoStack.peek().nonIsolatedTransferOutExpressions);
     }
 
     private boolean isSelfReference(BLangExpression expression) {
@@ -3515,19 +3515,31 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 break;
             }
 
-//            for (BLangSimpleVarRef potentiallyInvalidTransferInRef : lockInfo.nonIsolatedCopyInLocations) {
-//                if (potentiallyInvalidTransferInRef.symbol == symbol ||
-//                        isSelfOfObject(potentiallyInvalidTransferInRef)) {
-//                    continue;
-//                }
-//
-//                inferredIsolated = false;
-//                break;
-//            }
-//
-//            if (!lockInfo.nonIsolatedCopyOutLocations.isEmpty()) {
-//                inferredIsolated = false;
-//            }
+            for (BLangExpression expr : lockInfo.nonIsolatedTransferInExpressions) {
+                if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && ((BLangSimpleVarRef) expr).symbol == symbol) {
+                    continue;
+                }
+
+                if (isIsolatedExpression(expr, false, false, new ArrayList<>(), true, publiclyExposedObjectTypes,
+                        classDefinitions, unresolvedSymbols)) {
+                    continue;
+                }
+
+                inferredIsolated = false;
+                break;
+            }
+
+            if (inferredIsolated) {
+                for (BLangExpression expr : lockInfo.nonIsolatedTransferOutExpressions) {
+                    if (isIsolatedExpression(expr, false, false, new ArrayList<>(), true, publiclyExposedObjectTypes,
+                            classDefinitions, unresolvedSymbols)) {
+                        continue;
+                    }
+
+                    inferredIsolated = false;
+                    break;
+                }
+            }
         }
         return inferredIsolated;
     }
@@ -3681,8 +3693,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         Map<BSymbol, List<BLangSimpleVarRef>> accessedRestrictedVars = new HashMap<>();
         List<BLangSimpleVarRef> nonCaptureBindingPatternVarRefsOnLhs = new ArrayList<>();
-        List<BLangExpression> nonIsolatedCopyInExpressions = new ArrayList<>();
-        List<BLangExpression> nonIsolatedCopyOutExpressions = new ArrayList<>();
+        List<BLangExpression> nonIsolatedTransferInExpressions = new ArrayList<>();
+        List<BLangExpression> nonIsolatedTransferOutExpressions = new ArrayList<>();
         List<BLangInvocation> nonIsolatedInvocations = new ArrayList<>();
 
         Set<BSymbol> accessedPotentiallyIsolatedVars = new HashSet<>();
