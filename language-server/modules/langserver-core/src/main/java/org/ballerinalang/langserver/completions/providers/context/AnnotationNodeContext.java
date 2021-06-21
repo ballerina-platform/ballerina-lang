@@ -87,7 +87,7 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
         List<Symbol> visibleSymbols = ctx.visibleSymbols(ctx.getCursorPosition());
         return visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.ANNOTATION
-                        && this.matchingAnnotation((AnnotationSymbol) symbol, attachedNode))
+                        && this.matchingAnnotation((AnnotationSymbol) symbol, attachedNode, ctx))
                 .map(symbol -> AnnotationUtil.getAnnotationItem((AnnotationSymbol) symbol, ctx))
                 .collect(Collectors.toList());
     }
@@ -110,7 +110,7 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
 
         return moduleEntry.orElseThrow().allSymbols().stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.ANNOTATION
-                        && this.matchingAnnotation((AnnotationSymbol) symbol, attachedNode))
+                        && this.matchingAnnotation((AnnotationSymbol) symbol, attachedNode, context))
                 .map(symbol -> AnnotationUtil.getAnnotationItem((AnnotationSymbol) symbol, context))
                 .collect(Collectors.toList());
     }
@@ -123,8 +123,14 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
         return node.parent();
     }
 
-    private boolean matchingAnnotation(AnnotationSymbol symbol, Node attachedNode) {
+    private boolean matchingAnnotation(AnnotationSymbol symbol, Node attachedNode, BallerinaCompletionContext context) {
         if (symbol.attachPoints().isEmpty()) {
+            return true;
+        }
+        // This is to handle a special case where the user is typing an annotation in the module context
+        // before writing the attached node. The parser detects the attached node as a module var declaration
+        // and mark it's parts as missing.
+        if (context.getCursorPositionInTree() == attachedNode.textRange().endOffset()) {
             return true;
         }
         switch (attachedNode.kind()) {
