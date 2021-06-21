@@ -93,22 +93,31 @@ public class PackageDiagnostic extends Diagnostic {
 
     @Override
     public String toString() {
-        String filePath = this.diagnostic.location().lineRange().filePath();
-        // add package info if it is a dependency
-        if (this.project.kind().equals(ProjectKind.BALA_PROJECT)) {
-            filePath = moduleDescriptor.org() + "/" +
-                    moduleDescriptor.name().toString() + "/" +
-                    moduleDescriptor.version() + "::" + filePath;
+        String filePath = null;
+        if (this.diagnostic.location() != null) {
+            filePath = this.diagnostic.location().lineRange().filePath();
         }
 
-        LineRange lineRange = diagnostic.location().lineRange();
-        LineRange oneBasedLineRange = LineRange.from(
-                filePath,
-                LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
-                LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
+        // add package info if it is a dependency
+        if (this.project.kind().equals(ProjectKind.BALA_PROJECT)) {
+            filePath = moduleDescriptor.org() + "/" + moduleDescriptor.name().toString() + "/"
+                    + moduleDescriptor.version() + "::" + filePath;
+        }
 
-        return diagnosticInfo().severity().toString() + " ["
-                + filePath + ":" + oneBasedLineRange + "] " + message();
+        if (this.diagnostic.location() != null) {
+            LineRange lineRange = diagnostic.location().lineRange();
+            LineRange oneBasedLineRange = LineRange.from(
+                    filePath,
+                    LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
+                    LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
+
+            return diagnosticInfo().severity().toString() + " [" + filePath + ":" + oneBasedLineRange + "] "
+                    + message();
+        } else if (filePath != null) {
+            return diagnosticInfo().severity().toString() + " [" + filePath + "] " + message();
+        } else {
+            return diagnosticInfo().severity().toString() + " " + message();
+        }
     }
 
     /*

@@ -63,9 +63,13 @@ public class CompileTask implements Task {
         try {
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+
+            DiagnosticResult resolutionDiagnosticResult = project.currentPackage().diagnosticResult();
+            resolutionDiagnosticResult.diagnostics().forEach(d -> err.println(d.toString()));
+
             DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
             diagnosticResult.diagnostics().forEach(d -> err.println(d.toString()));
-            if (diagnosticResult.hasErrors()) {
+            if (diagnosticResult.hasErrors() || resolutionDiagnosticResult.hasErrors()) {
                 throw createLauncherException("compilation contains errors");
             }
             project.save();

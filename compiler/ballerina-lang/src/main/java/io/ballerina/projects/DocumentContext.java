@@ -185,7 +185,7 @@ class DocumentContext {
 
         // Create the module load request
         return new ModuleLoadRequest(orgName, packageName, moduleName, null, scope,
-                                     DependencyResolutionType.SOURCE);
+                                     DependencyResolutionType.SOURCE, importDcl.location());
     }
 
     private String handleQuotedIdentifier(String identifier) {

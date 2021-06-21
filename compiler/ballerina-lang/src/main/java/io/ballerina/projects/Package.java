@@ -1,5 +1,6 @@
 package io.ballerina.projects;
 
+import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.ManifestBuilder;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -193,6 +194,10 @@ public class Package {
             );
         }
         return this.packageMd;
+    }
+
+    public DiagnosticResult diagnosticResult() {
+        return new DefaultDiagnosticResult(packageContext.diagnostics());
     }
 
     /**

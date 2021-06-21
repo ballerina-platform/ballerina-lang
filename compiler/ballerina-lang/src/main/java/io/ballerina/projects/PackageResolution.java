@@ -253,8 +253,15 @@ public class PackageResolution {
 
             ImportModuleRequest importModuleRequest = new ImportModuleRequest(packageOrg,
                     moduleLoadRequest.moduleName().toString());
-            moduleResolver.resolve(importModuleRequest, moduleLoadRequest.scope(),
-                                   moduleLoadRequest.dependencyResolvedType());
+            try {
+                moduleResolver.resolve(importModuleRequest, 
+                                       moduleLoadRequest.scope(),
+                                       moduleLoadRequest.dependencyResolvedType());
+            } catch (ProjectException e) {
+                ModuleDescriptor moduleDescriptor = ModuleDescriptor.from(moduleLoadRequest.moduleName(),
+                                                                          rootPackageContext.descriptor());
+                rootPackageContext.reportDiagnostic(e.getMessage(), moduleLoadRequest.location(), moduleDescriptor);
+            }
         }
     }
 

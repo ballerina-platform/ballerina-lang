@@ -258,7 +258,7 @@ public class ProjectFiles {
         }
 
         if (!isValidBalaFile(balaPath) && !isValidBalaDir(balaPath)) {
-            throw new ProjectException("Invalid bala file: " + balaPath);
+            throw new ProjectException("invalid bala file: " + balaPath);
         }
 
         if (!balaPath.toFile().canRead()) {

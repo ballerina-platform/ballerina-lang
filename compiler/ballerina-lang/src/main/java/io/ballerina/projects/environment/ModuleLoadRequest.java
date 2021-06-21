@@ -23,6 +23,7 @@ import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
+import io.ballerina.tools.diagnostics.Location;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -39,6 +40,7 @@ public class ModuleLoadRequest {
     private final PackageVersion version;
     private final PackageDependencyScope scope;
     private final DependencyResolutionType dependencyResolvedType;
+    private final Location location;
 
     public ModuleLoadRequest(PackageOrg orgName,
                              PackageName packageName,
@@ -52,6 +54,23 @@ public class ModuleLoadRequest {
         this.version = version;
         this.scope = scope;
         this.dependencyResolvedType = dependencyResolvedType;
+        this.location = null;
+    }
+
+    public ModuleLoadRequest(PackageOrg orgName,
+                             PackageName packageName,
+                             ModuleName moduleName,
+                             PackageVersion version,
+                             PackageDependencyScope scope,
+                             DependencyResolutionType dependencyResolvedType,
+                             Location location) {
+        this.orgName = orgName;
+        this.packageName = packageName;
+        this.moduleName = moduleName;
+        this.version = version;
+        this.scope = scope;
+        this.dependencyResolvedType = dependencyResolvedType;
+        this.location = location;
     }
 
     public Optional<PackageOrg> orgName() {
@@ -80,6 +99,10 @@ public class ModuleLoadRequest {
 
     public boolean injected() {
         return dependencyResolvedType == DependencyResolutionType.INJECTED;
+    }
+
+    public Location location() {
+        return location;
     }
 
     @Override

@@ -19,12 +19,20 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
 import io.ballerina.projects.PackageResolution.DependencyResolution;
+import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Location;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -47,6 +55,7 @@ class PackageContext {
     private final TomlDocumentContext cloudTomlContext;
     private final TomlDocumentContext compilerPluginTomlContext;
     private final MdDocumentContext packageMdContext;
+    private final List<Diagnostic> diagnosticList;
 
     private final CompilationOptions compilationOptions;
     private ModuleContext defaultModuleContext;
@@ -90,7 +99,7 @@ class PackageContext {
         this.moduleCompilationMap = new HashMap<>();
         this.packageDependencies = Collections.emptySet();
         this.pkgDescDependencyGraph = pkgDescDependencyGraph;
-
+        this.diagnosticList = new ArrayList<>();
     }
 
     static PackageContext from(Project project, PackageConfig packageConfig, CompilationOptions compilationOptions) {
@@ -242,6 +251,18 @@ class PackageContext {
 
         this.packageDependencies = packageDependencies;
         this.moduleDependencyGraph = moduleDepGraphBuilder.build();
+    }
+
+    List<Diagnostic> diagnostics() {
+        return this.diagnosticList;
+    }
+
+    void reportDiagnostic(String message, Location location, ModuleDescriptor moduleDescriptor) {
+        var diagnosticInfo = new DiagnosticInfo(null, message, DiagnosticSeverity.ERROR);
+        var diagnostic = DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
+
+        PackageDiagnostic packageDiagnostic = new PackageDiagnostic(diagnostic, moduleDescriptor, this.project);
+        this.diagnosticList.add(packageDiagnostic);
     }
 
     private void resolveModuleDependencies(ModuleContext moduleContext,
