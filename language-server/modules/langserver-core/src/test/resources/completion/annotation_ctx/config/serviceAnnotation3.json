@@ -9,7 +9,7 @@
       "label": "annotationCommon",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "annotationCommon {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -18,7 +18,7 @@
       "label": "a1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "a1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -27,7 +27,7 @@
       "label": "serviceAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "serviceAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -36,7 +36,7 @@
       "label": "serviceAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "serviceAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -45,7 +45,7 @@
       "label": "commonAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "commonAnnotation1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -54,7 +54,7 @@
       "label": "commonAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "commonAnnotation2 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
