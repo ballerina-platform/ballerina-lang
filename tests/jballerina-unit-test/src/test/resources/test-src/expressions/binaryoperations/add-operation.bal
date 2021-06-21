@@ -137,14 +137,14 @@ function testAddSingleton() {
 
 function testContextuallyExpectedTypeOfNumericLiteralInAdd() {
     float a1 = 10.0 + 5;
-    float a2 = 5 + 3;
+    float a2 = 5 + 3 + 10.0;
     decimal a3 = 5 + 15.0;
-    decimal a4 = 5.0 + 10.0;
+    decimal a4 = 5.0 + 10.0 + 10;
 
     assertEqual(a1, 15.0);
-    assertEqual(a2, 8.0);
+    assertEqual(a2, 18.0);
     assertEqual(a3, 20.0d);
-    assertEqual(a4, 15.0d);
+    assertEqual(a4, 25.0d);
 }
 
 function assertEqual(any actual, any expected) {
