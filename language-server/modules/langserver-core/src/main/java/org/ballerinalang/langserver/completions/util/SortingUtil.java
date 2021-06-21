@@ -89,7 +89,8 @@ public class SortingUtil {
      */
     public static boolean isTypeCompletionItem(LSCompletionItem item) {
         return (item.getType() == LSCompletionItem.CompletionItemType.SYMBOL
-                && ((SymbolCompletionItem) item).getSymbol().orElse(null) instanceof TypeSymbol)
+                && (((SymbolCompletionItem) item).getSymbol().orElse(null) instanceof TypeSymbol
+                || ((SymbolCompletionItem) item).getSymbol().orElse(null) instanceof TypeDefinitionSymbol))
                 || (item instanceof StaticCompletionItem
                 && ((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.TYPE);
     }
@@ -148,10 +149,10 @@ public class SortingUtil {
     }
 
     /**
-     * Get the sort text for a given completion item within a context where the type descriptors are allowed. 
-     * This assume that the user get the particular completion item by calling 
+     * Get the sort text for a given completion item within a context where the type descriptors are allowed.
+     * This assume that the user get the particular completion item by calling
      * AbstractCompletionProvider#getTypeDescContextItems. Hence, here we honour the module completion items as well
-     * 
+     * <p>
      * Sorting order is defined as follows
      * 1. Types defined in the same module
      * 2. Types visible from other modules (StrandData, Thread in lang.value)
@@ -205,7 +206,7 @@ public class SortingUtil {
                     ? genSortText(1) : genSortText(2);
             return sortPrefix + genSortText(toRank(item));
         }
-        
+
         // Case 3
         if (isModuleCompletionItem(item)) {
             return genSortText(3) + genSortTextForModule(context, item);
@@ -215,7 +216,7 @@ public class SortingUtil {
         if (item.getType() == SNIPPET && ((SnippetCompletionItem) item).kind() == SnippetBlock.Kind.TYPE) {
             return genSortText(8);
         }
-        
+
         // Case 7+ 
         return genSortText(SortingUtil.toRank(item, 8));
     }

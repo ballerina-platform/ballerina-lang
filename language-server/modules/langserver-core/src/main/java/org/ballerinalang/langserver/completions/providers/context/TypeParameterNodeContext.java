@@ -35,6 +35,8 @@ import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
+import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,6 +67,8 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
             completionItems.addAll(this.getXMLTypeDescSymbols(context, node));
         } else if (node.parent().kind() == SyntaxKind.ERROR_TYPE_DESC) {
             completionItems.addAll(this.getErrorTypeDescSymbols(context, node));
+        } else if (node.parent().kind() == SyntaxKind.TABLE_TYPE_DESC) {
+            completionItems.addAll(this.getTableTypeDescSymbols(context, node));
         } else {
             completionItems.addAll(this.getOtherTypeDescSymbols(context, node));
         }
@@ -95,6 +99,42 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
         }
     }
 
+    private List<LSCompletionItem> getTableTypeDescSymbols(BallerinaCompletionContext context, TypeParameterNode node) {
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+        Predicate<Symbol> predicate = symbol -> {
+            if (symbol.kind() != SymbolKind.TYPE_DEFINITION) {
+                return false;
+            }
+            TypeDescKind rawType = CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()).typeKind();
+            return rawType == TypeDescKind.MAP || rawType == TypeDescKind.RECORD;
+        };
+
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            QualifiedNameReferenceNode refNode = (QualifiedNameReferenceNode) nodeAtCursor;
+            /*
+            Covers the following
+            (1) table<mod:*cursor*>
+            (2) table<mod:x*cursor*>
+             */
+            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, refNode, predicate);
+            return this.getCompletionItemList(moduleContent, context);
+        } else {
+            /*
+            Covers the following
+            (1) table<*cursor*>
+            (2) table<x*cursor*>
+             */
+            List<Symbol> filtered = context.visibleSymbols(context.getCursorPosition()).stream()
+                    .filter(predicate)
+                    .collect(Collectors.toList());
+            List<LSCompletionItem> completionItems = new ArrayList<>();
+            completionItems.addAll(this.getModuleCompletionItems(context));
+            completionItems.addAll(this.getCompletionItemList(filtered, context));
+
+            return completionItems;
+        }
+    }
+
     private List<LSCompletionItem> getErrorTypeDescSymbols(BallerinaCompletionContext context, TypeParameterNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         /*
@@ -122,7 +162,7 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
         } else {
             completionItems.addAll(
                     Arrays.asList(new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()),
-                    new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD_TYPE_DESC.get())));
+                            new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD_TYPE_DESC.get())));
             List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
             mappingTypes = visibleSymbols.stream().filter(predicate).collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(mappingTypes, context));
@@ -179,5 +219,21 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
         int ltToken = node.ltToken().textRange().startOffset();
 
         return ltToken < cursor && gtToken > cursor;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, TypeParameterNode node,
+                     List<LSCompletionItem> completionItems) {
+        completionItems.forEach(lsCItem -> {
+            CompletionItem cItem = lsCItem.getCompletionItem();
+            String sortText;
+            if (SortingUtil.isTypeCompletionItem(lsCItem) || SortingUtil.isModuleCompletionItem(lsCItem)) {
+                sortText = SortingUtil.genSortText(1)
+                        + SortingUtil.genSortTextForTypeDescContext(context, lsCItem);
+            } else {
+                sortText = SortingUtil.genSortText(2);
+            }
+            cItem.setSortText(sortText);
+        });
     }
 }
