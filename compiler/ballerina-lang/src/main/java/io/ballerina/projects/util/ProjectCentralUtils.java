@@ -1,7 +1,8 @@
 package io.ballerina.projects.util;
 
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageExistsException;
-import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.RemotePackageRepositoryException;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.SettingsBuilder;
@@ -9,10 +10,10 @@ import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 
+import java.io.IOException;
 import java.net.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.io.IOException;
 
 import static io.ballerina.projects.util.ProjectUtils.createAndGetHomeReposPath;
 
@@ -24,13 +25,14 @@ import static io.ballerina.projects.util.ProjectUtils.createAndGetHomeReposPath;
  */
 public class ProjectCentralUtils {
 
-    private static final String SUPPORTED_PLATFORM = "java11";
+    private static final String SUPPORTED_PLATFORM = JvmTarget.JAVA_11.code();
 
-    public static void pullPackage(String orgName, String packageName) throws ProjectException {
+    public static void pullPackage(String orgName, String packageName) throws RemotePackageRepositoryException {
         pullPackage(orgName, packageName, "");
     }
 
-    public static void pullPackage(String orgName, String packageName, String version) throws ProjectException {
+    public static void pullPackage(String orgName, String packageName, String version)
+            throws RemotePackageRepositoryException {
         Settings settings = readSettings();
         Proxy proxy = ProjectUtils.initializeProxy(settings.getProxy());
         String accessToken = ProjectUtils.getAccessTokenOfCLI(settings);
@@ -51,9 +53,8 @@ public class ProjectCentralUtils {
         } catch (PackageAlreadyExistsException e) {
             throw new PackageExistsException(e.getMessage());
         } catch (CentralClientException e) {
-            throw new ProjectException(e.getMessage());
+            throw new RemotePackageRepositoryException(e.getMessage());
         }
-
     }
 
     /**
