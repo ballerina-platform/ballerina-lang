@@ -1,10 +1,10 @@
 NAME
-       ballerina-clean - Clean artifacts created during the build
+       ballerina-clean - Remove the artifacts created during the build
 
 SYNOPSIS
        bal clean
 
 
 DESCRIPTION
-       Clean removes artifacts generated inside the target directory during
-       the build. This command is only valid inside a Ballerina package.
+       Remove the artifacts generated inside the `target` directory during
+       the build. This command is only valid from within a Ballerina package.

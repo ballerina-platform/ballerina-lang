@@ -91,10 +91,7 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
                 (1) [typedesc | map | future]<*cursor*>
                 (2) [typedesc | map | future]<x*cursor*>
                  */
-            List<LSCompletionItem> completionItems = this.getTypeItems(context);
-            completionItems.addAll(this.getModuleCompletionItems(context));
-
-            return completionItems;
+            return this.getTypeDescContextItems(context);
         }
     }
 

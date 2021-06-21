@@ -112,3 +112,6 @@ type Annot record {
 function testIgnoreSym() {
     _ = 3.14;
 }
+
+public type TEST_TYPE int[CONST1];
+public const CONST1 = 12;

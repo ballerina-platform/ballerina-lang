@@ -53,7 +53,137 @@ public function queryAnErrorStream() {
     assertEquality("error messge #8", causeErrorMsgs[3]);
 }
 
-//---------------------------------------------------------------------------------------------------------
+class IterableWithError {
+    *object:Iterable;
+    public function iterator() returns object {
+        public isolated function next() returns record {|int value;|}|error?;
+    } {
+        return object {
+            int[] integers = [12, 34, 56, 34, 78];
+            int cursorIndex = 0;
+            public isolated function next() returns record {|int value;|}|error? {
+                self.cursorIndex += 1;
+                if (self.cursorIndex == 3) {
+                    return error("Custom error thrown.");
+                }
+                else if (self.cursorIndex <= 5) {
+                    return {
+                        value: self.integers[self.cursorIndex - 1]
+                    };
+                } else {
+                    return ();
+                }
+            }
+        };
+    }
+}
+
+// Normal Queries
+
+public function queryWithoutErrors() {
+    // Normally, the result of evaluating a query expression is a single value (i.e int[]).
+    var intArr = from var item in [1, 2, 3]
+                 select item;
+    assertEquality(true, intArr is int[]);
+    assertEquality(3, intArr.length());
+    assertEquality(1, intArr[0]);
+    assertEquality(2, intArr[1]);
+    assertEquality(3, intArr[2]);
+}
+
+public function queryWithAnError() {
+    // The execution of a clause may complete early with an error value,
+    // in which case this error value is the result of the query (i.e int[]|error).
+    IterableWithError p = new IterableWithError();
+    var intArr = from var item in p
+                     select item;
+    assertEquality(true, intArr is int[]|error);
+    assertEquality(error("Custom error thrown."), intArr);
+}
+
+public function queryWithACheckFailEncl() {
+    // Wrapper to handle checked error of queryWithACheckFail().
+    var intArr = queryWithACheckFail();
+    assertEquality(error("Verify Check."), intArr);
+}
+
+public function queryWithACheckFail() returns int[]|error {
+    // If the evaluation of an expression within the query-expr completing abruptly with a check-fail,
+    // an error will get propagated to the query result level.
+    int[] intArr = from var item in [1, 2, 3]
+                 select check verifyCheck(item);
+    assertEquality(true, false); // this shouldn't be reachable.
+    return intArr;
+}
+
+public function queryWithAPanicEncl() {
+    // Wrapper to handle checked error of queryWithAPanic().
+    error? e = trap queryWithAPanic();
+    assertEquality(error("Verify Panic."), e);
+}
+
+public function queryWithAPanic() {
+    // If there's an expression within the query-expr completing abruptly with a panic,
+    // evaluation of the whole query-expr can complete abruptly with panic.
+    int[] intArr = from var item in [1, 2, 3]
+             select verifyPanic(item);
+}
+
+// Query to streams
+
+public function streamFromQueryWithoutErrors() {
+    stream<int> intStream = stream from var item in [1, 2, 3]
+                            select item;
+    assertEquality({value:1}, intStream.next());
+    assertEquality({value:2}, intStream.next());
+    assertEquality({value:3}, intStream.next());
+    assertEquality((), intStream.next());
+}
+
+public function streamFromQueryWithAnError() {
+    // If a next operation causes the execution of a clause that completes early with an error value,
+    // then the error value is returned by the next operation.
+    IterableWithError p = new IterableWithError();
+    var intStream = stream from var item in p
+                    select item;
+    assertEquality({value:12}, intStream.next());
+    assertEquality({value:34}, intStream.next());
+    assertEquality(error("Custom error thrown."), intStream.next());
+}
+
+public function streamFromQueryWithACheckFail() returns error? {
+    // If the next operation results in the evaluation of an expression within the query-expr
+    // completing abruptly with a check-fail, the associated error value will be returned as
+    // the result of the next operation.
+    var intStream = stream from var item in [1, 2, 3]
+                    select check verifyCheck(item);
+    assertEquality(error("Verify Check."), intStream.next());
+}
+
+public function streamFromQueryWithAPanicEncl() {
+    // Wrapper to handle checked error of streamFromQueryWithAPanic().
+    error? e = trap streamFromQueryWithAPanic();
+    assertEquality(error("Verify Panic."), e);
+}
+
+public function streamFromQueryWithAPanic() {
+    // If the next operation results in the evaluation of an expression within the query-expr
+    // completely abruptly with panic, then the next operation will complete abruptly with a panic.
+    var intStream = stream from var item in [1, 2, 3]
+                    select verifyPanic(item);
+    var val = intStream.next(); // this should panic.
+}
+
+// Utils ---------------------------------------------------------------------------------------------------------
+
+public function verifyCheck(int i) returns int|error {
+    return error("Verify Check.");
+}
+
+public function verifyPanic(int i) returns int {
+    panic error("Verify Panic.");
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
@@ -67,6 +197,10 @@ function assertEquality(any|error expected, any|error actual) {
 
     string expectedValAsString = expected is error ? expected.toString() : expected.toString();
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    if expectedValAsString == actualValAsString {
+        return;
+    }
+
     panic error(ASSERTION_ERROR_REASON,
                             message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

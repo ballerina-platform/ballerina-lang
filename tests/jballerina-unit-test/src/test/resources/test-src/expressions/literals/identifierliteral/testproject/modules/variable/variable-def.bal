@@ -38,6 +38,6 @@ public type Person record {
 
 type Employee Person;
 
-public type Foo\$ record {|
+public type Foo\$ readonly & record {|
     string name = "default";
 |};

@@ -2216,7 +2216,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         SyntaxKind kind = expressionNode.kind();
         switch (kind) {
             case XML_TEMPLATE_EXPRESSION:
-                return createXmlTemplateLiteral(expressionNode);
+                BLangNode xmlTemplateLiteral = createXmlTemplateLiteral(expressionNode);
+                xmlTemplateLiteral.pos = getPosition(expressionNode);
+                return xmlTemplateLiteral;
             case STRING_TEMPLATE_EXPRESSION:
                 return createStringTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
             case RAW_TEMPLATE_EXPRESSION:
@@ -2531,6 +2533,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         var.pos = getPositionWithoutMetadata(listenerDeclarationNode);
         var.name.pos = getPosition(listenerDeclarationNode.variableName());
         var.annAttachments = applyAll(getAnnotations(listenerDeclarationNode.metadata()));
+        var.markdownDocumentationAttachment =
+                createMarkdownDocumentationAttachment(getDocumentationString(listenerDeclarationNode.metadata()));
         return var;
     }
 
@@ -4259,30 +4263,30 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 (BLangListMatchPattern) TreeBuilder.createListMatchPattern();
         bLangListMatchPattern.pos = pos;
 
-            SeparatedNodeList<Node> matchPatterns = listMatchPatternNode.matchPatterns();
-            int matchPatternListSize = matchPatterns.size();
+        SeparatedNodeList<Node> matchPatterns = listMatchPatternNode.matchPatterns();
+        int matchPatternListSize = matchPatterns.size();
 
-            if (matchPatternListSize == 0) {
-                return bLangListMatchPattern;
-            }
-
-            for (int i = 0; i < matchPatternListSize - 1; i++) {
-                BLangMatchPattern bLangMemberMatchPattern = transformMatchPattern(matchPatterns.get(i));
-                if (bLangMemberMatchPattern == null) {
-                    continue;
-                }
-                bLangListMatchPattern.addMatchPattern(bLangMemberMatchPattern);
-            }
-
-            BLangMatchPattern lastMember = transformMatchPattern(matchPatterns.get(matchPatternListSize - 1));
-            if (lastMember.getKind() == NodeKind.REST_MATCH_PATTERN) {
-                bLangListMatchPattern.setRestMatchPattern((BLangRestMatchPattern) lastMember);
-            } else {
-                bLangListMatchPattern.addMatchPattern(lastMember);
-            }
-
+        if (matchPatternListSize == 0) {
             return bLangListMatchPattern;
         }
+
+        for (int i = 0; i < matchPatternListSize - 1; i++) {
+            BLangMatchPattern bLangMemberMatchPattern = transformMatchPattern(matchPatterns.get(i));
+            if (bLangMemberMatchPattern == null) {
+                continue;
+            }
+            bLangListMatchPattern.addMatchPattern(bLangMemberMatchPattern);
+        }
+
+        BLangMatchPattern lastMember = transformMatchPattern(matchPatterns.get(matchPatternListSize - 1));
+        if (lastMember.getKind() == NodeKind.REST_MATCH_PATTERN) {
+            bLangListMatchPattern.setRestMatchPattern((BLangRestMatchPattern) lastMember);
+        } else {
+            bLangListMatchPattern.addMatchPattern(lastMember);
+        }
+
+        return bLangListMatchPattern;
+    }
 
     private BLangRestMatchPattern transformRestMatchPattern(RestMatchPatternNode restMatchPatternNode, Location pos) {
         BLangRestMatchPattern bLangRestMatchPattern = (BLangRestMatchPattern) TreeBuilder.createRestMatchPattern();

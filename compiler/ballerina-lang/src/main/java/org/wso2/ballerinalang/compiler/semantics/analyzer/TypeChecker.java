@@ -262,7 +262,9 @@ public class TypeChecker extends BLangNodeVisitor {
     private int letCount = 0;
     private Stack<SymbolEnv> queryEnvs, prevEnvs;
     private Stack<BLangSelectClause> selectClauses;
+    private boolean checkWithinQueryExpr = false;
     private BLangMissingNodesHelper missingNodesHelper;
+    private boolean breakToParallelQueryEnv = false;
 
     /**
      * Expected types or inherited types.
@@ -377,7 +379,7 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = ((BIntersectionType) resultType).effectiveType;
         }
 
-        expr.setBType(resultType);
+        expr.setTypeCheckedType(resultType);
         expr.typeChecked = isTypeChecked;
         this.env = prevEnv;
         this.expType = preExpType;
@@ -2302,11 +2304,18 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (restParam.getBType() == symTable.semanticError) {
             bRecordType.restFieldType = symTable.mapType;
         } else {
-            // Rest variable type of Record ref (record destructuring assignment) is a map where T is the broad type of
-            // all fields that are not specified in the destructuring pattern. Here we set the rest type of record type
-            // to T.
-            BMapType restParamType = (BMapType) restParam.getBType();
-            bRecordType.restFieldType = restParamType.constraint;
+            // Rest variable type of Record ref (record destructuring assignment) is a record where T is the broad
+            // type of all fields that are not specified in the destructuring pattern. Here we set the rest type of
+            // record type to T.
+            BType restFieldType;
+            if (restParam.getBType().tag == TypeTags.RECORD) {
+                restFieldType = ((BRecordType) restParam.getBType()).restFieldType;
+            } else if (restParam.getBType().tag == TypeTags.MAP) {
+                restFieldType = ((BMapType) restParam.getBType()).constraint;
+            } else {
+                restFieldType = restParam.getBType();
+            }
+            bRecordType.restFieldType = restFieldType;
         }
 
         resultType = bRecordType;
@@ -4854,6 +4863,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
+        checkWithinQueryExpr = isWithinQuery();
         visitCheckAndCheckPanicExpr(checkedExpr);
     }
 
@@ -4864,23 +4874,30 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
+        boolean cleanPrevEnvs = false;
         if (prevEnvs.empty()) {
             prevEnvs.push(env);
-        } else {
-            prevEnvs.push(prevEnvs.peek());
+            cleanPrevEnvs = true;
         }
-        queryEnvs.push(prevEnvs.peek());
+
+        if (breakToParallelQueryEnv) {
+            queryEnvs.push(prevEnvs.peek());
+        } else {
+            queryEnvs.push(env);
+        }
         selectClauses.push(queryExpr.getSelectClause());
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         BLangExpression collectionNode = (BLangExpression) ((BLangFromClause) clauses.get(0)).getCollection();
         clauses.forEach(clause -> clause.accept(this));
         BType actualType = resolveQueryType(queryEnvs.peek(), selectClauses.peek().expression,
-                                            collectionNode.getBType(), expType, queryExpr);
+                collectionNode.getBType(), expType, queryExpr);
         actualType = (actualType == symTable.semanticError) ? actualType :
                 types.checkType(queryExpr.pos, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         selectClauses.pop();
         queryEnvs.pop();
-        prevEnvs.pop();
+        if (cleanPrevEnvs) {
+            prevEnvs.pop();
+        }
 
         if (actualType.tag == TypeTags.TABLE) {
             BTableType tableType = (BTableType) actualType;
@@ -4891,8 +4908,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
             }
         }
-
+        checkWithinQueryExpr = false;
         resultType = actualType;
+    }
+
+    private boolean isWithinQuery() {
+        return !queryEnvs.isEmpty() && !selectClauses.isEmpty();
     }
 
     private BType resolveQueryType(SymbolEnv env, BLangExpression selectExp, BType collectionType,
@@ -4950,7 +4971,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (selectTypes.size() == 1) {
-            BType errorType = getErrorType(collectionType);
+            BType errorType = getErrorType(collectionType, queryExpr);
             selectType = selectTypes.get(0);
             if (queryExpr.isStream) {
                 return new BStreamType(TypeTags.STREAM, selectType, errorType, null);
@@ -4984,7 +5005,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
 
-    private BType getErrorType(BType collectionType) {
+    private BType getErrorType(BType collectionType, BLangQueryExpr queryExpr) {
         if (collectionType.tag == TypeTags.SEMANTIC_ERROR) {
             return null;
         }
@@ -5005,16 +5026,25 @@ public class TypeChecker extends BLangNodeVisitor {
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) itrSymbol;
                 returnType = types.getResultTypeOfNextInvocation((BObjectType) invokableSymbol.retType);
         }
+        List<BType> errorTypes = new ArrayList<>();
         if (returnType != null) {
-            List<BType> errorTypes = types.getAllTypes(returnType).stream()
+            types.getAllTypes(returnType).stream()
                     .filter(t -> types.isAssignable(t, symTable.errorType))
-                    .collect(Collectors.toList());
-            if (!errorTypes.isEmpty()) {
-                if (errorTypes.size() == 1) {
-                    errorType = errorTypes.get(0);
-                } else {
-                    errorType = BUnionType.create(null, errorTypes.toArray(new BType[0]));
-                }
+                    .forEach(errorTypes::add);
+        }
+        if (checkWithinQueryExpr && queryExpr.isStream) {
+            if (errorTypes.isEmpty()) {
+                // if there's no completion type at this point,
+                // then () gets added as a valid completion type for streams.
+                errorTypes.add(symTable.nilType);
+            }
+            errorTypes.add(symTable.errorType);
+        }
+        if (!errorTypes.isEmpty()) {
+            if (errorTypes.size() == 1) {
+                errorType = errorTypes.get(0);
+            } else {
+                errorType = BUnionType.create(null, errorTypes.toArray(new BType[0]));
             }
         }
         return errorType;
@@ -5065,6 +5095,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFromClause fromClause) {
+        boolean prevBreakToParallelEnv = this.breakToParallelQueryEnv;
+        this.breakToParallelQueryEnv = true;
         SymbolEnv fromEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, queryEnvs.pop());
         fromClause.env = fromEnv;
         queryEnvs.push(fromEnv);
@@ -5072,10 +5104,13 @@ public class TypeChecker extends BLangNodeVisitor {
         // Set the type of the foreach node's type node.
         types.setInputClauseTypedBindingPatternType(fromClause);
         handleInputClauseVariables(fromClause, queryEnvs.peek());
+        this.breakToParallelQueryEnv = prevBreakToParallelEnv;
     }
 
     @Override
     public void visit(BLangJoinClause joinClause) {
+        boolean prevBreakEnv = this.breakToParallelQueryEnv;
+        this.breakToParallelQueryEnv = true;
         SymbolEnv joinEnv = SymbolEnv.createTypeNarrowedEnv(joinClause, queryEnvs.pop());
         joinClause.env = joinEnv;
         queryEnvs.push(joinEnv);
@@ -5086,6 +5121,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (joinClause.onClause != null) {
             ((BLangOnClause) joinClause.onClause).accept(this);
         }
+        this.breakToParallelQueryEnv = prevBreakEnv;
     }
 
     @Override
@@ -5105,9 +5141,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSelectClause selectClause) {
-        SymbolEnv letEnv = SymbolEnv.createTypeNarrowedEnv(selectClause, queryEnvs.pop());
-        selectClause.env = letEnv;
-        queryEnvs.push(letEnv);
+        SymbolEnv selectEnv = SymbolEnv.createTypeNarrowedEnv(selectClause, queryEnvs.pop());
+        selectClause.env = selectEnv;
+        queryEnvs.push(selectEnv);
     }
 
     @Override

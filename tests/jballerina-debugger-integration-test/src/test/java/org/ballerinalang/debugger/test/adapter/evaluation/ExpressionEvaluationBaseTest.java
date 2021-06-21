@@ -70,6 +70,7 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
     protected static final String TABLE_VAR = "tableWithKeyVar";
     protected static final String STREAM_VAR = "oddNumberStream";
     protected static final String NEVER_VAR = "neverVar";
+    protected static final String SERVICE_VAR = "serviceVar";
 
     protected static final String GLOBAL_VAR_01 = "nameWithoutType";
     protected static final String GLOBAL_VAR_02 = "nameWithType";
@@ -104,7 +105,7 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
         String testModuleFileName = "main.bal";
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
 
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 199));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 216));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
         this.context = debugHitInfo.getRight();

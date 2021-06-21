@@ -36,3 +36,15 @@ configurable table<Person> key(name) tableVar2 = ?;
 
 configurable string|int|Person unionVar1 = ?;
 configurable anydata|Person unionVar2 = ?;
+
+enum HttpVersion {
+    HTTP_1_1,
+    HTTP_2
+}
+
+type ClientConfiguration record {|
+    HttpVersion httpVersion?;
+    map<anydata> customHeaders;
+|};
+
+configurable table<ClientConfiguration> tableVar = ?;

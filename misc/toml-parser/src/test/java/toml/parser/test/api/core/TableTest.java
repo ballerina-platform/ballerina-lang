@@ -99,7 +99,7 @@ public class TableTest {
         List<Toml> tables = read.getTable("products").get().getTables("hello");
         String firstElement = ((TomlStringValueNode) tables.get(0).get("name").get()).getValue();
         boolean nullElement = tables.get(1).get("name").isEmpty();
-        String thridElement = ((TomlStringValueNode) tables.get(2).get("name").get()).getValue();
+        String thirdElement = ((TomlStringValueNode) tables.get(2).get("name").get()).getValue();
 
         LineRange tableArrayRange =
                 ((TomlTableNode) read.rootNode().entries().get("products")).entries().get("hello").location()
@@ -113,7 +113,7 @@ public class TableTest {
 
         Assert.assertEquals(firstElement, "Hammer");
         Assert.assertTrue(nullElement);
-        Assert.assertEquals(thridElement, "Nail");
+        Assert.assertEquals(thirdElement, "Nail");
 
         TomlStringValueNode generatedTableWithArray =
                 (TomlStringValueNode) read.getTables("foo.bar").get(0).get("name").get();
@@ -122,5 +122,39 @@ public class TableTest {
         Assert.assertEquals(generatedTableWithArray.getValue(), "Alice");
         Assert.assertEquals(generatedTableExplicitDecl.getValue(), "Bob");
 
+        List<Toml> fruits = read.getTables("fruits");
+        Assert.assertEquals(fruits.size(), 2);
+
+        Toml firstTable = fruits.get(0);
+        TomlStringValueNode appleStr = (TomlStringValueNode) firstTable.get("name").get();
+        Assert.assertEquals(appleStr.getValue(), "apple");
+
+        Toml physical = firstTable.getTable("physical").get();
+        TomlStringValueNode color = (TomlStringValueNode) physical.get("color").get();
+        TomlStringValueNode shape = (TomlStringValueNode)  physical.get("shape").get();
+        Assert.assertEquals(color.getValue(), "red");
+        Assert.assertEquals(shape.getValue(), "round");
+
+        List<Toml> firstVarieties = firstTable.getTables("varieties");
+        Assert.assertEquals(firstVarieties.size(), 2);
+
+        Toml firstVariant = firstVarieties.get(0);
+        TomlStringValueNode red = (TomlStringValueNode) firstVariant.get("name").get();
+        Assert.assertEquals(red.getValue(), "red delicious");
+
+        Toml secondVariant = firstVarieties.get(1);
+        TomlStringValueNode granny = (TomlStringValueNode) secondVariant.get("name").get();
+        Assert.assertEquals(granny.getValue(), "granny smith");
+
+        Toml secondTable = fruits.get(1);
+        TomlStringValueNode banana = (TomlStringValueNode) secondTable.get("name").get();
+        Assert.assertEquals(banana.getValue(), "banana");
+
+        List<Toml> secondVarieties = secondTable.getTables("varieties");
+        Assert.assertEquals(secondVarieties.size(), 1);
+
+        Toml variant = secondVarieties.get(0);
+        TomlStringValueNode plantain = (TomlStringValueNode) variant.get("name").get();
+        Assert.assertEquals(plantain.getValue(), "plantain");
     }
 }

@@ -1,11 +1,11 @@
 class Person {
-
     function foo() {
-        bar()
+        bar() // semicolon should recover here
+        someString.indexOf() // semicolon should recover here
     }
-}
 
-function bar() {
-    someString.indexOf()
-    condition = condition - 1;
+    function bar() {
+        someString.indexOf() // semicolon should recover here
+        condition = condition - 1;
+    }
 }
