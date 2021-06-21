@@ -482,7 +482,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         Stream.concat(classDefinition.fields.stream(), classDefinition.referencedFields.stream())
                 .map(field -> {
-                    addTypeDependency(classDefinition.symbol, field.getBType());
+                    addTypeDependency(classDefinition.symbol, field.getBType(), new HashSet<>());
                     return field; })
                 .filter(field -> !Symbols.isPrivate(field.symbol))
                 .forEach(field -> {
@@ -1642,27 +1642,33 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             recordGlobalVariableReferenceRelationship(bLangType.getBType().tsymbol);
         }
         for (BLangSimpleVariable field : recordTypeNode.fields) {
-            addTypeDependency(tsymbol, field.getBType());
+            addTypeDependency(tsymbol, field.getBType(), new HashSet<>());
             analyzeNode(field, env);
             recordGlobalVariableReferenceRelationship(field.symbol);
         }
     }
 
-    private void addTypeDependency(BTypeSymbol dependentTypeSymbol, BType providerType) {
+    private void addTypeDependency(BTypeSymbol dependentTypeSymbol, BType providerType, Set<BType> unresolvedTypes) {
+        if (unresolvedTypes.contains(providerType)) {
+            return;
+        }
+        unresolvedTypes.add(providerType);
         switch (providerType.tag) {
             case TypeTags.UNION:
                 for (BType memberType : ((BUnionType) providerType).getMemberTypes()) {
                     BType effectiveType = types.getTypeWithEffectiveIntersectionTypes(memberType);
-                    addTypeDependency(dependentTypeSymbol, effectiveType);
+                    addTypeDependency(dependentTypeSymbol, effectiveType, unresolvedTypes);
                 }
                 break;
             case TypeTags.ARRAY:
                 addTypeDependency(dependentTypeSymbol,
-                        types.getTypeWithEffectiveIntersectionTypes(((BArrayType) providerType).getElementType()));
+                        types.getTypeWithEffectiveIntersectionTypes(((BArrayType) providerType).getElementType()),
+                        unresolvedTypes);
                 break;
             case TypeTags.MAP:
                 addTypeDependency(dependentTypeSymbol,
-                        types.getTypeWithEffectiveIntersectionTypes(((BMapType) providerType).getConstraint()));
+                        types.getTypeWithEffectiveIntersectionTypes(((BMapType) providerType).getConstraint()),
+                        unresolvedTypes);
                 break;
             default:
                 addDependency(dependentTypeSymbol, providerType.tsymbol);
