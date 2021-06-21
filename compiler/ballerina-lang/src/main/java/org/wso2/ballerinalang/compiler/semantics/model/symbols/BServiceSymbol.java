@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -74,5 +75,27 @@ public class BServiceSymbol extends BSymbol {
     public void addListenerType(BType type) {
         assert type != null;
         this.listenerTypes.add(type);
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BServiceSymbol)) {
+            return false;
+        }
+        BServiceSymbol that = (BServiceSymbol) o;
+        return Objects.equals(associatedClass, that.associatedClass) && Objects.equals(listenerTypes,
+                                                                                       that.listenerTypes) &&
+                Objects.equals(absResourcePath, that.absResourcePath) && Objects.equals(
+                attachPointStringLiteral, that.attachPointStringLiteral);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), associatedClass, listenerTypes, absResourcePath,
+                            attachPointStringLiteral);
     }
 }

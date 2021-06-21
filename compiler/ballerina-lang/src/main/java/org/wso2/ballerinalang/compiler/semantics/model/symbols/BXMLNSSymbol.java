@@ -26,6 +26,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.Objects;
+
 /**
  * @since 0.94
  */
@@ -51,5 +53,23 @@ public class BXMLNSSymbol extends BSymbol implements VariableSymbol {
     @Override
     public SymbolKind getKind() {
         return SymbolKind.XMLNS;
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BXMLNSSymbol)) {
+            return false;
+        }
+        BXMLNSSymbol that = (BXMLNSSymbol) o;
+        return Objects.equals(namespaceURI, that.namespaceURI);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), namespaceURI);
     }
 }

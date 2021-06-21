@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.VARIABLE;
 
@@ -80,5 +81,25 @@ public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
     @Override
     public SymbolKind getKind() {
         return this.kind;
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BVarSymbol)) {
+            return false;
+        }
+        BVarSymbol that = (BVarSymbol) o;
+        return isDefaultable == that.isDefaultable && isWildcard == that.isWildcard && Objects.equals(annots,
+                                                                                                      that.annots) &&
+                state == that.state && Objects.equals(originalSymbol, that.originalSymbol);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), annots, isDefaultable, isWildcard, state, originalSymbol);
     }
 }

@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -74,6 +75,33 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
         this.dependentGlobalVars = new HashSet<>();
         this.paramDefaultValTypes = new HashMap<>();
         this.kind = SymbolKind.FUNCTION;
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BInvokableSymbol)) {
+            return false;
+        }
+        BInvokableSymbol that = (BInvokableSymbol) o;
+        return bodyExist == that.bodyExist && Objects.equals(params, that.params) && Objects.equals(
+                restParam, that.restParam) && Objects.equals(retType, that.retType) && Objects.equals(
+                paramDefaultValTypes, that.paramDefaultValTypes) && Objects.equals(receiverSymbol,
+                                                                                   that.receiverSymbol) &&
+                Objects.equals(enclForkName, that.enclForkName) && Objects.equals(source,
+                                                                                  that.source) &&
+                Objects.equals(strandName, that.strandName) && schedulerPolicy == that.schedulerPolicy &&
+                Objects.equals(dependentGlobalVars, that.dependentGlobalVars);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), params, restParam, retType, paramDefaultValTypes, receiverSymbol,
+                            bodyExist,
+                            enclForkName, source, strandName, schedulerPolicy, dependentGlobalVars);
     }
 
     @Override

@@ -26,6 +26,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.util.Name;
 
+import java.util.Objects;
+
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.CONSTANT;
 
 /**
@@ -47,5 +49,23 @@ public class BConstantSymbol extends BVarSymbol implements ConstantSymbol {
     @Override
     public SymbolKind getKind() {
         return SymbolKind.CONSTANT;
+    }
+
+    // Generated equals() and hashCode() implementations
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof BConstantSymbol)) {
+            return false;
+        }
+        BConstantSymbol that = (BConstantSymbol) o;
+        return Objects.equals(value, that.value) && Objects.equals(literalType, that.literalType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), value, literalType);
     }
 }
