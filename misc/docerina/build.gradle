@@ -44,6 +44,7 @@ dependencies {
     implementation project(':ballerina-config')
     implementation 'commons-io:commons-io'
     implementation 'com.google.code.gson:gson:2.7'
+    implementation 'org.slf4j:slf4j-api'
     distBal project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')
 
     testImplementation 'org.testng:testng'
