@@ -53,7 +53,7 @@ public class InitCommand implements BLauncherCmd {
     @CommandLine.Parameters
     private List<String> argList;
 
-    @CommandLine.Option(names = {"--template", "-t"}, description = "Acceptable values: [main, service, lib]")
+    @CommandLine.Option(names = {"--template", "-t"}, description = "Acceptable values: [general, main, service, lib]")
     private String template = "";
 
     public InitCommand() {

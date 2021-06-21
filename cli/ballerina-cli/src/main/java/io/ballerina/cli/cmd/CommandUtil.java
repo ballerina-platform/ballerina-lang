@@ -133,6 +133,10 @@ public class CommandUtil {
             Files.move(source, source.resolveSibling(guessPkgName(packageName) + ".bal"),
                     StandardCopyOption.REPLACE_EXISTING);
 
+            Path testDirPath = path.resolve(Paths.get("tests"));
+            Path testFilePath = testDirPath.resolve("main_test.bal");
+            Files.move(testFilePath, testFilePath.resolveSibling(guessPkgName(packageName) + ".bal"));
+
             String packageMd = FileUtils.readFileAsString(
                     NEW_CMD_DEFAULTS + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME);
 
@@ -140,6 +144,11 @@ public class CommandUtil {
                     packageMd.getBytes(StandardCharsets.UTF_8));
         } else {
             initPackage(path);
+            String packageMd = FileUtils.readFileAsString(
+                    NEW_CMD_DEFAULTS + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME);
+
+            Files.write(path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME),
+                    packageMd.getBytes(StandardCharsets.UTF_8));
         }
         Path gitignore = path.resolve(ProjectConstants.GITIGNORE_FILE_NAME);
         if (Files.notExists(gitignore)) {
