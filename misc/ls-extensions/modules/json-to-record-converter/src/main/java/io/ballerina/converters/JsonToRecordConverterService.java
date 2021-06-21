@@ -34,7 +34,7 @@ import java.util.concurrent.CompletableFuture;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService")
-@JsonSegment("LSExtensions")
+@JsonSegment("JsonToRecord")
 public class JsonToRecordConverterService implements ExtendedLanguageServerService {
 
     @Override
@@ -43,7 +43,7 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
     }
 
     @JsonRequest
-    public CompletableFuture<JsonToRecordResponse> convertJsonToBalRecord(JsonToRecordRequest request) {
+    public CompletableFuture<JsonToRecordResponse> convert(JsonToRecordRequest request) {
         return CompletableFuture.supplyAsync(() -> {
             JsonToRecordResponse response = new JsonToRecordResponse();
             try {
