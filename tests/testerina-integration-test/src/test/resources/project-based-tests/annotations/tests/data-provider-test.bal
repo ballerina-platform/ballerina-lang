@@ -20,13 +20,9 @@ import ballerina/test;
     dataProvider: dataGen
 }
 function stringDataProviderTest (string fValue, string sValue, string result) returns error? {
-
-    int|error val1 = fValue.cloneWithType(int);
-    int value1 = val1 is int ? val1 : 0;
-    int|error val2 = sValue.cloneWithType(int);
-    var value2 = val2 is int ? val2 : 0;
-    int|error res1 = result.cloneWithType(int);
-    var result1 = res1 is int ? res1 : 0;
+    int value1 = check 'int:fromString(fValue);
+    int value2 = check 'int:fromString(sValue);
+    int result1 = check 'int:fromString(result);
     test:assertEquals(value1 + value2, result1, msg = "The sum is not correct");
     return;
 }
@@ -39,13 +35,9 @@ function dataGen() returns (string[][]) {
     dataProvider: dataGen2
 }
 function stringDataProviderTest2 (string fValue, string sValue, string result) returns error? {
-            
-    int|error val1 = fValue.cloneWithType(int);
-    int value1 = val1 is int ? val1 : 0;
-    int|error val2 = sValue.cloneWithType(int);
-    var value2 = val2 is int ? val2 : 0;
-    int|error res1 = result.cloneWithType(int);
-    var result1 = res1 is int ? res1 : 0;
+    int value1 = check 'int:fromString(fValue);
+    int value2 = check 'int:fromString(sValue);
+    int result1 = check 'int:fromString(result);
     test:assertEquals(value1 + value2, result1, msg = "The sum is not correct");
     return;
 }
