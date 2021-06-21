@@ -1896,7 +1896,7 @@ public class BallerinaParser extends AbstractParser {
      * </p>
      * <code>
      * param-list := required-params [, defaultable-params] [, rest-param]
-     * <br/>| defaultable-params [, rest-param]
+     * <br/>&nbsp;| defaultable-params [, rest-param]
      * <br/>&nbsp;| [rest-param]
      * <br/><br/>
      * required-params := required-param (, required-param)*
@@ -2579,21 +2579,22 @@ public class BallerinaParser extends AbstractParser {
      * @return Context to recover
      */
     private ParserRuleContext getTypeDescRecoveryCtx(List<STNode> qualifiers) {
+        ParserRuleContext defaultRecoveryCtx = ParserRuleContext.TYPE_DESCRIPTOR;
         if (qualifiers.isEmpty()) {
-            return ParserRuleContext.TYPE_DESCRIPTOR;
+            return defaultRecoveryCtx;
         }
 
-        STNode lastQualifier = qualifiers.get(qualifiers.size() - 1);
+        STNode lastQualifier = getLastNodeInList(qualifiers);
         switch (lastQualifier.kind) {
             case ISOLATED_KEYWORD:
                 return ParserRuleContext.TYPE_DESC_WITH_ISOLATED;
             case TRANSACTIONAL_KEYWORD:
                 return ParserRuleContext.FUNC_TYPE_DESC;
-            case ABSTRACT_KEYWORD:
             case SERVICE_KEYWORD:
             case CLIENT_KEYWORD:
-            default:
                 return ParserRuleContext.OBJECT_TYPE_DESCRIPTOR;
+            default:
+                return defaultRecoveryCtx;
         }
     }
 
@@ -4469,7 +4470,7 @@ public class BallerinaParser extends AbstractParser {
         // 1. module variable declaration is not initialized.
         // 2. type descriptor in the typed binding pattern is either object or function type.
         // 3. qualifier list has isolated qualifier as the last token.
-        STNode lastQualifier = varDeclQuals.get(varDeclQuals.size() - 1);
+        STNode lastQualifier = getLastNodeInList(varDeclQuals);
         if (lastQualifier.kind == SyntaxKind.ISOLATED_KEYWORD) {
             lastQualifier = varDeclQuals.remove(varDeclQuals.size() - 1);
             typedBindingPattern =
@@ -10634,7 +10635,12 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse function type descriptor.
      * <p>
-     * <code>function-type-descriptor := [isolated] function function-signature</code>
+     * <code>
+     * function-type-descriptor := function-quals function function-signature 
+     * <br/>&nbsp;| [isolated] function
+     * <br/>
+     * function-quals := (transactional | isolated)*
+     * </code>
      *
      * @param qualifiers Preceding type descriptor qualifiers
      * @return Function type descriptor node
@@ -10644,19 +10650,27 @@ public class BallerinaParser extends AbstractParser {
         STNode qualifierList;
         STNode functionKeyword = parseFunctionKeyword();
         STNode signature;
-        switch (peek().kind) {
-            case OPEN_PAREN_TOKEN:
-                signature = parseFuncSignature(true);
-                qualifierList = createFuncTypeQualNodeList(qualifiers, true);
-                break;
-            default:
-                signature = STNodeFactory.createEmptyNode();
-                qualifierList = createFuncTypeQualNodeList(qualifiers, false);
-                break;
+
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN || isSignatureRequiredInFucType(qualifiers)) {
+            signature = parseFuncSignature(true);
+            qualifierList = createFuncTypeQualNodeList(qualifiers, true);
+        } else {
+            signature = STNodeFactory.createEmptyNode();
+            qualifierList = createFuncTypeQualNodeList(qualifiers, false);
+
         }
 
         endContext();
         return STNodeFactory.createFunctionTypeDescriptorNode(qualifierList, functionKeyword, signature);
+    }
+
+    private boolean isSignatureRequiredInFucType(List<STNode> qualifiers) {
+        return !qualifiers.isEmpty() && getLastNodeInList(qualifiers).kind == SyntaxKind.TRANSACTIONAL_KEYWORD;
+    }
+    
+    private STNode getLastNodeInList(List<STNode> nodeList) {
+        return nodeList.get(nodeList.size() - 1);
     }
 
     private STNode createFuncTypeQualNodeList(List<STNode> qualifierList, boolean hasFuncSignature) {

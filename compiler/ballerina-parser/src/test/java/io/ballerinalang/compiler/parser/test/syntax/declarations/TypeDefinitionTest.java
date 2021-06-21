@@ -45,4 +45,9 @@ public class TypeDefinitionTest extends AbstractDeclarationTest {
         testFile("type-def/type_def_source_03.bal", "type-def/type_def_assert_03.json");
         testFile("type-def/type_def_source_04.bal", "type-def/type_def_assert_04.json");
     }
+
+    @Test
+    public void testTransactionalQualRecovery() {
+        testFile("type-def/type_def_source_05.bal", "type-def/type_def_assert_05.json");
+    }
 }
