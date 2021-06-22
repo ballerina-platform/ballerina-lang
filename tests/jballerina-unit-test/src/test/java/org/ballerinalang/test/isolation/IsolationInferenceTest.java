@@ -104,6 +104,13 @@ public class IsolationInferenceTest {
     }
 
     @Test
+    public void testIsolatedInferenceWithObjectsNegative() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/isolation-analysis/isolation_inference_with_objects_runtime_negative.bal");
+        BRunUtil.invoke(result, "testIsolatedInference");
+    }
+
+    @Test
     public void testIsolatedInferenceWithVariables() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/isolation-analysis/isolation_inference_with_variables.bal");
@@ -191,6 +198,6 @@ public class IsolationInferenceTest {
             }
         }
 
-        return false;
+        throw new RuntimeException("method not found: " + methodNameString);
     }
 }
