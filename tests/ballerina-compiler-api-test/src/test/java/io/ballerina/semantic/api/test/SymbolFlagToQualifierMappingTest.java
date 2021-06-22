@@ -81,7 +81,7 @@ public class SymbolFlagToQualifierMappingTest {
         return new Object[][]{
                 {16, 27, Set.of(LISTENER, FINAL)},
                 {18, 13, Set.of(ISOLATED)},
-                {19, 20, Set.of(PUBLIC)},
+                {19, 20, Set.of(PUBLIC, ISOLATED)},
                 {35, 19, Set.of(READONLY)},
                 {49, 20, Set.of(ISOLATED)},
                 {52, 22, Set.of(READONLY)},
