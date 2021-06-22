@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 6,
-    "character": 56
+    "line": 10,
+    "character": 15
   },
-  "source": "expression_context/source/anon_func_expr_ctx_source8.bal",
+  "source": "expression_context/source/anon_func_expr_ctx_source11.bal",
   "items": [
     {
       "label": "start",
@@ -39,14 +39,6 @@
       "sortText": "Q",
       "filterText": "from",
       "insertText": "from ${1:var} ${2:item} in ${3}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "P",
-      "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -123,7 +115,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "value3",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -137,7 +129,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value as value3 ;\n"
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
         }
       ]
     },
@@ -457,34 +472,42 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "value2",
+      "label": "b",
       "kind": "Variable",
       "detail": "int",
-      "sortText": "AB",
-      "insertText": "value2",
+      "sortText": "D",
+      "insertText": "b",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "value1",
+      "label": "d",
       "kind": "Variable",
-      "detail": "int",
-      "sortText": "AB",
-      "insertText": "value1",
+      "detail": "float[]",
+      "sortText": "D",
+      "insertText": "d",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lambda(int a, int b)(int)",
+      "label": "a",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "D",
+      "insertText": "a",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "x(int, int, string, float)(R1)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` b  \n  \n**Return** `int`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int`  \n- `int`  \n- `string`  \n- `float[]`  \n  \n**Return** `R1`   \n  \n"
         }
       },
       "sortText": "AC",
-      "filterText": "lambda",
-      "insertText": "lambda(${1})",
+      "filterText": "x",
+      "insertText": "x(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -503,23 +526,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "doTask(int a, int c)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` c"
-        }
-      },
-      "sortText": "E",
-      "filterText": "doTask",
-      "insertText": "doTask(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "label": "R1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "AL",
+      "insertText": "R1",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "testFunction()",
@@ -537,11 +549,35 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "FT",
+      "kind": "TypeParameter",
+      "detail": "Function",
+      "sortText": "O",
+      "insertText": "FT",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "c",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "D",
+      "insertText": "c",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
       "sortText": "O",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rec",
+      "kind": "Variable",
+      "detail": "R1",
+      "sortText": "AB",
+      "insertText": "rec",
       "insertTextFormat": "Snippet"
     },
     {
