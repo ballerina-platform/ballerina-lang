@@ -209,9 +209,8 @@ function f2() {
     int x = val is int ? val : 0;
 
     lock {
-        // TODO: fall back to one isolated and one final and readonly/isolated object.
-        // var val = varWithTypeInferredAsIsolated2;
-        // varInferredAsIsolated2.i += val is int ? val : 0;
+        var val2 = varWithTypeInferredAsIsolated2;
+        varInferredAsIsolated2.i += val2 is int ? val2 : 0;
         varInferredAsIsolated2.i += x;
     }
 }

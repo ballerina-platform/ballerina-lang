@@ -3445,8 +3445,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        boolean inferredIsolated = true;
-
         if (isObjectType) {
             if (publiclyExposedObjectTypes.contains(symbol.type)) {
                 return false;
@@ -3529,13 +3527,26 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     }
                 }
             }
+        } else if (isFinalVarOfReadOnlyOrIsolatedObjectTypeWIthInference(publiclyExposedObjectTypes,
+                                                                         classDefinitions, symbol, unresolvedSymbols)) {
+            return true;
         }
 
         for (LockInfo lockInfo : inferenceInfo.accessedLockInfo) {
-            if (!lockInfo.accessedRestrictedVars.isEmpty() ||
-                    lockInfo.accessedPotentiallyIsolatedVars.size() > 1) {
-                inferredIsolated = false;
-                break;
+            if (!lockInfo.accessedRestrictedVars.isEmpty()) {
+                return false;
+            }
+
+            for (BSymbol accessedPotentiallyIsolatedVar : lockInfo.accessedPotentiallyIsolatedVars) {
+                if (accessedPotentiallyIsolatedVar == symbol) {
+                    continue;
+                }
+
+                if (!isFinalVarOfReadOnlyOrIsolatedObjectTypeWIthInference(publiclyExposedObjectTypes, classDefinitions,
+                                                                           accessedPotentiallyIsolatedVar,
+                                                                           unresolvedSymbols)) {
+                    return false;
+                }
             }
 
             for (BLangExpression expr : lockInfo.nonIsolatedTransferInExpressions) {
@@ -3548,42 +3559,40 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
 
-                inferredIsolated = false;
-                break;
+                return false;
             }
 
-            if (inferredIsolated) {
-                for (BLangExpression expr : lockInfo.nonIsolatedTransferOutExpressions) {
-                    if (isIsolatedExpression(expr, false, false, new ArrayList<>(), true, publiclyExposedObjectTypes,
-                            classDefinitions, unresolvedSymbols)) {
-                        continue;
-                    }
-
-                    inferredIsolated = false;
-                    break;
+            for (BLangExpression expr : lockInfo.nonIsolatedTransferOutExpressions) {
+                if (isIsolatedExpression(expr, false, false, new ArrayList<>(), true, publiclyExposedObjectTypes,
+                        classDefinitions, unresolvedSymbols)) {
+                    continue;
                 }
+
+                return false;
             }
 
-            if (inferredIsolated) {
-                for (BLangInvocation nonIsolatedInvocation : lockInfo.nonIsolatedInvocations) {
-                    BSymbol funcSymbol = nonIsolatedInvocation.symbol;
+            for (BLangInvocation nonIsolatedInvocation : lockInfo.nonIsolatedInvocations) {
+                BSymbol funcSymbol = nonIsolatedInvocation.symbol;
 
-                    if (!this.isolationInferenceInfoMap.containsKey(funcSymbol)) {
-                        inferredIsolated = false;
-                        break;
-                    }
-
-                    if (inferFunctionIsolation(funcSymbol, this.isolationInferenceInfoMap.get(funcSymbol),
-                                               publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols)) {
-                        continue;
-                    }
-
-                    inferredIsolated = false;
-                    break;
+                if (!this.isolationInferenceInfoMap.containsKey(funcSymbol)) {
+                    return false;
                 }
+
+                if (inferFunctionIsolation(funcSymbol, this.isolationInferenceInfoMap.get(funcSymbol),
+                                           publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols)) {
+                    continue;
+                }
+
+                return false;
             }
         }
-        return inferredIsolated;
+        return true;
+    }
+
+    private boolean isFinalVarOfReadOnlyOrIsolatedObjectTypeWIthInference(Set<BType> publiclyExposedObjectTypes, List<BLangClassDefinition> classDefinitions, BSymbol symbol, Set<BSymbol> unresolvedSymbols) {
+        return Symbols.isFlagOn(symbol.flags, Flags.FINAL) &&
+                isSubTypeOfReadOnlyOrIsolatedObjectUnionWithInference(publiclyExposedObjectTypes, classDefinitions,
+                                                                      true, symbol.type, unresolvedSymbols);
     }
 
     private boolean isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(Set<BType> publiclyExposedObjectTypes,
