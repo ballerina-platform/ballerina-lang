@@ -636,21 +636,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "age",
-      "kind": "Variable",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
-        }
-      },
-      "sortText": "B",
-      "filterText": "age",
-      "insertText": "age",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "age()(int)",
       "kind": "Function",
       "detail": "Function",
