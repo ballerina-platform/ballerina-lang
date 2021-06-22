@@ -37,8 +37,7 @@ class CompilationOptions {
 
     public CompilationOptions(Boolean skipTests, Boolean offlineBuild, Boolean experimental,
                               Boolean observabilityIncluded, Boolean dumpBir, String dumpBirFile,
-                              String cloud, Boolean listConflictedClasses) {
-                              String cloud, Boolean taintCheck, Boolean listConflictedClasses, Boolean nBal) {
+                              String cloud, Boolean listConflictedClasses, Boolean nBal) {
         this.skipTests = skipTests;
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;

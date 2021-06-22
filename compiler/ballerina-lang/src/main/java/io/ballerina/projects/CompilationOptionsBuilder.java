@@ -80,8 +80,7 @@ class CompilationOptionsBuilder {
 
     public CompilationOptions build() {
         return new CompilationOptions(skipTests, buildOffline, experimental, observabilityIncluded, dumpBir,
-                dumpBirFile, cloud, listConflictedClasses);
-                dumpBirFile, cloud, taintCheck, listConflictedClasses, nBal);
+                dumpBirFile, cloud, listConflictedClasses, nBal);
     }
 
     public CompilationOptionsBuilder nBal(boolean value) {

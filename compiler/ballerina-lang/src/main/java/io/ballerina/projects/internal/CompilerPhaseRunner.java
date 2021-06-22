@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.bir.BIRGen;
 import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
+import org.wso2.ballerinalang.compiler.nballerina.nBallerinaCaller;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
@@ -40,7 +41,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import static org.ballerinalang.compiler.CompilerOptionName.TOOLING_COMPILATION;
-import static org.wso2.ballerinalang.compiler.nballerina.NBallerinaCaller.callnBallerina;
 
 /**
  * This class drives the compilation of packages through various phases
@@ -69,6 +69,7 @@ public class CompilerPhaseRunner {
     private final Desugar desugar;
     private final BIRGen birGenerator;
     private final BIREmitter birEmitter;
+    private final nBallerinaCaller nBalCaller;
     private final CompilerPhase compilerPhase;
     private final DataflowAnalyzer dataflowAnalyzer;
     private final IsolationAnalyzer isolationAnalyzer;
@@ -101,6 +102,7 @@ public class CompilerPhaseRunner {
         this.desugar = Desugar.getInstance(context);
         this.birGenerator = BIRGen.getInstance(context);
         this.birEmitter = BIREmitter.getInstance(context);
+        this.nBalCaller = nBallerinaCaller.getInstance(context);
         this.compilerPhase = this.options.getCompilerPhase();
         this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
         this.isolationAnalyzer = IsolationAnalyzer.getInstance(context);
@@ -111,7 +113,7 @@ public class CompilerPhaseRunner {
         if (this.stopCompilation(pkgNode, CompilerPhase.NBALLERINA)) {
             return;
         }
-        callnBallerina(pkgNode, context);
+        callnBallerina(pkgNode);
     }
 
     public void performTypeCheckPhases(BLangPackage pkgNode) {
@@ -251,6 +253,10 @@ public class CompilerPhaseRunner {
 
     private BLangPackage birEmit(BLangPackage pkgNode) {
         return this.birEmitter.emit(pkgNode);
+    }
+
+    private void callnBallerina(BLangPackage pkgNode) {
+        this.nBalCaller.callnBallerina(pkgNode);
     }
 
     private boolean stopCompilation(BLangPackage pkgNode, CompilerPhase nextPhase) {
