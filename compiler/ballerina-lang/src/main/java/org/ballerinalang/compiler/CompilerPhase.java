@@ -80,6 +80,8 @@ public enum CompilerPhase {
                 return DESUGAR;
             case "codeGen":
                 return CODE_GEN;
+            case "nBallerina":
+                return NBALLERINA;
             case "birGen":
                 return BIR_GEN;
             case "birEmit":

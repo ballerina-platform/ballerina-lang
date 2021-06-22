@@ -136,7 +136,7 @@ public class BuildCommand implements BLauncherCmd {
     private String dumpBIRFile;
 
     @CommandLine.Option(names = "--nballerina", hidden = true)
-    private String nBal;
+    private String nBallerina;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
@@ -308,7 +308,7 @@ public class BuildCommand implements BLauncherCmd {
                 .cloud(cloud)
                 .dumpBir(dumpBIR)
                 .dumpBirFile(dumpBIRFile)
-                .nBal(nBal)
+                .nBallerina(nBallerina)
                 .listConflictedClasses(listConflictedClasses)
                 .build();
     }

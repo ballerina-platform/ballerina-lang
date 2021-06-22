@@ -23,7 +23,7 @@ import org.wso2.ballerinalang.compiler.bir.BIRGen;
 import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
-import org.wso2.ballerinalang.compiler.nballerina.nBallerinaCaller;
+import org.wso2.ballerinalang.compiler.nballerina.NBallerinaCaller;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
@@ -69,11 +69,12 @@ public class CompilerPhaseRunner {
     private final Desugar desugar;
     private final BIRGen birGenerator;
     private final BIREmitter birEmitter;
-    private final nBallerinaCaller nBalCaller;
-    private final CompilerPhase compilerPhase;
+    private final NBallerinaCaller nBalCaller;
+    private CompilerPhase compilerPhase;
     private final DataflowAnalyzer dataflowAnalyzer;
     private final IsolationAnalyzer isolationAnalyzer;
     private boolean isToolingCompilation;
+    public boolean nBal;
 
 
     public static CompilerPhaseRunner getInstance(CompilerContext context) {
@@ -87,6 +88,7 @@ public class CompilerPhaseRunner {
     private CompilerPhaseRunner(CompilerContext context) {
         context.put(COMPILER_DRIVER_KEY, this);
 
+        this.nBal = false;
         this.options = CompilerOptions.getInstance(context);
         this.pkgCache = PackageCache.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
@@ -102,14 +104,14 @@ public class CompilerPhaseRunner {
         this.desugar = Desugar.getInstance(context);
         this.birGenerator = BIRGen.getInstance(context);
         this.birEmitter = BIREmitter.getInstance(context);
-        this.nBalCaller = nBallerinaCaller.getInstance(context);
+        this.nBalCaller = NBallerinaCaller.getInstance(context);
         this.compilerPhase = this.options.getCompilerPhase();
         this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
         this.isolationAnalyzer = IsolationAnalyzer.getInstance(context);
         this.isToolingCompilation = this.options.isSet(TOOLING_COMPILATION)
                 && Boolean.parseBoolean(this.options.get(TOOLING_COMPILATION));
     }
-    public void nBallerinaPhase(BLangPackage pkgNode, CompilerContext context) {
+    public void nBallerinaPhase(BLangPackage pkgNode) {
         if (this.stopCompilation(pkgNode, CompilerPhase.NBALLERINA)) {
             return;
         }
@@ -256,7 +258,7 @@ public class CompilerPhaseRunner {
     }
 
     private void callnBallerina(BLangPackage pkgNode) {
-        this.nBalCaller.callnBallerina(pkgNode);
+        this.nBal = this.nBalCaller.callnBallerina(pkgNode);
     }
 
     private boolean stopCompilation(BLangPackage pkgNode, CompilerPhase nextPhase) {
