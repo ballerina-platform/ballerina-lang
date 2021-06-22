@@ -630,7 +630,7 @@ public class TypeCastExprTest {
         Assert.assertEquals(returns[0].stringValue(), "{name:\"Pubudu\"}");
     }
 
-    @Test(dataProvider = "typesTestExpressionTestFunction")
+    @Test(dataProvider = "typesTestExpressionTestFunctions")
     public void testTypeTestsExpression(String function) {
         BRunUtil.invoke(result, function);
     }
@@ -640,8 +640,8 @@ public class TypeCastExprTest {
         BRunUtil.invoke(result, function);
     }
 
-    @DataProvider(name = "typesTestExpressionTestFunction")
-    public Object[][] typesTestExpressionTestFunction() {
+    @DataProvider(name = "typesTestExpressionTestFunctions")
+    public Object[][] typesTestExpressionTestFunctions() {
         return new Object[][] {
                 { "testByteArrayToIntArray" },
                 { "testSigned32IntArrayToIntArray" },
@@ -651,7 +651,9 @@ public class TypeCastExprTest {
                 { "testCharArrayToStringArray" },
                 { "testMapOfCharToMapOfString" },
                 { "testFiniteTypeArrayToSigned32IntArray" },
-                { "testFiniteTypeToUnsigned32Int" }
+                { "testFiniteTypeArrayToUnsigned32IntArray" },
+                { "testFiniteTypeArrayToSigned16IntArray" },
+                { "testFiniteTypeArrayToUnsigned16IntArray" }
         };
     }
 

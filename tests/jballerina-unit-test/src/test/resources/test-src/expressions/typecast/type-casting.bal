@@ -93,11 +93,25 @@ function testFiniteTypeArrayToSigned32IntArray() {
     test:assertEquals(c, [1, 2]);
 }
 
-function testFiniteTypeToUnsigned32Int() {
-    IntOneOrTwo a = 2;
-    any b = a;
-    int:Unsigned32 c = <int:Unsigned32> b;
-    test:assertEquals(c, 2);
+function testFiniteTypeArrayToUnsigned32IntArray() {
+    IntOneOrTwo[] a = [1, 2];
+    any[] b = a;
+    int:Unsigned32[] c = <int:Unsigned32[]> b;
+    test:assertEquals(c, [1, 2]);
+}
+
+function testFiniteTypeArrayToSigned16IntArray() {
+    IntOneOrTwo[] a = [1, 2];
+    any[] b = a;
+    int:Signed16[] c = <int:Signed16[]> b;
+    test:assertEquals(c, [1, 2]);
+}
+
+function testFiniteTypeArrayToUnsigned16IntArray() {
+    IntOneOrTwo[] a = [1, 2];
+    any[] b = a;
+    int:Unsigned16[] c = <int:Unsigned16[]> b;
+    test:assertEquals(c, [1, 2]);
 }
 
 function testJsonIntToString() returns string|error {
