@@ -127,6 +127,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
@@ -1217,6 +1218,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TABLE_TYPE:
                 checkErrors(env, unresolvedType, ((BLangTableTypeNode) currentTypeOrClassNode).constraint, visitedNodes,
                         true);
+                break;
+            case STREAM_TYPE:
+                checkErrors(env, unresolvedType, ((BLangStreamType) currentTypeOrClassNode).constraint, visitedNodes,
+                        true);
+                BLangType completionType = ((BLangStreamType) currentTypeOrClassNode).error;
+                if (completionType != null) {
+                    checkErrors(env, unresolvedType, completionType, visitedNodes, true);
+                }
                 break;
             case USER_DEFINED_TYPE:
                 checkErrorsOfUserDefinedType(env, unresolvedType, (BLangUserDefinedType) currentTypeOrClassNode,
