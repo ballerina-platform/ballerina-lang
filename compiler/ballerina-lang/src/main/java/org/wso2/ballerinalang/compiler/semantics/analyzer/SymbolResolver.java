@@ -314,6 +314,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     private boolean hasSameOwner(BSymbol symbol, BSymbol foundSym) {
         // check whether the given symbol owner is same as found symbol's owner
         if (foundSym.owner == symbol.owner ||
+                //TODO: remove this, once #26284, #30688 are fixed
                 (foundSym.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE &&
                 (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE &&
                 foundSym.pkgID.equals(symbol.pkgID)) {
