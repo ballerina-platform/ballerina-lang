@@ -33,7 +33,7 @@ class CompilationOptionsBuilder {
     private String dumpBirFile;
     private String cloud;
     private Boolean listConflictedClasses;
-    private Boolean nBal;
+    private String nBal;
 
     public CompilationOptionsBuilder() {
     }
@@ -83,7 +83,7 @@ class CompilationOptionsBuilder {
                 dumpBirFile, cloud, listConflictedClasses, nBal);
     }
 
-    public CompilationOptionsBuilder nBal(boolean value) {
+    public CompilationOptionsBuilder nBal(String value) {
         nBal = value;
         return this;
     }

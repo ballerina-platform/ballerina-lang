@@ -33,11 +33,11 @@ class CompilationOptions {
     private String dumpBirFile;
     private String cloud;
     private Boolean listConflictedClasses;
-    private Boolean nBal;
+    private String nBal;
 
     public CompilationOptions(Boolean skipTests, Boolean offlineBuild, Boolean experimental,
                               Boolean observabilityIncluded, Boolean dumpBir, String dumpBirFile,
-                              String cloud, Boolean listConflictedClasses, Boolean nBal) {
+                              String cloud, Boolean listConflictedClasses, String nBal) {
         this.skipTests = skipTests;
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
@@ -119,7 +119,7 @@ class CompilationOptions {
         return value;
     }
 
-    public boolean getnBal() {
-        return toBooleanDefaultIfNull(nBal);
+    public String getnBal() {
+        return nBal;
     }
 }

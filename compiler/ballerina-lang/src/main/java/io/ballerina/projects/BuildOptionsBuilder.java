@@ -88,7 +88,7 @@ public class BuildOptionsBuilder {
         return new BuildOptions(testReport, codeCoverage, compilationOptions);
     }
 
-    public BuildOptionsBuilder nBal(boolean value) {
+    public BuildOptionsBuilder nBal(String value) {
         compilationOptionsBuilder.nBal(value);
         return this;
     }

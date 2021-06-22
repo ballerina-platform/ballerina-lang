@@ -136,7 +136,7 @@ public class BuildCommand implements BLauncherCmd {
     private String dumpBIRFile;
 
     @CommandLine.Option(names = "--nballerina", hidden = true)
-    private boolean nBal;
+    private String nBal;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;

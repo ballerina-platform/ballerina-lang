@@ -10,7 +10,6 @@ import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.FutureValue;
 import org.ballerinalang.compiler.CompilerOptionName;
-import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -23,10 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
-import java.util.*;
 import java.util.function.Function;
-
-import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getBooleanValueIfSet;
 
 /**
  * Call nBallerina backend.
@@ -34,7 +30,7 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getBooleanValue
 public class nBallerinaCaller {
     private  final PrintStream console = System.out;
     private static final CompilerContext.Key<nBallerinaCaller> NBALLERINA = new CompilerContext.Key<>();
-    private boolean nBal;
+    private String nBal;
 
     public static nBallerinaCaller getInstance(CompilerContext context) {
         nBallerinaCaller nbalCaller = context.get(NBALLERINA);
@@ -47,12 +43,12 @@ public class nBallerinaCaller {
     private nBallerinaCaller(CompilerContext context) {
         context.put(NBALLERINA, this);
         CompilerOptions compilerOptions = CompilerOptions.getInstance(context);
-        this.nBal = getBooleanValueIfSet(compilerOptions, CompilerOptionName.NBALLERINA);
+        this.nBal = compilerOptions.get(CompilerOptionName.NBALLERINA);
     }
 
     public  void callnBallerina(BLangPackage pkgNode)  {
-        if (nBal) {
-            File path = new File("/home/ushira/WSO2/Parse/Parse/build/nballerina.jar");
+        if (nBal != null) {
+            File path = new File(nBal);
             try {
                 URLClassLoader cl = new URLClassLoader(new URL[]{path.toURI().toURL()});
 
