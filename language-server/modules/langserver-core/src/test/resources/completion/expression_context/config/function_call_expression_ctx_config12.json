@@ -472,79 +472,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getString(string myStr)(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` myStr  \n  \n**Return** `string`   \n  \n"
-        }
-      },
-      "sortText": "B",
-      "filterText": "getString",
-      "insertText": "getString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "myStr",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "A",
-      "insertText": "myStr",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "coordinates",
-      "kind": "Variable",
-      "detail": "Coordinates",
-      "sortText": "D",
-      "insertText": "coordinates",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myFunction(function () returns string func, string city, Coordinates coordinates)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `function () returns string` func  \n- `string` city  \n- `Coordinates` coordinates"
-        }
-      },
-      "sortText": "E",
-      "filterText": "myFunction",
-      "insertText": "myFunction(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "N",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "city",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "A",
-      "insertText": "city",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "func()(string)",
       "kind": "Function",
       "detail": "Function",
@@ -554,9 +481,17 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
         }
       },
-      "sortText": "B",
+      "sortText": "AC",
       "filterText": "func",
       "insertText": "func()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myStr",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "AB",
+      "insertText": "myStr",
       "insertTextFormat": "Snippet"
     },
     {
@@ -579,8 +514,73 @@
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
-      "sortText": "O",
+      "sortText": "AM",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getString(string myStr)(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` myStr  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "AC",
+      "filterText": "getString",
+      "insertText": "getString(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "city",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "AB",
+      "insertText": "city",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myFunction(function () returns string func, string city, Coordinates coordinates)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `function () returns string` func  \n- `string` city  \n- `Coordinates` coordinates"
+        }
+      },
+      "sortText": "E",
+      "filterText": "myFunction",
+      "insertText": "myFunction(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "coordinates",
+      "kind": "Variable",
+      "detail": "Coordinates",
+      "sortText": "D",
+      "insertText": "coordinates",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "N",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
