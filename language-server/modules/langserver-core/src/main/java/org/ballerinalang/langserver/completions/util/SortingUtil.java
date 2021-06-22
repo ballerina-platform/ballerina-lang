@@ -92,7 +92,8 @@ public class SortingUtil {
      */
     public static boolean isTypeCompletionItem(LSCompletionItem item) {
         return (item.getType() == LSCompletionItem.CompletionItemType.SYMBOL
-                && ((SymbolCompletionItem) item).getSymbol().orElse(null) instanceof TypeSymbol)
+                && (((SymbolCompletionItem) item).getSymbol().orElse(null) instanceof TypeSymbol
+                || ((SymbolCompletionItem) item).getSymbol().orElse(null) instanceof TypeDefinitionSymbol))
                 || (item instanceof StaticCompletionItem
                 && ((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.TYPE);
     }
