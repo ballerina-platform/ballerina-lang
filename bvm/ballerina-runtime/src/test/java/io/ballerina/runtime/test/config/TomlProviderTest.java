@@ -800,4 +800,25 @@ public class TomlProviderTest {
             }
         }
     }
+
+    @Test
+    public void testAdditionalFieldsInOpenRecords() {
+        RecordType recordType = TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY,
+                new HashMap<>(), TYPE_ANYDATA, false, 6);
+        VariableKey recordVar = new VariableKey(ROOT_MODULE, "recordVar", recordType, true);
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(Map.ofEntries(Map.entry(ROOT_MODULE,
+                new VariableKey[]{recordVar})), diagnosticLog, List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath(
+                "OpenRecordConfig.toml"), Set.of(ROOT_MODULE))));
+        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
+        Object recordValue = configValueMap.get(recordVar);
+        Assert.assertTrue(recordValue instanceof BMap<?, ?>, "Non-map value received");
+        BMap<?, ?> record = (BMap<?, ?>) recordValue;
+        Assert.assertEquals(record.getIntValue(fromString("intValue")), (Long) 25L);
+        Assert.assertEquals(record.getFloatValue(fromString("floatValue")), 25.54);
+        Assert.assertEquals(record.getStringValue(fromString("stringValue")), fromString("test"));
+        Assert.assertEquals(record.getBooleanValue(fromString("booleanValue")), (Boolean) true);
+    }
 }

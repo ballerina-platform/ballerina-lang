@@ -195,9 +195,8 @@ public class TomlProviderNegativeTest {
                         ".name' is expected to be of type 'string', but found 'int'", 1},
                 {"RecordFieldStructureError", "[RecordFieldStructureError.toml:(2:1,2:24)] configurable variable " +
                         "'recordVar.name' is expected to be of type 'string', but found 'record'", 0},
-                {"AdditionalFieldRecord", "[AdditionalFieldRecord.toml:(3:1,3:9)] additional field 'age' provided for" +
-                        " configurable variable 'recordVar' of record 'test_module:Person' is not " +
-                        "supported", 0},
+                {"AdditionalFieldRecord", "[AdditionalFieldRecord.toml:(3:1,3:9)] undefined field 'age' provided for " +
+                        "closed record 'test_module:Person'", 0},
                 {"MissingRecordField", "[MissingRecordField.toml:(1:1,1:24)] value not provided for non-defaultable " +
                         "required field 'name' of record 'test_module:Person' in configurable variable " +
                         "'recordVar'", 0},
@@ -254,9 +253,8 @@ public class TomlProviderNegativeTest {
                         "is expected to be of type 'string', but found 'int'", 2},
                 {"TableFieldStructureError", "[TableFieldStructureError.toml:(2:1,2:24)] configurable variable " +
                         "'tableVar.name' is expected to be of type 'string', but found 'record'", 1},
-                {"AdditionalField", "[AdditionalField.toml:(4:1,4:17)] additional field 'city' provided for" +
-                        " configurable variable 'tableVar' of record 'test_module:Person'" +
-                        " is not supported", 0},
+                {"AdditionalField", "[AdditionalField.toml:(4:1,4:17)] undefined field 'city' provided for closed " +
+                        "record 'test_module:Person'", 0},
                 {"MissingTableField", "[MissingTableField.toml:(1:1,3:9)] value not provided for " +
                         "non-defaultable required field 'id' of record 'test_module:Person' in configurable" +
                         " variable 'tableVar'", 0},

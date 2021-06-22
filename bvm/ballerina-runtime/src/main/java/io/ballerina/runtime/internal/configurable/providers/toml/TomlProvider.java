@@ -45,7 +45,6 @@ import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
-import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
@@ -667,15 +666,15 @@ public class TomlProvider implements ConfigProvider {
     }
 
     private BArray getUnionValueArray(TomlNode tomlValue, String variableName, ArrayType arrayType, Type elementType) {
-        TomlValueNode tomlNode = ((TomlKeyValueNode) tomlValue).value();
+        TomlValueNode valueNode = ((TomlKeyValueNode) tomlValue).value();
         ListInitialValueEntry.ExpressionEntry[] expressionEntries;
-        if (tomlNode.kind() != getEffectiveTomlType(arrayType, variableName)) {
+        if (valueNode.kind() != getEffectiveTomlType(arrayType, variableName)) {
             invalidTomlLines.add(tomlValue.location().lineRange());
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName, arrayType,
                                       getTomlTypeString(tomlValue));
         }
         visitedNodes.add(tomlValue);
-        List<TomlValueNode> arrayList = ((TomlArrayValueNode) tomlNode).elements();
+        List<TomlValueNode> arrayList = ((TomlArrayValueNode) valueNode).elements();
         expressionEntries = createArray(variableName, arrayList, elementType);
         return new ArrayValueImpl(arrayType, expressionEntries.length, expressionEntries);
     }
@@ -748,9 +747,14 @@ public class TomlProvider implements ConfigProvider {
             Field field = recordType.getFields().get(fieldName);
             TomlNode value = tomlField.getValue();
             if (field == null) {
-                invalidTomlLines.add(value.location().lineRange());
-                throw new ConfigException(CONFIG_TOML_INVALID_ADDTIONAL_RECORD_FIELD, getLineRange(value), fieldName,
-                                          variableName, recordType.toString());
+                if (recordType.isSealed()) {
+                    // Panic if this record type is closed and user adds a new field.
+                    invalidTomlLines.add(value.location().lineRange());
+                    throw new ConfigException(CONFIG_TOML_INVALID_ADDTIONAL_RECORD_FIELD, getLineRange(value),
+                            fieldName, recordType.toString());
+                }
+                Type fieldType = Utils.getTypeFromTomlValue(value);
+                field = TypeCreator.createField(fieldType, fieldName, SymbolFlags.READONLY);
             }
             Type fieldType = field.getFieldType();
             Object objectValue = retrieveValue(value, variableName + "." + fieldName, fieldType);
@@ -829,7 +833,7 @@ public class TomlProvider implements ConfigProvider {
             constraintType = ((IntersectionType) constraintType).getEffectiveType();
         }
         TableType type = TypeCreator.createTableType(constraintType, keys, true);
-        return new TableValueImpl<>((BTableType) type, tableData, keyNames);
+        return new TableValueImpl<>(type, tableData, keyNames);
     }
 
     private void validateKeyField(TomlTableNode recordTable, String[] fieldNames, Type tableType,
