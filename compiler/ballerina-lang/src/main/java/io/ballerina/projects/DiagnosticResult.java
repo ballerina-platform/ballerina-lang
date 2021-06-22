@@ -111,7 +111,7 @@ public abstract class DiagnosticResult {
 
     private Collection<Diagnostic> getInternalExcluded(Collection<Diagnostic> diagnostics) {
         if (internalExcluded != null) {
-            return hints;
+            return internalExcluded;
         }
 
         internalExcluded = Diagnostics.excludeInternal(diagnostics);
