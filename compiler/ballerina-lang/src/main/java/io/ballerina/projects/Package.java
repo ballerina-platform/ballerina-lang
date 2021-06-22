@@ -2,6 +2,7 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.internal.ManifestBuilder;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -420,13 +421,24 @@ public class Package {
 
             DependencyGraph<ResolvedPackageDependency> newDepGraph = this.project.currentPackage().getResolution()
                     .dependencyGraph();
-            if (!this.dependencyGraph.difference(newDepGraph).isEmpty()) {
-                // A non-empty diff means deletion of nodes from the old graph is
-                // required to get the new graph, hence we flush out the package cache.
+            Set<ResolvedPackageDependency> diff = this.dependencyGraph.difference(newDepGraph);
+            if (!diff.isEmpty()) {
+                // A non-empty diff means deletion of nodes from the old graph is required
+                // to get the new graph, hence we remove these modules from the package caches.
                 CompilerContext compilerContext = project.projectEnvironmentContext()
                         .getService(CompilerContext.class);
                 PackageCache packageCache = PackageCache.getInstance(compilerContext);
-                packageCache.flush();
+                for (ResolvedPackageDependency dependency : diff) {
+                    for (ModuleId moduleId : dependency.packageInstance().moduleIds()) {
+                        Module module = dependency.packageInstance().module(moduleId);
+                        PackageID packageID = module.descriptor().moduleCompilationId();
+                        // remove the module from the compiler packageCache
+                        packageCache.remove(packageID);
+                        // we need to also reset the module in the project environment packageCache
+                        // to make the module recompile and add symbols
+                        module.modify().apply();
+                    }
+                }
             }
             return this.project.currentPackage();
         }
