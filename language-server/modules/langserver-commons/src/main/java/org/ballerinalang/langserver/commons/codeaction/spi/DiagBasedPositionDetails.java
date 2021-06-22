@@ -46,10 +46,10 @@ public interface DiagBasedPositionDetails {
     Symbol matchedSymbol();
 
     /**
-     * Returns optional symbol of the diagnostic property.
+     * Returns optional value of the diagnostic property.
      *
      * @param propertyIndex property index
-     * @return {@link TypeSymbol}
+     * @return Value of the property at given index
      */
-    Optional<TypeSymbol> diagnosticProperty(int propertyIndex);
+    <T> Optional<T> diagnosticProperty(int propertyIndex);
 }

@@ -15,15 +15,19 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
-import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.text.LinePosition;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
@@ -33,6 +37,8 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.model.Name;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -41,7 +47,7 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
@@ -63,32 +69,57 @@ public class ImplementMethodCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!(diagnostic.message().startsWith(CommandConstants.NO_IMPL_FOUND_FOR_METHOD))) {
+        List<String> diagnosticCodes = List.of(
+                DiagnosticErrorCode.UNIMPLEMENTED_REFERENCED_METHOD_IN_CLASS.diagnosticId(),
+                DiagnosticErrorCode.UNIMPLEMENTED_REFERENCED_METHOD_IN_SERVICE_DECL.diagnosticId(),
+                DiagnosticErrorCode.UNIMPLEMENTED_REFERENCED_METHOD_IN_OBJECT_CTOR.diagnosticId()
+        );
+
+        if (!diagnosticCodes.contains(diagnostic.diagnosticInfo().code())) {
             return Collections.emptyList();
         }
 
-        String methodName;
-        Matcher matcher = CommandConstants.NO_IMPL_FOUND_FOR_FUNCTION_PATTERN.matcher(diagnostic.message());
-        if (matcher.find() && matcher.groupCount() > 1) {
-            methodName = matcher.group(1);
+        Optional<Name> methodName = positionDetails.diagnosticProperty(0);
+        Optional<TypeSymbol> optionalSymbol = positionDetails.diagnosticProperty(1);
+        if (context.currentSyntaxTree().isEmpty() || methodName.isEmpty() || optionalSymbol.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        TypeSymbol rawType = CommonUtil.getRawType(optionalSymbol.get());
+        if (rawType.typeKind() != TypeDescKind.OBJECT) {
+            return Collections.emptyList();
+        }
+
+        ObjectTypeSymbol classSymbol = (ObjectTypeSymbol) rawType;
+        if (!classSymbol.methods().containsKey(methodName.get().getValue())) {
+            return Collections.emptyList();
+        }
+
+        Node matchedNode = CommonUtil.findNode(classSymbol, context.currentSyntaxTree().get());
+        if (matchedNode == null) {
+            return Collections.emptyList();
+        }
+
+        LinePosition editPosition;
+        NodeList<Node> members;
+        if (matchedNode.kind() == SyntaxKind.CLASS_DEFINITION) {
+            ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) matchedNode;
+            members = classDefinitionNode.members();
+            editPosition = classDefinitionNode.closeBrace().lineRange().startLine();
+        } else if (matchedNode.kind() == SyntaxKind.SERVICE_DECLARATION) {
+            ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) matchedNode;
+            members = serviceDeclarationNode.members();
+            editPosition = serviceDeclarationNode.closeBraceToken().lineRange().startLine();
+        } else if (matchedNode.kind() == SyntaxKind.OBJECT_CONSTRUCTOR) {
+            ObjectConstructorExpressionNode objConstructor = (ObjectConstructorExpressionNode) matchedNode;
+            members = objConstructor.members();
+            editPosition = objConstructor.closeBraceToken().lineRange().startLine();
         } else {
             return Collections.emptyList();
         }
 
-        Node matchedNode = positionDetails.matchedNode();
-        Symbol matchedSymbol = positionDetails.matchedSymbol();
-        if (!(matchedNode.kind() == SyntaxKind.CLASS_DEFINITION && matchedSymbol.kind() == SymbolKind.CLASS)) {
-            return Collections.emptyList();
-        }
-        ClassDefinitionNode classDefNode = (ClassDefinitionNode) matchedNode;
-        ClassSymbol classSymbol = (ClassSymbol) matchedSymbol;
-
-        if (!classSymbol.methods().containsKey(methodName)) {
-            return Collections.emptyList();
-        }
-
-        MethodSymbol unimplMethod = classSymbol.methods().get(methodName);
-        List<FunctionDefinitionNode> concreteMethods = classDefNode.members().stream()
+        MethodSymbol unimplMethod = classSymbol.methods().get(methodName.get().getValue());
+        List<FunctionDefinitionNode> concreteMethods = members.stream()
                 .filter(member -> member.kind() == SyntaxKind.FUNCTION_DEFINITION)
                 .map(member -> (FunctionDefinitionNode) member)
                 .collect(Collectors.toList());
@@ -100,14 +131,14 @@ public class ImplementMethodCodeAction extends AbstractCodeActionProvider {
             offsetStr = StringUtils.repeat(' ', funcDefNode.location().lineRange().endLine().offset());
         } else {
             // Or else, adjust offset according to the parent class
-            offsetStr = StringUtils.repeat(' ', classDefNode.location().lineRange().startLine().offset() + 4);
+            offsetStr = StringUtils.repeat(' ', matchedNode.location().lineRange().startLine().offset() + 4);
         }
 
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
         String typeName = FunctionGenerator.processModuleIDsInText(importsAcceptor, unimplMethod.signature(), context);
         List<TextEdit> edits = new ArrayList<>(importsAcceptor.getNewImportTextEdits());
         String editText = offsetStr + typeName + " {" + LINE_SEPARATOR + offsetStr + "}" + LINE_SEPARATOR;
-        Position editPos = CommonUtil.toPosition(classDefNode.closeBrace().lineRange().startLine());
+        Position editPos = CommonUtil.toPosition(editPosition);
         edits.add(new TextEdit(new Range(editPos, editPos), editText));
         String commandTitle = String.format(CommandConstants.IMPLEMENT_FUNCS_TITLE, unimplMethod.getName().get());
         CodeAction quickFixCodeAction = createQuickFixCodeAction(commandTitle, edits, context.fileUri());
