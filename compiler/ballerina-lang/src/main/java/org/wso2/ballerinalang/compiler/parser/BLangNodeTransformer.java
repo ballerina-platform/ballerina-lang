@@ -460,6 +460,7 @@ import java.util.regex.Matcher;
 
 import static org.ballerinalang.model.elements.Flag.INCLUDED;
 import static org.ballerinalang.model.elements.Flag.ISOLATED;
+import static org.ballerinalang.model.elements.Flag.OBJECT_CTOR;
 import static org.ballerinalang.model.elements.Flag.SERVICE;
 import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
@@ -1113,7 +1114,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangClassDefinition transformObjectCtorExpressionBody(NodeList<Node> members) {
         BLangClassDefinition classDefinition = (BLangClassDefinition) TreeBuilder.createClassDefNode();
         classDefinition.flagSet.add(Flag.ANONYMOUS);
-        classDefinition.flagSet.add(Flag.OBJECT_CTOR);
+        classDefinition.flagSet.add(OBJECT_CTOR);
 
         for (Node node : members) {
             BLangNode bLangNode = node.apply(this);
@@ -1122,6 +1123,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 BLangFunction bLangFunction = (BLangFunction) bLangNode;
                 bLangFunction.attachedFunction = true;
                 bLangFunction.flagSet.add(Flag.ATTACHED);
+                bLangFunction.flagSet.add(OBJECT_CTOR);
                 if (!Names.USER_DEFINED_INIT_SUFFIX.value.equals(bLangFunction.name.value)) {
                     classDefinition.addFunction(bLangFunction);
                     continue;
@@ -1137,6 +1139,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLangFunction.objInitFunction = true;
                 classDefinition.initFunction = bLangFunction;
             } else if (nodeKind == NodeKind.VARIABLE) {
+                ((BLangSimpleVariable) bLangNode).flagSet.add(OBJECT_CTOR);
                 classDefinition.addField((BLangSimpleVariable) bLangNode);
             } else if (nodeKind == NodeKind.USER_DEFINED_TYPE) {
                 dlog.error(bLangNode.pos, DiagnosticErrorCode.OBJECT_CTOR_DOES_NOT_SUPPORT_TYPE_REFERENCE_MEMBERS);
@@ -1174,6 +1177,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
         anonClass.setName(anonTypeGenName);
         anonClass.flagSet.add(Flag.PUBLIC);
+        anonClass.flagSet.add(OBJECT_CTOR);
 
         Optional<TypeDescriptorNode> typeReference = objectConstructorExpressionNode.typeReference();
         typeReference.ifPresent(typeReferenceNode -> {
@@ -3809,6 +3813,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
         anonClassDef.setName(anonTypeGenName);
         anonClassDef.flagSet.add(Flag.PUBLIC);
+        anonClassDef.flagSet.add(OBJECT_CTOR);
 
         Optional<TypeDescriptorNode> typeReference = serviceDeclarationNode.typeDescriptor();
         typeReference.ifPresent(typeReferenceNode -> {
@@ -3904,17 +3909,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 BLangFunction bLangFunction = (BLangFunction) bLangNode;
                 bLangFunction.attachedFunction = true;
                 bLangFunction.flagSet.add(Flag.ATTACHED);
-                if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(bLangFunction.name.value)) {
-                    if (blangClass.initFunction == null) {
-                        bLangFunction.objInitFunction = true;
-                        // TODO: verify removing NULL check for blangClass.initFunction has no side-effects
-                        blangClass.initFunction = bLangFunction;
-                    } else {
-                        blangClass.addFunction(bLangFunction);
-                    }
-                } else {
+                if (!Names.USER_DEFINED_INIT_SUFFIX.value.equals(bLangFunction.name.value)) {
                     blangClass.addFunction(bLangFunction);
+                    continue;
                 }
+                if (blangClass.initFunction != null) {
+                    blangClass.addFunction(bLangFunction);
+                    continue;
+                }
+                bLangFunction.objInitFunction = true;
+                blangClass.initFunction = bLangFunction;
             } else if (bLangNode.getKind() == NodeKind.VARIABLE) {
                 blangClass.addField((BLangSimpleVariable) bLangNode);
             } else if (bLangNode.getKind() == NodeKind.USER_DEFINED_TYPE) {

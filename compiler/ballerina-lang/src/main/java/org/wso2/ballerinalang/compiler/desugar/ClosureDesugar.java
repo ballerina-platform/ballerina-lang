@@ -229,11 +229,20 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         // Update function parameters.
         pkgNode.functions.forEach(this::updateFunctionParams);
-        pkgNode.typeDefinitions.stream()
-                .filter(typeDef -> typeDef.typeNode.getKind() == NodeKind.RECORD_TYPE)
-                .forEach(this::updateRecordInitFunction);
+        for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
+            if (typeDef.typeNode.getKind() == NodeKind.RECORD_TYPE) {
+                updateRecordInitFunction(typeDef);
+            }
+            if (typeDef.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+                updateObjectInitFunction(typeDef);
+            }
+        }
 
         result = pkgNode;
+    }
+
+    private void updateObjectInitFunction(BLangTypeDefinition typeDef) {
+
     }
 
     @Override
@@ -287,7 +296,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockFunctionBody body) {
-        SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(body, env);
+         SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(body, env);
         blockClosureMapCount++;
         body.stmts = rewriteStmt(body.stmts, blockEnv);
 
