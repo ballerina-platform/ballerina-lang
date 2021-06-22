@@ -64,6 +64,8 @@ public class EvaluationUtils {
 
     // Ballerina runtime helper classes
     private static final String RUNTIME_HELPER_PREFIX = "io.ballerina.runtime.";
+    public static final String B_DEBUGGER_HELPER_UTILS_CLASS = RUNTIME_HELPER_PREFIX + "internal.util." +
+            "DebuggerRuntimeHelperUtils";
     public static final String B_TYPE_CHECKER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeChecker";
     public static final String B_TYPE_CREATOR_CLASS = RUNTIME_HELPER_PREFIX + "api.creators.TypeCreator";
     public static final String B_TYPE_CONVERTER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeConverter";
@@ -74,6 +76,7 @@ public class EvaluationUtils {
     public static final String B_DECIMAL_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.DecimalValue";
     public static final String B_XML_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.XmlValue";
     public static final String B_STRING_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BString";
+    public static final String B_OBJECT_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BObject";
     public static final String B_TYPE_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type";
     public static final String B_TYPE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type[]";
     private static final String B_LINK_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BLink";
@@ -81,6 +84,7 @@ public class EvaluationUtils {
 
     // Java runtime helper classes
     public static final String JAVA_OBJECT_CLASS = "java.lang.Object";
+    public static final String JAVA_OBJECT_ARRAY_CLASS = JAVA_OBJECT_CLASS + "[]";
     public static final String JAVA_STRING_CLASS = "java.lang.String";
     private static final String JAVA_BOOLEAN_CLASS = "java.lang.Boolean";
     private static final String JAVA_INT_CLASS = "java.lang.Integer";
@@ -123,14 +127,16 @@ public class EvaluationUtils {
     public static final String VALUE_EQUAL_METHOD = "isEqual";
     public static final String XML_CONCAT_METHOD = "concatenate";
     public static final String STRING_TO_XML_METHOD = "stringToXml";
-    private static final String B_STRING_CONCAT_METHOD = "concat";
+    public static final String INVOKE_OBJECT_METHOD_ASYNC = "invokeObjectMethodAsync";
     static final String FROM_STRING_METHOD = "fromString";
+    private static final String B_STRING_CONCAT_METHOD = "concat";
     private static final String FOR_NAME_METHOD = "forName";
     private static final String GET_STRING_VALUE_METHOD = "getStringValue";
     private static final String INT_VALUE_METHOD = "intValue";
     private static final String LONG_VALUE_METHOD = "longValue";
     private static final String FLOAT_VALUE_METHOD = "floatValue";
     private static final String DOUBLE_VALUE_METHOD = "doubleValue";
+
     // Misc
     public static final String STRAND_VAR_NAME = "__strand";
     public static final String REST_ARG_IDENTIFIER = "...";

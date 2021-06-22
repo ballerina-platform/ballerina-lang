@@ -16,16 +16,23 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine.invokable;
 
-import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.variable.VariableFactory;
+import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_HELPER_UTILS_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_OBJECT_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.INVOKE_OBJECT_METHOD_ASYNC;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
 
 /**
  * JVM generated instance method representation of a ballerina function.
@@ -48,12 +55,20 @@ public class GeneratedInstanceMethod extends GeneratedMethod {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR
                         .getString(), methodRef.name()));
             }
-            List<Value> argValueList = getMethodArgs(this);
-            return ((ObjectReference) objectValueRef).invokeMethod(context.getOwningThread().getThreadReference(),
-                    methodRef, argValueList, ObjectReference.INVOKE_SINGLE_THREADED);
-        } catch (ClassNotLoadedException e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(),
-                    methodRef.name(), VariableFactory.getVariable(context, objectValueRef).computeValue()));
+
+            List<String> argTypeList = new ArrayList<>();
+            argTypeList.add(B_OBJECT_CLASS);
+            argTypeList.add(JAVA_STRING_CLASS);
+            argTypeList.add(JAVA_OBJECT_ARRAY_CLASS);
+            RuntimeStaticMethod scheduleMethod = EvaluationUtils.getRuntimeMethod(context,
+                    B_DEBUGGER_HELPER_UTILS_CLASS, INVOKE_OBJECT_METHOD_ASYNC, argTypeList);
+
+            List<Value> scheduleMethodArgs = new ArrayList<>();
+            scheduleMethodArgs.add(objectValueRef);
+            scheduleMethodArgs.add(EvaluationUtils.getAsJString(context, methodRef.name()));
+            scheduleMethodArgs.addAll(getMethodArgs(this));
+            scheduleMethod.setArgValues(scheduleMethodArgs);
+            return scheduleMethod.invoke();
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {

@@ -33,6 +33,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
+import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 
 import java.util.ArrayList;
@@ -119,7 +120,16 @@ public abstract class GeneratedMethod extends JvmMethod {
                         }
                     }
                 }
-                return argValueList;
+
+                // Primitive argument values should be converted into `java.lang.Object` instances before passing into the
+                // JVM object method.
+                return argValueList.stream().map(value -> {
+                    try {
+                        return EvaluationUtils.getValueAsObject(context, value);
+                    } catch (EvaluationException e) {
+                        return null;
+                    }
+                }).collect(Collectors.toList());
             }
 
             // Evaluates all function argument expressions at first.
@@ -129,12 +139,15 @@ public abstract class GeneratedMethod extends JvmMethod {
                 argValueList.add(VMUtils.make(context, true).getJdiValue());
             }
 
-            // Todo - IMPORTANT: Add remaining steps to validate and match named, defaultable and rest args
-            // Todo - verify
-            // Here we use the existing strand instance to execute the function invocation expression.
-            Value strand = getCurrentStrand();
-            argValueList.add(0, strand);
-            return argValueList;
+            // Primitive argument values should be converted into `java.lang.Object` instances before passing into the
+            // JVM object method.
+            return argValueList.stream().map(value -> {
+                try {
+                    return EvaluationUtils.getValueAsObject(context, value);
+                } catch (EvaluationException e) {
+                    return null;
+                }
+            }).collect(Collectors.toList());
         } catch (ClassNotLoadedException | AbsentInformationException e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString(),
                     methodRef.name()));

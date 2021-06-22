@@ -19,7 +19,9 @@ package org.ballerinalang.debugadapter.evaluation.engine.expression;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
+import com.sun.jdi.Type;
 import com.sun.jdi.Value;
+import com.sun.jdi.VirtualMachine;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
@@ -111,8 +113,12 @@ public class MethodCallExpressionEvaluator extends Evaluator {
                 invocationResult = invokeObjectMethod(resultVar);
             }
 
-            // Otherwise, try matching lang-lib methods.
             if (invocationResult == null) {
+                return new BExpressionValue(context, null);
+            }
+
+            // Otherwise, try matching lang-lib methods.
+            if (invocationResult.virtualMachine() == null && invocationResult.type() == null) {
                 invocationResult = invokeLangLibMethod(result);
             }
 
@@ -156,15 +162,13 @@ public class MethodCallExpressionEvaluator extends Evaluator {
 
             Optional<MethodSymbol> objectMethodDef = findObjectMethodInClass(classDef.get(), methodName);
             if (objectMethodDef.isEmpty()) {
-                throw new EvaluationException(
-                        String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(),
-                                methodName.trim(), className));
+                throw new EvaluationException(String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(),
+                        methodName.trim(), className));
             }
 
             isFoundObjectMethod = true;
             GeneratedInstanceMethod objectMethod = getObjectMethodByName(resultVar, methodName);
-            objectMethod.setNamedArgValues(generateNamedArgs(context, methodName, objectMethodDef.get().
-                    typeDescriptor(), argEvaluators));
+            objectMethod.setArgEvaluators(argEvaluators);
             return objectMethod.invokeSafely();
         } catch (EvaluationException e) {
             // If the object method is not found, we have to ignore the Evaluation Exception and try to find any
@@ -172,8 +176,21 @@ public class MethodCallExpressionEvaluator extends Evaluator {
             if (isFoundObjectMethod) {
                 throw e;
             }
+
+            // Returning an empty value, as returning `null` in here might lead to unexpected results, as the method
+            // invocation can also return null if the program output is nil.
+            return new Value() {
+                @Override
+                public Type type() {
+                    return null;
+                }
+
+                @Override
+                public VirtualMachine virtualMachine() {
+                    return null;
+                }
+            };
         }
-        return null;
     }
 
     private Value invokeLangLibMethod(BExpressionValue resultVar) throws EvaluationException {
