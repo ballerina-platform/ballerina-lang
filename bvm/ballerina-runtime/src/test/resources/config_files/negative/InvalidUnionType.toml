@@ -1,0 +1,6 @@
+[org.mod1]
+floatUnionVar=2.34
+
+[org.mod1.ambiguousUnionVar]
+name = "Waruna"
+

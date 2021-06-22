@@ -178,7 +178,7 @@ public class PredefinedTypes {
     public static final BUnionType TYPE_JSON_FLOAT;
 
     public static final RecordType STRING_ITR_NEXT_RETURN_TYPE =
-            IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_STRING);
+            IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_STRING_CHAR);
 
     public static final RecordType XML_ITR_NEXT_RETURN_ELEMENT_TYPE =
             IteratorUtils.createIteratorNextReturnType(TYPE_ELEMENT);

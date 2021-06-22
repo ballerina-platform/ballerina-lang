@@ -472,14 +472,18 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
+      "label": "main()",
+      "kind": "Function",
+      "detail": "Function",
       "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
       },
-      "sortText": "N",
-      "insertText": "StrandData",
+      "sortText": "AC",
+      "filterText": "main",
+      "insertText": "main()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -494,23 +498,8 @@
       "label": "result",
       "kind": "Variable",
       "detail": "error?",
-      "sortText": "A",
+      "sortText": "AB",
       "insertText": "result",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "main()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "B",
-      "filterText": "main",
-      "insertText": "main()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -519,6 +508,17 @@
       "detail": "Union",
       "sortText": "O",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "N",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
