@@ -1763,6 +1763,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                                    env.enclPkg.symbol.pkgID, null, env.scope.owner,
                                                                    workerNode.pos, SOURCE);
         workerSymbol.markdownDocumentation = getMarkdownDocAttachment(workerNode.markdownDocumentationAttachment);
+        workerSymbol.originalName = names.originalNameFromIdNode(workerNode.name);
         workerNode.symbol = workerSymbol;
         defineSymbolWithCurrentEnvOwner(workerNode.pos, workerSymbol);
     }
@@ -1811,6 +1812,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 getFuncSymbolName(funcNode),
                 env.enclPkg.symbol.pkgID, null, env.scope.owner,
                 funcNode.hasBody(), funcNode.name.pos, SOURCE);
+        funcSymbol.originalName = names.originalNameFromIdNode(funcNode.name);
         funcSymbol.source = funcNode.pos.lineRange().filePath();
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
@@ -1850,6 +1852,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                                    env.enclPkg.symbol.pkgID, null, env.scope.owner,
                                                                    funcNode.hasBody(), symbolPos,
                                                                    getOrigin(funcNode.name.value));
+        funcSymbol.originalName = names.originalNameFromIdNode(funcNode.name);
         funcSymbol.source = funcNode.pos.lineRange().filePath();
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
@@ -1956,8 +1959,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Create a new constant symbol.
         Name name = names.fromIdNode(constant.name);
         PackageID pkgID = env.enclPkg.symbol.pkgID;
-        return new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID, symTable.semanticError, symTable.noType,
-                                   env.scope.owner, constant.name.pos, getOrigin(name));
+        return new BConstantSymbol(Flags.asMask(constant.flagSet), name, names.originalNameFromIdNode(constant.name),
+                                   pkgID, symTable.semanticError, symTable.noType, env.scope.owner,
+                                   constant.name.pos, getOrigin(name));
     }
 
     @Override
@@ -1972,14 +1976,15 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         Name varName = names.fromIdNode(varNode.name);
+        Name varOrigName = names.originalNameFromIdNode(varNode.name);
         if (varName == Names.EMPTY || varName == Names.IGNORE) {
             // This is a variable created for a return type
             // e.g. function foo() (int);
             return;
         }
 
-        BVarSymbol varSymbol = defineVarSymbol(varNode.name.pos, varNode.flagSet, varNode.getBType(), varName, env,
-                                               varNode.internal);
+        BVarSymbol varSymbol = defineVarSymbol(varNode.name.pos, varNode.flagSet, varNode.getBType(), varName,
+                                               varOrigName, env, varNode.internal);
         if (isDeprecated(varNode.annAttachments)) {
             varSymbol.flags |= Flags.DEPRECATED;
         }
@@ -2497,11 +2502,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         //TODO check below field position
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
         for (BLangRecordVariable.BLangRecordVariableKeyValue bLangRecordVariableKeyValue : recordVar.variableList) {
-            String fieldName = bLangRecordVariableKeyValue.key.value;
-            BField bField = new BField(names.fromString(fieldName), recordVar.pos,
-                    new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
-                            fieldType, recordSymbol, recordVar.pos, SOURCE));
-            fields.put(fieldName, bField);
+            Name fieldName = names.fromIdNode(bLangRecordVariableKeyValue.key);
+            BField bField = new BField(fieldName, recordVar.pos,
+                    new BVarSymbol(0, fieldName, names.originalNameFromIdNode(bLangRecordVariableKeyValue.key),
+                                   env.enclPkg.symbol.pkgID, fieldType, recordSymbol, recordVar.pos, SOURCE));
+            fields.put(fieldName.getValue(), bField);
         }
 
         BRecordType recordVarType = (BRecordType) symTable.recordType;
@@ -4022,6 +4027,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             invokableSymbol.retType = tsymbol.returnType;
             invokableSymbol.flags = tsymbol.flags;
         }
+        varSymbol.originalName = symbol.getOriginalName();
         varSymbol.owner = symbol.owner;
         varSymbol.originalSymbol = symbol;
         defineShadowedSymbol(location, varSymbol, targetEnv);
@@ -4036,9 +4042,15 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public BVarSymbol defineVarSymbol(Location pos, Set<Flag> flagSet, BType varType, Name varName,
                                       SymbolEnv env, boolean isInternal) {
+        return defineVarSymbol(pos, flagSet, varType, varName, varName, env, isInternal);
+    }
+
+    public BVarSymbol defineVarSymbol(Location pos, Set<Flag> flagSet, BType varType, Name varName, Name origName,
+                                      SymbolEnv env, boolean isInternal) {
         // Create variable symbol
         Scope enclScope = env.scope;
         BVarSymbol varSymbol = createVarSymbol(flagSet, varType, varName, env, pos, isInternal);
+        varSymbol.originalName = origName;
         boolean considerAsMemberSymbol = flagSet.contains(Flag.FIELD) || flagSet.contains(Flag.REQUIRED_PARAM) ||
                 flagSet.contains(Flag.DEFAULTABLE_PARAM) || flagSet.contains(Flag.REST_PARAM) ||
                 flagSet.contains(Flag.INCLUDED);

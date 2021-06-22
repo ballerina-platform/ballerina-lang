@@ -954,8 +954,10 @@ public class TypeParamAnalyzer {
             }
 
             BInvokableSymbol invokableSymbol = new BInvokableSymbol(expFunc.symbol.tag, expFunc.symbol.flags,
-                                                                    expFunc.symbol.name, env.enclPkg.packageID,
-                                                                    matchType, actObjectSymbol, expFunc.pos, VIRTUAL);
+                                                                    expFunc.symbol.name,
+                                                                    expFunc.symbol.getOriginalName(),
+                                                                    env.enclPkg.packageID, matchType, actObjectSymbol,
+                                                                    expFunc.pos, VIRTUAL);
             invokableSymbol.retType = invokableSymbol.getType().retType;
             BInvokableTypeSymbol typeSymbol = (BInvokableTypeSymbol) Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE,
                     invokableSymbol.flags, Names.EMPTY,

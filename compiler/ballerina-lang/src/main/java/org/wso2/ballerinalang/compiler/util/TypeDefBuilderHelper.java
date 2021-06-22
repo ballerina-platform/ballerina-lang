@@ -146,6 +146,7 @@ public class TypeDefBuilderHelper {
         initFunction.receiver = ASTBuilderUtil.createReceiver(location, type);
         BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
                                                    names.fromIdNode(initFunction.receiver.name),
+                                                   names.originalNameFromIdNode(initFunction.receiver.name),
                                                    env.enclPkg.symbol.pkgID, type, null, location, VIRTUAL);
         initFunction.receiver.symbol = receiverSymbol;
         initFunction.attachedFunction = true;

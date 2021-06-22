@@ -2177,8 +2177,10 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             // If the variable name is a wildcard('_'), the symbol should be ignorable.
-            varRefExpr.symbol = new BVarSymbol(0, true, varName, env.enclPkg.symbol.pkgID, varRefExpr.getBType(),
-                                               env.scope.owner, varRefExpr.pos, VIRTUAL);
+            varRefExpr.symbol = new BVarSymbol(0, true, varName,
+                                               names.originalNameFromIdNode(varRefExpr.variableName),
+                                               env.enclPkg.symbol.pkgID, varRefExpr.getBType(), env.scope.owner,
+                                               varRefExpr.pos, VIRTUAL);
 
             resultType = varRefExpr.getBType();
             return;
@@ -2273,6 +2275,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BVarSymbol bVarSymbol = (BVarSymbol) bLangVarReference.symbol;
             BField field = new BField(names.fromIdNode(recordRefField.variableName), varRefExpr.pos,
                                       new BVarSymbol(0, names.fromIdNode(recordRefField.variableName),
+                                                     names.originalNameFromIdNode(recordRefField.variableName),
                                                      env.enclPkg.symbol.pkgID, bVarSymbol.type, recordSymbol,
                                                      varRefExpr.pos, SOURCE));
             fields.put(field.name.value, field);
@@ -2292,7 +2295,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BRecordType bRecordType = new BRecordType(recordSymbol);
         bRecordType.fields = fields;
         recordSymbol.type = bRecordType;
-        varRefExpr.symbol = new BVarSymbol(0, recordSymbol.name,
+        varRefExpr.symbol = new BVarSymbol(0, recordSymbol.name, recordSymbol.getOriginalName(),
                                            env.enclPkg.symbol.pkgID, bRecordType, env.scope.owner, varRefExpr.pos,
                                            SOURCE);
 
@@ -3671,7 +3674,8 @@ public class TypeChecker extends BLangNodeVisitor {
             BSymbol symbol = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(fieldName));
             BType fieldType = symbol.type.tag == TypeTags.FUTURE ? ((BFutureType) symbol.type).constraint : symbol.type;
             BField field = new BField(names.fromIdNode(keyVal.key), null,
-                                      new BVarSymbol(0, names.fromIdNode(keyVal.key), env.enclPkg.packageID,
+                                      new BVarSymbol(0, names.fromIdNode(keyVal.key),
+                                                     names.originalNameFromIdNode(keyVal.key), env.enclPkg.packageID,
                                                      fieldType, null, keyVal.pos, VIRTUAL));
             retType.fields.put(field.name.value, field);
         }
@@ -6064,7 +6068,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 boolean required = requiredParams.contains(nonRestParam);
                 fieldSymbol = new BVarSymbol(Flags.asMask(new HashSet<Flag>() {{
                                              add(required ? Flag.REQUIRED : Flag.OPTIONAL); }}), paramName,
-                                             pkgID, paramType, recordSymbol, null, VIRTUAL);
+                                             nonRestParam.getOriginalName(), pkgID, paramType, recordSymbol, null,
+                                             VIRTUAL);
                 fields.put(paramName.value, new BField(paramName, null, fieldSymbol));
             }
 
@@ -6236,7 +6241,8 @@ public class TypeChecker extends BLangNodeVisitor {
             BRecordType incRecordType = (BRecordType) incRecordParamAllowAdditionalFields.type;
             checkExpr(expr, env, incRecordType.restFieldType);
             if (!incRecordType.fields.containsKey(argName.value)) {
-                return new BVarSymbol(0, names.fromIdNode(argName), null, symTable.noType, null, argName.pos, VIRTUAL);
+                return new BVarSymbol(0, names.fromIdNode(argName), names.originalNameFromIdNode(argName),
+                                      null, symTable.noType, null, argName.pos, VIRTUAL);
             }
         }
         return null;

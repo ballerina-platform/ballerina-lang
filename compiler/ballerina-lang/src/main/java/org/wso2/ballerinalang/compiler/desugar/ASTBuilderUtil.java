@@ -151,8 +151,9 @@ public class ASTBuilderUtil {
     }
 
     static void defineVariable(BLangSimpleVariable variable, BSymbol targetSymbol, Names names) {
-        variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name), targetSymbol.pkgID, variable.getBType(),
-                                         targetSymbol, variable.pos, VIRTUAL);
+        variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name),
+                                         names.originalNameFromIdNode(variable.name),
+                                         targetSymbol.pkgID, variable.getBType(), targetSymbol, variable.pos, VIRTUAL);
         targetSymbol.scope.define(variable.symbol.name, variable.symbol);
     }
 
@@ -822,6 +823,7 @@ public class ASTBuilderUtil {
                 Symbols.createFunctionSymbol(invokableSymbol.flags, invokableSymbol.name, invokableSymbol.pkgID,
                                              invokableSymbol.type, invokableSymbol.owner, invokableSymbol.bodyExist,
                                              invokableSymbol.pos, invokableSymbol.origin);
+        dupFuncSymbol.originalName = invokableSymbol.originalName;
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
         dupFuncSymbol.restParam = invokableSymbol.restParam;
@@ -864,6 +866,7 @@ public class ASTBuilderUtil {
         BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, newName, newPkgID,
                                                                       null, owner, invokableSymbol.bodyExist,
                                                                       location, origin);
+        dupFuncSymbol.originalName = invokableSymbol.originalName;
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
         dupFuncSymbol.receiverSymbol = null;

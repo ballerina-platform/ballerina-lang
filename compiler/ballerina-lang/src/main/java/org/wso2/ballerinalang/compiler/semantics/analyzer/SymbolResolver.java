@@ -1541,6 +1541,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         for (BLangVariable paramNode : paramVars) {
             BLangSimpleVariable param = (BLangSimpleVariable) paramNode;
             Name paramName = names.fromIdNode(param.name);
+            Name paramOrigName = names.originalNameFromIdNode(param.name);
             if (paramName != Names.EMPTY) {
                 if (paramNames.contains(paramName.value)) {
                     dlog.error(param.name.pos, DiagnosticErrorCode.REDECLARED_SYMBOL, paramName.value);
@@ -1556,8 +1557,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             paramTypes.add(type);
 
             long paramFlags = Flags.asMask(paramNode.flagSet);
-            BVarSymbol symbol = new BVarSymbol(paramFlags, paramName, env.enclPkg.symbol.pkgID, type, env.scope.owner,
-                                               param.pos, SOURCE);
+            BVarSymbol symbol = new BVarSymbol(paramFlags, paramName, paramOrigName, env.enclPkg.symbol.pkgID,
+                                               type, env.scope.owner, param.pos, SOURCE);
             param.symbol = symbol;
 
             if (param.expr != null) {
@@ -1584,9 +1585,10 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (restType == symTable.noType) {
                 return symTable.noType;
             }
+            BLangIdentifier id = ((BLangSimpleVariable) restVariable).name;
             restVariable.setBType(restType);
             restParam = new BVarSymbol(Flags.asMask(restVariable.flagSet),
-                                       names.fromIdNode(((BLangSimpleVariable) restVariable).name),
+                                       names.fromIdNode(id), names.originalNameFromIdNode(id),
                                        env.enclPkg.symbol.pkgID, restType, env.scope.owner, restVariable.pos, SOURCE);
         }
 

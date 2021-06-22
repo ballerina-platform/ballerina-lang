@@ -700,6 +700,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                        env.enclPkg.symbol, true, bLangFunction.pos,
                                                                        VIRTUAL);
         functionSymbol.retType = returnType;
+        functionSymbol.originalName = new Name(bLangFunction.name.originalValue);
         // Add parameters
         for (BLangVariable param : bLangFunction.requiredParams) {
             functionSymbol.params.add(param.symbol);
@@ -2000,6 +2001,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                        env.enclPkg.packageID, function.getBType(),
                                                                        env.enclEnv.enclVarSym, true, function.pos,
                                                                        VIRTUAL);
+        functionSymbol.originalName = new Name(function.name.originalValue);
         functionSymbol.retType = function.returnTypeNode.getBType();
         functionSymbol.params = function.requiredParams.stream()
                 .map(param -> param.symbol)
@@ -2281,6 +2283,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                        env.enclPkg.packageID, function.getBType(),
                                                                        env.enclEnv.enclVarSym, true, function.pos,
                                                                        VIRTUAL);
+        functionSymbol.originalName = new Name(function.name.originalValue);
         functionSymbol.retType = function.returnTypeNode.getBType();
         functionSymbol.params = function.requiredParams.stream()
                 .map(param -> param.symbol)
@@ -7063,6 +7066,9 @@ public class Desugar extends BLangNodeVisitor {
                                                                    bLangArrowFunction.funcType,
                                                                    env.enclEnv.enclVarSym, true,
                                                                    bLangArrowFunction.pos, VIRTUAL);
+
+        funcSymbol.originalName = new Name(funcNode.name.originalValue);
+
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
 

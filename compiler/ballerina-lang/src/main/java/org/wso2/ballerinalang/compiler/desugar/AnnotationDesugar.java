@@ -673,6 +673,7 @@ public class AnnotationDesugar {
                                                                        new Name(function.name.value),
                                                                        pkgID, function.getBType(), owner, true,
                                                                        function.pos, VIRTUAL);
+        functionSymbol.originalName = new Name(function.name.originalValue);
         functionSymbol.retType = function.returnTypeNode.getBType();
         functionSymbol.params = function.requiredParams.stream()
                 .map(param -> param.symbol)
