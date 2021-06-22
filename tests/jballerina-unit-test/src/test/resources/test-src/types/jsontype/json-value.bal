@@ -447,7 +447,7 @@ function testJsonLaxErrorLifting() {
     error? e5 = testLaxAccessForRuntimeErrors2();
     assertTrue(e5 is error);
     assertEquals(<string> checkpanic (<error> e5).detail()["message"],
-        "incompatible types: 'int' cannot be cast to 'string'";
+        "incompatible types: 'int' cannot be cast to 'string'");
 
 }
 
