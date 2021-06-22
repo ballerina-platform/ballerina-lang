@@ -4849,14 +4849,24 @@ public class Types {
         }
 
         if (liftError) {
-            memTypes = errorLiftedType.getMemberTypes().stream().filter(t -> t.tag != TypeTags.ERROR)
-                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            LinkedHashSet<BType> bTypes = new LinkedHashSet<>();
+            for (BType t : errorLiftedType.getMemberTypes()) {
+                if (t.tag != TypeTags.ERROR) {
+                    bTypes.add(t);
+                }
+            }
+            memTypes = bTypes;
             errorLiftedType = BUnionType.create(null, memTypes);
         }
 
         if (errorLiftedType.getMemberTypes().size() == 1) {
             return errorLiftedType.getMemberTypes().toArray(new BType[0])[0];
         }
+
+        if (errorLiftedType.getMemberTypes().size() == 0) {
+            return symTable.neverType;
+        }
+
         return errorLiftedType;
     }
 
