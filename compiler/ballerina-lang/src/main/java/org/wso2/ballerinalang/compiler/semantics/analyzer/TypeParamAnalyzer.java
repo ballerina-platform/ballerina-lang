@@ -832,6 +832,7 @@ public class TypeParamAnalyzer {
                                                                     expTSymbol.pkgID, null,
                                                                     expType.tsymbol.scope.owner, expTSymbol.pos,
                                                                     VIRTUAL);
+        recordSymbol.originalName = expTSymbol.getOriginalName();
         recordSymbol.isTypeParamResolved = true;
         recordSymbol.typeParamTSymbol = expTSymbol;
         recordSymbol.scope = new Scope(recordSymbol);
@@ -919,9 +920,11 @@ public class TypeParamAnalyzer {
     private BType getMatchingObjectBoundType(BObjectType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
         boolean hasDifferentType = false;
         BObjectTypeSymbol actObjectSymbol = Symbols.createObjectSymbol(expType.tsymbol.flags,
-                                                                       expType.tsymbol.name, expType.tsymbol.pkgID,
-                                                                       null, expType.tsymbol.scope.owner,
+                                                                       expType.tsymbol.name,
+                                                                       expType.tsymbol.pkgID, null,
+                                                                       expType.tsymbol.scope.owner,
                                                                        expType.tsymbol.pos, VIRTUAL);
+        actObjectSymbol.originalName = expType.tsymbol.originalName;
         actObjectSymbol.isTypeParamResolved = true;
         actObjectSymbol.typeParamTSymbol = expType.tsymbol;
 

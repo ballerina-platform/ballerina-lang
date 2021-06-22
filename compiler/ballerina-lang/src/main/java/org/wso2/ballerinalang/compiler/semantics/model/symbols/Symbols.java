@@ -114,8 +114,14 @@ public class Symbols {
     public static BAnnotationSymbol createAnnotationSymbol(long flags, Set<AttachPoint> points, Name name,
                                                            PackageID pkgID, BType type, BSymbol owner,
                                                            Location pos, SymbolOrigin origin) {
-        BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, points, pkgID, type, owner, pos,
-                                                                   origin);
+        return createAnnotationSymbol(flags, points, name, name, pkgID, type, owner, pos, origin);
+    }
+
+    public static BAnnotationSymbol createAnnotationSymbol(long flags, Set<AttachPoint> points, Name name,
+                                                           Name origName, PackageID pkgID, BType type, BSymbol owner,
+                                                           Location pos, SymbolOrigin origin) {
+        BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, origName, flags, points, pkgID, type, owner,
+                                                                   pos, origin);
         annotationSymbol.kind = SymbolKind.ANNOTATION;
         return annotationSymbol;
     }
@@ -154,13 +160,25 @@ public class Symbols {
                                                BSymbol owner,
                                                Location pos,
                                                SymbolOrigin origin) {
+        return createTypeSymbol(symTag, flags, name, name, pkgID, type, owner, pos, origin);
+    }
+
+    public static BTypeSymbol createTypeSymbol(int symTag,
+                                               long flags,
+                                               Name name,
+                                               Name originalName,
+                                               PackageID pkgID,
+                                               BType type,
+                                               BSymbol owner,
+                                               Location pos,
+                                               SymbolOrigin origin) {
         if (type != null && type.tag == TypeTags.INVOKABLE) {
             BInvokableTypeSymbol invokableTypeSymbol =
                     createInvokableTypeSymbol(symTag, flags, pkgID, type, owner, pos, origin);
             invokableTypeSymbol.returnType = ((BInvokableType) type).retType;
             return invokableTypeSymbol;
         }
-        return new BTypeSymbol(symTag, flags, name, pkgID, type, owner, pos, origin);
+        return new BTypeSymbol(symTag, flags, name, originalName, pkgID, type, owner, pos, origin);
     }
 
     public static BInvokableTypeSymbol createInvokableTypeSymbol(int symTag,

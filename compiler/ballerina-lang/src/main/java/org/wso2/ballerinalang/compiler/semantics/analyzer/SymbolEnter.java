@@ -753,10 +753,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         EnumSet<Flag> flags = EnumSet.copyOf(classDefinition.flagSet);
         boolean isPublicType = flags.contains(Flag.PUBLIC);
         Name className = names.fromIdNode(classDefinition.name);
+        Name classOrigName = names.originalNameFromIdNode(classDefinition.name);
 
         BClassSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags), className, env.enclPkg.symbol.pkgID, null,
                                                          env.scope.owner, classDefinition.name.pos,
                                                          getOrigin(className, flags), classDefinition.isServiceDecl);
+        tSymbol.originalName = classOrigName;
         tSymbol.scope = new Scope(tSymbol);
         tSymbol.markdownDocumentation = getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
 
@@ -817,9 +819,11 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public void visit(BLangAnnotation annotationNode) {
         Name annotName = names.fromIdNode(annotationNode.name);
+        Name annotOrigName = names.originalNameFromIdNode(annotationNode.name);
         BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(Flags.asMask(annotationNode.flagSet),
                                                                             annotationNode.getAttachPoints(),
-                                                                            annotName, env.enclPkg.symbol.pkgID, null,
+                                                                            annotName, annotOrigName,
+                                                                            env.enclPkg.symbol.pkgID, null,
                                                                             env.scope.owner, annotationNode.name.pos,
                                                                             getOrigin(annotName));
         annotationSymbol.markdownDocumentation =
@@ -1432,8 +1436,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         if (typeDefinition.typeNode.getKind() == NodeKind.FUNCTION_TYPE && definedType.tsymbol == null) {
             definedType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, Flags.asMask(typeDefinition.flagSet),
-                                                           Names.EMPTY, env.enclPkg.symbol.pkgID, definedType,
-                                                           env.scope.owner, typeDefinition.pos, SOURCE);
+                                                           Names.EMPTY, env.enclPkg.symbol.pkgID,
+                                                           definedType, env.scope.owner, typeDefinition.pos, SOURCE);
         }
 
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {
@@ -1608,8 +1612,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             enumMembers.add((BConstantSymbol) ((BLangUserDefinedType) member).symbol);
         }
 
-        return new BEnumSymbol(enumMembers, Flags.asMask(typeDefinition.flagSet), Names.EMPTY, env.enclPkg.symbol.pkgID,
-                               definedType, env.scope.owner, typeDefinition.pos, SOURCE);
+        return new BEnumSymbol(enumMembers, Flags.asMask(typeDefinition.flagSet), Names.EMPTY, Names.EMPTY,
+                               env.enclPkg.symbol.pkgID, definedType, env.scope.owner, typeDefinition.pos, SOURCE);
     }
 
     private BObjectType getDistinctObjectType(BLangTypeDefinition typeDefinition, BObjectType definedType,
@@ -1632,9 +1636,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         BUnionType unionType = BUnionType.create(null, new LinkedHashSet<>());
         unionType.isCyclic = true;
         Name typeDefName = names.fromIdNode(typeDef.name);
+        Name typeDefOriginalName = names.originalNameFromIdNode(typeDef.name);
 
         BTypeSymbol typeDefSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(typeDef.flagSet),
-                typeDefName, env.enclPkg.symbol.pkgID, unionType, env.scope.owner,
+                typeDefName, typeDefOriginalName, env.enclPkg.symbol.pkgID, unionType, env.scope.owner,
                 typeDef.name.pos, SOURCE);
 
         typeDef.symbol = typeDefSymbol;

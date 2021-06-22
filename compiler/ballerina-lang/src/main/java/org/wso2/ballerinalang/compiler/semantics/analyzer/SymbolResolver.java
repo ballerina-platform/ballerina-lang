@@ -1188,8 +1188,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         BType streamType = new BStreamType(TypeTags.STREAM, constraintType, error, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         streamType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                                                      typeSymbol.pkgID, streamType, typeSymbol.owner,
-                                                      streamTypeNode.pos, SOURCE);
+                                                      typeSymbol.originalName, typeSymbol.pkgID, streamType,
+                                                      typeSymbol.owner, streamTypeNode.pos, SOURCE);
 
         markParameterizedType(streamType, constraintType);
         if (error != null) {
@@ -1211,7 +1211,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         tableType.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(EnumSet.noneOf(Flag.class)),
-                typeSymbol.name, env.enclPkg.symbol.pkgID, tableType,
+                typeSymbol.name, typeSymbol.originalName, env.enclPkg.symbol.pkgID, tableType,
                 env.scope.owner, tableTypeNode.pos, SOURCE);
         tableType.tsymbol.flags = typeSymbol.flags;
         tableType.constraintPos = tableTypeNode.constraint.pos;
@@ -1352,8 +1352,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BTypeSymbol typeSymbol = type.tsymbol;
         constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                                                           typeSymbol.pkgID, constrainedType, typeSymbol.owner,
-                                                           constrainedTypeNode.pos, SOURCE);
+                                                           typeSymbol.originalName, typeSymbol.pkgID, constrainedType,
+                                                           typeSymbol.owner, constrainedTypeNode.pos, SOURCE);
         markParameterizedType(constrainedType, constraintType);
         resultType = constrainedType;
     }
@@ -1438,8 +1438,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
                 if (paramValType != null) {
                     BTypeSymbol tSymbol = new BTypeSymbol(SymTag.TYPE, Flags.PARAMETERIZED | tempSymbol.flags,
-                                                          tempSymbol.name, tempSymbol.pkgID, null, func.symbol,
-                                                          tempSymbol.pos, VIRTUAL);
+                                                          tempSymbol.name, tempSymbol.originalName, tempSymbol.pkgID,
+                                                          null, func.symbol, tempSymbol.pos, VIRTUAL);
                     tSymbol.type = new BParameterizedType(paramValType, (BVarSymbol) tempSymbol,
                                                           tSymbol, tempSymbol.name, parameterizedTypeInfo.index);
                     tSymbol.type.flags |= Flags.PARAMETERIZED;
