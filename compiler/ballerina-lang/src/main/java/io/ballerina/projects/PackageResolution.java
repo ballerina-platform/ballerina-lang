@@ -28,7 +28,13 @@ import io.ballerina.projects.internal.DependencyVersionKind;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.PackageDependencyGraphBuilder;
+import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
@@ -54,12 +60,14 @@ public class PackageResolution {
     private final CompilationOptions compilationOptions;
     private final ModuleResolver moduleResolver;
     private final PackageDependencyGraphBuilder depGraphBuilder;
+    private final List<Diagnostic> diagnosticList;
 
     private List<ModuleContext> topologicallySortedModuleList;
     private Collection<ResolvedPackageDependency> dependenciesWithTransitives;
 
     private PackageResolution(PackageContext rootPackageContext) {
         this.rootPackageContext = rootPackageContext;
+        this.diagnosticList = new ArrayList<>();
         this.compilationOptions = rootPackageContext.compilationOptions();
 
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
@@ -123,6 +131,17 @@ public class PackageResolution {
 
     List<ModuleContext> topologicallySortedModuleList() {
         return topologicallySortedModuleList;
+    }
+
+    List<Diagnostic> diagnostics() {
+        return this.diagnosticList;
+    }
+
+    void reportDiagnostic(String message, Location location, ModuleDescriptor moduleDescriptor) {
+        var diagnosticInfo = new DiagnosticInfo(null, message, DiagnosticSeverity.ERROR);
+        var diagnostic = DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
+        var packageDiagnostic = new PackageDiagnostic(diagnostic, moduleDescriptor, rootPackageContext.project());
+        this.diagnosticList.add(packageDiagnostic);
     }
 
     /**
@@ -258,9 +277,9 @@ public class PackageResolution {
                                        moduleLoadRequest.scope(),
                                        moduleLoadRequest.dependencyResolvedType());
             } catch (ProjectException e) {
-                ModuleDescriptor moduleDescriptor = ModuleDescriptor.from(moduleLoadRequest.moduleName(),
-                                                                          rootPackageContext.descriptor());
-                rootPackageContext.reportDiagnostic(e.getMessage(), moduleLoadRequest.location(), moduleDescriptor);
+                ModuleDescriptor moduleDescriptor = ModuleDescriptor
+                        .from(moduleLoadRequest.moduleName(), rootPackageContext.descriptor());
+                reportDiagnostic(e.getMessage(), moduleLoadRequest.location(), moduleDescriptor);
             }
         }
     }

@@ -194,8 +194,12 @@ public class PackageCompilation {
     }
 
     private void addOtherDiagnostics(List<Diagnostic> diagnostics) {
-        DiagnosticResult diagnosticResult = packageContext().manifest().diagnostics();
-        diagnostics.addAll(diagnosticResult.allDiagnostics);
+        // Add manifest diagnostics
+        DiagnosticResult manifestDiagnosticResult = packageContext().manifest().diagnostics();
+        diagnostics.addAll(manifestDiagnosticResult.allDiagnostics);
+        // Add resolution diagnostics
+        List<Diagnostic> resolutionDiagnostics = packageResolution.diagnostics();
+        diagnostics.addAll(resolutionDiagnostics);
     }
 
     private void setCompilerPluginManager(CompilerPluginManager compilerPluginManager) {
