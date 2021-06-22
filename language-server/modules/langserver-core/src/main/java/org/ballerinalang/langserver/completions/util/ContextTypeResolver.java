@@ -33,6 +33,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
@@ -384,6 +385,19 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.of(((ArrayTypeSymbol) rawType).memberTypeDescriptor());
         }
 
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(DefaultableParameterNode defaultableParameterNode) {
+
+        Optional<Symbol> symbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.symbol(defaultableParameterNode));
+
+        if (symbol.isPresent() && symbol.get().kind() == SymbolKind.PARAMETER) {
+            ParameterSymbol parameterSymbol = (ParameterSymbol) symbol.get();
+            return Optional.of(parameterSymbol.typeDescriptor());
+        }
         return Optional.empty();
     }
 

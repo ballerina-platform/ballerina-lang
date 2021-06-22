@@ -27,13 +27,16 @@ import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.Project;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.AnnotationUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -197,5 +200,33 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
                 && !currentModule.get().moduleName().moduleNamePart().equals(annotationOwner.moduleName())
                 && !("ballerina".equals(orgName)
                 && "lang.annotations".equals(value));
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, AnnotationNode node, List<LSCompletionItem> completionItems) {
+        completionItems.forEach(completionItem -> {
+            int rank;
+            if (completionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+                Optional<Symbol> symbol = ((SymbolCompletionItem) completionItem).getSymbol();
+                if (symbol.isPresent() && symbol.get().kind() == SymbolKind.ANNOTATION) {
+
+                    Optional<Project> currentProject = context.workspace().project(context.filePath());
+                    String currentOrg = currentProject.get().currentPackage().packageOrg().value();
+                    String currentPkgName = currentProject.get().currentPackage().packageName().value();
+
+                    Optional<ModuleSymbol> symbolModule = symbol.get().getModule();
+                    String orgName = symbolModule.isPresent() ? symbolModule.get().id().orgName() : "";
+                    String moduleName = symbolModule.isPresent() ? symbolModule.get().id().moduleName() : "";
+
+                    rank = currentOrg.equals(orgName) && currentPkgName.equals(moduleName) ? 1 : 2;
+
+                } else {
+                    rank = SortingUtil.toRank(completionItem, 2);
+                }
+            } else {
+                rank = SortingUtil.toRank(completionItem, 2);
+            }
+            completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
+        });
     }
 }

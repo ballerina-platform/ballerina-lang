@@ -232,7 +232,7 @@ public class BuildCommand implements BLauncherCmd {
 
         if (!(this.compile && project.currentPackage().compilerPluginToml().isPresent())) {
             if (isProjectEmpty(project)) {
-                CommandUtil.printError(this.errStream, "package is empty. please add at least one .bal file", null,
+                CommandUtil.printError(this.errStream, "package is empty. please add at least one .bal file.", null,
                         false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
