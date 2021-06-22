@@ -66,7 +66,7 @@ public abstract class AbstractCommandExecutionTest {
         TestUtil.openDocument(serviceEndpoint, sourcePath);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
-        
+
         List<Object> args = getArgs(configJsonObject, sourcePath);
 
         JsonObject responseJson = getCommandResponse(args, command);
@@ -114,7 +114,7 @@ public abstract class AbstractCommandExecutionTest {
 
         return args;
     }
-    
+
     protected abstract List<Object> getArgs(JsonObject argsObject);
 
     /**
@@ -140,9 +140,14 @@ public abstract class AbstractCommandExecutionTest {
     private JsonObject getCommandResponse(List<Object> args, String command) {
         List argsList = argsToJson(args);
         ExecuteCommandParams params = new ExecuteCommandParams(command, argsList);
-        String response = TestUtil.getExecuteCommandResponse(params, this.serviceEndpoint).replace("\\r\\n", "\\n");
+        String response = cleanupText(TestUtil.getExecuteCommandResponse(params, this.serviceEndpoint));
         JsonObject responseJson = parser.parse(response).getAsJsonObject();
         responseJson.remove("id");
         return responseJson;
     }
+
+    private static String cleanupText(String text) {
+        return text.replace(System.lineSeparator(), "\n");
+    }
+
 }
