@@ -376,7 +376,8 @@ public class Type {
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.DECIMAL) ||
                     typeDescriptor.typeKind().isXMLType() ||
                     typeDescriptor.typeKind().equals(TypeDescKind.FUNCTION) ||
-                    typeDescriptor.typeKind().equals(TypeDescKind.STRING_CHAR)) {
+                    typeDescriptor.typeKind().isStringType() ||
+                    typeDescriptor.typeKind().isIntegerType()) {
                 return "types";
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.INTERSECTION)) {
                 return getIntersectionTypeCategory((IntersectionTypeSymbol) typeDescriptor);
