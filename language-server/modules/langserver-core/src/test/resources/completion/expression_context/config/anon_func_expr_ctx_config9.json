@@ -6,6 +6,20 @@
   "source": "expression_context/source/anon_func_expr_ctx_source9.bal",
   "items": [
     {
+      "label": "ENUM1_FIELD1",
+      "kind": "EnumMember",
+      "detail": "ENUM1_FIELD1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "J",
+      "insertText": "ENUM1_FIELD1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TEST_INT_CONST1",
       "kind": "Variable",
       "detail": "1",
@@ -15,7 +29,7 @@
           "value": ""
         }
       },
-      "sortText": "D",
+      "sortText": "AB",
       "insertText": "TEST_INT_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -34,47 +48,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ENUM1_FIELD1",
-      "kind": "EnumMember",
-      "detail": "ENUM1_FIELD1",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
-      "sortText": "J",
-      "insertText": "ENUM1_FIELD1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "AnnotationType",
       "kind": "Struct",
       "detail": "Record",
       "sortText": "N",
       "insertText": "AnnotationType",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ResponseMessage",
-      "kind": "Enum",
-      "detail": "Union",
-      "documentation": {
-        "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
-      },
-      "sortText": "K",
-      "insertText": "ResponseMessage",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "RequestMessage",
-      "kind": "Enum",
-      "detail": "Union",
-      "documentation": {
-        "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
-      },
-      "sortText": "K",
-      "insertText": "RequestMessage",
       "insertTextFormat": "Snippet"
     },
     {
@@ -134,11 +112,41 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ResponseMessage",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
+      },
+      "sortText": "K",
+      "insertText": "ResponseMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RequestMessage",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
+      },
+      "sortText": "K",
+      "insertText": "RequestMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Listener",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "M",
       "insertText": "Listener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestClass1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "M",
+      "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -164,34 +172,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestClass1",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "M",
-      "insertText": "TestClass1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "listener1",
       "kind": "Variable",
       "detail": "module1:Listener",
       "sortText": "D",
       "insertText": "listener1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "function1",
-      "kind": "Variable",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n"
-        }
-      },
-      "sortText": "D",
-      "filterText": "function1",
-      "insertText": "function1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -210,21 +195,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "function2",
-      "kind": "Variable",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n"
-        }
-      },
-      "sortText": "D",
-      "filterText": "function2",
-      "insertText": "function2",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "function2()",
       "kind": "Function",
       "detail": "Function",
@@ -240,25 +210,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "function3",
-      "kind": "Variable",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Return** `int`   \n- Return Value Description  \n  \n"
-        }
-      },
-      "sortText": "D",
-      "filterText": "function3",
-      "insertText": "function3",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "function3(int param1, int param2, float... param3)(int)",
       "kind": "Function",
       "detail": "Function",
@@ -268,28 +219,9 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Return** `int`   \n- Return Value Description  \n  \n"
         }
       },
-      "sortText": "E",
+      "sortText": "AC",
       "filterText": "function3",
       "insertText": "function3(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "function4",
-      "kind": "Variable",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function4 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `string` param3: param3 Parameter Description(Defaultable)  \n- `float[]` param4: param4 Parameter Description"
-        }
-      },
-      "sortText": "D",
-      "filterText": "function4",
-      "insertText": "function4",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
