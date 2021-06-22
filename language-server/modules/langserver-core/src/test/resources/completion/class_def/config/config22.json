@@ -282,11 +282,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "UniqueGreetingsStore",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "K",
-      "insertText": "UniqueGreetingsStore",
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "L",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -298,14 +301,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "L",
-      "insertText": "StrandData",
+      "label": "BALLERINA",
+      "kind": "TypeParameter",
+      "detail": "Singleton",
+      "sortText": "M",
+      "insertText": "BALLERINA",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "UniqueGreetingsStore",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "K",
+      "insertText": "UniqueGreetingsStore",
       "insertTextFormat": "Snippet"
     },
     {
@@ -427,57 +435,29 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
+      "label": "true",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "true",
+      "insertText": "true",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
+      "label": "false",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "false",
+      "insertText": "false",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/module1",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "module1",
+      "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -491,7 +471,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/module1;\n"
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -542,11 +522,11 @@
       ]
     },
     {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "test",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -560,7 +540,53 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },

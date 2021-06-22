@@ -79,7 +79,6 @@ import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -198,12 +197,9 @@ public class CommonUtil {
     public static List<TextEdit> getAutoImportTextEdits(@Nonnull String orgName, String pkgName,
                                                         DocumentServiceContext context) {
         Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();
-        Position start = new Position(0, 0);
-        if (currentDocImports != null && !currentDocImports.isEmpty()) {
-            ImportDeclarationNode last = CommonUtil.getLastItem(new ArrayList<>(currentDocImports.keySet()));
-            int endLine = last.lineRange().endLine().line();
-            start = new Position(endLine, 0);
-        }
+        Optional<ImportDeclarationNode> last = CommonUtil.getLastItem(new ArrayList<>(currentDocImports.keySet()));
+        int endLine = last.map(node -> node.lineRange().endLine().line()).orElse(0);
+        Position start = new Position(endLine, 0);
         String importStatement = ItemResolverConstants.IMPORT + " "
                 + (!orgName.isEmpty() ? orgName + SLASH_KEYWORD_KEY : orgName)
                 + pkgName + SEMI_COLON_SYMBOL_KEY
@@ -226,12 +222,10 @@ public class CommonUtil {
     public static List<TextEdit> getAutoImportTextEdits(@Nonnull String orgName, String pkgName, String alias,
                                                         DocumentServiceContext context) {
         Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();
-        Position start = new Position(0, 0);
-        if (currentDocImports != null && !currentDocImports.isEmpty()) {
-            ImportDeclarationNode last = CommonUtil.getLastItem(new ArrayList<>(currentDocImports.keySet()));
-            int endLine = last.lineRange().endLine().line();
-            start = new Position(endLine, 0);
-        }
+        Optional<ImportDeclarationNode> last = CommonUtil.getLastItem(new ArrayList<>(currentDocImports.keySet()));
+        int endLine = last.map(node -> node.lineRange().endLine().line()).orElse(0);
+        Position start = new Position(endLine, 0);
+        
         StringBuilder builder = new StringBuilder(ItemResolverConstants.IMPORT + " "
                 + (!orgName.isEmpty() ? orgName + SLASH_KEYWORD_KEY : orgName)
                 + pkgName);
@@ -420,7 +414,7 @@ public class CommonUtil {
                 requiredFields.put(entry.getKey(), entry.getValue());
             }
         }
-        
+
         String label;
         String detail = symbol.getName().isPresent() ? symbol.getName().get() : symbol.signature();
         if (!requiredFields.isEmpty()) {
@@ -454,24 +448,6 @@ public class CommonUtil {
     }
 
     /**
-     * Get the completion Item for the error type.
-     *
-     * @param context LS Operation context
-     * @return {@link LSCompletionItem} generated for error type
-     */
-    @Deprecated
-    public static LSCompletionItem getErrorTypeCompletionItem(BallerinaCompletionContext context) {
-        CompletionItem errorTypeCItem = new CompletionItem();
-        errorTypeCItem.setInsertText(ItemResolverConstants.ERROR);
-        errorTypeCItem.setLabel(ItemResolverConstants.ERROR);
-        errorTypeCItem.setDetail(ItemResolverConstants.ERROR);
-        errorTypeCItem.setInsertTextFormat(InsertTextFormat.Snippet);
-        errorTypeCItem.setKind(CompletionItemKind.Event);
-
-        return new StaticCompletionItem(context, errorTypeCItem, StaticCompletionItem.Kind.TYPE);
-    }
-
-    /**
      * Filter a type in the module by the name.
      *
      * @param context  language server operation context
@@ -488,13 +464,13 @@ public class CommonUtil {
 
         ModuleSymbol moduleSymbol = module.get();
         for (TypeDefinitionSymbol typeDefinitionSymbol : moduleSymbol.typeDefinitions()) {
-            if (typeDefinitionSymbol.getName().get().equals(typeName)) {
+            if (typeDefinitionSymbol.getName().isPresent() && typeDefinitionSymbol.getName().get().equals(typeName)) {
                 return Optional.of(typeDefinitionSymbol.typeDescriptor());
             }
         }
 
         for (ClassSymbol clazz : moduleSymbol.classes()) {
-            if (clazz.getName().get().equals(typeName)) {
+            if (clazz.getName().isPresent() && clazz.getName().get().equals(typeName)) {
                 return Optional.of(clazz);
             }
         }
@@ -527,8 +503,8 @@ public class CommonUtil {
      * @param <T>  List content Type
      * @return Extracted last Item
      */
-    public static <T> T getLastItem(List<T> list) {
-        return (list.size() == 0) ? null : list.get(list.size() - 1);
+    public static <T> Optional<T> getLastItem(List<T> list) {
+        return (list.size() == 0) ? Optional.empty() : Optional.of(list.get(list.size() - 1));
     }
 
     /**
@@ -543,16 +519,6 @@ public class CommonUtil {
     }
 
     /**
-     * Check whether the source is a test source.
-     *
-     * @param relativeFilePath source path relative to the package
-     * @return {@link Boolean}  Whether a test source or not
-     */
-    public static boolean isTestSource(String relativeFilePath) {
-        return relativeFilePath.startsWith("tests" + FILE_SEPARATOR);
-    }
-
-    /**
      * Get the package name components combined.
      *
      * @param importNode {@link ImportDeclarationNode}
@@ -562,18 +528,6 @@ public class CommonUtil {
         return importNode.moduleName().stream()
                 .map(Token::text)
                 .collect(Collectors.joining("."));
-    }
-
-    public static boolean symbolContainsInvalidChars(BSymbol bSymbol) {
-        List<String> symbolNameComponents = Arrays.asList(bSymbol.getName().getValue().split("\\."));
-        String symbolName = CommonUtil.getLastItem(symbolNameComponents);
-
-        return symbolName != null && (symbolName.contains(CommonKeys.LT_SYMBOL_KEY)
-                || symbolName.contains(CommonKeys.GT_SYMBOL_KEY)
-                || symbolName.contains(CommonKeys.DOLLAR_SYMBOL_KEY)
-                || symbolName.equals("main")
-                || symbolName.endsWith(".new")
-                || symbolName.startsWith("0"));
     }
 
     /**
@@ -1309,21 +1263,17 @@ public class CommonUtil {
     /**
      * Check if the symbol is a class symbol with self as the name.
      *
-     * @param symbol  Symbol
-     * @param context PositionedOperationContext
+     * @param symbol               Symbol
+     * @param context              PositionedOperationContext
      * @param enclosedModuleMember ModuleMemberDeclarationNode
      * @return {@link Boolean} whether the symbol is a self class symbol.
      */
     public static boolean isSelfClassSymbol(Symbol symbol, PositionedOperationContext context,
-                                            ModuleMemberDeclarationNode enclosedModuleMember) {
-
+                                            @Nonnull ModuleMemberDeclarationNode enclosedModuleMember) {
         Optional<String> name = symbol.getName();
-
-        if (enclosedModuleMember != null) {
-            if (enclosedModuleMember.kind() != SyntaxKind.CLASS_DEFINITION || symbol.kind() != SymbolKind.VARIABLE
-                    || name.isEmpty() || !name.get().equals(SELF_KW)) {
-                return false;
-            }
+        if (enclosedModuleMember.kind() != SyntaxKind.CLASS_DEFINITION || symbol.kind() != SymbolKind.VARIABLE
+                || name.isEmpty() || !name.get().equals(SELF_KW)) {
+            return false;
         }
 
         Optional<Symbol> memberSymbol = context.workspace().semanticModel(context.filePath())
@@ -1339,7 +1289,7 @@ public class CommonUtil {
         return classSymbol.equals(varTypeSymbol);
     }
 
-   /**
+    /**
      * Check if the cursor is positioned in a lock statement node context.
      *
      * @param context Completion context.
@@ -1355,5 +1305,16 @@ public class CommonUtil {
         }
         while (evalNode != null);
         return false;
+    }
+
+    /**
+     * Get the common predicate to filter the types.
+     *
+     * @return {@link Predicate}
+     */
+    public static Predicate<Symbol> typesFilter() {
+        return symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION ||
+                symbol.kind() == SymbolKind.CLASS || symbol.kind() == SymbolKind.ENUM
+                || symbol.kind() == SymbolKind.ENUM_MEMBER || symbol.kind() == SymbolKind.CONSTANT;
     }
 }

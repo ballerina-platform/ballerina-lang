@@ -213,15 +213,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "return",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "O",
-      "filterText": "return",
-      "insertText": "return ",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "panic",
       "kind": "Snippet",
       "detail": "Statement",
@@ -240,247 +231,21 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "return;",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "O",
+      "filterText": "return;",
+      "insertText": "return;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "on fail clause",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
       "filterText": "(on)|(fail)",
       "insertText": "on fail ${1:var} ${2:varName} {\n\t${3}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "N",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.array",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "array",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.array;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/jballerina.java",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "java",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/jballerina.java;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
-      "label": "boolean",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "boolean",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "decimal",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "decimal",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "error",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "float",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "float",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "future",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "future",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "int",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "int",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "map",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "object",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "stream",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "stream",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "string",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "string",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "table",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "table",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "transaction",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "transaction",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "typedesc",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "typedesc",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "xml",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
     {
@@ -621,11 +386,264 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "varToMatch",
+      "label": "true",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "true",
+      "insertText": "true",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "false",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "false",
+      "insertText": "false",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "N",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/jballerina.java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/jballerina.java;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "array",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.array;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "value",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
+      "label": "boolean",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "boolean",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "decimal",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "decimal",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "error",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "float",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "float",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "future",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "future",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "int",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "int",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "map",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "map",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "object",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stream",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "stream",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "string",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "string",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "table",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "table",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "transaction",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "transaction",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typedesc",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "xml",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "xml",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "animals",
       "kind": "Variable",
-      "detail": "$CompilationError$",
+      "detail": "string[]",
       "sortText": "B",
-      "insertText": "varToMatch",
+      "insertText": "animals",
       "insertTextFormat": "Snippet"
     },
     {
@@ -648,11 +666,11 @@
       }
     },
     {
-      "label": "animals",
+      "label": "varToMatch",
       "kind": "Variable",
-      "detail": "string[]",
+      "detail": "$CompilationError$",
       "sortText": "B",
-      "insertText": "animals",
+      "insertText": "varToMatch",
       "insertTextFormat": "Snippet"
     },
     {

@@ -65,12 +65,11 @@ public class BadSadTests extends BaseTest {
     }
 
     @Test
-    public void testBadSadInRun() throws BallerinaTestException, IOException {
+    public void testBadSadInRun() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", new String[] {}, new HashMap<>(),
                 Paths.get("src/test/resources/logging/projects-for-badsad-tests/runCmdBadSad")
                         .toAbsolutePath().toString(), true);
-        Assert.assertTrue(output.contains("ballerina: Oh no, something really went wrong."));
 
         String expected = "java.lang.ClassCastException: class io.ballerina.runtime.internal.values.ErrorValue cannot" +
                 " be cast to class io.ballerina.runtime.internal.values.ArrayValue " +
@@ -84,7 +83,7 @@ public class BadSadTests extends BaseTest {
     }
 
     @Test
-    public void testBadSadInTest() throws BallerinaTestException, IOException {
+    public void testBadSadInTest() throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("build", new String[] {}, new HashMap<>(),
                 Paths.get("src/test/resources/logging/projects-for-badsad-tests/runCmdBadSad")

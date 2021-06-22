@@ -138,7 +138,7 @@ public class PushCommand implements BLauncherCmd {
                 if (repositoryName != null) {
                     if (!repositoryName.equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
                         String errMsg = "unsupported repository '" + repositoryName + "' found. Only '" +
-                                ProjectConstants.LOCAL_REPOSITORY_NAME + "' repository is supported";
+                                ProjectConstants.LOCAL_REPOSITORY_NAME + "' repository is supported.";
                         CommandUtil.printError(this.errStream, errMsg, null, false);
                         CommandUtil.exitError(this.exitWhenFinish);
                         return;
@@ -187,7 +187,7 @@ public class PushCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("push packages to Ballerina Central");
+        out.append("Push packages to Ballerina Central");
     }
 
     @Override
@@ -267,7 +267,7 @@ public class PushCommand implements BLauncherCmd {
         try {
             validatePackageMdAndBalToml(packageBalaFile);
         } catch (IOException e) {
-            throw new ProjectException("error while validating the bala file", e);
+            throw new ProjectException("error while validating the bala file.", e);
         }
 
         // bala file path

@@ -112,6 +112,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.TRANSACTION_STMT, ParserRuleContext.RETRY_STMT, ParserRuleContext.ROLLBACK_STMT,
             ParserRuleContext.DO_BLOCK, ParserRuleContext.FAIL_STATEMENT };
 
+    private static final ParserRuleContext[] ASSIGNMENT_STMT_RHS =
+            { ParserRuleContext.ASSIGN_OP, ParserRuleContext.COMPOUND_BINARY_OPERATOR };
+
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.ASSIGN_OP, ParserRuleContext.SEMICOLON };
 
@@ -1125,6 +1128,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                             nextToken.kind == SyntaxKind.ISOLATED_KEYWORD ||
                             nextToken.kind == SyntaxKind.CONFIGURABLE_KEYWORD;
                     break;
+                case COMPOUND_BINARY_OPERATOR:
+                    hasMatch = BallerinaParser.isCompoundBinaryOperator(nextToken.kind);
+                    break;
 
                 // start a context, so that we know where to fall back, and continue
                 // having the qualified-identifier as the next rule.
@@ -1502,6 +1508,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case EXPR_START_OR_INFERRED_TYPEDESC_DEFAULT_START:
             case TYPE_CAST_PARAM_START_OR_INFERRED_TYPEDESC_DEFAULT_END:
             case END_OF_PARAMS_OR_NEXT_PARAM_START:
+            case ASSIGNMENT_STMT_RHS:
                 return true;
             default:
                 return false;
@@ -2076,6 +2083,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case NAMED_WORKER_DECL_START:
                 alternativeRules = NAMED_WORKER_DECL_START;
                 break;
+            case ASSIGNMENT_STMT_RHS:
+                alternativeRules = ASSIGNMENT_STMT_RHS;
+                break;
             default:
                 return seekMatchInExprRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
                         isEntryPoint);
@@ -2372,10 +2382,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         ParserRuleContext.MEMBER_ACCESS_KEY_EXPR };
                 break;
             case QUERY_EXPRESSION:
-                alternatives = new ParserRuleContext[] { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
+                alternatives = new ParserRuleContext[] { ParserRuleContext.QUERY_PIPELINE_RHS, 
+                        ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
                         ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPTIONAL_CHAINING_TOKEN,
                         ParserRuleContext.CONDITIONAL_EXPRESSION, ParserRuleContext.XML_NAVIGATE_EXPR,
-                        ParserRuleContext.MEMBER_ACCESS_KEY_EXPR, ParserRuleContext.QUERY_PIPELINE_RHS };
+                        ParserRuleContext.MEMBER_ACCESS_KEY_EXPR };
                 break;
             default:
                 if (isParameter(parentCtx)) {
@@ -4262,6 +4273,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
      */
     private ParserRuleContext getNextRuleForVarName() {
         ParserRuleContext parentCtx = getParentContext();
+        if (parentCtx == ParserRuleContext.ASSIGNMENT_STMT) {
+            return ParserRuleContext.ASSIGNMENT_STMT_RHS;
+        }
+
         if (isStatement(parentCtx)) {
             return ParserRuleContext.VAR_DECL_STMT_RHS;
         }

@@ -38,6 +38,8 @@ public class BTupleType extends BType implements TupleType {
     public List<BType> tupleTypes;
     public BType restType;
     public Boolean isAnyData = null;
+    public boolean resolvingToString = false;
+    public boolean isCyclic = false;
 
     public BIntersectionType immutableType;
 
@@ -53,10 +55,39 @@ public class BTupleType extends BType implements TupleType {
         this.tupleTypes = tupleTypes;
     }
 
+    public BTupleType(BTypeSymbol tsymbol, List<BType> tupleTypes, boolean isCyclic) {
+        super(TypeTags.TUPLE, tsymbol);
+        this.tupleTypes = tupleTypes;
+        this.isCyclic = isCyclic;
+    }
+
     public BTupleType(BTypeSymbol tsymbol, List<BType> tupleTypes, BType restType, long flags) {
         super(TypeTags.TUPLE, tsymbol, flags);
         this.tupleTypes = tupleTypes;
         this.restType = restType;
+    }
+
+    public BTupleType(BTypeSymbol tsymbol, List<BType> tupleTypes, BType restType, long flags, boolean isCyclic) {
+        super(TypeTags.TUPLE, tsymbol, flags);
+        this.tupleTypes = tupleTypes;
+        this.restType = restType;
+        this.isCyclic = isCyclic;
+    }
+
+    public BTupleType(BTypeSymbol tsymbol) {
+        this(tsymbol, true);
+    }
+
+    private BTupleType(BTypeSymbol tsymbol, boolean readonly) {
+        super(TypeTags.TUPLE, tsymbol);
+
+        if (readonly) {
+            this.flags |= Flags.READONLY;
+
+            if (tsymbol != null) {
+                this.tsymbol.flags |= Flags.READONLY;
+            }
+        }
     }
 
     @Override
@@ -81,9 +112,19 @@ public class BTupleType extends BType implements TupleType {
 
     @Override
     public String toString() {
+        // This logic is added to prevent duplicate recursive calls to toString
+        if (this.resolvingToString) {
+            if (tsymbol != null && !tsymbol.getName().getValue().isEmpty()) {
+                return this.tsymbol.toString();
+            }
+            return "...";
+        }
+        this.resolvingToString = true;
+
         String stringRep = "[" + tupleTypes.stream().map(BType::toString).collect(Collectors.joining(","))
                 + ((restType != null) ? (tupleTypes.size() > 0 ? "," : "") + restType.toString() + "...]" : "]");
 
+        this.resolvingToString = false;
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
     }
 
@@ -100,5 +141,76 @@ public class BTupleType extends BType implements TupleType {
     @Override
     public void setIntersectionType(BIntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    // In the case of a cyclic tuple, this aids in
+    //adding resolved members to a previously defined empty tuple shell in main scope
+    public boolean addMembers(BType memberType) {
+        // Prevent cyclic types of same type ex: type Foo [int, Foo];
+        if (memberType instanceof BTupleType && ((BTupleType) memberType).isCyclic &&
+                memberType.getQualifiedTypeName().equals(this.getQualifiedTypeName())) {
+            return false;
+        }
+        this.tupleTypes.add(memberType);
+        if (Symbols.isFlagOn(this.flags, Flags.READONLY) && !Symbols.isFlagOn(memberType.flags, Flags.READONLY)) {
+            this.flags ^= Flags.READONLY;
+        }
+        setCyclicFlag(memberType);
+        return true;
+    }
+
+    // In the case of a cyclic tuple, this aids in
+    // adding rest type of resolved node to a previously defined
+    // empty tuple shell in main scope
+    public boolean addRestType(BType restType) {
+        if (restType != null && restType instanceof BTupleType && ((BTupleType) restType).isCyclic &&
+                restType.getQualifiedTypeName().equals(this.getQualifiedTypeName()) && this.tupleTypes.isEmpty()) {
+            return false;
+        }
+        this.restType = restType;
+        if (Symbols.isFlagOn(this.flags, Flags.READONLY) && !Symbols.isFlagOn(restType.flags, Flags.READONLY)) {
+            this.flags ^= Flags.READONLY;
+        }
+        setCyclicFlag(restType);
+        return true;
+    }
+
+    public void setMemberTypes(List<BType> memberTypes) {
+        assert memberTypes.size() == 0;
+        this.tupleTypes = memberTypes;
+    }
+
+    private void setCyclicFlag(BType type) {
+        if (isCyclic) {
+            return;
+        }
+
+        if (type instanceof BArrayType) {
+            BArrayType arrayType = (BArrayType) type;
+            if (arrayType.eType == this) {
+                isCyclic = true;
+            }
+        }
+
+        if (type instanceof BMapType) {
+            BMapType mapType = (BMapType) type;
+            if (mapType.constraint == this) {
+                isCyclic = true;
+            }
+        }
+
+        if (type instanceof BTableType) {
+            BTableType tableType = (BTableType) type;
+            if (tableType.constraint == this) {
+                isCyclic = true;
+            }
+
+            if (tableType.constraint instanceof BMapType) {
+                BMapType mapType = (BMapType) tableType.constraint;
+                if (mapType.constraint == this) {
+                    isCyclic = true;
+                }
+            }
+        }
     }
 }

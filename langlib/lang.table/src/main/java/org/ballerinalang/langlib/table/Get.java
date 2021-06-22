@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.table;
 
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BTable;
 
 /**
@@ -33,7 +34,7 @@ import io.ballerina.runtime.api.values.BTable;
 //)
 public class Get {
 
-    public static Object get(BTable tbl, Object key) {
-        return tbl.getOrThrow(key);
+    public static BMap get(BTable tbl, Object key) {
+        return (BMap) tbl.getOrThrow(key);
     }
 }
