@@ -96,8 +96,8 @@ public class CreateExecutableTask implements Task {
             }
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
             if (project.buildOptions().dumpBuildTime()) {
-                BuildTime.getInstance().codeGenDuration = BuildTime.getInstance().codeGenDuration +
-                        (System.currentTimeMillis() - start);
+                BuildTime.getInstance().emitArtifactDuration = System.currentTimeMillis() - start;
+                BuildTime.getInstance().compile = false;
             }
 
             // Print warnings for conflicted jars

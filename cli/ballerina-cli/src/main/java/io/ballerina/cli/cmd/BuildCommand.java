@@ -76,7 +76,6 @@ public class BuildCommand implements BLauncherCmd {
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = false;
-        this.skipCopyLibsFromDist = true;
         this.dumpBuildTime = dumpBuildTime;
     }
 

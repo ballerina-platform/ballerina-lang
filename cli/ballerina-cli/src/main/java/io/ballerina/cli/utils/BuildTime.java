@@ -28,10 +28,12 @@ public class BuildTime {
 
     public long timestamp;
     public boolean offline;
+    public boolean compile;
     public long projectLoadDuration;
     public long packageResolutionDuration;
     public long packageCompilationDuration;
     public long codeGenDuration;
+    public long emitArtifactDuration;
     public long testingExecutionDuration;
     public long totalDuration;
 

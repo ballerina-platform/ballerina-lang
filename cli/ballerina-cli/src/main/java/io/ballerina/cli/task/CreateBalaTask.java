@@ -72,8 +72,8 @@ public class CreateBalaTask implements Task {
             }
             emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
             if (project.buildOptions().dumpBuildTime()) {
-                BuildTime.getInstance().codeGenDuration = BuildTime.getInstance().codeGenDuration +
-                        (System.currentTimeMillis() - start);
+                BuildTime.getInstance().emitArtifactDuration = System.currentTimeMillis() - start;
+                BuildTime.getInstance().compile = true;
             }
         } catch (ProjectException e) {
             throw createLauncherException("BALA creation failed:" + e.getMessage());

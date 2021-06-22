@@ -40,6 +40,7 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
  * @since 2.0.0
  */
 public class DumpBuildTimeTask implements Task {
+    private static final String BUILD_TIME_JSON = "build-time.json";
     private final transient PrintStream out;
     private final Path currentDir = Paths.get(System.getProperty("user.dir"));
 
@@ -76,7 +77,7 @@ public class DumpBuildTimeTask implements Task {
 
     private Path getBuildTimeFilePath(Project project) {
         if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
-            return project.sourceRoot().resolve("target").resolve("build-time.json").toAbsolutePath();
+            return project.sourceRoot().resolve("target").resolve(BUILD_TIME_JSON).toAbsolutePath();
         }
         return currentDir.resolve("build-time.json").toAbsolutePath();
     }
