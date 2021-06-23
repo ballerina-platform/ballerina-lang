@@ -1303,7 +1303,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     typeDefinition.hasCyclicReference = true;
                     return;
                 }
-                //Recursive types (A -> B -> C -> B) are valid provided they go through a type constructor
+                // Recursive types (A -> B -> C -> B) are valid provided they go through a type constructor
                 if (unresolvedTypeNodeKind != NodeKind.OBJECT_TYPE && isTypeConstructorAvailable(unresolvedTypeNodeKind)
                 && !sameTypeNode) {
                     return;
@@ -1345,9 +1345,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             if (typeDefinitions.isEmpty()) {
                 BType referredType = symResolver.resolveTypeNode(currentTypeOrClassNode, env);
+                // We are referring a fully or partially defined type from another cyclic type
                 if (referredType != symTable.noType) {
                     return;
-                    // we are referring an fully or partially defined type from another cyclic type
                 }
 
                 // If a type is declared, it should either get defined successfully or added to the unresolved
