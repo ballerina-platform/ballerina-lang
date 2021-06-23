@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -52,9 +53,12 @@ import javax.xml.stream.XMLStreamWriter;
 public class BallerinaXmlSerializer extends OutputStream {
     private static final XMLOutputFactory xmlOutputFactory;
     private static final String XMLNS = "xmlns";
+    private static final String XML_NAME_SPACE = "http://www.w3.org/XML/1998/namespace";
     private static final String EMPTY_STR = "";
     public static final String PARSE_XML_OP = "parse xml";
     public static final String XML = "xml";
+    public static final String XML_URI = "{" + XMLConstants.XML_NS_URI + "}";
+
     private XMLStreamWriter xmlStreamWriter;
     private Deque<Set<String>> parentNSSet;
     private int nsNumber;
@@ -276,7 +280,7 @@ public class BallerinaXmlSerializer extends OutputStream {
                 String uri = key.substring(1, closingCurlyPos);
 
                 // Prefix for the namespace is not defined.
-                if (xmlStreamWriter.getNamespaceContext().getPrefix(uri) == null) {
+                if (!XML_NAME_SPACE.equals(uri) && xmlStreamWriter.getNamespaceContext().getPrefix(uri) == null) {
                     generateAndAddRandomNSPrefix(curNSSet, uri);
                 }
                 String localName = key.substring(closingCurlyPos + 1);
@@ -298,7 +302,9 @@ public class BallerinaXmlSerializer extends OutputStream {
                 String nsUri = nsEntry.getValue();
                 String nsKey = concatNsPrefixURI(prefix, nsUri);
                 if (!curNSSet.contains(nsKey)) {
-                    xmlStreamWriter.writeNamespace(prefix, nsUri);
+                    if (!prefix.equals(XML)) {
+                        xmlStreamWriter.writeNamespace(prefix, nsUri);
+                    }
                     xmlStreamWriter.setPrefix(prefix, nsUri);
                     curNSSet.add(nsKey);
                 }
@@ -361,7 +367,7 @@ public class BallerinaXmlSerializer extends OutputStream {
         // Extract namespace entries
         for (Map.Entry<BString, BString> attributeEntry : xmlValue.getAttributesMap().entrySet()) {
             String key = attributeEntry.getKey().getValue();
-            if (key.startsWith(XmlItem.XMLNS_URL_PREFIX)) {
+            if (key.startsWith(XmlItem.XMLNS_NS_URI_PREFIX)) {
                 int closingCurly = key.indexOf('}');
                 String prefix = key.substring(closingCurly + 1);
                 if (prefix.equals(XML)) {
@@ -369,6 +375,9 @@ public class BallerinaXmlSerializer extends OutputStream {
                 }
                 nsPrefixMap.put(prefix, attributeEntry.getValue().getValue());
             } else {
+                if (key.startsWith(XML_URI)) {
+                    nsPrefixMap.put(XML, XMLConstants.XML_NS_URI);
+                }
                 attributeMap.put(key, attributeEntry.getValue().getValue());
             }
         }
