@@ -29,6 +29,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
+import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
 import org.ballerinalang.central.client.model.Error;
 import org.ballerinalang.central.client.model.Package;
@@ -37,6 +38,8 @@ import org.ballerinalang.central.client.model.PackageSearchResult;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Proxy;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -114,10 +117,7 @@ public class CentralAPIClient {
                 url = url + "/" + version;
             }
 
-            Request getPackageReq = getNewRequest(supportedPlatform, ballerinaVersion)
-                    .get()
-                    .url(url)
-                    .build();
+            Request getPackageReq = getNewRequest(supportedPlatform, ballerinaVersion).get().url(url).build();
             Call getPackageReqCall = client.newCall(getPackageReq);
             Response getPackageResponse = getPackageReqCall.execute();
 
@@ -129,18 +129,18 @@ public class CentralAPIClient {
                     if (getPackageResponse.code() == HTTP_OK) {
                         return new Gson().fromJson(body.get().string(), Package.class);
                     }
-    
+
                     // Package is not found
                     if (getPackageResponse.code() == HTTP_NOT_FOUND) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage().contains("package not found for:")) {
                             throw new NoPackageException(error.getMessage());
                         } else {
-                            throw new CentralClientException(ERR_CANNOT_FIND_PACKAGE + packageSignature +
-                                                             ". reason: " + error.getMessage());
+                            throw new CentralClientException(ERR_CANNOT_FIND_PACKAGE + packageSignature + ". reason: "
+                                                                     + error.getMessage());
                         }
                     }
-    
+
                     // If request sent is wrong or error occurred at remote repository
                     if (getPackageResponse.code() == HTTP_BAD_REQUEST ||
                         getPackageResponse.code() == HTTP_INTERNAL_ERROR ||
@@ -154,9 +154,12 @@ public class CentralAPIClient {
             }
 
             throw new CentralClientException(ERR_CANNOT_FIND_PACKAGE + packageSignature);
+        } catch (SocketTimeoutException e) {
+            throw new ConnectionErrorException(ERR_CANNOT_FIND_PACKAGE + packageSignature + ". reason: " +
+                                                       e.getMessage());
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_FIND_PACKAGE + packageSignature + ". reason: " +
-                    e.getMessage());
+                                                     e.getMessage());
         } finally {
             body.ifPresent(ResponseBody::close);
             try {
@@ -223,9 +226,12 @@ public class CentralAPIClient {
             }
 
             throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature + ".");
+        } catch (SocketTimeoutException | UnknownHostException e) {
+            throw new ConnectionErrorException(ERR_CANNOT_FIND_VERSIONS + packageSignature + ". reason: " +
+                                                       e.getMessage());
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature + ". reason: " +
-                    e.getMessage());
+                                                     e.getMessage());
         } finally {
             body.ifPresent(ResponseBody::close);
             try {
