@@ -77,7 +77,7 @@ public class BJSONValueTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected '(int[]|error)', found 'json'", 29, 21);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: expected 'int', found 'json'", 33, 13);
+                "incompatible types: expected '(int|error)', found '(json|Error)'", 33, 19);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

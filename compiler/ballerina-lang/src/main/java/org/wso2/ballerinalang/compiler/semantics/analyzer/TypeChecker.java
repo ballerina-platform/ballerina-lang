@@ -5343,7 +5343,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private void rewriteWithEnsureTypeFunc(BLangCheckedExpr checkedExpr, BType type) {
         BType rhsType = getCandidateType(checkedExpr, type);
         if (rhsType == symTable.semanticError) {
-            rhsType = checkExpr(checkedExpr.expr, env);
+            rhsType = getCandidateType(checkedExpr, rhsType);
         }
         BType candidateLaxType = getCandidateLaxType(checkedExpr.expr, rhsType);
         if (!types.isLax(candidateLaxType)) {
@@ -5379,8 +5379,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
         checkedExpr.expr.cloneAttempt++;
         BLangExpression clone = nodeCloner.clone(checkedExpr.expr);
-        BType rhsType = checkExpr(clone, env, checkExprCandidateType);
-
+        BType rhsType;
+        if (checkExprCandidateType == symTable.semanticError) {
+            rhsType = checkExpr(clone, env);
+        } else {
+            rhsType = checkExpr(clone, env, checkExprCandidateType);
+        }
         this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
         this.dlog.setErrorCount(prevErrorCount);
         if (!prevNonErrorLoggingCheck) {

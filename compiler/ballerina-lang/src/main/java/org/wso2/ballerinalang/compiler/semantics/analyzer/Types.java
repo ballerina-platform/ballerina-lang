@@ -4902,7 +4902,7 @@ public class Types {
         }
 
         if (errorLiftedType.getMemberTypes().size() == 0) {
-            return symTable.neverType;
+            return symTable.semanticError;
         }
 
         return errorLiftedType;
