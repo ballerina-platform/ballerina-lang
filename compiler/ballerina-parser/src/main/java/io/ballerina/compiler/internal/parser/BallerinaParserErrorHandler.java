@@ -127,8 +127,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] TOP_LEVEL_NODE_WITHOUT_MODIFIER =
             { ParserRuleContext.EOF, ParserRuleContext.MODULE_CLASS_DEFINITION,
                     ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.SERVICE_DECL,
-                    ParserRuleContext.TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC,
-                    ParserRuleContext.LISTENER_DECL, ParserRuleContext.MODULE_VAR_DECL, ParserRuleContext.CONSTANT_DECL,
+                    ParserRuleContext.MODULE_VAR_DECL, ParserRuleContext.LISTENER_DECL,
+                    ParserRuleContext.TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC, ParserRuleContext.CONSTANT_DECL,
                     ParserRuleContext.ANNOTATION_DECL, ParserRuleContext.XML_NAMESPACE_DECLARATION,
                     ParserRuleContext.MODULE_ENUM_DECLARATION, ParserRuleContext.IMPORT_DECL };
 
@@ -831,8 +831,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         int matchingRulesCount = 0;
 
         while (currentDepth < LOOKAHEAD_LIMIT) {
-            hasMatch = true;
             skipRule = false;
+            lookahead = getNextLookahead(lookahead);
             STToken nextToken = this.tokenReader.peek(lookahead);
 
             switch (currentCtx) {
@@ -1189,6 +1189,19 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         Result result = new Result(new ArrayDeque<>(), matchingRulesCount);
         result.solution = new Solution(Action.KEEP, currentCtx, SyntaxKind.NONE, currentCtx.toString());
         return result;
+    }
+
+    /**
+     * Get the next lookahead by skipping doc strings since error handler is not considering doc strings.
+     *
+     * @param lookahead current lookahead
+     * @return next lookahead by skipping doc strings
+     */
+    private int getNextLookahead(int lookahead) {
+        while (this.tokenReader.peek(lookahead).kind == SyntaxKind.DOCUMENTATION_STRING) {
+            lookahead++;
+        }
+        return lookahead;
     }
 
     /**
