@@ -49,9 +49,11 @@ public class VarIgnoreTest {
     @Test(description = "Test var ignore negative cases.")
     public void testVarIgnoreNegative() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-ignore-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 2);
-        BAssertUtil.validateError(res, 0, "no new variables on left side", 2, 5);
-        BAssertUtil.validateError(res, 1, "no new variables on left side", 3, 5);
+        Assert.assertEquals(res.getErrorCount(), 4);
+        BAssertUtil.validateError(res, 0, "incompatible types: expected 'any', found 'error'", 1, 1);
+        BAssertUtil.validateError(res, 1, "incompatible types: expected 'string', found 'int'", 4, 16);
+        BAssertUtil.validateError(res, 2, "incompatible types: expected 'any', found 'error'", 6, 5);
+        BAssertUtil.validateError(res, 3, "incompatible types: expected 'any', found 'error'", 7, 5);
     }
 
     @AfterClass

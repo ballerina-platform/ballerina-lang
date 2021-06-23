@@ -45,3 +45,9 @@ function updateVarValue (int v1, boolean v3, string v4, float v5) returns [int, 
 
     return [i, b, s, f];
 }
+
+function wildCardLocalVariables() {
+    float _ = 3.14;
+    var _ = 10 * 30;
+    int x = let var _ = 10 in 10 * 20;
+}
