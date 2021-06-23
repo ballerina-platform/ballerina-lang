@@ -175,11 +175,11 @@ public function testwildcardBindingPatternInLetClause() {
             firstName: name,
             lastName: person.lastName,
             deptAccess: "WSO2"
-            };
-     assertEquality(1, outputPersonList.length());
-     Person p = outputPersonList[0];
-     assertEquality(p.firstName, "Mark");
-     assertEquality(p.lastName, "George");
+        };
+    assertEquality(1, outputPersonList.length());
+    Person p = outputPersonList[0];
+    assertEquality(p.firstName, "Mark");
+    assertEquality(p.lastName, "George");
 }
 
 function foo() returns [string, string] {
