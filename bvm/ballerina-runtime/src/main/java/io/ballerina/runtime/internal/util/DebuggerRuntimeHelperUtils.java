@@ -21,13 +21,11 @@ package io.ballerina.runtime.internal.util;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
-import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
-import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -37,72 +35,76 @@ import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
 
 /**
- * This class contains the set of runtime helper util methods to support debugger expression evaluation. These utils
- * should be class-loaded and present in the program JVM to execute function/object method/remote action
- * invocations synchronously.
+ * This class contains the set of runtime helper util methods to support debugger expression evaluation.
+ * <p>
+ * These utils methods must be class-loaded into the program JVM to evaluate
+ * <ul>
+ *  <li> function
+ *  <li> object method
+ *  <li> remote call action
+ *  <li> wait action
+ *  </ul>
+ * invocations using the debugger expression evaluation engine.
  *
  * @since 2.0.0
  */
 @SuppressWarnings("unused")
 public class DebuggerRuntimeHelperUtils {
 
-    public static Object invokeObjectMethodAsync(BObject bObject, String methodName, Object... args) {
-
-        Scheduler scheduler = new Scheduler(1, false);
-        Runtime runtime = new Runtime(scheduler);
-
-        CountDownLatch latch = new CountDownLatch(1);
-        final Object[] finalResult = new Object[1];
-        Callback callback = new Callback() {
-            @Override
-            public void notifySuccess(Object result) {
-                latch.countDown();
-                finalResult[0] = result;
-            }
-
-            @Override
-            public void notifyFailure(BError error) {
-                latch.countDown();
-                finalResult[0] = error;
-            }
-        };
-
-        Object resultFuture = runtime.invokeMethodAsync(bObject, methodName, "evaluator-strand", null, callback, args);
-        scheduler.start();
+    /**
+     * Invokes Ballerina object methods in blocking manner.
+     *
+     * @param bObject    ballerina object instance
+     * @param methodName name of the object method to be invoked
+     * @param args       object method arguments
+     * @return return values
+     */
+    public static Object invokeObjectMethod(BObject bObject, String methodName, Object... args) {
         try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+            Scheduler scheduler = new Scheduler(1, false);
+            Runtime runtime = new Runtime(scheduler);
+            CountDownLatch latch = new CountDownLatch(1);
+            final Object[] finalResult = new Object[1];
 
-        return finalResult[0];
+            Object resultFuture = runtime.invokeMethodAsync(bObject, methodName, "evaluator-strand", null,
+                    new Callback() {
+                        @Override
+                        public void notifySuccess(Object result) {
+                            latch.countDown();
+                            finalResult[0] = result;
+                        }
+
+                        @Override
+                        public void notifyFailure(BError error) {
+                            latch.countDown();
+                            finalResult[0] = error;
+                        }
+                    }, args);
+
+            scheduler.start();
+            latch.await();
+            return finalResult[0];
+        } catch (Exception e) {
+            throw new BallerinaException("invocation failed: " + e.getMessage());
+        }
     }
 
     /**
-     * This method will invoke Ballerina function in blocking manner.
+     * Invoke Ballerina functions in blocking manner.
      *
-     * @param scheduler   current scheduler
-     * @param strandName  name for newly creating strand which is used to execute the function pointer.
-     * @param metaData    meta data of new strand.
      * @param classLoader normal classLoader
      * @param className   which the function resides/ or file name
      * @param methodName  to be invokable unit
      * @param paramValues to be passed to invokable unit
      * @return return values
      */
-    public static Object executeFunction(Scheduler scheduler, String strandName, StrandMetadata metaData,
-                                         ClassLoader classLoader, String className, String methodName,
-                                         Object... paramValues) {
+    public static Object invokeFunction(ClassLoader classLoader, String className, String methodName,
+                                        Object... paramValues) {
         try {
+            Scheduler scheduler = new Scheduler(1, false);
             Class<?> clazz = classLoader.loadClass(className);
-            int paramCount = paramValues.length * 2 + 1;
-            Object[] jvmArgs = new Object[paramCount];
-            jvmArgs[0] = scheduler;
-            for (int i = 0, j = 1; i < paramValues.length; i++) {
-                jvmArgs[j++] = paramValues[i];
-                jvmArgs[j++] = true;
-            }
             Method method = getMethod(methodName, clazz);
+
             Function<Object[], Object> func = args -> {
                 try {
                     return method.invoke(null, args);
@@ -110,21 +112,26 @@ public class DebuggerRuntimeHelperUtils {
                     throw new BallerinaException(methodName + " function invocation failed: " + e.getMessage());
                 }
             };
-            CountDownLatch completeFunction = new CountDownLatch(1);
-            BFuture futureValue = scheduler.schedule(jvmArgs, func, null, new Callback() {
+
+            final Object[] finalResult = new Object[1];
+            CountDownLatch latch = new CountDownLatch(1);
+            BFuture futureValue = scheduler.schedule(paramValues, func, null, new Callback() {
                 @Override
                 public void notifySuccess(Object result) {
-                    completeFunction.countDown();
+                    latch.countDown();
+                    finalResult[0] = result;
                 }
 
                 @Override
                 public void notifyFailure(BError error) {
-                    completeFunction.countDown();
+                    latch.countDown();
+                    finalResult[0] = error;
                 }
-            }, new HashMap<>(), PredefinedTypes.TYPE_NULL, strandName, metaData);
-            completeFunction.await();
-            return futureValue.getResult();
-        } catch (NoSuchMethodException | ClassNotFoundException | InterruptedException e) {
+            }, new HashMap<>(), PredefinedTypes.TYPE_NULL, "evaluation-strand", null);
+            scheduler.start();
+            latch.await();
+            return finalResult[0];
+        } catch (Exception e) {
             throw new BallerinaException("invocation failed: " + e.getMessage());
         }
     }

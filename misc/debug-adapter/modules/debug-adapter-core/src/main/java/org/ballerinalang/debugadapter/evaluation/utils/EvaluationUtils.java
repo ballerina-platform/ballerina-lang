@@ -84,6 +84,7 @@ public class EvaluationUtils {
 
     // Java runtime helper classes
     public static final String JAVA_OBJECT_CLASS = "java.lang.Object";
+    public static final String JAVA_LANG_CLASSLOADER = "java.lang.ClassLoader";
     public static final String JAVA_OBJECT_ARRAY_CLASS = JAVA_OBJECT_CLASS + "[]";
     public static final String JAVA_STRING_CLASS = "java.lang.String";
     private static final String JAVA_BOOLEAN_CLASS = "java.lang.Boolean";
@@ -127,7 +128,8 @@ public class EvaluationUtils {
     public static final String VALUE_EQUAL_METHOD = "isEqual";
     public static final String XML_CONCAT_METHOD = "concatenate";
     public static final String STRING_TO_XML_METHOD = "stringToXml";
-    public static final String INVOKE_OBJECT_METHOD_ASYNC = "invokeObjectMethodAsync";
+    public static final String INVOKE_OBJECT_METHOD_ASYNC = "invokeObjectMethod";
+    public static final String INVOKE_FUNCTION_ASYNC = "invokeFunction";
     static final String FROM_STRING_METHOD = "fromString";
     private static final String B_STRING_CONCAT_METHOD = "concat";
     private static final String FOR_NAME_METHOD = "forName";
