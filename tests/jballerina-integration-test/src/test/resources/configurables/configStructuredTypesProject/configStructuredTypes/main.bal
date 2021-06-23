@@ -19,6 +19,7 @@ import configStructuredTypes.mod1;
 import ballerina/jballerina.java;
 import configStructuredTypes.mod2;
 import testOrg/configLib.mod1 as configLib;
+import configStructuredTypes.mod3;
 import ballerina/test;
 
 public type Engineer record {|
@@ -153,6 +154,7 @@ public function main() {
     testComplexRecords();
     testMaps();
     mod2:testMaps();
+    mod3:testOpenRecords();
     print("Tests passed");
 }
 
@@ -275,25 +277,25 @@ public function testMaps() {
     test:assertEquals(readonlyManagerMap.toString(), "{\"m1\":{\"name\":\"manu\",\"id\":333},\"m2\":{\"name\":" +
     "\"riyafa\",\"id\":444}}");
 
-    testMapIterator(user, 3);
-    testMapIterator(numbers, 4);
-    testMapIterator(fractions, 3);
-    testMapIterator(bits, 2);
-    testMapIterator(numberSet, 3);
-    testMapIterator(stringSet, 3);
-    testMapIterator(engineerMap, 3);
-    testMapIterator(lecturerMap, 2);
-    testMapIterator(readonlyEngineerMap, 3);
-    testMapIterator(readonlyLecturerMap, 2);
-    testMapIterator(subjects, 3);
-    testMapIterator(departments, 3);
-    testMapIterator(intMap, 3);
-    testMapIterator(libIntMap, 3);
-    testMapIterator(managerMap, 2);
-    testMapIterator(readonlyManagerMap, 2);
+    mod3:testMapIterator(user, 3);
+    mod3:testMapIterator(numbers, 4);
+    mod3:testMapIterator(fractions, 3);
+    mod3:testMapIterator(bits, 2);
+    mod3:testMapIterator(numberSet, 3);
+    mod3:testMapIterator(stringSet, 3);
+    mod3:testMapIterator(engineerMap, 3);
+    mod3:testMapIterator(lecturerMap, 2);
+    mod3:testMapIterator(readonlyEngineerMap, 3);
+    mod3:testMapIterator(readonlyLecturerMap, 2);
+    mod3:testMapIterator(subjects, 3);
+    mod3:testMapIterator(departments, 3);
+    mod3:testMapIterator(intMap, 3);
+    mod3:testMapIterator(libIntMap, 3);
+    mod3:testMapIterator(managerMap, 2);
+    mod3:testMapIterator(readonlyManagerMap, 2);
     // These lines should be enabled after fixing #30566
-    // testMapIterator(studentMap, 3);
-    // testMapIterator(readonlyStudentMap, 3);
+    // mod3:testMapIterator(studentMap, 3);
+    // mod3:testMapIterator(readonlyStudentMap, 3);
 
     testArrayOfMaps();
     testTableOfMaps();
@@ -339,31 +341,15 @@ public function testTableOfMaps() {
     "\"m2\":{\"name\":\"Jill\",\"id\":88}},{\"m1\":{\"name\":\"John\",\"id\":66}," +
     "\"m2\":{\"name\":\"Jim\",\"id\":77}}]");
 
-    testTableIterator(stringMapTable);
-    testTableIterator(readonlyTable);
-    testTableIterator(stringMapArrTable);
-    testTableIterator(engineerMapTable);
-    testTableIterator(readonlyEngineerMapTable);
-    testTableIterator(studentMapTable);
-    testTableIterator(readonlyStudentMapTable);
-    testTableIterator(managerMapTable);
-    testTableIterator(readonlyManagerMapTable);
-}
-
-function testTableIterator(table<map<anydata>> tab) {
-    int count = 0;
-    foreach var entry in tab {
-        count += 1;
-    }
-    test:assertEquals(count, 2);
-}
-
-function testMapIterator(map<anydata> testMap, int length) {
-    int count = 0;
-    foreach var entry in testMap {
-        count += 1;
-    }
-    test:assertEquals(count, length);
+    mod3:testTableIterator(stringMapTable);
+    mod3:testTableIterator(readonlyTable);
+    mod3:testTableIterator(stringMapArrTable);
+    mod3:testTableIterator(engineerMapTable);
+    mod3:testTableIterator(readonlyEngineerMapTable);
+    mod3:testTableIterator(studentMapTable);
+    mod3:testTableIterator(readonlyStudentMapTable);
+    mod3:testTableIterator(managerMapTable);
+    mod3:testTableIterator(readonlyManagerMapTable);
 }
 
 function print(string value) {

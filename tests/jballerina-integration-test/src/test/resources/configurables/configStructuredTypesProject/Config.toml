@@ -871,3 +871,275 @@ m1.id = 66
 m1.name = "John"
 m2.id = 77
 m2.name = "Jim"
+
+[configStructuredTypes.mod3.product]
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[[configStructuredTypes.mod3.product.mapArr]]
+c = "c"
+d = 456
+
+[[configStructuredTypes.mod3.productArr]]
+intVal = 11
+floatVal = 99.77
+stringVal = "def"
+arrVal = [4.5, 6.7]
+mapVal.c = "c"
+mapVal.d = 456
+
+[[configStructuredTypes.mod3.productArr.mapArr]]
+a = "a"
+b = 789
+
+[[configStructuredTypes.mod3.productArr]]
+intVal = 33
+floatVal = 88.44
+stringVal = "ghi"
+arrVal = [8.9, 0.1]
+mapVal.e = "e"
+mapVal.f = 789
+
+[[configStructuredTypes.mod3.productArr.mapArr]]
+g = "g"
+h = 876
+
+[[configStructuredTypes.mod3.productTable]]
+intVal = 65
+floatVal = 9.12
+stringVal = "val"
+arrVal = ["4", "6"]
+mapVal.c = "ccc"
+mapVal.d = 43
+
+[[configStructuredTypes.mod3.productTable.mapArr]]
+i = "iii"
+j = 21
+
+[[configStructuredTypes.mod3.productTable]]
+intVal = 40
+floatVal = 13.57
+stringVal = "str"
+arrVal = [10, 20]
+mapVal.m = "mmm"
+mapVal.n = 68
+
+[[configStructuredTypes.mod3.productTable.mapArr]]
+y = "yyy"
+x = 24
+
+[configStructuredTypes.mod3.productMap.entry1]
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[[configStructuredTypes.mod3.productMap.entry2.mapArr]]
+c = "c"
+d = 456
+
+[[configStructuredTypes.mod3.productMapTable.entry1]]
+intVal = 100
+floatVal = 103.507
+stringVal = "string"
+arrVal = [100, 200]
+mapVal.m = "value"
+mapVal.n = 608
+
+[[configStructuredTypes.mod3.productMapTable.entry1.mapArr]]
+y = "test"
+x = 204
+
+[configStructuredTypes.mod3.owner]
+id = 101
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[[configStructuredTypes.mod3.owner.mapArr]]
+c = "c"
+d = 456
+
+[[configStructuredTypes.mod3.ownerArr]]
+id = 102
+intVal = 11
+floatVal = 99.77
+stringVal = "def"
+arrVal = [4.5, 6.7]
+mapVal.c = "c"
+mapVal.d = 456
+
+[[configStructuredTypes.mod3.ownerArr.mapArr]]
+a = "a"
+b = 789
+
+[[configStructuredTypes.mod3.ownerArr]]
+id = 103
+intVal = 33
+floatVal = 88.44
+stringVal = "ghi"
+arrVal = [8.9, 0.1]
+mapVal.e = "e"
+mapVal.f = 789
+
+[[configStructuredTypes.mod3.ownerArr.mapArr]]
+g = "g"
+h = 876
+
+[[configStructuredTypes.mod3.ownerTable]]
+id = 104
+intVal = 65
+floatVal = 9.12
+stringVal = "val"
+arrVal = ["4", "6"]
+mapVal.c = "ccc"
+mapVal.d = 43
+
+[[configStructuredTypes.mod3.ownerTable.mapArr]]
+i = "iii"
+j = 21
+
+[[configStructuredTypes.mod3.ownerTable]]
+id = 105
+intVal = 40
+floatVal = 13.57
+stringVal = "str"
+arrVal = [10, 20]
+mapVal.m = "mmm"
+mapVal.n = 68
+
+[[configStructuredTypes.mod3.ownerTable.mapArr]]
+y = "yyy"
+x = 24
+
+[configStructuredTypes.mod3.ownerMap.entry1]
+id  = 106
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[configStructuredTypes.mod3.ownerMap.entry2]
+id = 107
+
+[[configStructuredTypes.mod3.ownerMap.entry2.mapArr]]
+c = "c"
+d = 456
+
+[[configStructuredTypes.mod3.ownerMapTable.entry1]]
+id = 108
+intVal = 100
+floatVal = 103.507
+stringVal = "string"
+arrVal = [100, 200]
+mapVal.m = "value"
+mapVal.n = 608
+
+[[configStructuredTypes.mod3.ownerMapTable.entry1.mapArr]]
+y = "test"
+x = 204
+
+[configStructuredTypes.mod3.member]
+id = 101
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[[configStructuredTypes.mod3.member.mapArr]]
+c = "c"
+d = 456
+
+[[configStructuredTypes.mod3.memberArr]]
+id = 102
+intVal = 11
+floatVal = 99.77
+stringVal = "def"
+arrVal = [4.5, 6.7]
+mapVal.c = "c"
+mapVal.d = 456
+
+[[configStructuredTypes.mod3.memberArr.mapArr]]
+a = "a"
+b = 789
+
+[[configStructuredTypes.mod3.memberArr]]
+id = 103
+intVal = 33
+floatVal = 88.44
+stringVal = "ghi"
+arrVal = [8.9, 0.1]
+mapVal.e = "e"
+mapVal.f = 789
+
+[[configStructuredTypes.mod3.memberArr.mapArr]]
+g = "g"
+h = 876
+
+[[configStructuredTypes.mod3.memberTable]]
+id = 104
+intVal = 65
+floatVal = 9.12
+stringVal = "val"
+arrVal = ["4", "6"]
+mapVal.c = "ccc"
+mapVal.d = 43
+
+[[configStructuredTypes.mod3.memberTable.mapArr]]
+i = "iii"
+j = 21
+
+[[configStructuredTypes.mod3.memberTable]]
+id = 105
+intVal = 40
+floatVal = 13.57
+stringVal = "str"
+arrVal = [10, 20]
+mapVal.m = "mmm"
+mapVal.n = 68
+
+[[configStructuredTypes.mod3.memberTable.mapArr]]
+y = "yyy"
+x = 24
+
+[configStructuredTypes.mod3.memberMap.entry1]
+id  = 106
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[configStructuredTypes.mod3.memberMap.entry2]
+id = 107
+
+[[configStructuredTypes.mod3.memberMap.entry2.mapArr]]
+c = "c"
+d = 456
+
+[[configStructuredTypes.mod3.memberMapTable.entry1]]
+id = 108
+intVal = 100
+floatVal = 103.507
+stringVal = "string"
+arrVal = [100, 200]
+mapVal.m = "value"
+mapVal.n = 608
+
+[[configStructuredTypes.mod3.memberMapTable.entry1.mapArr]]
+y = "test"
+x = 204

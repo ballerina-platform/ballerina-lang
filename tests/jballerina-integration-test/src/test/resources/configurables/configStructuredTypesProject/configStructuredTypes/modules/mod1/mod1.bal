@@ -29,19 +29,18 @@ public type Officer record {|
     readonly int id = 0;
 |};
 
-
 public type Person readonly & record {
-     string name;
-     int id;
-     Address address;
+    string name;
+    int id;
+    Address address;
 };
 
-public type Address  record {
+public type Address record {
     string city;
     County country = {};
 };
 
-public type County  record {
+public type County record {
     string name = "SL";
 };
 
@@ -70,4 +69,40 @@ public type Place record {|
 |};
 
 public type IntMap map<int>;
+
 public type StudentMap map<Student>;
+
+public type Product record {
+};
+
+public type ProductArray Product[];
+
+public type ProductMap map<Product>;
+
+public type ProductTable table<Product>;
+
+public type ProductMapTable map<table<Product>>;
+
+public type Owner record {
+    readonly int id;
+};
+
+public type OwnerArray Owner[];
+
+public type OwnerMap map<Owner>;
+
+public type OwnerTable table<Owner> key(id);
+
+public type OwnerMapTable map<table<Owner> key(id)>;
+
+public type Member readonly & record {
+    int id;
+};
+
+public type MemberArray Member[];
+
+public type MemberMap map<Member>;
+
+public type MemberTable table<Member> key(id);
+
+public type MemberMapTable map<table<Member> key(id)>;
