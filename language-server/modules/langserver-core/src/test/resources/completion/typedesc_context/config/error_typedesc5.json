@@ -24,22 +24,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestRecord1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "AAL",
-      "insertText": "TestRecord1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap3",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "ABM",
-      "insertText": "TestMap3",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -64,6 +48,22 @@
       "detail": "Map",
       "sortText": "ABM",
       "insertText": "TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "AAL",
+      "insertText": "TestRecord1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap3",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "ABM",
+      "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     },
     {
@@ -299,15 +299,6 @@
       "detail": "type",
       "sortText": "B",
       "insertText": "xml",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "map",
-      "kind": "TypeParameter",
-      "detail": "type ",
-      "sortText": "B",
-      "filterText": "map",
-      "insertText": "map",
       "insertTextFormat": "Snippet"
     }
   ]

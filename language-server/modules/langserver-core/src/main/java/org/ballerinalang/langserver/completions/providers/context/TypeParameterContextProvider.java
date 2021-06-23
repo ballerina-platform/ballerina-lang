@@ -167,7 +167,6 @@ public class TypeParameterContextProvider<T extends Node> extends AbstractComple
             mappingTypes = visibleSymbols.stream().filter(predicate).collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(mappingTypes, context));
             completionItems.addAll(this.getModuleCompletionItems(context));
-            completionItems.add(new TypeCompletionItem(context, null, Snippet.TYPE_MAP.get().build(context)));
         }
 
         return completionItems;
