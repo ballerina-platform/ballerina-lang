@@ -472,21 +472,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "N",
-      "insertText": "StrandData",
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "from",
+      "insertText": "from ",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "TestObject2",
       "kind": "Interface",
       "detail": "Class",
-      "sortText": "M",
+      "sortText": "AK",
       "insertText": "TestObject2",
       "insertTextFormat": "Snippet"
     },
@@ -494,7 +492,7 @@
       "label": "TestObject1",
       "kind": "Interface",
       "detail": "Class",
-      "sortText": "M",
+      "sortText": "AK",
       "insertText": "TestObject1",
       "insertTextFormat": "Snippet"
     },
@@ -514,19 +512,30 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "obj2",
-      "kind": "Variable",
-      "detail": "TestObject2",
-      "sortText": "A",
-      "insertText": "obj2",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
       "sortText": "O",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "N",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "obj2",
+      "kind": "Variable",
+      "detail": "TestObject2",
+      "sortText": "AB",
+      "insertText": "obj2",
       "insertTextFormat": "Snippet"
     },
     {

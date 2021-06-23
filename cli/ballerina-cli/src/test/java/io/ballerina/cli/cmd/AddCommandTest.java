@@ -42,7 +42,7 @@ public class AddCommandTest extends BaseCommandTest {
     public void setup() throws IOException {
         super.setup();
         String[] args = {"project_name"};
-        NewCommand newCommand = new NewCommand(tmpDir, printStream);
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
         new CommandLine(newCommand).parse(args);
         newCommand.execute();
         projectPath = tmpDir.resolve("project_name");
@@ -55,7 +55,7 @@ public class AddCommandTest extends BaseCommandTest {
     public void testAddCommand() throws IOException {
         String moduleName = "module1";
         String[] args = {moduleName};
-        AddCommand addCommand = new AddCommand(projectPath, printStream);
+        AddCommand addCommand = new AddCommand(projectPath, printStream, false);
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
@@ -70,7 +70,7 @@ public class AddCommandTest extends BaseCommandTest {
     public void testAddCommandWithoutProject() throws IOException {
         // Test if no arguments was passed in
         String[] args = {};
-        AddCommand addCommand = new AddCommand(tmpDir, printStream);
+        AddCommand addCommand = new AddCommand(tmpDir, printStream, false);
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
@@ -81,18 +81,18 @@ public class AddCommandTest extends BaseCommandTest {
     public void testAddCommandNoArgs() throws IOException {
         // Test if no arguments was passed in
         String[] args = {};
-        AddCommand addCommand = new AddCommand(projectPath, printStream);
+        AddCommand addCommand = new AddCommand(projectPath, printStream, false);
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("The following required arguments were not provided"));
+        Assert.assertTrue(readOutput().contains("module name is not provided"));
     }
 
     @Test(description = "Test add command with multiple arguments")
     public void testAddCommandMultipleArgs() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"module2", "module3"};
-        AddCommand addCommand = new AddCommand(projectPath, printStream);
+        AddCommand addCommand = new AddCommand(projectPath, printStream, false);
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
         Assert.assertTrue(readOutput().contains("too many arguments"));
@@ -103,12 +103,12 @@ public class AddCommandTest extends BaseCommandTest {
     public void testAddCommandWithInvalidTemplate() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"mymodule2", "-t", "invalid"};
-        AddCommand addCommand = new AddCommand(projectPath, printStream, homeCache);
+        AddCommand addCommand = new AddCommand(projectPath, printStream, false, homeCache);
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
         Assert.assertTrue(readOutput().contains(
-                "Invalid template provided. run 'bal add --help' to see available templates."));
+                "invalid template provided. run 'bal add --help' to see available templates."));
     }
 
     // if invalid module name is passed
@@ -116,18 +116,18 @@ public class AddCommandTest extends BaseCommandTest {
     public void testAddCommandWithInvalidName() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"mymo-dule"};
-        AddCommand addCommand = new AddCommand(projectPath, printStream);
+        AddCommand addCommand = new AddCommand(projectPath, printStream, false);
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("Invalid module name"));
+        Assert.assertTrue(readOutput().contains("invalid module name"));
     }
 
     @Test(description = "Test add command with help flag")
     public void testAddCommandWithHelp() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"-h"};
-        AddCommand addCommand = new AddCommand(projectPath, printStream);
+        AddCommand addCommand = new AddCommand(projectPath, printStream, false);
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
@@ -138,10 +138,10 @@ public class AddCommandTest extends BaseCommandTest {
     public void testAddCommandWithExistingModuleName() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"module1"};
-        AddCommand addCommand = new AddCommand(projectPath, printStream);
+        AddCommand addCommand = new AddCommand(projectPath, printStream, false);
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("A module already exists with the given name"));
+        Assert.assertTrue(readOutput().contains("a module already exists with the given name"));
     }
 }

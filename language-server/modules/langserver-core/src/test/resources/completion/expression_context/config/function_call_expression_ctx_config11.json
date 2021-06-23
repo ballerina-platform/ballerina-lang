@@ -472,19 +472,32 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "process4()(MyType)",
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myFunc(MyType a)(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `MyType`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `MyType` a  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "B",
-      "filterText": "process4",
-      "insertText": "process4()",
-      "insertTextFormat": "Snippet"
+      "sortText": "E",
+      "filterText": "myFunc",
+      "insertText": "myFunc(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "addFunction(int num1, int num2)(int)",
@@ -504,33 +517,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "myString",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "D",
-      "insertText": "myString",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "MyType",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "N",
-      "insertText": "MyType",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "N",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "main()",
@@ -556,6 +542,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "myString",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "D",
+      "insertText": "myString",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
@@ -564,11 +558,18 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "var1",
-      "kind": "Variable",
-      "detail": "MyType",
-      "sortText": "A",
-      "insertText": "var1",
+      "label": "process4()(MyType)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `MyType`   \n  \n"
+        }
+      },
+      "sortText": "AC",
+      "filterText": "process4",
+      "insertText": "process4()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -588,23 +589,31 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "myFunc(MyType a)(int)",
-      "kind": "Function",
-      "detail": "Function",
+      "label": "var1",
+      "kind": "Variable",
+      "detail": "MyType",
+      "sortText": "AB",
+      "insertText": "var1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MyType",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "AL",
+      "insertText": "MyType",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
       "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `MyType` a  \n  \n**Return** `int`   \n  \n"
-        }
+        "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "E",
-      "filterText": "myFunc",
-      "insertText": "myFunc(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "sortText": "N",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "readonly",

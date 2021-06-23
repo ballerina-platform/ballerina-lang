@@ -457,6 +457,39 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testVar",
+      "kind": "Variable",
+      "detail": "typedesc<int>",
+      "sortText": "B",
+      "insertText": "testVar",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value2",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "value2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testFunction()",
       "kind": "Function",
       "detail": "Function",
@@ -472,11 +505,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "value2",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "value2",
+      "label": "Record1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "Record1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -503,30 +536,6 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Record1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "Record1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testVar",
-      "kind": "Variable",
-      "detail": "typedesc<int>",
-      "sortText": "B",
-      "insertText": "testVar",
       "insertTextFormat": "Snippet"
     },
     {

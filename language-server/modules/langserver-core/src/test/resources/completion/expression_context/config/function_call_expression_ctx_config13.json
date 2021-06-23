@@ -472,11 +472,36 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "myInt",
       "kind": "Variable",
       "detail": "int",
       "sortText": "D",
       "insertText": "myInt",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "AM",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myStr",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "AB",
+      "insertText": "myStr",
       "insertTextFormat": "Snippet"
     },
     {
@@ -488,14 +513,6 @@
       },
       "sortText": "N",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myStr",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "A",
-      "insertText": "myStr",
       "insertTextFormat": "Snippet"
     },
     {
@@ -511,14 +528,6 @@
       "sortText": "E",
       "filterText": "myFunction",
       "insertText": "myFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "O",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
