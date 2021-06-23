@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
@@ -61,6 +62,14 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATO
 public class ImplementMethodCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "Implement Method";
+    private static final int DIAG_PROPERTY_NAME_INDEX = 0;
+    private static final int DIAG_PROPERTY_SYMBOL_INDEX = 1;
+    
+    private static final Set<String> diagnosticCodes = Set.of(
+            DiagnosticErrorCode.UNIMPLEMENTED_REFERENCED_METHOD_IN_CLASS.diagnosticId(),
+            DiagnosticErrorCode.UNIMPLEMENTED_REFERENCED_METHOD_IN_SERVICE_DECL.diagnosticId(),
+            DiagnosticErrorCode.UNIMPLEMENTED_REFERENCED_METHOD_IN_OBJECT_CTOR.diagnosticId()
+    );
 
     /**
      * {@inheritDoc}
@@ -69,18 +78,12 @@ public class ImplementMethodCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        List<String> diagnosticCodes = List.of(
-                DiagnosticErrorCode.UNIMPLEMENTED_REFERENCED_METHOD_IN_CLASS.diagnosticId(),
-                DiagnosticErrorCode.UNIMPLEMENTED_REFERENCED_METHOD_IN_SERVICE_DECL.diagnosticId(),
-                DiagnosticErrorCode.UNIMPLEMENTED_REFERENCED_METHOD_IN_OBJECT_CTOR.diagnosticId()
-        );
-
         if (!diagnosticCodes.contains(diagnostic.diagnosticInfo().code())) {
             return Collections.emptyList();
         }
 
-        Optional<Name> methodName = positionDetails.diagnosticProperty(0);
-        Optional<TypeSymbol> optionalSymbol = positionDetails.diagnosticProperty(1);
+        Optional<Name> methodName = positionDetails.diagnosticProperty(DIAG_PROPERTY_NAME_INDEX);
+        Optional<TypeSymbol> optionalSymbol = positionDetails.diagnosticProperty(DIAG_PROPERTY_SYMBOL_INDEX);
         if (context.currentSyntaxTree().isEmpty() || methodName.isEmpty() || optionalSymbol.isEmpty()) {
             return Collections.emptyList();
         }
