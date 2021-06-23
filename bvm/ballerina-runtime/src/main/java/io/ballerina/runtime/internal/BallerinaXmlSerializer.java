@@ -39,11 +39,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import javax.xml.XMLConstants;
 
 /**
  * XML Serializer for Ballerina XML value trees.
@@ -55,9 +55,9 @@ public class BallerinaXmlSerializer extends OutputStream {
     private static final String XMLNS = "xmlns";
     private static final String XML_NAME_SPACE = "http://www.w3.org/XML/1998/namespace";
     private static final String EMPTY_STR = "";
-    public static final String PARSE_XML_OP = "parse xml";
-    public static final String XML = "xml";
-    public static final String XML_URI = "{" + XMLConstants.XML_NS_URI + "}";
+    private static final String PARSE_XML_OP = "parse xml";
+    private static final String XML = "xml";
+    private static final String XML_NS_URI_PREFIX = "{" + XMLConstants.XML_NS_URI + "}";
 
     private XMLStreamWriter xmlStreamWriter;
     private Deque<Set<String>> parentNSSet;
@@ -280,7 +280,7 @@ public class BallerinaXmlSerializer extends OutputStream {
                 String uri = key.substring(1, closingCurlyPos);
 
                 // Prefix for the namespace is not defined.
-                if (!XML_NAME_SPACE.equals(uri) && xmlStreamWriter.getNamespaceContext().getPrefix(uri) == null) {
+                if (xmlStreamWriter.getNamespaceContext().getPrefix(uri) == null) {
                     generateAndAddRandomNSPrefix(curNSSet, uri);
                 }
                 String localName = key.substring(closingCurlyPos + 1);
@@ -302,6 +302,8 @@ public class BallerinaXmlSerializer extends OutputStream {
                 String nsUri = nsEntry.getValue();
                 String nsKey = concatNsPrefixURI(prefix, nsUri);
                 if (!curNSSet.contains(nsKey)) {
+                    // We don't need to write the namespace prefix `xml` as it's predefined.
+                    // It's legal to write this, but it adds unwanted extra text.
                     if (!prefix.equals(XML)) {
                         xmlStreamWriter.writeNamespace(prefix, nsUri);
                     }
@@ -331,7 +333,8 @@ public class BallerinaXmlSerializer extends OutputStream {
     }
 
     private void generateAndAddRandomNSPrefix(HashSet<String> curNSSet, String uri) throws XMLStreamException {
-        if (uri.isEmpty()) {
+        // Namespace URI and the prefix `xml` is predefined, hence no need to generate a prefix for that
+        if (uri.isEmpty() || XML_NAME_SPACE.equals(uri)) {
             return;
         }
         String randomNSPrefix = generateRandomPrefix(curNSSet, uri);
@@ -375,7 +378,8 @@ public class BallerinaXmlSerializer extends OutputStream {
                 }
                 nsPrefixMap.put(prefix, attributeEntry.getValue().getValue());
             } else {
-                if (key.startsWith(XML_URI)) {
+                // If `xml` namespace URI is used, we need to add `xml` namespace prefix to prefixMap
+                if (key.startsWith(XML_NS_URI_PREFIX)) {
                     nsPrefixMap.put(XML, XMLConstants.XML_NS_URI);
                 }
                 attributeMap.put(key, attributeEntry.getValue().getValue());
