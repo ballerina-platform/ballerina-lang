@@ -421,19 +421,60 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "personList",
-      "kind": "Variable",
-      "detail": "Person[]",
-      "sortText": "B",
-      "insertText": "personList",
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "from",
+      "insertText": "from ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "person",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Customer",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "Customer",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "p1",
       "kind": "Variable",
       "detail": "Person",
       "sortText": "B",
-      "insertText": "person",
+      "insertText": "p1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "p2",
+      "kind": "Variable",
+      "detail": "Person",
+      "sortText": "B",
+      "insertText": "p2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "newAge",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "newAge",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "p3",
+      "kind": "Variable",
+      "detail": "Person",
+      "sortText": "B",
+      "insertText": "p3",
       "insertTextFormat": "Snippet"
     },
     {
@@ -442,25 +483,6 @@
       "detail": "Record",
       "sortText": "L",
       "insertText": "Person",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "outputPersonList",
-      "kind": "Variable",
-      "detail": "Person[]",
-      "sortText": "B",
-      "insertText": "outputPersonList",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "L",
-      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -487,51 +509,38 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "newAge",
+      "label": "person",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "Person",
       "sortText": "B",
-      "insertText": "newAge",
+      "insertText": "person",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Customer",
+      "label": "outputPersonList",
+      "kind": "Variable",
+      "detail": "Person[]",
+      "sortText": "B",
+      "insertText": "outputPersonList",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
       "sortText": "L",
-      "insertText": "Customer",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "p1",
+      "label": "personList",
       "kind": "Variable",
-      "detail": "Person",
+      "detail": "Person[]",
       "sortText": "B",
-      "insertText": "p1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "p2",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "B",
-      "insertText": "p2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "p3",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "B",
-      "insertText": "p3",
+      "insertText": "personList",
       "insertTextFormat": "Snippet"
     },
     {

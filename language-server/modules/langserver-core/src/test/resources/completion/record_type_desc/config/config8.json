@@ -457,6 +457,15 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "STRING_VAL",
       "kind": "Variable",
       "detail": "string value",
@@ -471,25 +480,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "T5",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "T5",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "L",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "STRING_VAL_TWO",
       "kind": "Variable",
       "detail": "string value two",
@@ -501,6 +491,22 @@
       },
       "sortText": "B",
       "insertText": "STRING_VAL_TWO",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "T5",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "T5",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -527,11 +533,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "L",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {

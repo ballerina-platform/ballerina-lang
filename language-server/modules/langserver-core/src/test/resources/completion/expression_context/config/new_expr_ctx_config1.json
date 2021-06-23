@@ -472,6 +472,30 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testNewFunction()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "testNewFunction",
+      "insertText": "testNewFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "createObject1()(TestObject1)",
       "kind": "Function",
       "detail": "Function",
@@ -495,26 +519,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testNewFunction()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "testNewFunction",
-      "insertText": "testNewFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestObject1",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "AK",
-      "insertText": "TestObject1",
+      "label": "obj1",
+      "kind": "Variable",
+      "detail": "TestObject1",
+      "sortText": "AB",
+      "insertText": "obj1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -526,11 +535,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "obj1",
-      "kind": "Variable",
-      "detail": "TestObject1",
-      "sortText": "AB",
-      "insertText": "obj1",
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "AK",
+      "insertText": "TestObject1",
       "insertTextFormat": "Snippet"
     },
     {

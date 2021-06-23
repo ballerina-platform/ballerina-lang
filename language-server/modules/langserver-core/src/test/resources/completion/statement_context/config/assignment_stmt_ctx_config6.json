@@ -472,26 +472,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getString()(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "getString",
-      "insertText": "getString()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "obj2",
-      "kind": "Variable",
-      "detail": "TestObject2",
-      "sortText": "AB",
-      "insertText": "obj2",
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "from",
+      "insertText": "from ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -510,14 +496,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "O",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "testNewFunction()",
       "kind": "Function",
       "detail": "Function",
@@ -533,11 +511,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestObject1",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "AK",
-      "insertText": "TestObject1",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "O",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -546,6 +524,14 @@
       "detail": "Class",
       "sortText": "AK",
       "insertText": "TestObject2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "AK",
+      "insertText": "TestObject1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -572,6 +558,29 @@
       },
       "sortText": "N",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getString()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "getString",
+      "insertText": "getString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "obj2",
+      "kind": "Variable",
+      "detail": "TestObject2",
+      "sortText": "AB",
+      "insertText": "obj2",
       "insertTextFormat": "Snippet"
     },
     {

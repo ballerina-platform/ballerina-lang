@@ -114,6 +114,15 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "if",
       "kind": "Snippet",
       "detail": "Statement",
@@ -403,11 +412,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/jballerina.java",
+      "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "java",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -421,30 +430,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jballerina.java;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.array",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "array",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.array;\n"
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -472,11 +458,11 @@
       ]
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "runtime",
+      "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -490,7 +476,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/lang.array;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/jballerina.java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -630,6 +639,41 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "testFunctionWithParams1(int a, int b)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \nThis is a test function with nil return type\n  \n**Params**  \n- `int` a: Parameter a Description  \n- `int` b: Parameter b Description"
+        }
+      },
+      "sortText": "C",
+      "filterText": "testFunctionWithParams1",
+      "insertText": "testFunctionWithParams1(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "valueB",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "valueB",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "valueA",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "valueA",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testFunctionWithParams2(int a, int b)",
       "kind": "Function",
       "detail": "Function",
@@ -662,41 +706,6 @@
       "filterText": "testFunction",
       "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "valueA",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "valueA",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "valueB",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "valueB",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testFunctionWithParams1(int a, int b)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \nThis is a test function with nil return type\n  \n**Params**  \n- `int` a: Parameter a Description  \n- `int` b: Parameter b Description"
-        }
-      },
-      "sortText": "C",
-      "filterText": "testFunctionWithParams1",
-      "insertText": "testFunctionWithParams1(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
     },
     {
       "label": "worker",
