@@ -430,13 +430,15 @@ public class Package {
                 PackageCache packageCache = PackageCache.getInstance(compilerContext);
                 for (ResolvedPackageDependency dependency : diff) {
                     for (ModuleId moduleId : dependency.packageInstance().moduleIds()) {
-                        Module module = dependency.packageInstance().module(moduleId);
-                        PackageID packageID = module.descriptor().moduleCompilationId();
-                        // remove the module from the compiler packageCache
-                        packageCache.remove(packageID);
-                        // we need to also reset the module in the project environment packageCache
-                        // to make the module recompile and add symbols
-                        module.modify().apply();
+                        if (!dependency.packageInstance().descriptor().isLangLibPackage()) {
+                            Module module = dependency.packageInstance().module(moduleId);
+                            PackageID packageID = module.descriptor().moduleCompilationId();
+                            // remove the module from the compiler packageCache
+                            packageCache.remove(packageID);
+                            // we need to also reset the module in the project environment packageCache
+                            // to make the module recompile and add symbols
+                            module.moduleContext().setCompilationState(null);
+                        }
                     }
                 }
             }
