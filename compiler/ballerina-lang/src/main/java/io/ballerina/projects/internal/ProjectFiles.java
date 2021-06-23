@@ -51,6 +51,9 @@ public class ProjectFiles {
             FileSystems.getDefault().getPathMatcher("glob:**.bal");
     public static final PathMatcher BALA_EXTENSION_MATCHER =
             FileSystems.getDefault().getPathMatcher("glob:**.bala");
+    public static final PathMatcher JAR_EXTENSION_MATCHER =
+            FileSystems.getDefault().getPathMatcher("glob:**.jar");
+
 
     private ProjectFiles() {
     }
@@ -230,6 +233,9 @@ public class ProjectFiles {
         }
 
         if (!Files.isRegularFile(filePath) || !ProjectFiles.BAL_EXTENSION_MATCHER.matches(filePath)) {
+            if (ProjectFiles.JAR_EXTENSION_MATCHER.matches(filePath)) {
+                throw new ProjectException("Options are not allowed when executing jar files");
+            }
             throw new ProjectException("Invalid Ballerina source file(.bal): " + filePath);
         }
 
