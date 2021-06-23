@@ -176,10 +176,7 @@ public class Utils {
                 Path directory = Paths.get(removeFile.getCanonicalPath());
                 Files.walkFileTree(directory, new RecursiveFileVisitor());
             } else {
-                if (!removeFile.delete()) {
-                    return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR,
-                            "Error while deleting " + removeFile.getCanonicalPath());
-                }
+                Files.delete(removeFile.toPath());
             }
             return null;
         } catch (IOException ex) {
