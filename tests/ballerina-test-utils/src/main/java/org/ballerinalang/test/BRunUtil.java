@@ -1334,10 +1334,11 @@ public class BRunUtil {
         try {
             final List<String> actualArgs = new ArrayList<>();
             actualArgs.add(0, "java");
-            actualArgs.add(1, "-cp");
+            actualArgs.add(1, "-Xmx2048m");
+            actualArgs.add(2, "-cp");
             String classPath = System.getProperty("java.class.path") + ":" + getClassPath(classLoader);
-            actualArgs.add(2, classPath);
-            actualArgs.add(3, initClassName);
+            actualArgs.add(3, classPath);
+            actualArgs.add(4, initClassName);
             actualArgs.addAll(Arrays.asList(args));
 
             final Runtime runtime = Runtime.getRuntime();

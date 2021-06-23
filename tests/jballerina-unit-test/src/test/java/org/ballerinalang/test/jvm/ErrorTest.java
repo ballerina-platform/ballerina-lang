@@ -22,7 +22,6 @@ import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -76,15 +75,12 @@ public class ErrorTest {
         BRunUtil.invoke(compileResult, "testSelfReferencingError");
     }
 
-    @Test
+    @Test(description = "Test runtime out of memory error", expectedExceptions = java.lang.RuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina}OutOfMemoryError \\{\"message\":\"Java heap " +
+                    "space\"}.*")
     public void testRuntimeOOMError() {
-        try {
-            CompileResult compileResult = BCompileUtil.compile("test-src/jvm/runtime-oom-error.bal");
-            BRunUtil.runMain(compileResult, new String[]{});
-        } catch (Throwable e) {
-            return;
-        }
-        Assert.fail("runtime out of memory errors are not handled");
+        CompileResult compileResult = BCompileUtil.compile("test-src/jvm/runtime-oom-error.bal");
+        BRunUtil.runMain(compileResult);
     }
 
     @AfterClass
