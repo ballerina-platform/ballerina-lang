@@ -42,8 +42,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.net.ssl.HttpsURLConnection;
-
+import static java.net.HttpURLConnection.HTTP_BAD_GATEWAY;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT;
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT_ENCODING;
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_OCTET_STREAM;
@@ -120,12 +126,12 @@ public class CentralAPIClient {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
                     // Package is found
-                    if (getPackageResponse.code() == HttpsURLConnection.HTTP_OK) {
+                    if (getPackageResponse.code() == HTTP_OK) {
                         return new Gson().fromJson(body.get().string(), Package.class);
                     }
     
                     // Package is not found
-                    if (getPackageResponse.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
+                    if (getPackageResponse.code() == HTTP_NOT_FOUND) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage().contains("package not found for:")) {
                             throw new NoPackageException(error.getMessage());
@@ -136,8 +142,9 @@ public class CentralAPIClient {
                     }
     
                     // If request sent is wrong or error occurred at remote repository
-                    if (getPackageResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
-                        getPackageResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
+                    if (getPackageResponse.code() == HTTP_BAD_REQUEST ||
+                        getPackageResponse.code() == HTTP_INTERNAL_ERROR ||
+                        getPackageResponse.code() == HTTP_BAD_GATEWAY) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException(error.getMessage());
@@ -188,12 +195,12 @@ public class CentralAPIClient {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
                     // Package versions found
-                    if (getVersionsResponse.code() == HttpsURLConnection.HTTP_OK) {
+                    if (getVersionsResponse.code() == HTTP_OK) {
                         return getAsList(body.get().string());
                     }
     
                     // Package is not found
-                    if (getVersionsResponse.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
+                    if (getVersionsResponse.code() == HTTP_NOT_FOUND) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage().contains("package not found")) {
                             // if package not found return empty list
@@ -205,8 +212,9 @@ public class CentralAPIClient {
                     }
     
                     // If request sent is wrong or error occurred at remote repository
-                    if (getVersionsResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
-                        getVersionsResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
+                    if (getVersionsResponse.code() == HTTP_BAD_REQUEST ||
+                        getVersionsResponse.code() == HTTP_INTERNAL_ERROR ||
+                        getVersionsResponse.code() == HTTP_BAD_GATEWAY) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature +
                                                          ". reason: " + error.getMessage());
@@ -262,14 +270,14 @@ public class CentralAPIClient {
             Response packagePushResponse = pushRequestCall.execute();
 
             // Successfully pushed
-            if (packagePushResponse.code() == HttpsURLConnection.HTTP_NO_CONTENT) {
+            if (packagePushResponse.code() == HTTP_NO_CONTENT) {
                 this.outStream.println(packageSignature + " pushed to central successfully");
                 return;
             }
 
             body = Optional.ofNullable(packagePushResponse.body());
             // Invalid access token to push
-            if (packagePushResponse.code() == HttpsURLConnection.HTTP_UNAUTHORIZED) {
+            if (packagePushResponse.code() == HTTP_UNAUTHORIZED) {
                 if (body.isPresent()) {
                     Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                     if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
@@ -288,7 +296,7 @@ public class CentralAPIClient {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
                     // When request sent is invalid
-                    if (packagePushResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST) {
+                    if (packagePushResponse.code() == HTTP_BAD_REQUEST) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             // Currently this error is returned from central when token is unauthorized. This will later
@@ -302,7 +310,8 @@ public class CentralAPIClient {
                     }
     
                     // When error occurred at remote repository
-                    if (packagePushResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
+                    if (packagePushResponse.code() == HTTP_INTERNAL_ERROR ||
+                        packagePushResponse.code() == HTTP_BAD_GATEWAY) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException(ERR_CANNOT_PUSH + "'" + packageSignature +
@@ -359,7 +368,7 @@ public class CentralAPIClient {
             Response packagePullResponse = packagePullReqCall.execute();
 
             // 302   - Package is found
-            if (packagePullResponse.code() == HttpsURLConnection.HTTP_MOVED_TEMP) {
+            if (packagePullResponse.code() == HTTP_MOVED_TEMP) {
                 // get redirect url from "location" header field
                 Optional<String> balaUrl = Optional.ofNullable(packagePullResponse.header(LOCATION));
                 Optional<String> balaFileName = Optional.ofNullable(packagePullResponse.header(CONTENT_DISPOSITION));
@@ -390,8 +399,8 @@ public class CentralAPIClient {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
                     // If request sent is invalid or when package is not found
-                    if (packagePullResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
-                        packagePullResponse.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
+                    if (packagePullResponse.code() == HTTP_BAD_REQUEST ||
+                        packagePullResponse.code() == HTTP_NOT_FOUND) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException("error: " + error.getMessage());
@@ -399,7 +408,8 @@ public class CentralAPIClient {
                     }
     
                     //  When error occurred at remote repository
-                    if (packagePullResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
+                    if (packagePullResponse.code() == HTTP_INTERNAL_ERROR ||
+                        packagePullResponse.code() == HTTP_BAD_GATEWAY) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             String errorMsg =
@@ -448,12 +458,12 @@ public class CentralAPIClient {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
                     // If searching was successful
-                    if (searchResponse.code() == HttpsURLConnection.HTTP_OK) {
+                    if (searchResponse.code() == HTTP_OK) {
                         return new Gson().fromJson(body.get().string(), PackageSearchResult.class);
                     }
         
                     // If search request was sent wrongly
-                    if (searchResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST) {
+                    if (searchResponse.code() == HTTP_BAD_REQUEST) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException(error.getMessage());
@@ -461,7 +471,8 @@ public class CentralAPIClient {
                     }
         
                     // If error occurred at remote repository
-                    if (searchResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
+                    if (searchResponse.code() == HTTP_INTERNAL_ERROR ||
+                        searchResponse.code() == HTTP_BAD_GATEWAY) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + query + "' reason:" +
