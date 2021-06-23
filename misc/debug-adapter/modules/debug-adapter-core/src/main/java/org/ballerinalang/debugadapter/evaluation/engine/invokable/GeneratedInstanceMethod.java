@@ -31,7 +31,6 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_OBJECT_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.INVOKE_OBJECT_METHOD_ASYNC;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
 
 /**

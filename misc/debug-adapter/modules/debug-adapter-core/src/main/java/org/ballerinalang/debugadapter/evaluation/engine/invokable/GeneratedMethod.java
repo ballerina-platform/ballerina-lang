@@ -121,8 +121,8 @@ public abstract class GeneratedMethod extends JvmMethod {
                     }
                 }
 
-                // Primitive argument values should be converted into `java.lang.Object` instances before passing into the
-                // JVM object method.
+                // Primitive argument values should be converted into `java.lang.Object` instances before passing into
+                // the JVM object method.
                 return argValueList.stream().map(value -> {
                     try {
                         return EvaluationUtils.getValueAsObject(context, value);
