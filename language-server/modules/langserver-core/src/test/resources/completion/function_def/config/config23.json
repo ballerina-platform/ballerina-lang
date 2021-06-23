@@ -292,29 +292,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "projectls.mod1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "mod1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import projectls.mod1;\n"
-        }
-      ]
-    },
-    {
       "label": "projectls.mod2",
       "kind": "Module",
       "detail": "Module",
@@ -334,6 +311,29 @@
             }
           },
           "newText": "import projectls.mod2;\n"
+        }
+      ]
+    },
+    {
+      "label": "projectls.mod1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "mod1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import projectls.mod1;\n"
         }
       ]
     },
@@ -518,19 +518,20 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "b",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "AB",
-      "insertText": "b",
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "from",
+      "insertText": "from ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "myStr",
+      "label": "myInt",
       "kind": "Variable",
-      "detail": "string",
-      "sortText": "D",
-      "insertText": "myStr",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "myInt",
       "insertTextFormat": "Snippet"
     },
     {
@@ -546,6 +547,30 @@
       "sortText": "AC",
       "filterText": "getInt",
       "insertText": "getInt()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "b",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "b",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "O",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myStr",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "D",
+      "insertText": "myStr",
       "insertTextFormat": "Snippet"
     },
     {
@@ -568,14 +593,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "O",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "name(string a, int b)(string)",
       "kind": "Function",
       "detail": "Function",
@@ -593,14 +610,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "myInt",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "AB",
-      "insertText": "myInt",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "readonly",
