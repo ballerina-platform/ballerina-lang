@@ -102,6 +102,9 @@ type XType1 XNil|XBoolean|XInt|XString|XTuple1|XUnion1|XIntersection1|XNever|XAn
 type XType2 XNil|XBoolean|XInt|XString|XTuple2|XUnion2|XIntersection2|XNever|XAny|();
 type XType3 XNil|XTuple3[]|XNever|XAny|();
 
+type P XNil|XBoolean|XInt|XString|XUnion4|XIntersection4|XNever|XAny|
+    	   XListRef|XFunctionRef;
+
 const XNil = "nil";
 const XBoolean = "boolean";
 const XInt = "int";
@@ -121,6 +124,22 @@ type XIntersection2 ["intersection", ApproxType, ApproxType];
 
 type XTuple3 ["tuple", XType3, XType3];
 
+type XUnion4 ["|", P...];
+type XIntersection4 ["&", P...];
+
+type ListDef P[];
+type FunctionDef P[2];
+
+type Defs record {|
+       ListDef[] listDefs;
+       FunctionDef[] functionDefs;
+|};
+
+type XListRef ["listRef", int];
+type XFunctionRef ["functionRef", int];
+type mapDef map<P>;
+type tupleDef [P...];
+
 public function testCyclicUserDefinedTypes() {
     XType1 a = ["tuple"];
     assert(a is XTuple1, true);
@@ -136,8 +155,39 @@ public function testCyclicUserDefinedTypes() {
     assert(d is XTuple3[], true);
 }
 
+function testIndirectRecursion() {
+    P test1 = ["|", "int", "nil"];
+    assert(test1 is XUnion4, true);
+
+    FunctionDef test2 = ["nil","string"];
+    assert(test2[0] is XNil, true);
+
+    ListDef test3 = [["|"],["&"],"any"];
+
+    if(test3[1] is XIntersection4) {
+       test2[0]= ["listRef", 1];
+    }
+    assert(test2[0].toString(), "listRef 1");
+
+    Defs test4 = {
+       listDefs: [[["&"]]],
+       functionDefs: []
+    };
+    assert(test4.functionDefs is FunctionDef[], true);
+
+    mapDef test5 = {one: "never"};
+    tupleDef test6;
+    if (test5["one"] is XBoolean) {
+        test6 = [["|"],["functionRef", 1]];
+    } else {
+        test6 = [["functionRef", 1]];
+    }
+    assert((<XFunctionRef>test6[0])[0] is string, true);
+}
+
 type G [int, string, G...];
 type H [int, H[], string, H...];
+type T [int, (int|T)...];
 
 public function testCyclicRestType() {
     G a = [1, "text"];
@@ -148,6 +198,11 @@ public function testCyclicRestType() {
     H d = [1, [[2]], "text2", [3]];
     assert(d[1] is H[], true);
     assert(d[3] is H, true);
+
+    T x = [0];
+    x[1] = 1;
+
+    assert(x[1] is int|T, true);
 }
 
 type I [int, string, I[], map<I>, table<map<I>>, record { I a?; float x?;}, I...];
@@ -210,6 +265,7 @@ public function testComplexCyclicTuple() {
 }
 
 type MyCyclicTuple [int, MyCyclicTuple[]];
+type MyRecType int|[MyRecType...];
 
 function testCastingToImmutableCyclicTuple() {
     MyCyclicTuple a = [1, [[2]]];
@@ -222,6 +278,9 @@ function testCastingToImmutableCyclicTuple() {
     MyCyclicTuple c = <[int, MyCyclicTuple[]] & readonly> [1, []];
     MyCyclicTuple & readonly d = <MyCyclicTuple & readonly> c;
     assert(d is [int, MyCyclicTuple[]] & readonly, true);
+    anydata e = [1, 2, 3];
+    MyRecType f = <MyRecType>(e.cloneReadOnly());
+    assert(f is MyRecType[], true);
 }
 
 function assert(anydata actual, anydata expected) {
