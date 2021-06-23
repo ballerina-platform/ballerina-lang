@@ -42,7 +42,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static java.net.HttpURLConnection.HTTP_BAD_GATEWAY;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
@@ -50,6 +49,7 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT;
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT_ENCODING;
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_OCTET_STREAM;
@@ -144,7 +144,7 @@ public class CentralAPIClient {
                     // If request sent is wrong or error occurred at remote repository
                     if (getPackageResponse.code() == HTTP_BAD_REQUEST ||
                         getPackageResponse.code() == HTTP_INTERNAL_ERROR ||
-                        getPackageResponse.code() == HTTP_BAD_GATEWAY) {
+                        getPackageResponse.code() == HTTP_UNAVAILABLE) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException(error.getMessage());
@@ -214,7 +214,7 @@ public class CentralAPIClient {
                     // If request sent is wrong or error occurred at remote repository
                     if (getVersionsResponse.code() == HTTP_BAD_REQUEST ||
                         getVersionsResponse.code() == HTTP_INTERNAL_ERROR ||
-                        getVersionsResponse.code() == HTTP_BAD_GATEWAY) {
+                        getVersionsResponse.code() == HTTP_UNAVAILABLE) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature +
                                                          ". reason: " + error.getMessage());
@@ -311,7 +311,7 @@ public class CentralAPIClient {
     
                     // When error occurred at remote repository
                     if (packagePushResponse.code() == HTTP_INTERNAL_ERROR ||
-                        packagePushResponse.code() == HTTP_BAD_GATEWAY) {
+                        packagePushResponse.code() == HTTP_UNAVAILABLE) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException(ERR_CANNOT_PUSH + "'" + packageSignature +
@@ -409,7 +409,7 @@ public class CentralAPIClient {
     
                     //  When error occurred at remote repository
                     if (packagePullResponse.code() == HTTP_INTERNAL_ERROR ||
-                        packagePullResponse.code() == HTTP_BAD_GATEWAY) {
+                        packagePullResponse.code() == HTTP_UNAVAILABLE) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             String errorMsg =
@@ -472,7 +472,7 @@ public class CentralAPIClient {
         
                     // If error occurred at remote repository
                     if (searchResponse.code() == HTTP_INTERNAL_ERROR ||
-                        searchResponse.code() == HTTP_BAD_GATEWAY) {
+                        searchResponse.code() == HTTP_UNAVAILABLE) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + query + "' reason:" +

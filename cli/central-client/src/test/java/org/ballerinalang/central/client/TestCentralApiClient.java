@@ -297,7 +297,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         Response mockResponse = new Response.Builder()
                 .request(mockRequest)
                 .protocol(Protocol.HTTP_1_1)
-                .code(HttpURLConnection.HTTP_BAD_REQUEST)
+                .code(HttpURLConnection.HTTP_UNAVAILABLE)
                 .message("")
                 .body(ResponseBody.create(
                         MediaType.get(APPLICATION_JSON),
