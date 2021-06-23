@@ -1069,7 +1069,9 @@ public class QueryDesugar extends BLangNodeVisitor {
                 }
             } else {
                 // Simple binding
-                symbols.add(((BLangSimpleVariable) variable).symbol);
+                if (variable.symbol != null) {
+                    symbols.add(((BLangSimpleVariable) variable).symbol);
+                }
             }
             return symbols;
         }
