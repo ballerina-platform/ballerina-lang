@@ -472,11 +472,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestObject1",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "AK",
-      "insertText": "TestObject1",
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "from",
+      "insertText": "from ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -488,11 +489,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "O",
-      "insertText": "Thread",
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "AK",
+      "insertText": "TestObject1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -508,6 +509,14 @@
       "sortText": "E",
       "filterText": "testNewFunction",
       "insertText": "testNewFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "O",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {

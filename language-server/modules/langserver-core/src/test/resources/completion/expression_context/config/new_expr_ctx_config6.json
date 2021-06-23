@@ -457,6 +457,15 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
@@ -465,11 +474,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestObject1",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "M",
-      "insertText": "TestObject1",
+      "label": "obj1",
+      "kind": "Variable",
+      "detail": "module1:TestClass1",
+      "sortText": "AB",
+      "insertText": "obj1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -481,11 +490,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "obj1",
-      "kind": "Variable",
-      "detail": "module1:TestClass1",
-      "sortText": "AB",
-      "insertText": "obj1",
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "M",
+      "insertText": "TestObject1",
       "insertTextFormat": "Snippet"
     },
     {

@@ -457,11 +457,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "O",
-      "insertText": "Thread",
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "from",
+      "insertText": "from ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -485,6 +486,14 @@
       "sortText": "E",
       "filterText": "testFunction",
       "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "O",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {

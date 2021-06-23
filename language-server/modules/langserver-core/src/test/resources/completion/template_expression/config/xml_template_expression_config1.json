@@ -436,30 +436,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "L",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "val",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "B",
-      "insertText": "val",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "last",
-      "kind": "Variable",
-      "detail": "xml",
-      "sortText": "B",
-      "insertText": "last",
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "from",
+      "insertText": "from ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -475,6 +457,30 @@
       "sortText": "C",
       "filterText": "main",
       "insertText": "main()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "last",
+      "kind": "Variable",
+      "detail": "xml",
+      "sortText": "B",
+      "insertText": "last",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "val",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "B",
+      "insertText": "val",
       "insertTextFormat": "Snippet"
     },
     {
@@ -494,11 +500,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "L",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {

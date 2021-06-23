@@ -457,11 +457,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestObject1",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "M",
-      "insertText": "TestObject1",
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "from",
+      "insertText": "from ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -470,6 +471,14 @@
       "detail": "Class",
       "sortText": "M",
       "insertText": "TestObject2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "M",
+      "insertText": "TestObject1",
       "insertTextFormat": "Snippet"
     },
     {

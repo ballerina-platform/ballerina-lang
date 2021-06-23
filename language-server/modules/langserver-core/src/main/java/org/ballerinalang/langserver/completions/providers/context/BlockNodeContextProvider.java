@@ -113,6 +113,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FAIL.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
 
         return completionItems;
     }
