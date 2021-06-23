@@ -1264,8 +1264,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private  boolean isTypeConstructorAvailable(BLangNode unresolvedType) {
-        switch (((BLangTypeDefinition) unresolvedType).typeNode.getKind()) {
+    private  boolean isTypeConstructorAvailable(NodeKind unresolvedType) {
+        switch (unresolvedType) {
             case OBJECT_TYPE:
             case RECORD_TYPE:
             case CONSTRAINED_TYPE:
@@ -1303,12 +1303,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                     typeDefinition.hasCyclicReference = true;
                     return;
                 }
-            }
-            if (isVisited) {
                 //Recursive types (A -> B -> C -> B) are valid provided they go through a type constructor
-                if (typeDef && !sameTypeNode && isTypeConstructorAvailable(unresolvedType)) {
+                if (unresolvedTypeNodeKind != NodeKind.OBJECT_TYPE && isTypeConstructorAvailable(unresolvedTypeNodeKind)
+                && !sameTypeNode) {
                     return;
                 }
+            }
+            if (isVisited) {
                 // Invalid dependency detected. But in here, all the types in the list might not
                 // be necessary for the cyclic dependency error message.
                 //
