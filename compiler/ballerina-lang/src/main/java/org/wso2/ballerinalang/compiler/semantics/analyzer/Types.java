@@ -748,6 +748,10 @@ public class Types {
                 return true;
             }
 
+            if (sourceTag == TypeTags.TUPLE) {
+                return isTupleTypeAssignable(source, target, unresolvedTypes);
+            }
+
             if (sourceTag == TypeTags.ARRAY) {
                 return isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes);
             }
@@ -1031,6 +1035,11 @@ public class Types {
         if (source.tag == TypeTags.TUPLE && ((BTupleType) source).isCyclic) {
             // add cyclic source to target pair to avoid recursive calls
             unresolvedTypes.add(pair);
+        }
+
+        if (target.tag == TypeTags.JSON && source.tag == TypeTags.TUPLE && ((BTupleType) source).tupleTypes.isEmpty()
+        && ((BTupleType) source).restType != null) {
+            return isAssignable(((BTupleType) source).restType, target, unresolvedTypes);
         }
 
         if (source.tag != TypeTags.TUPLE || target.tag != TypeTags.TUPLE) {

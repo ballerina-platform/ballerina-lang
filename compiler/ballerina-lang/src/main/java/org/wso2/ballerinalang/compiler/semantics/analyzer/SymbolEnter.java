@@ -1186,9 +1186,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // Recursively check all members.
                 for (BLangType memberTypeNode : memberTypeNodes) {
                     checkErrors(env, unresolvedType, memberTypeNode, visitedNodes, fromStructuredType);
-                    if (((BLangTypeDefinition) unresolvedType).hasCyclicReference) {
-                        break;
-                    }
+//                    if (((BLangTypeDefinition) unresolvedType).hasCyclicReference) {
+//                        break;
+//                    }
                 }
                 break;
             case INTERSECTION_TYPE_NODE:
@@ -1202,9 +1202,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 memberTypeNodes = tupleNode.memberTypeNodes;
                 for (BLangType memberTypeNode : memberTypeNodes) {
                     checkErrors(env, unresolvedType, memberTypeNode, visitedNodes, true);
-                    if (((BLangTypeDefinition) unresolvedType).hasCyclicReference) {
-                        break;
-                    }
+//                    if (((BLangTypeDefinition) unresolvedType).hasCyclicReference) {
+//                        break;
+//                    }
                 }
                 if (tupleNode.restParamType != null) {
                     checkErrors(env, unresolvedType, tupleNode.restParamType, visitedNodes, true);
@@ -1270,6 +1270,22 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    private  boolean isTypeConstructorAvailable(BLangNode unresolvedType) {
+        switch (((BLangTypeDefinition) unresolvedType).typeNode.getKind()) {
+            case OBJECT_TYPE:
+            case RECORD_TYPE:
+            case CONSTRAINED_TYPE:
+            case ARRAY_TYPE:
+            case TUPLE_TYPE_NODE:
+            case TABLE_TYPE:
+            case ERROR_TYPE:
+            case FUNCTION_TYPE:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     private void checkErrorsOfUserDefinedType(SymbolEnv env, BLangNode unresolvedType,
                                               BLangUserDefinedType currentTypeOrClassNode,
                                               Stack<String> visitedNodes, boolean fromStructuredType) {
@@ -1286,16 +1302,19 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (sameTypeNode || isVisited) {
             if (typeDef) {
                 BLangTypeDefinition typeDefinition = (BLangTypeDefinition) unresolvedType;
-                if (fromStructuredType && (typeDefinition.getTypeNode().getKind() == NodeKind.UNION_TYPE_NODE
-                        || typeDefinition.getTypeNode().getKind() == NodeKind.TUPLE_TYPE_NODE)) {
-                    // Valid cyclic dependency
+                NodeKind unresolvedTypeNodeKind = typeDefinition.getTypeNode().getKind();
+                if (fromStructuredType && (unresolvedTypeNodeKind == NodeKind.UNION_TYPE_NODE
+                        || unresolvedTypeNodeKind == NodeKind.TUPLE_TYPE_NODE)) {
+                    // Type definitions with tuples and unions are allowed to have cyclic references atm
                     typeDefinition.hasCyclicReference = true;
                     return;
                 }
             }
-
-            //type definitions with tuple and unions are allowed to have cyclic reference atm
             if (isVisited) {
+                //Recursive types (A -> B -> C -> B) are valid provided they go through a type constructor
+                if (typeDef && !sameTypeNode && isTypeConstructorAvailable(unresolvedType)) {
+                    return;
+                }
                 // Invalid dependency detected. But in here, all the types in the list might not
                 // be necessary for the cyclic dependency error message.
                 //
@@ -1331,10 +1350,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             if (typeDefinitions.isEmpty()) {
                 BType referredType = symResolver.resolveTypeNode(currentTypeOrClassNode, env);
-                if (referredType.tag == TypeTags.RECORD || referredType.tag == TypeTags.OBJECT ||
-                        referredType.tag == TypeTags.FINITE) {
-                    // we are referring an fully or partially defined type from another cyclic type eg: record, class
+                if (referredType != symTable.noType) {
                     return;
+                    // we are referring an fully or partially defined type from another cyclic type
                 }
 
                 // If a type is declared, it should either get defined successfully or added to the unresolved
@@ -2737,7 +2755,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BRecordType recordVarType = new BRecordType(recordSymbol);
         LinkedHashMap<String, BField> unMappedFields = new LinkedHashMap<>() {{
             putAll(recordType.fields);
-            if(recordType.restFieldType.tag == TypeTags.RECORD) {
+            if (recordType.restFieldType.tag == TypeTags.RECORD) {
                 putAll(((BRecordType) recordType.restFieldType).fields);
             }
         }};

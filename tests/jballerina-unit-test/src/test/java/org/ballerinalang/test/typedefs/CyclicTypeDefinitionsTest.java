@@ -59,6 +59,7 @@ public class CyclicTypeDefinitionsTest {
                 {"testCyclicTypeDefInUnion"},
                 {"testComplexCyclicTuple"},
                 {"testCyclicUserDefinedTypes"},
+                {"testIndirectRecursion"},
                 {"testCyclicRestType"},
                 {"testCastingToImmutableCyclicTuple"},
         };
@@ -82,7 +83,8 @@ public class CyclicTypeDefinitionsTest {
                 {"testCyclicUserDefinedType"},
                 {"testCyclicUnionAgainstSubSetNegative"},
                 {"testImmutableImportedCyclicUnionVariable"},
-                {"testCastingToImmutableCyclicUnion"}
+                {"testCastingToImmutableCyclicUnion"},
+                {"testIndirectRecursion"}
         };
     }
 
