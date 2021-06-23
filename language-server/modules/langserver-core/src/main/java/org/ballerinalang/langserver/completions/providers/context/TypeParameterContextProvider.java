@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,9 +46,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * Generic completion resolver for the Block Nodes.
+ * Generic completion resolver for the Type Parameter nodes.
  *
- * @param <T> block node type
+ * @param <T> type parameter node type
  * @since 2.0.0
  */
 public class TypeParameterContextProvider<T extends Node> extends AbstractCompletionProvider<T> {
