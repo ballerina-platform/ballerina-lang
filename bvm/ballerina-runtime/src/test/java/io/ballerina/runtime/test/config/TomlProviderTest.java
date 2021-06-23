@@ -58,6 +58,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_BOOLEAN;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_BYTE;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_DECIMAL;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_FLOAT;
@@ -821,4 +822,41 @@ public class TomlProviderTest {
         Assert.assertEquals(record.getStringValue(fromString("stringValue")), fromString("test"));
         Assert.assertEquals(record.getBooleanValue(fromString("booleanValue")), (Boolean) true);
     }
+
+    @Test(dataProvider = "record-rest-provider")
+    public void testRestFieldsInRecords(Type restFieldType, Map<String, Object> expectedValues, String varName) {
+        RecordType recordType = TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY,
+                new HashMap<>(), restFieldType, false, 6);
+        VariableKey recordVar = new VariableKey(ROOT_MODULE, varName, recordType, true);
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(Map.ofEntries(Map.entry(ROOT_MODULE,
+                new VariableKey[]{recordVar})), diagnosticLog, List.of(new TomlFileProvider(ROOT_MODULE,
+                getConfigPath("RestFieldConfig.toml"), Set.of(ROOT_MODULE))));
+        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
+        Object recordValue = configValueMap.get(recordVar);
+        Assert.assertTrue(recordValue instanceof BMap<?, ?>, "Non-map value received");
+        BMap<?, ?> record = (BMap<?, ?>) recordValue;
+        for (Map.Entry<String, Object> expectedField : expectedValues.entrySet()) {
+            BString fieldName = fromString(expectedField.getKey());
+            Assert.assertEquals((record.get(fieldName)), expectedField.getValue());
+        }
+    }
+
+    @DataProvider(name = "record-rest-provider")
+    public Object[][] recordRestDataProvider() {
+        BMap<BString, Object> mapValue = ValueCreator.createMapValue();
+        mapValue.put(fromString("m"), fromString("value"));
+        mapValue.put(fromString("n"), 608L);
+        return new Object[][]{
+                {TYPE_INT, Map.ofEntries(Map.entry("id", 11L), Map.entry("age", 26L)), "intRest"},
+                {TYPE_FLOAT, Map.ofEntries(Map.entry("height", 161.5), Map.entry("weight", 62.3)), "floatRest"},
+                {TYPE_STRING, Map.ofEntries(Map.entry("name", fromString("Hinduja")), Map.entry("city", fromString(
+                        "Colombo"))), "stringRest"},
+                {TYPE_BOOLEAN, Map.ofEntries(Map.entry("isBoolean", true), Map.entry("isByte", false)), "booleanRest"},
+                {TYPE_ANYDATA, Map.ofEntries(Map.entry("intVal", 100L), Map.entry("floatVal", 103.507),
+                        Map.entry("stringVal", fromString("string")), Map.entry("mapVal", mapValue)), "anydataRest"},
+        };
+    }
+
 }

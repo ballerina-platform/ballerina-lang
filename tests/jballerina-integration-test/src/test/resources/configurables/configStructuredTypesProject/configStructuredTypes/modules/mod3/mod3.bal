@@ -35,6 +35,12 @@ configurable mod1:MemberTable memberTable = ?;
 configurable mod1:MemberMap memberMap = ?;
 configurable mod1:MemberMapTable memberMapTable = ?;
 
+configurable mod1:Player player = ?;
+configurable mod1:PlayerArray playerArr = ?;
+configurable mod1:PlayerTable playerTable = ?;
+configurable mod1:PlayerMap playerMap = ?;
+configurable mod1:PlayerMapTable playerMapTable = ?;
+
 public function testOpenRecords() {
     test:assertEquals(product.toString(), "{\"arrVal\":[1,2,3],\"intVal\":22,\"stringVal\":\"abc\"," + 
     "\"floatVal\":22.33,\"mapVal\":{\"a\":\"a\",\"b\":123},\"mapArr\":[{\"c\":\"c\",\"d\":456}]}");
@@ -98,6 +104,8 @@ public function testOpenRecords() {
     // These lines should be enabled after fixing #30566
     // testTableIterator(productTable);
     // testMapIterator(productMap, 2);
+
+    testRestField();
 }
 
 public function testTableIterator(table<map<anydata>> tab) {
@@ -114,4 +122,20 @@ public function testMapIterator(map<anydata> testMap, int length) {
         count += 1;
     }
     test:assertEquals(count, length);
+}
+
+function testRestField() {
+    test:assertEquals(player.toString(), "{\"id\":101,\"teamMate\":{\"id\":102,\"teamMate\":{\"id\":103}}}");
+    test:assertEquals(playerArr.toString(), "[{\"teamMate\":{\"id\":105,\"teamMate\":{\"id\":106}},\"id\":104}," +
+    "{\"teamMate\":{\"id\":108,\"teamMate\":{\"id\":109}},\"id\":107}]");
+    test:assertEquals(playerTable.toString(), "[{\"id\":110,\"teamMate\":{\"id\":111,\"teamMate\":{\"id\":112}}}," +
+    "{\"id\":113,\"teamMate\":{\"id\":114,\"teamMate\":{\"id\":115}}}]");
+    test:assertEquals(playerMap.toString(), "{\"entry1\":{\"id\":116,\"teamMate\":{\"id\":117," +
+    "\"teamMate\":{\"id\":118}}},\"entry2\":{\"id\":119}}");
+    test:assertEquals(playerMapTable.toString(), "{\"entry1\":[{\"id\":120},{\"id\":121," +
+    "\"teamMate\":{\"id\":122,\"teamMate\":{\"id\":123}}}]}");
+
+    testTableIterator(playerTable);
+    testMapIterator(playerMap, 2);
+    testMapIterator(playerMapTable, 1);
 }

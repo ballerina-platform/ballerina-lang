@@ -106,3 +106,16 @@ public type MemberMap map<Member>;
 public type MemberTable table<Member> key(id);
 
 public type MemberMapTable map<table<Member> key(id)>;
+
+public type Player record {|
+    readonly int id;
+    Player...;
+|};
+
+public type PlayerArray Player[];
+
+public type PlayerMap map<Player>;
+
+public type PlayerTable table<Player> key(id);
+
+public type PlayerMapTable map<table<Player> key(id)>;

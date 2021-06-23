@@ -1143,3 +1143,44 @@ mapVal.n = 608
 [[configStructuredTypes.mod3.memberMapTable.entry1.mapArr]]
 y = "test"
 x = 204
+
+[configStructuredTypes.mod3.player]
+id = 101
+teamMate.id = 102
+teamMate.teamMate.id = 103
+
+[[configStructuredTypes.mod3.playerArr]]
+id = 104
+teamMate.id = 105
+teamMate.teamMate.id = 106
+
+[[configStructuredTypes.mod3.playerArr]]
+id = 107
+teamMate.id = 108
+teamMate.teamMate.id = 109
+
+[[configStructuredTypes.mod3.playerTable]]
+id = 110
+teamMate.id = 111
+teamMate.teamMate.id = 112
+
+[[configStructuredTypes.mod3.playerTable]]
+id = 113
+teamMate.id = 114
+teamMate.teamMate.id = 115
+
+[configStructuredTypes.mod3.playerMap.entry1]
+id = 116
+teamMate.id = 117
+teamMate.teamMate.id = 118
+
+[configStructuredTypes.mod3.playerMap.entry2]
+id = 119
+
+[[configStructuredTypes.mod3.playerMapTable.entry1]]
+id = 120
+
+[[configStructuredTypes.mod3.playerMapTable.entry1]]
+id = 121
+teamMate.id = 122
+teamMate.teamMate.id = 123

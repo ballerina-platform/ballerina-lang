@@ -502,6 +502,17 @@ public class TomlProviderNegativeTest {
         validateTomlProviderErrors("InvalidIntersectionArray", error, configVarMap, 1, 0);
     }
 
+    @Test
+    public void testRestFieldInvalidType() {
+        RecordType recordType = TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY,
+                new HashMap<>(), PredefinedTypes.TYPE_INT, false, 6);
+        VariableKey recordVar = new VariableKey(ROOT_MODULE, "person", recordType, true);
+        String error = "[RestFieldNegative.toml:(3:8,3:14)] configurable variable 'person.name' is expected to be of " +
+                "type 'int', but found 'string'";
+        validateTomlProviderErrors("RestFieldNegative", error, Map.ofEntries(Map.entry(ROOT_MODULE,
+                new VariableKey[]{recordVar})), 1, 1);
+    }
+
     private VariableKey[] getSimpleVariableKeys(Module module) {
         VariableKey intVar = new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true);
         VariableKey stringVar = new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true);
