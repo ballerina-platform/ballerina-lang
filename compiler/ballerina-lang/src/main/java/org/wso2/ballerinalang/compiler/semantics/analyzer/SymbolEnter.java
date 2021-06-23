@@ -1186,9 +1186,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // Recursively check all members.
                 for (BLangType memberTypeNode : memberTypeNodes) {
                     checkErrors(env, unresolvedType, memberTypeNode, visitedNodes, fromStructuredType);
-//                    if (((BLangTypeDefinition) unresolvedType).hasCyclicReference) {
-//                        break;
-//                    }
                 }
                 break;
             case INTERSECTION_TYPE_NODE:
@@ -1202,9 +1199,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 memberTypeNodes = tupleNode.memberTypeNodes;
                 for (BLangType memberTypeNode : memberTypeNodes) {
                     checkErrors(env, unresolvedType, memberTypeNode, visitedNodes, true);
-//                    if (((BLangTypeDefinition) unresolvedType).hasCyclicReference) {
-//                        break;
-//                    }
                 }
                 if (tupleNode.restParamType != null) {
                     checkErrors(env, unresolvedType, tupleNode.restParamType, visitedNodes, true);
