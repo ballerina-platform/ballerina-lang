@@ -117,6 +117,12 @@ public class CyclicTypeDefinitionsTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', " +
                 "found '[int,I[]]'", 34, 12);
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'v'", 37, 19);
+        BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "P, XUnion1, P"),
+                39, 1);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'XListRef'", 39, 26);
+        BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "XUnion1, P, XUnion1"),
+                42, 1);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'XListRef'", 44, 18);
         Assert.assertEquals(i, negativeResult.getErrorCount());
     }
 

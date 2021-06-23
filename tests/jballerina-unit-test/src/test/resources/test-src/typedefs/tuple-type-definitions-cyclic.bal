@@ -102,8 +102,7 @@ type XType1 XNil|XBoolean|XInt|XString|XTuple1|XUnion1|XIntersection1|XNever|XAn
 type XType2 XNil|XBoolean|XInt|XString|XTuple2|XUnion2|XIntersection2|XNever|XAny|();
 type XType3 XNil|XTuple3[]|XNever|XAny|();
 
-type P XNil|XBoolean|XInt|XString|XUnion4|XIntersection4|XNever|XAny|
-    	   XListRef|XFunctionRef;
+type P [XNil, XUnion4, XIntersection4, XAny, XListRef, XFunctionRef];
 
 const XNil = "nil";
 const XBoolean = "boolean";
@@ -125,7 +124,7 @@ type XIntersection2 ["intersection", ApproxType, ApproxType];
 type XTuple3 ["tuple", XType3, XType3];
 
 type XUnion4 ["|", P...];
-type XIntersection4 ["&", P...];
+type XIntersection4 "&"|P;
 
 type ListDef P[];
 type FunctionDef P[2];
@@ -156,38 +155,39 @@ public function testCyclicUserDefinedTypes() {
 }
 
 function testIndirectRecursion() {
-    P test1 = ["|", "int", "nil"];
-    assert(test1 is XUnion4, true);
+    P test1 = ["nil", ["|"], "&", "any", ["listRef"], ["functionRef", 2]];
+    assert(test1[2] is XIntersection4, true);
 
-    FunctionDef test2 = ["nil","string"];
-    assert(test2[0] is XNil, true);
+    FunctionDef test2 = [["nil", [], "&"], ["nil", [], "&"]];
+    assert(test2[0][1] is XUnion4, true);
 
-    ListDef test3 = [["|"],["&"],"any"];
+    ListDef test3 = [["nil", [], ["nil", [], "&"]]];
 
-    if(test3[1] is XIntersection4) {
-       test2[0]= ["listRef", 1];
+    if(test3[0][2] is XIntersection4) {
+       test2[1][2]= ["nil", [], "&"];
     }
-    assert(test2[0].toString(), "listRef 1");
+    assert((<P>test2[1][2])[2].toString(), "&");
 
     Defs test4 = {
-       listDefs: [[["&"]]],
+       listDefs: [[],[],[]],
        functionDefs: []
     };
-    assert(test4.functionDefs is FunctionDef[], true);
+    assert(test4.listDefs[0] is P[], true);
 
-    mapDef test5 = {one: "never"};
+    mapDef test5 = {one: ["nil", [], "&"]};
     tupleDef test6;
-    if (test5["one"] is XBoolean) {
-        test6 = [["|"],["functionRef", 1]];
+    if (test5.get("one")[0] is XNil) {
+        test6 = [["nil", ["|"], "&"]];
     } else {
-        test6 = [["functionRef", 1]];
+        test6 = [["nil", [], "&"]];
     }
-    assert((<XFunctionRef>test6[0])[0] is string, true);
+    assert(test6[0][1][0] is string, true);
 }
 
 type G [int, string, G...];
 type H [int, H[], string, H...];
 type T [int, (int|T)...];
+type V int|[V...];
 
 public function testCyclicRestType() {
     G a = [1, "text"];
@@ -201,8 +201,11 @@ public function testCyclicRestType() {
 
     T x = [0];
     x[1] = 1;
-
     assert(x[1] is int|T, true);
+
+    V e = [1, 2, 3];
+    json j = e;
+    assert(e is V[], true);
 }
 
 type I [int, string, I[], map<I>, table<map<I>>, record { I a?; float x?;}, I...];
