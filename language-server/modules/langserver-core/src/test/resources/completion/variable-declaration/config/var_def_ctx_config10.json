@@ -1,1 +1,8 @@
-{"position":{"line":3,"character":46},"source":"variable-declaration/source/var_def_ctx_source10.bal","items":[]}
+{
+  "position": {
+    "line": 3,
+    "character": 46
+  },
+  "source": "variable-declaration/source/var_def_ctx_source10.bal",
+  "items": []
+}
