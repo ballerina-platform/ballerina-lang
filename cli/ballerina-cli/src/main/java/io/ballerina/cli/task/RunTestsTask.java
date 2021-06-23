@@ -182,11 +182,10 @@ public class RunTestsTask implements Task {
         TestProcessor testProcessor = new TestProcessor(jarResolver);
         List<String> moduleNamesList = new ArrayList<>();
         Map<String, TestSuite> testSuiteMap = new HashMap<>();
-
+        List<String> updatedSingleExecTests;
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "bal test" command which only executes tests
         // in packages.
-
         for (ModuleId moduleId : project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
             Module module = project.currentPackage().module(moduleId);
             ModuleName moduleName = module.moduleName();
@@ -210,8 +209,12 @@ public class RunTestsTask implements Task {
             }
             if (isSingleTestExecution || isRerunTestExecution) {
                 // Update data driven tests with key
-                filterKeyBasedTests(moduleName.moduleNamePart(), suite, singleExecTests);
-                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, singleExecTests));
+                updatedSingleExecTests = filterKeyBasedTests(moduleName.moduleNamePart(), suite, singleExecTests);
+                if (!updatedSingleExecTests.isEmpty()) {
+                    suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, updatedSingleExecTests));
+                } else {
+                    suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, singleExecTests));
+                }
             }
             if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
                 suite.setSourceFileName(project.sourceRoot().getFileName().toString());
@@ -293,10 +296,11 @@ public class RunTestsTask implements Task {
      * @param moduleName String
      * @param suite TestSuite
      * @param singleExecTests List<String>
+     * @return List of updated tests
      */
-    private void filterKeyBasedTests(String moduleName, TestSuite suite, List<String> singleExecTests) {
-        Map<String, List<String>> keyValues = new HashMap<>();
+    private List<String> filterKeyBasedTests(String moduleName, TestSuite suite, List<String> singleExecTests) {
         List<String> updatedSingleExecTests = new ArrayList<>();
+        Map<String, List<String>> keyValues = new HashMap<>();
         for (String testName : singleExecTests) {
             if (testName.contains(DATA_KEY_SEPARATOR) && includesModule(testName, suite.getPackageID(), moduleName)) {
                 try {
@@ -328,10 +332,8 @@ public class RunTestsTask implements Task {
         if (!keyValues.isEmpty()) {
             suite.setSingleDDTExecution(true);
             suite.setDataKeyValues(keyValues);
-            //Update the single exec test list
-            singleExecTests.clear();
-            singleExecTests.addAll(updatedSingleExecTests);
         }
+        return updatedSingleExecTests;
     }
 
     private void generateCoverage(Project project, JBallerinaBackend jBallerinaBackend)
