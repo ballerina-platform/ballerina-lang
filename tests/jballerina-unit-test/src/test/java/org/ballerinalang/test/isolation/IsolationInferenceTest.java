@@ -117,11 +117,18 @@ public class IsolationInferenceTest {
         };
     }
 
-    @Test
-    public void testIsolatedInferenceWithVariables() {
-        CompileResult result = BCompileUtil.compile(
-                "test-src/isolation-analysis/isolation_inference_with_variables.bal");
+    @Test(dataProvider = "testIsolatedInferenceWithVariablesFiles")
+    public void testIsolatedInferenceWithVariables(String fileName) {
+        CompileResult result = BCompileUtil.compile("test-src/isolation-analysis/" + fileName);
         BRunUtil.invoke(result, "testIsolatedInference");
+    }
+
+    @DataProvider
+    private Object[] testIsolatedInferenceWithVariablesFiles() {
+        return new String[]{
+                "isolation_inference_with_variables_1.bal",
+                "isolation_inference_with_variables_2.bal"
+        };
     }
 
     // This is called from the test file via the attach method of the listener.
