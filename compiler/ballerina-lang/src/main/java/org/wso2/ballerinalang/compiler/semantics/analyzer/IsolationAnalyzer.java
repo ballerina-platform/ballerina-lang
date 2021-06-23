@@ -3151,11 +3151,20 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         BInvokableSymbol enclInvokableSymbol = enclInvokable.symbol;
-        if (!isolationInferenceInfoMap.containsKey(enclInvokableSymbol)) {
+
+        if (enclInvokable.getKind() == NodeKind.FUNCTION && ((BLangFunction) enclInvokable).attachedFunction) {
+            BSymbol owner = enclInvokableSymbol.owner;
+
+            if (this.isolationInferenceInfoMap.containsKey(owner)) {
+                this.isolationInferenceInfoMap.get(owner).dependsOnlyOnInferableConstructs = false;
+            }
+        }
+
+        if (!this.isolationInferenceInfoMap.containsKey(enclInvokableSymbol)) {
             return;
         }
 
-        isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnlyOnInferableConstructs = false;
+        this.isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnlyOnInferableConstructs = false;
     }
 
     private void analyzeFunctionForInference(BInvokableSymbol symbol) {
@@ -3438,6 +3447,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                                                   boolean isObjectType, Set<BSymbol> unresolvedSymbols) {
         if (!unresolvedSymbols.add(symbol)) {
             return true;
+        }
+
+        if (!inferenceInfo.dependsOnlyOnInferableConstructs) {
+            return false;
         }
 
         if (inferenceInfo.accessedOutsideLockStatement) {

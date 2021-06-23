@@ -103,11 +103,18 @@ public class IsolationInferenceTest {
         BRunUtil.invoke(result, "testIsolatedInference");
     }
 
-    @Test
-    public void testIsolatedInferenceWithObjectsNegative() {
-        CompileResult result = BCompileUtil.compile(
-                "test-src/isolation-analysis/isolation_inference_with_objects_runtime_negative.bal");
+    @Test(dataProvider = "testIsolatedInferenceWithObjectsNegativeFiles")
+    public void testIsolatedInferenceWithObjectsNegative(String fileName) {
+        CompileResult result = BCompileUtil.compile("test-src/isolation-analysis/" + fileName);
         BRunUtil.invoke(result, "testIsolatedInference");
+    }
+
+    @DataProvider
+    private Object[] testIsolatedInferenceWithObjectsNegativeFiles() {
+        return new String[]{
+                "isolation_inference_with_objects_runtime_negative_1.bal",
+                "isolation_inference_with_objects_runtime_negative_2.bal"
+        };
     }
 
     @Test
@@ -199,5 +206,8 @@ public class IsolationInferenceTest {
         }
 
         throw new RuntimeException("method not found: " + methodNameString);
+    }
+
+    public static void f2(BObject val) {
     }
 }
