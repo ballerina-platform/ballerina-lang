@@ -80,8 +80,10 @@ public class RunCommand implements BLauncherCmd {
             "when run is used with a source file or a module.")
     private Boolean observabilityIncluded;
 
-    private static final String runCmd = "bal run [--experimental] [--offline]\n" +
-            "                  [<executable-jar | ballerina-file | package-path>] [-- program-args...]";
+    private static final String runCmd =
+            "bal run <executable-jar> \n" +
+            "    bal run [--experimental] [--offline]\n" +
+            "                  [<ballerina-file | package-path>] [-- program-args...]\n ";
 
     public RunCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -182,7 +184,8 @@ public class RunCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal run [--offline] [<balfile> | <project-path> | executable-jar]\n" +
+        out.append("  bal run <executable-jar>\n");
+        out.append("  bal run [--offline] [<balfile> | <project-path>]\n" +
                 "[--] [args...] \n");
     }
 
