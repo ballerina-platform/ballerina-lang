@@ -472,6 +472,23 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "breakValue",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "breakValue",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "numberList",
       "kind": "Variable",
       "detail": "int[]",
@@ -480,11 +497,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "breakValue",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "A",
-      "insertText": "breakValue",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "O",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -517,16 +534,8 @@
       "label": "counter",
       "kind": "Variable",
       "detail": "int",
-      "sortText": "A",
+      "sortText": "AB",
       "insertText": "counter",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "O",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {

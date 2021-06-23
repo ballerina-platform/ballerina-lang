@@ -421,30 +421,27 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "constructor",
-      "kind": "Variable",
-      "detail": "object {public int field1;}",
-      "sortText": "B",
-      "insertText": "constructor",
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "from",
+      "insertText": "from ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
+      "label": "testObjectConstructor()",
+      "kind": "Function",
+      "detail": "Function",
       "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
       },
-      "sortText": "L",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "value1",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "value1",
+      "sortText": "C",
+      "filterText": "testObjectConstructor",
+      "insertText": "testObjectConstructor()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -471,18 +468,30 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testObjectConstructor()",
-      "kind": "Function",
-      "detail": "Function",
+      "label": "constructor",
+      "kind": "Variable",
+      "detail": "object {public int field1;}",
+      "sortText": "B",
+      "insertText": "constructor",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "value1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
       "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
+        "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "C",
-      "filterText": "testObjectConstructor",
-      "insertText": "testObjectConstructor()",
+      "sortText": "L",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {

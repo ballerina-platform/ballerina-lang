@@ -457,11 +457,20 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "proxyPort",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "D",
-      "insertText": "proxyPort",
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "O",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -470,6 +479,14 @@
       "detail": "string",
       "sortText": "D",
       "insertText": "proxyHost",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "proxyPort",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "D",
+      "insertText": "proxyPort",
       "insertTextFormat": "Snippet"
     },
     {
@@ -505,14 +522,6 @@
       "detail": "module1:Client",
       "sortText": "H",
       "insertText": "self.proxyClient",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "O",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
