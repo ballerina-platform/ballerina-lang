@@ -29,6 +29,7 @@ import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.PackageDependencyGraphBuilder;
 import io.ballerina.projects.internal.PackageDiagnostic;
+import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
@@ -137,8 +138,9 @@ public class PackageResolution {
         return this.diagnosticList;
     }
 
-    void reportDiagnostic(String message, Location location, ModuleDescriptor moduleDescriptor) {
-        var diagnosticInfo = new DiagnosticInfo(null, message, DiagnosticSeverity.ERROR);
+    void reportDiagnostic(String message, String diagnosticErrorCode, DiagnosticSeverity severity, Location location,
+                          ModuleDescriptor moduleDescriptor) {
+        var diagnosticInfo = new DiagnosticInfo(diagnosticErrorCode, message, severity);
         var diagnostic = DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
         var packageDiagnostic = new PackageDiagnostic(diagnostic, moduleDescriptor, rootPackageContext.project());
         this.diagnosticList.add(packageDiagnostic);
@@ -279,7 +281,8 @@ public class PackageResolution {
             } catch (ProjectException e) {
                 ModuleDescriptor moduleDescriptor = ModuleDescriptor
                         .from(moduleLoadRequest.moduleName(), rootPackageContext.descriptor());
-                reportDiagnostic(e.getMessage(), moduleLoadRequest.location(), moduleDescriptor);
+                reportDiagnostic(e.getMessage(), ProjectDiagnosticErrorCode.INVALID_BALA_FILE.diagnosticId(),
+                                 DiagnosticSeverity.ERROR, moduleLoadRequest.location(), moduleDescriptor);
             }
         }
     }
