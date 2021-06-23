@@ -158,8 +158,8 @@ public abstract class GeneratedMethod extends JvmMethod {
     }
 
     /**
-     * Converrts java primitive types into their wrapper implementations, as some of the the JVM runtime util methods
-     * accepts only the sub classes of @{@link java.lang.Object},
+     * Converts java primitive types into their wrapper implementations, as some of the the JVM runtime util methods
+     * accepts only the sub classes of @{@link java.lang.Object}.
      */
     private List<Value> getAsObjects(List<Value> argValueList) {
         return argValueList.stream().map(value -> {

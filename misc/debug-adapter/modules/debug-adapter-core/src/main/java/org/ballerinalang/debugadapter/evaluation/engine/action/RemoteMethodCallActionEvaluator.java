@@ -40,6 +40,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
+
 /**
  * Evaluator implementation for remote method call invocation actions.
  *
@@ -51,8 +53,6 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
     private final String methodName;
     private final Evaluator objectExpressionEvaluator;
     private final List<Map.Entry<String, Evaluator>> argEvaluators;
-    private static final String QUALIFIED_TYPE_SIGNATURE_PREFIX = "L";
-    private static final String JNI_SIGNATURE_SEPARATOR = "/";
 
     public RemoteMethodCallActionEvaluator(SuspendedContext context, RemoteMethodCallActionNode remoteMethodActionNode,
                                            Evaluator expression, List<Map.Entry<String, Evaluator>> argEvaluators) {
@@ -122,7 +122,9 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
         }
 
         GeneratedInstanceMethod objectMethod = getRemoteMethodByName(resultVar, objectMethodDef.get());
-        objectMethod.setArgEvaluators(argEvaluators);
+        Map<String, Value> argValueMap = generateNamedArgs(context, methodName, objectMethodDef.get().typeDescriptor(),
+                argEvaluators);
+        objectMethod.setNamedArgValues(argValueMap);
         return objectMethod.invokeSafely();
     }
 

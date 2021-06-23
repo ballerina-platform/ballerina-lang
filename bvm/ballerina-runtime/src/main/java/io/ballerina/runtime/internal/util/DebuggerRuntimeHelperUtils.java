@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import java.lang.reflect.InvocationTargetException;
@@ -51,6 +52,8 @@ import java.util.function.Function;
 @SuppressWarnings("unused")
 public class DebuggerRuntimeHelperUtils {
 
+    private static final String EVALUATOR_STRAND_NAME = "evaluator-strand";
+
     /**
      * Invokes Ballerina object methods in blocking manner.
      *
@@ -66,7 +69,8 @@ public class DebuggerRuntimeHelperUtils {
             CountDownLatch latch = new CountDownLatch(1);
             final Object[] finalResult = new Object[1];
 
-            Object resultFuture = runtime.invokeMethodAsync(bObject, methodName, "evaluator-strand", null,
+            args = args[0] instanceof Strand ? Arrays.copyOfRange(args, 1, args.length) : args;
+            Object resultFuture = runtime.invokeMethodAsync(bObject, methodName, EVALUATOR_STRAND_NAME, null,
                     new Callback() {
                         @Override
                         public void notifySuccess(Object result) {
@@ -127,7 +131,7 @@ public class DebuggerRuntimeHelperUtils {
                     latch.countDown();
                     finalResult[0] = error;
                 }
-            }, new HashMap<>(), PredefinedTypes.TYPE_NULL, "evaluation-strand", null);
+            }, new HashMap<>(), PredefinedTypes.TYPE_NULL, EVALUATOR_STRAND_NAME, null);
             scheduler.start();
             latch.await();
             return finalResult[0];
