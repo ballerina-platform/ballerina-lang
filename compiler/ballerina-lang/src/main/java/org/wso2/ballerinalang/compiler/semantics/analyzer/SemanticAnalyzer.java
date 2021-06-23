@@ -1495,9 +1495,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         switch (variable.getKind()) {
             case VARIABLE:
                 Name name = names.fromIdNode(((BLangSimpleVariable) variable).name);
-                if (name == Names.IGNORE) {
-//                    return;
-                }
                 variable.setBType(symTable.semanticError);
                 symbolEnter.defineVarSymbol(variable.pos, variable.flagSet, variable.getBType(), name, blockEnv,
                                             variable.internal);
