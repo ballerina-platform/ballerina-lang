@@ -100,6 +100,7 @@ public abstract class AbstractParserErrorHandler {
 
         if (itterCount < ITTER_LIMIT) {
             Result bestMatch = seekMatch(currentCtx);
+            avoidRecurrentSol(bestMatch);
             if (bestMatch.matches > 0) {
                 Solution sol = bestMatch.solution;
                 if (sol != null) {
@@ -122,6 +123,28 @@ public abstract class AbstractParserErrorHandler {
         return sol;
     }
 
+    private void avoidRecurrentSol(Result bestMatch) {
+        // If solution is INSERT fix followed by immediate REMOVE fix,
+        // then it could be repeated next time coming to the error handler.
+        // Therefore in such case, set the solution to immediate REMOVE fix.
+        Solution sol = bestMatch.solution;
+        if (sol == null) {
+            return;
+        }
+
+        if (sol.action != Action.INSERT || bestMatch.fixes.size() < 2) {
+            return;
+        }
+
+        Solution firstFix = bestMatch.fixes.pop();
+        Solution secondFix = bestMatch.fixes.peek();
+        bestMatch.fixes.push(firstFix);
+
+        if (secondFix.action == Action.REMOVE && secondFix.depth == 1) {
+            bestMatch.solution = secondFix;
+        }
+    }
+    
     /**
      * Remove the invalid token. This method assumes that the next immediate token
      * of the token input stream is the culprit.
@@ -318,7 +341,6 @@ public abstract class AbstractParserErrorHandler {
                 continue;
             }
 
-
             // exit early
             if (hasFoundBestAlternative(result)) {
                 return getFinalResult(currentMatches, result);
@@ -372,7 +394,7 @@ public abstract class AbstractParserErrorHandler {
 
         return getFinalResult(currentMatches, bestMatch);
     }
-
+    
     private boolean hasFoundBestAlternative(Result result) {
         // If the best possible solution is found we can exit early. However, if that solution
         // is an REMOVE action, then we should not terminate, because there can be another
@@ -413,7 +435,7 @@ public abstract class AbstractParserErrorHandler {
      */
     protected Result fixAndContinue(ParserRuleContext currentCtx, int lookahead, int currentDepth,
                                     int matchingRulesCount, boolean isEntryPoint) {
-        Result fixedPathResult = fixAndContinue(currentCtx, lookahead, currentDepth + 1);
+        Result fixedPathResult = fixAndContinue(currentCtx, lookahead, currentDepth);
         // Do not consider the current rule as match, since we had to fix it.
         // i.e: do not increment the match count by 1;
 
@@ -465,38 +487,42 @@ public abstract class AbstractParserErrorHandler {
         // operation, as it could update (push/pop) the current context stack.
 
         // Remove current token. That means continue with the NEXT token, with the CURRENT context
-        Result deletionResult = seekMatchInSubTree(currentCtx, lookahead + 1, currentDepth, false);
+        Result deletionResult = seekMatchInSubTree(currentCtx, lookahead + 1, currentDepth + 1, false);
 
         // Insert the missing token. That means continue the CURRENT token, with the NEXT context.
         // At this point 'lookahead' refers to the next token position, since there is a missing
         // token at the current position. Hence we don't need to increment the 'lookahead' when
         // calling 'getNextRule'.
         ParserRuleContext nextCtx = getNextRule(currentCtx, lookahead);
-        Result insertionResult = seekMatchInSubTree(nextCtx, lookahead, currentDepth, false);
+        Result insertionResult = seekMatchInSubTree(nextCtx, lookahead, currentDepth + 1, false);
 
         Result fixedPathResult;
         Solution action;
         if (insertionResult.matches == 0 && deletionResult.matches == 0) {
+            action = new Solution(Action.INSERT, currentCtx, getExpectedTokenKind(currentCtx),
+                    currentCtx.toString(), currentDepth);
+            insertionResult.fixes.push(action);
             fixedPathResult = insertionResult;
         } else if (insertionResult.matches == deletionResult.matches) {
             if (insertionResult.fixes.size() <= deletionResult.fixes.size()) {
                 action = new Solution(Action.INSERT, currentCtx, getExpectedTokenKind(currentCtx),
-                        currentCtx.toString());
+                        currentCtx.toString(), currentDepth);
                 insertionResult.fixes.push(action);
                 fixedPathResult = insertionResult;
             } else {
                 STToken token = this.tokenReader.peek(lookahead);
-                action = new Solution(Action.REMOVE, currentCtx, token.kind, token.toString());
+                action = new Solution(Action.REMOVE, currentCtx, token.kind, token.toString(), currentDepth);
                 deletionResult.fixes.push(action);
                 fixedPathResult = deletionResult;
             }
         } else if (insertionResult.matches > deletionResult.matches) {
-            action = new Solution(Action.INSERT, currentCtx, getExpectedTokenKind(currentCtx), currentCtx.toString());
+            action = new Solution(Action.INSERT, currentCtx, getExpectedTokenKind(currentCtx), currentCtx.toString(),
+                    currentDepth);
             insertionResult.fixes.push(action);
             fixedPathResult = insertionResult;
         } else {
             STToken token = this.tokenReader.peek(lookahead);
-            action = new Solution(Action.REMOVE, currentCtx, token.kind, token.toString());
+            action = new Solution(Action.REMOVE, currentCtx, token.kind, token.toString(), currentDepth);
             deletionResult.fixes.push(action);
             fixedPathResult = deletionResult;
         }
@@ -518,12 +544,18 @@ public abstract class AbstractParserErrorHandler {
         public SyntaxKind tokenKind;
         public STNode recoveredNode;
         public STToken removedToken;
+        public int depth;
 
         public Solution(Action action, ParserRuleContext ctx, SyntaxKind tokenKind, String tokenText) {
+            this(action, ctx, tokenKind, tokenText, -1);
+        }
+
+        public Solution(Action action, ParserRuleContext ctx, SyntaxKind tokenKind, String tokenText, int depth) {
             this.action = action;
             this.ctx = ctx;
             this.tokenText = tokenText;
             this.tokenKind = tokenKind;
+            this.depth = depth;
         }
 
         @Override

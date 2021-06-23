@@ -14,4 +14,3 @@ public function hello() {
 
 public type Hello1 isolated  //<cursor>
 // Intentionally left EOF as next token
-

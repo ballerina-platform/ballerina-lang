@@ -368,7 +368,7 @@ public class SyntaxErrors {
             case FUNCTION_IDENT:
             case OPTIONAL_PEER_WORKER:
             case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
-            case TYPE_DESC_WITH_ISOLATED:
+            case TYPE_DESC_WITHOUT_ISOLATED:
                 return DiagnosticErrorCode.ERROR_MISSING_FUNCTION_KEYWORD;
             case CONST_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_CONST_KEYWORD;

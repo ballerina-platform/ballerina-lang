@@ -2018,7 +2018,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseParameterRhs(SyntaxKind tokenKind) {
         switch (tokenKind) {
             case COMMA_TOKEN:
-                return parseComma();
+                return consume();
             case CLOSE_PAREN_TOKEN:
                 return null;
             default:
@@ -2587,7 +2587,7 @@ public class BallerinaParser extends AbstractParser {
         STNode lastQualifier = getLastNodeInList(qualifiers);
         switch (lastQualifier.kind) {
             case ISOLATED_KEYWORD:
-                return ParserRuleContext.TYPE_DESC_WITH_ISOLATED;
+                return ParserRuleContext.TYPE_DESC_WITHOUT_ISOLATED;
             case TRANSACTIONAL_KEYWORD:
                 return ParserRuleContext.FUNC_TYPE_DESC;
             case SERVICE_KEYWORD:
@@ -6525,13 +6525,17 @@ public class BallerinaParser extends AbstractParser {
                 semicolonToken = parseSemicolon();
                 break;
             case EQUAL_TOKEN:
-                if (!isObjectTypeDesc) {
-                    equalsToken = parseAssignOp();
-                    expression = parseExpression();
-                    semicolonToken = parseSemicolon();
-                    break;
+                equalsToken = parseAssignOp();
+                expression = parseExpression();
+                semicolonToken = parseSemicolon();
+                if (isObjectTypeDesc) {
+                    fieldName = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(fieldName, equalsToken,
+                            DiagnosticErrorCode.ERROR_FIELD_INITIALIZATION_NOT_ALLOWED_IN_OBJECT_TYPE);
+                    fieldName = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(fieldName, expression);
+                    equalsToken = STNodeFactory.createEmptyNode();
+                    expression = STNodeFactory.createEmptyNode();
                 }
-                // Else fall through
+                break;
             default:
                 recover(peek(), ParserRuleContext.OBJECT_FIELD_RHS, metadata, visibilityQualifier, qualifiers,
                         type, fieldName);

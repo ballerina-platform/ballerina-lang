@@ -1,7 +1,3 @@
-public type Hello2 service  //<cursor>
-
-listener udp:Listener udpListener = check new udp:Listener(5000);
-
 public type Hello1 service  //<cursor>
 
 type Hello2 int;
