@@ -20,7 +20,7 @@ public client class Student {
         return firstName + lastName;
     }
 
-    function getTotalMarks(int maths, int english) returns int {
+    remote function getTotalMarks(int maths, int english) returns int {
         future<int> futureSum = @strand {thread: "any"} start sum(maths, english);
         int|error result = wait futureSum;
         if result is int {
@@ -37,4 +37,14 @@ function sum(int a, int b) returns int {
 
 function getName(string name) returns string {
     return "Name: " + name;
+}
+
+public function getSum(int a, int b) returns int {
+    future<int> futureSum = @strand {thread: "any"} start addition(a, b);
+    int|error result = wait futureSum;
+    if result is int {
+        return result;
+    } else {
+        return -1;
+    }
 }
