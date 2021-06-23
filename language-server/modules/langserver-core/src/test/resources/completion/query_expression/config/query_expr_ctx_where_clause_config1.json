@@ -6,11 +6,11 @@
   "source": "query_expression/source/query_expr_ctx_where_clause_source1.bal",
   "items": [
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "runtime",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -24,53 +24,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/module1;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -98,11 +52,11 @@
       ]
     },
     {
-      "label": "ballerina/jballerina.java",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "java",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -116,7 +70,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jballerina.java;\n"
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -140,6 +117,29 @@
             }
           },
           "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
         }
       ]
     },
@@ -445,19 +445,34 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "testIterableOperation()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "testIterableOperation",
+      "insertText": "testIterableOperation()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "customer",
+      "kind": "Variable",
+      "detail": "Customer",
+      "sortText": "B",
+      "insertText": "customer",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "customerList",
       "kind": "Variable",
       "detail": "Customer[]",
       "sortText": "B",
       "insertText": "customerList",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "customerTable",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "customerTable",
       "insertTextFormat": "Snippet"
     },
     {
@@ -477,11 +492,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "c3",
-      "kind": "Variable",
-      "detail": "Customer",
-      "sortText": "B",
-      "insertText": "c3",
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "L",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -493,6 +511,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "c3",
+      "kind": "Variable",
+      "detail": "Customer",
+      "sortText": "B",
+      "insertText": "c3",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "c1",
       "kind": "Variable",
       "detail": "Customer",
@@ -501,37 +527,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "customer",
+      "label": "customerTable",
       "kind": "Variable",
-      "detail": "Customer",
+      "detail": "$CompilationError$",
       "sortText": "B",
-      "insertText": "customer",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testIterableOperation()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "testIterableOperation",
-      "insertText": "testIterableOperation()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "L",
-      "insertText": "StrandData",
+      "insertText": "customerTable",
       "insertTextFormat": "Snippet"
     },
     {

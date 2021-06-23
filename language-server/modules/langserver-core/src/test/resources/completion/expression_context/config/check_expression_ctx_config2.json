@@ -50,11 +50,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "runtime",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -68,30 +68,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value3",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value as value3 ;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -119,11 +96,11 @@
       ]
     },
     {
-      "label": "ballerina/jballerina.java",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "java",
+      "insertText": "value3",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -137,7 +114,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jballerina.java;\n"
+          "newText": "import ballerina/lang.value as value3 ;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -466,6 +466,21 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "testFunction()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "testFunction",
+      "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testVar",
       "kind": "Variable",
       "detail": "$CompilationError$",
@@ -490,32 +505,20 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunction()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "testFunction",
-      "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Record1",
+      "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
       "sortText": "L",
-      "insertText": "Record1",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "functionWithReturn()(Record1)",
+      "label": "functionWithReturn()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "Record1",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -528,14 +531,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
+      "label": "Record1",
       "kind": "Struct",
       "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
       "sortText": "L",
-      "insertText": "StrandData",
+      "insertText": "Record1",
       "insertTextFormat": "Snippet"
     },
     {
