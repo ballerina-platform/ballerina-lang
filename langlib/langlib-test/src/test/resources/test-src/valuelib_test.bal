@@ -1191,6 +1191,17 @@ function testFromJsonWithTypeWithInferredArgument() {
     assert(s is error, true);
 }
 
+type FooBar [StringType...];
+type StringType string;
+
+public function testFromJsonWithTypeWithTypeReferences() {
+   json j = ["foo"];
+   FooBar f = checkpanic j.fromJsonWithType();
+   assert(f is FooBar, true);
+   assert(f is [string...], true);
+   assert(f.toString(), "foo");
+ }
+
 /////////////////////////// Tests for `fromJsonStringWithType()` ///////////////////////////
 
 function testFromJsonStringWithTypeJson() {

@@ -292,3 +292,7 @@ class Bar {
 }
 
 const Bar BAR = new;
+
+function main1() {
+    const expected = "";
+}
