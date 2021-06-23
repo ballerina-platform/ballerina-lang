@@ -42,11 +42,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "runtime",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -60,53 +60,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/module1;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -134,11 +88,11 @@
       ]
     },
     {
-      "label": "ballerina/jballerina.java",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "java",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -152,7 +106,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jballerina.java;\n"
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -176,6 +153,29 @@
             }
           },
           "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
         }
       ]
     },
@@ -481,52 +481,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "myStr",
-      "kind": "Variable",
+      "label": "getString(string myStr)",
+      "kind": "Function",
       "detail": "string",
-      "sortText": "AB",
-      "insertText": "myStr",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "coordinates",
-      "kind": "Variable",
-      "detail": "Coordinates",
-      "sortText": "D",
-      "insertText": "coordinates",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Coordinates",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "N",
-      "insertText": "Coordinates",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myFunction(function () returns string func, string city, Coordinates coordinates)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `function () returns string` func  \n- `string` city  \n- `Coordinates` coordinates"
-        }
-      },
-      "sortText": "E",
-      "filterText": "myFunction",
-      "insertText": "myFunction(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "getString(string myStr)(string)",
-      "kind": "Function",
-      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -541,6 +498,22 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "coordinates",
+      "kind": "Variable",
+      "detail": "Coordinates",
+      "sortText": "D",
+      "insertText": "coordinates",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myInt",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "D",
+      "insertText": "myInt",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "Thread",
@@ -570,9 +543,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "func()(string)",
+      "label": "func()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -585,12 +558,39 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "myInt",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "D",
-      "insertText": "myInt",
+      "label": "Coordinates",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "N",
+      "insertText": "Coordinates",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myStr",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "AB",
+      "insertText": "myStr",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myFunction(function () returns string func, string city, Coordinates coordinates)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `function () returns string` func  \n- `string` city  \n- `Coordinates` coordinates"
+        }
+      },
+      "sortText": "E",
+      "filterText": "myFunction",
+      "insertText": "myFunction(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "readonly",

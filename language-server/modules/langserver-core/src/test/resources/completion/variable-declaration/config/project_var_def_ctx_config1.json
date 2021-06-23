@@ -50,11 +50,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "runtime",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -68,53 +68,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/module1;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -142,11 +96,11 @@
       ]
     },
     {
-      "label": "ballerina/jballerina.java",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "java",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -160,7 +114,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jballerina.java;\n"
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -184,6 +161,29 @@
             }
           },
           "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
         }
       ]
     },
@@ -489,9 +489,28 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "getDriver(models:Person person)",
+      "kind": "Function",
+      "detail": "test/lsproject.models:0.1.0:Driver",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n**Params**  \n- `models:Person` person  \n  \n**Return** `models:Driver`   \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "getDriver",
+      "insertText": "getDriver(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "main()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -504,9 +523,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getOddNumber()(int)",
+      "label": "getOddNumber()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -516,21 +535,6 @@
       "sortText": "AC",
       "filterText": "getOddNumber",
       "insertText": "getOddNumber()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getAge()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
-        }
-      },
-      "sortText": "AC",
-      "filterText": "getAge",
-      "insertText": "getAge()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -561,9 +565,24 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "stringFunction()(string)",
+      "label": "getPerson()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "test/lsproject.models:0.1.0:Person",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Return** `models:Person`   \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "getPerson",
+      "insertText": "getPerson()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stringFunction()",
+      "kind": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -576,37 +595,18 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getDriver(models:Person person)(models:Driver)",
+      "label": "getAge()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n**Params**  \n- `models:Person` person  \n  \n**Return** `models:Driver`   \n  \n"
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "E",
-      "filterText": "getDriver",
-      "insertText": "getDriver(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "getPerson()(models:Person)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Return** `models:Person`   \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "getPerson",
-      "insertText": "getPerson()",
+      "sortText": "AC",
+      "filterText": "getAge",
+      "insertText": "getAge()",
       "insertTextFormat": "Snippet"
     },
     {
