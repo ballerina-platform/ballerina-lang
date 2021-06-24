@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -83,6 +84,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
+import static io.ballerina.compiler.api.symbols.SymbolKind.PATH_PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.XMLNS;
@@ -174,7 +176,14 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 TypeSymbol typeDesc = paramSymbol.typeDescriptor();
                 String typeName = CommonUtil.getModifiedTypeName(ctx, typeDesc);
                 CompletionItem variableCItem = ParameterCompletionItemBuilder.build(paramSymbol.getName().get(),
-                                                                                    typeName);
+                        typeName);
+                completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
+            } else if (symbol.kind() == PATH_PARAMETER) {
+                PathParameterSymbol paramSymbol = (PathParameterSymbol) symbol;
+                TypeSymbol typeDesc = paramSymbol.typeDescriptor();
+                String typeName = CommonUtil.getModifiedTypeName(ctx, typeDesc);
+                CompletionItem variableCItem = ParameterCompletionItemBuilder.build(paramSymbol.getName().get(),
+                        typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
             } else if (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS
                     || symbol.kind() == ENUM) {
@@ -323,9 +332,9 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
     /**
      * Check whether the cursor is within a qualified name reference.
      * This has been deprecated and use QNameReferenceUtil#onQualifiedNameIdentifier instead.
-     * 
+     *
      * @param context completion context
-     * @param node node to evaluate upon
+     * @param node    node to evaluate upon
      * @return {@link Boolean}
      */
     @Deprecated(forRemoval = true)
