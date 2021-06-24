@@ -276,7 +276,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.NIL_LITERAL, ParserRuleContext.VARIABLE_REF, ParserRuleContext.ACCESS_EXPRESSION,
             ParserRuleContext.TYPEOF_EXPRESSION, ParserRuleContext.TRAP_KEYWORD, ParserRuleContext.UNARY_EXPRESSION,
             ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.LIST_CONSTRUCTOR, ParserRuleContext.TYPE_CAST,
-            ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION,
+            ParserRuleContext.BRACED_EXPRESSION, ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION,
             ParserRuleContext.LET_EXPRESSION, ParserRuleContext.TEMPLATE_START, ParserRuleContext.XML_KEYWORD,
             ParserRuleContext.STRING_KEYWORD, ParserRuleContext.BASE64_KEYWORD, ParserRuleContext.BASE64_KEYWORD,
             ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.NEW_KEYWORD,
@@ -2437,7 +2437,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             nextContext = ParserRuleContext.CLOSE_BRACKET;
         } else if (parentCtx == ParserRuleContext.INTERPOLATION) {
             nextContext = ParserRuleContext.CLOSE_BRACE;
-        } else if (parentCtx == ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAMS) {
+        } else if (parentCtx == ParserRuleContext.BRACED_EXPRESSION ||
+                parentCtx == ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAMS) {
             nextContext = ParserRuleContext.CLOSE_PARENTHESIS;
         } else if (parentCtx == ParserRuleContext.FUNC_DEF) {
             // expression bodied func in module level
@@ -3256,6 +3257,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 // We reach here without starting the `TRANSACTION_STMT` context. hence, start context
                 startContext(ParserRuleContext.TRANSACTION_STMT);
                 return ParserRuleContext.BLOCK_STMT;
+            case BRACED_EXPRESSION:
+                return ParserRuleContext.OPEN_PARENTHESIS;
             default:
                 return getNextRuleForKeywords(currentCtx, nextLookahead);
         }
@@ -3614,6 +3617,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RELATIVE_RESOURCE_PATH:
             case ERROR_CONSTRUCTOR:
             case CLASS_DESCRIPTOR_IN_NEW_EXPR:
+            case BRACED_EXPRESSION:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -3675,6 +3679,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         } else if (parentCtx == ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAMS) {
             endContext(); // end infered-param/parenthesised-expr context
             return ParserRuleContext.INFER_PARAM_END_OR_PARENTHESIS_END;
+        } else if (parentCtx == ParserRuleContext.BRACED_EXPRESSION) {
+            endContext();
+            return ParserRuleContext.EXPRESSION_RHS;
         } else if (parentCtx == ParserRuleContext.ERROR_MATCH_PATTERN) {
             endContext();
             return getNextRuleForMatchPattern();
@@ -3698,7 +3705,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         if (parentCtx == ParserRuleContext.EXPRESSION_STATEMENT) {
             return ParserRuleContext.EXPRESSION_STATEMENT_START;
         } else if (isStatement(parentCtx) || isExpressionContext(parentCtx) ||
-                parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
+                parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR ||
+                parentCtx == ParserRuleContext.BRACED_EXPRESSION) {
             return ParserRuleContext.EXPRESSION;
         } else if (parentCtx == ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE ||
                 parentCtx == ParserRuleContext.FUNC_TYPE_DESC || parentCtx == ParserRuleContext.FUNC_DEF ||

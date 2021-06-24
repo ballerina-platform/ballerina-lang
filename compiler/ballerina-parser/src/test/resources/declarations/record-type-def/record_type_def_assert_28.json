@@ -39,6 +39,10 @@
                       "value": "l",
                       "trailingMinutiae": [
                         {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        },
+                        {
                           "kind": "END_OF_LINE_MINUTIAE",
                           "value": "\n"
                         }
@@ -265,7 +269,13 @@
               ]
             },
             {
-              "kind": "SEMICOLON_TOKEN"
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
             }
           ]
         }
