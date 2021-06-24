@@ -66,6 +66,28 @@ public class BallerinaSymbol implements Symbol {
                                                     symbol.pos.lineRange().endLine().offset());
     }
 
+    protected BallerinaSymbol(String name,
+                              String originalName,
+                              SymbolKind symbolKind,
+                              BSymbol symbol,
+                              CompilerContext context) {
+        this.name = name;
+        this.escapedName = originalName;
+        this.symbolKind = symbolKind;
+        this.context = context;
+
+        if (symbol == null) {
+            throw new IllegalArgumentException("'symbol' cannot be null");
+        }
+
+        this.internalSymbol = symbol;
+        this.position = new BLangDiagnosticLocation(symbol.pos.lineRange().filePath(),
+                symbol.pos.lineRange().startLine().line(),
+                symbol.pos.lineRange().endLine().line(),
+                symbol.pos.lineRange().startLine().offset(),
+                symbol.pos.lineRange().endLine().offset());
+    }
+
     @Override
     public Optional<String> getName() {
         // In the langlib context, reserved keywords can be used as regular identifiers. Therefore, they will not be
