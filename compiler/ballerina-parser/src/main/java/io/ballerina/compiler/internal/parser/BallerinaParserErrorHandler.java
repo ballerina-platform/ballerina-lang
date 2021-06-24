@@ -3667,6 +3667,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TYPE_DESC_RHS;
             }
             return ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_RHS;
+        } else if (parentCtx == ParserRuleContext.TYPE_DESC_IN_PARENTHESIS) {
+            endContext();
+            return ParserRuleContext.TYPE_DESC_RHS;
         } else if (isInTypeDescContext()) {
             return ParserRuleContext.TYPE_DESC_RHS;
         } else if (parentCtx == ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAMS) {
@@ -3987,10 +3990,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_STREAM_TYPE_DESC:
                 return ParserRuleContext.STREAM_TYPE_FIRST_PARAM_RHS;
             case TYPE_DESC_IN_PARENTHESIS:
-                endContext();
-                if (isInTypeDescContext()) {
-                    return ParserRuleContext.TYPE_DESC_RHS;
-                }
                 return ParserRuleContext.CLOSE_PARENTHESIS;
             case TYPE_DESC_IN_TUPLE:
             case STMT_START_BRACKETED_LIST:
