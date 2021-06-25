@@ -5,12 +5,12 @@ SYNOPSIS
        bal build
        bal build <ballerina-file-path> 
        bal build <ballerina-package-path>
-       bal build [--test-report] [--offline] [--experimental] [-o | --output] <output-path> 
+       bal build [--test-report] [--offline] [--experimental] [-o | --output] <output-path> [--dump-build-time]
                   <ballerina-file-path> 
-       bal build [-c | --compile] [--offline] [experimental] [--cloud] [--observability-included] 
+       bal build [-c | --compile] [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
                  [--skip-tests] [--list-conflicted-classes] <ballerina-package-path> 
-       bal build [-c | --compile] [--offline] [experimental] [--cloud] [--observability-included] 
-                 [--list-conflicted-classes] [--debug]  [--test-report] [--code-coverage] 
+       bal build [-c | --compile] [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
+                 [--list-conflicted-classes] [--debug]  [--test-report] [--code-coverage]
                  <ballerina-package-path>
          
 
@@ -70,6 +70,9 @@ OPTIONS
 
        --list-conflicted-classes
        		List the conflicting classes of conflicting JARs in the project.
+
+       --dump-build-time
+            Calculate and dump build time.
 
 
 EXAMPLES
