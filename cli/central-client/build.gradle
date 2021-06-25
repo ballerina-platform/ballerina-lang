@@ -30,10 +30,6 @@ configurations {
 
 dependencies {
     implementation project(':ballerina-runtime')
-<<<<<<< HEAD
-=======
-//    implementation 'javax.ws.rs:javax.ws.rs-api'
->>>>>>> 75f23b398d8817d4b24e50c9e533441d86b0f789
     implementation 'me.tongfei:progressbar'
     implementation 'com.google.code.gson:gson'
     implementation 'com.google.code.findbugs:jsr305'
