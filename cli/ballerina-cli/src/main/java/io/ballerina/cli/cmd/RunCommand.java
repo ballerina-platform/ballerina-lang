@@ -86,7 +86,7 @@ public class RunCommand implements BLauncherCmd {
     private Boolean observabilityIncluded;
 
     private static final String runCmd =
-            "bal run <executable-jar> \n" +
+            "bal run [--debug] <executable-jar> \n" +
             "    bal run [--experimental] [--offline]\n" +
             "                  [<ballerina-file | package-path>] [-- program-args...]\n ";
 
@@ -121,7 +121,7 @@ public class RunCommand implements BLauncherCmd {
             if (!argList.get(0).equals("--")) { // project path provided
                 this.projectPath = Paths.get(argList.get(0));
                 if (RunCommand.JAR_EXTENSION_MATCHER.matches(this.projectPath)) {
-                    CommandUtil.printError(this.errStream, "options are not allowed when executing jar files",
+                    CommandUtil.printError(this.errStream, "unsupported option(s) provided for jar execution",
                             runCmd, true);
                     CommandUtil.exitError(this.exitWhenFinish);
                     return;
@@ -195,7 +195,7 @@ public class RunCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal run <executable-jar>\n");
+        out.append("  bal run [--debug] <executable-jar>\n");
         out.append("  bal run [--offline] [<balfile> | <project-path>]\n" +
                 "[--] [args...] \n");
     }
