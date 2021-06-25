@@ -24,26 +24,14 @@ dependencies {
 //    implementation ('org.apache.ws.commons.axiom:axiom-dom') {
 //        exclude group: 'org.apache.ws.commons.axiom', module: 'axiom-api'
 //    }
-<<<<<<< HEAD
-=======
-//    implementation ('org.apache.ws.commons.axiom:axiom-c14n') {
-//        exclude group: 'org.apache.ws.commons.axiom', module: 'axiom-api'
-//        exclude group: 'org.apache.ws.commons.axiom', module: 'axiom-impl'
-//    }
->>>>>>> 75f23b398d8817d4b24e50c9e533441d86b0f789
+
     implementation ('org.apache.ws.commons.axiom:axiom-api') {
         exclude group: 'org.apache.geronimo.specs', module: 'geronimo-stax-api_1.0_spec'
         exclude group: 'jaxen', module: 'jaxen'
     }
     implementation 'org.apache.commons:commons-lang3'
     implementation 'io.opentelemetry:opentelemetry-api'
-<<<<<<< HEAD
 
-=======
-//    implementation ('org.awaitility:awaitility') {
-//        exclude group: 'org.hamcrest', module: 'hamcrest-core'
-//    }
->>>>>>> 75f23b398d8817d4b24e50c9e533441d86b0f789
     implementation('com.atomikos:transactions-jta:5.0.8') {
         exclude group: 'org.hibernate', module: 'hibernate'
     }
