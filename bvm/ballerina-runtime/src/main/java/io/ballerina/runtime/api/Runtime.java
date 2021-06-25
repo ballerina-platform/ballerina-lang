@@ -45,7 +45,7 @@ public class Runtime {
 
     private Scheduler scheduler;
 
-    public Runtime(Scheduler scheduler) {
+    Runtime(Scheduler scheduler) {
         this.scheduler = scheduler;
     }
 

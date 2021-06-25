@@ -16,10 +16,9 @@
  *  under the License.
  */
 
-package io.ballerina.runtime.internal.util;
+package io.ballerina.runtime.internal.debugger;
 
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
@@ -50,7 +49,7 @@ import java.util.function.Function;
  * @since 2.0.0
  */
 @SuppressWarnings("unused")
-public class DebuggerRuntimeHelperUtils {
+public class DebuggerRuntime {
 
     private static final String EVALUATOR_STRAND_NAME = "evaluator-strand";
 
@@ -65,25 +64,24 @@ public class DebuggerRuntimeHelperUtils {
     public static Object invokeObjectMethod(BObject bObject, String methodName, Object... args) {
         try {
             Scheduler scheduler = new Scheduler(1, false);
-            Runtime runtime = new Runtime(scheduler);
             CountDownLatch latch = new CountDownLatch(1);
             final Object[] finalResult = new Object[1];
+            final Object[] paramValues = args[0] instanceof Strand ? Arrays.copyOfRange(args, 1, args.length) : args;
 
-            args = args[0] instanceof Strand ? Arrays.copyOfRange(args, 1, args.length) : args;
-            Object resultFuture = runtime.invokeMethodAsync(bObject, methodName, EVALUATOR_STRAND_NAME, null,
-                    new Callback() {
-                        @Override
-                        public void notifySuccess(Object result) {
-                            latch.countDown();
-                            finalResult[0] = result;
-                        }
+            Function<?, ?> func = o -> bObject.call((Strand) (((Object[]) o)[0]), methodName, paramValues);
+            Object resultFuture = scheduler.schedule(new Object[1], func, null, new Callback() {
+                @Override
+                public void notifySuccess(Object result) {
+                    latch.countDown();
+                    finalResult[0] = result;
+                }
 
-                        @Override
-                        public void notifyFailure(BError error) {
-                            latch.countDown();
-                            finalResult[0] = error;
-                        }
-                    }, args);
+                @Override
+                public void notifyFailure(BError error) {
+                    latch.countDown();
+                    finalResult[0] = error;
+                }
+            }, EVALUATOR_STRAND_NAME, null).result;
 
             scheduler.start();
             latch.await();
@@ -132,6 +130,7 @@ public class DebuggerRuntimeHelperUtils {
                     finalResult[0] = error;
                 }
             }, new HashMap<>(), PredefinedTypes.TYPE_NULL, EVALUATOR_STRAND_NAME, null);
+
             scheduler.start();
             latch.await();
             return finalResult[0];
@@ -153,6 +152,6 @@ public class DebuggerRuntimeHelperUtils {
         }
     }
 
-    private DebuggerRuntimeHelperUtils() {
+    private DebuggerRuntime() {
     }
 }
