@@ -110,6 +110,7 @@ public class FileUtils {
             while ((content = br.readLine()) != null) {
                 sb.append('\n').append(content);
             }
+            sb.append('\n');
         } finally {
             if (inputStreamReader != null) {
                 try {

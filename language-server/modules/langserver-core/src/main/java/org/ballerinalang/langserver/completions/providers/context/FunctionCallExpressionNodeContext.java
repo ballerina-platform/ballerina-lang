@@ -15,23 +15,16 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
-import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.FunctionPointerCompletionItem;
-import org.ballerinalang.langserver.completions.SymbolCompletionItem;
-import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
@@ -80,53 +73,15 @@ public class FunctionCallExpressionNodeContext extends BlockNodeContextProvider<
                      FunctionCallExpressionNode node,
                      List<LSCompletionItem> completionItems) {
 
-        ContextTypeResolver contextTypeResolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> parameterSymbol = node.apply(contextTypeResolver);
-
+        Optional<TypeSymbol> parameterSymbol = context.getContextType();
         if (parameterSymbol.isEmpty() || !CommonUtil.isInFunctionCallParameterContext(context, node)) {
             super.sort(context, node, completionItems);
             return;
         }
-
-        completionItems.forEach(lsCompletionItem -> {
-            int rank = SortingUtil.toRank(lsCompletionItem, 2);
-            if (lsCompletionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
-
-                Optional<Symbol> symbol = ((SymbolCompletionItem) lsCompletionItem).getSymbol();
-                Optional<TypeSymbol> symbolType = SymbolUtil.getTypeDescriptor(symbol.orElse(null));
-
-                if (symbolType.isPresent()) {
-                    switch (lsCompletionItem.getCompletionItem().getKind()) {
-                        case Variable:
-                            if (symbolType.get().assignableTo(parameterSymbol.get())) {
-                                rank = 1;
-                            }
-                            break;
-                        case Method:
-                        case Function:
-                            if (symbolType.get() instanceof FunctionTypeSymbol) {
-                                Optional<TypeSymbol> returnType =
-                                        ((FunctionSymbol) symbol.get()).typeDescriptor().returnTypeDescriptor();
-                                if (returnType.isPresent() && returnType.get().assignableTo(parameterSymbol.get())) {
-                                    rank = 2;
-                                }
-                            }
-                            break;
-                        default:
-                            rank = SortingUtil.toRank(lsCompletionItem, 2);
-                    }
-                }
-
-            } else if (lsCompletionItem.getType() == LSCompletionItem.CompletionItemType.FUNCTION_POINTER) {
-                Optional<Symbol> cSymbol = ((FunctionPointerCompletionItem) lsCompletionItem).getSymbol();
-                if (cSymbol.isPresent()) {
-                    Optional<TypeSymbol> evalTypeSymbol = SymbolUtil.getTypeDescriptor(cSymbol.get());
-                    if (evalTypeSymbol.isPresent() && evalTypeSymbol.get().assignableTo(parameterSymbol.get())) {
-                        rank = 1;
-                    }
-                }
-            }
-            lsCompletionItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
-        });
+        TypeSymbol symbol = parameterSymbol.get();
+        for (LSCompletionItem completionItem : completionItems) {
+            completionItem.getCompletionItem()
+                    .setSortText(SortingUtil.genSortTextByAssignability(completionItem, symbol));
+        }
     }
 }

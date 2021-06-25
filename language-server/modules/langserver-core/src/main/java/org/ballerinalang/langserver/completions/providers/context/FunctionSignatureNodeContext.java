@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import java.util.List;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class FunctionSignatureNodeContext extends AbstractCompletionProvider<FunctionSignatureNode> {
+
     public FunctionSignatureNodeContext() {
         super(FunctionSignatureNode.class);
     }
@@ -93,7 +95,7 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
             }
         }
         this.sort(context, node, completionItems);
-        
+
         return completionItems;
     }
 
@@ -118,5 +120,16 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
         // If the signature belongs to the function type descriptor, we skip this resolver
         return !node.openParenToken().isMissing() && !node.closeParenToken().isMissing()
                 && node.parent().kind() != SyntaxKind.FUNCTION_TYPE_DESC;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, FunctionSignatureNode node,
+                     List<LSCompletionItem> completionItems) {
+        if (withinParameterContext(context, node)) {
+            completionItems.forEach(completionItem -> {
+                String sortText = SortingUtil.genSortTextForTypeDescContext(context, completionItem);
+                completionItem.getCompletionItem().setSortText(sortText);
+            });
+        }
     }
 }

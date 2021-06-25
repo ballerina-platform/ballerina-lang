@@ -35,6 +35,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -231,7 +232,7 @@ public class BuildCommand implements BLauncherCmd {
 
         if (!(this.compile && project.currentPackage().compilerPluginToml().isPresent())) {
             if (isProjectEmpty(project)) {
-                CommandUtil.printError(this.errStream, "package is empty. please add at least one .bal file", null,
+                CommandUtil.printError(this.errStream, "package is empty. please add at least one .bal file.", null,
                         false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
@@ -274,8 +275,12 @@ public class BuildCommand implements BLauncherCmd {
                         "enabled");
             }
         }
-        // Read Settings.toml file
-        readSettings();
+        // Validate Settings.toml file
+        try {
+            readSettings();
+        } catch (SettingsTomlException e) {
+            this.outStream.println("warning: " + e.getMessage());
+        }
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean the target directory(projects only)

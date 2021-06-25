@@ -9,7 +9,7 @@
       "label": "Element",
       "kind": "TypeParameter",
       "detail": "Element",
-      "sortText": "M",
+      "sortText": "ABM",
       "insertText": "Element",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +17,7 @@
       "label": "ProcessingInstruction",
       "kind": "TypeParameter",
       "detail": "Processinginstruction",
-      "sortText": "M",
+      "sortText": "ABM",
       "insertText": "ProcessingInstruction",
       "insertTextFormat": "Snippet"
     },
@@ -25,7 +25,7 @@
       "label": "Comment",
       "kind": "TypeParameter",
       "detail": "Comment",
-      "sortText": "M",
+      "sortText": "ABM",
       "insertText": "Comment",
       "insertTextFormat": "Snippet"
     },
@@ -33,7 +33,7 @@
       "label": "Text",
       "kind": "TypeParameter",
       "detail": "Text",
-      "sortText": "M",
+      "sortText": "ABM",
       "insertText": "Text",
       "insertTextFormat": "Snippet"
     }

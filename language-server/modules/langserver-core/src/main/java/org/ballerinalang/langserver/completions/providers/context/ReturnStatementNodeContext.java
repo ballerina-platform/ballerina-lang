@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -24,9 +25,11 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion provider for {@link ReturnStatementNode} context.
@@ -55,7 +58,22 @@ public class ReturnStatementNodeContext extends AbstractCompletionProvider<Retur
             completionItems.addAll(this.expressionCompletions(context));
         }
         this.sort(context, node, completionItems);
-        
+
         return completionItems;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, ReturnStatementNode node,
+                     List<LSCompletionItem> completionItems) {
+
+        Optional<TypeSymbol> typeSymbolAtCursor = context.getContextType();
+        if (typeSymbolAtCursor.isEmpty()) {
+            super.sort(context, node, completionItems);
+        }
+        TypeSymbol symbol = typeSymbolAtCursor.get();
+        for (LSCompletionItem completionItem : completionItems) {
+            completionItem.getCompletionItem()
+                    .setSortText(SortingUtil.genSortTextByAssignability(completionItem, symbol));
+        }
     }
 }

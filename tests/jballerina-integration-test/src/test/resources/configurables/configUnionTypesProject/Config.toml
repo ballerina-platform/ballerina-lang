@@ -2,16 +2,169 @@
 httpVersion = "HTTP_1_1"
 countryCode = "Sri Lanka"
 countryCodes = ["United States","Sri Lanka"]
+
+anydataVar ="hello"
+intStringVar=12345
+anydataArray = ["hello", 1, 2, 3.4, false]
+number="three"
+
 [configUnionTypes.httpResponse]
 httpVersion = "HTTP_2"
 [configUnionTypes.country]
 countryCode = "United States"
 
+[configUnionTypes.anydataMap]
+username="waruna"
+age=14
+marks=85.67
+isAdmin=true
+
+[[configUnionTypes.anydataTable]]
+username="manu"
+age=12
+marks=123.456
+isAdmin=false
+
+[[configUnionTypes.anydataTable]]
+username="hinduja"
+age=16
+marks=98.76
+isAdmin=true
+
+[configUnionTypes.config1]
+clientId =123456
+clientSecret="hello"
+[configUnionTypes.config1.clientConfig]
+httpVersion="HTTP_1_1"
+[configUnionTypes.config1.clientConfig.customHeaders]
+header1="header1"
+header2="header2"
+
+[configUnionTypes.config2]
+token ="123456"
+timeLimit=12.5
+[configUnionTypes.config2.clientConfig]
+httpVersion="HTTP_2"
+[configUnionTypes.config2.clientConfig.customHeaders]
+header3="header3"
+header4="header4"
+
+[configUnionTypes.config3]
+password=["1", 2, 3]
+
+
+[configUnionTypes.configMap1.config1]
+clientId =123456
+clientSecret="hello"
+[configUnionTypes.configMap1.config1.clientConfig]
+httpVersion="HTTP_1_1"
+[configUnionTypes.configMap1.config1.clientConfig.customHeaders]
+header1="header1"
+header2="header2"
+
+[configUnionTypes.configMap1.config2]
+clientId =654321
+clientSecret="hello"
+[configUnionTypes.configMap1.config2.clientConfig]
+httpVersion="HTTP_2"
+[configUnionTypes.configMap1.config2.clientConfig.customHeaders]
+header3="header3"
+header4="header4"
+
+[configUnionTypes.configMap2.config1]
+clientId =123456
+clientSecret="hello"
+[configUnionTypes.configMap2.config1.clientConfig]
+httpVersion="HTTP_1_1"
+[configUnionTypes.configMap2.config1.clientConfig.customHeaders]
+header1="header1"
+header2="header2"
+
+[configUnionTypes.configMap2.config2]
+password=["1", 2, 3]
+
+
 [configUnionTypes.mod2]
 httpVersion = "HTTP_2"
 countryCode = "United States"
 countryCodes = ["Sri Lanka", "United States"]
+anydataVar ="hello"
+intStringVar=12345
+anydataArray = ["hello", 1, 2, 3.4, false]
+number="three"
+
 [configUnionTypes.mod2.httpResponse]
 httpVersion = "HTTP_1_1"
 [configUnionTypes.mod2.country]
 countryCode = "Sri Lanka"
+
+
+[configUnionTypes.mod2.anydataMap]
+username="waruna"
+age=14
+marks=85.67
+isAdmin=true
+
+[[configUnionTypes.mod2.anydataTable]]
+username="manu"
+age=12
+marks=123.456
+isAdmin=false
+
+[[configUnionTypes.mod2.anydataTable]]
+username="hinduja"
+age=16
+marks=98.76
+isAdmin=true
+
+[configUnionTypes.mod2.config1]
+clientId =123456
+clientSecret="hello"
+[configUnionTypes.mod2.config1.clientConfig]
+httpVersion="HTTP_1_1"
+[configUnionTypes.mod2.config1.clientConfig.customHeaders]
+header1="header1"
+header2="header2"
+
+[configUnionTypes.mod2.config2]
+token ="123456"
+timeLimit=12.5
+[configUnionTypes.mod2.config2.clientConfig]
+httpVersion="HTTP_2"
+[configUnionTypes.mod2.config2.clientConfig.customHeaders]
+header3="header3"
+header4="header4"
+
+[configUnionTypes.mod2.config3]
+password=["1", 2, 3]
+
+[configUnionTypes.mod2.configMap1.config1]
+clientId =123456
+clientSecret="hello"
+[configUnionTypes.mod2.configMap1.config1.clientConfig]
+httpVersion="HTTP_1_1"
+[configUnionTypes.mod2.configMap1.config1.clientConfig.customHeaders]
+header1="header1"
+header2="header2"
+
+[configUnionTypes.mod2.configMap1.config2]
+clientId =654321
+clientSecret="hello"
+[configUnionTypes.mod2.configMap1.config2.clientConfig]
+httpVersion="HTTP_2"
+[configUnionTypes.mod2.configMap1.config2.clientConfig.customHeaders]
+header3="header3"
+header4="header4"
+
+[configUnionTypes.mod2.configMap2.config1]
+clientId =123456
+clientSecret="hello"
+[configUnionTypes.mod2.configMap2.config1.clientConfig]
+httpVersion="HTTP_1_1"
+[configUnionTypes.mod2.configMap2.config1.clientConfig.customHeaders]
+header1="header1"
+header2="header2"
+
+[configUnionTypes.mod2.configMap2.config2]
+password=["1", 2, 3]
+

@@ -792,11 +792,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             // Create a new finite type node.
             BLangFiniteTypeNode finiteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
             finiteTypeNode.valueSpace.add(literal);
+            finiteTypeNode.pos = identifierPos;
 
             // Create a new anonymous type definition.
             BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
             String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID);
-            IdentifierNode anonTypeGenName = createIdentifier(identifierPos, genName);
+            IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName);
             typeDef.setName(anonTypeGenName);
             typeDef.flagSet.add(Flag.PUBLIC);
             typeDef.flagSet.add(Flag.ANONYMOUS);
@@ -2533,6 +2534,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         var.pos = getPositionWithoutMetadata(listenerDeclarationNode);
         var.name.pos = getPosition(listenerDeclarationNode.variableName());
         var.annAttachments = applyAll(getAnnotations(listenerDeclarationNode.metadata()));
+        var.markdownDocumentationAttachment =
+                createMarkdownDocumentationAttachment(getDocumentationString(listenerDeclarationNode.metadata()));
         return var;
     }
 
@@ -3062,7 +3065,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 functionTypeNode.returnTypeNode = createTypeNode(returnType.type());
             } else {
                 BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
-                bLValueType.pos = getPosition(funcSignature);
+                bLValueType.pos = symTable.builtinPos;
                 bLValueType.typeKind = TypeKind.NIL;
                 functionTypeNode.returnTypeNode = bLValueType;
             }

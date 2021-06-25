@@ -25,7 +25,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * {@code PrintUtils} has utilities to print search results.
@@ -35,8 +34,6 @@ import java.util.Map;
 public class PrintUtils {
 
     private static PrintStream outStream = System.out;
-    private static final String DEFAULT_TERMINAL_SIZE = "80";
-    private static final String BALLERINA_CLI_WIDTH = "BALLERINA_CLI_WIDTH";
 
     private PrintUtils() {
     }
@@ -260,18 +257,5 @@ public class PrintUtils {
     private static int getColWidth(double remainingWidth, double colFactor, double otherColFactor1,
             double otherColFactor2) {
         return (int) Math.round(remainingWidth * (colFactor / (colFactor + otherColFactor1 + otherColFactor2)));
-    }
-
-    /**
-     * Get the terminal width.
-     *
-     * @return terminal width as a string
-     */
-    public static String getTerminalWidth() {
-        Map<String, String> envVariableMap = System.getenv();
-        if (envVariableMap.containsKey(BALLERINA_CLI_WIDTH)) {
-            return envVariableMap.get(BALLERINA_CLI_WIDTH);
-        }
-        return DEFAULT_TERMINAL_SIZE;
     }
 }

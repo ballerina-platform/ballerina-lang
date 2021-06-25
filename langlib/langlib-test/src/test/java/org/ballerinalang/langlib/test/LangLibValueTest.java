@@ -325,7 +325,11 @@ public class LangLibValueTest {
                 { "testCloneWithTypeNumeric7" },
                 { "testCloneWithTypeStringArray" },
                 { "testCloneWithTypeWithInferredArgument" },
-                { "testCloneWithTypeWithImmutableTypes" }
+                { "testCloneWithTypeWithImmutableTypes" },
+                { "testCloneWithTypeDecimalToInt"},
+                {"testCloneWithTypeDecimalToIntNegative"},
+                { "testCloneWithTypeDecimalToByte"},
+                { "testCloneWithTypeDecimalToIntSubType"},
         };
     }
 
@@ -359,7 +363,8 @@ public class LangLibValueTest {
                 { "testConvertJsonToAmbiguousType" },
                 { "testFromJsonWithTypeWithNullValues" },
                 { "testFromJsonWithTypeWithNullValuesNegative" },
-                { "testFromJsonWithTypeWithInferredArgument" }
+                { "testFromJsonWithTypeWithInferredArgument" },
+                { "testFromJsonWithTypeWithTypeReferences" }
         };
     }
 
