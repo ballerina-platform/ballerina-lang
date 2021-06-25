@@ -24,6 +24,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntSubType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.util.Optional;
+
 /**
  * Represents the int:Signed32 type descriptor.
  *
@@ -32,12 +34,12 @@ import org.wso2.ballerinalang.compiler.util.Names;
 public class BallerinaIntSigned32TypeSymbol extends AbstractTypeSymbol implements IntSigned32TypeSymbol {
 
     public BallerinaIntSigned32TypeSymbol(CompilerContext context, ModuleID moduleID, BIntSubType signed32Type) {
-        super(context, TypeDescKind.INT_SIGNED32, moduleID, signed32Type);
+        super(context, TypeDescKind.INT_SIGNED32, signed32Type);
     }
 
     @Override
-    public String name() {
-        return Names.STRING_SIGNED32;
+    public Optional<String> getName() {
+        return Optional.of(Names.STRING_SIGNED32);
     }
 
     @Override

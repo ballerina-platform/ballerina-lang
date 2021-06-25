@@ -76,7 +76,7 @@ public abstract class IndexedCompoundVariable extends BCompoundVariable {
             if (childVariables.getRight() == null || childVariables.getRight().isEmpty()) {
                 throw new DebugVariableException("No child variables found with index: '" + index + "'");
             }
-            return childVariables.getRight().get(index);
+            return childVariables.getRight().get(0);
         }
         throw new DebugVariableException("No child variables found with index: '" + index + "'");
     }
@@ -106,7 +106,7 @@ public abstract class IndexedCompoundVariable extends BCompoundVariable {
             dapVariable.setName(this.name);
             dapVariable.setType(this.type.getString());
             dapVariable.setValue(computeValue());
-            dapVariable.setIndexedVariables((long) getChildrenCount());
+            dapVariable.setIndexedVariables(getChildrenCount());
         }
         return dapVariable;
     }

@@ -111,7 +111,7 @@ public class MappingConstructorExprTest {
         validateError(result, 3, "invalid usage of map literal: duplicate key 'i'", 27, 42);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testVarNameFieldTaintAnalysisNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/var_name_field_taint_analysis_negative.bal");
@@ -214,13 +214,13 @@ public class MappingConstructorExprTest {
         validateError(result, 0, "expression is not a constant expression", 19, 47);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSpreadOpFieldTaintAnalysisNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/spread_op_field_taint_analysis_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
-        validateError(result, 0, "tainted value passed to global variable 'm'", 36, 5);
-        validateError(result, 1, "tainted value passed to global variable 'bn'", 37, 5);
+        validateError(result, 0, "tainted value passed to global variable 'm'", 32, 5);
+        validateError(result, 1, "tainted value passed to global variable 'bn'", 33, 5);
     }
 
     @Test(dataProvider = "spreadOpFieldTests")
@@ -239,6 +239,7 @@ public class MappingConstructorExprTest {
                 { "testSpreadOpInConstMap" },
                 { "testSpreadOpInGlobalMap" },
                 { "testMappingConstrExprAsSpreadExpr" },
+                { "testSpreadFieldWithRecordTypeHavingNeverField" }
         };
     }
 

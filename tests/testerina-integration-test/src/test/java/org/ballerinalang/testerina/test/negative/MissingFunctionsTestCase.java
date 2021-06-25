@@ -19,12 +19,12 @@ package org.ballerinalang.testerina.test.negative;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.testerina.test.BaseTestCase;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
+import java.util.HashMap;
 
 /**
  * Negative test cases for before,after attribute.
@@ -43,28 +43,34 @@ public class MissingFunctionsTestCase extends BaseTestCase {
     @Test
     public void testMissingBeforeFunction() throws BallerinaTestException {
         String errMsg = "ERROR [before-func-negative.bal:(22:13,22:31)] undefined symbol 'beforeFuncNonExist'";
-        LogLeecher clientLeecher = new LogLeecher(errMsg, ERROR);
-        balClient.runMain("test", new String[]{"before-func-negative.bal"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        String[] args = mergeCoverageArgs(new String[]{"before-func-negative.bal"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        if (!output.contains(errMsg)) {
+            AssertionUtils.assertForTestFailures(output, "error while handling missing before function");
+        }
     }
 
     @Test
     public void testMissingAfterFunction() throws BallerinaTestException {
         String errMsg = "ERROR [after-func-negative.bal:(22:12,22:29)] undefined symbol 'afterFuncNonExist'";
-        LogLeecher clientLeecher = new LogLeecher(errMsg, ERROR);
-        balClient.runMain("test", new String[]{"after-func-negative.bal"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        String[] args = mergeCoverageArgs(new String[]{"after-func-negative.bal"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        if (!output.contains(errMsg)) {
+            AssertionUtils.assertForTestFailures(output, "error while handling missing after function");
+        }
     }
 
     @Test
     public void testMissingDependsOnFunction() throws BallerinaTestException {
         String errMsg = "ERROR [depends-on-negative.bal:(22:17,22:28)] undefined symbol 'nonExisting'";
-        LogLeecher clientLeecher = new LogLeecher(errMsg, ERROR);
-        balClient.runMain("test", new String[]{"depends-on-negative.bal"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        String[] args = mergeCoverageArgs(new String[]{"depends-on-negative.bal"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        if (!output.contains(errMsg)) {
+            AssertionUtils.assertForTestFailures(output, "error while handling missing depends on function");
+        }
     }
 
 }

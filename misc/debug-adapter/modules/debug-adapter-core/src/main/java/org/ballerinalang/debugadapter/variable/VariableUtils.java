@@ -21,7 +21,9 @@ import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -34,9 +36,10 @@ public class VariableUtils {
     public static final String FIELD_TYPE = "type";
     public static final String FIELD_TYPENAME = "typeName";
     public static final String FIELD_VALUE = "value";
-    public static final String FIELD_CONSTRAINT = "constraint";
-    public static final String METHOD_STRINGVALUE = "stringValue";
+    private static final String FIELD_CONSTRAINT = "constraint";
+    private static final String METHOD_STRINGVALUE = "stringValue";
     public static final String UNKNOWN_VALUE = "unknown";
+    private static final String LAMBDA_PARAM_MAP_PATTERN = "\\$.*[Mm][Aa][Pp].*\\$.*";
     // Used to trim redundant beginning and ending double quotes from a string, if presents.
     private static final String ADDITIONAL_QUOTES_REMOVE_REGEX = "^\"|\"$";
 
@@ -139,6 +142,21 @@ public class VariableUtils {
     }
 
     /**
+     * Verifies whether a given JDI value is a ballerina service variable instance.
+     *
+     * @param value JDI value instance.
+     * @return true the given JDI value is a ballerina service variable instance.
+     */
+     public static boolean isService(Value value) {
+        try {
+            return getFieldValue(value, FIELD_TYPE).map(type -> type.type().name().endsWith
+                (JVMValueType.BTYPE_SERVICE.getString())).orElse(false);
+        } catch (DebugVariableException e) {
+            return false;
+        }
+    }
+
+    /**
      * Verifies whether a given JDI value is a ballerina JSON variable instance.
      *
      * @param value JDI value instance.
@@ -147,7 +165,7 @@ public class VariableUtils {
     static boolean isJson(Value value) {
         try {
             Optional<Value> typeField = getFieldValue(value, FIELD_TYPE);
-            if (!typeField.isPresent()) {
+            if (typeField.isEmpty()) {
                 return false;
             }
             if (typeField.get().type().name().endsWith(JVMValueType.BTYPE_JSON.getString())) {
@@ -158,6 +176,16 @@ public class VariableUtils {
         } catch (DebugVariableException e) {
             return false;
         }
+    }
+
+    /**
+     * Checks whether the given local variable is a ballerina map type variable, which holds local variables used
+     * within lambda function scopes.
+     *
+     * @param localVar local variable instance.
+     */
+    public static boolean isLambdaParamMap(LocalVariableProxyImpl localVar) {
+        return localVar.name().matches(LAMBDA_PARAM_MAP_PATTERN);
     }
 
     /**
@@ -175,7 +203,7 @@ public class VariableUtils {
         Field field = parentRef.referenceType().fieldByName(fieldName);
         if (field == null) {
             throw new DebugVariableException(
-                    String.format("No fields found with name: \"%s\", in %s", fieldName, parent.toString()));
+                    String.format("No fields found with name: \"%s\", in %s", fieldName, parent));
         }
         return Optional.ofNullable(parentRef.getValue(field));
     }
@@ -188,17 +216,41 @@ public class VariableUtils {
      * @return the JDI method instance of a any given method which exists in the given JDI object reference.
      */
     public static Optional<Method> getMethod(Value parent, String methodName) throws DebugVariableException {
+        return getMethod(parent, methodName, "");
+    }
+
+    /**
+     * Returns a JDI method instance of a any given method which exists in the given JDI object reference.
+     *
+     * @param parent     parent JDI value instance.
+     * @param methodName method name.
+     * @param signature  method signature.
+     * @return the JDI method instance of a any given method which exists in the given JDI object reference.
+     */
+    public static Optional<Method> getMethod(Value parent, String methodName, String signature)
+        throws DebugVariableException {
+        List<Method> methods = new ArrayList<>();
         if (!(parent instanceof ObjectReference)) {
             return Optional.empty();
         }
         ObjectReference parentRef = (ObjectReference) parent;
-        List<Method> methods = parentRef.referenceType().methodsByName(methodName);
+
+        if (signature.isEmpty()) {
+            methods = parentRef.referenceType().methodsByName(methodName);
+        } else {
+            List<Method> signatureMethods = parentRef.referenceType().methodsByName(methodName);
+            for (Method method : signatureMethods) {
+                if (method.signature().matches(signature)) {
+                    methods.add(method);
+                }
+            }
+        }
         if (methods.isEmpty()) {
             throw new DebugVariableException(String.format("No methods found for name: \"%s\", in %s",
-                    methodName, parent.toString()));
+                    methodName, parent));
         } else if (methods.size() > 1) {
             throw new DebugVariableException(String.format("Overloaded methods found for name: \"%s\", in %s",
-                    methodName, parent.toString()));
+                    methodName, parent));
         }
         return Optional.of(methods.get(0));
     }

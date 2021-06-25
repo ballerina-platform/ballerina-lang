@@ -36,6 +36,7 @@ under the License.
             <class name="org.ballerinalang.testerina.test.SelectedFunctionTest" />
             <class name="org.ballerinalang.testerina.test.negative.SkipTestsTestCase" />
             <class name="org.ballerinalang.testerina.test.negative.InvalidDataProviderTestCase" />
+            <class name="org.ballerinalang.testerina.test.negative.UnusedVarWithErrorTestCase" />
             <class name="org.ballerinalang.testerina.test.DisableTestsTestCase" />
             <class name="org.ballerinalang.testerina.test.MockTest" />
             <class name="org.ballerinalang.testerina.test.TestReportTest" />
@@ -44,6 +45,8 @@ under the License.
             <class name="org.ballerinalang.testerina.test.FunctionNameValidationTest" />
             <class name="org.ballerinalang.testerina.test.ImportTest" />
             <class name="org.ballerinalang.testerina.test.ModuleExecutionTest" />
+            <class name="org.ballerinalang.testerina.test.CodeCoverageReportTest" />
+            <class name="org.ballerinalang.testerina.test.SourcelessTestExecutionTests"/>
         </classes>
     </test>
 </suite>

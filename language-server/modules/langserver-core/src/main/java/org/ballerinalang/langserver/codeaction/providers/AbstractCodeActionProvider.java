@@ -20,7 +20,9 @@ import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
+import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.TextDocumentEdit;
@@ -68,7 +70,8 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
+                                                    NodeBasedPositionDetails posDetails) {
         throw new UnsupportedOperationException("Not supported");
     }
 
@@ -76,7 +79,9 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, CodeActionContext context) {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
+                                                    CodeActionContext context) {
         throw new UnsupportedOperationException("Not supported");
     }
 

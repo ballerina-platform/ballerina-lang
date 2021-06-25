@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 5,
+    "character": 13
+  },
+  "source": "xml_typedesc_context/source/source3.bal",
+  "items": [
+    {
+      "label": "Element",
+      "kind": "TypeParameter",
+      "detail": "Element",
+      "sortText": "ABM",
+      "insertText": "Element",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ProcessingInstruction",
+      "kind": "TypeParameter",
+      "detail": "Processinginstruction",
+      "sortText": "ABM",
+      "insertText": "ProcessingInstruction",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Comment",
+      "kind": "TypeParameter",
+      "detail": "Comment",
+      "sortText": "ABM",
+      "insertText": "Comment",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Text",
+      "kind": "TypeParameter",
+      "detail": "Text",
+      "sortText": "ABM",
+      "insertText": "Text",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

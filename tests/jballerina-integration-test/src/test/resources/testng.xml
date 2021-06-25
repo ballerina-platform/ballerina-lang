@@ -208,11 +208,12 @@
         <classes>
             <class name="org.ballerinalang.test.observability.tracing.TracingBaseTestCase"/>
             <class name="org.ballerinalang.test.observability.tracing.MainFunctionTestCase"/>
-<!--            <class name="org.ballerinalang.test.observability.tracing.ResourceFunctionTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.observability.tracing.RemoteCallTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.observability.tracing.ObservableAnnotationTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.observability.tracing.ConcurrencyTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.observability.tracing.CustomTracingTestCase"/>-->
+            <class name="org.ballerinalang.test.observability.tracing.ResourceFunctionTestCase"/>
+            <class name="org.ballerinalang.test.observability.tracing.RemoteCallTestCase"/>
+            <class name="org.ballerinalang.test.observability.tracing.ObservableAnnotationTestCase"/>
+            <class name="org.ballerinalang.test.observability.tracing.ConcurrencyTestCase"/>
+            <class name="org.ballerinalang.test.observability.tracing.CustomTracingTestCase"/>
+            <class name="org.ballerinalang.test.observability.tracing.SpanContextTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
 <!--            <class name="org.ballerinalang.test.observability.tracing.HttpTracingBaseTest"/>-->
 <!--            <class name="org.ballerinalang.test.observability.tracing.HttpTracingTestCase"/>-->
@@ -228,18 +229,7 @@
             </run>
         </groups>
         <classes>
-                <class name="org.ballerinalang.test.packaging.ModuleExecutionFlowTests" />
-<!--            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>-->
-<!--&lt;!&ndash;            <class name="org.ballerinalang.test.packaging.MultipleVersionsModuleTestCase"/>&ndash;&gt;-->
-<!--            <class name="org.ballerinalang.test.packaging.DependencyScopeTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.ModuleExecutionFlowTests"/>-->
             <class name="org.ballerinalang.test.packaging.MavenTestCase"/>
         </classes>
     </test>
@@ -255,6 +245,7 @@
         <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.test.logging.LogAPITestCase" />
+<!--            <class name="org.ballerinalang.test.logging.BadSadTests" />-->
         </classes>
     </test>
 

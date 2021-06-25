@@ -26,7 +26,6 @@ import org.ballerinalang.langserver.completions.providers.context.util.ClassDefi
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -46,34 +45,20 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (this.withinBody(context, node)) {
             completionItems.addAll(this.getClassBodyCompletions(context, node));
-        } else if (onClassTypeQualifiers(context, node)) {
-            completionItems.addAll(getClassTypeCompletions(context));
         }
         this.sort(context, node, completionItems);
-        
+
         return completionItems;
     }
 
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, ClassDefinitionNode node) {
-        return !node.classKeyword().isMissing();
-    }
-
-    private boolean onClassTypeQualifiers(BallerinaCompletionContext context, ClassDefinitionNode node) {
         int cursor = context.getCursorPositionInTree();
         Token classKeyword = node.classKeyword();
 
-        return cursor < classKeyword.textRange().startOffset();
-    }
-
-    private List<LSCompletionItem> getClassTypeCompletions(BallerinaCompletionContext context) {
-        ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Snippet> snippets = Arrays.asList(
-                Snippet.KW_DISTINCT, Snippet.KW_READONLY, Snippet.KW_ISOLATED, Snippet.KW_CLIENT, Snippet.KW_SERVICE
-        );
-        snippets.forEach(snippet -> completionItems.add(new SnippetCompletionItem(context, snippet.get())));
-
-        return completionItems;
+        // class <cursor>. added +1 in order to keep at least one space after the class keyword
+        return !classKeyword.isMissing() && cursor > classKeyword.textRange().endOffset()
+                && cursor <= node.closeBrace().textRange().startOffset();
     }
 
     private boolean withinBody(BallerinaCompletionContext context, ClassDefinitionNode node) {
@@ -104,8 +89,10 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
         if (ClassDefinitionNodeContextUtil.onSuggestResourceSnippet(node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.get()));
         }
-        completionItems.addAll(this.getTypeItems(context));
-        completionItems.addAll(this.getModuleCompletionItems(context));
+        if (ClassDefinitionNodeContextUtil.onSuggestInitFunction(node)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_INIT_FUNCTION.get()));
+        }
+        completionItems.addAll(this.getTypeDescContextItems(context));
 
         return completionItems;
     }

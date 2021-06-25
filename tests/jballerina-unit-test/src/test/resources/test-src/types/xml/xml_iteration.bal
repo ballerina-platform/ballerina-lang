@@ -32,44 +32,61 @@ xml bookstore = xml `<bookstore>
                         </book>
                     </bookstore>`;
 
-function foreachTest() returns [int, string][] {
-    [int, string][] titles = [];
+string[] titles = ["Everyday Italian", "Harry Potter", "XQuery Kick Start", "Learning XML"];
+string[] titlesOrigin = ["<root>interpolation1 text1 text2<foo>123</foo><bar></bar></root>",
+    "text2interpolation1", "<!--commentinterpolation1-->", "text3", "<?foo ?>"];
 
-    count = 0;
-
+function foreachTest() {
     int i = 0;
     foreach var x in bookstore/<book> {
-        titles[count] = [i, (x/<title>/*).toString()];
-        count += 1;
+        assert((x/<title>/*).toString(), titles[i]);
         i += 1;
     }
 
-    return titles;
+    i = 0;
+    string v1 = "interpolation1";
+    xml seq = xml `<root>${v1} text1 text2<foo>123</foo><bar></bar></root>text2${v1}<!--comment${v1}-->text3<?foo?>`;
+    foreach var x in seq {
+        assert(x.toString(), titlesOrigin[i]);
+        i += 1;
+    }
 }
 
-int count = 0;
-
-function foreachOpTest() returns [int, string][] {
-    [int, string][] titles = [];
-
-    count = 0;
-
+function foreachOpTest() {
+    int i = 0;
     (bookstore/<book>).forEach(function (xml entry) {
-        titles[count] = [count, (entry/<title>/*).toString()];
-        count += 1;
+        assert((entry/<title>/*).toString(), titles[i]);
+        i += 1;
     });
 
-    return titles;
+    i = 0;
+    string v1 = "interpolation1";
+    xml seq = xml `<root>${v1} text1 text2<foo>123</foo><bar></bar></root>text2${v1}<!--comment${v1}-->text3<?foo?>`;
+    seq.forEach(function (xml entry) {
+        assert(entry.toString(), titlesOrigin[i]);
+        i += 1;
+
+    });
 }
 
-function mapOpTest() returns xml {
+function mapOpTest() {
+    string authors = "<author>Giada De Laurentiis</author><author>J. K. Rowling</author><author>James McGovern</author>"+
+    "<author>Per Bothner</author><author>Kurt Cagle</author><author>James Linn</author><author>Vaidyanathan Nagarajan"+
+    "</author><author>Erik T. Ray</author>";
     xml titles = (bookstore/<book>).map(function (xml book) returns xml {
         return book/<author>;
     });
-    return titles;
+    assert(titles.toString(), authors);
+
+    string v1 = "interpolation1";
+    xml seq = xml `<root>${v1} text1 text2<foo>123</foo><bar></bar></root>text2${v1}<!--comment${v1}-->text3<?foo?>`;
+    xml elementChildren = seq[0].map(function (xml root) returns xml {
+        return root/*;
+    });
+    assert(elementChildren.toString(), "interpolation1 text1 text2<foo>123</foo><bar></bar>");
 }
 
-function filterOpTest() returns xml {
+function filterOpTest() {
     xml books = (bookstore/<book>).filter(function (xml book) returns boolean {
         var result = intlib:fromString((book/<year>/*).toString());
         if (result is int) {
@@ -80,7 +97,25 @@ function filterOpTest() returns xml {
         }).map(function(xml value) returns xml {
             return value;
         });
-    return books;
+    assert((books/<title>).toString(), "<title lang=\"en\">Everyday Italian</title><title lang=\"en\">Harry Potter</title>");
+    assert((books/<author>).toString(), "<author>Giada De Laurentiis</author><author>J. K. Rowling</author>");
+    assert((books/<year>).toString(), "<year>2005</year><year>2005</year>");
+    assert((books/<price>).toString(), "<price>30.00</price><price>29.99</price>");
+
+    string v1 = "interpolation1";
+    xml seq = xml `<root>${v1} text1<foo>100</foo><foo>200</foo></root>text2${v1}<!--comment${v1}--><?foo?>`;
+    xml elements = seq[0];
+    xml elementChildren = (elements/<foo>).filter(function (xml foo) returns boolean {
+        var result = intlib:fromString((foo/*).toString());
+        if (result is int) {
+            return result > 100;
+        } else {
+            return false;
+        }
+        }).map(function(xml value) returns xml {
+            return value;
+        });
+    assert(elementChildren.toString(), "<foo>200</foo>");
 }
 
 function chainedIterableOps() returns xml {
@@ -209,6 +244,32 @@ function testXmlUnionSequenceIteration() {
 
     record {| 'xml:Element|'xml:Text value; |}? nextUnionXMLVal1 = seq.iterator().next();
     assert(nextUnionXMLVal1.toString(), "{\"value\":`<foo>foo</foo>`}");
+}
+
+function testXmlSequenceIteration() {
+    string v1 = "interpolation1";
+    xml seq = xml `<root>${v1} text1 text2<foo>123</foo><bar></bar></root>text2${v1}<!--comment${v1}-->text3<?foo?>`;
+    assert('xml:length(seq).toString(), "5");
+
+    output = "";
+    foreach 'xml:Element|'xml:Text|'xml:Comment|'xml:ProcessingInstruction  elem in seq {
+        concatString(elem.toString());
+    }
+    assert(output, "<root>interpolation1 text1 text2<foo>123</foo><bar></bar></root>\ntext2interpolation1\n"+
+    "<!--commentinterpolation1-->\ntext3\n<?foo ?>\n");
+
+    output = "";
+    foreach xml  elem in seq {
+            concatString(elem.toString());
+    }
+    assert(output, "<root>interpolation1 text1 text2<foo>123</foo><bar></bar></root>\ntext2interpolation1\n"+
+        "<!--commentinterpolation1-->\ntext3\n<?foo ?>\n");
+
+    record {| 'xml:Element|'xml:Text|'xml:Comment|'xml:ProcessingInstruction value; |}? nextXMLVal1 = seq.iterator().next();
+    assert(nextXMLVal1.toString(), "{\"value\":`<root>interpolation1 text1 text2<foo>123</foo><bar></bar></root>`}");
+
+    record {| xml value; |}? nextXMLVal2 = seq.iterator().next();
+    assert(nextXMLVal2.toString(), "{\"value\":`<root>interpolation1 text1 text2<foo>123</foo><bar></bar></root>`}");
 }
 
 function assert(anydata actual, anydata expected) {

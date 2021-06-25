@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Command;
@@ -39,6 +40,9 @@ import java.util.List;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
+
+    public static final String NAME = "Add Documentation";
+
     public AddDocumentationCodeAction() {
         super(Arrays.asList(CodeActionNodeType.FUNCTION,
                 CodeActionNodeType.OBJECT,
@@ -59,9 +63,10 @@ public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
+                                                    NodeBasedPositionDetails posDetails) {
         String docUri = context.fileUri();
-        NonTerminalNode matchedNode = context.positionDetails().matchedNode();
+        NonTerminalNode matchedNode = posDetails.matchedTopLevelNode();
         // TODO: disabled `hasDocs` check since update-doc code-action is fragile with compiler-phase-runner issue
 //        if (hasDocs(matchedNode)) {
 //            return Collections.emptyList();
@@ -76,5 +81,10 @@ public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
         Command command = new Command(CommandConstants.ADD_DOCUMENTATION_TITLE, AddDocumentationExecutor.COMMAND, args);
         action.setCommand(command);
         return Collections.singletonList(action);
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 }

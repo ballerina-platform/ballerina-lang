@@ -58,10 +58,11 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 41, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 42, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'a|b'", 43, 12);
-        validateError(negativeResult, i++, "invalid operation: type 'int[]?' does not support indexing", 53, 9);
-        validateError(negativeResult, i++, "invalid operation: type 'Employee[3]?' does not support indexing", 54, 9);
-        validateError(negativeResult, i++, "invalid operation: type '(int[]|Employee[3])?' does not support indexing"
-                , 55, 9);
+        validateError(negativeResult, i++, "invalid operation: type 'int[]?' does not support member access", 53, 9);
+        validateError(negativeResult, i++, "invalid operation: type 'Employee[3]?' does not support " +
+                "member access", 54, 9);
+        validateError(negativeResult, i++, "invalid operation: type '(int[]|Employee[3])?' does not " +
+                        "support member access", 55, 9);
         validateError(negativeResult, i++, "list index out of range: index: '4'", 60, 12);
         validateError(negativeResult, i++, "list index out of range: index: '5'", 65, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'boolean?'", 74, 19);
@@ -89,13 +90,13 @@ public class MemberAccessTest {
                       126, 21);
         validateError(negativeResult, i++, "incompatible types: expected 'float', found '(anydata|float)'", 127, 15);
         validateError(negativeResult, i++, "invalid operation: type '(string|int|anydata|boolean|float)' does not " +
-                "support indexing", 128, 16);
+                "support member access", 128, 16);
         validateError(negativeResult, i++, "incompatible types: expected 'string', found '(string|map<float>|xml)?'",
                       136, 16);
         validateError(negativeResult, i++, "incompatible types: expected 'string', found '(string|map<float>|xml)?'",
                       137, 17);
         validateError(negativeResult, i++, "invalid operation: type '(string|map<float>|xml)?' does not support " +
-                "indexing", 138, 16);
+                "member access", 138, 16);
         validateError(negativeResult, i++, "incompatible types: expected 'string', found '(string|int|map<float>)?'",
                       146, 16);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found '" +
@@ -103,12 +104,12 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'map<float>?', found '(int|map<float>)?'",
                       148, 21);
         validateError(negativeResult, i++, "invalid operation: type '(anydata|int|map<float>)' does not support " +
-                "indexing", 149, 17);
+                "member access", 149, 17);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 156, 15);
         validateError(negativeResult, i++, "incompatible types: expected 'float', found 'string'", 157, 17);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 158, 21);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 159, 21);
-        validateError(negativeResult, i++, "invalid operation: type 'foo|1' does not support indexing", 169, 17);
+        validateError(negativeResult, i++, "invalid operation: type 'foo|1' does not support member access", 169, 17);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'foo|1'", 170, 20);
         validateError(negativeResult, i++, "invalid operation: type 'string' does not support member access for " +
                 "assignment", 175, 5);
@@ -120,6 +121,9 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "invalid expression statement", 202, 5);
         validateError(negativeResult, i++, "missing key expr in member access expr", 202, 14);
         validateError(negativeResult, i++, "missing semicolon token", 203, 1);
+        validateError(negativeResult, i++, "invalid operation: type '((Grault|int[]) & readonly)?' does " +
+                "not support member access", 222, 14);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int?'", 225, 17);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -344,5 +348,29 @@ public class MemberAccessTest {
     @Test
     public void testMemberAccessOnStructuralConstructs() {
         BRunUtil.invoke(result, "testMemberAccessOnStructuralConstructs");
+    }
+
+    @Test
+    public void testMemberAccessOnStrings() {
+        BRunUtil.invoke(result, "testMemberAccessOnStrings");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
+                    + "index out of range: index: 5, size: 3\"\\}.*")
+    public void testInvalidMemberAccessOnStrings1() {
+        BRunUtil.invoke(result, "testInvalidMemberAccessOnStrings1");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
+                    + "index out of range: index: 3, size: 1\"\\}.*")
+    public void testInvalidMemberAccessOnStrings2() {
+        BRunUtil.invoke(result, "testInvalidMemberAccessOnStrings2");
+    }
+
+    @Test
+    public void testNestedMemberAccessOnIntersectionTypes() {
+        BRunUtil.invoke(result, "testNestedMemberAccessOnIntersectionTypes");
     }
 }

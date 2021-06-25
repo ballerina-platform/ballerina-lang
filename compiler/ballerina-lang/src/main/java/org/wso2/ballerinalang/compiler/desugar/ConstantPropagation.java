@@ -32,12 +32,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -71,6 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
@@ -115,6 +118,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMatchPattern;
@@ -792,6 +796,18 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangRecordVariable bLangRecordVariable) {
+        bLangRecordVariable.expr = rewrite(bLangRecordVariable.expr);
+        result = bLangRecordVariable;
+    }
+
+    @Override
+    public void visit(BLangErrorVariable bLangErrorVariable) {
+        bLangErrorVariable.expr = rewrite(bLangErrorVariable.expr);
+        result = bLangErrorVariable;
+    }
+
+    @Override
     public void visit(BLangMatch.BLangMatchStaticBindingPatternClause bLangMatchStmtStaticBindingPatternClause) {
         bLangMatchStmtStaticBindingPatternClause.literal =
                 rewrite(bLangMatchStmtStaticBindingPatternClause.literal);
@@ -820,6 +836,12 @@ public class ConstantPropagation extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLElementLiteral xmlElementLiteral) {
         result = xmlElementLiteral;
+    }
+
+    @Override
+    public void visit(BLangXMLSequenceLiteral xmlSequenceLiteral) {
+        rewrite(xmlSequenceLiteral.xmlItems);
+        result = xmlSequenceLiteral;
     }
 
     @Override
@@ -1059,6 +1081,11 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangInferredTypedescDefaultNode inferTypedescExpr) {
+        result = inferTypedescExpr;
+    }
+
+    @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
 
         if (varRefExpr.symbol == null) {
@@ -1077,7 +1104,7 @@ public class ConstantPropagation extends BLangNodeVisitor {
             // from a simple literal
             if (constSymbol.literalType.tag <= TypeTags.BOOLEAN || constSymbol.literalType.tag == TypeTags.NIL) {
                 BLangConstRef constRef = ASTBuilderUtil.createBLangConstRef(varRefExpr.pos, constSymbol.literalType,
-                        constSymbol.value.value);
+                                                                            constSymbol.value.value);
                 constRef.variableName = varRefExpr.variableName;
                 constRef.symbol = constSymbol;
                 constRef.pkgAlias = varRefExpr.pkgAlias;
@@ -1086,11 +1113,11 @@ public class ConstantPropagation extends BLangNodeVisitor {
                             TreeBuilder.createTypeConversionNode();
                     implConversionExpr.expr = constRef;
                     implConversionExpr.pos = varRefExpr.impConversionExpr.pos;
-                    implConversionExpr.type = varRefExpr.impConversionExpr.type;
+                    implConversionExpr.setBType(varRefExpr.impConversionExpr.getBType());
                     implConversionExpr.targetType = varRefExpr.impConversionExpr.targetType;
                     constRef.impConversionExpr = implConversionExpr;
                 } else {
-                    types.setImplicitCastExpr(constRef, constRef.type, varRefExpr.type);
+                    types.setImplicitCastExpr(constRef, constRef.getBType(), varRefExpr.getBType());
                 }
                 result = constRef;
                 return;

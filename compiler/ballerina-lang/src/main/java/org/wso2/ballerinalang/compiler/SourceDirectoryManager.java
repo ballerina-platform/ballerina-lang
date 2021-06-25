@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
-import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
@@ -260,7 +259,7 @@ public class SourceDirectoryManager implements Project {
         // {module}-{lang spec version}-{platform}-{version}.bala
         //+ "2019R2" + ProjectDirConstants.FILE_NAME_DELIMITER
         String balaFileName = moduleId.name.value + "-"
-                + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                + moduleId.orgName.value + "-"
                 + platform + "-"
                 + versionNo
                 + BLANG_COMPILED_PKG_BINARY_EXT;

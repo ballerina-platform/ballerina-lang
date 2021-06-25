@@ -35,14 +35,14 @@ function testVariableWhileScope() {
 }
 
 
-service myService = service {
+service object {} myService = service object {
 
-    resource function myResource1(string s) {
+    resource function get res(string s) {
         string res = "abc";
         int b = a + 50;
     }
 
-    resource function myResource2(string s) {
+    resource function post res(string s) {
         string res = "abc";
         int c = b + 50;
     }

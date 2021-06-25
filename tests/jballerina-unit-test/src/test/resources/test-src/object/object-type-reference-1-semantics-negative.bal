@@ -115,16 +115,6 @@ type ObjectWithFunction object {
     public function getName(string? title) returns string;
 };
 
-type ObjectWithRedeclaredFunction_1 object {
-    *ObjectWithFunction;
-    public function getName(string? title) returns string;
-};
-
-type ObjectWithRedeclaredFunction_2 object {
-    *ObjectWithFunction;
-    *ObjectWithRedeclaredFunction_1;
-};
-
 class Bar {
     *Baz;   // non existing type
 }

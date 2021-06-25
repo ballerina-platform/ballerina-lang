@@ -84,7 +84,7 @@
     </Match>
     <Match>
         <Package name="io.ballerina.compiler.api.impl" />
-        <Bug pattern="BC_UNCONFIRMED_CAST, UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" />
+        <Bug pattern="BC_UNCONFIRMED_CAST, UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR, BC_UNCONFIRMED_CAST_OF_RETURN_VALUE" />
     </Match>
     <Match>
         <Package name="io.ballerina.compiler.api.impl.symbols" />
@@ -132,6 +132,10 @@
     </Match>
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.packaging.converters.URIConverter"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRNode$BIRVariableDcl"/>
@@ -257,8 +261,12 @@
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
     </Match>
     <Match>
+        <Class name="io.ballerina.projects.internal.repositories.FileSystemRepository"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+    </Match>
+    <Match>
         <Class name="io.ballerina.projects.internal.BalaFiles" />
-        <Method name="loadPackageData" />
+        <Method name="loadPackageDataFromBalaFile" />
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
     <Match>
@@ -286,7 +294,7 @@
     </Match>
     <Match>
         <Class name="io.ballerina.projects.internal.BalaFiles"/>
-        <Method name="createPackageManifest"/>
+        <Method name="createPackageManifestFromBalaFile"/>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
     </Match>
     <Match>
@@ -298,5 +306,27 @@
         <Class name="io.ballerina.projects.internal.BalaFiles"/>
         <Method name="createPackageDependencyGraph"/>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.BalaFiles"/>
+        <Method name="readPackageJson"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.util.ProjectUtils"/>
+        <Method name="extractBala"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.CodeAnalyzerManager$CompilationAnalysisTask"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.CodeAnalyzerManager$SyntaxNodeAnalysisTask"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.CompilerPluginManager"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
 </FindBugsFilter>

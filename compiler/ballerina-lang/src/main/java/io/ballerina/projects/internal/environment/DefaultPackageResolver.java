@@ -33,6 +33,7 @@ import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -44,6 +45,7 @@ public class DefaultPackageResolver implements PackageResolver {
     private final PackageRepository ballerinaDistRepo;
     private final PackageRepository ballerinaCentralRepo;
     private final WritablePackageCache packageCache;
+    private final Map<String, PackageRepository> customRepositories;
 
     public DefaultPackageResolver(PackageRepository ballerinaDistRepo,
                                   PackageRepository ballerinaCentralRepo,
@@ -51,6 +53,16 @@ public class DefaultPackageResolver implements PackageResolver {
         this.ballerinaDistRepo = ballerinaDistRepo;
         this.ballerinaCentralRepo = ballerinaCentralRepo;
         this.packageCache = (WritablePackageCache) packageCache;
+        this.customRepositories = Collections.emptyMap();
+    }
+
+    public DefaultPackageResolver(PackageRepository ballerinaDistRepo,
+                                  PackageRepository ballerinaCentralRepo,
+                                  PackageCache packageCache, Map<String, PackageRepository> customRepositories) {
+        this.ballerinaDistRepo = ballerinaDistRepo;
+        this.ballerinaCentralRepo = ballerinaCentralRepo;
+        this.packageCache = (WritablePackageCache) packageCache;
+        this.customRepositories = customRepositories;
     }
 
     @Override
@@ -116,52 +128,84 @@ public class DefaultPackageResolver implements PackageResolver {
         }
 
         // if version is not empty
+        //   Try custom repo, if specified and return null if not found
         //   Try local repos
         //       1) dist
         //       2) central --> if the version is not in local, then make a remote call
         if (requestedPkgDesc.version() != null) {
-            resolvedPackage = ballerinaDistRepo.getPackage(resolutionRequest);
-            if (resolvedPackage.isEmpty()) {
-                resolvedPackage = ballerinaCentralRepo.getPackage(resolutionRequest);
+            if (resolutionRequest.repositoryName().isPresent()) {
+                if (!customRepositories.containsKey(resolutionRequest.repositoryName().get())) {
+                    return null;
+                }
+                resolvedPackage = customRepositories.get(resolutionRequest.repositoryName().get())
+                        .getPackage(resolutionRequest);
+                if (resolvedPackage.isEmpty()) {
+                    return null;
+                }
+            } else {
+                resolvedPackage = ballerinaDistRepo.getPackage(resolutionRequest);
+                if (resolvedPackage.isEmpty()) {
+                    resolvedPackage = ballerinaCentralRepo.getPackage(resolutionRequest);
+                }
             }
             return resolvedPackage.orElse(null);
         }
 
-        // Version is not present in the ResolutionRequest
-        //   call both repos to get the latest version
-        //   get the latest version from the correct repo
-        List<PackageVersion> versionsInDistRepo = ballerinaDistRepo.getPackageVersions(resolutionRequest);
-        List<PackageVersion> versionsInCentralRepo = ballerinaCentralRepo.getPackageVersions(resolutionRequest);
-        if (versionsInDistRepo.isEmpty() && versionsInCentralRepo.isEmpty()) {
-            return null;
-        }
-
         PackageVersion latestVersion;
         PackageRepository pkgRepoThatContainsLatestVersion;
-        PackageVersion latestVersionInDistRepo = findLatest(versionsInDistRepo);
-        PackageVersion latestVersionInCentralRepo = findLatest(versionsInCentralRepo);
-        if (latestVersionInDistRepo == null) {
-            latestVersion = latestVersionInCentralRepo;
-            pkgRepoThatContainsLatestVersion = ballerinaCentralRepo;
-        } else if (latestVersionInCentralRepo == null) {
-            latestVersion = latestVersionInDistRepo;
-            pkgRepoThatContainsLatestVersion = ballerinaDistRepo;
+
+        // Resolve from custom local repository if specified, and return null
+        // We don't look up the dist and central repos if package is not found
+        if (resolutionRequest.repositoryName().isPresent()) {
+            pkgRepoThatContainsLatestVersion = customRepositories.get(resolutionRequest.repositoryName().get());
+            List<PackageVersion> versionsInCustomRepo = pkgRepoThatContainsLatestVersion
+                    .getPackageVersions(resolutionRequest);
+            if (versionsInCustomRepo.isEmpty()) {
+                return null;
+            }
+            latestVersion = findLatest(versionsInCustomRepo);
         } else {
-            latestVersion = getLatest(latestVersionInDistRepo, latestVersionInCentralRepo);
-            pkgRepoThatContainsLatestVersion = latestVersion.equals(latestVersionInDistRepo) ?
-                    ballerinaDistRepo : ballerinaCentralRepo;
+            // Version is not present in the ResolutionRequest
+            //   call both repos to get the latest version
+            //   get the latest version from the correct repo
+            List<PackageVersion> versionsInDistRepo = ballerinaDistRepo.getPackageVersions(resolutionRequest);
+            List<PackageVersion> versionsInCentralRepo = ballerinaCentralRepo.getPackageVersions(resolutionRequest);
+            if (versionsInDistRepo.isEmpty() && versionsInCentralRepo.isEmpty()) {
+                return null;
+            }
+
+            PackageVersion latestVersionInDistRepo = findLatest(versionsInDistRepo);
+            PackageVersion latestVersionInCentralRepo = findLatest(versionsInCentralRepo);
+            if (latestVersionInDistRepo == null) {
+                latestVersion = latestVersionInCentralRepo;
+                pkgRepoThatContainsLatestVersion = ballerinaCentralRepo;
+            } else if (latestVersionInCentralRepo == null) {
+                latestVersion = latestVersionInDistRepo;
+                pkgRepoThatContainsLatestVersion = ballerinaDistRepo;
+            } else {
+                latestVersion = getLatest(latestVersionInDistRepo, latestVersionInCentralRepo);
+                pkgRepoThatContainsLatestVersion = latestVersion.equals(latestVersionInDistRepo) ?
+                        ballerinaDistRepo : ballerinaCentralRepo;
+            }
         }
 
         // Load the latest version
         ResolutionRequest newResolutionReq = ResolutionRequest.from(
                 PackageDescriptor.from(resolutionRequest.orgName(), resolutionRequest.packageName(),
                         latestVersion), resolutionRequest.scope());
-        Optional<Package> packageOptional = pkgRepoThatContainsLatestVersion.getPackage(newResolutionReq);
+
+        // Check if the package is already in cache to avoid
+        // duplicating package instances in the WritablePackageCache.
+        Optional<Package> packageOptional = Optional.ofNullable(loadFromCache(newResolutionReq));
+        if (packageOptional.isEmpty()) {
+            packageOptional = pkgRepoThatContainsLatestVersion.getPackage(newResolutionReq);
+        }
         return packageOptional.orElse(null);
     }
 
     private Package resolveLangLibPackage(ResolutionRequest resolutionRequest) {
         Optional<Package> resolvedPackage;
+
         if (resolutionRequest.version().isPresent()) {
             resolvedPackage = ballerinaDistRepo.getPackage(resolutionRequest);
         } else {
@@ -172,13 +216,14 @@ public class DefaultPackageResolver implements PackageResolver {
                 ResolutionRequest newResolutionReq = ResolutionRequest.from(
                         PackageDescriptor.from(resolutionRequest.orgName(), resolutionRequest.packageName(),
                                 versionList.get(0)), resolutionRequest.scope());
-                resolvedPackage = ballerinaDistRepo.getPackage(newResolutionReq);
+                resolvedPackage = Optional.ofNullable(loadFromCache(newResolutionReq));
+                if (resolvedPackage.isEmpty()) {
+                    resolvedPackage = ballerinaDistRepo.getPackage(newResolutionReq);
+                }
             }
         }
 
-        return resolvedPackage.orElseThrow(() -> new IllegalStateException(
-                "Ballerina langlib package cannot be found in Ballerina distribution: org=" +
-                        resolutionRequest.orgName() + ", name=" + resolutionRequest.packageName()));
+        return resolvedPackage.orElse(null);
     }
 
     private PackageVersion findLatest(List<PackageVersion> packageVersions) {
@@ -193,9 +238,19 @@ public class DefaultPackageResolver implements PackageResolver {
         return latestVersion;
     }
 
-    public static PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
+    private static PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
         SemanticVersion semVer1 = v1.value();
         SemanticVersion semVer2 = v2.value();
-        return semVer1.greaterThanOrEqualTo(semVer2) ? v1 : v2;
+        boolean isV1PreReleaseVersion = semVer1.isPreReleaseVersion();
+        boolean isV2PreReleaseVersion = semVer2.isPreReleaseVersion();
+        if (isV1PreReleaseVersion ^ isV2PreReleaseVersion) {
+            // Only one version is a pre-release version
+            // Return the version which is not a pre-release version
+            return isV1PreReleaseVersion ? v2 : v1;
+        } else {
+            // Both versions are pre-release versions or both are not pre-release versions
+            // Find the the latest version
+            return semVer1.greaterThanOrEqualTo(semVer2) ? v1 : v2;
+        }
     }
 }

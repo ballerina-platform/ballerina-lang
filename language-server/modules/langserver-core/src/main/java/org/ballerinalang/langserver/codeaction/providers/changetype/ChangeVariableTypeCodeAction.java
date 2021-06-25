@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.changetype;
 
-import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
@@ -31,13 +30,12 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
-import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -53,49 +51,83 @@ import java.util.Optional;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
-    private static final int FOUND_SYMBOL_INDEX = 1;
+
+    public static final String NAME = "Change Variable Type";
 
     /**
      * {@inheritDoc}
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
             return Collections.emptyList();
         }
-        List<DiagnosticProperty<?>> props = diagnostic.properties();
-        if (props.size() != 2 || props.get(FOUND_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC) {
+
+
+        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(
+                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
+        if (typeSymbol.isEmpty()) {
             return Collections.emptyList();
         }
-
-        Symbol rhsTypeSymbol = ((DiagnosticProperty<Symbol>) props.get(FOUND_SYMBOL_INDEX)).value();
 
         // Skip, non-local var declarations
-        Node matchedNode = context.positionDetails().matchedNode();
-        if (matchedNode.kind() != SyntaxKind.LOCAL_VAR_DECL &&
-                matchedNode.kind() != SyntaxKind.MODULE_VAR_DECL &&
-                matchedNode.kind() != SyntaxKind.ASSIGNMENT_STATEMENT) {
+        Optional<NonTerminalNode> variableNode = getVariableNode(positionDetails.matchedNode());
+        if (variableNode.isEmpty()) {
             return Collections.emptyList();
         }
 
-        Optional<ExpressionNode> typeNode = getTypeNode(matchedNode, context);
-        Optional<String> variableName = getVariableName(matchedNode);
+        Optional<ExpressionNode> typeNode = getTypeNode(variableNode.get(), context);
+        Optional<String> variableName = getVariableName(variableNode.get());
         if (typeNode.isEmpty() || variableName.isEmpty()) {
             return Collections.emptyList();
         }
 
         // Derive possible types
+        Optional<String> typeNodeStr = getTypeNodeStr(typeNode.get());
         List<CodeAction> actions = new ArrayList<>();
         List<TextEdit> importEdits = new ArrayList<>();
-        List<String> types = CodeActionUtil.getPossibleTypes((TypeSymbol) rhsTypeSymbol, importEdits, context);
+        List<String> types = CodeActionUtil.getPossibleTypes(typeSymbol.get(), importEdits, context);
         for (String type : types) {
+            if (typeNodeStr.isPresent() && typeNodeStr.get().equals(type)) {
+                // Skip suggesting same type
+                continue;
+            }
             List<TextEdit> edits = new ArrayList<>();
             edits.add(new TextEdit(CommonUtil.toRange(typeNode.get().lineRange()), type));
             String commandTitle = String.format(CommandConstants.CHANGE_VAR_TYPE_TITLE, variableName.get(), type);
             actions.add(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
         }
         return actions;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
+    private Optional<NonTerminalNode> getVariableNode(NonTerminalNode sNode) {
+        // Find var node
+        while (sNode != null &&
+                sNode.kind() != SyntaxKind.LOCAL_VAR_DECL &&
+                sNode.kind() != SyntaxKind.MODULE_VAR_DECL &&
+                sNode.kind() != SyntaxKind.ASSIGNMENT_STATEMENT) {
+            sNode = sNode.parent();
+        }
+
+        return Optional.ofNullable(sNode);
+    }
+
+    private Optional<String> getTypeNodeStr(ExpressionNode expressionNode) {
+        if (expressionNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            SimpleNameReferenceNode sRefNode = (SimpleNameReferenceNode) expressionNode;
+            return Optional.of(sRefNode.name().text());
+        } else if (expressionNode.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            QualifiedNameReferenceNode qnRefNode = (QualifiedNameReferenceNode) expressionNode;
+            return Optional.of(qnRefNode.modulePrefix().text() + ":" + qnRefNode.identifier().text());
+        }
+        return Optional.empty();
     }
 
     private Optional<ExpressionNode> getTypeNode(Node matchedNode, CodeActionContext context) {
@@ -108,7 +140,7 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
                 if (optVariableSymbol.isEmpty()) {
                     return Optional.empty();
                 }
-                SyntaxTree syntaxTree = context.workspace().syntaxTree(context.filePath()).orElseThrow();
+                SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
                 NonTerminalNode node = CommonUtil.findNode(optVariableSymbol.get(), syntaxTree);
                 if (node.kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
                     return Optional.of(((TypedBindingPatternNode) node).typeDescriptor());

@@ -30,7 +30,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 public class BallerinaNilTypeSymbol extends AbstractTypeSymbol implements NilTypeSymbol {
 
     public BallerinaNilTypeSymbol(CompilerContext context, ModuleID moduleID, BNilType nilType) {
-        super(context, TypeDescKind.NIL, moduleID, nilType);
+        super(context, TypeDescKind.NIL, nilType);
     }
 
     @Override

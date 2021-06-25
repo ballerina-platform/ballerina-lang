@@ -21,7 +21,6 @@ package org.ballerinalang.test.documentation;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.generator.model.BClass;
 import org.ballerinalang.docgen.generator.model.DefaultableVariable;
-import org.ballerinalang.docgen.generator.model.DocPackage;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.ModuleDoc;
 import org.ballerinalang.docgen.generator.model.Record;
@@ -59,9 +58,9 @@ public class FieldLevelDocsTest {
                 "test-src" + File.separator + "documentation" + File.separator + "record_object_fields_project";
         io.ballerina.projects.Project project = BCompileUtil.loadProject(sourceRoot);
         Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator.generateModuleDocMap(project);
-        DocPackage docerinaDocPackage = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
+        List<Module> modulesList = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
                 .packageOrg().toString(), project.currentPackage().packageVersion().toString());
-        Module testModule = docerinaDocPackage.modules.get(0);
+        Module testModule = modulesList.get(0);
 
         for (Record record : testModule.records) {
             String recordName = record.name;

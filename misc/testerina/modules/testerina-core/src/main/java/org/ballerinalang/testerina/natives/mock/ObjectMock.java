@@ -17,10 +17,12 @@
  */
 package org.ballerinalang.testerina.natives.mock;
 
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.ParameterizedType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -31,7 +33,6 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 
 import java.util.List;
 import java.util.Map;
@@ -211,8 +212,8 @@ public class ObjectMock {
         String functionName;
         try {
             functionName = caseObj.getStringValue(StringUtils.fromString("functionName")).toString();
-        } catch (BLangRuntimeException e) {
-            if (!e.getMessage().contains("No such field or method: functionName")) {
+        } catch (Exception e) {
+            if (!e.getMessage().contains("No such field: functionName")) {
                 throw e;
             }
             functionName = null;
@@ -324,8 +325,15 @@ public class ObjectMock {
                     List<Type> memberTypes =
                             ((UnionType) attachedFunction.getType().getReturnParameterType()).getMemberTypes();
                     for (Type memberType : memberTypes) {
-                        if (TypeChecker.checkIsType(returnVal, memberType)) {
-                            return true;
+                        if (memberType.getTag() == TypeTags.PARAMETERIZED_TYPE_TAG) {
+                            Type bObjectType = ((ParameterizedType) memberType).getParamValueType();
+                            if (TypeChecker.checkIsType(returnVal, bObjectType)) {
+                                return true;
+                            }
+                        } else {
+                            if (TypeChecker.checkIsType(returnVal, memberType)) {
+                                return true;
+                            }
                         }
                     }
                 } else {
@@ -410,7 +418,7 @@ public class ObjectMock {
                 }
 
                 // validate the equivalence of the return types
-                if (!TypeChecker.checkIsType(returnType, attachedFunction.getType().getReturnParameterType())) {
+                if (!TypeChecker.checkIsType(attachedFunction.getType().getReturnParameterType(), returnType)) {
                     String detail = "incompatible return type provided for function " + functionName + "()";
                     return ErrorCreator.createDistinctError(
                             MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR, MockConstants.TEST_PACKAGE_ID,

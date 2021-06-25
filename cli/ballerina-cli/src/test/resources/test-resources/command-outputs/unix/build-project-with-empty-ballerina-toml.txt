@@ -1,14 +1,5 @@
-
 Compiling source
 	john/validProjectWithEmptyBallerinaToml:0.1.0
 
-Running Tests
-
-	validProjectWithEmptyBallerinaToml
-	No tests found
-
-Creating bala
-	target/bala/john-validProjectWithEmptyBallerinaToml-any-0.1.0.bala
-
 Generating executable
-	target/bin/validProjectWithEmptyBallerinaToml-0.1.0.jar
+	target/bin/validProjectWithEmptyBallerinaToml.jar

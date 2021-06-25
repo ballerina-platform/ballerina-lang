@@ -17,7 +17,10 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.util.ProjectUtils;
+
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Uniquely describes a Ballerina package in terms of its name, organization,
@@ -26,23 +29,29 @@ import java.util.Objects;
  * @since 2.0.0
  */
 public class PackageDescriptor {
-    private static final String LANG_LIB_PACKAGE_NAME_PREFIX = "lang.";
-
     private final PackageName packageName;
     private final PackageOrg packageOrg;
     private final PackageVersion packageVersion;
+    private final String repository;
 
     private PackageDescriptor(PackageOrg packageOrg,
                               PackageName packageName,
-                              PackageVersion packageVersion) {
+                              PackageVersion packageVersion,
+                              String repository) {
         this.packageName = packageName;
         this.packageOrg = packageOrg;
         this.packageVersion = packageVersion;
+        this.repository = repository;
     }
 
     public static PackageDescriptor from(PackageOrg packageOrg, PackageName packageName,
                                          PackageVersion packageVersion) {
-        return new PackageDescriptor(packageOrg, packageName, packageVersion);
+        return new PackageDescriptor(packageOrg, packageName, packageVersion, null);
+    }
+
+    public static PackageDescriptor from(PackageOrg packageOrg, PackageName packageName,
+                                         PackageVersion packageVersion, String repository) {
+        return new PackageDescriptor(packageOrg, packageName, packageVersion, repository);
     }
 
     public PackageName name() {
@@ -57,8 +66,16 @@ public class PackageDescriptor {
         return packageVersion;
     }
 
+    public Optional<String> repository() {
+        return Optional.ofNullable(repository);
+    }
+
     public boolean isLangLibPackage() {
-        return org().isBallerinaOrg() && packageName.value().startsWith(LANG_LIB_PACKAGE_NAME_PREFIX);
+        return ProjectUtils.isLangLibPackage(org(), packageName);
+    }
+
+    public boolean isBuiltInPackage() {
+        return ProjectUtils.isBuiltInPackage(org(), packageName.value());
     }
 
     @Override

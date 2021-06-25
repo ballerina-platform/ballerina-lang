@@ -18,6 +18,15 @@
 
 package org.ballerinalang.test.jvm;
 
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
+import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import org.ballerinalang.core.model.types.BTypes;
 import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BByte;
@@ -40,6 +49,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Test cases to cover some basic types related tests on JBallerina.
@@ -728,14 +738,6 @@ public class TypesTest {
     }
 
     @Test
-    public void testWaitOnSame() {
-        BValue[] result = BRunUtil.invoke(compileResult, "waitOnSame");
-        Assert.assertEquals(result[0].stringValue(), "wait1");
-        Assert.assertEquals(result[1].stringValue(), "wait2");
-        Assert.assertEquals(result[2].stringValue(), "00112233");
-    }
-
-    @Test
     public void testSelfReferencingRecord() {
         BValue[] result = BRunUtil.invoke(compileResult, "testSelfReferencingRecord");
         Assert.assertEquals((result[0]).stringValue(), "{a:2, f:{a:1, f:()}}");
@@ -781,6 +783,63 @@ public class TypesTest {
     @Test
     public void testTypeDescValuePrint() {
         BRunUtil.invoke(compileResult, "testTypeDescValuePrint");
+    }
+
+    @Test
+    public void testEnumFlagAndMembers() {
+        Object result = BRunUtil.invokeAndGetJVMResult(compileResult, "testEnumFlagAndMembers");
+        Type type = TypeUtils.getType(result);
+        Assert.assertEquals(type.getTag(), TypeTags.TUPLE_TAG);
+
+        TupleValueImpl tupleValue = (TupleValueImpl) result;
+        TypedescValueImpl typedescValue = (TypedescValueImpl) tupleValue.getRefValue(0);
+        UnionType returnType = (UnionType) ((FunctionType) typedescValue.getDescribingType()).getReturnType();
+        List<Type> originalMemberTypes = returnType.getOriginalMemberTypes();
+        Assert.assertEquals(originalMemberTypes.size(), 2);
+        Type memType1 = originalMemberTypes.get(0);
+        Assert.assertEquals(memType1.getTag(), TypeTags.UNION_TAG);
+        UnionType memUnionType = (UnionType) memType1;
+        Assert.assertTrue(SymbolFlags.isFlagOn(memUnionType.getFlags(), SymbolFlags.ENUM));
+        Assert.assertEquals(memUnionType.getMemberTypes().size(), 2);
+        Type memType2 = originalMemberTypes.get(1);
+        Assert.assertEquals(memType2.getTag(), TypeTags.NULL_TAG);
+
+        typedescValue = (TypedescValueImpl) tupleValue.getRefValue(1);
+        returnType = (UnionType) ((FunctionType) typedescValue.getDescribingType()).getReturnType();
+        originalMemberTypes = returnType.getOriginalMemberTypes();
+        Assert.assertEquals(originalMemberTypes.size(), 2);
+        memType1 = originalMemberTypes.get(0);
+        Assert.assertEquals(memType1.getTag(), TypeTags.UNION_TAG);
+        memUnionType = (UnionType) memType1;
+        Assert.assertFalse(SymbolFlags.isFlagOn(memUnionType.getFlags(), SymbolFlags.ENUM));
+        Assert.assertEquals(memUnionType.getMemberTypes().size(), 2);
+        memType2 = originalMemberTypes.get(1);
+        Assert.assertEquals(memType2.getTag(), TypeTags.NULL_TAG);
+    }
+
+    @Test
+    public void testName() {
+        CompileResult result = BCompileUtil.compile("test-src/jvm/TypesProject");
+        Object returnedValue = BRunUtil.invokeAndGetJVMResult(result, "testName");
+        Type type = TypeUtils.getType(returnedValue);
+        Assert.assertEquals(type.getTag(), TypeTags.TUPLE_TAG);
+
+        TupleValueImpl tupleValue = (TupleValueImpl) returnedValue;
+        assertName(getReturnType(tupleValue.getRefValue(0)), "MyEnum", "testorg/types:1.0.0:MyEnum");
+        assertName(getReturnType(tupleValue.getRefValue(1)), "", "");
+        // https://github.com/ballerina-platform/ballerina-lang/issues/30120
+        // assertName(getReturnType(tupleValue.getRefValue(2)), "MyTuple", "testorg/types:1.0.0:MyTuple");
+        assertName(getReturnType(tupleValue.getRefValue(2)), "", "");
+        assertName(getReturnType(tupleValue.getRefValue(3)), "", "");
+    }
+
+    private Type getReturnType(Object typedesc) {
+        return ((FunctionType) ((BTypedesc) typedesc).getDescribingType()).getReturnType();
+    }
+
+    private void assertName(Type type, String expectedName, String expectedQualifiedName) {
+        Assert.assertEquals(type.getName(), expectedName);
+        Assert.assertEquals(type.getQualifiedName(), expectedQualifiedName);
     }
 
     @AfterClass

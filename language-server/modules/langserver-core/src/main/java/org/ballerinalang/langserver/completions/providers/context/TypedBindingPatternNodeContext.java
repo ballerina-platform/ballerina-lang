@@ -15,6 +15,9 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.syntax.tree.IntermediateClauseNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -23,6 +26,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -44,6 +48,21 @@ public class TypedBindingPatternNodeContext extends AbstractCompletionProvider<T
         When comes to the typed binding pattern we route to the type descriptors to check whether there are resolvers
         associated with the type descriptor. Otherwise the router will go up the parent ladder.
          */
-        return CompletionUtil.route(context, node.typeDescriptor());
+        if (withinTypeDesc(context, node) || node.typeDescriptor().kind() == SyntaxKind.TABLE_TYPE_DESC
+                || node.typeDescriptor().kind() == SyntaxKind.FUNCTION_TYPE_DESC
+                || node.parent() instanceof IntermediateClauseNode
+                || node.parent().kind() == SyntaxKind.FOREACH_STATEMENT
+                || node.parent().kind() == SyntaxKind.FROM_CLAUSE) {
+            return CompletionUtil.route(context, node.typeDescriptor());
+        }
+
+        return Collections.emptyList();
+    }
+
+    private boolean withinTypeDesc(BallerinaCompletionContext context, TypedBindingPatternNode node) {
+        int cursor = context.getCursorPositionInTree();
+        TypeDescriptorNode tDesc = node.typeDescriptor();
+
+        return cursor >= tDesc.textRange().startOffset() && cursor <= tDesc.textRange().endOffset();
     }
 }

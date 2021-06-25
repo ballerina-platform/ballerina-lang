@@ -3,5 +3,3 @@ org= "testorg"
 name= "serv_classes"
 version= "0.1.0"
 exported=["serv_classes"]
-
-[dependencies]

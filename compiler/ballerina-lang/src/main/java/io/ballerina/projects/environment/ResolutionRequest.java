@@ -65,6 +65,10 @@ public final class ResolutionRequest {
         return scope;
     }
 
+    public Optional<String> repositoryName() {
+        return packageDesc.repository();
+    }
+
     @Override
     public boolean equals(Object other) {
         if (this == other) {

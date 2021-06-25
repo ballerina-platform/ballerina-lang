@@ -17,9 +17,9 @@
 import ballerina/testobserve;
 import ballerina/lang.'int;
 
-service /testServiceOne on new testobserve:Listener(9091) {
+service /testServiceOne on new testobserve:Listener(29091) {
     resource function post resourceOne(testobserve:Caller caller) {
-        var ret = caller->respond("Hello from Resource One");
+        error? ret = caller->respond("Hello from Resource One");
     }
 
     resource function post resourceTwo(testobserve:Caller caller, string body) returns error? {
@@ -28,7 +28,7 @@ service /testServiceOne on new testobserve:Listener(9091) {
         foreach var i in 1 ... numberCount {
             sum = sum + i;
         }
-        var ret = caller->respond("Sum of numbers: " + sum.toString());
+        error? ret = caller->respond("Sum of numbers: " + sum.toString());
     }
 
     resource function post resourceThree(testobserve:Caller caller) returns error? {

@@ -35,6 +35,7 @@ import io.ballerina.toml.internal.syntax.SyntaxUtils;
 import io.ballerina.toml.syntax.tree.Node;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
 import io.ballerina.toml.syntax.tree.SyntaxTree;
+import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import org.testng.Assert;
@@ -503,5 +504,14 @@ public class ParserTestUtils {
                 return SyntaxKind.NONE;
         }
         return null;
+    }
+
+    public static void assertLineRange(LineRange lineRange, int startLine, int startOffset, int endLine,
+                                       int endOffset) {
+        Assert.assertEquals(lineRange.startLine().line(), startLine);
+        Assert.assertEquals(lineRange.startLine().offset(), startOffset);
+
+        Assert.assertEquals(lineRange.endLine().line(), endLine);
+        Assert.assertEquals(lineRange.endLine().offset(), endOffset);
     }
 }

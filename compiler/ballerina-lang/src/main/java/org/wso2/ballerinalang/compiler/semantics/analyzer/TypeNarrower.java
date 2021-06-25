@@ -17,11 +17,18 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType.NarrowedTypes;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -37,15 +44,18 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
@@ -61,11 +71,13 @@ public class TypeNarrower extends BLangNodeVisitor {
     private SymbolTable symTable;
     private Types types;
     private SymbolEnter symbolEnter;
+    private TypeChecker typeChecker;
     private static final CompilerContext.Key<TypeNarrower> TYPE_NARROWER_KEY = new CompilerContext.Key<>();
 
     private TypeNarrower(CompilerContext context) {
         context.put(TYPE_NARROWER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
+        this.typeChecker = TypeChecker.getInstance(context);
         this.types = Types.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
     }
@@ -132,7 +144,7 @@ public class TypeNarrower extends BLangNodeVisitor {
         if (env.scope.entries.containsKey(varName)) {
             originalType = env.scope.entries.get(varName).symbol.type;
         } else {
-            originalType = varRef.type;
+            originalType = varRef.getBType();
         }
         BType remainingType = types.getRemainingMatchExprType(originalType, typeToRemove);
         if (remainingType == symTable.semanticError) {
@@ -192,18 +204,29 @@ public class TypeNarrower extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
-        Map<BVarSymbol, NarrowedTypes> t1 = getNarrowedTypes(binaryExpr.lhsExpr, env);
-        Map<BVarSymbol, NarrowedTypes> t2 = getNarrowedTypes(binaryExpr.rhsExpr, env);
+        BLangExpression lhsExpr = binaryExpr.lhsExpr;
+        BLangExpression rhsExpr = binaryExpr.rhsExpr;
+        OperatorKind opKind = binaryExpr.opKind;
+
+        if (opKind == OperatorKind.EQUAL || opKind == OperatorKind.NOT_EQUAL) {
+            // eg a == 5, a == (), a == ONE, a == b : One side should be a variable and other side should be an expr
+            narrowTypeForEqualOrNotEqual(binaryExpr, lhsExpr, rhsExpr);
+            // eg 5 == a, () == a, ONE == a, b == a
+            narrowTypeForEqualOrNotEqual(binaryExpr, rhsExpr, lhsExpr);
+            return;
+        }
+
+        Map<BVarSymbol, NarrowedTypes> t1 = getNarrowedTypes(lhsExpr, env);
+        Map<BVarSymbol, NarrowedTypes> t2 = getNarrowedTypes(rhsExpr, env);
 
         Set<BVarSymbol> updatedSymbols = new LinkedHashSet<>(t1.keySet());
         updatedSymbols.addAll(t2.keySet());
 
-        if (binaryExpr.opKind == OperatorKind.AND || binaryExpr.opKind == OperatorKind.OR) {
-            binaryExpr.narrowedTypeInfo.putAll(updatedSymbols.stream()
-                    .collect(Collectors.toMap(
-                            symbol -> getOriginalVarSymbol(symbol),
-                            symbol -> getNarrowedTypesForBinaryOp(t1, t2, getOriginalVarSymbol(symbol),
-                                    binaryExpr.opKind))));
+        if (opKind == OperatorKind.AND || opKind == OperatorKind.OR) {
+            for (BVarSymbol symbol : updatedSymbols) {
+                binaryExpr.narrowedTypeInfo.put(getOriginalVarSymbol(symbol),
+                        getNarrowedTypesForBinaryOp(t1, t2, getOriginalVarSymbol(symbol), binaryExpr.opKind));
+            }
         }
     }
 
@@ -216,19 +239,25 @@ public class TypeNarrower extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
         analyzeExpr(typeTestExpr.expr, env);
-        if (typeTestExpr.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+        BLangExpression lhsExpression = typeTestExpr.expr;
+        if (lhsExpression.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
             return;
         }
 
-        BVarSymbol varSymbol = (BVarSymbol) ((BLangSimpleVarRef) typeTestExpr.expr).symbol;
-        if (varSymbol == null) {
+        BSymbol symbol = ((BLangSimpleVarRef) lhsExpression).symbol;
+        if (symbol == symTable.notFoundSymbol) {
             // Terminate for undefined symbols
             return;
         }
 
-        BType trueType = types.getTypeIntersection(varSymbol.type, typeTestExpr.typeNode.type, this.env);
-        BType falseType = types.getRemainingType(varSymbol.type, typeTestExpr.typeNode.type);
-        typeTestExpr.narrowedTypeInfo.put(getOriginalVarSymbol(varSymbol), new NarrowedTypes(trueType, falseType));
+        typeChecker.markAndRegisterClosureVariable(symbol, lhsExpression.pos, env);
+        if (symbol.closure || (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE) {
+            return;
+        }
+
+        BVarSymbol varSymbol = (BVarSymbol) symbol;
+
+        setNarrowedTypeInfo(typeTestExpr, varSymbol, typeTestExpr.typeNode.getBType());
     }
 
     // Private methods
@@ -292,14 +321,15 @@ public class TypeNarrower extends BLangNodeVisitor {
             rhsTrueType = rhsFalseType = symbol.type;
         }
         BType trueType, falseType;
+        var nonLoggingContext = Types.IntersectionContext.compilerInternalNonGenerativeIntersectionContext();
         if (operator == OperatorKind.AND) {
-            trueType = types.getTypeIntersection(lhsTrueType, rhsTrueType, this.env);
-            BType tmpType = types.getTypeIntersection(lhsTrueType, rhsFalseType, this.env);
+            trueType = types.getTypeIntersection(nonLoggingContext, lhsTrueType, rhsTrueType, this.env);
+            BType tmpType = types.getTypeIntersection(nonLoggingContext, lhsTrueType, rhsFalseType, this.env);
             falseType = getTypeUnion(lhsFalseType, tmpType);
         } else {
-            BType tmpType = types.getTypeIntersection(lhsFalseType, rhsTrueType, this.env);
+            BType tmpType = types.getTypeIntersection(nonLoggingContext, lhsFalseType, rhsTrueType, this.env);
             trueType = getTypeUnion(lhsTrueType, tmpType);
-            falseType = types.getTypeIntersection(lhsFalseType, rhsFalseType, this.env);
+            falseType = types.getTypeIntersection(nonLoggingContext, lhsFalseType, rhsFalseType, this.env);
         }
         return new NarrowedTypes(trueType, falseType);
     }
@@ -344,5 +374,60 @@ public class TypeNarrower extends BLangNodeVisitor {
         }
 
         return targetEnv;
+    }
+
+    private BFiniteType createFiniteType(BLangExpression expr) {
+        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
+                Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY, env.enclPkg.symbol.pkgID, null,
+                env.scope.owner, expr.pos, SOURCE);
+
+        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
+        expr.setBType(symTable.getTypeFromTag(expr.getBType().tag));
+        finiteType.addValue(expr);
+        finiteTypeSymbol.type = finiteType;
+
+        return finiteType;
+    }
+
+    private void narrowTypeForEqualOrNotEqual(BLangBinaryExpr binaryExpr, BLangExpression lhsExpr,
+                                              BLangExpression rhsExpr) {
+        if (lhsExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return;
+        }
+
+        BSymbol lhsVarSymbol = ((BLangSimpleVarRef) lhsExpr).symbol;
+        if (((lhsVarSymbol.tag & SymTag.VARIABLE) != SymTag.VARIABLE)) {
+            return;
+        }
+
+        typeChecker.markAndRegisterClosureVariable(lhsVarSymbol, lhsExpr.pos, env);
+        if (lhsVarSymbol.closure || (lhsVarSymbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE) {
+            return;
+        }
+
+        NodeKind rhsExperKind = rhsExpr.getKind();
+        if (rhsExperKind == NodeKind.LITERAL || rhsExperKind == NodeKind.NUMERIC_LITERAL) {
+            setNarrowedTypeInfo(binaryExpr, (BVarSymbol) lhsVarSymbol, createFiniteType(rhsExpr));
+        } else if (rhsExperKind == NodeKind.SIMPLE_VARIABLE_REF) {
+            BSymbol rhsVarSymbol = ((BLangSimpleVarRef) rhsExpr).symbol;
+            if (rhsVarSymbol != symTable.notFoundSymbol && rhsVarSymbol.kind == SymbolKind.CONSTANT) {
+                setNarrowedTypeInfo(binaryExpr, (BVarSymbol) lhsVarSymbol, rhsVarSymbol.type);
+            }
+        }
+    }
+
+    private void setNarrowedTypeInfo(BLangExpression expr, BVarSymbol varSymbol, BType narrowWithType) {
+        var nonLoggingContext = Types.IntersectionContext.compilerInternalNonGenerativeIntersectionContext();
+        BType trueType;
+        BType falseType;
+        if (expr.getKind() == NodeKind.BINARY_EXPR && ((BLangBinaryExpr) expr).opKind == OperatorKind.NOT_EQUAL) {
+            trueType = types.getRemainingType(varSymbol.type, narrowWithType);
+            falseType = types.getTypeIntersection(nonLoggingContext, varSymbol.type, narrowWithType, this.env);
+        } else {
+            trueType = types.getTypeIntersection(nonLoggingContext, varSymbol.type, narrowWithType, this.env);
+            falseType = types.getRemainingType(varSymbol.type, narrowWithType);
+        }
+
+        expr.narrowedTypeInfo.put(getOriginalVarSymbol(varSymbol), new NarrowedTypes(trueType, falseType));
     }
 }

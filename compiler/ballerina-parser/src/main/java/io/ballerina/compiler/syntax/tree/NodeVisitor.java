@@ -227,6 +227,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(restArgumentNode);
     }
 
+    public void visit(InferredTypedescDefaultNode inferredTypedescDefaultNode) {
+        visitSyntaxNode(inferredTypedescDefaultNode);
+    }
+
     public void visit(ObjectTypeDescriptorNode objectTypeDescriptorNode) {
         visitSyntaxNode(objectTypeDescriptorNode);
     }
@@ -291,8 +295,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(remoteMethodCallActionNode);
     }
 
-    public void visit(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
-        visitSyntaxNode(parameterizedTypeDescriptorNode);
+    public void visit(MapTypeDescriptorNode mapTypeDescriptorNode) {
+        visitSyntaxNode(mapTypeDescriptorNode);
     }
 
     public void visit(NilLiteralNode nilLiteralNode) {
@@ -371,14 +375,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(keySpecifierNode);
     }
 
-    public void visit(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
-        visitSyntaxNode(errorTypeDescriptorNode);
-    }
-
-    public void visit(ErrorTypeParamsNode errorTypeParamsNode) {
-        visitSyntaxNode(errorTypeParamsNode);
-    }
-
     public void visit(StreamTypeDescriptorNode streamTypeDescriptorNode) {
         visitSyntaxNode(streamTypeDescriptorNode);
     }
@@ -387,16 +383,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(streamTypeParamsNode);
     }
 
-    public void visit(TypedescTypeDescriptorNode typedescTypeDescriptorNode) {
-        visitSyntaxNode(typedescTypeDescriptorNode);
-    }
-
     public void visit(LetExpressionNode letExpressionNode) {
         visitSyntaxNode(letExpressionNode);
-    }
-
-    public void visit(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
-        visitSyntaxNode(xmlTypeDescriptorNode);
     }
 
     public void visit(LetVariableDeclarationNode letVariableDeclarationNode) {
@@ -779,8 +767,20 @@ public abstract class NodeVisitor {
         visitSyntaxNode(markdownParameterDocumentationLineNode);
     }
 
-    public void visit(DocumentationReferenceNode documentationReferenceNode) {
-        visitSyntaxNode(documentationReferenceNode);
+    public void visit(BallerinaNameReferenceNode ballerinaNameReferenceNode) {
+        visitSyntaxNode(ballerinaNameReferenceNode);
+    }
+
+    public void visit(InlineCodeReferenceNode inlineCodeReferenceNode) {
+        visitSyntaxNode(inlineCodeReferenceNode);
+    }
+
+    public void visit(MarkdownCodeBlockNode markdownCodeBlockNode) {
+        visitSyntaxNode(markdownCodeBlockNode);
+    }
+
+    public void visit(MarkdownCodeLineNode markdownCodeLineNode) {
+        visitSyntaxNode(markdownCodeLineNode);
     }
 
     public void visit(OrderByClauseNode orderByClauseNode) {
@@ -813,6 +813,10 @@ public abstract class NodeVisitor {
 
     public void visit(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
         visitSyntaxNode(errorConstructorExpressionNode);
+    }
+
+    public void visit(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
+        visitSyntaxNode(parameterizedTypeDescriptorNode);
     }
 
     // Tokens

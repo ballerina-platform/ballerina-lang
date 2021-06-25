@@ -19,22 +19,26 @@ package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlSequence;
+
+import java.util.List;
 
 /**
  * Test xml to be single xml text element.
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "isText",
-//        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
-//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-//        isPublic = true
-//)
 public class IsText {
 
     public static boolean isText(BXml xmlValue) {
-        return xmlValue.getNodeType() == XmlNodeType.TEXT;
+        if (xmlValue.getNodeType() == XmlNodeType.TEXT || xmlValue.isEmpty()) {
+            return true;
+        }
+
+        if (xmlValue.getNodeType() == XmlNodeType.SEQUENCE) {
+            List<BXml> childrenList = ((BXmlSequence) xmlValue).getChildrenList();
+            return (childrenList.size() == 1 && isText(childrenList.get(0)));
+        }
+        return false;
     }
 }

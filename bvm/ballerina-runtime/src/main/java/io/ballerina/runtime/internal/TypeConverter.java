@@ -20,15 +20,20 @@ package io.ballerina.runtime.internal;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.utils.XmlUtils;
+import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
@@ -41,7 +46,6 @@ import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -62,7 +66,7 @@ import static io.ballerina.runtime.internal.TypeChecker.isUnsigned8LiteralValue;
 import static io.ballerina.runtime.internal.values.DecimalValue.isDecimalWithinIntRange;
 
 /**
- * Provides utils methods for casting, stamping and conversion of values.
+ * Provides utils methods for casting and conversion of values.
  *
  * @since 0.995.0
  */
@@ -118,7 +122,7 @@ public class TypeConverter {
                 return anyToIntCast(inputValue, () ->
                         ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_INT));
             case TypeTags.DECIMAL_TAG:
-                return anyToDecimal(inputValue, () ->
+                return anyToDecimalCast(inputValue, () ->
                         ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_DECIMAL));
             case TypeTags.FLOAT_TAG:
                 return anyToFloatCast(inputValue, () ->
@@ -148,8 +152,8 @@ public class TypeConverter {
                 Double doubleValue = (Double) value;
                 return isFloatWithinIntRange(doubleValue) && TypeChecker.isByteLiteral(doubleValue.longValue());
             case TypeTags.DECIMAL_TAG:
-                return isDecimalWithinIntRange((BigDecimal) value)
-                        && TypeChecker.isByteLiteral(((BigDecimal) value).longValue());
+                return isDecimalWithinIntRange((DecimalValue) value)
+                        && TypeChecker.isByteLiteral(((DecimalValue) value).value().longValue());
             default:
                 return false;
         }
@@ -164,7 +168,7 @@ public class TypeConverter {
             case TypeTags.FLOAT_TAG:
                 return isFloatWithinIntRange((double) value);
             case TypeTags.DECIMAL_TAG:
-                return isDecimalWithinIntRange((BigDecimal) value);
+                return isDecimalWithinIntRange((DecimalValue) value);
             default:
                 return false;
         }
@@ -185,10 +189,10 @@ public class TypeConverter {
                 val = floatToInt((Double) value);
                 break;
             case TypeTags.DECIMAL_TAG:
-                if (!isDecimalWithinIntRange((BigDecimal) value)) {
+                if (!isDecimalWithinIntRange((DecimalValue) value)) {
                     return false;
                 }
-                val = ((BigDecimal) value).intValue();
+                val = ((DecimalValue) value).value().intValue();
                 break;
             default:
                 return false;
@@ -271,12 +275,11 @@ public class TypeConverter {
     }
 
     public static List<Type> getConvertibleTypesFromJson(Object value, Type targetType,
-                                                          List<TypeValuePair> unresolvedValues) {
-        List<Type> convertibleTypes = new ArrayList<>();
+                                                         List<TypeValuePair> unresolvedValues) {
 
         int targetTypeTag = targetType.getTag();
 
-        convertibleTypes.addAll(TypeConverter.getConvertibleTypes(value, targetType));
+        List<Type> convertibleTypes = new ArrayList<>(TypeConverter.getConvertibleTypes(value, targetType));
 
         if (convertibleTypes.size() == 0) {
             switch (targetTypeTag) {
@@ -286,8 +289,7 @@ public class TypeConverter {
                     }
                     break;
                 case TypeTags.TABLE_TAG:
-                    if (((BTableType) targetType).getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG ||
-                            ((BTableType) targetType).getConstrainedType().getTag() == TypeTags.MAP_TAG) {
+                    if (isConvertibleToTableType(((BTableType) targetType).getConstrainedType())) {
                         convertibleTypes.add(targetType);
                     }
                     break;
@@ -300,6 +302,9 @@ public class TypeConverter {
                         convertibleTypes.add(targetType);
                     }
                     break;
+                case TypeTags.INTERSECTION_TAG:
+                    return getConvertibleTypesFromJson(value, ((BIntersectionType) targetType).getEffectiveType(),
+                                                       unresolvedValues);
             }
         }
         return convertibleTypes;
@@ -373,6 +378,17 @@ public class TypeConverter {
         return true;
     }
 
+    private static boolean isConvertibleToTableType(Type tableConstrainedType) {
+        switch (tableConstrainedType.getTag()) {
+            case TypeTags.RECORD_TYPE_TAG:
+            case TypeTags.MAP_TAG:
+                return true;
+            case TypeTags.INTERSECTION_TAG:
+                return isConvertibleToTableType(((BIntersectionType) tableConstrainedType).getEffectiveType());
+        }
+        return false;
+    }
+
     static long anyToInt(Object sourceVal, Supplier<BError> errorFunc) {
         if (sourceVal instanceof Long) {
             return (Long) sourceVal;
@@ -402,8 +418,6 @@ public class TypeConverter {
             return floatToInt((double) sourceVal);
         } else if (sourceVal instanceof Integer) {
             return ((Integer) sourceVal).longValue();
-        } else if (sourceVal instanceof Boolean) {
-            return (Boolean) sourceVal ? 1 : 0;
         } else if (sourceVal instanceof DecimalValue) {
             return ((DecimalValue) sourceVal).intValue();
         } else {
@@ -458,8 +472,6 @@ public class TypeConverter {
             return (Double) sourceVal;
         } else if (sourceVal instanceof Integer) {
             return ((Integer) sourceVal).floatValue();
-        } else if (sourceVal instanceof Boolean) {
-            return (Boolean) sourceVal ? 1.0 : 0.0;
         } else if (sourceVal instanceof DecimalValue) {
             return ((DecimalValue) sourceVal).floatValue();
         } else {
@@ -577,6 +589,39 @@ public class TypeConverter {
         return StringUtils.fromString(Objects.toString(sourceVal));
     }
 
+    public static Long stringToInt(String value) throws NumberFormatException {
+        return Long.parseLong(value);
+    }
+
+    public static int stringToByte(String value) throws NumberFormatException, BError {
+        int byteValue = Integer.parseInt(value);
+        return intToByte(byteValue);
+    }
+
+    public static Double stringToFloat(String value) throws NumberFormatException {
+        return Double.parseDouble(value);
+    }
+
+    public static Boolean stringToBoolean(String value) throws NumberFormatException {
+        if ("true".equalsIgnoreCase(value) || "1".equalsIgnoreCase(value)) {
+            return true;
+        } else if ("false".equalsIgnoreCase(value) || "0".equalsIgnoreCase(value)) {
+            return false;
+        }
+        throw new NumberFormatException();
+    }
+
+    public static BDecimal stringToDecimal(String value) throws NumberFormatException {
+        return new DecimalValue(value);
+    }
+
+    public static BXml stringToXml(String value) throws BError {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<root>").append(value).append("</root>");
+        BXml item = XmlUtils.parse(sb.toString());
+        return item.children();
+    }
+
     public static BString anyToChar(Object sourceVal) {
         String value = Objects.toString(sourceVal);
         return stringToChar(value);
@@ -646,8 +691,6 @@ public class TypeConverter {
             return floatToByte((Double) sourceVal);
         } else if (sourceVal instanceof Integer) {
             return (int) sourceVal;
-        } else if (sourceVal instanceof Boolean) {
-            return ((Boolean) sourceVal ? 1 : 0);
         } else if (sourceVal instanceof DecimalValue) {
             return ((DecimalValue) sourceVal).byteValue();
         } else {
@@ -693,6 +736,19 @@ public class TypeConverter {
             return DecimalValue.valueOf((Integer) sourceVal);
         } else if (sourceVal instanceof Boolean) {
             return DecimalValue.valueOf((Boolean) sourceVal);
+        } else if (sourceVal instanceof DecimalValue) {
+            return (DecimalValue) sourceVal;
+        }
+        throw errorFunc.get();
+    }
+
+    static DecimalValue anyToDecimalCast(Object sourceVal, Supplier<BError> errorFunc) {
+        if (sourceVal instanceof Long) {
+            return DecimalValue.valueOf((Long) sourceVal);
+        } else if (sourceVal instanceof Double) {
+            return DecimalValue.valueOf((Double) sourceVal);
+        } else if (sourceVal instanceof Integer) {
+            return DecimalValue.valueOf((Integer) sourceVal);
         } else if (sourceVal instanceof DecimalValue) {
             return (DecimalValue) sourceVal;
         } else if (sourceVal instanceof String) {
@@ -794,13 +850,13 @@ public class TypeConverter {
 
     public static Type resolveMatchingTypeForUnion(Object value, Type type) {
         if (value instanceof ArrayValue && ((ArrayValue) value).getType().getTag() == TypeTags.ARRAY_TAG &&
-                !isDeepStampingRequiredForArray(((ArrayValue) value).getType())) {
-            return ((ArrayValue) value).getType();
+                !isDeepConversionRequiredForArray(((ArrayValue) value).getType())) {
+            return TypeCreator.createArrayType(type);
         }
 
         if (value instanceof MapValue && ((MapValue) value).getType().getTag() == TypeTags.MAP_TAG &&
-                !isDeepStampingRequiredForMap(((MapValue) value).getType())) {
-            return ((MapValue) value).getType();
+                !isDeepConversionRequiredForMap(((MapValue) value).getType())) {
+            return TypeCreator.createMapType(type);
         }
 
         if (value == null && type.isNilable()) {
@@ -849,28 +905,28 @@ public class TypeConverter {
         return null;
     }
 
-    private static boolean isDeepStampingRequiredForArray(Type sourceType) {
+    private static boolean isDeepConversionRequiredForArray(Type sourceType) {
         Type elementType = ((BArrayType) sourceType).getElementType();
 
         if (elementType != null) {
             if (TypeUtils.isValueType(elementType)) {
                 return false;
             } else if (elementType instanceof BArrayType) {
-                return isDeepStampingRequiredForArray(elementType);
+                return isDeepConversionRequiredForArray(elementType);
             }
             return true;
         }
         return true;
     }
 
-    private static boolean isDeepStampingRequiredForMap(Type sourceType) {
+    private static boolean isDeepConversionRequiredForMap(Type sourceType) {
         Type constrainedType = ((BMapType) sourceType).getConstrainedType();
 
         if (constrainedType != null) {
             if (TypeUtils.isValueType(constrainedType)) {
                 return false;
             } else if (constrainedType instanceof BMapType) {
-                return isDeepStampingRequiredForMap(constrainedType);
+                return isDeepConversionRequiredForMap(constrainedType);
             }
             return true;
         }

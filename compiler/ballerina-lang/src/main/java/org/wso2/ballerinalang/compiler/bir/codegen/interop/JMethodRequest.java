@@ -20,8 +20,8 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.Unifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +46,7 @@ class JMethodRequest {
     boolean restParamExist = false;
     BType receiverType = null;
 
-    private static ResolvedTypeBuilder typeBuilder = new ResolvedTypeBuilder();
+    private static Unifier unifier = new Unifier();
 
     private JMethodRequest() {
 
@@ -74,7 +74,7 @@ class JMethodRequest {
         jMethodReq.bFuncParamCount = paramTypes.size();
         jMethodReq.bParamTypes = paramTypes.toArray(new BType[0]);
 
-        BType returnType = typeBuilder.build(bFuncType.retType);
+        BType returnType = unifier.build(bFuncType.retType);
         jMethodReq.bReturnType = returnType;
         if (returnType.tag == TypeTags.UNION) {
             for (BType bType : ((BUnionType) returnType).getMemberTypes()) {

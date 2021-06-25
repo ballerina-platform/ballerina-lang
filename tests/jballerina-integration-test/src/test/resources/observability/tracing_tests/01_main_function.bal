@@ -42,7 +42,7 @@ public function main() returns error? {
     }
 
     service object {} testServiceInMain = service object {
-        resource function get resourceOne(testobserve:Caller caller, string body) {
+        resource function post resourceOne(testobserve:Caller caller, string body) {
             int numberCount = checkpanic 'int:fromString(body);
             var sum = 0;
             foreach var i in 1 ... numberCount {
@@ -51,7 +51,7 @@ public function main() returns error? {
             checkpanic caller->respond("Sum of numbers: " + sum.toString());
         }
     };
-    var testObserveListener = new testobserve:Listener(9091);
+    var testObserveListener = new testobserve:Listener(19091);
     check testObserveListener.attach(testServiceInMain, "/testServiceOne");
     check testObserveListener.start();
 }

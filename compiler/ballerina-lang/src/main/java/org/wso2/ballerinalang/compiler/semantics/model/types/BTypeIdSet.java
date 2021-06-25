@@ -19,8 +19,10 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.elements.PackageID;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -29,51 +31,113 @@ import java.util.Set;
  * @since 2.0
  */
 public class BTypeIdSet {
-    public final Set<BTypeId> primary;
-    public final Set<BTypeId> secondary;
+    private final List<Set<BTypeId>> primary;
+    private final List<Set<BTypeId>> secondary;
+
+    // cache
+    private Set<BTypeId> primaryAll = null;
+    private Set<BTypeId> secondaryAll = null;
     private Set<BTypeId> all = null;
 
-    private static final Set<BTypeId> emptySet = Collections.unmodifiableSet(new HashSet<>());
-    private static final BTypeIdSet empty = new BTypeIdSet(emptySet);
-
     public BTypeIdSet(Set<BTypeId> primary, Set<BTypeId> secondary) {
-        this.primary = primary;
-        this.secondary = secondary;
-    }
-
-    public BTypeIdSet(Set<BTypeId> primary) {
-        this(primary, new HashSet<>());
+        this();
+        this.primary.add(primary);
+        this.secondary.add(secondary);
     }
 
     public BTypeIdSet() {
-        this(new HashSet<>(), new HashSet<>());
+        this.primary = new ArrayList<>();
+        this.secondary = new ArrayList<>();
     }
 
     public static BTypeIdSet from(PackageID packageID, String typeId, boolean publicId) {
         HashSet<BTypeId> set = new HashSet<>();
         set.add(new BTypeId(packageID, typeId, publicId));
-        return new BTypeIdSet(set);
+
+        BTypeIdSet typeIdSet = new BTypeIdSet();
+        typeIdSet.addPrimarySet(set);
+        return typeIdSet;
     }
 
     public static BTypeIdSet from(PackageID packageID, String typeId, boolean publicId, BTypeIdSet secondary) {
-        HashSet<BTypeId> primarySet = new HashSet<>();
-        primarySet.add(new BTypeId(packageID, typeId, publicId));
-
-        HashSet<BTypeId> secondarySet = new HashSet<>(secondary.primary);
-        secondarySet.addAll(secondary.secondary);
-
-        return new BTypeIdSet(primarySet, secondarySet);
+        BTypeIdSet newSet = from(packageID, typeId, publicId);
+        newSet.secondary.addAll(secondary.primary);
+        newSet.secondary.addAll(secondary.secondary);
+        return newSet;
     }
 
-    public static BTypeIdSet from(PackageID packageID, String typeId, boolean publicId, Set<BTypeId> secondarySet) {
-        HashSet<BTypeId> primarySet = new HashSet<>();
-        primarySet.add(new BTypeId(packageID, typeId, publicId));
+    public BTypeIdSet addPrimarySet(Set<BTypeId> set) {
+        this.primary.add(set);
+        invalidateCache();
+        return this;
+    }
 
-        return new BTypeIdSet(primarySet, secondarySet);
+    public BTypeIdSet addSecondarySet(Set<BTypeId> set) {
+        this.secondary.add(set);
+        invalidateCache();
+        return this;
+    }
+
+    public BTypeIdSet add(BTypeIdSet that) {
+        this.primary.addAll(that.primary);
+        this.secondary.addAll(that.secondary);
+        invalidateCache();
+        return this;
     }
 
     public static BTypeIdSet emptySet() {
-        return empty;
+        return new BTypeIdSet();
+    }
+
+    public Set<BTypeId> getPrimary() {
+        if (this.primaryAll == null) {
+            HashSet<BTypeId> set = new HashSet<>();
+            for (Set<BTypeId> bTypeIds : primary) {
+                set.addAll(bTypeIds);
+            }
+            this.primaryAll = Collections.unmodifiableSet(set);
+        }
+        return this.primaryAll;
+    }
+
+    public Set<BTypeId> getSecondary() {
+        if (this.secondaryAll == null) {
+            HashSet<BTypeId> set = new HashSet<>();
+            for (Set<BTypeId> bTypeIds : secondary) {
+                set.addAll(bTypeIds);
+            }
+            this.secondaryAll = Collections.unmodifiableSet(set);
+        }
+        return this.secondaryAll;
+    }
+
+    public Set<BTypeId> getAll() {
+        if (this.all == null) {
+            HashSet<BTypeId> all = new HashSet<>();
+            all.addAll(getPrimary());
+            all.addAll(getSecondary());
+            this.all = all;
+        }
+        return this.all;
+    }
+
+    private void invalidateCache() {
+        this.all = null;
+        this.primaryAll = null;
+        this.secondaryAll = null;
+    }
+
+    public static BTypeIdSet getIntersection(BTypeIdSet lhsTypeIds, BTypeIdSet rhsTypeIds) {
+        if (lhsTypeIds.isEmpty() && rhsTypeIds.isEmpty()) {
+            return emptySet();
+        }
+
+        BTypeIdSet typeIdSet = new BTypeIdSet();
+        typeIdSet.primary.addAll(lhsTypeIds.primary);
+        typeIdSet.primary.addAll(rhsTypeIds.primary);
+        typeIdSet.secondary.addAll(lhsTypeIds.secondary);
+        typeIdSet.secondary.addAll(rhsTypeIds.secondary);
+        return typeIdSet;
     }
 
     public boolean isAssignableFrom(BTypeIdSet sourceTypeIdSet) {
@@ -84,19 +148,7 @@ public class BTypeIdSet {
             return true;
         }
 
-        if (all == null) {
-            HashSet<BTypeId> tAll = new HashSet<>(primary);
-            tAll.addAll(secondary);
-            all = tAll;
-        }
-
-        if (sourceTypeIdSet.all == null) {
-            HashSet<BTypeId> tAll = new HashSet<>(sourceTypeIdSet.primary);
-            tAll.addAll(sourceTypeIdSet.secondary);
-            sourceTypeIdSet.all = tAll;
-        }
-
-        return sourceTypeIdSet.all.containsAll(all);
+        return sourceTypeIdSet.getAll().containsAll(getAll());
     }
 
     @Override
@@ -115,20 +167,17 @@ public class BTypeIdSet {
     @Override
     public int hashCode() {
         int hashCode = 1;
-        for (BTypeId bTypeId : primary) {
+        for (BTypeId bTypeId : getPrimary()) {
             hashCode = hashCode * 31 + bTypeId.hashCode();
         }
-        for (BTypeId bTypeId : secondary) {
+        for (BTypeId bTypeId : getSecondary()) {
             hashCode = hashCode * 31 + bTypeId.hashCode();
         }
         return hashCode;
     }
 
     public boolean isEmpty() {
-        if (primary == emptySet && secondary == emptySet) {
-            return true;
-        }
-        return primary.isEmpty() && secondary.isEmpty();
+        return getAll().isEmpty();
     }
 
     /**

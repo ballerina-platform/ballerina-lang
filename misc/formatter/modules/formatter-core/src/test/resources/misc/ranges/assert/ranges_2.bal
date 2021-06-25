@@ -15,8 +15,7 @@ public function factorialL(int x) returns int {
         return 0;
     }
     int fact = 1;
-    for var i
-     in 1 ... x {
+    foreach var i in 1 ... x {
         fact = fact *            i   ;
       }
     return
@@ -29,12 +28,11 @@ function     printValue  (    int      x
 }
 
 public function main() {
-        const
-n1 = 5;
+        int
+    n1 = 5;
      int      a    =    factorialR  (  n1  )    ;
-printValue
-(n1 , a);
-const int n2 = 25        ;
-    int      b     =       factorialL   (   n2   )   ;
+    printValue(n1, a);
+    final int n2 = 25;
+    int b     =       factorialL   (   n2   )   ;
          printValue     (   n2   ,     b   )   ;
 }

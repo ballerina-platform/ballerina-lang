@@ -126,7 +126,7 @@ public class MatchStatementStaticPatternsTest {
         Assert.assertEquals(results.getString(++i), msg + ": 12 Ballerina");
         Assert.assertEquals(results.getString(++i), msg + ": 15 Ballerina");
         Assert.assertEquals(results.getString(++i), msg + ": 20 Ballerina");
-        Assert.assertEquals(results.getString(++i), msg + ": 20 bala");
+        Assert.assertEquals(results.getString(++i), msg + ": 20 Bala");
         Assert.assertEquals(results.getString(++i), "Default Value is : 20 NothingToMatch");
         Assert.assertEquals(results.getString(++i), msg + ": 15 Bal 100");
         Assert.assertEquals(results.getString(++i), "Default Value is : 15 Bal 200 230");
@@ -146,22 +146,22 @@ public class MatchStatementStaticPatternsTest {
 
         int i = -1;
         String msg = "Value is ";
-        Assert.assertEquals(results.getString(++i), msg + ": 2nd pattern - {\"x\":12, \"y\":\"Ballerina\"}");
-        Assert.assertEquals(results.getString(++i), msg + ": 4th pattern - {\"x\":10, \"y\":\"B\"}");
-        Assert.assertEquals(results.getString(++i), msg + ": 1st pattern - {\"x\":12, \"y\":\"Ballerina\", " +
+        Assert.assertEquals(results.getString(++i), msg + ": 2nd pattern - {\"x\":12,\"y\":\"Ballerina\"}");
+        Assert.assertEquals(results.getString(++i), msg + ": 4th pattern - {\"x\":10,\"y\":\"B\"}");
+        Assert.assertEquals(results.getString(++i), msg + ": 1st pattern - {\"x\":12,\"y\":\"Ballerina\"," +
                 "\"z\":true}");
-        Assert.assertEquals(results.getString(++i), "Value is Default pattern - {\"x\":10, " +
+        Assert.assertEquals(results.getString(++i), "Value is Default pattern - {\"x\":10," +
                 "\"z\":\"Ballerina\"}");
         Assert.assertEquals(results.getString(++i), msg +
-                ": 5th pattern - {\"x\":15, \"y\":John {\"x\":12, \"y\":\"Ballerina\"} Snow, \"z\":15.1}");
+                ": 5th pattern - {\"x\":15,\"y\":John {\"x\":12,\"y\":\"Ballerina\"} Snow,\"z\":15.1}");
         Assert.assertEquals(results.getString(++i),
-                "Value is Default pattern - {\"x\":15, \"y\":Stark {\"x\":12, \"y\":\"Ballerina\"} Sansa, " +
+                "Value is Default pattern - {\"x\":15,\"y\":Stark {\"x\":12,\"y\":\"Ballerina\"} Sansa," +
                         "\"z\":15.1}");
         Assert.assertEquals(results.getString(++i), msg +
-                ": 3rd pattern - {\"x\":15, \"y\":Stark {\"x\":12, \"y\":\"Ballerina\", \"z\":true} Sansa, " +
+                ": 3rd pattern - {\"x\":15,\"y\":Stark {\"x\":12,\"y\":\"Ballerina\",\"z\":true} Sansa," +
                 "\"z\":15.1}");
         Assert.assertEquals(results.getString(++i), msg +
-                ": 3rd pattern - {\"x\":40, \"y\":Tyrion {\"x\":12, \"y\":\"Ballerina\"} Lanister, \"z\":56.9}");
+                ": 3rd pattern - {\"x\":40,\"y\":Tyrion {\"x\":12,\"y\":\"Ballerina\"} Lanister,\"z\":56.9}");
         Assert.assertEquals(results.getString(++i), msg + ": 4th pattern - 16");
         Assert.assertEquals(results.getString(++i), "Value is Default pattern - 12");
     }
@@ -177,23 +177,23 @@ public class MatchStatementStaticPatternsTest {
 
         int i = -1;
         String msg = "Value is ";
-        Assert.assertEquals(results.getString(++i), msg + ": 2nd pattern - {\"x\":12, \"y\":\"Ballerina\"}");
-        Assert.assertEquals(results.getString(++i), msg + ": 4th pattern - {\"x\":10, \"y\":\"B\"}");
-        Assert.assertEquals(results.getString(++i), msg + ": 1st pattern - {\"x\":12, \"y\":\"Ballerina\", " +
+        Assert.assertEquals(results.getString(++i), msg + ": 2nd pattern - {\"x\":12,\"y\":\"Ballerina\"}");
+        Assert.assertEquals(results.getString(++i), msg + ": 4th pattern - {\"x\":10,\"y\":\"B\"}");
+        Assert.assertEquals(results.getString(++i), msg + ": 1st pattern - {\"x\":12,\"y\":\"Ballerina\"," +
                 "\"z\":true}");
-        Assert.assertEquals(results.getString(++i), "Value is Default pattern - {\"x\":10, " +
+        Assert.assertEquals(results.getString(++i), "Value is Default pattern - {\"x\":10," +
                 "\"z\":\"Ballerina\"}");
         Assert.assertEquals(results.getString(++i), msg +
-                ": 5th pattern - {\"x\":15, \"y\":John {\"x\":12, \"y\":\"Ballerina\"} Snow, \"z\":15.1}");
+                ": 5th pattern - {\"x\":15,\"y\":John {\"x\":12,\"y\":\"Ballerina\"} Snow,\"z\":15.1}");
         Assert.assertEquals(results.getString(++i),
-                "Value is Default pattern - {\"x\":15, \"y\":Stark {\"x\":12, \"y\":\"Ballerina\"} Sansa, " +
+                "Value is Default pattern - {\"x\":15,\"y\":Stark {\"x\":12,\"y\":\"Ballerina\"} Sansa," +
                         "\"z\":15.1}");
         Assert.assertEquals(results.getString(++i), msg +
-                ": 3rd pattern - {\"x\":15, \"y\":Stark {\"x\":12, \"y\":\"Ballerina\", \"z\":true} Sansa, " +
+                ": 3rd pattern - {\"x\":15,\"y\":Stark {\"x\":12,\"y\":\"Ballerina\",\"z\":true} Sansa," +
                 "\"z\":15.1}");
 
         Assert.assertEquals(results.getString(++i), msg +
-                ": 3rd pattern - {\"x\":40, \"y\":Tyrion {\"x\":12, \"y\":\"Ballerina\"} Lanister, \"z\":56.9}");
+                ": 3rd pattern - {\"x\":40,\"y\":Tyrion {\"x\":12,\"y\":\"Ballerina\"} Lanister,\"z\":56.9}");
         Assert.assertEquals(results.getString(++i), msg + ": 4th pattern - 16");
         Assert.assertEquals(results.getString(++i), "Value is Default pattern - 12");
         Assert.assertEquals(results.getString(++i), "Value is Default pattern - 7.8");
@@ -341,7 +341,7 @@ public class MatchStatementStaticPatternsTest {
         Assert.assertEquals(results.getString(++i), msg + "a: 1");
         Assert.assertEquals(results.getString(++i), msg + "a: 1, b: 2");
         Assert.assertEquals(results.getString(++i), msg + "a: 1, b: 2, c: 3");
-        Assert.assertEquals(results.getString(++i), msg + "default");
+        Assert.assertEquals(results.getString(++i), msg + "a: 1, b: 2, c: 3");
     }
 
     @Test(description = "Test error not being match to wildcard match pattern")
@@ -352,123 +352,124 @@ public class MatchStatementStaticPatternsTest {
 
     @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatchedSemanticsNegative() {
-        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 2);
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 3);
         int i = -1;
-        BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "invalid key: only identifiers and strings are allowed as record literal keys", 27, 10);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "invalid literal for match pattern; allowed literals are simple, tuple and record only", 37, 9);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid token '('", 27, 15);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid token ')'", 27, 15);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "variable 'a' should be declared as constant", 37, 9);
     }
 
     @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatched() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 61);
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        Assert.assertEquals(resultNegative.getWarnCount(), 60);
         int i = -1;
         String patternNotMatched = "pattern will not be matched";
 
         // simpleTypes
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 21, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 22, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 24, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 25, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 26, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 31, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 32, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 34, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 35, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 36, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 41, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 42, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 43, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 44, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 45, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 51, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 52, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 53, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 54, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 56, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 62, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 63, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 65, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 66, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 67, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 21, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 22, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 24, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 25, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 26, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 31, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 32, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 34, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 35, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 36, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 41, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 42, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 43, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 44, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 45, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 51, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 52, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 53, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 54, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 56, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 62, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 63, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 65, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 66, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 67, 9);
 
         // recordTypes
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 107, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 109, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 111, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 112, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 113, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 114, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 122, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 128, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 130, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 139, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 148, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 155, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 157, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 107, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 109, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 111, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 112, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 113, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 114, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 122, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 128, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 130, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 139, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 148, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 155, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 157, 9);
 
         // tupleTypes
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 166, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 167, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 168, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 169, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 170, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 172, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 173, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 188, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 194, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 201, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 204, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 166, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 167, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 168, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 169, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 170, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 172, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 173, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 188, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 194, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 201, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 204, 9);
 
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 221, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 222, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 221, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 222, 9);
 
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 234, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 237, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 240, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 241, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 242, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 256, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 257, 9);
-        BAssertUtil.validateError(resultNegative, ++i, "pattern will always be matched", 270, 9);
-        BAssertUtil.validateError(resultNegative, ++i, "this function must return a result", 274, 1);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 291, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 234, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 237, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 240, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 241, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 242, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 256, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 257, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 257, 9);
+        BAssertUtil.validateError(resultNegative, ++i, "this function must return a result", 267, 1);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 284, 9);
     }
 
     @Test(description = "Test unreachable pattern")
     public void testUnreachablePatterns() {
-        Assert.assertEquals(resultNegative2.getErrorCount(), 26);
+        Assert.assertEquals(resultNegative2.getErrorCount(), 2);
+        Assert.assertEquals(resultNegative2.getWarnCount(), 25);
         int i = -1;
-        String unreachablePattern =
-                "unreachable pattern: preceding patterns are too general or the pattern ordering is not correct";
+        String unreachablePattern = "unreachable pattern";
 
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 25, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 26, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 31, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 41, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 43, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 55, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 56, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 57, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 25, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 26, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 31, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 41, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 43, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 55, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 56, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 57, 9);
         BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 71, 5);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 80, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 85, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 90, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 95, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 105, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 111, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 117, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 124, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 130, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 131, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 138, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 139, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 148, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 150, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 158, 13);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 159, 13);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 160, 13);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 80, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 85, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 90, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 95, 9);
+        BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 97, 5);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 105, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 111, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 117, 12);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 124, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 130, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 131, 12);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 138, 15);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 139, 12);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 148, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 150, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 158, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 159, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 160, 9);
     }
 
     @AfterClass

@@ -41,18 +41,12 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
-//    implementation project(':ballerina-http')
     implementation project(':ballerina-config')
     implementation 'info.picocli:picocli'
-    implementation 'com.atlassian.commonmark:commonmark'
-    implementation 'com.atlassian.commonmark:commonmark-ext-gfm-tables'
-    implementation 'org.apache.commons:commons-lang3'
     implementation 'commons-io:commons-io'
     implementation 'com.google.code.gson:gson:2.7'
     implementation 'org.slf4j:slf4j-api'
     distBal project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')
-//    distBal project(path: ':ballerina-http', configuration: 'balaImplementation')
-    distBal project(path: ':ballerina-io', configuration: 'balaImplementation')
 
     testImplementation 'org.testng:testng'
     testImplementation 'org.slf4j:slf4j-jdk14'
@@ -112,6 +106,15 @@ jar {
             'Implementation-URL': 'https://ballerina.io/misc/docerina/'
         )
     }
+}
+
+processResources {
+    include '**/properties'
+    include 'doc-ui/index.html'
+    include 'builtin-types-descriptions/'
+    include 'keywords-descriptions/'
+    include 'release-description.md'
+    filter { String line -> line.replace('${short.version}', "${project.shortVersion}")}
 }
 
 shadowJar {

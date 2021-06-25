@@ -1,0 +1,43 @@
+{
+  "position": {
+    "line": 3,
+    "character": 5
+  },
+  "source": "annotation_ctx/source/functionAnnotation6.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "bar",
+      "kind": "Field",
+      "detail": "(record {| string foo; int bar?; anydata...; |}).bar",
+      "sortText": "G",
+      "insertText": "bar: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "foo",
+      "kind": "Field",
+      "detail": "(record {| string foo; int bar?; anydata...; |}).foo",
+      "sortText": "G",
+      "insertText": "foo: \"${2}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill record {| string foo; int bar?; anydata...; |} Required Fields",
+      "kind": "Property",
+      "detail": "record {| string foo; int bar?; anydata...; |}",
+      "sortText": "Q",
+      "filterText": "fill",
+      "insertText": "foo: \"\"",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

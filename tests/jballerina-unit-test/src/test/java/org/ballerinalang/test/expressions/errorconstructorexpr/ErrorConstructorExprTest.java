@@ -18,14 +18,17 @@
  */
 package org.ballerinalang.test.expressions.errorconstructorexpr;
 
-import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateHint;
 
 /**
  * Test error-constructor-expr.
@@ -34,15 +37,17 @@ import org.testng.annotations.Test;
  */
 public class ErrorConstructorExprTest {
 
-    private CompileResult result, negativeSemanticResult, negativeResult;
+    private CompileResult result;
 
     @BeforeClass
     public void setUp() {
         result = BCompileUtil.compile("test-src/expressions/errorconstructorexpr/error-constructor-expr.bal");
-        negativeSemanticResult = BCompileUtil.compile("test-src/expressions/errorconstructorexpr/error-constructor" +
-                "-expr-negative.bal");
-        negativeResult = BCompileUtil.compile("test-src/expressions/errorconstructorexpr/error-constructor-expr-code" +
-                "-analysis-negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 0, result.getDiagnosticResult().diagnostics().toString());
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 
     @Test(dataProvider = "ErrorConstructorExprFunctions")
@@ -59,42 +64,50 @@ public class ErrorConstructorExprTest {
                 {"testErrorConstructorExpr4"},
                 {"testErrorConstructorExpr5"},
                 {"testErrorConstructorExpr6"},
-                {"testErrorConstructorExpr7"},
                 {"testErrorConstructorExpr8"},
                 {"testErrorConstructorExpr9"},
+                {"testContextuallyExpectedErrorCtor"},
         };
     }
 
     @Test
     public void testErrorConstructorExprNegative() {
+        CompileResult negativeSemanticResult = BCompileUtil.compile(
+                "test-src/expressions/errorconstructorexpr/error-constructor-expr-negative.bal");
         int i = 0;
-        BAssertUtil.validateError(negativeSemanticResult, i++, "missing arg within parenthesis", 20, 21);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'int'",
-                21, 22);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'error'"
-                , 22, 22);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "incompatible types: expected 'error?', found " +
-                "'string'", 23, 28);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "additional positional arg in error constructor", 24,
-                27);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "missing arg within parenthesis", 26, 27);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'int'",
-                27, 28);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'error'"
-                , 28, 28);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "incompatible types: expected 'error?', found " +
-                "'string'", 29, 34);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "additional positional arg in error constructor", 30,
-                34);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "undefined error type descriptor 'MyError'", 36, 20);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "invalid arg type in error detail field 'c', expected " +
+        validateError(negativeSemanticResult, i++, "missing arg within parenthesis", 20, 21);
+        validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'int'", 21, 22);
+        validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'error'", 22, 22);
+        validateError(negativeSemanticResult, i++, "incompatible types: expected 'error?', found 'string'", 23, 28);
+        validateError(negativeSemanticResult, i++, "additional positional arg in error constructor", 24, 27);
+        validateError(negativeSemanticResult, i++, "missing arg within parenthesis", 26, 27);
+        validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'int'", 27, 28);
+        validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'error'", 28, 28);
+        validateError(negativeSemanticResult, i++, "incompatible types: expected 'error?', found 'string'", 29, 34);
+        validateError(negativeSemanticResult, i++, "additional positional arg in error constructor", 30, 34);
+        validateError(negativeSemanticResult, i++, "undefined error type descriptor 'MyError'", 36, 26);
+        validateError(negativeSemanticResult, i++, "invalid arg type in error detail field 'c', expected " +
                 "'string', found 'int'", 37, 46);
+        validateError(negativeSemanticResult, i++, "invalid arg type in error detail field 'j', expected " +
+                "'string', found 'int'", 42, 33);
+        validateError(negativeSemanticResult, i++,
+                "error constructor does not accept additional detail args 'k' when error detail type " +
+                        "'record {| int i; string j; anydata...; |}' contains individual field descriptors", 42, 40);
+        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'j'", 43, 14);
+        validateError(negativeSemanticResult, i++, "cannot infer type of the error from '(error|ErrorB)'", 50, 20);
+        validateError(negativeSemanticResult, i++, "cannot infer type of the error from '(error|ErrorB)'", 51, 20);
+        validateError(negativeSemanticResult, i++, "unknown type 'Blah'", 60, 27);
+        validateError(negativeSemanticResult, i++, "cannot create a new error value from 'ErrorU1'", 62, 19);
+        validateError(negativeSemanticResult, i++, "cannot create a new error value from 'ErrorU2'", 63, 19);
+        validateError(negativeSemanticResult, i++, "undefined error type descriptor 'ErrorU3'", 64, 19);
         Assert.assertEquals(negativeSemanticResult.getErrorCount(), i);
     }
 
     @Test
     public void testCodeAnalysisNegative() {
-        BAssertUtil.validateError(negativeResult, 0, "unnecessary condition: expression will always evaluate to " +
+        CompileResult negativeResult = BCompileUtil.compile(
+                "test-src/expressions/errorconstructorexpr/error-constructor-expr-code-analysis-negative.bal");
+        validateHint(negativeResult, 0, "unnecessary condition: expression will always evaluate to " +
                 "'true'", 19, 37);
     }
 }

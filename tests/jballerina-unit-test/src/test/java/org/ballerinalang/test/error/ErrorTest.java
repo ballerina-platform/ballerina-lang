@@ -30,6 +30,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -43,13 +44,8 @@ public class ErrorTest {
 
     private CompileResult errorTestResult;
     private CompileResult distinctErrorTestResult;
-    private CompileResult negativeCompileResult;
     private CompileResult negativeDistinctErrorRes;
 
-    private static final String ERROR1 = "error1";
-    private static final String ERROR2 = "error2";
-    private static final String ERROR3 = "error3";
-    private static final String EMPTY_CURLY_BRACE = "{}";
     private static final String CONST_ERROR_REASON = "reason one";
 
     @BeforeClass
@@ -57,13 +53,11 @@ public class ErrorTest {
         errorTestResult = BCompileUtil.compile("test-src/error/error_test.bal");
         distinctErrorTestResult = BCompileUtil.compile("test-src/error/distinct_error_test.bal");
         negativeDistinctErrorRes = BCompileUtil.compile("test-src/error/distinct_error_test_negative.bal");
-        negativeCompileResult = BCompileUtil.compile("test-src/error/error_test_negative.bal");
     }
 
     @Test
     public void testDistinctFooError() {
-        BValue[] errors = BRunUtil.invoke(distinctErrorTestResult, "testFooError");
-        Assert.assertEquals(errors[0].stringValue(), "error message {\"detailField\":true}");
+        BRunUtil.invoke(distinctErrorTestResult, "testFooError");
     }
 
     @Test
@@ -95,40 +89,12 @@ public class ErrorTest {
 
     @Test
     public void errorConstructReasonTest() {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "errorConstructReasonTest");
-
-        Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).getReason(), ERROR1);
-        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(), EMPTY_CURLY_BRACE);
-        Assert.assertTrue(returns[1] instanceof BError);
-        Assert.assertEquals(((BError) returns[1]).getReason(), ERROR2);
-        Assert.assertEquals(((BError) returns[1]).getDetails().stringValue(), EMPTY_CURLY_BRACE);
-        Assert.assertTrue(returns[2] instanceof BError);
-        Assert.assertEquals(((BError) returns[2]).getReason(), ERROR3);
-        Assert.assertEquals(((BError) returns[2]).getDetails().stringValue(), EMPTY_CURLY_BRACE);
-        Assert.assertEquals(returns[3].stringValue(), ERROR1);
-        Assert.assertEquals(returns[4].stringValue(), ERROR2);
-        Assert.assertEquals(returns[5].stringValue(), ERROR3);
+        BRunUtil.invoke(errorTestResult, "errorConstructReasonTest");
     }
 
     @Test
     public void errorConstructDetailTest() {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "errorConstructDetailTest");
-        String detail1 = "{\"message\":\"msg1\"}";
-        String detail2 = "{\"message\":\"msg2\"}";
-        String detail3 = "{\"message\":\"msg3\"}";
-        Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).getReason(), ERROR1);
-        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue().trim(), detail1);
-        Assert.assertTrue(returns[1] instanceof BError);
-        Assert.assertEquals(((BError) returns[1]).getReason(), ERROR2);
-        Assert.assertEquals(((BError) returns[1]).getDetails().stringValue().trim(), detail2);
-        Assert.assertTrue(returns[2] instanceof BError);
-        Assert.assertEquals(((BError) returns[2]).getReason(), ERROR3);
-        Assert.assertEquals(((BError) returns[2]).getDetails().stringValue().trim(), detail3);
-        Assert.assertEquals(returns[3].stringValue().trim(), detail1);
-        Assert.assertEquals(returns[4].stringValue().trim(), detail2);
-        Assert.assertEquals(returns[5].stringValue().trim(), detail3);
+        BRunUtil.invoke(errorTestResult, "errorConstructDetailTest");
     }
 
     @Test
@@ -151,22 +117,19 @@ public class ErrorTest {
 
         Assert.assertEquals(message,
                 "error: largeNumber {\"message\":\"large number\"}\n" +
-                        "\tat error_test:errorPanicCallee(error_test.bal:38)\n" +
-                        "\t   error_test:errorPanicTest(error_test.bal:32)");
+                        "\tat error_test:errorPanicCallee(error_test.bal:64)\n" +
+                        "\t   error_test:errorPanicTest(error_test.bal:58)");
     }
 
     @Test
     public void errorTrapTest() {
         // Case without panic
         BValue[] args = new BValue[] { new BInteger(10) };
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "errorTrapTest", args);
-        Assert.assertEquals(returns[0].stringValue(), "done");
+        BRunUtil.invoke(errorTestResult, "errorTrapTest", args);
 
         // Now panic
         args = new BValue[] { new BInteger(15) };
-        returns = BRunUtil.invoke(errorTestResult, "errorTrapTest", args);
-        String result = "largeNumber {\"message\":\"large number\"}";
-        Assert.assertEquals(returns[0].stringValue(), result.trim());
+        BRunUtil.invoke(errorTestResult, "errorTrapTest", args);
     }
 
     @Test
@@ -225,9 +188,7 @@ public class ErrorTest {
 
     @Test(dataProvider = "userDefTypeAsReasonTests")
     public void testErrorWithUserDefinedReasonType(String testFunction) {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, testFunction);
-        Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).getReason(), CONST_ERROR_REASON);
+        BRunUtil.invoke(errorTestResult, testFunction);
     }
 
     @Test(dataProvider = "constAsReasonTests")
@@ -254,18 +215,31 @@ public class ErrorTest {
     }
 
     @Test
+    public void testLocalErrorTypeWithClosure() {
+        BRunUtil.invoke(errorTestResult, "testLocalErrorTypeWithClosure");
+    }
+
+    @Test
+    public void testLocalErrorTypeWithinLambda() {
+        BRunUtil.invoke(errorTestResult, "testLocalErrorTypeWithinLambda");
+    }
+
+    @Test
     public void testErrorNegative() {
+        CompileResult negativeCompileResult = BCompileUtil.compile("test-src/error/error_test_negative.bal");
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "invalid error detail type 'map<any>', expected a subtype of 'map<Cloneable>'", 41, 28);
+                "invalid error detail type 'map<any>', expected a subtype of " +
+                        "'map<ballerina/lang.value:1.0.0:Cloneable>'", 41, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "invalid error detail type 'boolean', expected a subtype of 'map<Cloneable>'", 42, 28);
+                "invalid error detail type 'boolean', expected a subtype of '" +
+                        "map<ballerina/lang.value:1.0.0:Cloneable>'", 42, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'error<Foo>', found 'error'", 45, 17);
+                "error constructor does not accept additional detail args 'one' when error detail type 'Foo' " +
+                        "contains individual field descriptors", 45, 58);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "invalid error detail type 'boolean', expected a subtype of 'map<Cloneable>'", 48, 11);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'error<boolean>', found 'error'", 48, 24);
+                "invalid error detail type 'boolean', expected a subtype of " +
+                        "'map<ballerina/lang.value:1.0.0:Cloneable>'", 48, 11);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'string', found 'boolean'", 48, 30);
         BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e3'", 54, 22);
@@ -273,23 +247,29 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e4'", 55, 34);
         BAssertUtil.validateError(negativeCompileResult, i++, "missing arg within parenthesis", 56, 48);
         BAssertUtil.validateError(negativeCompileResult, i++, "missing arg within parenthesis", 57, 32);
-        BAssertUtil.validateError(negativeCompileResult, i++, "missing positional arg in error constructor", 96, 32);
-        BAssertUtil.validateError(negativeCompileResult, i++, "missing positional arg in error constructor", 97, 38);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'UserDefErrorTwoA', found 'error'", 110, 28);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'UserDefErrorTwoA', found 'error'", 112, 28);
+        BAssertUtil.validateError(negativeCompileResult, i++, "error constructor does not accept additional detail " +
+                "args 'other' when error detail type 'Bee' contains individual field descriptors", 95, 53);
+        BAssertUtil.validateError(negativeCompileResult, i++, "missing error message in error constructor", 96, 32);
+        BAssertUtil.validateError(negativeCompileResult, i++, "error constructor does not accept additional detail " +
+                "args 'other' when error detail type 'Bee' contains individual field descriptors", 96, 60);
+        BAssertUtil.validateError(negativeCompileResult, i++, "missing error message in error constructor", 97, 38);
+        BAssertUtil.validateError(negativeCompileResult, i++, "error constructor does not accept additional detail " +
+                "args 'other' when error detail type 'Bee' contains individual field descriptors", 97, 66);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'error', found '(error|int)'", 118, 11);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'error<record {| " +
                         "string message?; error cause?; int i; anydata...; |}>', found 'int'", 122, 65);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'error', found 'int'", 127, 5);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'error', found 'string'", 128, 5);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'error', found 'record {| string a; |}'", 129, 5);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'string', expected a subtype" +
+                " of 'map<ballerina/lang.value:1.0.0:Cloneable>'", 139, 11);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid token ','", 139, 25);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid token 'Detail'", 139, 25);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'string', expected a subtype" +
+                " of 'map<ballerina/lang.value:1.0.0:Cloneable>'", 140, 11);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'int', expected a subtype of" +
+                " 'map<ballerina/lang.value:1.0.0:Cloneable>'", 141, 11);
+        BAssertUtil.validateError(negativeCompileResult, i++, "unknown error detail arg 'id' passed to closed error " +
+                "detail type 'CloseDetail'", 143, 47);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 
@@ -334,8 +314,7 @@ public class ErrorTest {
 
     @Test()
     public void testOptionalErrorReturn() {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "testOptionalErrorReturn");
-        Assert.assertEquals(returns[0].stringValue(), "this is broken {\"message\":\"too bad\"}");
+        BRunUtil.invoke(errorTestResult, "testOptionalErrorReturn");
     }
 
     @Test()
@@ -344,7 +323,7 @@ public class ErrorTest {
         Assert.assertEquals(returns[0].stringValue(), "Foo {message:\"error msg\"}");
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
     public void testStackTraceInNative() {
         Exception expectedException = null;
         try {
@@ -356,8 +335,8 @@ public class ErrorTest {
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
         Assert.assertEquals(message, "error: array index out of range: index: 4, size: 2\n\t" +
-                "at ballerina.lang.array.1_1_0:slice(array.bal:132)\n\t" +
-                "   error_test:testStackTraceInNative(error_test.bal:278)");
+                "at ballerina.lang.array.1_1_0:slice(array.bal:128)\n\t" +
+                "   error_test:testStackTraceInNative(error_test.bal:339)");
     }
 
     @Test
@@ -390,9 +369,9 @@ public class ErrorTest {
     public void testStackOverFlow() {
         BValue[] result = BRunUtil.invoke(errorTestResult, "testStackOverFlow");
         String expected1 = "{callableName:\"bar\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
-                "lineNumber:342}";
+                "lineNumber:408}";
         String expected2 = "{callableName:\"bar2\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
-                "lineNumber:346}";
+                "lineNumber:412}";
         String resultStack = ((BValueArray) result[0]).getRefValue(0).toString();
         Assert.assertTrue(resultStack.equals(expected1) || resultStack.equals(expected2), "Received unexpected " +
                 "stacktrace element: " + resultStack);
@@ -401,30 +380,18 @@ public class ErrorTest {
 
     @Test
     public void testErrorTrapVarReuse() {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "testErrorTrapVarReuse");
-        Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertNull(returns[1]);
-        BError bError = (BError) returns[0];
-        Assert.assertEquals(bError.getReason(), "panic now");
-    }
-
-    @Test
-    public void testErrorTypeDescriptionInferring() {
-        BRunUtil.invoke(errorTestResult, "testErrorTypeDescriptionInferring");
-    }
-
-    @Test
-    public void testDefaultErrorTypeDescriptionInferring() {
-        BRunUtil.invoke(errorTestResult, "testDefaultErrorTypeDescriptionInferring");
-    }
-
-    @Test
-    public void testUnionErrorTypeDescriptionInferring() {
-        BRunUtil.invoke(errorTestResult, "testUnionErrorTypeDescriptionInferring");
+        BRunUtil.invoke(errorTestResult, "testErrorTrapVarReuse");
     }
 
     @Test
     public void testErrorBindingPattern() {
         BRunUtil.invoke(errorTestResult, "testErrorBindingPattern");
+    }
+
+    @AfterClass
+    public void cleanup() {
+        errorTestResult = null;
+        distinctErrorTestResult = null;
+        negativeDistinctErrorRes = null;
     }
 }

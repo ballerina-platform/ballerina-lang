@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.bool;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
@@ -41,18 +42,19 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
 //)
 public class FromString {
 
+    private static final BString ERROR_REASON = getModulePrefixedReason(BOOLEAN_LANG_LIB,
+                                                                        BOOLEAN_PARSING_ERROR_IDENTIFIER);
+
     public static Object fromString(BString str) {
         String s = str.getValue();
-        if ("true".equalsIgnoreCase(s) || "1".equalsIgnoreCase(s)) {
-            return true;
-        } else if ("false".equalsIgnoreCase(s) || "0".equalsIgnoreCase(s)) {
-            return false;
-        } else {
-            BString reason = getModulePrefixedReason(BOOLEAN_LANG_LIB, BOOLEAN_PARSING_ERROR_IDENTIFIER);
+        try {
+            return TypeConverter.stringToBoolean(s);
+        } catch (NumberFormatException e) {
             BString msg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                                                PredefinedTypes.TYPE_STRING, s,
                                                                PredefinedTypes.TYPE_BOOLEAN);
-            return ErrorCreator.createError(reason, msg);
+            return ErrorCreator.createError(ERROR_REASON, msg);
         }
+
     }
 }

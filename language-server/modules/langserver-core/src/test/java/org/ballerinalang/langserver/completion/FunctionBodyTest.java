@@ -24,7 +24,7 @@ import org.testng.annotations.DataProvider;
  *
  * @since 2.0.0
  */
-public class FunctionBodyTest extends CompletionTestNew {
+public class FunctionBodyTest extends CompletionTest {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {

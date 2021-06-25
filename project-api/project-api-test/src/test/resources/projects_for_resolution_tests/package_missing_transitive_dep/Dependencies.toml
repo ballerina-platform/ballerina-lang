@@ -5,5 +5,5 @@ version = "0.1.0"
 
 [[dependency]]
 org = "samjs"
-name = "package_k"
+name = "package_kk"
 version = "1.0.0"

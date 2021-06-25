@@ -123,6 +123,15 @@ public class TokenReader extends AbstractTokenReader {
     }
 
     /**
+     * Get the current mode of the token reader.
+     *
+     * @return Current mode
+     */
+    public ParserMode getCurrentMode() {
+        return this.lexer.modeStack.peek();
+    }
+
+    /**
      * Get the current index of the token reader.
      *
      * @return current token index

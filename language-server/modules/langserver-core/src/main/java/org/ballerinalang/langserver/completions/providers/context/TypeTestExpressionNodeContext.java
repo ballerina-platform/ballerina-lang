@@ -44,7 +44,7 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, TypeTestExpressionNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (this.onQualifiedNameIdentifier(context, node.typeDescriptor())) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, node.typeDescriptor())) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.typeDescriptor();
             List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, qNameRef);
             completionItems.addAll(this.getCompletionItemList(typesInModule, context));
@@ -52,9 +52,13 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
             return completionItems;
         }
 
-        completionItems.addAll(this.getTypeItems(context));
-        completionItems.addAll(this.getModuleCompletionItems(context));
+        completionItems.addAll(this.getTypeDescContextItems(context));
 
         return completionItems;
+    }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, TypeTestExpressionNode node) {
+        return !node.isKeyword().isMissing();
     }
 }

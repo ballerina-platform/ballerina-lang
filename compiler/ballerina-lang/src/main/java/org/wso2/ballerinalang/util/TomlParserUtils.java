@@ -17,14 +17,17 @@
  */
 package org.wso2.ballerinalang.util;
 
+import io.ballerina.projects.Settings;
+import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.internal.SettingsBuilder;
+import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.toml.parser.ManifestProcessor;
-import org.ballerinalang.toml.parser.SettingsProcessor;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -38,12 +41,16 @@ public class TomlParserUtils {
      *
      * @return {@link Settings} settings object
      */
-    public static Settings readSettings() {
-        Path settingsFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.SETTINGS_FILE_NAME);
+    public static Settings readSettings() { // TODO: Should be removed after removing old repo structure
+        Path settingsFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectConstants.SETTINGS_FILE_NAME);
         try {
-            return SettingsProcessor.parseTomlContentFromFile(settingsFilePath);
+            TomlDocument settingsTomlDocument = TomlDocument
+                    .from(String.valueOf(settingsFilePath.getFileName()), Files.readString(settingsFilePath));
+            SettingsBuilder settingsBuilder = SettingsBuilder.from(settingsTomlDocument);
+            return settingsBuilder.settings();
         } catch (IOException e) {
-            return new Settings();
+            // If Settings.toml not exists return empty Settings object
+            return Settings.from();
         }
     }
 

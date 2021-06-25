@@ -1,34 +1,10 @@
 codecov:
-  ci:
-    - travis
-    - !appveyor # ignore CI builds by AppVeyor
+  require_ci_to_pass: no
+  max_report_age: off
 
+fixes:
+  - "ballerina/lang$0046*/*/::langlib/lang.*/src/main/ballerina/"
 
 ignore:
-  - "compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/parser/antlr4" # ignore ANTLR4 generated sources
+  - "**/tests"
 
-coverage:
-  status:
-    project:
-      default: off
-      integration:
-        flags: integrationtests
-      unittests:
-        target: 50%
-        flags: unittests
-
-flags:
-  integrationtests:
-    paths:
-      - ./tests/ballerina-tools-integration-test
-      - ./tests/jballerina-integration-test
-  unittests:
-    paths:
-      - ./composer
-      - ./misc
-      - ./language-server
-      - ./tests/ballerina-spec-conformance-tests
-      - ./tests/ballerina-compiler-plugin-test
-      - ./tests/ballerina-unit-test
-      - ./bvm
-      - ./stdlib

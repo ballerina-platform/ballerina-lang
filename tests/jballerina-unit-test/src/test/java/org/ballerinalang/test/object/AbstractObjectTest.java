@@ -41,33 +41,17 @@ public class AbstractObjectTest {
         abstractObjects = BCompileUtil.compile("test-src/object/abstract_object.bal");
     }
 
-    @Test(groups = "brokenOnClassChange")
+    @Test
     public void testAbstractObjectNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/abstract-object-negative.bal");
         int index = 0;
-        Assert.assertEquals(negativeResult.getErrorCount(), 13);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person1'", 3, 18);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person2'", 4, 18);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person1'", 8, 18);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person2'", 9, 18);
-        BAssertUtil.validateError(negativeResult, index++, "abstract object 'Person2' cannot have a constructor method",
-                28, 5);
-        BAssertUtil.validateError(negativeResult, index++,
-                "no implementation found for the function 'getName' of non-abstract object 'Person3'", 40, 5);
-        BAssertUtil.validateError(negativeResult, index++,
-                "function 'getName' in abstract object 'Person4' cannot have a body", 51, 5);
-        BAssertUtil.validateError(negativeResult, index++, "abstract object field: 'age' can not be declared as " +
-                "private", 58, 5);
-        BAssertUtil.validateError(negativeResult, index++, "interface function: 'getName' of abstract object " +
-                "'Person6' can not be declared as private", 61, 5);
-        BAssertUtil.validateError(negativeResult, index++, "interface function: 'getName' of abstract object 'Foo' " +
-                "can not be declared as private", 65, 5);
-        BAssertUtil.validateError(negativeResult, index++,
-                                  "external function: 'getName' not allowed in abstract object 'Person7'", 78, 5);
-        BAssertUtil.validateError(negativeResult, index++,
-                                  "function 'getName' in abstract object 'Person7' cannot have a body", 78, 5);
-        BAssertUtil.validateError(negativeResult, index,
-                                  "fields with default values are not yet supported with abstract objects", 83, 18);
+        BAssertUtil.validateError(negativeResult, index++, "object type descriptor 'Person2' cannot have an init " +
+                        "method", 27, 5);
+        Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
     @Test
@@ -75,7 +59,7 @@ public class AbstractObjectTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/abstract_anon_object_negative.bal");
         int index = 0;
         BAssertUtil.validateError(compileResult, index++,
-                "abstract object '$anonType$_1' cannot have a constructor method", 2, 45);
+                "object type descriptor '$anonType$_1' cannot have an init method", 2, 45);
         BAssertUtil.validateError(compileResult, index++, "missing object keyword", 2, 81);
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 2, 81);
         BAssertUtil.validateError(compileResult, index++, "missing identifier", 2, 83);
@@ -83,14 +67,14 @@ public class AbstractObjectTest {
         BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$_1'", 2, 90);
         BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$_2'", 3, 68);
         BAssertUtil.validateError(compileResult, index++,
-                "abstract object '$anonType$_6' cannot have a constructor method", 6, 49);
+                "object type descriptor '$anonType$_6' cannot have an init method", 6, 49);
         BAssertUtil.validateError(compileResult, index++, "missing object keyword", 6, 85);
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 6, 85);
         BAssertUtil.validateError(compileResult, index++, "invalid token '}'", 6, 89);
         BAssertUtil.validateError(compileResult, index++, "missing close brace token", 8, 70);
         BAssertUtil.validateError(compileResult, index++, "missing identifier", 8, 70);
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 8, 70);
-        BAssertUtil.validateError(compileResult, index, "invalid usage of 'new' with type 'any'", 8, 72);
+        BAssertUtil.validateError(compileResult, index, "cannot initialize abstract object '$anonType$_6'", 8, 72);
     }
 
     @Test

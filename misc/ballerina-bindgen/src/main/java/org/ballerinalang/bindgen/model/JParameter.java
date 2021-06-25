@@ -17,14 +17,16 @@
  */
 package org.ballerinalang.bindgen.model;
 
-import org.ballerinalang.bindgen.command.BindingsGenerator;
+import org.ballerinalang.bindgen.utils.BindgenEnv;
 
 import java.lang.reflect.Parameter;
+import java.util.Arrays;
+import java.util.List;
 
-import static org.ballerinalang.bindgen.command.BindingsGenerator.getAllJavaClasses;
-import static org.ballerinalang.bindgen.command.BindingsGenerator.setClassListForLooping;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_RESERVED_WORDS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.EXCEPTION_CLASS_PREFIX;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaHandleType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaParamType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getPrimitiveArrayType;
@@ -36,6 +38,7 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.getPrimitiveArrayType
  */
 public class JParameter {
 
+    private BindgenEnv env;
     private String type;
     private String externalType;
     private String shortTypeName;
@@ -46,25 +49,25 @@ public class JParameter {
     private Class parameterClass;
 
     private Boolean isObj = false;
-    private Boolean hasNext = true;
     private Boolean isString = false;
     private Boolean isObjArray = false;
-    private boolean modulesFlag = false;
+    private boolean modulesFlag;
     private Boolean isStringArray = false;
     private Boolean isPrimitiveArray = false;
 
-    JParameter(Class parameterClass, Class parentClass) {
+    JParameter(Class parameterClass, Class parentClass, BindgenEnv env) {
+        this.env = env;
         this.parameterClass = parameterClass;
         this.parentClass = parentClass;
         type = parameterClass.getName();
-        shortTypeName = getBallerinaParamType(parameterClass);
-        modulesFlag = BindingsGenerator.getModulesFlag();
+        shortTypeName = getBallerinaParamType(parameterClass, env.getAliases());
+        modulesFlag = env.getModulesFlag();
 
-        // Append the prefix "J" in front of bindings generated for Java exceptions.
+        // Append the exception class prefix in front of bindings generated for Java exceptions.
         try {
             if (this.getClass().getClassLoader().loadClass(Exception.class.getCanonicalName())
                     .isAssignableFrom(parameterClass)) {
-                shortTypeName = "J" + shortTypeName;
+                shortTypeName = EXCEPTION_CLASS_PREFIX + shortTypeName;
             }
         } catch (ClassNotFoundException ignore) {
             // Silently ignore this assignment if the class is not found.
@@ -79,6 +82,7 @@ public class JParameter {
         } else if (parameterClass.equals(String[].class)) {
             isStringArray = true;
             shortTypeName = BALLERINA_STRING_ARRAY;
+            componentType = String.class.getName();
         } else {
             if (!parameterClass.isPrimitive()) {
                 if (parameterClass.isArray()) {
@@ -88,8 +92,8 @@ public class JParameter {
                         shortTypeName = getPackageAlias(shortTypeName, parameterClass);
                     }
                     String paramType = parameterClass.getName();
-                    if (!getAllJavaClasses().contains(paramType)) {
-                        setClassListForLooping(paramType);
+                    if (!env.getAllJavaClasses().contains(paramType)) {
+                        env.setClassListForLooping(paramType);
                     }
                 }
             }
@@ -98,9 +102,13 @@ public class JParameter {
         fieldName = "arg";
     }
 
-    JParameter(Parameter parameter, Class parentClass) {
-        this(parameter.getType(), parentClass);
+    JParameter(Parameter parameter, Class parentClass, BindgenEnv env) {
+        this(parameter.getType(), parentClass, env);
+        List<String> reservedWords = Arrays.asList(BALLERINA_RESERVED_WORDS);
         fieldName = parameter.getName();
+        if (reservedWords.contains(fieldName)) {
+            fieldName = "'" + fieldName;
+        }
     }
 
     private void setArrayAttributes(Class parameterClass) {
@@ -113,8 +121,8 @@ public class JParameter {
                 shortTypeName = getPackageAlias(shortTypeName, component);
             }
             String componentClass = parameterClass.getComponentType().getName();
-            if (!getAllJavaClasses().contains(componentClass)) {
-                setClassListForLooping(componentClass);
+            if (!env.getAllJavaClasses().contains(componentClass)) {
+                env.setClassListForLooping(componentClass);
             }
         } else {
             shortTypeName = getPrimitiveArrayType(type);
@@ -127,10 +135,6 @@ public class JParameter {
             return parameterClass.getPackageName().replace(".", "") + ":" + shortTypeName;
         }
         return shortTypeName;
-    }
-
-    void setHasNext(boolean hasNext) {
-        this.hasNext = hasNext;
     }
 
     Boolean isObjArrayParam() {
@@ -153,23 +157,31 @@ public class JParameter {
         return isString;
     }
 
-    public Boolean getIsObjArray() {
-        return isObjArray;
-    }
-
-    public Boolean getIsPrimitiveArray() {
+    Boolean getIsPrimitiveArray() {
         return isPrimitiveArray;
-    }
-
-    public Boolean getHasNext() {
-        return hasNext;
     }
 
     public String getExternalType() {
         return externalType;
     }
 
-    public Boolean getIsStringArray() {
+    Boolean getIsStringArray() {
         return isStringArray;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getShortTypeName() {
+        return shortTypeName;
+    }
+
+    public Boolean isArray() {
+        return isObjArray || isStringArray || isPrimitiveArray;
+    }
+
+    public Class getParameterClass() {
+        return parameterClass;
     }
 }

@@ -391,8 +391,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
      */
     @Override
     public XmlValue strip() {
-        children.strip();
-        return this;
+       return this;
     }
 
     /**
@@ -414,6 +413,13 @@ public final class XmlItem extends XmlValue implements BXmlItem {
             return new XmlSequence(descendants);
         }
         return children.descendants(qnames);
+    }
+
+    @Override
+    public XmlValue descendants() {
+        List<BXml> descendants = new ArrayList<>();
+        addDescendants(descendants, this);
+        return new XmlSequence(descendants);
     }
 
     /**

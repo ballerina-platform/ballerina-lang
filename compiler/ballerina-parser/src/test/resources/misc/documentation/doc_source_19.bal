@@ -37,3 +37,11 @@ function add3(int 'foo_\u{2345}\u{0376}, int '\u{1324}\u{0387}_var) returns int 
 function add4(int 'foo\ \/\:\@\[\`\{\~, int 'var_\ \/\:\@\[\`\{\~) returns int {
     return 'foo\ \/\:\@\[\`\{\~ + 'var_\ \/\:\@\[\`\{\~;
 }
+
+# Adds parameter `ก` and parameter `\u{E01}`
+# + ก - one thing to be added
+# + \u{E01} - another thing to be added
+# + return - the sum of them
+function add4(int ก, int \u{E01}) returns int {
+    return ก + \u{E01};
+}

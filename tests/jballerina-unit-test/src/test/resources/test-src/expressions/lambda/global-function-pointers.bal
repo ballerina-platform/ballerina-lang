@@ -67,6 +67,16 @@ function test6() returns (string) {
     return glf2("test6", true);
 }
 
+var getIntArray = function () returns int[] {
+                            return [1, 2, 3, 4];
+                        };
+
+function getSalaries(function () returns int[] arrayFunc) returns int[] {
+    return arrayFunc();
+}
+
+int[] salaries = getSalaries(getIntArray);
+
 function testGlobalFunctionTypeDefWithClosures() {
     var expected = 5;
 
@@ -80,6 +90,9 @@ function testGlobalFunctionTypeDefWithClosures() {
     var c = b(6);
     result = c(7);
     assertEquality(expected, result);
+
+    int[] arr = [1, 2, 3, 4];
+    assertEquality(arr, salaries);
 }
 
 const ASSERTION_ERR_REASON = "AssertionError";

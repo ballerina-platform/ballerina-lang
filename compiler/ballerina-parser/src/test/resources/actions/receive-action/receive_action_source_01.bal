@@ -1,8 +1,8 @@
 function foo() {
-    <- default;
+    <- function;
     <- b;
     a = <- b;
     a = <- {a};
     a = <- {a, b:c, d};
-    <- {default, b:default, d};
+    <- {function, b:function, d};
 }

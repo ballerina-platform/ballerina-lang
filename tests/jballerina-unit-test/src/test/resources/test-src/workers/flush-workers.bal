@@ -57,6 +57,7 @@ function flushAll() returns string {
             int a = 10;
 
             var sync = a ->> w2;
+            any|error res = sync;
             a -> w3;
             a -> w2;
             error? result = flush;
@@ -93,56 +94,60 @@ function flushAll() returns string {
         return append2;
 }
 
-function errorTest() returns error? {
-    @strand{thread:"any"}
-    worker w1 returns error?{
-            int a = 10;
+function errorTest() {
+    var inner = function () returns error? {
+        @strand{thread:"any"}
+        worker w1 returns error?{
+                int a = 10;
 
-            var sync = a ->> w2;
-            a -> w3;
-            a -> w2;
-            error? result = flush;
-            foreach var i in 1 ... 5 {
-                append2 = append2 + "w1";
-            }
-            return result;
-        }
-        @strand{thread:"any"}
-        worker w2 returns error?{
-            if(false){
-                 error err = error("err", message = "err msg");
-                 return err;
-            }
-            sleep(5);
-            foreach var i in 1 ... 5 {
-                append2 = append2 + "w2";
-            }
-            int b;
-            b = <- w1;
-            b = <- w1;
-            return;
-        }
-        @strand{thread:"any"}
-        worker w3 returns error|string{
-            sleep(5);
-            int k;
-            foreach var i in 1 ... 5 {
-                append2 = append2 + "w3";
-                k = i;
-            }
-            if(k>3) {
-                map<string> reason = { k1: "error3" };
-                    error er3 = error(reason.get("k1"),  message = "msg3");
-                    return er3;
+                var sync = a ->> w2;
+                any|error res = sync;
+                a -> w3;
+                a -> w2;
+                error? result = flush;
+                foreach var i in 1 ... 5 {
+                    append2 = append2 + "w1";
                 }
+                return result;
+            }
+            @strand{thread:"any"}
+            worker w2 returns error?{
+                if(false){
+                     error err = error("err", message = "err msg");
+                     return err;
+                }
+                sleep(5);
+                foreach var i in 1 ... 5 {
+                    append2 = append2 + "w2";
+                }
+                int b;
+                b = <- w1;
+                b = <- w1;
+                return;
+            }
+            @strand{thread:"any"}
+            worker w3 returns error|string{
+                sleep(5);
+                int k;
+                foreach var i in 1 ... 5 {
+                    append2 = append2 + "w3";
+                    k = i;
+                }
+                if(k>3) {
+                    map<string> reason = { k1: "error3" };
+                        error er3 = error(reason.get("k1"),  message = "msg3");
+                        return er3;
+                    }
 
-            int b;
-            b = <- w1;
-            return "done";
-        }
+                int b;
+                b = <- w1;
+                return "done";
+            }
 
-        error? res = wait w1;
-        return res;
+            error? res = wait w1;
+            return res;
+    };
+    validateError(inner(), "error3");
 }
 
 function panicTest() returns error? {
@@ -151,6 +156,7 @@ function panicTest() returns error? {
             int a = 10;
 
             var sync = a ->> w2;
+            any|error res = sync;
             a -> w3;
             a -> w2;
             error? result = flush;
@@ -197,25 +203,28 @@ function panicTest() returns error? {
         return res;
 }
 
-function flushInDefaultError() returns error? {
-   @strand{thread:"any"}
-   worker w2 returns error? {
-     int a = 0;
-     int b = 15;
-     if (true) {
-       error err = error("err", message = "err msg");
-              return err;
-     }
-     a = <- default;
-     b = a + b;
-     b -> default;
-     return ;
-   }
-   int a = 10;
-    a -> w2;
-    error? res = flush;
-    error|int c = <- w2;
-    return res;
+function flushInDefaultError() {
+    var inner = function () returns error? {
+        @strand{thread:"any"}
+        worker w2 returns error? {
+            int a = 0;
+            int b = 15;
+            if (true) {
+                error err = error("err", message = "err msg");
+                return err;
+            }
+            a = <- function;
+            b = a + b;
+            b -> function;
+            return ;
+        }
+        int a = 10;
+        a -> w2;
+        error? res = flush;
+        error|int c = <- w2;
+        return res;
+    };
+    validateError(inner(), "err");
 }
 
 function flushInDefault() returns int {
@@ -223,9 +232,9 @@ function flushInDefault() returns int {
    worker w2 {
      int a = 0;
      int b = 15;
-     a = <- default;
+     a = <- function;
      b = a + b;
-     b -> default;
+     b -> function;
    }
    int a = 10;
     a -> w2;
@@ -235,5 +244,15 @@ function flushInDefault() returns int {
 }
 
 public function sleep(int millis) = @java:Method {
-    'class: "org.ballerinalang.test.utils.interop.Sleep"
+    'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
+
+function validateError(any|error value, string message) {
+    if (value is error) {
+        if (value.message() == message) {
+            return;
+        }
+        panic error("Expected error message: " + message + ", found: " + value.message());
+    }
+    panic error("Expected error, found: " + (typeof value).toString());
+}

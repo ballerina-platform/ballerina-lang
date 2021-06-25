@@ -79,3 +79,29 @@ function testFloorAsMethodInvok(decimal x) returns decimal {
 function testCeilingAsMethodInvok(decimal x) returns decimal {
     return x.ceiling();
 }
+
+function value() returns decimal|error {
+    return 'decimal:fromString("x");
+}
+
+function testFromStringWithStringArg() {
+    decimal|error res = value();
+    assertEquality(true, res is error);
+
+    error resError = <error> res;
+    assertEquality("'string' value 'x' cannot be converted to 'decimal'", resError.detail().get("message"));
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}

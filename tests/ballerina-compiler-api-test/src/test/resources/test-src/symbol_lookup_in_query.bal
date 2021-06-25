@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function test() {
-    int [] arr1 = [1, 2, 3];
-    int [] arr2 = [1, 2, 3];
+int [] arr1 = [1, 2, 3];
+int [] arr2 = [1, 2, 3];
 
+function test() {
     var res1 = from int i in arr1
                from int j in arr2
                where i == j
@@ -37,16 +37,25 @@ function test() {
                 on i equals j
                 select i + j;
 
-    type Person record {|
-        string firstName;
-        string lastName;
-        int age;
-    |};
-
     Person p1 = {firstName: "Amy", lastName: "Melina", age: 23};
     Person p2 = {firstName: "Frank", lastName: "James", age: 30};
     Person[] personList = [p1, p2];
 
-    var res4 =  from Person p in personList
-                order by
+    var res5 =  from Person p in personList
+                order by p.age
+                select p;
+
+    var res6 =  from int i in (from int k in arr1
+                                   select k)
+                select i;
+
+    var res7 =  from int ii in (from int k in arr1
+                                       select k)
+                join int jj in (from int m in arr2 select m) on
 }
+
+type Person record {|
+    string firstName;
+    string lastName;
+    int age;
+|};

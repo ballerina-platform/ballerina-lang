@@ -59,8 +59,16 @@ public class LangLibValueTest {
 
     @Test void testNegativeCases() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/valuelib_test_negative.bal");
-        assertEquals(negativeResult.getErrorCount(), 1);
-        validateError(negativeResult, 0, "incompatible types: expected 'any', found 'Cloneable'", 21, 13);
+        int index = 0;
+        validateError(negativeResult, index++, "incompatible types: expected 'any', found " +
+                "'ballerina/lang.value:1.0.0:Cloneable'", 21, 13);
+        validateError(negativeResult, index++, "incompatible type for parameter 't' with inferred typedesc value: " +
+                "expected 'typedesc<anydata>', found 'typedesc<MyClass>'", 30, 23);
+        validateError(negativeResult, index++, "incompatible type for parameter 't' with inferred typedesc value: " +
+                "expected 'typedesc<anydata>', found 'typedesc<MyClass>'", 31, 23);
+        validateError(negativeResult, index++, "invalid usage of the 'check' expression operator: " +
+                "no expression type is equivalent to error type", 40, 21);
+        assertEquals(negativeResult.getErrorCount(), index);
     }
 
     @Test
@@ -71,7 +79,7 @@ public class LangLibValueTest {
 
         BMap<String, BString> arr = (BMap<String, BString>) returns[0];
         assertEquals(arr.get("aNil").stringValue(), "null");
-        assertEquals(arr.get("aString").stringValue(), "aString");
+        assertEquals(arr.get("aString").stringValue(), "\"aString\"");
         assertEquals(arr.get("aNumber").stringValue(), "10");
         assertEquals(arr.get("aFloatNumber").stringValue(), "10.5");
         assertEquals(arr.get("anArray").stringValue(), "[\"hello\", \"world\"]");
@@ -222,6 +230,11 @@ public class LangLibValueTest {
     }
 
     @Test
+    public void testXMLToStringWithXMLTextContainingAngleBrackets() {
+        BRunUtil.invoke(compileResult, "testXMLWithAngleBrackets");
+    }
+
+    @Test
     public void testToStringForTable() {
         BRunUtil.invokeFunction(compileResult, "testToStringMethodForTable");
     }
@@ -291,7 +304,7 @@ public class LangLibValueTest {
 
     @Test(dataProvider = "cloneWithTypeFunctions")
     public void testCloneWithType(String function) {
-        BValue[] returns = BRunUtil.invoke(compileResult, function);
+        BRunUtil.invoke(compileResult, function);
     }
 
     @DataProvider(name = "cloneWithTypeFunctions")
@@ -310,7 +323,13 @@ public class LangLibValueTest {
                 { "testCloneWithTypeNumeric5" },
                 { "testCloneWithTypeNumeric6" },
                 { "testCloneWithTypeNumeric7" },
-                { "testCloneWithTypeStringArray" }
+                { "testCloneWithTypeStringArray" },
+                { "testCloneWithTypeWithInferredArgument" },
+                { "testCloneWithTypeWithImmutableTypes" },
+                { "testCloneWithTypeDecimalToInt"},
+                {"testCloneWithTypeDecimalToIntNegative"},
+                { "testCloneWithTypeDecimalToByte"},
+                { "testCloneWithTypeDecimalToIntSubType"},
         };
     }
 
@@ -343,7 +362,9 @@ public class LangLibValueTest {
                 { "tesFromJsonWithTypeMapWithDecimal" },
                 { "testConvertJsonToAmbiguousType" },
                 { "testFromJsonWithTypeWithNullValues" },
-                { "testFromJsonWithTypeWithNullValuesNegative" }
+                { "testFromJsonWithTypeWithNullValuesNegative" },
+                { "testFromJsonWithTypeWithInferredArgument" },
+                { "testFromJsonWithTypeWithTypeReferences" }
         };
     }
 
@@ -362,6 +383,7 @@ public class LangLibValueTest {
                 { "testFromJsonStringWithTypeStringArray" },
                 { "testFromJsonStringWithTypeArrayNegative" },
                 { "testFromJsonStringWithTypeIntArray" },
+                { "testFromJsonStringWithTypeWithInferredArgument" }
         };
     }
 
@@ -386,9 +408,17 @@ public class LangLibValueTest {
         };
     }
 
-    @Test
-    public void testEnsureType() {
-        BRunUtil.invokeFunction(compileResult, "testEnsureType");
+    @Test(dataProvider = "ensureTypeFunctions")
+    public void testEnsureType(String function) {
+        BRunUtil.invokeFunction(compileResult, function);
+    }
+
+    @DataProvider(name = "ensureTypeFunctions")
+    public Object[][] ensureTypeFunctions() {
+        return new Object[][] {
+                { "testEnsureType" },
+                { "testEnsureTypeWithInferredArgument" }
+        };
     }
 
     @Test

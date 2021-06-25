@@ -20,11 +20,26 @@
     <Match>
         <Or>
             <And>
-                <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
-                <And>
-                    <Class name="org.ballerinalang.debugadapter.JBallerinaDebugServer"/>
-                    <Method name="evaluate"/>
-                </And>
+                <Class name="org.ballerinalang.debugadapter.JBallerinaDebugServer"/>
+                <Or>
+                    <Bug pattern="DM_EXIT"/>
+                    <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+                    <And>
+                        <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
+                        <Method name="evaluate"/>
+                    </And>
+                    <And>
+                        <Bug pattern="DE_MIGHT_IGNORE"/>
+                        <Method name="terminateServer"/>
+                    </And>
+                    <And>
+                        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+                        <Or>
+                            <Method name="attach"/>
+                            <Method name="launch"/>
+                        </Or>
+                    </And>
+                </Or>
             </And>
             <And>
                 <Bug pattern="REC_CATCH_EXCEPTION"/>
@@ -35,6 +50,10 @@
                     <Class name="org.ballerinalang.debugadapter.evaluation.DebugExpressionCompiler"/>
                     <Method name="validateForCompilationErrors"/>
                 </And>
+            </And>
+            <And>
+                <Bug pattern="BC_UNCONFIRMED_CAST"/>
+                <Class name="org.ballerinalang.debugadapter.evaluation.engine.expression.MethodCallExpressionEvaluator"/>
             </And>
         </Or>
     </Match>

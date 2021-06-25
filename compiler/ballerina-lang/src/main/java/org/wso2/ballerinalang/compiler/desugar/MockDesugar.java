@@ -156,7 +156,7 @@ public class MockDesugar {
             generatedMock.restParam = generateRestParam();                  // Rest Param
             generatedMock.returnTypeNode = generateReturnTypeNode();        // Return Type Node
             generatedMock.body = generateBody();                            // Body
-            generatedMock.type = generateSymbolInvokableType();             // Invokable Type
+            generatedMock.setBType(generateSymbolInvokableType());             // Invokable Type
             generatedMock.symbol = generateSymbol(functionName);            // Invokable Symbol
         } else {
             throw new IllegalStateException("Mock Function and Function to Mock cannot be null");
@@ -262,7 +262,7 @@ public class MockDesugar {
         BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
         typeNode.pos = this.bLangPackage.pos;
         typeNode.typeKind = this.importFunction.retType.getKind();
-        typeNode.type = this.importFunction.retType;
+        typeNode.setBType(this.importFunction.retType);
 
         return typeNode;
     }
@@ -354,9 +354,9 @@ public class MockDesugar {
 
         bLangFieldBasedAccess.fieldKind = FieldKind.SINGLE;
         bLangFieldBasedAccess.originalType = fieldType;
-        bLangFieldBasedAccess.lhsVar = true;
+        bLangFieldBasedAccess.isLValue = true;
         bLangFieldBasedAccess.expectedType = fieldType;
-        bLangFieldBasedAccess.type = fieldType;
+        bLangFieldBasedAccess.setBType(fieldType);
 
         return bLangFieldBasedAccess;
     }
@@ -398,7 +398,7 @@ public class MockDesugar {
         BLangTypeConversionExpr typeConversionExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         typeConversionExpr.pos = bLangInvocation.pos;
         typeConversionExpr.expr = bLangInvocation;
-        typeConversionExpr.type = target;
+        typeConversionExpr.setBType(target);
         typeConversionExpr.targetType = target;
 
         return typeConversionExpr;
@@ -415,7 +415,7 @@ public class MockDesugar {
                 bLangPackage.pos, invokableSymbol, requiredArgs, symResolver);
         bLangInvocation.pkgAlias = (BLangIdentifier) createIdentifier("test");
         bLangInvocation.argExprs = argsExprs;
-        bLangInvocation.expectedType = bLangInvocation.type;
+        bLangInvocation.expectedType = bLangInvocation.getBType();
         bLangInvocation.restArgs = restArgs;
 
         return bLangInvocation;
@@ -543,7 +543,7 @@ public class MockDesugar {
         if (originalFunction == null) {
             type = this.importFunction.retType;
         } else {
-            type = ((BInvokableType) this.originalFunction.type).retType;
+            type = ((BInvokableType) this.originalFunction.getBType()).retType;
         }
 
         return type;

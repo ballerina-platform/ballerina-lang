@@ -85,6 +85,11 @@ public class FunctionPointersTest {
         Assert.assertEquals(returns[0].stringValue(), "test5 string1.0");
     }
 
+    @Test
+    public void testUnionLambdaAsReturnParameter() {
+        BRunUtil.invoke(fpProgram, "testUnionLambdaAsReturnParameter");
+    }
+
 
     @Test
     public void testNestedFunctionPointersAsParameters() {
@@ -268,7 +273,7 @@ public class FunctionPointersTest {
     @Test(expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError " +
                     "\\{\"message\":\"incompatible types: " +
-                    "'function \\(Student\\) returns \\(int\\)' cannot be cast to 'function \\(Person\\)" +
+                    "'isolated function \\(Student\\) returns \\(int\\)' cannot be cast to 'function \\(Person\\)" +
                     " returns \\(int\\)'.*")
     public void testAnyToFuncPointerConversion_2() {
         BRunUtil.invoke(fpProgram, "testAnyToFuncPointerConversion_2");

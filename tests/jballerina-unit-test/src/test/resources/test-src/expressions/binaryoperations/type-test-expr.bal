@@ -1097,7 +1097,119 @@ public function testXMLNeverType() {
 
 function testXMLTextType(){
     'xml:Text t = xml `foo`;
-    assertEquality(<any> t is string, true);
+    assertEquality(<any> t is string, false);
+}
+
+function testRecordIntersections() {
+    Baz|int val = 11;
+    assertFalse(val is Bar);
+
+    Baz|int val2 = {};
+    assertFalse(val2 is Bar);
+
+    Baz|int val3 = <Bar> {code: new};
+    assertTrue(val3 is Bar);
+
+    Bar val4 = {code: new};
+    assertFalse(val4 is Foo);
+
+    Bar val5 = <Foo> {code: new, index: 0};
+    assertTrue(val5 is Foo);
+
+    OpenRecordWithIntField val6 = {i: 1, "s": "hello"};
+    assertFalse(val6 is record {| int i; string s; |});
+
+    record {| int i; string s; |} v = {i: 2, s: "world"};
+    OpenRecordWithIntField val7 = v;
+    assertTrue(val7 is record {| int i; string s; |});
+
+    ClosedRecordWithIntField val8 = {i: 10};
+    assertFalse(val8 is record {| byte i; |});
+    assertTrue(<any> val8 is record {});
+    assertTrue(<any> val8 is record {| int...; |});
+
+    int|ClosedRecordWithIntField val9 = <record {| byte i; |}> {i: 10};
+    assertTrue(val9 is record {| byte i; |});
+    assertTrue(val9 is record {});
+    assertTrue(val9 is record {| int...; |});
+}
+
+type Baz record {|
+    anydata|object {}...;
+|};
+
+type Bar record {
+    readonly Class code = new;
+};
+
+readonly class Class {
+
+}
+
+type Foo record {|
+    readonly Class code;
+    int index;
+|};
+
+type OpenRecordWithIntField record {
+    int i;
+};
+
+type ClosedRecordWithIntField record {|
+    int i;
+|};
+
+type RecordWithIntFieldAndNeverField record {|
+    int i;
+    never j?;
+|};
+
+type RecordWithIntFieldAndEffectivelyNeverField record {|
+    int i;
+    [never, int] j?;
+|};
+
+type OpenRecordWithIntFieldAndEffectivelyNeverRestField record {|
+    int i;
+    [never]...;
+|};
+
+function testRecordIntersectionWithEffectivelyNeverFields() {
+    RecordWithIntFieldAndNeverField rec = {i: 1};
+    assertTrue(rec is ClosedRecordWithIntField);
+    assertTrue(rec is OpenRecordWithIntFieldAndEffectivelyNeverRestField);
+
+    RecordWithIntFieldAndEffectivelyNeverField rec2 = {i: 1};
+    assertTrue(rec2 is ClosedRecordWithIntField);
+    assertTrue(rec2 is OpenRecordWithIntFieldAndEffectivelyNeverRestField);
+
+    OpenRecordWithIntFieldAndEffectivelyNeverRestField rec3 = {i: 1};
+    assertTrue(rec3 is record {| int...; |});
+
+    record {| int...; |} rec4 = {"i": 1};
+    assertFalse(rec4 is OpenRecordWithIntFieldAndEffectivelyNeverRestField);
+    assertFalse(rec4 is ClosedRecordWithIntField);
+}
+
+type Foo2 record {|
+    function (int, int) returns int x?;
+    boolean y?;
+|};
+
+function sum(int a, int b) returns int {
+    return a + b;
+} 
+
+function recordIntersectionWithFunctionFields() returns boolean {
+    record {| function (int, int) returns int x; boolean y; int i?; |} rec = {x: sum, y: true};
+    if (rec is Foo2) {
+        return true;
+    }
+    return false;
+}
+
+function testRecordIntersectionWithFunctionFields() {
+    assertFalse(recordIntersectionWithFunctionFields());
 }
 
 function assertTrue(anydata actual) {

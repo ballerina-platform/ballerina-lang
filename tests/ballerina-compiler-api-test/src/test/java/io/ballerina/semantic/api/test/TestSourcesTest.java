@@ -58,7 +58,7 @@ public class TestSourcesTest {
     public void setup() {
         Project project = BCompileUtil.loadProject("test-src/test-project");
         Module baz = getModule(project, "baz");
-        model = baz.getCompilation().getSemanticModel();
+        model = project.currentPackage().getCompilation().getSemanticModel(baz.moduleId());
         DocumentId id = baz.testDocumentIds().iterator().next();
         srcFile = baz.document(id);
     }
@@ -71,7 +71,7 @@ public class TestSourcesTest {
             assertNull(expSymbolName);
         }
 
-        assertEquals(symbol.get().name(), expSymbolName);
+        assertEquals(symbol.get().getName().get(), expSymbolName);
     }
 
     @DataProvider(name = "SymbolPosProvider")
@@ -86,8 +86,13 @@ public class TestSourcesTest {
     @Test(dataProvider = "VisibleSymbolPosProvider")
     public void testVisibleSymbols(int line, int col, List<String> expSymbols) {
         List<Symbol> symbols = model.visibleSymbols(srcFile, from(line, col)).stream()
-                .filter(sym -> sym.moduleID().moduleName().equals("semapi.baz") ||
-                        !sym.moduleID().moduleName().startsWith("lang."))
+                .filter(sym -> {
+                    if (sym.getModule().isEmpty()) {
+                        return false;
+                    }
+                    String moduleName = sym.getModule().get().id().moduleName();
+                    return moduleName.equals("semapi.baz") || !moduleName.startsWith("lang.");
+                })
                 .collect(Collectors.toList());
 
         assertEquals(symbols.size(), expSymbols.size());

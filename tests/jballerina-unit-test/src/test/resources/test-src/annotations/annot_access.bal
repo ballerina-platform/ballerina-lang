@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'object as lang;
-
 type Annot record {
     string foo;
     int bar?;
@@ -25,7 +23,7 @@ public annotation Annot v1 on type, class;
 annotation Annot[] v2 on class;
 public annotation Annot v3 on function;
 annotation map<int> v4 on object function;
-public annotation map<string> v5 on resource function;
+public annotation map<string> v5 on object function;
 annotation Annot v6 on parameter;
 public annotation v7 on return;
 annotation Annot[] v8 on service;
@@ -124,6 +122,9 @@ listener Listener lis = new;
 
 string v8a = "v8a";
 
+type ser service object {
+};
+
 @v8 {
     foo: v8a
 }
@@ -138,7 +139,7 @@ service ser on lis {
     @v5 {
         val: "54"
     }
-    resource function res(@v6 { foo: "v64" } int intVal) returns @v7 () {
+    resource function get res(@v6 { foo: "v64" } int intVal) returns @v7 () {
         return;
     }
 }
@@ -163,14 +164,14 @@ function testServiceAnnotAccess2() returns boolean {
     return annot is ();
 }
 
-service serTwo = @v8 {
+service object {} serTwo = @v8 {
                      foo: "v82"
-                 } service {
+                 } service object {
 
     @v5 {
         val: "542"
     }
-    resource function res(@v6 { foo: "v642" } int intVal) returns @v7 error? {
+    resource function get res(@v6 { foo: "v642" } int intVal) returns @v7 error? {
         return;
     }
 };
@@ -218,15 +219,13 @@ function testFunctionAnnotAccess2() returns boolean {
 }
 
 class Listener {
-    *lang:Listener;
-
     public function init() {
     }
 
-    public function attach(service object {} s, string[]? name)string? name = ()) returns error? {
+    public function attach(service object {} s, string[]|string? name = ()) returns error? {
     }
 
-    public function __detach(service s) returns error? {
+    public function detach(service object {} s) returns error? {
     }
 
     public function 'start() returns error? {
@@ -241,8 +240,87 @@ class Listener {
     }
 }
 
-// TODO: #17936
-//public function testInlineAnnotAccess() returns boolean {
-//    Annot? f = (typeof a).@v1;
-//    return f is Annot;
-//}
+public function testInlineAnnotAccess() returns boolean {
+    Annot? f = (typeof a).@v1;
+    return f is Annot;
+}
+
+type A record {|
+    string val = "ABC";
+|};
+
+public annotation A v9 on function;
+
+@v9
+function myFunction1() {
+
+}
+
+function testAnnotWithEmptyMappingConstructor1() returns boolean {
+    typedesc<any> t = typeof myFunction1;
+    A? annot = t.@v9;
+    if (annot is A) {
+        return annot.val == "ABC";
+    }
+    return false;
+}
+
+public annotation map<string> v10 on function;
+
+@v10
+function myFunction2() {
+
+}
+
+function testAnnotWithEmptyMappingConstructor2() returns boolean {
+    typedesc<any> t = typeof myFunction2;
+    map<string>? annot = t.@v10;
+    if (annot is map<string>) {
+        return annot == {};
+    }
+    return false;
+}
+
+public annotation map<string>[] v11 on function;
+
+@v11
+@v11
+function myFunction3() {
+
+}
+
+function testAnnotWithEmptyMappingConstructor3() returns boolean {
+    typedesc<any> t = typeof myFunction3;
+    map<string>[]? annot = t.@v11;
+    if (annot is map<string>[]) {
+        if (annot.length() != 2) {
+            return false;
+        }
+        map<string> annot1 = annot[0];
+        map<string> annot2 = annot[1];
+        return annot1 == {} && annot2 == {};
+    }
+    return false;
+}
+
+public annotation A[] v12 on function;
+
+@v12
+@v12
+function myFunction4() {
+
+}
+
+function testAnnotWithEmptyMappingConstructor4() returns boolean {
+    typedesc<any> t = typeof myFunction4;
+    A[]? annot = t.@v12;
+    if (annot is A[]) {
+        if (annot.length() != 2) {
+            return false;
+        }
+        A annot1 = annot[0];
+        A annot2 = annot[1];
+        return annot1.val == "ABC" && annot2.val == "ABC";
+    }
+    return false;
+}

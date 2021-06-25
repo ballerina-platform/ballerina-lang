@@ -29,12 +29,14 @@ import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
@@ -209,39 +211,27 @@ public class ArrayTest {
         Assert.assertEquals(value.intValue(), 4);
     }
 
-    @Test
-    public void createAbstractObjectEmptyArray() {
-        BRunUtil.invokeFunction(compileResult, "createAbstractObjectEmptyArray");
+    @Test(dataProvider = "functionNamesProvider")
+    public void testInvokeFunctions(String funcName) {
+        BRunUtil.invokeFunction(compileResult, funcName);
+    }
+
+    @DataProvider(name = "functionNamesProvider")
+    public Object[] getFunctionNames() {
+        return new String[]{"createAbstractObjectEmptyArray", "testObjectDynamicArrayFilling",
+                "testMultidimensionalArrayString", "testArrayMapString", "testArrayUnionType", "testArrayTupleType",
+                "testUpdatingJsonTupleViaArrayTypedVar", "testVarArgsArray"};
     }
 
     @Test
-    public void testObjectDynamicArrayFilling() {
-        BRunUtil.invokeFunction(compileResult, "testObjectDynamicArrayFilling");
-    }
-
-    @Test
-    public void testMultidimensionalArrayString() {
-        BRunUtil.invokeFunction(compileResult, "testMultidimensionalArrayString");
-    }
-
-    @Test
-    public void testArrayMapString() {
-        BRunUtil.invokeFunction(compileResult, "testArrayMapString");
-    }
-
-    @Test
-    public void testArrayUnionType() {
-        BRunUtil.invokeFunction(compileResult, "testArrayUnionType");
-    }
-
-    @Test
-    public void testArrayTupleType() {
-        BRunUtil.invokeFunction(compileResult, "testArrayTupleType");
-    }
-
-    @Test
-    public void testUpdatingJsonTupleViaArrayTypedVar() {
-        BRunUtil.invokeFunction(compileResult, "testUpdatingJsonTupleViaArrayTypedVar");
+    public void testArraysWithSyntaxErrors() {
+        CompileResult compileResultNegative =
+                BCompileUtil.compile("test-src/statements/arrays/array_test_negative.bal");
+        int index = 0;
+        BAssertUtil.validateError(compileResultNegative, index++, "invalid token '*'", 18, 12);
+        BAssertUtil.validateError(compileResultNegative, index++, "invalid token '2'", 18, 12);
+        BAssertUtil.validateError(compileResultNegative, index++, "invalid token 'wed2'", 20, 12);
+        Assert.assertEquals(compileResultNegative.getErrorCount(), index);
     }
 
     @AfterClass

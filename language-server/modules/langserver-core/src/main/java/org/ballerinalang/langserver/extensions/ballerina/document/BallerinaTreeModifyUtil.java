@@ -23,6 +23,7 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
@@ -34,7 +35,6 @@ import org.ballerinalang.diagramutil.JSONGenerationException;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedNodeVisitor;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedSymbolsVisitor;
 
 import java.nio.file.Path;
@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 /**
@@ -62,46 +63,7 @@ public class BallerinaTreeModifyUtil {
 
     private static final Map<String, String> typeMapping = new HashMap<String, String>() {{
         put("DELETE", "");
-        put("IMPORT", "import $TYPE;\n");
-        put("DECLARATION", "$TYPE $VARIABLE = new ($PARAMS);\n");
-        put("REMOTE_SERVICE_CALL_CHECK", "$TYPE $VARIABLE = checkpanic $CALLER->$FUNCTION($PARAMS);\n");
-        put("REMOTE_SERVICE_CALL", "$TYPE $VARIABLE = $CALLER->$FUNCTION($PARAMS);\n");
-        put("SERVICE_CALL_CHECK", "$TYPE $VARIABLE = checkpanic $CALLER.$FUNCTION($PARAMS);\n");
-        put("SERVICE_CALL", "$TYPE $VARIABLE = $CALLER.$FUNCTION($PARAMS);\n");
-        put("MAIN_START", "$COMMENTpublic function main() {\n");
-        put("MAIN_START_MODIFY", "$COMMENTpublic function main() {");
-        put("MAIN_END", "\n}\n");
-        put("SERVICE_START", "@http:ServiceConfig {\n\tbasePath: \"/\"\n}\n" +
-                "service $SERVICE on new http:Listener($PORT) {\n" +
-                "@http:ResourceConfig {\n\tmethods: [$METHODS],\npath: \"/$RES_PATH\"\n}\n" +
-                "    resource function $RESOURCE(http:Caller caller, http:Request req) {\n\n");
-        put("SERVICE_START_MODIFY", "@http:ServiceConfig {\n\tbasePath: \"/\"\n}\n" +
-                "service $SERVICE on new http:Listener($PORT) {\n" +
-                "@http:ResourceConfig {\n\tmethods: [$METHODS],\npath: \"/$RES_PATH\"\n}\n" +
-                "    resource function $RESOURCE(http:Caller caller, http:Request req) {");
-        put("SERVICE_END",
-                "    }\n" +
-                        "}\n");
-        put("IF_STATEMENT", "if ($CONDITION) {\n" +
-                "\n} else {\n\n}\n");
-        put("IF_STATEMENT_CONDITION", "($CONDITION)");
-        put("FOREACH_STATEMENT", "foreach $TYPE $VARIABLE in $COLLECTION {\n" +
-                "\n}\n");
-        put("FOREACH_STATEMENT_CONDITION", "$VARIABLE in $COLLECTION");
-        put("LOG_STATEMENT", "log:print$TYPE($LOG_EXPR);\n");
-        put("PROPERTY_STATEMENT", "$PROPERTY\n");
-        put("RESPOND", "$TYPE $VARIABLE = $CALLER->respond($EXPRESSION);\n");
-        put("TYPE_GUARD_IF", "if($VARIABLE is $TYPE) {\n" +
-                "$STATEMENT" +
-                "\n}\n");
-        put("TYPE_GUARD_ELSE_IF", "else if($VARIABLE is $TYPE) {\n" +
-                "\n}\n");
-        put("TYPE_GUARD_ELSE", " else {\n" +
-                "\n}\n");
-        put("RESPOND_WITH_CHECK", "checkpanic $CALLER->respond(<@untainted>$EXPRESSION);\n");
-        put("PROPERTY_STATEMENT", "$PROPERTY\n");
-        put("RETURN_STATEMENT", "return $RETURN_EXPR;\n");
-        put("CHECKED_PAYLOAD_FUNCTION_INVOCATION", "$TYPE $VARIABLE = checkpanic $RESPONSE.$PAYLOAD();\n");
+        put("INSERT", "$STATEMENT");
     }};
 
     public static String resolveMapping(String type, JsonObject config) {
@@ -128,7 +90,7 @@ public class BallerinaTreeModifyUtil {
             } else {
                 value = entry.getValue().getAsString();
             }
-            mapping = mapping.replaceAll("\\$" + key, value);
+            mapping = mapping.replaceAll("\\$" + key, Matcher.quoteReplacement(value));
         }
         return mapping;
     }
@@ -211,7 +173,7 @@ public class BallerinaTreeModifyUtil {
 
         List<TextEdit> edits = new ArrayList<>();
         List<ASTModification> importModifications = Arrays.stream(astModifications)
-                .filter(astModification -> IMPORT.equalsIgnoreCase(astModification.getType()))
+                .filter(ASTModification::isImport)
                 .collect(Collectors.toList());
         for (ASTModification importModification : importModifications) {
             if (importExist(unusedSymbolsVisitor, importModification)) {
@@ -227,7 +189,7 @@ public class BallerinaTreeModifyUtil {
                 oldTextDocument));
 
         for (ASTModification astModification : astModifications) {
-            if (!IMPORT.equalsIgnoreCase(astModification.getType())) {
+            if (!astModification.isImport()) {
                 TextEdit edit = constructEdit(unusedSymbolsVisitor, oldTextDocument, astModification);
                 if (edit != null) {
                     edits.add(edit);
@@ -270,12 +232,10 @@ public class BallerinaTreeModifyUtil {
         // Update file
         Document updatedDoc = document.get().modify().withContent(content).apply();
         // Update project instance
-        return updatedDoc.module().getCompilation().getSemanticModel();
-    }
 
-    private static boolean importExist(UnusedNodeVisitor unusedNodeVisitor, ASTModification astModification) {
-        String importValue = BallerinaTreeModifyUtil.getImport(astModification.getConfig());
-        return importValue != null && unusedNodeVisitor.usedImports().contains(importValue);
+        PackageCompilation packageCompilation = updatedDoc.module().packageInstance().getCompilation();
+        SemanticModel semanticModel = packageCompilation.getSemanticModel(updatedDoc.module().moduleId());
+        return semanticModel;
     }
 
     private static boolean importExist(UnusedSymbolsVisitor unusedSymbolsVisitor, ASTModification astModification) {

@@ -33,8 +33,7 @@ dependencies {
         exclude group: 'jaxen', module: 'jaxen'
     }
     implementation 'org.apache.commons:commons-lang3'
-    implementation 'io.opentracing:opentracing-api'
-    implementation 'io.opentracing:opentracing-noop'
+    implementation 'io.opentelemetry:opentelemetry-api'
     implementation ('org.awaitility:awaitility') {
         exclude group: 'org.hamcrest', module: 'hamcrest-core'
     }

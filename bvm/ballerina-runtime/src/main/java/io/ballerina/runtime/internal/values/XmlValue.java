@@ -186,6 +186,15 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
         }
     }
 
+    protected void addDescendants(List<BXml> descendants, XmlItem currentElement) {
+        for (BXml child : currentElement.getChildrenSeq().getChildrenList()) {
+            descendants.add(child);
+            if (child.getNodeType() == XmlNodeType.ELEMENT) {
+                addDescendants(descendants, (XmlItem) child);
+            }
+        }
+    }
+
     // TODO: These are bridge methods to invoke methods in BXML interface
     // Fix in the JVM code gen to directly call overridden BXML methods
     public void addChildren(XmlValue seq) {

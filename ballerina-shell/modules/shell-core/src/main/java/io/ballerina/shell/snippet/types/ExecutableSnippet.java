@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,9 +18,7 @@
 
 package io.ballerina.shell.snippet.types;
 
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.shell.snippet.Snippet;
-import io.ballerina.shell.snippet.SnippetSubKind;
 
 /**
  * Represents a snippet that is executable.
@@ -29,8 +27,5 @@ import io.ballerina.shell.snippet.SnippetSubKind;
  *
  * @since 2.0.0
  */
-public abstract class ExecutableSnippet extends Snippet {
-    protected ExecutableSnippet(SnippetSubKind subKind, Node rootNode) {
-        super(subKind, rootNode);
-    }
+public interface ExecutableSnippet extends Snippet {
 }

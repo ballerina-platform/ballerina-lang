@@ -20,8 +20,6 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -29,18 +27,11 @@ import org.testng.annotations.Test;
  */
 public class BasicWorkerActionsNegativeTest {
 
-    private CompileResult resultNegative, resultSemanticsNegative;
-
-    @BeforeClass
-    public void setup() {
-        resultNegative = BCompileUtil.compile("test-src/workers/actions-negative.bal");
-        resultSemanticsNegative = BCompileUtil.compile("test-src/workers/actions-semantics-negative.bal");
-    }
-
-    @Test(description = "Test negative scenarios of worker actions", groups = {"disableOnOldParser"})
+    @Test(description = "Test negative scenarios of worker actions")
     public void testWorkerActionsSemanticsNegative() {
         int index = 0;
-        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 5, "Worker actions semantics negative test error" +
+        CompileResult resultSemanticsNegative = BCompileUtil.compile("test-src/workers/actions-semantics-negative.bal");
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 9, "Worker actions semantics negative test error" +
                 " count");
         BAssertUtil.validateError(resultSemanticsNegative, index++,
                 "invalid type for worker send 'Person', expected value:Cloneable", 44, 22);
@@ -49,45 +40,95 @@ public class BasicWorkerActionsNegativeTest {
                 61, 9);
         BAssertUtil.validateError(resultSemanticsNegative, index++,
                 "action invocation as an expression not allowed here", 78, 15);
-        BAssertUtil.validateError(resultSemanticsNegative, index,
+        BAssertUtil.validateError(resultSemanticsNegative, index++,
                 "invalid usage of receive expression, var not allowed", 112, 21);
+        BAssertUtil.validateError(resultSemanticsNegative, index++,
+                "missing identifier", 139, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, index++,
+                "missing identifier", 143, 12);
+        BAssertUtil.validateError(resultSemanticsNegative, index++,
+                "invalid token 'int'", 143, 16);
+        BAssertUtil.validateError(resultSemanticsNegative, index,
+                "incomplete quoted identifier", 147, 12);
     }
 
     @Test(description = "Test negative scenarios of worker actions")
     public void testNegativeWorkerActions() {
         int index = 0;
-
+        CompileResult resultNegative = BCompileUtil.compile("test-src/workers/actions-negative.bal");
         BAssertUtil.validateError(resultNegative, index++, "invalid worker flush expression for 'w1', there are no " +
-                "worker send statements to 'w1' from 'w3'", 61, 17);
-        BAssertUtil.validateError(resultNegative, index++, "invalid worker send statement position, must be a top " +
-                "level statement in a worker", 74, 13);
+                "worker send statements to 'w1' from 'w3'", 62, 17);
+        BAssertUtil.validateError(resultNegative, index++, "worker send statement position not supported yet, " +
+                "must be a top level statement in a worker", 76, 13);
         BAssertUtil.validateError(resultNegative, index++, "invalid worker receive statement position, must be a " +
-                "top level statement in a worker", 81, 19);
+                "top level statement in a worker", 83, 19);
         BAssertUtil.validateError(resultNegative, index++, "invalid worker flush expression for 'w2', there are no " +
-                "worker send statements to 'w2' from 'w1'", 91, 22);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wy'", 142, 26);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wiy'", 153, 28);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wix'", 159, 26);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 160, 26);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 166, 26);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 167, 21);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'lw1'", 172, 22);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wy'", 196, 30);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wy'", 198, 26);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wiy'", 210, 32);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wix'", 216, 30);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 217, 30);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 218, 75);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 226, 30);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 227, 25);
+                "worker send statements to 'w2' from 'w1'", 93, 25);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 144, 26);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 161, 26);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 162, 26);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 166, 29);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 167, 25);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 168, 26);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 169, 21);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 190, 17);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 198, 30);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 200, 26);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 218, 30);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 219, 30);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 220, 75);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 226, 33);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 227, 29);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 228, 30);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 229, 25);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 231, 21);
+
+        String notSupportedMsg = "worker send statement position not supported yet, " +
+                "must be a top level statement in a worker";
+
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 244, 13);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 246, 17);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 252, 13);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 253, 13);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 257, 13);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 258, 13);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 263, 17);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 266, 17);
+        BAssertUtil.validateError(resultNegative, index++, "undefined worker 'w1'", 271, 26);
+        BAssertUtil.validateError(resultNegative, index++,
+                "invalid worker receive statement position, must be a top level statement in a worker", 278, 21);
+        BAssertUtil.validateError(resultNegative, index++,
+                "invalid worker receive statement position, must be a top level statement in a worker", 283, 19);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 290, 26);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 292, 30);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 298, 26);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 299, 26);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 303, 26);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 304, 26);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 309, 30);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 312, 30);
+        BAssertUtil.validateError(resultNegative, index++, "undefined worker 'w1'", 317, 39);
+        BAssertUtil.validateError(resultNegative, index++,
+                "invalid worker receive statement position, must be a top level statement in a worker", 324, 34);
+        BAssertUtil.validateError(resultNegative, index++,
+                "invalid worker receive statement position, must be a top level statement in a worker", 329, 32);
 
         Assert.assertEquals(resultNegative.getErrorCount(), index, "Worker actions negative test error count");
-
     }
 
-    @AfterClass
-    public void tearDown() {
-        resultNegative = null;
-        resultSemanticsNegative = null;
+    private String formatMessage(String workerName) {
+        return String.format(
+                "multiple references to a named worker '%s' as a variable reference is not allowed", workerName);
+    }
+
+    @Test
+    public void testAsyncSendAsExpression() {
+        // TODO: support async send as expression issue #24849
+        CompileResult compileResult = BCompileUtil.compile("test-src/workers/worker_async_send_as_expression.bal");
+        int index = 0;
+        BAssertUtil.validateError(compileResult, index++, "async send action not yet supported as expression",
+                19, 16);
+
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }

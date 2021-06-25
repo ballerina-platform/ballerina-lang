@@ -82,6 +82,11 @@ public class RecordTypeDefinitionTest extends AbstractDeclarationTest {
         test("record-type-def/record_type_def_source_22.bal", "record-type-def/record_type_def_assert_22.json");
         test("record-type-def/record_type_def_source_23.bal", "record-type-def/record_type_def_assert_23.json");
     }
+
+    @Test
+    public void testRestDescriptorInsideOpenRecord() {
+        testFile("record-type-def/record_type_def_source_27.bal", "record-type-def/record_type_def_assert_27.json");
+    }
     
     // Recovery tests
 
@@ -127,7 +132,7 @@ public class RecordTypeDefinitionTest extends AbstractDeclarationTest {
 
     @Test
     public void testRecordFieldsAfterRestField() {
-        test("record-type-def/record_type_def_source_20.bal", "record-type-def/record_type_def_assert_20.json");
+        testFile("record-type-def/record_type_def_source_20.bal", "record-type-def/record_type_def_assert_20.json");
     }
     
     @Test

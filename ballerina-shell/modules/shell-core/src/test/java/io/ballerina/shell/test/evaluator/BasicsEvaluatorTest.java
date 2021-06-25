@@ -35,6 +35,7 @@ public class BasicsEvaluatorTest extends AbstractEvaluatorTest {
     private static final String BASICS_DEF_PARAMS_TESTCASE = "testcases/evaluator/basics.params.def.json";
     private static final String BASICS_REST_PARAMS_TESTCASE = "testcases/evaluator/basics.params.rest.json";
     private static final String BASICS_QUOTED_TESTCASE = "testcases/evaluator/basics.quoted.json";
+    private static final String BASICS_ERRORS_TESTCASE = "testcases/evaluator/basics.errors.json";
 
     @Test
     public void testBasicsModules() throws BallerinaShellException {
@@ -75,5 +76,10 @@ public class BasicsEvaluatorTest extends AbstractEvaluatorTest {
     @Test
     public void testEvaluateBasicsQuoted() throws BallerinaShellException {
         testEvaluate(BASICS_QUOTED_TESTCASE);
+    }
+
+    @Test
+    public void testEvaluateBasicsErrors() throws BallerinaShellException {
+        testEvaluate(BASICS_ERRORS_TESTCASE);
     }
 }

@@ -20,6 +20,7 @@ package io.ballerina.compiler.syntax.tree;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -40,8 +41,8 @@ public class FunctionTypeDescriptorNode extends TypeDescriptorNode {
         return childInBucket(1);
     }
 
-    public FunctionSignatureNode functionSignature() {
-        return childInBucket(2);
+    public Optional<FunctionSignatureNode> functionSignature() {
+        return optionalChildInBucket(2);
     }
 
     @Override
@@ -98,7 +99,7 @@ public class FunctionTypeDescriptorNode extends TypeDescriptorNode {
             this.oldNode = oldNode;
             this.qualifierList = oldNode.qualifierList();
             this.functionKeyword = oldNode.functionKeyword();
-            this.functionSignature = oldNode.functionSignature();
+            this.functionSignature = oldNode.functionSignature().orElse(null);
         }
 
         public FunctionTypeDescriptorNodeModifier withQualifierList(
@@ -117,7 +118,6 @@ public class FunctionTypeDescriptorNode extends TypeDescriptorNode {
 
         public FunctionTypeDescriptorNodeModifier withFunctionSignature(
                 FunctionSignatureNode functionSignature) {
-            Objects.requireNonNull(functionSignature, "functionSignature must not be null");
             this.functionSignature = functionSignature;
             return this;
         }

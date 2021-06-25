@@ -63,16 +63,14 @@ public class BAnyTypeSuccessScenariosTest {
         BRunUtil.invokeFunction(result, "inputAnyAsTableTest");
     }
 
-//TODO fix below scenario - basically need to rewrite the tree in method visit(ReturnStmt returnStmt) in
-// SemanticAnalyser
-//    @Test(description = "Test any type as a parameter for function and explicit casting")
-//    public void testAnyAsParameterForFunction() {
-//        BValue[] returns = BTestUtils.invoke()(result, "anyMethodParameter");
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertSame(returns[0].getClass(), BInteger.class);
-//        BInteger intReturn = (BInteger) returns[0];
-//        Assert.assertEquals(intReturn.intValue(), 9, "Invalid integer value returned.");
-//    }
+    @Test(description = "Test any type as a parameter for function and explicit casting")
+    public void testAnyAsParameterForFunction() {
+        BValue[] returns = BRunUtil.invoke(result, "anyMethodParameter");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        BInteger intReturn = (BInteger) returns[0];
+        Assert.assertEquals(intReturn.intValue(), 9, "Invalid integer value returned.");
+    }
 
     @Test(description = "Test any type as a struct parameter with boolean value")
     public void testAnyAsStructParam() {

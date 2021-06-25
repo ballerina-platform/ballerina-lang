@@ -137,6 +137,31 @@ public class LangLibArrayTest {
         assertEquals(((BInteger) result.getRefValue(5)).intValue(), 2);
     }
 
+    @Test(dataProvider = "testSliceOfReadonlyArrays")
+    public void testSliceOfReadonlyArray(String funcName) {
+        BRunUtil.invoke(compileResult, funcName);
+    }
+
+    @DataProvider(name = "testSliceOfReadonlyArrays")
+    public Object[] testSliceOfReadonlyArrays() {
+        return new Object[][]{
+                {"testModificationAfterSliceOfReadonlyIntArray"},
+                {"testModificationAfterSliceOfReadonlyStringArray"},
+                {"testModificationAfterSliceOfReadonlyBooleanArray"},
+                {"testModificationAfterSliceOfReadonlyByteArray"},
+                {"testModificationAfterSliceOfReadonlyFloatArray"},
+                {"testSliceOfIntersectionOfReadonlyRecordArray"}
+        };
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InherentTypeViolation " +
+                    "\\{\"message\":\"incompatible types: expected '\\(Employee & readonly\\)', found 'Employee'\"}.*")
+    public void testModificationAfterSliceOfReadonlyRecordArray() {
+        BRunUtil.invoke(compileResult, "testModificationAfterSliceOfReadonlyRecordArray");
+        Assert.fail();
+    }
+
     @Test
     public void testPushAfterSlice() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testPushAfterSlice");
@@ -168,6 +193,15 @@ public class LangLibArrayTest {
         assertEquals(arr.getInt(0), 4);
         assertEquals(arr.getInt(1), 5);
         assertEquals(arr.getInt(2), 88);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InherentTypeViolation " +
+                    "\\{\"message\":\"incompatible types: expected '\\(map<string> & readonly\\)', " +
+                    "found 'map<string>'\"}.*")
+    public void testPushAfterSliceOfReadonlyMapArray() {
+        BRunUtil.invoke(compileResult, "testPushAfterSliceOfReadonlyMapArray");
+        Assert.fail();
     }
 
     @Test
@@ -264,7 +298,7 @@ public class LangLibArrayTest {
     @Test(dataProvider = "setLengthDataProvider")
     public void testSetLength(int setLengthTo, int lenAfterSet, String arrayAfterSet, String arrayLenPlusOneAfterSet) {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetLength", new BValue[] {new BInteger(setLengthTo)});
-        assertEquals(((BInteger) returns[0]).intValue(), (long) lenAfterSet);
+        assertEquals(((BInteger) returns[0]).intValue(), lenAfterSet);
         assertEquals(returns[1].stringValue(), arrayAfterSet);
         assertEquals(returns[2].stringValue(), arrayLenPlusOneAfterSet);
     }
@@ -306,17 +340,17 @@ public class LangLibArrayTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}InherentTypeViolation " +
-                    "\\{\"message\":\"cannot change the length of an array of fixed length '7' to '0'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InherentTypeViolation " +
+                    "\\{\"message\":\"cannot change the length of an array of fixed length '7' to '0'\"}.*")
     public void testRemoveAllFixedLengthArray() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveAllFixedLengthArray");
+        BRunUtil.invoke(compileResult, "testRemoveAllFixedLengthArray");
         Assert.fail();
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"cannot change the length"
-                            + " of a tuple of fixed length '2' to '3'\"\\}.*")
+                    "error: \\{ballerina/lang.array}InherentTypeViolation \\{\"message\":\"cannot change the length"
+                            + " of a tuple of fixed length '2' to '3'\"}.*")
     public void testTupleResize() {
         BRunUtil.invoke(compileResult, "testTupleResize");
         Assert.fail();
@@ -324,8 +358,8 @@ public class LangLibArrayTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"cannot change the " +
-                            "length of a tuple of fixed length '2' to '0'\"\\}.*")
+                    "error: \\{ballerina/lang.array}InherentTypeViolation \\{\"message\":\"cannot change the " +
+                            "length of a tuple of fixed length '2' to '0'\"}.*")
     public void testTupleRemoveAll() {
         BRunUtil.invoke(compileResult, "testTupleRemoveAll");
         Assert.fail();
@@ -333,8 +367,8 @@ public class LangLibArrayTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"cannot change the length"
-                            + " of a tuple with '2' mandatory member\\(s\\) to '0'\"\\}.*")
+                    "error: \\{ballerina/lang.array}InherentTypeViolation \\{\"message\":\"cannot change the length"
+                            + " of a tuple with '2' mandatory member\\(s\\) to '0'\"}.*")
     public void testTupleRemoveAllForTupleWithRestMemberType() {
         BRunUtil.invoke(compileResult, "testTupleRemoveAllForTupleWithRestMemberType");
         Assert.fail();
@@ -360,8 +394,8 @@ public class LangLibArrayTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"cannot change the length " +
-                          "of a tuple with '2' mandatory member\\(s\\) to '1'\"\\}.*")
+                  "error: \\{ballerina/lang.array}InherentTypeViolation \\{\"message\":\"cannot change the length " +
+                          "of a tuple with '2' mandatory member\\(s\\) to '1'\"}.*")
     public void testTupleSetLengthIllegal() {
         BRunUtil.invoke(compileResult, "testTupleSetLengthIllegal");
         Assert.fail();
@@ -380,7 +414,7 @@ public class LangLibArrayTest {
 
     }
     @Test
-    public void callingLengthModificationFunctionsOnFixedLengthLists() {
+    public void testArrayLibNegativeCases() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/arraylib_test_negative.bal");
         int errorIndex = 0;
         BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'push' on fixed length list(s) of type " +
@@ -441,53 +475,64 @@ public class LangLibArrayTest {
                                   "cannot call 'shift' on fixed length list(s) of type '[string,int]'",
                                   119, 24);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected '(descending|ascending)', found 'function (int) returns (int)'",
-                126, 32);
+                "incompatible types: expected 'ballerina/lang.array:1.1.0:SortDirection', " +
+                        "found 'function (int) returns (int)'", 133, 32);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected '(descending|ascending)', found 'function (int) returns (int)'",
-                130, 33);
+                "incompatible types: expected 'ballerina/lang.array:1.1.0:SortDirection', " +
+                        "found 'function (int) returns (int)'", 137, 33);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'isolated function ((any|error)) returns (OrderedType?)?', " +
-                        "found 'string'", 132, 8);
+                "incompatible types: expected 'isolated function ((any|error)) returns" +
+                        " (ballerina/lang.array:1.1.0:OrderedType)?', found 'string'", 139, 8);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type",
-                136, 33);
+                "invalid member type of the array/tuple to sort: '(Person|int)[]' is not an ordered type",
+                143, 33);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type",
-                138, 33);
+                "invalid member type of the array/tuple to sort: '(Person|int)[]' is not an ordered type",
+                145, 33);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type",
-                140, 33);
+                "invalid member type of the array/tuple to sort: '(Person|int)[]' is not an ordered type",
+                147, 33);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "invalid sort key function return type: '(string|int)' is not an ordered type",
-                142, 61);
+                "incompatible types: expected 'isolated function ((any|error)) returns " +
+                        "(ballerina/lang.array:1.1.0:OrderedType)?', found 'isolated function ((Person|int)) " +
+                        "returns ((Person|int))'", 149, 61);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid member type of the array/tuple to sort: 'map<string>?[]' is not an ordered type",
-                148, 35);
+                155, 35);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'isolated function ((any|error)) returns (OrderedType?)?', " +
-                        "found 'isolated function (map<string>?) returns (map<string>?)'",
-                150, 62);
+                "incompatible types: expected 'isolated function ((any|error)) returns " +
+                        "(ballerina/lang.array:1.1.0:OrderedType)?', found 'isolated function (map<string>?) " +
+                        "returns (map<string>?)'", 157, 62);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "too many arguments in call to 'sort()'", 154, 24);
+                "too many arguments in call to 'sort()'", 161, 24);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type", 158, 45);
+                "invalid member type of the array/tuple to sort: '(Person|int)[]' is not an ordered type", 165, 45);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type", 160, 45);
+                "invalid member type of the array/tuple to sort: '(Person|int)[]' is not an ordered type", 167, 45);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type", 162, 45);
+                "invalid member type of the array/tuple to sort: '(Person|int)[]' is not an ordered type", 169, 45);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "invalid member type of the array/tuple to sort: 'map<string>?[]' is not an ordered type", 164, 47);
+                "invalid member type of the array/tuple to sort: 'map<string>?[]' is not an ordered type", 171, 47);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "invalid sort key function return type: '(string[]|int)' is not an ordered type", 166, 58);
+                "incompatible types: expected 'ballerina/lang.array:1.1.0:OrderedType', found 'any'", 174, 60);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "invalid sort key function return type: '(int|string)' is not an ordered type", 173, 52);
+                "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type", 178, 34);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected '(boolean|int|float|decimal|string|OrderedType?[])?', " +
-                        "found 'any'", 176, 60);
+                "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type", 180, 34);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type", 182, 34);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "invalid sort key function return type: '(string|int)' is not an ordered type", 184, 62);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: expected 'anydata[]', found '(Person|error)[]'", 195, 15);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: expected 'anydata[]', found '(Person|error)[]'", 196, 15);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: expected 'anydata[]', found 'function[]'", 199, 15);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: expected 'anydata', found " +
+                        "'function (int) returns (int)'", 199, 26);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
-
 
     @Test(dataProvider = "FunctionList")
     public void testArrayFunctions(String funcName) {
@@ -525,7 +570,9 @@ public class LangLibArrayTest {
                 "testSort8",
                 "testSort9",
                 "testSort10",
-                "testReadOnlyArrayFilter"
+                "testReadOnlyArrayFilter",
+                "testTupleFilter",
+                "testTupleReverse"
         };
     }
 }

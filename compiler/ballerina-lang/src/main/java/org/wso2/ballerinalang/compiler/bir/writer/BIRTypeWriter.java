@@ -75,6 +75,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Writes bType to a Byte Buffer in binary format.
@@ -145,12 +146,12 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     private void writeTypeIds(BTypeIdSet typeIdSet) {
-        buff.writeInt(typeIdSet.primary.size());
-        for (BTypeIdSet.BTypeId bTypeId : typeIdSet.primary) {
+        buff.writeInt(typeIdSet.getPrimary().size());
+        for (BTypeIdSet.BTypeId bTypeId : typeIdSet.getPrimary()) {
             writeTypeId(bTypeId);
         }
-        buff.writeInt(typeIdSet.secondary.size());
-        for (BTypeIdSet.BTypeId bTypeId : typeIdSet.secondary) {
+        buff.writeInt(typeIdSet.getSecondary().size());
+        for (BTypeIdSet.BTypeId bTypeId : typeIdSet.getSecondary()) {
             writeTypeId(bTypeId);
         }
     }
@@ -176,13 +177,20 @@ public class BIRTypeWriter implements TypeVisitor {
                 throw new AssertionError(
                         "Type serialization is not implemented for finite type with value: " + valueLiteral.getKind());
             }
-            writeTypeCpIndex(valueLiteral.type);
-            writeValue(((BLangLiteral) valueLiteral).value, valueLiteral.type);
+            writeTypeCpIndex(valueLiteral.getBType());
+            writeValue(((BLangLiteral) valueLiteral).value, valueLiteral.getBType());
         }
     }
 
     @Override
     public void visit(BInvokableType bInvokableType) {
+        boolean isAnyFunction = Symbols.isFlagOn(bInvokableType.flags, Flags.ANY_FUNCTION);
+        buff.writeBoolean(isAnyFunction); // write 1 if it’s an any function if not write 0
+
+        if (isAnyFunction) {
+            return;
+        }
+
         buff.writeInt(bInvokableType.paramTypes.size());
         for (BType params : bInvokableType.paramTypes) {
             writeTypeCpIndex(params);
@@ -194,6 +202,7 @@ public class BIRTypeWriter implements TypeVisitor {
             writeTypeCpIndex(bInvokableType.restType);
         }
         writeTypeCpIndex(bInvokableType.retType);
+
     }
 
     @Override
@@ -209,12 +218,7 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BStreamType bStreamType) {
         writeTypeCpIndex(bStreamType.constraint);
-        if (bStreamType.error != null) {
-            buff.writeBoolean(true);
-            writeTypeCpIndex(bStreamType.error);
-        } else {
-            buff.writeBoolean(false);
-        }
+        writeTypeCpIndex(bStreamType.completionType);
     }
 
     @Override
@@ -293,16 +297,21 @@ public class BIRTypeWriter implements TypeVisitor {
         } else {
             buff.writeBoolean(false);
         }
-        buff.writeInt(bUnionType.getMemberTypes().size());
-        for (BType memberType : bUnionType.getMemberTypes()) {
-            writeTypeCpIndex(memberType);
-        }
+        writeMembers(bUnionType.getMemberTypes());
+        writeMembers(bUnionType.getOriginalMemberTypes());
 
         if (tsymbol instanceof BEnumSymbol) {
             buff.writeBoolean(true);
             writeEnumSymbolInfo((BEnumSymbol) tsymbol);
         } else {
             buff.writeBoolean(false);
+        }
+    }
+
+    private void writeMembers(Set<BType> memberTypes) {
+        buff.writeInt(memberTypes.size());
+        for (BType memberType : memberTypes) {
+            writeTypeCpIndex(memberType);
         }
     }
 
@@ -328,11 +337,7 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BIntersectionType bIntersectionType) {
-        buff.writeInt(bIntersectionType.getConstituentTypes().size());
-        for (BType constituentType : bIntersectionType.getConstituentTypes()) {
-            writeTypeCpIndex(constituentType);
-        }
-
+        writeMembers(bIntersectionType.getConstituentTypes());
         writeTypeCpIndex(bIntersectionType.effectiveType);
     }
 
@@ -399,6 +404,7 @@ public class BIRTypeWriter implements TypeVisitor {
             buff.writeInt(addStringCPEntry(field.name.value));
             // TODO add position
             buff.writeLong(field.symbol.flags);
+            buff.writeBoolean(field.symbol.isDefaultable);
             writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
         }
@@ -473,18 +479,28 @@ public class BIRTypeWriter implements TypeVisitor {
             birbuf.writeInt(markdownDocAttachment.description == null ? -1
                     : addStringCPEntry(markdownDocAttachment.description));
             birbuf.writeInt(markdownDocAttachment.returnValueDescription == null ? -1
-                    : addStringCPEntry(markdownDocAttachment.returnValueDescription));
-            birbuf.writeInt(markdownDocAttachment.parameters.size());
-            for (MarkdownDocAttachment.Parameter parameter : markdownDocAttachment.parameters) {
-                birbuf.writeInt(parameter.name == null ? -1
-                        : addStringCPEntry(parameter.name));
-                birbuf.writeInt(parameter.description == null ? -1
-                        : addStringCPEntry(parameter.description));
+                                    : addStringCPEntry(markdownDocAttachment.returnValueDescription));
+            writeParamDocs(birbuf, markdownDocAttachment.parameters);
+
+            if (markdownDocAttachment.deprecatedDocumentation != null) {
+                birbuf.writeInt(addStringCPEntry(markdownDocAttachment.deprecatedDocumentation));
+            } else {
+                birbuf.writeInt(-1);
             }
+
+            writeParamDocs(birbuf, markdownDocAttachment.deprecatedParams);
         }
         int length = birbuf.nioBuffer().limit();
         buf.writeInt(length);
         buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
+    }
+
+    private void writeParamDocs(ByteBuf birBuf, List<MarkdownDocAttachment.Parameter> params) {
+        birBuf.writeInt(params.size());
+        for (MarkdownDocAttachment.Parameter param : params) {
+            birBuf.writeInt(addStringCPEntry(param.name));
+            birBuf.writeInt(addStringCPEntry(param.description));
+        }
     }
 
     private void throwUnimplementedError(BType bType) {

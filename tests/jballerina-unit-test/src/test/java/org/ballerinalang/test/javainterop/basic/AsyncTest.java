@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.ballerinalang.test.javainterop.basic;
 
 import org.ballerinalang.core.model.values.BInteger;
@@ -48,6 +49,14 @@ public class AsyncTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].getClass(), BInteger.class);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 42);
+    }
+
+    @Test
+    public void testAsyncComplete() {
+        CompileResult compileResult =
+                BCompileUtil.compileWithoutInitInvocation("test-src/javainterop/basic/async_test.bal");
+        BRunUtil.ExitDetails output = BRunUtil.run(compileResult, new String[]{});
+        Assert.assertTrue(output.errorOutput.contains("cannot complete the same future twice."));
     }
 
     @AfterClass

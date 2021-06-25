@@ -28,6 +28,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 
@@ -423,7 +424,7 @@ public class CompoundAssignmentTest {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/compoundassignment/compound_assignment_negative.bal");
         int i = 0;
-        Assert.assertEquals(compileResult.getErrorCount(), 22);
+        Assert.assertEquals(compileResult.getErrorCount(), 24);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'any' and 'int'", 5, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '-' not defined for 'any' and 'int'", 13, 5);
         BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 20, 14);
@@ -434,7 +435,7 @@ public class CompoundAssignmentTest {
         BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 53, 14);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'json' and 'string'", 59, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int' and 'string'", 65, 5);
-        BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'int', found 'float'", 72, 10);
+        BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'float', found 'int'", 73, 12);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int' and '[int,int]'", 78, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '&' not defined for 'int' and 'string'", 90, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '|' not defined for 'int' and 'string'", 96, 5);
@@ -445,7 +446,38 @@ public class CompoundAssignmentTest {
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int?'", 132, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int?'", 140, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int'", 150, 11);
-        BAssertUtil.validateError(compileResult, i, "invalid expr in compound assignment lhs", 156, 18);
+        BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 156, 18);
+        BAssertUtil.validateError(compileResult, i++, "invalid token '='", 170, 19);
+        BAssertUtil.validateError(compileResult, i, "invalid token '='", 171, 19);
+    }
+
+    @Test(dataProvider = "dataToTestCompoundAssignmentBinaryOpsWithTypes", description = "Test compound assignment " +
+            "binary operations with types")
+    public void testCompoundAssignmentBinaryOpsWithTypes(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestCompoundAssignmentBinaryOpsWithTypes() {
+        return new Object[]{
+                "testCompoundAssignmentAdditionWithTypes",
+                "testCompoundAssignmentSubtractionWithTypes",
+                "testCompoundAssignmentMultiplicationWithTypes",
+                "testCompoundAssignmentDivisionWithTypes",
+                "testCompoundAssignmentBitwiseLeftShift",
+                "testCompoundAssignmentBitwiseRightShift",
+                "testCompoundAssignmentBitwiseUnsignedRightShift"
+        };
+    }
+
+    @Test(description = "Test compound assignment ")
+    public void testCompoundAssignmentDataflowAnalysisNegative() {
+        CompileResult negativeResult = BCompileUtil.compile(
+                "test-src/statements/compoundassignment/compound_assignment_dataflow_analysis_negative.bal");
+        Assert.assertEquals(negativeResult.getErrorCount(), 2);
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "cannot assign a value to final 'i'", 20, 5);
+        BAssertUtil.validateError(negativeResult, i, "cannot assign a value to final 'j'", 23, 5);
     }
 
     @AfterClass

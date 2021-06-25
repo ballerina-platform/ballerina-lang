@@ -17,8 +17,10 @@
  */
 package org.wso2.ballerinalang.compiler.diagnostic.properties;
 
-import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
-import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.DiagnosticPropertyKind;
+
+import java.util.Arrays;
 
 /**
  * Represents string type constant-properties passed when diagnostic logging.
@@ -42,5 +44,19 @@ public class BStringProperty implements DiagnosticProperty<String> {
     @Override
     public String value() {
         return value;
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(new int[]{kind.hashCode(), value.hashCode()});
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof BStringProperty) {
+            BStringProperty prop = (BStringProperty) obj;
+            return this.value.equals(prop.value) && this.kind.equals(prop.kind);
+        }
+        return false;
     }
 }

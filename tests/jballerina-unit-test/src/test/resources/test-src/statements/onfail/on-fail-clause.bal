@@ -22,6 +22,9 @@ function testOnFailEdgeTestcases() {
     testRetryOnFailWithinObjectFunc();
     testFailExprWithinOnFail();
     testCheckExprWithinOnFail();
+    testFailPassWithinOnFail();
+    testTypeNarrowingInsideOnfail();
+    testBreakWithinOnfail();
 }
 
 function testUnreachableCodeWithIf(){
@@ -191,9 +194,81 @@ function testCheckExprWithinOnFail() {
     assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Error caught at level #2", str);
 }
 
+function testFailPassWithinOnFail() {
+    int i = 0;
+    string str = "";
+    do {
+        do {
+            str += "-> Before error thrown";
+            i = i + 1;
+            int ign = check getCheckError();
+            str += " -> After error thrown, ";
+        } on fail error e {
+            str += " -> Error caught at level #1";
+            int ii = check getCheckInt();
+            str += " -> After level #1 check";
+        }
+        str += " -> After level #1 on-fail";
+    } on fail error e {
+        str += " -> Error caught at level #2";
+    }
+    str += " -> After handling all failures";
+
+    assertEquality("-> Before error thrown -> Error caught at level #1 -> After level #1 check"
+    + " -> After level #1 on-fail -> After handling all failures", str);
+}
+
+function testTypeNarrowingInsideOnfail() {
+    string str = "";
+    do {
+        do {
+            str += "-> Before error thrown";
+            int parsedStr = check getCheckError();
+        } on fail error e1 {
+            str += " -> Error caught at level #1. Retrying...";
+            var res = getCheckError();
+            if (res is int) {
+                str += " -> Should not reach here";
+            } else {
+                str += " -> Retry failed";
+                fail res;
+            }
+        }
+    } on fail error e {
+        str += " -> Error caught at level #2";
+    }
+    str += " -> After handling all failures";
+
+    assertEquality("-> Before error thrown -> Error caught at level #1. Retrying... -> Retry failed"
+        + " -> Error caught at level #2 -> After handling all failures", str);
+}
+
+function testBreakWithinOnfail() {
+    string str = "";
+    do {
+        str += "-> Before error thrown";
+        fail getError();
+    } on fail error e {
+        str += " -> Error caught! ";
+        int[] arr = [1, 2, 3];
+        foreach int digit in arr {
+            if (digit > 1) {
+                break;
+            }
+            str += "Loop broke with digit: " + digit.toString();
+        }
+    }
+
+    assertEquality("-> Before error thrown -> Error caught! Loop broke with digit: 1", str);
+}
+
 function getCheckError()  returns int|error {
     error err = error("Custom Error");
     return err;
+}
+
+function getCheckInt()  returns int|error {
+    return 0;
 }
 
 function trxError()  returns error {

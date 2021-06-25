@@ -45,6 +45,13 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         this.flags = 0;
     }
 
+    public BFunctionType(long flags) {
+        super("function", null, Object.class);
+        this.paramTypes = null;
+        this.retType = null;
+        this.flags = flags;
+    }
+
     public BFunctionType(Type[] paramTypes, Type restType, Type retType, long flags) {
         super("function ()", null, Object.class);
         this.paramTypes = paramTypes;
@@ -102,6 +109,17 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
 
         BFunctionType that = (BFunctionType) o;
 
+        boolean isSourceAnyFunction = SymbolFlags.isFlagOn(this.flags, SymbolFlags.ANY_FUNCTION);
+        boolean isTargetAnyFunction = SymbolFlags.isFlagOn(that.flags, SymbolFlags.ANY_FUNCTION);
+
+        if (isSourceAnyFunction && isTargetAnyFunction) {
+            return true;
+        }
+
+        if (isSourceAnyFunction != isTargetAnyFunction) {
+            return false;
+        }
+
         if (SymbolFlags.isFlagOn(that.flags, SymbolFlags.ISOLATED) != SymbolFlags
                 .isFlagOn(this.flags, SymbolFlags.ISOLATED)) {
             return false;
@@ -121,6 +139,9 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
     @Override
     public int hashCode() {
         int result = super.hashCode();
+        if (SymbolFlags.isFlagOn(this.flags, SymbolFlags.ANY_FUNCTION)) {
+            return result;
+        }
         result = 31 * result + Arrays.hashCode(paramTypes);
         result = 31 * result + retType.hashCode();
         return result;
@@ -128,8 +149,14 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
 
     @Override
     public String toString() {
-        String stringRep = "function (" + (paramTypes != null ? getTypeListAsString(paramTypes) : "") + ")" +
-                (retType != null ? " returns (" + retType + ")" : "");
+        String stringRep;
+
+        if (SymbolFlags.isFlagOn(this.flags, SymbolFlags.ANY_FUNCTION)) {
+            stringRep = "function";
+        } else {
+            stringRep = "function (" + (paramTypes != null ? getTypeListAsString(paramTypes) : "") + ")" +
+                    (retType != null ? " returns (" + retType + ")" : "");
+        }
 
         if (SymbolFlags.isFlagOn(flags, SymbolFlags.ISOLATED)) {
             stringRep = "isolated ".concat(stringRep);

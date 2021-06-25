@@ -2,6 +2,4 @@
 org= "testorg"
 name="foo"
 version= "1.0.0"
-exported=["foo", "foo.records"]
-
-[dependencies]
+export=["foo", "foo.records", "foo.dependently_typed", "foo.bar"]

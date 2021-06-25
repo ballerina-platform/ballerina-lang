@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
@@ -28,7 +27,6 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Completion provider for {@link RecordTypeDescriptorNode} context.
@@ -62,15 +60,12 @@ public class RecordTypeDescriptorNodeContext extends AbstractCompletionProvider<
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
-        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            Predicate<Symbol> predicate =
-                    symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS;
-            List<Symbol> types = QNameReferenceUtil.getModuleContent(context,
-                    (QualifiedNameReferenceNode) nodeAtCursor, predicate);
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            List<Symbol> types = QNameReferenceUtil.getTypesInModule(context,
+                    (QualifiedNameReferenceNode) nodeAtCursor);
             completionItems.addAll(this.getCompletionItemList(types, context));
         } else {
-            completionItems.addAll(this.getModuleCompletionItems(context));
-            completionItems.addAll(this.getTypeItems(context));
+            completionItems.addAll(this.getTypeDescContextItems(context));
         }
         this.sort(context, node, completionItems);
 

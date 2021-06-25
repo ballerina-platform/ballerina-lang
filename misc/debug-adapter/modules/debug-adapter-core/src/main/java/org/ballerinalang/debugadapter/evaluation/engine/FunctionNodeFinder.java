@@ -33,26 +33,35 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-class FunctionNodeFinder extends NodeVisitor {
+public class FunctionNodeFinder extends NodeVisitor {
 
     private final String functionName;
     private FunctionDefinitionNode result;
 
-    FunctionNodeFinder(String functionName) {
+    public FunctionNodeFinder(String functionName) {
         this.functionName = functionName;
     }
 
-    public Optional<FunctionDefinitionNode> searchIn(Module module) {
+    /**
+     * Search for function definitions with the specified name, within the given ballerina module instance.
+     *
+     * @param module Ballerina module
+     * @return any function definitions with the specified name, if present.
+     */
+    public Optional<FunctionDefinitionNode> searchInModule(Module module) {
         for (DocumentId documentId : module.documentIds()) {
             if (result != null) {
                 break;
             }
-            searchIn(module.document(documentId));
+            Optional<FunctionDefinitionNode> result = searchInFile(module.document(documentId));
+            if (result.isPresent()) {
+                return result;
+            }
         }
         return Optional.ofNullable(result);
     }
 
-    public Optional<FunctionDefinitionNode> searchIn(Document document) {
+    public Optional<FunctionDefinitionNode> searchInFile(Document document) {
         document.syntaxTree().rootNode().accept(this);
         return Optional.ofNullable(result);
     }

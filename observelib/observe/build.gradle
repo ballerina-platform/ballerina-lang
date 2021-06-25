@@ -24,15 +24,16 @@ dependencies {
     implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
     implementation project(':metrics-extensions:ballerina-metrics-extension')
-    implementation 'io.opentracing:opentracing-api'
+    implementation 'io.opentelemetry:opentelemetry-api'
+    implementation 'io.opentelemetry:opentelemetry-sdk-trace'
+    implementation 'io.opentelemetry:opentelemetry-sdk-testing'
+    implementation 'com.google.code.gson:gson'
 
     testRuntime 'org.slf4j:slf4j-jdk14'
 
-    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils')
     testCompile project(':ballerina-cli')
     testCompile project(':ballerina-runtime')
-    testCompile project(':ballerina-test-common')
     testCompile project(':ballerina-core')
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-api'
@@ -46,12 +47,16 @@ configurations {
 }
 
 task updateVersion {
-    ant.replaceregexp(
-            file: "${projectDir}/src/main/ballerina/Ballerina.toml",
-            match: "${project.name}-(.*).jar",
-            replace: "${project.name}-${project.version}.jar"
-    )
+    doLast {
+        ant.replaceregexp(
+                file: "${project.buildDir}/ballerina-src/Ballerina.toml",
+                match: "${project.name}-(.*).jar",
+                replace: "${project.name}-${project.version}.jar"
+        )
+    }
 }
+
+copyBallerinaProject.finalizedBy(updateVersion)
 
 ballerinaLangLibBuild {
     skipBootstrap = 'true'

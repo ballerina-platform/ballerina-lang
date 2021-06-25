@@ -21,6 +21,7 @@ package org.ballerinalang.test.object;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -33,10 +34,23 @@ import static org.testng.Assert.assertEquals;
  */
 public class ReadonlyObjectTest {
 
-    @Test
-    public void testReadonlyObjects() {
+    @Test(dataProvider = "readOnlyObjectTests")
+    public void testReadonlyObjects(String function) {
         CompileResult result = BCompileUtil.compile("test-src/object/readonly_objects.bal");
-        BRunUtil.invoke(result, "testReadonlyObjects");
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "readOnlyObjectTests")
+    public Object[] readOnlyObjectTests() {
+        return new Object[]{
+                "testBasicReadOnlyObject",
+                "testInvalidReadOnlyObjectUpdateAtRuntime",
+                "testReadOnlyObjectsForImmutableIntersections1",
+                "testReadOnlyObjectsForImmutableIntersections2",
+                "testReadOnlyServiceClass",
+                "testReadOnlyClassIntersectionWithMismatchedQualifiersRuntimeNegative",
+                "testReadOnlyClassIntersectionWithValidQualifiers"
+        };
     }
 
     @Test
@@ -53,6 +67,8 @@ public class ReadonlyObjectTest {
         validateError(result, index++, "invalid 'readonly object' 'InvalidReadOnlyObject': cannot have fields that " +
                 "are never 'readonly'", 58, 1);
         validateError(result, index++, "incompatible types: expected 'int[] & readonly', found 'int[]'", 71, 18);
+        validateError(result, index++, "incompatible types: expected '(Foo & readonly)', found 'Bar'", 102, 31);
+        validateError(result, index++, "incompatible types: expected '(Foo & readonly)', found 'Baz'", 105, 35);
         assertEquals(result.getErrorCount(), index);
     }
 }

@@ -69,6 +69,11 @@ public class TypeCompletionItemBuilder {
             item.setKind(CompletionItemKind.Module);
             return;
         }
+        if (bSymbol.kind() == SymbolKind.ENUM) {
+            item.setKind(CompletionItemKind.Enum);
+            item.setDetail("enum");
+            return;
+        }
         Optional<? extends TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(bSymbol);
         typeDescriptor = (typeDescriptor.isPresent() && typeDescriptor.get().typeKind() == TypeDescKind.TYPE_REFERENCE)
                 ? Optional.of(((TypeReferenceTypeSymbol) typeDescriptor.get()).typeDescriptor()) : typeDescriptor;

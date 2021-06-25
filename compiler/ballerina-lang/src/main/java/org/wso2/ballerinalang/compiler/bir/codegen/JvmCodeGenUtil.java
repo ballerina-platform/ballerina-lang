@@ -41,8 +41,8 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
@@ -98,7 +98,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
  * The common functions used in CodeGen.
  */
 public class JvmCodeGenUtil {
-    public static final ResolvedTypeBuilder TYPE_BUILDER = new ResolvedTypeBuilder();
+    public static final Unifier UNIFIER = new Unifier();
     public static final String INITIAL_METHOD_DESC = String.format("(L%s;", STRAND_CLASS);
     private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[\\.:/<>]");
     public static final String SCOPE_PREFIX = "_SCOPE_";
@@ -148,7 +148,10 @@ public class JvmCodeGenUtil {
     }
 
     private static String cleanupBalExt(String name) {
-        return name.replace(BAL_EXTENSION, "");
+        if (name.endsWith(BAL_EXTENSION)) {
+            return name.substring(0, name.length() - 4); // 4 = BAL_EXTENSION.length
+        }
+        return name;
     }
 
     public static String getFieldTypeSignature(BType bType) {
@@ -378,7 +381,11 @@ public class JvmCodeGenUtil {
     }
 
     public static String generateReturnType(BType bType) {
-        bType = JvmCodeGenUtil.TYPE_BUILDER.build(bType);
+        if (bType == null) {
+            return String.format(")L%s;", OBJECT);
+        }
+
+        bType = JvmCodeGenUtil.UNIFIER.build(bType);
         if (bType == null || bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
             return String.format(")L%s;", OBJECT);
         } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
@@ -571,6 +578,20 @@ public class JvmCodeGenUtil {
     public static String cleanupFunctionName(String functionName) {
         return StringUtils.containsAny(functionName, "\\.:/<>") ?
                 "$" + JVM_RESERVED_CHAR_SET.matcher(functionName).replaceAll("_") : functionName;
+    }
+
+    public static boolean isSimpleBasicType(BType bType) {
+        switch (bType.tag) {
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.BOOLEAN:
+            case TypeTags.DECIMAL:
+            case TypeTags.NIL:
+            case TypeTags.NEVER:
+                return true;
+            default:
+                return (TypeTags.isIntegerTypeTag(bType.tag)) || (TypeTags.isStringTypeTag(bType.tag));
+        }
     }
 
     public static void loadConstantValue(BType bType, Object constVal, MethodVisitor mv,

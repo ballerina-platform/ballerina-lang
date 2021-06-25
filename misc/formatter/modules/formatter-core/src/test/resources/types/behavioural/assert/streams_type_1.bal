@@ -5,7 +5,7 @@ import ballerina/io;
 class OddNumberGenerator {
     int i = 1;
 
-    public isolated function next() returns record {| int value; |}|error? {
+    public isolated function next() returns record {|int value;|}|error? {
         self.i += 2;
         return {value: self.i};
     }
@@ -17,7 +17,7 @@ public function main() {
     //Creating a stream passing an OddNumberGenerator class to the stream constructor
     var oddNumberStream = new stream<int, error>(oddGen);
 
-    record {| int value; |}|error? oddNumber = oddNumberStream.next();
+    record {|int value;|}|error? oddNumber = oddNumberStream.next();
 
     if (oddNumber is ResultValue) {
         io:println("Retrieved odd number: ", oddNumber.value);
@@ -30,23 +30,22 @@ public function main() {
 
     //The `filter` and `map` functions return streams and work lazily.
     stream<Subscription> subscriptionStream = studentStream.filter(function(Student student) returns boolean {
-                                                                       return student.score > 1;
-                                                                   }).'map(function(Student student) returns 
-                                                                           Subscription {
-                                                                               Subscription subscription = {
-                                                                                   firstName: student.firstName,
-                                                                                   lastName: student.lastName,
-                                                                                   score: student.score,
-                                                                                   degree: "Bachelor of Medicine"
-                                                                               };
-                                                                               return subscription;
-                                                                           });
+        return student.score > 1;
+    }).'map(function(Student student) returns Subscription {
+        Subscription subscription = {
+            firstName: student.firstName,
+            lastName: student.lastName,
+            score: student.score,
+            degree: "Bachelor of Medicine"
+        };
+        return subscription;
+    });
 
     io:println("Calculate the average score of the subscribed students: ");
     //The `reduce` function reduces the stream to a single value.
     float? avg = subscriptionStream.reduce(function(float accum, Student student) returns float {
-                                               return accum + <float>student.score / studentList.length();
-                                           }, 0.0);
+        return accum + <float>student.score / studentList.length();
+    }, 0.0);
 
     if (avg is float) {
         io:println("Average: ", avg);
@@ -57,7 +56,7 @@ public function main() {
 
     io:println("Calls next method manually and get the next iteration value: ");
     //Calls the `next()` operation to retrieve the data from the stream.
-    record {| Student value; |}|error? student = studentStream2.next();
+    record {|Student value;|}|error? student = studentStream2.next();
     if (student is StudentValue) {
         io:println(student.value);
     }
@@ -67,8 +66,8 @@ public function main() {
     //If there is any error during the iteration of the
     // studentList2 stream, the result stream will terminate and return the error.
     error? e = studentStream2.forEach(function(Student student) {
-                                          io:println("Student ", student.firstName, " has a score of ", student.score);
-                                      });
+        io:println("Student ", student.firstName, " has a score of ", student.score);
+    });
 
     //Check and handle the error during the iteration of the stream.
     if (e is error) {
@@ -79,7 +78,7 @@ public function main() {
     var iterator = studentStream3.iterator();
 
     //Calls the `next()` operation on the iterator to retrieve the next data from the stream.
-    record {| Student value; |}|error? nextStudent = iterator.next();
+    record {|Student value;|}|error? nextStudent = iterator.next();
     if (nextStudent is StudentValue) {
         io:println(nextStudent.value);
     }

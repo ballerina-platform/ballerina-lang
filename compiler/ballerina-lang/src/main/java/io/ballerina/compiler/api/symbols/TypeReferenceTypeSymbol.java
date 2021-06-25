@@ -34,6 +34,15 @@ public interface TypeReferenceTypeSymbol extends TypeSymbol {
      * Get the reference name.
      *
      * @return {@link String} name of the definition
+     * @deprecated Use {@link  #getName()} instead.
      */
+    @Deprecated
     String name();
+
+    /**
+     * Returns the definition symbol associated with this type symbol.
+     *
+     * @return The definition symbol for the symbol represented by this type symbol
+     */
+    Symbol definition();
 }

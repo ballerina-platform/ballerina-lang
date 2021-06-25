@@ -85,7 +85,7 @@ public class BByteValueNegativeTest {
         int i = 0;
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'byte', found 'int'", 2, 14);
         BAssertUtil.validateError(result, i++, "no whitespaces allowed in right shift op", 2, 16);
-        BAssertUtil.validateError(result, i++, "operator '<' not defined for 'int' and '9'", 3, 13);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'byte', found 'boolean'", 3, 13);
         BAssertUtil.validateError(result, i++, "missing gt token", 3, 20);
         BAssertUtil.validateError(result, i++, "missing identifier", 3, 20);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'byte', found 'int'", 4, 13);

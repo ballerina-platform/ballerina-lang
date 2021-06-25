@@ -68,6 +68,7 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             case TypeTags.XML:
             case TypeTags.TABLE:
             case TypeTags.NIL:
+            case TypeTags.NEVER:
             case TypeTags.ANYDATA:
             case TypeTags.SIGNED8_INT:
             case TypeTags.SIGNED16_INT:
@@ -82,8 +83,8 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
         }
     }
 
-    private boolean isPureType(BType type) {
-        return type.tag == TypeTags.ERROR || type.tag == TypeTags.READONLY || isAnydata(type);
+    private boolean isAnyData(BType type) {
+        return type.tag == TypeTags.ANYDATA || isAnydata(type);
     }
 
     @Override
@@ -98,7 +99,7 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BAnnotationType type) {
-        return isPureType(type);
+        return isAnyData(type);
     }
 
     @Override
@@ -112,22 +113,22 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BBuiltInRefType type) {
-        return isPureType(type);
+        return isAnyData(type);
     }
 
     @Override
     public Boolean visit(BAnyType type) {
-        return isPureType(type);
+        return isAnyData(type);
     }
 
     @Override
     public Boolean visit(BAnydataType type) {
-        return isPureType(type);
+        return isAnyData(type);
     }
 
     @Override
     public Boolean visit(BErrorType type) {
-        return isPureType(type);
+        return isAnyData(type);
     }
 
     @Override
@@ -138,12 +139,12 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BInvokableType type) {
-        return isPureType(type);
+        return isAnyData(type);
     }
 
     @Override
     public Boolean visit(BJSONType type) {
-        return isPureType(type);
+        return isAnyData(type);
     }
 
     @Override
@@ -157,42 +158,42 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BStreamType type) {
-        return isPureType(type);
+        return isAnyData(type);
     }
 
     @Override
     public Boolean visit(BTypedescType type) {
-        return isPureType(type);
+        return isAnyData(type);
     }
 
     @Override
     public Boolean visit(BParameterizedType type) {
-        return isPureType(type);
+        return isAnyData(type);
     }
 
     @Override
     public Boolean visit(BNeverType type) {
-        return isPureType(type);
+        return isAnyData(type);
     }
 
     @Override
     public Boolean visit(BNilType type) {
-        return isPureType(type);
+        return isAnyData(type);
     }
 
     @Override
     public Boolean visit(BNoType type) {
-        return isPureType(type);
+        return isAnyData(type);
     }
 
     @Override
     public Boolean visit(BPackageType type) {
-        return isPureType(type);
+        return isAnyData(type);
     }
 
     @Override
     public Boolean visit(BStructureType type) {
-        return isPureType(type);
+        return isAnyData(type);
     }
 
     @Override
@@ -227,12 +228,12 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BXMLType type) {
-        return isPureType(type);
+        return isAnyData(type);
     }
 
     @Override
     public Boolean visit(BTableType type) {
-        return isPureType(type);
+        return isAnyData(type);
     }
 
     @Override
@@ -244,7 +245,7 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BObjectType type) {
-        return isPureType(type);
+        return isAnyData(type);
     }
 
     @Override
@@ -278,17 +279,17 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             case TypeTags.UNSIGNED32_INT:
                 return visit((BIntSubType) type);
         }
-        return isPureType(type);
+        return isAnyData(type);
     }
 
     @Override
     public Boolean visit(BFutureType type) {
-        return isPureType(type);
+        return isAnyData(type);
     }
 
     @Override
     public Boolean visit(BHandleType type) {
-        return isPureType(type);
+        return isAnyData(type);
     }
 
     @Override
@@ -298,6 +299,6 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BXMLSubType bxmlSubType) {
-        return isPureType(bxmlSubType);
+        return isAnyData(bxmlSubType);
     }
 }

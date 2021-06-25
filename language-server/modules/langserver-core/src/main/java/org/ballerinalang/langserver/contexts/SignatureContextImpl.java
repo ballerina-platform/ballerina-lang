@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.contexts;
 
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -24,6 +25,8 @@ import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
+
+import java.util.Optional;
 
 /**
  * Language server context implementation.
@@ -35,6 +38,7 @@ public class SignatureContextImpl extends AbstractDocumentServiceContext impleme
     private final SignatureHelpCapabilities capabilities;
     private final Position cursorPos;
     private int cursorPosInTree = -1;
+    private NonTerminalNode nodeAtCursor;
 
     SignatureContextImpl(LSOperation operation,
                          String fileUri,
@@ -68,6 +72,19 @@ public class SignatureContextImpl extends AbstractDocumentServiceContext impleme
     @Override
     public int getCursorPositionInTree() {
         return this.cursorPosInTree;
+    }
+
+    @Override
+    public Optional<NonTerminalNode> getNodeAtCursor() {
+        return Optional.ofNullable(this.nodeAtCursor);
+    }
+
+    @Override
+    public void setNodeAtCursor(NonTerminalNode node) {
+        if (this.nodeAtCursor != null) {
+            throw new RuntimeException("Setting the node more than once is not allowed");
+        }
+        this.nodeAtCursor = node;
     }
 
     /**

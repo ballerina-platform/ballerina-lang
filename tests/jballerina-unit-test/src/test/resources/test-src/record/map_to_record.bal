@@ -177,6 +177,55 @@ function testComplexSubtyping2() {
     gR.x = rC;
 }
 
+type QuotedFieldNameWithEscapeChars record {|
+    int 'd\.\ \@\#d;
+|};
+
+type QuotedSubFieldNameWithEscapeChars record {|
+    QuotedFieldNameWithEscapeChars 'd\.\ \@\#d;
+|};
+
+function testQuotedFieldNamesWithEscapeCharacters() {
+    json jsonMapping = {"d. @#d": 6};
+
+    // cloneReadOnly
+    json r = jsonMapping.cloneReadOnly();
+    QuotedFieldNameWithEscapeChars newRec = <QuotedFieldNameWithEscapeChars>r;
+    assert(6, newRec.'d\.\ \@\#d);
+
+    // fromJsonWithType
+    jsonMapping = {"d. @#d": 9};
+    newRec = checkpanic jsonMapping.fromJsonWithType(QuotedFieldNameWithEscapeChars);
+    assert(9, newRec.'d\.\ \@\#d);
+    newRec.'d\.\ \@\#d = 7;
+    assert(7, newRec.'d\.\ \@\#d);
+
+    // cloneWithType
+    jsonMapping = {"d. @#d": 8};
+    newRec = checkpanic jsonMapping.cloneWithType(QuotedFieldNameWithEscapeChars);
+    assert(8, newRec.'d\.\ \@\#d);
+}
+
+function testQuotedSubFieldNamesWithEscapeCharacters() {
+    json jsonMapping = {"d. @#d": {"d. @#d": 7}};
+
+    // cloneReadOnly
+    json r = jsonMapping.cloneReadOnly();
+    QuotedSubFieldNameWithEscapeChars newRec = <QuotedSubFieldNameWithEscapeChars>r;
+    assert(7, newRec.'d\.\ \@\#d.'d\.\ \@\#d);
+
+    // fromJsonWithType
+    jsonMapping = {"d. @#d": {"d. @#d": 9}};
+    newRec = checkpanic jsonMapping.fromJsonWithType(QuotedSubFieldNameWithEscapeChars);
+    assert(9, newRec.'d\.\ \@\#d.'d\.\ \@\#d);
+    newRec.'d\.\ \@\#d.'d\.\ \@\#d = 8;
+    assert(8, newRec.'d\.\ \@\#d.'d\.\ \@\#d);
+
+    // cloneWithType
+    jsonMapping = {"d. @#d": {"d. @#d": 10}};
+    newRec = checkpanic jsonMapping.cloneWithType(QuotedSubFieldNameWithEscapeChars);
+    assert(10, newRec.'d\.\ \@\#d.'d\.\ \@\#d);
+}
 
 // Util functions
 

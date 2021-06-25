@@ -90,7 +90,7 @@ public class ArrayMutabilityTest {
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.array\\}InherentTypeViolation " +
                             "\\{\"message\":\"incompatible types: expected " +
-                            "'boolean\\|float\\|\\(\\)', found 'Person'.*?")
+                            "'\\(boolean\\|float\\)\\?', found 'Person'.*?")
     public void testCovarianceBooleanOrFloatOrRecordArray() {
         BRunUtil.invoke(compileResult, "testCovarianceBooleanOrFloatOrRecordArray");
     }
@@ -166,7 +166,7 @@ public class ArrayMutabilityTest {
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.array\\}InherentTypeViolation " +
                             "\\{\"message\":\"incompatible types: expected " +
-                            "\\'int\\|string\\|\\(\\)\\', found \\'boolean\\'.*")
+                            "\\'\\(int\\|string\\)\\?\\', found \\'boolean\\'.*")
     public void testChainingAssignment() {
         BRunUtil.invoke(compileResult, "testChainingAssignment");
     }

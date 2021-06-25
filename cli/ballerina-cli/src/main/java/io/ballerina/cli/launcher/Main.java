@@ -32,6 +32,7 @@ import picocli.CommandLine;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -73,7 +74,8 @@ public class Main {
             Runtime.getRuntime().exit(e.getExitCode());
         } catch (Throwable e) {
             errStream.println(getMessageForInternalErrors());
-            RuntimeUtils.silentlyLogBadSad(e);
+            errStream.println();
+            RuntimeUtils.logBadSad(e);
             Runtime.getRuntime().exit(1);
         }
     }
@@ -100,12 +102,13 @@ public class Main {
             helpCmd.setParentCmdParser(cmdParser);
 
             // set stop at positional to run command
-            cmdParser.getSubcommands().get("run").setStopAtPositional(true)
-                    .setUnmatchedOptionsArePositionalParams(true);
-            cmdParser.getSubcommands().get("build").setStopAtPositional(true)
-                    .setUnmatchedOptionsArePositionalParams(true);
-            cmdParser.getSubcommands().get("test").setStopAtPositional(true)
-                    .setUnmatchedOptionsArePositionalParams(true);
+            cmdParser.getSubcommands().get("run").setStopAtUnmatched(true).setStopAtPositional(true)
+                    .setUnmatchedOptionsArePositionalParams(true)
+                    // this is a workaround to distinguish between the program args when the project path
+                    // is not provided
+                    .setEndOfOptionsDelimiter("");
+            cmdParser.getSubcommands().get("build").setStopAtUnmatched(true).setStopAtPositional(true);
+            cmdParser.getSubcommands().get("test").setStopAtUnmatched(true).setStopAtPositional(true);
 
             // Build Version Command
             VersionCmd versionCmd = new VersionCmd();
@@ -117,17 +120,22 @@ public class Main {
             cmdParser.addSubcommand(BallerinaCliCommands.HOME, homeCmd);
             homeCmd.setParentCmdParser(cmdParser);
 
-            EncryptCmd encryptCmd = new EncryptCmd();
-            cmdParser.addSubcommand(BallerinaCliCommands.ENCRYPT, encryptCmd);
-            encryptCmd.setParentCmdParser(cmdParser);
-
             cmdParser.setCommandName("bal");
             cmdParser.setPosixClusteredShortOptionsAllowed(false);
 
 
             List<CommandLine> parsedCommands = cmdParser.parse(args);
 
-            if (parsedCommands.size() < 1) {
+            if (defaultCmd.argList.size() > 0 && cmdParser.getSubcommands().get(defaultCmd.argList.get(0)) == null) {
+                throw LauncherUtils.createUsageExceptionWithHelp("unknown command '"
+                        + defaultCmd.argList.get(0) + "'");
+            }
+
+            if (parsedCommands.size() < 1 || defaultCmd.helpFlag) {
+                if (parsedCommands.size() > 1) {
+                    defaultCmd.argList.add(parsedCommands.get(1).getCommandName());
+                }
+
                 return Optional.of(defaultCmd);
             }
 
@@ -277,14 +285,6 @@ public class Main {
 
             if (versionCommands == null) {
                 printVersionInfo();
-                return;
-            } else if (versionCommands.size() > 1) {
-                throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");
-            }
-
-            String userCommand = versionCommands.get(0);
-            if (parentCmdParser.getSubcommands().get(userCommand) == null) {
-                throw LauncherUtils.createUsageExceptionWithHelp("unknown command " + userCommand);
             }
         }
 
@@ -416,10 +416,7 @@ public class Main {
                 String encryptedValue = cipherTool.encrypt(value);
 
                 errStream.println("Add the following to the configuration file:");
-                errStream.println("<key>=\"@encrypted:{" + encryptedValue + "}\"\n");
-
-                errStream.println("Or provide it as a command line argument:");
-                errStream.println("--<key>=@encrypted:{" + encryptedValue + "}");
+                errStream.println("<key>=\"@encrypted:{" + encryptedValue + "}\"");
             } catch (AESCipherToolException e) {
                 throw LauncherUtils.createLauncherException("failed to encrypt value: " + e.getMessage());
             }
@@ -475,10 +472,18 @@ public class Main {
         @CommandLine.Option(names = { "--version", "-v" }, hidden = true)
         private boolean versionFlag;
 
+        @CommandLine.Parameters(arity = "0..1")
+        private List<String> argList = new ArrayList<>();
+
         @Override
         public void execute() {
             if (versionFlag) {
                 printVersionInfo();
+                return;
+            }
+
+            if (!argList.isEmpty()) {
+                printUsageInfo(argList.get(0));
                 return;
             }
 

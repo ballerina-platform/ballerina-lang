@@ -43,7 +43,6 @@ dependencies {
     implementation 'org.slf4j:slf4j-api'
     implementation 'com.github.chewiebug:gcviewer'
 
-    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-core')
     testCompile 'org.testng:testng'

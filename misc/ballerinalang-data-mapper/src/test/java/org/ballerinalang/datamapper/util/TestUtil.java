@@ -19,7 +19,7 @@ package org.ballerinalang.datamapper.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import io.ballerina.projects.Module;
+import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
@@ -39,6 +39,7 @@ import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.RenameCapabilities;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
 import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
@@ -145,6 +146,9 @@ public class TestUtil {
 
         textDocumentClientCapabilities.setCompletion(completionCapabilities);
         textDocumentClientCapabilities.setSignatureHelp(signatureHelpCapabilities);
+        RenameCapabilities renameCapabilities = new RenameCapabilities();
+        renameCapabilities.setPrepareSupport(true);
+        textDocumentClientCapabilities.setRename(renameCapabilities);
 
         capabilities.setTextDocument(textDocumentClientCapabilities);
         params.setCapabilities(capabilities);
@@ -210,10 +214,8 @@ public class TestUtil {
         if (project.isEmpty()) {
             return diagnostics;
         }
-        for (Module module : project.get().currentPackage().modules()) {
-            diagnostics.addAll(module.getCompilation().diagnostics().diagnostics());
-        }
-
+        DiagnosticResult diagnosticResult = project.get().currentPackage().getCompilation().diagnosticResult();
+        diagnostics.addAll(diagnosticResult.diagnostics());
         return diagnostics;
     }
 

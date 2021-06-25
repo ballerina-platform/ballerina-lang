@@ -21,8 +21,10 @@ apply from: "$rootDir/gradle/ballerinaLangLibBuild.gradle"
 dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-tools-api')
 
     distributionBala project(path: ':ballerina-lang:annotations', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:object', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:internal', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBala')
 

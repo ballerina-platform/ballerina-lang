@@ -87,7 +87,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_CLOSE_DOUBLE_BRACKET("BCE1503", "error.missing.close.double.bracket"),
 
     ERROR_EXISTING_NODE("BCE1504", "error.existing.node"),
-    ERROR_EMPTY_QUOTED_STRING("BCE1505", "error.empty.quoted.string");
+    ERROR_EMPTY_QUOTED_STRING("BCE1505", "error.empty.quoted.string"),
+    ERROR_UNEXPECTED_TOP_LEVEL_NODE("BCE1506", "error.unexpected.top.level.node");
 
     String diagnosticId;
     String messageKey;

@@ -28,5 +28,9 @@ public interface UnionType extends Type {
 
     List<Type> getMemberTypes();
 
+    List<Type> getOriginalMemberTypes();
+
     boolean isCyclic();
+
+    long getFlags();
 }

@@ -73,8 +73,12 @@ public class ShellCommandTest extends BaseCommandTest {
     public void testShellExecution() throws Exception {
         List<String[]> testCases = new ArrayList<>();
         testCases.add(new String[]{"int i = 35", ""});
-        testCases.add(new String[]{"i*2 + 10", "80"});
+        testCases.add(new String[]{"i*2 + 10", "80\n"});
+        testCases.add(new String[]{"function add(int a, int b) returns int => a + b", ""});
+        testCases.add(new String[]{"add(i, 200)", "235\n"});
         testCases.add(new String[]{"/exit", ""});
+
+        String shellPrompt = "=$ ";
 
         PipedOutputStream testOut = new PipedOutputStream();
         PipedInputStream shellIn = new PipedInputStream(testOut);
@@ -83,35 +87,24 @@ public class ShellCommandTest extends BaseCommandTest {
 
         Thread testIntegratorThread = new Thread(() -> {
             try {
-                String shellPrompt = "=$ ";
                 PrintStream testPrint = new PrintStream(testOut, true, Charset.defaultCharset());
                 InputStreamReader inStreamReader = new InputStreamReader(testIn, Charset.defaultCharset());
                 BufferedReader testReader = new BufferedReader(inStreamReader);
 
-                for (String[] testCase : testCases) {
-                    testPrint.println(testCase[0] + System.lineSeparator());
-                    StringBuilder recordedInput = new StringBuilder();
-                    while (true) {
-                        String line = Objects.requireNonNull(testReader.readLine());
-                        recordedInput.append(line).append(System.lineSeparator());
-                        if (line.endsWith(shellPrompt)) {
-                            break;
-                        }
-                    }
+                sendRequest(testPrint, "");
+                readResponse(testReader, shellPrompt);
+                readResponse(testReader, shellPrompt);
 
-                    // recordedContent: [GARBAGE][=$ ][INPUT][OUTPUT][=$ ]\n
-                    String recordedContent = filteredString(recordedInput.toString());
-                    // recordedContent: [=$ ][INPUT][OUTPUT][=$ ]\n
-                    recordedContent = recordedContent.substring(recordedContent.indexOf(shellPrompt));
-                    // recordedContent: [INPUT][OUTPUT]
-                    recordedContent = recordedContent.substring(shellPrompt.length(),
-                            recordedContent.length() - shellPrompt.length() - System.lineSeparator().length());
-                    // shellOutput: [OUTPUT]
-                    String shellOutput = recordedContent.substring(testCase[0].length()).trim();
-                    String expectedOutput = Objects.requireNonNullElse(testCase[1], "");
-                    Assert.assertEquals(shellOutput, expectedOutput);
+                for (String[] testCase : testCases) {
+                    sendRequest(testPrint, testCase[0]);
+                    String exprResponse = readResponse(testReader, shellPrompt);
+                    exprResponse = exprResponse.substring(exprResponse.indexOf(shellPrompt));
+                    // Expected format: [PROMPT][INPUT]\n\n[OUTPUT]\n\n[PROMPT]\n
+                    String expectedExprResponse = String.format("%s%s%n%n%s%n%s%n",
+                            shellPrompt, testCase[0], testCase[1], shellPrompt);
+                    Assert.assertEquals(filteredString(exprResponse), filteredString(expectedExprResponse));
                 }
-            } catch (IOException ignored) {
+            } catch (IOException | InterruptedException ignored) {
             }
         });
         testIntegratorThread.start();
@@ -119,7 +112,7 @@ public class ShellCommandTest extends BaseCommandTest {
         try {
             BShellConfiguration configuration = new BShellConfiguration.Builder()
                     .setDebug(false).setInputStream(shellIn).setOutputStream(shellOut)
-                    .setTreeParsingTimeoutMs(10000).build();
+                    .setDumb(true).setTreeParsingTimeoutMs(10000).build();
             ReplShellApplication.execute(configuration);
         } catch (EndOfFileException ignored) {
         }
@@ -128,7 +121,29 @@ public class ShellCommandTest extends BaseCommandTest {
         testIntegratorThread.join();
     }
 
-    private String filteredString(String rawString) {
-        return rawString.replaceAll("(\\x9B|\\x1B\\[)[0-?]*[ -/]*[@-~]", "");
+    private String readResponse(BufferedReader stream, String shellPrompt) throws IOException {
+        String line = "";
+        StringBuilder data = new StringBuilder();
+        while (!line.endsWith(shellPrompt)) {
+            line = Objects.requireNonNull(stream.readLine());
+            data.append(line).append(System.lineSeparator());
+        }
+        return data.toString();
+    }
+
+    private void sendRequest(PrintStream stream, String string) throws InterruptedException {
+        stream.append(string);
+        stream.println(System.lineSeparator());
+        stream.flush();
+    }
+
+    private String filteredString(String string) {
+        // Remove all ANSI codes
+        string = string.replaceAll("(\\x9B|\\x1B\\[)[0-?]*[ -/]*[@-~]", "");
+        string = string.replaceAll("\\x1B>", "");
+        string = string.replaceAll("\\x1B=", "");
+        string = string.replaceAll("\\x08", "");
+        string = string.replaceAll("\r", "");
+        return string;
     }
 }

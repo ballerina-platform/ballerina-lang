@@ -299,11 +299,10 @@ public class ArrayStampInbuiltFunctionTest {
     public void testStampBasicArrayToAnydata() {
 
         BValue[] results = BRunUtil.invoke(compileResult, "stampBasicArrayToAnydata");
-        Assert.assertEquals(((BValueArray) results[0]).elementType.getTag(), TypeTags.INT_TAG);
-        Assert.assertEquals(((BValueArray) results[0]).getInt(0), 1);
-        Assert.assertEquals(((BValueArray) results[0]).getInt(1), 2);
-        Assert.assertEquals(((BValueArray) results[0]).getInt(2), 3);
-        Assert.assertEquals(((BValueArray) results[0]).getInt(3), 4);
+        Assert.assertEquals(((BInteger) results[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) results[1]).intValue(), 2);
+        Assert.assertEquals(((BInteger) results[2]).intValue(), 3);
+        Assert.assertEquals(((BInteger) results[3]).intValue(), 4);
     }
 
     @Test

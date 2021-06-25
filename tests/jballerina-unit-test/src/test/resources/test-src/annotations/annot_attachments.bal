@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
+import ballerina/jballerina.java;
 
 type Annot record {
     string val;
@@ -83,6 +83,23 @@ const annotation map<string> v14 on source annotation;
     val: 11
 }
 int i = 12;
+@v11 {
+    val: 2
+}
+[int, string] [intVar, stringVar] = [1, "myString"];
+
+type myRecord record {int a;};
+@v11 {
+    val: 3
+}
+myRecord {a:myA} = {a:5};
+
+type myError error<myRecord>;
+
+@v11 {
+    val: 4
+}
+myError error(message, a = errorNo) = error myError("error message", a = 5);
 
 @v12 {
     str: "v12 value"
@@ -146,7 +163,9 @@ class Listener {
     }
 }
 
-//function externalFunction(boolean b) returns @v7 string = @v13 { strOne: "one", strTwo: "two" } external;
+function externalFunction(boolean b) returns @v7 string =
+    @v13 { strOne: "one", strTwo: "two" }
+    @java:Method { 'class: "org.ballerinalang.nativeimpl.jvm.tests.Annotations" } external;
 
 // Test compilation for annotations with the worker attach point.
 function funcWithWorker() {
@@ -165,4 +184,84 @@ function funcWithFuture() {
         val: false
     }
     start funcWithWorker();
+}
+
+function myFunctionWithWorkers() {
+    @strand
+    worker w {
+
+    }
+}
+
+type A record {|
+    string val = "ABC";
+|};
+
+public annotation A v16 on type;
+public annotation A v17 on function;
+public annotation A v18 on object function;
+annotation A v19 on parameter;
+annotation A v20 on service, class;
+
+@v16
+type MyType int|string;
+
+@v17
+function myFunction1(@v19 string name) returns string {
+    return "Hello " + name;
+}
+
+service object {} serviceThree = @v20 service object {
+    @v18
+    resource function get res(@v19 int intVal) {
+    }
+};
+
+public annotation map<int> v21 on function;
+annotation map<int> v22 on parameter;
+
+@v21
+function myFunction2(@v22 string name) returns string {
+    return "Hello " + name;
+}
+
+type B map<int>;
+annotation B[] v23 on function;
+
+@v23
+@v23
+public function myFunction3(string... argv) {
+}
+
+@v17 {}
+function myFunction4(@v19 {} string name) returns string {
+    return "Hello " + name;
+}
+
+@v23 {}
+@v23 {}
+public function myFunction5(string... argv) {
+}
+
+type C record { int i?; };
+
+annotation C[] v24 on function;
+
+@v24
+@v24
+public function myFunction6(string... argv) {
+}
+
+type Foo2 record {
+    string s1;
+    string? s2;
+};
+
+annotation Foo2 f2 on function;
+
+@f2 {
+    s1: "str",
+    s2: null
+}
+public function fooFunction() {
 }

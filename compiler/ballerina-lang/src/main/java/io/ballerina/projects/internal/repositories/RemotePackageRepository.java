@@ -4,6 +4,7 @@ import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.Settings;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.ResolutionRequest;
@@ -11,19 +12,20 @@ import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
-import org.ballerinalang.toml.model.Settings;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.net.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
@@ -53,9 +55,11 @@ public class RemotePackageRepository implements PackageRepository {
         if (Files.notExists(cacheDirectory)) {
             throw new ProjectException("cache directory does not exists: " + cacheDirectory);
         }
-        FileSystemRepository fileSystemRepository = new FileSystemRepository(environment, cacheDirectory);
+        String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
+        FileSystemRepository fileSystemRepository = new FileSystemRepository(
+                environment, cacheDirectory, ballerinaShortVersion);
         Proxy proxy = initializeProxy(settings.getProxy());
-        CentralAPIClient client = new CentralAPIClient(repoUrl, proxy);
+        CentralAPIClient client = new CentralAPIClient(repoUrl, proxy, getAccessTokenOfCLI(settings));
 
         return new RemotePackageRepository(fileSystemRepository, client);
     }
@@ -71,6 +75,12 @@ public class RemotePackageRepository implements PackageRepository {
 
     @Override
     public Optional<Package> getPackage(ResolutionRequest resolutionRequest) {
+        // Avoid resolving from remote repository for lang repo tests
+        String langRepoBuild = System.getProperty("LANG_REPO_BUILD");
+        if (langRepoBuild != null) {
+            return Optional.empty();
+        }
+
         // Check if the package is in cache
         Optional<Package> cachedPackage = this.fileSystemRepo.getPackage(resolutionRequest);
         if (cachedPackage.isPresent()) {
@@ -100,6 +110,10 @@ public class RemotePackageRepository implements PackageRepository {
 
     @Override
     public List<PackageVersion> getPackageVersions(ResolutionRequest resolutionRequest) {
+        String langRepoBuild = System.getProperty("LANG_REPO_BUILD");
+        if (langRepoBuild != null) {
+            return Collections.emptyList();
+        }
         String orgName = resolutionRequest.orgName().value();
         String packageName = resolutionRequest.packageName().value();
 
@@ -112,7 +126,8 @@ public class RemotePackageRepository implements PackageRepository {
         }
 
         try {
-            for (String version : this.client.getPackageVersions(orgName, packageName, JvmTarget.JAVA_11.code())) {
+            for (String version : this.client.getPackageVersions(orgName, packageName, JvmTarget.JAVA_11.code(),
+                                                                 RepoUtils.getBallerinaVersion())) {
                 packageVersions.add(PackageVersion.from(version));
             }
         } catch (ConnectionErrorException e) {

@@ -125,3 +125,35 @@ function testEmptyRecordIteration() returns string {
     }
     return output;
 }
+
+type Foo record {|
+|};
+
+function testForeachWithClosedRecordWithNoFields() {
+    Foo f = {
+    };
+    any a = "ABC";
+    foreach var x in f {
+        a = x;
+    }
+    assertEquality("ABC", a);
+}
+
+type AssertionError distinct error;
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error AssertionError(ASSERTION_ERROR_REASON,
+            message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}

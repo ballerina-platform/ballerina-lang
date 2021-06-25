@@ -150,6 +150,7 @@ public class SymbolTable {
     public BMapType mapAllType;
     public BArrayType arrayAllType;
     public BObjectType rawTemplateType;
+    public BObjectType iterableType;
 
     // builtin subtypes
     public final BIntSubType signed32IntType = new BIntSubType(TypeTags.SIGNED32_INT, Names.SIGNED32);
@@ -163,7 +164,8 @@ public class SymbolTable {
     public final BXMLSubType xmlPIType = new BXMLSubType(TypeTags.XML_PI, Names.XML_PI);
     public final BXMLSubType xmlCommentType = new BXMLSubType(TypeTags.XML_COMMENT, Names.XML_COMMENT);
     public final BXMLSubType xmlTextType = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT, Flags.READONLY);
-    public final BType xmlNeverType = new BXMLType(neverType,  null, Flags.READONLY);
+    public final BType xmlNeverType = new BXMLType(neverType,  null);
+    public final BType xmlElementSeqType = new BXMLType(xmlElementType, null);
 
     public final BType xmlType = new BXMLType(BUnionType.create(null, xmlElementType, xmlCommentType,
             xmlPIType, xmlTextType),  null);
@@ -268,7 +270,7 @@ public class SymbolTable {
         initializeTSymbol(xmlTextType, Names.XML_TEXT, PackageID.XML);
 
         BLangLiteral trueLiteral = new BLangLiteral();
-        trueLiteral.type = this.booleanType;
+        trueLiteral.setBType(this.booleanType);
         trueLiteral.value = Boolean.TRUE;
 
         defineCyclicUnionBasedInternalTypes();
@@ -388,6 +390,7 @@ public class SymbolTable {
                                                 Map.entry(Names.STREAM, this.langStreamModuleSymbol),
                                                 Map.entry(Names.STRING, this.langStringModuleSymbol),
                                                 Map.entry(Names.TABLE, this.langTableModuleSymbol),
+                                                Map.entry(Names.TRANSACTION, this.langTransactionModuleSymbol),
                                                 Map.entry(Names.TYPEDESC, this.langTypedescModuleSymbol),
                                                 Map.entry(Names.XML, this.langXmlModuleSymbol));
     }
@@ -402,13 +405,39 @@ public class SymbolTable {
     }
 
     private void initializeTSymbol(BType type, Name name, PackageID packageID) {
-        type.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, packageID, type, rootPkgSymbol, builtinPos,
+        type.tsymbol = new BTypeSymbol(SymTag.TYPE_DEF, Flags.PUBLIC, name, packageID, type, rootPkgSymbol, builtinPos,
                                        BUILTIN);
     }
 
     private void defineType(BType type, BTypeSymbol tSymbol) {
         type.tsymbol = tSymbol;
         rootScope.define(tSymbol.name, tSymbol);
+    }
+
+    public void updateBuiltinSubtypeOwners() {
+        updateIntSubtypeOwners();
+        updateStringSubtypeOwners();
+        updateXMLSubtypeOwners();
+    }
+
+    public void updateIntSubtypeOwners() {
+        this.signed8IntType.tsymbol.owner = this.langIntModuleSymbol;
+        this.unsigned8IntType.tsymbol.owner = this.langIntModuleSymbol;
+        this.signed16IntType.tsymbol.owner = this.langIntModuleSymbol;
+        this.unsigned16IntType.tsymbol.owner = this.langIntModuleSymbol;
+        this.signed32IntType.tsymbol.owner = this.langIntModuleSymbol;
+        this.unsigned32IntType.tsymbol.owner = this.langIntModuleSymbol;
+    }
+
+    public void updateStringSubtypeOwners() {
+        this.charStringType.tsymbol.owner = this.langStringModuleSymbol;
+    }
+
+    public void updateXMLSubtypeOwners() {
+        this.xmlElementType.tsymbol.owner = this.langXmlModuleSymbol;
+        this.xmlCommentType.tsymbol.owner = this.langXmlModuleSymbol;
+        this.xmlPIType.tsymbol.owner = this.langXmlModuleSymbol;
+        this.xmlTextType.tsymbol.owner = this.langXmlModuleSymbol;
     }
 
     public void defineOperators() {
@@ -423,42 +452,14 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.ADD, charStringType, charStringType, stringType);
         defineBinaryOperator(OperatorKind.ADD, floatType, floatType, floatType);
         defineBinaryOperator(OperatorKind.ADD, decimalType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.ADD, intType, floatType, floatType);
-        defineBinaryOperator(OperatorKind.ADD, floatType, intType, floatType);
-        defineBinaryOperator(OperatorKind.ADD, intType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.ADD, decimalType, intType, decimalType);
-        defineBinaryOperator(OperatorKind.ADD, floatType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.ADD, decimalType, floatType, decimalType);
         defineBinaryOperator(OperatorKind.SUB, floatType, floatType, floatType);
         defineBinaryOperator(OperatorKind.SUB, decimalType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.SUB, floatType, intType, floatType);
-        defineBinaryOperator(OperatorKind.SUB, intType, floatType, floatType);
-        defineBinaryOperator(OperatorKind.SUB, decimalType, intType, decimalType);
-        defineBinaryOperator(OperatorKind.SUB, intType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.SUB, decimalType, floatType, decimalType);
-        defineBinaryOperator(OperatorKind.SUB, floatType, decimalType, decimalType);
         defineBinaryOperator(OperatorKind.DIV, floatType, floatType, floatType);
         defineBinaryOperator(OperatorKind.DIV, decimalType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.DIV, intType, floatType, floatType);
-        defineBinaryOperator(OperatorKind.DIV, floatType, intType, floatType);
-        defineBinaryOperator(OperatorKind.DIV, intType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.DIV, decimalType, intType, decimalType);
-        defineBinaryOperator(OperatorKind.DIV, floatType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.DIV, decimalType, floatType, decimalType);
         defineBinaryOperator(OperatorKind.MUL, floatType, floatType, floatType);
         defineBinaryOperator(OperatorKind.MUL, decimalType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.MUL, floatType, intType, floatType);
-        defineBinaryOperator(OperatorKind.MUL, intType, floatType, floatType);
-        defineBinaryOperator(OperatorKind.MUL, decimalType, intType, decimalType);
-        defineBinaryOperator(OperatorKind.MUL, intType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.MUL, decimalType, floatType, decimalType);
-        defineBinaryOperator(OperatorKind.MUL, floatType, decimalType, decimalType);
         defineBinaryOperator(OperatorKind.MOD, floatType, floatType, floatType);
         defineBinaryOperator(OperatorKind.MOD, decimalType, decimalType, decimalType);
-        defineBinaryOperator(OperatorKind.MOD, floatType, intType, floatType);
-        defineBinaryOperator(OperatorKind.MOD, intType, floatType, floatType);
-        defineBinaryOperator(OperatorKind.MOD, decimalType, intType, decimalType);
-        defineBinaryOperator(OperatorKind.MOD, intType, decimalType, decimalType);
 
         defineIntegerBitwiseAndOperations();
         defineIntegerBitwiseOrOperations(OperatorKind.BITWISE_OR);
@@ -534,61 +535,69 @@ public class SymbolTable {
 
         // Binary comparison operators <=, <, >=, >
         defineBinaryOperator(OperatorKind.LESS_THAN, intType, intType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_THAN, intType, floatType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_THAN, floatType, intType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, byteType, byteType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, intType, byteType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, byteType, intType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_THAN, floatType, floatType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_THAN, decimalType, decimalType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_THAN, intType, decimalType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_THAN, decimalType, intType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_THAN, floatType, decimalType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_THAN, decimalType, floatType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, stringType, stringType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, booleanType, booleanType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, nilType, nilType, booleanType);
 
         defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, intType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_EQUAL, floatType, intType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, floatType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, byteType, byteType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, byteType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, byteType, intType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, floatType, floatType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, decimalType, decimalType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, decimalType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_EQUAL, decimalType, intType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_EQUAL, floatType, decimalType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_EQUAL, decimalType, floatType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, stringType, stringType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, booleanType, booleanType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, nilType, nilType, booleanType);
 
         defineBinaryOperator(OperatorKind.GREATER_THAN, intType, intType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_THAN, floatType, intType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_THAN, intType, floatType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, byteType, byteType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, intType, byteType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, byteType, intType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_THAN, floatType, floatType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_THAN, decimalType, decimalType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_THAN, intType, decimalType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_THAN, decimalType, intType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_THAN, floatType, decimalType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_THAN, decimalType, floatType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, stringType, stringType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, booleanType, booleanType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, nilType, nilType, booleanType);
 
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, intType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_EQUAL, floatType, intType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, floatType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, byteType, byteType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, byteType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, byteType, intType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, floatType, floatType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, decimalType, decimalType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, decimalType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_EQUAL, decimalType, intType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_EQUAL, floatType, decimalType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_EQUAL, decimalType, floatType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, stringType, stringType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, booleanType, booleanType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, nilType, nilType, booleanType);
 
         defineBinaryOperator(OperatorKind.AND, booleanType, booleanType, booleanType);
         defineBinaryOperator(OperatorKind.OR, booleanType, booleanType, booleanType);
 
         // Unary operator symbols
+        defineIntegerUnaryOperations();
+
         defineUnaryOperator(OperatorKind.ADD, floatType, floatType);
         defineUnaryOperator(OperatorKind.ADD, decimalType, decimalType);
-        defineUnaryOperator(OperatorKind.ADD, intType, intType);
 
         defineUnaryOperator(OperatorKind.SUB, floatType, floatType);
         defineUnaryOperator(OperatorKind.SUB, decimalType, decimalType);
-        defineUnaryOperator(OperatorKind.SUB, intType, intType);
 
         defineUnaryOperator(OperatorKind.NOT, booleanType, booleanType);
         defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, byteType, byteType);
-        defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, intType, intType);
+    }
 
+    private void defineIntegerUnaryOperations() {
+        BType[] intTypes = {intType, byteType, signed32IntType, signed16IntType, signed8IntType, unsigned32IntType,
+                unsigned16IntType, unsigned8IntType};
+        for (BType type : intTypes) {
+            defineUnaryOperator(OperatorKind.ADD, type, intType);
+            defineUnaryOperator(OperatorKind.SUB, type, intType);
+            defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, type, intType);
+        }
     }
 
     private void defineXmlStringConcatanationOperations() {
@@ -716,6 +725,17 @@ public class SymbolTable {
         }
     }
 
+    public void defineIntRangeOperations() {
+        BType[] intTypes = {intType, signed32IntType, signed16IntType, signed8IntType,
+                unsigned32IntType, unsigned16IntType, unsigned8IntType};
+        for (BType lhs : intTypes) {
+            for (BType rhs : intTypes) {
+                defineBinaryOperator(OperatorKind.CLOSED_RANGE, lhs, rhs, intRangeType);
+                defineBinaryOperator(OperatorKind.HALF_OPEN_RANGE, lhs, rhs, intRangeType);
+            }
+        }
+    }
+
     public void defineBinaryOperator(OperatorKind kind,
                                      BType lhsType,
                                      BType rhsType,
@@ -751,7 +771,10 @@ public class SymbolTable {
         cloneableType = BUnionType.create(null, readonlyType, xmlType);
         addCyclicArrayMapTableOfMapMembers(cloneableType);
 
-        cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, rootPkgSymbol.pkgID,
+        // `cloneableType` and its symbol gets replaced by `Cloneable` type defined in lang value module. To prevent
+        // cyclic dependencies need to define duplicate `Cloneable type in other modules as well. Due to this reason
+        // symbol in symbol table is created by default as private.
+        cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PRIVATE, Names.CLONEABLE, rootPkgSymbol.pkgID,
                 cloneableType, rootPkgSymbol, builtinPos, BUILTIN);
 
         detailType = new BMapType(TypeTags.MAP, cloneableType, null);
@@ -768,7 +791,7 @@ public class SymbolTable {
         futureType.constraint = anyOrErrorType;
 
         pureType = BUnionType.create(null, anydataType, errorType);
-        streamType = new BStreamType(TypeTags.STREAM, pureType, neverType, null);
+        streamType = new BStreamType(TypeTags.STREAM, pureType, nilType, null);
         tableType = new BTableType(TypeTags.TABLE, pureType, null);
 
         initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);

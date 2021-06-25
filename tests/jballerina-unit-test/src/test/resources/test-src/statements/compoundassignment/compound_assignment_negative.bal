@@ -66,10 +66,10 @@ function testInvalidTypeIntStringCompound() returns (int){
     return x;
 }
 
-function testIntFloatDivision() returns (int){
+function testIntFloatDivision() returns (float){
     int x = 5;
     float d = 2.5;
-    x /= d;
+    x /= <int>d;
     return x;
 }
 
@@ -164,3 +164,9 @@ function foo(Bar b) returns Bar {
 type Bar record {
     int bar = 0;
 };
+
+function invalidUsageOfCompoundAssignmentAsExpr() {
+    int a = 5;
+    int f = a <<= 3;
+    int g = a >>= 3;
+}

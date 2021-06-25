@@ -27,7 +27,7 @@ import io.ballerina.shell.snippet.SnippetSubKind;
  *
  * @since 2.0.0
  */
-public class ExpressionSnippet extends ExecutableSnippet {
+public class ExpressionSnippet extends AbstractSnippet<ExpressionNode> implements ExecutableSnippet {
     public ExpressionSnippet(ExpressionNode rootNode) {
         super(SnippetSubKind.EXPRESSION, rootNode);
     }

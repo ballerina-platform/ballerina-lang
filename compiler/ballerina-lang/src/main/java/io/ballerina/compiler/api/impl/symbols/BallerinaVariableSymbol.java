@@ -18,14 +18,16 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -46,14 +48,10 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
     private final TypeSymbol typeDescriptorImpl;
     private final boolean deprecated;
 
-    protected BallerinaVariableSymbol(String name,
-                                      PackageID moduleID,
-                                      SymbolKind ballerinaSymbolKind,
-                                      List<Qualifier> qualifiers,
-                                      List<AnnotationSymbol> annots,
-                                      TypeSymbol typeDescriptorImpl,
-                                      BSymbol bSymbol) {
-        super(name, moduleID, ballerinaSymbolKind, bSymbol);
+    protected BallerinaVariableSymbol(String name, SymbolKind ballerinaSymbolKind, List<Qualifier> qualifiers,
+                                      List<AnnotationSymbol> annots, TypeSymbol typeDescriptorImpl, BSymbol bSymbol,
+                                      CompilerContext context) {
+        super(name, ballerinaSymbolKind, bSymbol, context);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.annots = Collections.unmodifiableList(annots);
         this.docAttachment = getDocAttachment(bSymbol);
@@ -82,6 +80,11 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
     }
 
     @Override
+    public DiagnosticState diagnosticState() {
+        return ((BVarSymbol) this.getInternalSymbol()).state;
+    }
+
+    @Override
     public boolean deprecated() {
         return this.deprecated;
     }
@@ -105,14 +108,14 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
         protected List<AnnotationSymbol> annots = new ArrayList<>();
         protected TypeSymbol typeDescriptor;
 
-        public VariableSymbolBuilder(String name, PackageID moduleID, BSymbol bSymbol) {
-            super(name, moduleID, SymbolKind.VARIABLE, bSymbol);
+        public VariableSymbolBuilder(String name, BSymbol bSymbol, CompilerContext context) {
+            super(name, SymbolKind.VARIABLE, bSymbol, context);
         }
 
         @Override
         public BallerinaVariableSymbol build() {
-            return new BallerinaVariableSymbol(this.name, this.moduleID, this.ballerinaSymbolKind, this.qualifiers,
-                                               this.annots, this.typeDescriptor, this.bSymbol);
+            return new BallerinaVariableSymbol(this.name, this.ballerinaSymbolKind, this.qualifiers,
+                                               this.annots, this.typeDescriptor, this.bSymbol, this.context);
         }
 
         public VariableSymbolBuilder withTypeDescriptor(TypeSymbol typeDescriptor) {

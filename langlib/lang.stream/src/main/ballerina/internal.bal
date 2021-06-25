@@ -16,25 +16,25 @@
 import ballerina/lang.__internal as internal;
 
 type _Iterator object {
-    public isolated function next() returns record {|Type value;|}|ErrorType?;
+    public isolated function next() returns record {|Type value;|}|CompletionType;
 };
 
 class FilterSupport {
-    public stream<Type, ErrorType> strm;
+    public stream<Type, CompletionType> strm;
     public any func;
 
-    public isolated function init(stream<Type, ErrorType> strm, function(Type val) returns boolean func) {
+    public isolated function init(stream<Type, CompletionType> strm, function(Type val) returns boolean func) {
       self.strm = strm;
       self.func = func;
     }
 
-    public isolated function next() returns record {|Type value;|}|ErrorType? {
+    public isolated function next() returns record {|Type value;|}|CompletionType {
         // while loop is required to continue filtering until we find a value which matches the filter or ().
         while(true) {
             var nextVal = next(self.strm);
             if (nextVal is ()) {
                 return ();
-            } else if (nextVal is ErrorType) {
+            } else if (nextVal is error) {
                 return nextVal;
             } else {
                 var value = nextVal?.value;
@@ -50,21 +50,21 @@ class FilterSupport {
 }
 
 class MapSupport {
-    public stream<Type, ErrorType> strm;
+    public stream<Type, CompletionType> strm;
     public any func;
 
-    public isolated function init(stream<Type, ErrorType> strm, function(Type val) returns Type1 func) {
+    public isolated function init(stream<Type, CompletionType> strm, function(Type val) returns Type1 func) {
         self.strm = strm;
         self.func = func;
     }
 
-    public isolated function next() returns record {|Type value;|}|ErrorType? {
+    public isolated function next() returns record {|Type value;|}|CompletionType {
         var nextVal = next(self.strm);
         if (nextVal is ()) {
             return ();
         } else {
             function(any | error) returns any | error mappingFunc = internal:getMapFunc(self.func);
-            if (nextVal is ErrorType) {
+            if (nextVal is error) {
                  return nextVal;
             } else {
                  var value = internal:invokeAsExternal(mappingFunc, nextVal.value);

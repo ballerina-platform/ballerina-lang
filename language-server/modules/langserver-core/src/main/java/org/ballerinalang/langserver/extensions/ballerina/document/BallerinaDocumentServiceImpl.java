@@ -17,9 +17,15 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 
 import com.google.gson.JsonElement;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.syntaxapicallsgen.SyntaxApiCallsGen;
+import io.ballerina.syntaxapicallsgen.config.SyntaxApiCallsGenConfig;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
@@ -29,8 +35,10 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
+import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageService;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
+import org.eclipse.lsp4j.Range;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -45,6 +53,8 @@ import java.util.stream.Collectors;
  * @since 0.981.2
  */
 public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
+    protected static final String MINUTIAE = "WHITESPACE_MINUTIAE";
+
     private final WorkspaceManager workspaceManager;
     private final LSClientLogger clientLogger;
     private final LanguageServerContext serverContext;
@@ -53,6 +63,45 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         this.workspaceManager = workspaceManager;
         this.clientLogger = LSClientLogger.getInstance(serverContext);
         this.serverContext = serverContext;
+    }
+
+    @Override
+    public CompletableFuture<SyntaxApiCallsResponse> syntaxApiCalls(SyntaxApiCallsRequest request) {
+        return CompletableFuture.supplyAsync(() -> {
+            SyntaxApiCallsResponse reply = new SyntaxApiCallsResponse();
+            String fileUri = request.getDocumentIdentifier().getUri();
+            Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+            if (filePath.isEmpty()) {
+                return reply;
+            }
+
+            try {
+                Optional<Document> srcFile = this.workspaceManager.document(filePath.get());
+                if (srcFile.isEmpty()) {
+                    return reply;
+                }
+                // Create the config object
+                SyntaxApiCallsGenConfig syntaxApiCallsGenConfig = new SyntaxApiCallsGenConfig.Builder()
+                        .ignoreMinutiae(request.getIgnoreMinutiae()).build();
+
+                // Get the source file content.
+                String srcContent = srcFile.get().textDocument().toString();
+
+                // Get the generated syntax API quote.
+                String javaCode = SyntaxApiCallsGen.generate(srcContent, syntaxApiCallsGenConfig);
+
+                // Preparing the response.
+                reply.setSource(srcFile.get().syntaxTree().toSourceCode());
+                reply.setCode(javaCode);
+                reply.setParseSuccess(reply.getCode() != null);
+            } catch (Throwable e) {
+                reply.setParseSuccess(false);
+                String msg = "Operation 'ballerinaDocument/syntaxApiCalls' failed!";
+                this.clientLogger.logError(DocumentContext.DC_SYNTAX_API_CALLS, msg, e,
+                        request.getDocumentIdentifier(), (Position) null);
+            }
+            return reply;
+        });
     }
 
     @Override
@@ -83,9 +132,95 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         } catch (Throwable e) {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/syntaxTree' failed!";
-            this.clientLogger.logError(msg, e, request.getDocumentIdentifier(), (Position) null);
+            this.clientLogger.logError(DocumentContext.DC_SYNTAX_TREE, msg, e, request.getDocumentIdentifier(),
+                    (Position) null);
         }
         return CompletableFuture.supplyAsync(() -> reply);
+    }
+
+    @Override
+    public CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreeByRange(BallerinaSyntaxTreeByRangeRequest request) {
+        return CompletableFuture.supplyAsync(() -> {
+            BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
+            String fileUri = request.getDocumentIdentifier().getUri();
+            Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+            if (filePath.isEmpty()) {
+                return reply;
+            }
+
+            try {
+                Optional<Document> srcFile = this.workspaceManager.document(filePath.get());
+                if (srcFile.isEmpty()) {
+                    return reply;
+                }
+
+                // Get the semantic model.
+                Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(filePath.get());
+
+                //Find the ST Nodes of the selected range
+                SyntaxTree syntaxTree = srcFile.get().syntaxTree();
+                NonTerminalNode node = CommonUtil.findNode(request.getLineRange(), syntaxTree);
+
+                // Get the generated syntax tree JSON with type info.
+                JsonElement subSyntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(node, semanticModel.get());
+
+                // Preparing the response.
+                reply.setSource(node.toSourceCode());
+                reply.setSyntaxTree(subSyntaxTreeJSON);
+                reply.setParseSuccess(reply.getSyntaxTree() != null);
+                return reply;
+            } catch (Throwable e) {
+                reply.setParseSuccess(false);
+                String msg = "Operation 'ballerinaDocument/syntaxTreeByRange' failed!";
+                this.clientLogger.logError(DocumentContext.DC_SYNTAX_TREE_BY_RANGE, msg, e,
+                        request.getDocumentIdentifier(), (Position) null);
+                return reply;
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreeLocate(BallerinaSyntaxTreeByRangeRequest request) {
+        return CompletableFuture.supplyAsync(() -> {
+            BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
+            String fileUri = request.getDocumentIdentifier().getUri();
+            Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+            if (filePath.isEmpty()) {
+                return reply;
+            }
+
+            try {
+                Optional<Document> srcFile = this.workspaceManager.document(filePath.get());
+                if (srcFile.isEmpty()) {
+                    return reply;
+                }
+
+                // Get the semantic model.
+                Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(filePath.get());
+
+                //Find the ST Nodes of the selected range
+                SyntaxTree syntaxTree = srcFile.get().syntaxTree();
+
+                // Get the generated syntax tree JSON with type info.
+                JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(srcFile.get(), semanticModel.get());
+
+                //Map the path on the JSON syntax tree object
+                syntaxTreeJSON = BallerinaLocateSyntaxTreeUtil.mapNodePath(request.getLineRange(), syntaxTree,
+                        syntaxTreeJSON);
+
+                // Preparing the response.
+                reply.setSyntaxTree(syntaxTreeJSON);
+                reply.setSource(srcFile.get().syntaxTree().toSourceCode());
+                reply.setParseSuccess(reply.getSyntaxTree() != null);
+                return reply;
+            } catch (Throwable e) {
+                reply.setParseSuccess(false);
+                String msg = "Operation 'ballerinaDocument/syntaxTreeLocate' failed!";
+                this.clientLogger.logError(DocumentContext.DC_SYNTAX_TREE_LOCATE, msg, e,
+                        request.getDocumentIdentifier(), (Position) null);
+                return reply;
+            }
+        });
     }
 
     @Override
@@ -110,7 +245,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         } catch (Throwable e) {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/syntaxTreeModify' failed!";
-            this.clientLogger.logError(msg, e, request.getDocumentIdentifier(), (Position) null);
+            this.clientLogger.logError(DocumentContext.DC_SYNTAX_TREE_MODIFY, msg, e, request.getDocumentIdentifier(),
+                    (Position) null);
         }
         return CompletableFuture.supplyAsync(() -> reply);
     }
@@ -135,11 +271,16 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         } catch (Throwable e) {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/ast' failed!";
-            this.clientLogger.logError(msg, e, request.getDocumentIdentifier(), (Position) null);
+            this.clientLogger.logError(DocumentContext.DC_AST, msg, e, request.getDocumentIdentifier(),
+                    (Position) null);
         }
         return CompletableFuture.supplyAsync(() -> reply);
     }
 
+    /**
+     * @deprecated use {@link BallerinaPackageService} instead.
+     */
+    @Deprecated(since = "2.0.0", forRemoval = true)
     @Override
     public CompletableFuture<BallerinaProject> project(BallerinaProjectParams params) {
         return CompletableFuture.supplyAsync(() -> {
@@ -161,7 +302,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                 ballerinaProject.setKind(projectKind.name());
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaDocument/project' failed!";
-                this.clientLogger.logError(msg, e, params.getDocumentIdentifier(), (Position) null);
+                this.clientLogger.logError(DocumentContext.DC_PROJECT, msg, e, params.getDocumentIdentifier(),
+                        (Position) null);
             }
             return ballerinaProject;
         });
@@ -173,18 +315,76 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             String fileUri = params.getDocumentIdentifier().getUri();
             try {
                 DocumentServiceContext context = ContextBuilder.buildBaseContext(fileUri,
-                                                                                 this.workspaceManager,
-                                                                                 LSContextOperation.DOC_DIAGNOSTICS,
-                                                                                 this.serverContext);
+                        this.workspaceManager,
+                        LSContextOperation.DOC_DIAGNOSTICS,
+                        this.serverContext);
                 DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
                 return diagnosticsHelper.getLatestDiagnostics(context).entrySet().stream()
                         .map((entry) -> new PublishDiagnosticsParams(entry.getKey(), entry.getValue()))
                         .collect(Collectors.toList());
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaDocument/diagnostics' failed!";
-                this.clientLogger.logError(msg, e, params.getDocumentIdentifier(), (Position) null);
+                this.clientLogger.logError(DocumentContext.DC_DIAGNOSTICS, msg, e, params.getDocumentIdentifier(),
+                        (Position) null);
                 return Collections.emptyList();
             }
+        });
+    }
+
+    @Override
+    public CompletableFuture<SyntaxTreeNodeResponse> syntaxTreeNode(SyntaxTreeNodeRequest params) {
+        return CompletableFuture.supplyAsync(() -> {
+            SyntaxTreeNodeResponse syntaxTreeNodeResponse = new SyntaxTreeNodeResponse();
+            try {
+                Optional<Path> filePath = CommonUtil.getPathFromURI(params.getDocumentIdentifier().getUri());
+                if (filePath.isEmpty()) {
+                    return syntaxTreeNodeResponse;
+                }
+                SyntaxTree syntaxTree = this.workspaceManager.syntaxTree(filePath.get()).orElseThrow();
+                NonTerminalNode currentNode = CommonUtil.findNode(params.getRange(), syntaxTree);
+                LinePosition startLine = currentNode.lineRange().startLine();
+                LinePosition endLine = currentNode.lineRange().endLine();
+                Range cursor = params.getRange();
+                if ((startLine.line() < cursor.getStart().getLine() || startLine.line() == cursor.getStart().getLine()
+                        && startLine.offset() < cursor.getStart().getCharacter()) &&
+                        (endLine.line() > cursor.getEnd().getLine() || endLine.line() == cursor.getEnd().getLine()
+                                && endLine.offset() > cursor.getEnd().getCharacter())) {
+                    syntaxTreeNodeResponse.setKind(currentNode.kind().name());
+                } else {
+                    syntaxTreeNodeResponse.setKind(MINUTIAE);
+                }
+            } catch (Throwable e) {
+                String msg = "Operation 'ballerinaDocument/syntaxTreeNode' failed!";
+                this.clientLogger.logError(DocumentContext.DC_SYNTAX_TREE_NODE, msg, e, params.getDocumentIdentifier(),
+                        (Position) null);
+            }
+            return syntaxTreeNodeResponse;
+        });
+    }
+
+    @Override
+    public CompletableFuture<ExecutorPositionsResponse> executorPositions(BallerinaProjectParams params) {
+        return CompletableFuture.supplyAsync(() -> {
+            ExecutorPositionsResponse response = new ExecutorPositionsResponse();
+            try {
+                String fileUri = params.getDocumentIdentifier().getUri();
+                Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+                if (filePath.isEmpty()) {
+                    return response;
+                }
+
+                Optional<Module> module = workspaceManager.module(filePath.get());
+                if (module.isEmpty()) {
+                    return response;
+                }
+                response.setExecutorPositions(ExecutorPositionsUtil.getExecutorPositions(module.get(),
+                        filePath.get()));
+            } catch (Throwable e) {
+                String msg = "Operation 'ballerinaDocument/executorPositions' failed!";
+                this.clientLogger.logError(DocumentContext.DC_EXEC_POSITION, msg, e, params.getDocumentIdentifier(),
+                        (Position) null);
+            }
+            return response;
         });
     }
 }

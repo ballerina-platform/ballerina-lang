@@ -45,12 +45,10 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 public class TypeCastExpressionsTest {
 
     private CompileResult result;
-    private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/typecast/type_cast_expr.bal");
-        resultNegative = BCompileUtil.compile("test-src/expressions/typecast/type_cast_expr_negative.bal");
     }
 
     @Test(dataProvider = "positiveTests")
@@ -82,14 +80,14 @@ public class TypeCastExpressionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: '\\(string\\|int\\|\\(\\)\\)\\[2\\]' cannot be cast to 'string\\[2\\]'.*")
+                    "types: '\\(string\\|int\\)\\?\\[2\\]' cannot be cast to 'string\\[2\\]'.*")
     public void testArrayCastNegative() {
         BRunUtil.invoke(result, "testArrayCastNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: '\\[string,int\\|string,float\\]' cannot be cast" +
-                    " to '\\[string,int,float\\]'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: '\\[string,\\(int\\|string\\),float\\]' cannot " +
+                    "be cast to '\\[string,int,float\\]'.*")
     public void testTupleCastNegative() {
         BRunUtil.invoke(result, "testTupleCastNegative");
     }
@@ -113,16 +111,16 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'table<TableEmployee>' cannot be cast to " +
-                    "'table<TableEmployeeTwo>'.*", enabled = false)
+            expectedExceptionsMessageRegExp = ".*error: \\{ballerina}TypeCastError \\{\"message\":\"incompatible " +
+                    "types: 'table<TableEmployee> key\\(id\\)' cannot be cast to 'table<TableEmployeeTwo>'\"}.*")
     public void testTableCastNegative() {
         BRunUtil.invoke(result, "testTableCastNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'xml\\" +
-                    "<lang\\.xml:Element" + "\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
-                    "lang\\.xml:Text\\>'.*")
+                    "<\\(lang\\.xml:Element\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
+                    "lang\\.xml:Text\\)\\>'.*")
     public void testXmlCastNegative() {
         BRunUtil.invoke(result, "testXmlCastNegative");
     }
@@ -134,17 +132,10 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-        expectedExceptionsMessageRegExp = ".*'function \\(string,int\\) returns \\(string\\)' cannot be cast to " +
-                "'function \\(string\\) returns \\(string\\)'.*")
+        expectedExceptionsMessageRegExp = ".*'isolated function \\(string,int\\) returns \\(string\\)' cannot be cast" +
+                " to 'function \\(string\\) returns \\(string\\)'.*")
     public void testFunctionCastNegative() {
         BRunUtil.invoke(result, "testFunctionCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: incompatible types: expected 'function \\(string\\) " +
-                    "returns \\(string\\)', found 'function \\(string,int\\) returns \\(string\\)'.*", enabled = false)
-    public void testFutureCastNegative() {
-        BRunUtil.invoke(result, "testFutureCastNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -173,16 +164,26 @@ public class TypeCastExpressionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'int' cannot be cast to 'string\\|boolean'.*")
+                    "types: 'int' cannot be cast to '\\(string\\|boolean\\)'.*")
     public void testDirectlyUnmatchedUnionToUnionCastNegativeOne() {
         BRunUtil.invoke(result, "testDirectlyUnmatchedUnionToUnionCastNegative_1");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'string' cannot be cast to 'Lead\\|int'.*")
+                    "types: 'string' cannot be cast to '\\(Lead\\|int\\)'.*")
     public void testDirectlyUnmatchedUnionToUnionCastNegativeTwo() {
         BRunUtil.invoke(result, "testDirectlyUnmatchedUnionToUnionCastNegative_2");
+    }
+
+    @Test
+    public void testMutableJsonMappingToExclusiveRecordNegative() {
+        BRunUtil.invoke(result, "testMutableJsonMappingToExclusiveRecordNegative");
+    }
+
+    @Test
+    public void testTypeCastInConstructorMemberWithUnionCET() {
+        BRunUtil.invoke(result, "testTypeCastInConstructorMemberWithUnionCET");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -197,7 +198,7 @@ public class TypeCastExpressionsTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "incompatible types: 'function (string,int) returns (string)' cannot be cast to " +
+                            "incompatible types: 'isolated function (string,int) returns (string)' cannot be cast to " +
                                     "'function (string) returns (string)'");
     }
 
@@ -254,9 +255,9 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to 'string\\|xml\\" +
-            "<lang\\.xml:Element" + "\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
-                    "lang\\.xml:Text\\>'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to '\\(string\\|xml\\" +
+            "<\\(lang\\.xml:Element\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
+                    "lang\\.xml:Text\\)\\>\\)'.*")
     public void testFiniteTypeToRefTypeCastNegative() {
         BRunUtil.invoke(result, "testFiniteTypeToRefTypeCastNegative");
     }
@@ -275,16 +276,27 @@ public class TypeCastExpressionsTest {
 
     @Test
     public void testCastNegatives() {
+        CompileResult resultNegative = BCompileUtil.compile(
+                "test-src/expressions/typecast/type_cast_expr_negative.bal");
+
         int errIndex = 0;
         validateError(resultNegative, errIndex++, "incompatible types: 'Def' cannot be cast to 'Abc'", 19, 15);
-        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be cast to '(int|foo)'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be cast to 'FooInt'",
                 30, 16);
-        validateError(resultNegative, errIndex++, "incompatible types: '(int|foo)' cannot be cast to 'xml'", 35, 13);
+        validateError(resultNegative, errIndex++, "incompatible types: 'FooInt' cannot be cast to 'xml'", 35, 13);
         validateError(resultNegative, errIndex++, "incompatible types: '(int|error)' cannot be cast to 'int'", 67, 13);
         validateError(resultNegative, errIndex++, "incompatible types: '(json|error)' cannot be cast to 'string'", 68
                 , 13);
         validateError(resultNegative, errIndex++, "incompatible types: '(json|error)' cannot be cast to 'string'", 69,
                 13);
+        validateError(resultNegative, errIndex++, "incompatible types: '(string[]|int)' cannot be cast to 'byte[]'",
+                78, 32);
+        validateError(resultNegative, errIndex++, "incompatible mapping constructor expression for type '(record {| " +
+                        "byte[] a; anydata...; |}|record {| string a; anydata...; |})'", 79, 47);
+        validateError(resultNegative, errIndex++, "incompatible types: '(string[]|int)' cannot be cast to 'byte[]'",
+                79, 51);
+        validateError(resultNegative, errIndex++, "incompatible mapping constructor expression for type '(record {| " +
+                "string[] a; anydata...; |}|record {| string a; anydata...; |})'", 82, 49);
         Assert.assertEquals(resultNegative.getErrorCount(), errIndex);
     }
 
@@ -327,6 +339,14 @@ public class TypeCastExpressionsTest {
     }
 
     @DataProvider
+    public Object[][] futureCastNegativeTests() {
+        return new Object[][] {
+                {"testFutureCastNegative"},
+                {"testFutureOfFutureValueCastNegative"}
+        };
+    }
+
+    @DataProvider
     public Object[][] stringAsStringTests() {
         String[] asStringTestFunctions = new String[]{"testStringAsString", "testStringInUnionAsString"};
         String[] stringValues = new String[]{"a", "", "Hello, from Ballerina!"};
@@ -353,9 +373,26 @@ public class TypeCastExpressionsTest {
         Assert.assertEquals(((BMap) returns[0]).get("id").stringValue(), "1100");
     }
 
+    @DataProvider
+    public Object[] mappingToRecordTests() {
+        return new Object[]{
+                "testImmutableJsonMappingToExclusiveRecordPositive",
+                "testImmutableJsonMappingToInclusiveRecordPositive"
+        };
+    }
+
+    @Test(dataProvider = "positiveTests")
+    public void testJsonMappingToRecordPositive(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @Test(dataProvider = "futureCastNegativeTests")
+    public void testFutureCastNegative(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
-        resultNegative = null;
     }
 }

@@ -224,4 +224,21 @@ public function main() {
         field2: 0,
         field3: 0
     };
+    
+    module1:Client cl = new("http://localhost/test");
 }
+
+type Query object {
+  # Query string
+  string query;
+};
+
+public type NodeCredential record {|
+    # IP Address
+    string ip;
+    int port;
+    string username;
+    constants:NodeType nodetype;
+    # Optfield
+    string optField ?;
+|};

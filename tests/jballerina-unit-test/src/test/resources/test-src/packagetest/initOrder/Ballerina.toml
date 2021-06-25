@@ -2,5 +2,3 @@
 org= "testorg"
 name="init_order"
 version= "1.0.0"
-
-[dependencies]

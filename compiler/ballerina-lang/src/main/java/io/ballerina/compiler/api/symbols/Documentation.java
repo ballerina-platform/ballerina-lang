@@ -47,4 +47,19 @@ public interface Documentation {
      * @return {@link Optional} return description
      */
     Optional<String> returnDescription();
+
+    /**
+     * Gets the deprecated documentation if the user has specified it.
+     *
+     * @return The text if there is a deprecation documentation
+     */
+    Optional<String> deprecatedDescription();
+
+    /**
+     * Gets the parameters in the "Deprecated parameters" section as a mapping between the parameter name and the
+     * deprecated documentation for it. If there isn't a deprecated parameters section, the map will be empty.
+     *
+     * @return A map of deprecated parameters and their descriptions
+     */
+    Map<String, String> deprecatedParametersMap();
 }

@@ -10,13 +10,11 @@
   {
     "description": "View error.",
     "code": "result",
-    "stdout": "Exception occurred: error(\"{ballerina}DivisionByZero\",message=\" / by zero\")\n",
-    "error": "InvokerException"
+    "expr": "error(\"{ballerina}DivisionByZero\",message=\" / by zero\")"
   },
   {
     "description": "Directly view trapped value.",
     "code": "trap divide(1, 0);",
-    "stdout": "Exception occurred: error(\"{ballerina}DivisionByZero\",message=\" / by zero\")\n",
-    "error": "InvokerException"
+    "expr": "error(\"{ballerina}DivisionByZero\",message=\" / by zero\")"
   }
 ]

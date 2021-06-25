@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
  *
  * @since 2.0.0
  */
-@Test(groups = { "disableOnOldParser" })
 public class MatchStatementSyntaxErrorsTest {
 
     private CompileResult result;
@@ -41,7 +40,7 @@ public class MatchStatementSyntaxErrorsTest {
 
     @Test
     public void testSyntaxErrors() {
-        Assert.assertEquals(result.getErrorCount(), 12);
+        Assert.assertEquals(result.getErrorCount(), 15);
 
         int i = -1;
         BAssertUtil.validateError(result, ++i, "undefined symbol 'v'", 5, 9);
@@ -56,6 +55,9 @@ public class MatchStatementSyntaxErrorsTest {
         BAssertUtil.validateError(result, ++i, "missing identifier", 17, 1);
         BAssertUtil.validateError(result, ++i, "missing open brace token", 17, 1);
         BAssertUtil.validateError(result, ++i, "missing close brace token", 18, 1);
+        BAssertUtil.validateError(result, ++i, "missing colon token", 21, 11);
+        BAssertUtil.validateError(result, ++i, "missing identifier", 21, 11);
+        BAssertUtil.validateError(result, ++i, "variable '$missingNode$_1' should be declared as constant", 21, 11);
     }
 
     @AfterClass

@@ -190,3 +190,26 @@ public class ServTypeListener {
 service / on new ServTypeListener() {
 
 }
+
+public class Listener {
+    public isolated function 'start() returns error? {
+    }
+    public isolated function gracefulStop() returns error? {
+    }
+    public isolated function immediateStop() returns error? {
+    }
+    public isolated function detach(service object {} s) returns error? {
+    }
+    public isolated function attach(service object {} s, string[]|string name = "") returns error? {
+    }
+}
+
+listener Listener x = new;
+
+service on x {
+
+}
+
+service ServType / on new ServTypeListener() {
+
+}

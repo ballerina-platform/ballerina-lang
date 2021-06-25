@@ -1,4 +1,0 @@
-[main.testUser]
-username = "Jane"
-password = "password"
-scopes = ["write"]

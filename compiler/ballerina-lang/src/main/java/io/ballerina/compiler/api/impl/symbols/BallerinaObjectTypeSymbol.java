@@ -18,6 +18,7 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
@@ -26,6 +27,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -39,6 +41,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 /**
  * Represents an object type descriptor.
@@ -47,13 +50,16 @@ import java.util.StringJoiner;
  */
 public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements ObjectTypeSymbol {
 
+    private static final String ORG_NAME_BALLERINA = "ballerina";
+    private static final String MODULE_NAME_LANG_VALUE = "lang.value";
+
     private List<Qualifier> qualifiers;
     private Map<String, ObjectFieldSymbol> objectFields;
     private Map<String, MethodSymbol> methods;
     private List<TypeSymbol> typeInclusions;
 
     public BallerinaObjectTypeSymbol(CompilerContext context, ModuleID moduleID, BObjectType objectType) {
-        super(context, TypeDescKind.OBJECT, moduleID, objectType);
+        super(context, TypeDescKind.OBJECT, objectType);
     }
 
     @Override
@@ -103,8 +109,15 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         Map<String, MethodSymbol> methods = new LinkedHashMap<>();
 
         for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) this.getBType().tsymbol).attachedFuncs) {
-            methods.put(attachedFunc.funcName.value,
-                        symbolFactory.createMethodSymbol(attachedFunc.symbol, attachedFunc.funcName.getValue()));
+            if (attachedFunc instanceof BResourceFunction) {
+                BResourceFunction resFn = (BResourceFunction) attachedFunc;
+                String resPath = resFn.resourcePath.stream().map(p -> p.value).collect(Collectors.joining("/"));
+                methods.put(resFn.accessor.value + " " + resPath,
+                            symbolFactory.createResourceMethodSymbol(attachedFunc.symbol));
+            } else {
+                methods.put(attachedFunc.funcName.value,
+                            symbolFactory.createMethodSymbol(attachedFunc.symbol, attachedFunc.funcName.getValue()));
+            }
         }
 
         this.methods = Collections.unmodifiableMap(methods);
@@ -138,7 +151,7 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
     public String signature() {
         StringBuilder signature = new StringBuilder();
         StringJoiner qualifierJoiner = new StringJoiner(" ");
-        StringJoiner fieldJoiner = new StringJoiner(";");
+        StringJoiner fieldJoiner = new StringJoiner("");
         StringJoiner methodJoiner = new StringJoiner(" ");
 
         for (Qualifier typeQualifier : this.qualifiers()) {
@@ -151,13 +164,31 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         // this.getObjectTypeReference()
         //         .ifPresent(typeDescriptor -> fieldJoiner.add("*" + typeDescriptor.getSignature()));
         this.fieldDescriptors().values().forEach(
-                objectFieldDescriptor -> fieldJoiner.add(objectFieldDescriptor.signature()));
+                objectFieldDescriptor -> fieldJoiner.add(objectFieldDescriptor.signature()).add(";"));
         this.methods().values().forEach(method -> methodJoiner.add(method.signature()).add(";"));
 
         return signature.append(fieldJoiner.toString())
                 .append(methodJoiner.toString())
                 .append("}")
                 .toString();
+    }
+
+    /**
+     * As per the spec, {@code lang.value} functions should not be available on objects. Therefore, they are filtered
+     * here.
+     *
+     * @param functions    Functions to be filtered
+     * @param internalType Internal type
+     * @return Filtered langlib functions
+     */
+    @Override
+    protected List<FunctionSymbol> filterLangLibMethods(List<FunctionSymbol> functions, BType internalType) {
+        List<FunctionSymbol> functionSymbols = super.filterLangLibMethods(functions, internalType);
+        return functionSymbols.stream()
+                .filter(functionSymbol -> functionSymbol.getModule().isPresent())
+                .filter(functionSymbol -> !ORG_NAME_BALLERINA.equals(functionSymbol.getModule().get().id().orgName()) ||
+                        !MODULE_NAME_LANG_VALUE.equals(functionSymbol.getModule().get().id().moduleName()))
+                .collect(Collectors.toList());
     }
 
     private void addIfFlagSet(List<Qualifier> quals, final long mask, final long flag, Qualifier qualifier) {

@@ -64,7 +64,9 @@ public class Names {
     public static final Name RUNTIME = new Name("runtime");
     public static final Name TRANSACTION = new Name("transaction");
     public static final Name OBSERVE = new Name("observe");
+    public static final Name CLOUD = new Name("cloud");
     public static final Name TABLE = new Name("table");
+    public static final Name TEST = new Name("test");
     public static final Name TYPEDESC = new Name("typedesc");
     public static final Name STRING = new Name("string");
     public static final Name VALUE = new Name("value");
@@ -107,8 +109,7 @@ public class Names {
     public static final Name RAW_TEMPLATE = new Name("RawTemplate");
     public static final Name CLONEABLE = new Name("Cloneable");
     public static final Name CLONEABLE_INTERNAL = new Name("__Cloneable");
-    public static final Name CLONEABLE_INTERNAL1 = new Name("__Cloneable1");
-    public static final Name CLONEABLE_INTERNAL2 = new Name("__Cloneable2");
+    public static final Name OBJECT_ITERABLE = new Name("Iterable");
 
     // Subtypes
     public static final Name SIGNED32 = new Name(STRING_SIGNED32);
@@ -140,8 +141,8 @@ public class Names {
 
     // Names related to streams
     public static final Name CONSTRUCT_STREAM = new Name("construct");
-    public static final Name ABSTRACT_ITERATOR = new Name("_Iterator");
-    public static final Name ABSTRACT_CLOSEABLE_ITERATOR = new Name("_CloseableIterator");
+    public static final Name ABSTRACT_STREAM_ITERATOR = new Name("_StreamImplementor");
+    public static final Name ABSTRACT_STREAM_CLOSEABLE_ITERATOR = new Name("_CloseableStreamImplementor");
 
     // Module Versions
     public static final Name DEFAULT_VERSION = new Name("0.0.0");

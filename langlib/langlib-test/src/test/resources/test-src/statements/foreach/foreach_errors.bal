@@ -18,6 +18,7 @@ import ballerina/lang.'error as lang;
 
 type Detail record {
     *lang:Detail;
+    string message?;
     boolean fatal;
 };
 

@@ -19,24 +19,16 @@ package org.ballerinalang.langserver.completion;
 
 import org.testng.annotations.DataProvider;
 
-import java.util.Collections;
-import java.util.List;
-
 /**
  * Type Definition Context tests.
  *
  * @since 2.0.0
  */
-public class TypeDefinitionTest extends CompletionTestNew {
+public class TypeDefinitionTest extends CompletionTest {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
         return this.getConfigsList();
-    }
-
-    @Override
-    public List<String> skipList() {
-        return Collections.singletonList("config2.json");
     }
 
     @Override

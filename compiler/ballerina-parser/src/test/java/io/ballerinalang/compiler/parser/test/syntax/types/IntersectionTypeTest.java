@@ -24,7 +24,8 @@ import org.testng.annotations.Test;
  */
 public class IntersectionTypeTest extends AbstractTypesTest {
 
-    //Valid source test
+    // Valid source test
+    
     @Test
     public void testValidLocalLevelIntersectionType() {
         testTopLevelNode("intersection-type/intersection_type_source_01.bal",
@@ -41,7 +42,7 @@ public class IntersectionTypeTest extends AbstractTypesTest {
         test("T & A a;", "intersection-type/intersection_type_assert_03.json");
     }
 
-    //Recovery test
+    // Recovery test
 
     @Test
     public void testInValidLocalLevelIntersectionTypeMissingLeftTypeDesc() {

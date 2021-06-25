@@ -34,33 +34,41 @@ public class FindRefsInLambdasTest extends FindAllReferencesTest {
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
         return new Object[][]{
-                {16, 7, List.of(location(16, 7, 15),
+                {16, 7, location(16, 7, 15),
+                        List.of(location(16, 7, 15),
                                 location(19, 11, 19),
                                 location(26, 15, 23),
                                 location(29, 44, 52))
                 },
-                {26, 32, List.of(location(23, 11, 15),
-                                 location(26, 32, 36),
-                                 location(29, 61, 65),
-                                 location(31, 65, 69))
+                {26, 32, location(23, 11, 15),
+                        List.of(location(23, 11, 15),
+                                location(26, 32, 36),
+                                location(29, 61, 65),
+                                location(31, 65, 69))
                 },
-                {31, 44, List.of(location(31, 44, 49),
-                                 location(31, 78, 83))
+                {31, 44, location(31, 44, 49),
+                        List.of(location(31, 44, 49),
+                                location(31, 78, 83))
                 },
-                {35, 8, List.of(location(35, 8, 9),
+                {35, 8, location(35, 8, 9),
+                        List.of(location(35, 8, 9),
                                 location(41, 19, 20))
                 },
-                {38, 12, List.of(location(38, 12, 13),
-                                 location(41, 28, 29))
+                {38, 12, location(38, 12, 13),
+                        List.of(location(38, 12, 13),
+                                location(41, 28, 29))
                 },
-                {37, 28, List.of(location(37, 28, 30),
-                                 location(41, 23, 25))
+                {37, 28, location(37, 28, 30),
+                        List.of(location(37, 28, 30),
+                                location(41, 23, 25))
                 },
-                {40, 32, List.of(location(40, 32, 34),
-                                 location(41, 32, 34))
+                {40, 32, location(40, 32, 34),
+                        List.of(location(40, 32, 34),
+                                location(41, 32, 34))
                 },
                 // TODO: disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/26893
-//                {47, 8, List.of(location(47, 8, 9),
+//                {47, 8, location(47, 8, 9),
+//                        List.of(location(47, 8, 9),
 //                                location(50, 77, 78))
 //                }
         };

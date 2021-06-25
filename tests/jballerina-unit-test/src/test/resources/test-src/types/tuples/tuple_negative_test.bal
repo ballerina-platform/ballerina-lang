@@ -154,8 +154,8 @@ function testInvalidInsertionToTupleUsingFiniteType() {
     var a = tuple[f1]; // incompatible types: expected 'int', found 'S1|S2'
     var b = tuple[f2]; // invalid tuple index expression: value space '3|4|5' out of range
     var c = tuple[f3]; // incompatible types: expected 'int', found '0|1|2|S1'
-    var d = tuple[f4]; // incompatible types: expected 'int', found '0|1|2|S1|S2'
-    var e = tuple[f5]; // invalid tuple index expression: value space '3|4|5|6' out of range
+    var d = tuple[f4]; // incompatible types: expected 'int', found 'FiniteFour'
+    var e = tuple[f5]; // invalid tuple index expression: value space 'FiniteFive' out of range
 }
 
 const INDEX_NEG_ONE = -1;
@@ -167,3 +167,17 @@ function testInvalidConstIndex() {
 
 type NoFillerObject object {
 };
+
+function testInvalidTupleDeclaredWithVar() {
+    var [a1, a2, a3, ...a4] = getData();
+    var [b1, b2, b3] = getData2();
+    var [c1, c2] = getData();
+}
+
+function getData() returns [int, string...] {
+    return [1, "hello"];
+}
+
+function getData2() returns int[2] {
+    return [1, 2];
+}

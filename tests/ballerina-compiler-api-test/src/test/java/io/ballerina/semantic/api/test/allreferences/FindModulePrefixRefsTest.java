@@ -18,12 +18,14 @@
 
 package io.ballerina.semantic.api.test.allreferences;
 
-import org.ballerinalang.test.bala.BalaCreator;
-import org.testng.annotations.AfterClass;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -36,26 +38,33 @@ public class FindModulePrefixRefsTest extends FindAllReferencesTest {
 
     @BeforeClass
     public void setup() {
-        BalaCreator.cleanCacheDirectories();
-        BalaCreator.createAndSetupBala("test-src/test-project", "testorg", "baz");
+        CompileResult compileResult = BCompileUtil.compileAndCacheBala("test-src/testproject");
+        if (compileResult.getErrorCount() != 0) {
+            Arrays.stream(compileResult.getDiagnostics()).forEach(System.out::println);
+            Assert.fail("Compilation contains error");
+        }
         super.setup();
     }
 
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
         return new Object[][]{
-                {16, 15, List.of(location(16, 15, 18),
-                                 location(19, 0, 3),
-                                 location(22, 4, 7),
-                                 location(36, 27, 30),
-                                 location(39, 28, 31),
-                                 location(40, 18, 21))
+                {16, 15, location(16, 15, 26),
+                        List.of(location(16, 15, 26),
+                                location(19, 0, 11),
+                                location(44, 1, 12),
+                                location(22, 4, 15),
+                                location(36, 27, 38),
+                                location(39, 28, 39),
+                                location(40, 18, 29))
                 },
-                {25, 16, List.of(location(25, 16, 20),
-                                 location(31, 24, 28)),
+                {25, 16, null,
+                        List.of(location(25, 16, 20),
+                                location(31, 24, 28)),
                 },
-                {35, 27, List.of(location(17, 33, 36),
-                                 location(35, 27, 30)),
+                {35, 27, location(17, 33, 36),
+                        List.of(location(17, 33, 36),
+                                location(35, 27, 30)),
                 }
         };
     }
@@ -63,10 +72,5 @@ public class FindModulePrefixRefsTest extends FindAllReferencesTest {
     @Override
     public String getTestSourcePath() {
         return "test-src/find-all-ref/find_var_ref_in_module_prefix.bal";
-    }
-
-    @AfterClass
-    public void tearDown() {
-        BalaCreator.clearPackageFromRepository("test-src/test-project", "testorg", "baz");
     }
 }

@@ -73,9 +73,10 @@ function getError() returns string|error {
     return e;
 }
 
-function testErrorReturningInitializer() returns Person|error {
+function testErrorReturningInitializer() {
     Person|error p = new();
-    return p;
+
+    validateError(p, "failed to create Person object");
 }
 
 function testReturnedValWithTypeGuard() returns string {
@@ -88,12 +89,10 @@ function testReturnedValWithTypeGuard() returns string {
     }
 }
 
-function testAssigningToVar() returns error? {
+function testAssigningToVar() {
     var v = new Person();
-    if (v is error) {
-        return v;
-    }
-    return ();
+
+    validateError(v, "failed to create Person object");
 }
 
 function testTypeInitInReturn() returns Person|error {
@@ -233,13 +232,14 @@ function testCheckPanicObjectInit(boolean b) returns error|Person4 {
     return r;
 }
 
-function testCheckPanicInObjectInitArg() returns error {
+function testCheckPanicInObjectInitArg() {
     error|() p = trap panicWrapper();
-    return <error>p;
+    validateError(p, "Panicked");
 }
 
-function testObjectInitPanic() returns error|PanicReceiver {
-    return trap new PanicReceiver("Mr. Panic");
+function testObjectInitPanic() {
+    var e = trap new PanicReceiver("Mr. Panic");
+    validateError(e, "init panicked");
 }
 
 class Student1 {
@@ -291,7 +291,7 @@ class Student3 {
     }
 
     public function getMarks() returns int {
-        var v = self.init(0);
+        error? v = self.init(0);
         return self.marks;
     }
 }
@@ -366,7 +366,7 @@ class Student5 {
     }
 
     public function getMarks() returns int {
-        var v = self.init(0);
+        error? v = self.init(0);
         return self.marks;
     }
 }
@@ -616,4 +616,14 @@ function testFunctionPointerAsDefaultableParam2() {
     if (s2.getMarks() != 100) {
         panic error("Returned string should equal '100'");
     }
+}
+
+function validateError(any|error value, string message) {
+    if (value is error) {
+        if (value.message() == message) {
+            return;
+        }
+        panic error("Expected error message: " + message + ", found: " + value.message());
+    }
+    panic error("Expected error, found: " + (typeof value).toString());
 }

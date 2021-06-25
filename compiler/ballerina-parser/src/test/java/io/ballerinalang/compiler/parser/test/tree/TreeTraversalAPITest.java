@@ -114,7 +114,8 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
         String text = "import ballerina/http;\n" +
                 "import ballerina/lang.'object as lang;\n" +
                 "\n" +
-                "@http:ServiceConfig";
+                "@http:ServiceConfig\n" +
+                "import ballerina/log;";
         int position = text.indexOf(":ServiceConfig");
 
         SyntaxTree syntaxTree = SyntaxTree.from(TextDocuments.from(text));
@@ -125,10 +126,10 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
 
         InvalidTokenMinutiaeNode invalidTokenMinutiaeNode = (InvalidTokenMinutiaeNode) token.parent();
         Token attachedToken = invalidTokenMinutiaeNode.parentMinutiae().parentToken();
-        Assert.assertEquals(SyntaxKind.EOF_TOKEN, attachedToken.kind());
+        Assert.assertEquals(SyntaxKind.IMPORT_KEYWORD, attachedToken.kind());
 
         MinutiaeList leadingMinutiae = attachedToken.leadingMinutiae();
-        Assert.assertEquals(5, leadingMinutiae.size());
+        Assert.assertEquals(6, leadingMinutiae.size());
         Assert.assertEquals(SyntaxKind.END_OF_LINE_MINUTIAE, leadingMinutiae.get(0).kind());
         Assert.assertEquals(SyntaxKind.AT_TOKEN,
                 leadingMinutiae.get(1).invalidTokenMinutiaeNode().get().invalidToken().kind());

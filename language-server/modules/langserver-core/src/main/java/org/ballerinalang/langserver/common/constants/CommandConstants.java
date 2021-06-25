@@ -100,7 +100,7 @@ public class CommandConstants {
 
     public static final String PULL_MOD_TITLE = "Pull from Ballerina Central";
 
-    public static final String CHANGE_RETURN_TYPE_TITLE = "Change return type to '";
+    public static final String CHANGE_RETURN_TYPE_TITLE = "Change return type to '%s'";
 
     public static final String ADD_TYPE_CAST_TITLE = "Add type cast to assignment";
 
@@ -114,7 +114,7 @@ public class CommandConstants {
 
     public static final String CREATE_VAR_ADD_CHECK_TITLE = "Create variable and check error";
 
-    public static final String ADD_CHECK_TITLE = "Add check error";
+    public static final String ADD_CHECK_TITLE = "Add 'check' error";
 
     public static final String CREATE_SERVICE_RESOURCE = "Create service resource for the path '%s'";
 
@@ -127,4 +127,6 @@ public class CommandConstants {
     public static final String IMPLEMENT_FUNCS_TITLE = "Implement method '%s'";
 
     public static final String OPTIMIZE_IMPORTS_TITLE = "Optimize all imports";
+    
+    public static final String REPORT_USAGE_STATISTICS_COMMAND_TITLE = "Report usage statistics";
 }

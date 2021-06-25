@@ -46,6 +46,7 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -136,11 +137,41 @@ public class TypeCreator {
     }
 
     /**
-     * Create a {@code MapType} which represents the map type.
+     * Create a {@code TupleType} which represents the tuple type.
      *
-     * @param constraint constraint type which particular map is bound to.
-     * @return the new map type
+     * @param typeList  of the tuple type
+     * @param restType  of the tuple type
+     * @param typeFlags flags associated with the type
+     * @param isCyclic  whether cyclic
+     * @param readonly  whether immutable
+     * @return the new tuple type
      */
+    public static TupleType createTupleType(List<Type> typeList, Type restType,
+                  int typeFlags, boolean isCyclic, boolean readonly) {
+        return new BTupleType(typeList, restType, typeFlags, isCyclic, readonly);
+    }
+
+    /**
+     * Create a {@code TupleType} which represents the tuple type.
+     *
+     * @param name  of the tuple type
+     * @param pkg  of the tuple type
+     * @param typeFlags flags associated with the type
+     * @param isCyclic  whether cyclic
+     * @param readonly  whether immutable
+     * @return the new tuple type
+     */
+    public static TupleType createTupleType(String name, Module pkg,
+                  int typeFlags, boolean isCyclic, boolean readonly) {
+        return new BTupleType(name, pkg, typeFlags, isCyclic, readonly);
+    }
+
+    /**
+    * Create a {@code MapType} which represents the map type.
+    *
+    * @param constraint constraint type which particular map is bound to.
+    * @return the new map type
+    */
     public static MapType createMapType(Type constraint) {
         return new BMapType(constraint);
     }
@@ -230,10 +261,11 @@ public class TypeCreator {
      * Creates a {@link BStreamType} which represents the stream type.
      *
      * @param constraint the type by which this stream is constrained
+     * @param completionType the type which indicates the completion of the stream
      * @return the new stream type
      */
-    public static StreamType createStreamType(Type constraint) {
-        return new BStreamType(constraint);
+    public static StreamType createStreamType(Type constraint, Type completionType) {
+        return new BStreamType(constraint, completionType);
     }
 
     /**
@@ -241,11 +273,49 @@ public class TypeCreator {
      *
      * @param typeName   string name of the type
      * @param constraint the type by which this stream is constrained
+     * @param completionType the type which indicates the completion of the stream
      * @param modulePath package path
      * @return the new stream type
      */
-    public static StreamType createStreamType(String typeName, Type constraint, Module modulePath) {
-        return new BStreamType(typeName, constraint, modulePath);
+    public static StreamType createStreamType(String typeName, Type constraint,
+                                              Type completionType, Module modulePath) {
+        return new BStreamType(typeName, constraint, completionType, modulePath);
+    }
+
+    /**
+     * Creates a {@link BStreamType} which represents the stream type.
+     *
+     * @param constraint the type by which this stream is constrained
+     * @return the new stream type
+     * @deprecated use {@link #createStreamType(Type, Type)} instead
+     */
+    @Deprecated
+    public static StreamType createStreamType(Type constraint) {
+        return new BStreamType(constraint);
+    }
+
+    /**
+     * Creates a {@link BStreamType} which represents the stream type.
+     *
+     * @param typeName       string name of the type
+     * @param completionType the type which indicates the completion of the stream
+     * @param modulePath     package path
+     * @return the new stream type
+     * @deprecated use {@link #createStreamType(String, Type, Type, Module)} instead
+     */
+    @Deprecated
+    public static StreamType createStreamType(String typeName, Type completionType, Module modulePath) {
+        return new BStreamType(typeName, completionType, modulePath);
+    }
+
+    /**
+     * Create a {@code UnionType} which represents the union type.
+     *
+     * @param memberTypes of the union type
+     * @return the new union type
+     */
+    public static UnionType createUnionType(Type... memberTypes) {
+        return new BUnionType(Arrays.asList(memberTypes));
     }
 
     /**

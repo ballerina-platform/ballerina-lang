@@ -101,7 +101,7 @@ public class DocumentationTest {
 
         List<ConstantSymbol> members = ((EnumSymbol) symbol.get()).members();
         for (ConstantSymbol member : members) {
-            assertDescriptionOnly(member.documentation().get(), "Enum member " + member.name());
+            assertDescriptionOnly(member.documentation().get(), "Enum member " + member.getName().get());
         }
     }
 
@@ -130,6 +130,35 @@ public class DocumentationTest {
         Optional<Symbol> symbol = model.symbol(srcFile, from(66, 7));
         Optional<Documentation> documentation = ((Documentable) symbol.get()).documentation();
         assertDescriptionOnly(documentation.get(), "This is a variable");
+    }
+
+    @Test
+    public void testDeprecatedDocs() {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(83, 16));
+        Optional<Documentation> documentation = ((Documentable) symbol.get()).documentation();
+        Map<String, String> expParams =
+                Map.of("fname", "First name of the person",
+                       "lname", "Last name of the person",
+                       "street", "Street the person is living at",
+                       "city", "The city the person is living in",
+                       "countryCode", "The country code for the country the person is living in");
+        Map<String, String> expDeprecatedParams = Map.of("street", "deprecated for removal",
+                                                         "countryCode", "deprecated for removal");
+
+        assertDocumentation(documentation.get(), "Creates and returns a `Person` object given the parameters.\n",
+                            expParams, "A new Person string\n");
+        assertEquals(documentation.get().deprecatedDescription().get(),
+                     "This function is deprecated in favour of `Person` type.");
+        assertEquals(documentation.get().deprecatedParametersMap().size(), expDeprecatedParams.size());
+        expDeprecatedParams.forEach(
+                (param, doc) -> assertEquals(documentation.get().deprecatedParametersMap().get(param), doc));
+    }
+
+    @Test
+    public void testListenerDeclarationDocs() {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(89, 22));
+        Optional<Documentation> documentation = ((Documentable) symbol.get()).documentation();
+        assertDescriptionOnly(documentation.get(), "This is a listener declaration");
     }
 
     // util methods

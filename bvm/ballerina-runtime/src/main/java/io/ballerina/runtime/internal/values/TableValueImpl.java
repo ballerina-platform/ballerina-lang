@@ -38,6 +38,7 @@ import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.BLangFreezeException;
 
 import java.util.AbstractMap;
@@ -45,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -106,7 +108,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
     }
 
-    public TableValueImpl(BTableType type, ArrayValue data, ArrayValue fieldNames) {
+    public TableValueImpl(TableType type, ArrayValue data, ArrayValue fieldNames) {
         this(type);
         if (this.fieldNames == null) {
             this.fieldNames = fieldNames.getStringArray();
@@ -368,7 +370,18 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return fieldList.get(fieldName).getFieldType();
         } else if (constraintType.getTag() == TypeTags.MAP_TAG) {
             return ((BMapType) constraintType).getConstrainedType();
+        } else if (constraintType.getTag() == TypeTags.UNION_TAG) {
+            HashSet<Type> possibleTypes = new HashSet<>();
+            for (Type memberType : ((BUnionType) constraintType).getMemberTypes()) {
+                possibleTypes.add(getTableConstraintField(memberType, fieldName));
+            }
+            if (possibleTypes.size() == 1) {
+                return possibleTypes.iterator().next();
+            } else if (possibleTypes.size() > 1) {
+                return new BUnionType(new ArrayList<>(possibleTypes));
+            }
         }
+        //cannot reach here. constraint should be a subtype of map<any|error>
         return null;
     }
 
@@ -609,6 +622,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                                                             "inherent table type '" + type + "'");
             throw ErrorCreator.createError(reason, detail);
         }
+    }
+
+    @Override
+    public String toString() {
+        return stringValue(null);
     }
 
     @Override

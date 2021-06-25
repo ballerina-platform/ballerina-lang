@@ -24,6 +24,21 @@ public function testCloseRecordToMapJsonAssigment() returns [map<json>, map<json
     return [pm, m];
 }
 
+public function testLaxAccessJSONArray() {
+    json x = [23, 45, 21, 12];
+    int[] y = check x;
+}
+
+public function testJSONReturnTypeDistinctErrorLifting() returns Error? {
+    int x = check func();
+}
+
+function func() returns json|Error {
+    return 1;
+}
+
+type Error distinct error;
+
 type Person record {|
     string name = "";
     int age = 10;

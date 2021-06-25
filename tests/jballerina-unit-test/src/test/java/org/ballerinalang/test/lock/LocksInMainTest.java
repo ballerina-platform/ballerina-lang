@@ -66,6 +66,7 @@ public class LocksInMainTest {
 
     }
 
+    // https://github.com/ballerina-platform/ballerina-lang/issues/22987
     @Test(description = "Tests lock within in workers", enabled = false)
     public void simpleLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/simple-lock.bal");
@@ -101,8 +102,7 @@ public class LocksInMainTest {
 
     }
 
-    //    TODO:https://github.com/ballerina-platform/ballerina-lang/issues/11305
-    @Test(description = "Tests throwing and error inside lock", enabled = false)
+    @Test(description = "Tests throwing and error inside lock")
     public void testThrowErrorInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
@@ -141,6 +141,7 @@ public class LocksInMainTest {
         assertEquals(returns[1].stringValue(), "worker 2 sets the string after try catch finally inside lock");
     }
 
+    // https://github.com/ballerina-platform/ballerina-lang/issues/22987
     @Test(description = "Tests throwing an error inside try finally block inside a lock", enabled = false)
     public void testThrowErrorInsideTryFinallyInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
@@ -205,6 +206,7 @@ public class LocksInMainTest {
         assertTrue("w1w1w1vw2w2w2v".equals(result) || "w2w2w2v".equals(result));
     }
 
+    // https://github.com/ballerina-platform/ballerina-lang/issues/22987
     @Test(description = "Tests returning inside lock statement", enabled = false)
     public void testReturnInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
@@ -257,6 +259,7 @@ public class LocksInMainTest {
                                   18, 9);
     }
 
+    // https://github.com/ballerina-platform/ballerina-lang/issues/22987
     @Test(description = "Test for parallel run using locks", enabled = false)
     public void testParallelRunUsingLocks() {
         BValue[] returns = BRunUtil.invoke(parallelCompileResult, "runParallelUsingLocks");
@@ -284,7 +287,8 @@ public class LocksInMainTest {
         BRunUtil.invoke(importInvocationDependencies, "testLockWithInvokableChainsAccessingGlobal");
     }
 
-    @Test(description = "Test for locks on global references")
+    //TODO testcase disabled with https://github.com/ballerina-platform/ballerina-lang/issues/28930
+    @Test(description = "Test for locks on global references", enabled = false)
     public void testLocksWhenGlobalVariablesReferToSameValue() {
         BRunUtil.invoke(parallelCompileResult, "testLocksWhenGlobalVariablesReferToSameValue");
     }

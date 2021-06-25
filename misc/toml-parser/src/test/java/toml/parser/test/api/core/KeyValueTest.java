@@ -22,11 +22,15 @@ import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
 import io.ballerina.toml.semantic.ast.TomlDoubleValueNodeNode;
+import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlLongValueNode;
 import io.ballerina.toml.semantic.ast.TomlStringValueNode;
+import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
+import io.ballerina.tools.text.LineRange;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import toml.parser.test.ParserTestUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -66,6 +70,9 @@ public class KeyValueTest {
         Assert.assertEquals(unicode, "value");
         Assert.assertEquals(general, "value");
         Assert.assertEquals(escape, "value");
+
+        LineRange lineRange = read.rootNode().entries().get("key").location().lineRange();
+        ParserTestUtils.assertLineRange(lineRange, 18, 0, 18, 17);
     }
 
     @Test
@@ -181,6 +188,17 @@ public class KeyValueTest {
                 "Here are fifteen quotation marks: \"\"\"\"\"\"\"\"\"\"\"\"\"\"\"");
         String fifteenSingleQuotes = ((TomlStringValueNode) read.get("lit8").get()).getValue();
         Assert.assertEquals(fifteenSingleQuotes, "Here are fifteen apostrophes: '''''''''''''''");
+
+        LineRange stringValueRange = read.get("key1").get().location().lineRange();
+        ParserTestUtils.assertLineRange(stringValueRange, 18, 7, 18, 14);
+        LineRange multiStringValueRange = read.get("key4").get().location().lineRange();
+        ParserTestUtils.assertLineRange(multiStringValueRange, 21, 7, 23, 19);
+        LineRange arrayRange = read.get("key5").get().location().lineRange();
+        ParserTestUtils.assertLineRange(arrayRange, 24, 7, 24, 14);
+        LineRange arrayValue =
+                ((TomlArrayValueNode) ((TomlKeyValueNode) read.rootNode().entries().get("key5")).value()).get(2)
+                        .location().lineRange();
+        ParserTestUtils.assertLineRange(arrayValue, 24, 12, 24, 13);
     }
 
     @Test
@@ -275,5 +293,26 @@ public class KeyValueTest {
 
         TomlStringValueNode mixedDotted = (TomlStringValueNode) read.get("foo.bar").get();
         Assert.assertEquals(mixedDotted.getValue(), "test");
+
+        LineRange dottedKVPairType =
+                ((TomlTableNode) read.rootNode().entries().get("apple")).entries().get("type").location().lineRange();
+        LineRange dottedValue =
+                ((TomlKeyValueNode) ((TomlTableNode) read.rootNode().entries().get("apple")).entries().get("type"))
+                        .value().location().lineRange();
+        ParserTestUtils.assertLineRange(dottedKVPairType, 4, 0, 4, 20);
+        ParserTestUtils.assertLineRange(dottedValue, 4, 13, 4, 20);
+
+        LineRange dottedKVPairSkin =
+                ((TomlTableNode) read.rootNode().entries().get("apple")).entries().get("skin").location().lineRange();
+        ParserTestUtils.assertLineRange(dottedKVPairSkin, 7, 0, 7, 19);
+
+        LineRange dottedKVPairNested1 =
+                ((TomlTableNode) ((TomlTableNode) read.rootNode().entries().get("root")).entries().get("first"))
+                        .entries().get("second").location().lineRange();
+        ParserTestUtils.assertLineRange(dottedKVPairNested1, 30, 0, 30, 22);
+        LineRange dottedKVPairNested2 =
+                ((TomlTableNode) ((TomlTableNode) read.rootNode().entries().get("root")).entries().get("first"))
+                        .entries().get("third").location().lineRange();
+        ParserTestUtils.assertLineRange(dottedKVPairNested2, 31, 0, 31, 22);
     }
 }

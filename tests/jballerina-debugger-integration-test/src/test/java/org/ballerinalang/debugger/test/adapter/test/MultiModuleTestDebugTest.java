@@ -26,11 +26,15 @@ import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.ballerinalang.debugger.test.utils.DebugTestRunner.DebugResumeKind;
 
@@ -94,8 +98,30 @@ public class MultiModuleTestDebugTest extends BaseTestCase {
         Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(5));
     }
 
-    @AfterClass(alwaysRun = true)
-    private void cleanup() {
+    @Test
+    public void testSelectiveTestsDebug() throws BallerinaTestException {
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 36));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 44));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 57));
+
+        // Adds an inclusive test filter as a launch argument.
+        Map<String, Object> testArgs = new HashMap<>();
+        testArgs.put("tests", new ArrayList<>(Collections.singleton("testMain")));
+        debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.TEST, testArgs);
+
+        // Test for break point hit at testMain()
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(20000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(0));
+
+        // Since the test filter will exclude the "testFunction()" method, continuing the debugger should hit the
+        // after-suite function instead of the breakpoint inside the "testFunction()" method.
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(2));
+    }
+
+    @AfterMethod(alwaysRun = true)
+    public void cleanUp() {
         debugTestRunner.terminateDebugSession();
     }
 }

@@ -91,7 +91,7 @@ public class SelectivelyImmutableTypeTest {
         validateError(result, index++, "incompatible types: expected '(Student & readonly)', found 'Student'", 57, 30);
         validateError(result, index++, "incompatible types: expected '(PersonalDetails & readonly)', found " +
                 "'PersonalDetails'", 60, 18);
-        validateError(result, index++, "incompatible types: expected '(A|B|(any & readonly))', found 'Obj'", 78, 26);
+        validateError(result, index++, "incompatible types: expected '(ABAny & readonly)', found 'Obj'", 78, 26);
         validateError(result, index++, "incompatible types: expected 'anydata & readonly', found 'string[]'", 81, 28);
         validateError(result, index++, "incompatible types: expected 'any & readonly', found 'future'", 83, 24);
         validateError(result, index++, "incompatible types: expected '((Obj & readonly)|(int[] & readonly))', found " +
@@ -198,8 +198,6 @@ public class SelectivelyImmutableTypeTest {
         // lang.xml
         validateError(result, index++, "cannot update 'readonly' value of type 'xml:Element & readonly'", 85, 5);
         validateError(result, index++, "cannot update 'readonly' value of type 'xml:Element & readonly'", 86, 5);
-        validateError(result, index++, "cannot update 'readonly' value of type 'xml<(" +
-                "(xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) & readonly)> & readonly'", 87, 9);
 
         assertEquals(result.getErrorCount(), index);
     }

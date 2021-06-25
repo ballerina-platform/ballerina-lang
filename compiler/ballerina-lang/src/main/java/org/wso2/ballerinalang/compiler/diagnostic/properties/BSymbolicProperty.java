@@ -18,8 +18,8 @@
 package org.wso2.ballerinalang.compiler.diagnostic.properties;
 
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
-import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.DiagnosticPropertyKind;
 
 /**
  * Represents symbolic-properties passed when diagnostic logging.

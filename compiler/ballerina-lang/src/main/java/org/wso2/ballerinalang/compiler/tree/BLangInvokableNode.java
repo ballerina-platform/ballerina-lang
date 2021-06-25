@@ -42,7 +42,7 @@ import java.util.Set;
  */
 public abstract class BLangInvokableNode extends BLangNode implements InvokableNode {
 
-    public static final String DEFAULT_WORKER_NAME = "default";
+    public static final String DEFAULT_WORKER_NAME = "function";
 
     public BLangIdentifier name;
     public BLangIdentifier defaultWorkerName;

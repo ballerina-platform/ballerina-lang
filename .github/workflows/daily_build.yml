@@ -6,20 +6,22 @@ on:
 
 jobs:
   ubuntu_build:
-    name: Build without tests on Ubuntu
+    name: Build with tests on Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 75
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt' 
+          java-version: '11'
 
       - name: Initialize sub-modules
         run: git submodule update --init
-
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
 
       - name: Cache Gradle packages
         uses: actions/cache@v2
@@ -32,95 +34,14 @@ jobs:
         run: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew build -x createJavadoc -x test --max-workers=2 --scan --no-daemon
-          find ~/.gradle/caches/ -name "*.lock" -type f -delete 
+          ./gradlew build --max-workers=2 --scan --no-daemon
+          find ~/.gradle/caches/ -name "*.lock" -type f -delete
 
-  run_integration_test:
-    name: Run integration tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 75
-    needs: ubuntu_build
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Initialize sub-modules
-        run: git submodule update --init
-
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
-
-      - name: Cache Gradle packages
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ github.sha }}
-          restore-keys: ${{ runner.os }}-gradle
-
-      - name: Run integration test
+      - name: Notify failure
+        if: ${{ failure() }}
         run: |
-          export DISPLAY=':99.0'
-          /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew :jballerina-integration-test:test --fail-fast -x createJavadoc --max-workers=1 --scan --no-daemon
+          curl \
+          -X POST 'https://chat.googleapis.com/v1/spaces/${{secrets.BALLERINA_CHAT_ID}}/messages?key=${{secrets.BALLERINA_CHAT_KEY}}&token=${{secrets.BALLERINA_CHAT_TOKEN}}' \
+          --header 'Content-Type: application/json' \
+          -d '{"text": "*ballerina-lang daily build failure* \nPlease \n visit <https://github.com/ballerina-platform/ballerina-lang/actions?query=workflow%3A%22Daily+build%22|the daily build page> for more information"}'
 
-  run_jbal_long_running_test:
-    name: Run jbal & long running tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 75
-    needs: ubuntu_build
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Initialize sub-modules
-        run: git submodule update --init
-
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
-
-      - name: Cache Gradle packages
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ github.sha }}
-          restore-keys: ${{ runner.os }}-gradle
-
-      - name: Run jballerina unit test
-        run: |
-          export DISPLAY=':99.0'
-          /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew :jballerina-unit-test:test :testerina-integration-test:test --fail-fast -x createJavadoc --max-workers=1 --scan --no-daemon
-
-  run_unit_test:
-    name: Run all other unit tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 75
-    needs: ubuntu_build
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Initialize sub-modules
-        run: git submodule update --init
-
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
-
-      - name: Cache Gradle packages
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ github.sha }}
-          restore-keys: ${{ runner.os }}-gradle
-
-      - name: Run all the other unit test
-        run: |
-          export DISPLAY=':99.0'
-          /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew build -x createJavadoc -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :testerina-integration-test:test --max-workers=1 --scan --no-daemon

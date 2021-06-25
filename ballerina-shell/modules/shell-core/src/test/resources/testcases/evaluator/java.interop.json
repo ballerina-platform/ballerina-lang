@@ -78,7 +78,7 @@
   },
   {
     "description": "Use java field getter.",
-    "code": "float l = 2 * pi() * 4; l",
+    "code": "float l = 2.0 * pi() * 4.0; l",
     "expr": "25.132741228718345"
   },
   {
@@ -97,7 +97,7 @@
   },
   {
     "description": "Catch java exceptions.",
-    "code": "var classOrError = loadClass(java:fromString(\"a.b.c.z.SomeClass\")); classOrError is error",
+    "code": "handle|error classOrError = loadClass(java:fromString(\"a.b.c.z.SomeClass\")); classOrError is error",
     "expr": "true"
   },
   {

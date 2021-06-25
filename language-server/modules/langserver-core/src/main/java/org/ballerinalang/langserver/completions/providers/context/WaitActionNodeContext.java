@@ -16,20 +16,35 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.WaitActionNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.SymbolUtil;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
+import org.eclipse.lsp4j.CompletionItem;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
+import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
+import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
+import static io.ballerina.compiler.api.symbols.SymbolKind.WORKER;
 
 /**
  * Completion provider for {@link WaitActionNode} context.
@@ -48,24 +63,104 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
-        if (!node.waitFutureExpr().isMissing() && node.waitFutureExpr().kind() == SyntaxKind.BINARY_EXPRESSION) {
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            /*
+            Covers the following
+            eg:
+            (1) wait module1:<cursor>
+            (1) wait module1:f<cursor>
+             */
+            Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.FUNCTION
+                    || symbol instanceof VariableSymbol;
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
+            List<Symbol> filteredList = QNameReferenceUtil.getModuleContent(context, qNameRef, predicate);
+            completionItems.addAll(this.getCompletionItemList(filteredList, context));
+        } else if (!node.waitFutureExpr().isMissing() && node.waitFutureExpr().kind() == SyntaxKind.BINARY_EXPRESSION) {
             /*
             Covers the following,
             (1) wait fs1|f<cursor>
              */
             List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-            List<Symbol> filteredSymbols = visibleSymbols.stream().filter(symbol -> {
-                Optional<TypeDescKind> typeDescKind = SymbolUtil.getTypeKind(symbol);
-                return typeDescKind.isPresent() && typeDescKind.get() == TypeDescKind.FUTURE;
-            }).collect(Collectors.toList());
-
+            List<Symbol> filteredSymbols = visibleSymbols.stream()
+                    .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE
+                            && ((VariableSymbol) symbol).typeDescriptor().typeKind() == TypeDescKind.FUTURE)
+                    .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(filteredSymbols, context));
         } else {
-            completionItems.addAll(this.actionKWCompletions(context));
             completionItems.addAll(this.expressionCompletions(context));
         }
         this.sort(context, node, completionItems);
 
         return completionItems;
+    }
+
+    protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context) {
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+        /*
+        check and check panic expression starts with check and check panic keywords, Which has been added with actions.
+        query pipeline starts with from keyword and also being added with the actions
+         */
+        List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SERVICE.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_LET.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TYPEOF.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRAP.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ERROR.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IS.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_ERROR_CONSTRUCTOR.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_OBJECT_CONSTRUCTOR.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE16_LITERAL.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE64_LITERAL.get()));
+
+        // Avoid the error symbol suggestion since it is covered by the lang.error lang-lib 
+        List<Symbol> filteredList = visibleSymbols.stream()
+                .filter(symbol -> (symbol instanceof VariableSymbol || symbol.kind() == PARAMETER ||
+                        symbol.kind() == FUNCTION || symbol.kind() == WORKER)
+                        && !symbol.getName().orElse("").equals(Names.ERROR.getValue()))
+                .collect(Collectors.toList());
+        completionItems.addAll(this.getCompletionItemList(filteredList, context));
+
+        return completionItems;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, WaitActionNode node, List<LSCompletionItem> completionItems) {
+        for (LSCompletionItem lsCompletionItem : completionItems) {
+            CompletionItem completionItem = lsCompletionItem.getCompletionItem();
+            int rank;
+            if (this.isValidSymbolCompletionItem(lsCompletionItem)) {
+                SymbolCompletionItem symbolCompletionItem = (SymbolCompletionItem) lsCompletionItem;
+                /*
+                 * Since the validity check considers the empty check of the symbol, we do not need to add the
+                 * isPresent check here explicitly
+                 */
+                Symbol symbol = symbolCompletionItem.getSymbol().get();
+                if (symbol.kind() == WORKER) {
+                    rank = 1;
+                } else if (symbol.kind() == VARIABLE
+                        && ((VariableSymbol) symbol).typeDescriptor().typeKind() == TypeDescKind.FUTURE) {
+                    rank = 2;
+                } else {
+                    rank = SortingUtil.toRank(lsCompletionItem, 2);
+                }
+            } else {
+                rank = SortingUtil.toRank(lsCompletionItem, 2);
+            }
+            completionItem.setSortText(SortingUtil.genSortText(rank));
+        }
+    }
+    
+    private boolean isValidSymbolCompletionItem(LSCompletionItem lsCompletionItem) {
+        return lsCompletionItem instanceof SymbolCompletionItem
+                && ((SymbolCompletionItem) lsCompletionItem).getSymbol().isPresent();
     }
 }

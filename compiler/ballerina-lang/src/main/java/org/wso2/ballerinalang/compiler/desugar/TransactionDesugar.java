@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
@@ -204,10 +205,10 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE);
         BLangStatementExpression statementExpression =
                 createStatementExpression(transactionNode.transactionBody, nilLiteral);
-        statementExpression.type = symTable.nilType;
+        statementExpression.setBType(symTable.nilType);
 
         BLangTrapExpr trapExpr = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
-        trapExpr.type = transactionReturnType;
+        trapExpr.setBType(transactionReturnType);
         trapExpr.expr = statementExpression;
 
         //error? $trapResult = trap <Transaction Body>
@@ -234,7 +235,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
         BLangTypeTestExpr isErrorTest =
                 ASTBuilderUtil.createTypeTestExpr(pos, trapResultRef, desugar.getErrorTypeNode());
-        isErrorTest.type = symTable.booleanType;
+        isErrorTest.setBType(symTable.booleanType);
 
         //if($trapResult$ is error) {
         //     fail $trapResult$;
@@ -388,11 +389,12 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 prevAttemptVarSymbol);
     }
 
-    BLangBlockStmt desugar(BLangRollback rollbackNode, BLangLiteral transactionBlockID) {
+    BLangBlockStmt desugar(BLangRollback rollbackNode, BLangLiteral transactionBlockID,
+                           BLangSimpleVarRef shouldRetryRef) {
         // Rollback desugar implementation
         BLangBlockStmt rollbackBlockStmt = ASTBuilderUtil.createBlockStmt(rollbackNode.pos);
         BLangStatementExpression rollbackExpr = invokeRollbackFunc(rollbackNode.pos, rollbackNode.expr,
-                transactionBlockID);
+                transactionBlockID, shouldRetryRef);
         BLangExpressionStmt rollbackStmt = ASTBuilderUtil.createExpressionStmt(rollbackNode.pos, rollbackBlockStmt);
         rollbackStmt.expr = rollbackExpr;
         return rollbackBlockStmt;
@@ -404,7 +406,8 @@ public class TransactionDesugar extends BLangNodeVisitor {
     //        check panic rollback $trxError$;
     //    }
     void createRollbackIfFailed(Location pos, BLangBlockStmt onFailBodyBlock,
-                                BSymbol trxFuncResultSymbol, BLangLiteral trxBlockId) {
+                                BSymbol trxFuncResultSymbol, BLangLiteral trxBlockId,
+                                BLangSimpleVarRef shouldRetryRef) {
         BLangIf rollbackCheck = (BLangIf) TreeBuilder.createIfElseStatementNode();
         rollbackCheck.pos = pos;
         int stmtIndex = onFailBodyBlock.stmts.isEmpty() ? 0 : 1;
@@ -415,15 +418,15 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BType errorType = transactionErrorSymbol.type;
 
         BLangErrorType trxErrorTypeNode = (BLangErrorType) TreeBuilder.createErrorTypeNode();
-        trxErrorTypeNode.type = errorType;
+        trxErrorTypeNode.setBType(errorType);
         BLangSimpleVarRef trxResultRef = ASTBuilderUtil.createVariableRef(pos, trxFuncResultSymbol);
 
         // $trxError$ is TransactionError
         BLangTypeTestExpr testExpr = ASTBuilderUtil.createTypeTestExpr(pos, trxResultRef, trxErrorTypeNode);
-        testExpr.type = symTable.booleanType;
+        testExpr.setBType(symTable.booleanType);
 
         BLangGroupExpr transactionErrorCheckGroupExpr = new BLangGroupExpr();
-        transactionErrorCheckGroupExpr.type = symTable.booleanType;
+        transactionErrorCheckGroupExpr.setBType(symTable.booleanType);
         // !($trxError$ is TransactionError)
         transactionErrorCheckGroupExpr.expression =  desugar.createNotBinaryExpression(pos, testExpr);
 
@@ -443,9 +446,10 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 symTable.booleanType, OperatorKind.AND, null);
         rollbackCheck.body = ASTBuilderUtil.createBlockStmt(pos);
 
-        // rollbackTransaction(transactionBlockID);
+        // rollbackTransaction(transactionBlockID, retryManager);
         BLangStatementExpression rollbackInvocation = invokeRollbackFunc(pos,
-                desugar.addConversionExprIfRequired(trxResultRef, symTable.errorOrNilType), trxBlockId);
+                desugar.addConversionExprIfRequired(trxResultRef, symTable.errorOrNilType),
+                trxBlockId, shouldRetryRef);
 
         BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckPanickedExpr(pos, rollbackInvocation,
                 symTable.nilType);
@@ -454,7 +458,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangExpressionStmt transactionExprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
         transactionExprStmt.pos = pos;
         transactionExprStmt.expr = checkedExpr;
-        transactionExprStmt.type = symTable.nilType;
+        transactionExprStmt.setBType(symTable.nilType);
         rollbackCheck.body.stmts.add(transactionExprStmt);
 
         // at this point;
@@ -477,7 +481,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     }
 
     BLangStatementExpression invokeRollbackFunc(Location pos, BLangExpression rollbackExpr,
-                                                BLangLiteral trxBlockId) {
+                                                BLangLiteral trxBlockId, BLangSimpleVarRef shouldRetryRef) {
         // Rollback desugar implementation
         BLangBlockStmt rollbackBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
 
@@ -486,8 +490,17 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 (BInvokableSymbol) getInternalTransactionModuleInvokableSymbol(ROLLBACK_TRANSACTION);
         List<BLangExpression> args = new ArrayList<>();
         args.add(trxBlockId);
+        if (shouldRetryRef != null) {
+            BLangNamedArgsExpression shouldRetry = new BLangNamedArgsExpression();
+            shouldRetry.name = ASTBuilderUtil.createIdentifier(pos, "shouldRetry");
+            shouldRetry.expr = shouldRetryRef;
+            args.add(shouldRetry);
+        }
         if (rollbackExpr != null) {
-            args.add(rollbackExpr);
+            BLangNamedArgsExpression rollbackErr = new BLangNamedArgsExpression();
+            rollbackErr.name = ASTBuilderUtil.createIdentifier(pos, "err");
+            rollbackErr.expr = rollbackExpr;
+            args.add(rollbackErr);
         }
         BLangInvocation rollbackTransactionInvocation = ASTBuilderUtil.
                 createInvocationExprForMethod(pos, rollbackTransactionInvokableSymbol, args, symResolver);
@@ -499,7 +512,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         cleanUpTrx.expr = createCleanupTrxStmt(pos, trxBlockId);
         BLangStatementExpression rollbackStmtExpr = createStatementExpression(rollbackBlockStmt,
                 ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE));
-        rollbackStmtExpr.type = symTable.nilType;
+        rollbackStmtExpr.setBType(symTable.nilType);
 
         //at this point,
         //
@@ -565,9 +578,9 @@ public class TransactionDesugar extends BLangNodeVisitor {
         // }
         BLangIf commitResultValidationIf = ASTBuilderUtil.createIfStmt(pos, failureHandlerBlockStatement);
         BLangGroupExpr commitResultValidationGroupExpr = new BLangGroupExpr();
-        commitResultValidationGroupExpr.type = symTable.booleanType;
+        commitResultValidationGroupExpr.setBType(symTable.booleanType);
         BLangValueType stringType = (BLangValueType) TreeBuilder.createValueTypeNode();
-        stringType.type = symTable.stringType;
+        stringType.setBType(symTable.stringType);
         stringType.typeKind = TypeKind.STRING;
         commitResultValidationGroupExpr.expression = ASTBuilderUtil.createTypeTestExpr(pos, commitResultVarRef,
                 stringType);
@@ -589,7 +602,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         //}
         BLangIf failureValidationIf = ASTBuilderUtil.createIfStmt(pos, commitBlockStatement);
         BLangGroupExpr failureValidationGroupExpr = new BLangGroupExpr();
-        failureValidationGroupExpr.type = symTable.booleanType;
+        failureValidationGroupExpr.setBType(symTable.booleanType);
         BLangSimpleVarRef failureValidationExprVarRef = ASTBuilderUtil.createVariableRef(pos,
                 isTransactionFailedVariable.symbol);
         List<BType> paramTypes = new ArrayList<>();
@@ -618,7 +631,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         // }
         BLangStatementExpression stmtExpr = createStatementExpression(commitBlockStatement,
                 outputVarRef);
-        stmtExpr.type = symTable.errorOrNilType;
+        stmtExpr.setBType(symTable.errorOrNilType);
         return stmtExpr;
     }
 

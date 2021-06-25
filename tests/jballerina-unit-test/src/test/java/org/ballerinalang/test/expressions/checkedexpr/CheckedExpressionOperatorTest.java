@@ -54,32 +54,17 @@ public class CheckedExpressionOperatorTest {
 
     @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignmentBasics2() {
-        BValue[] returns = BRunUtil.invoke(result, "testSafeAssignmentBasics2", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BError.class);
-        BError errorStruct = (BError) returns[0];
-        Assert.assertEquals(errorStruct.getReason(), "file not found error: /home/sameera/bar.txt",
-                "Invalid error message value returned.");
+        BRunUtil.invoke(result, "testSafeAssignmentBasics2");
     }
 
     @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignmentBasics3() {
-        BValue[] returns = BRunUtil.invoke(result, "testSafeAssignmentBasics3", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BError.class);
-        BError errorStruct = (BError) returns[0];
-        Assert.assertEquals(errorStruct.getReason(), "file not found error: /home/sameera/bar.txt",
-                "Invalid error message value returned.");
+        BRunUtil.invoke(result, "testSafeAssignmentBasics3");
     }
 
     @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignmentBasics4() {
-        BValue[] returns = BRunUtil.invoke(result, "testSafeAssignmentBasics4", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BError.class);
-        BError errorStruct = (BError) returns[0];
-        Assert.assertEquals(errorStruct.getReason(), "file not found error: /home/sameera/bar.txt",
-                "Invalid error message value returned.");
+        BRunUtil.invoke(result, "testSafeAssignmentBasics4");
     }
 
     @Test(description = "Test basics of safe assignment statement")
@@ -92,12 +77,7 @@ public class CheckedExpressionOperatorTest {
 
     @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignOpInAssignmentStatement2() {
-        BValue[] returns = BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement2", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BError.class);
-        BError errorStruct = (BError) returns[0];
-        Assert.assertEquals(errorStruct.getReason(), "file not found error: /home/sameera/foo.txt",
-                "Invalid error message value returned.");
+        BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement2", new BValue[]{});
     }
 
     @Test(description = "Test basics of safe assignment statement")
@@ -119,12 +99,7 @@ public class CheckedExpressionOperatorTest {
 
     @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignOpInAssignmentStatement5() {
-        BValue[] returns = BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement5", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BError.class);
-        BError errorStruct = (BError) returns[0];
-        Assert.assertEquals(errorStruct.getReason(), "file not found error: /home/sameera/bar.txt",
-                "Invalid error message value returned.");
+        BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement5", new BValue[]{});
     }
 
     @Test(description = "Test basics of safe assignment statement")
@@ -253,8 +228,7 @@ public class CheckedExpressionOperatorTest {
         BRunUtil.invoke(result, "testCheckedErrorsWithReadOnlyInUnion");
     }
 
-    @Test(description = "Test service resource that returns an error containing check expression",
-            groups = "brokenOnErrorChange")
+    @Test(description = "Test service resource that returns an error containing check expression")
     public void testSemanticErrorsWithResources() {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expr_within_resource.bal");

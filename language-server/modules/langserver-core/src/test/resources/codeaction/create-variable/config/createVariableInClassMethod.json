@@ -1,0 +1,99 @@
+{
+  "line": 7,
+  "character": 8,
+  "expected": [
+    {
+      "title": "Create variable and type guard",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 28
+            },
+            "end": {
+              "line": 7,
+              "character": 28
+            }
+          },
+          "newText": "\n        if intWithError is int {\n\n        }"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 8
+            },
+            "end": {
+              "line": 7,
+              "character": 8
+            }
+          },
+          "newText": "int|error intWithError = "
+        }
+      ]
+    },
+    {
+      "title": "Create variable and check error",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 8
+            },
+            "end": {
+              "line": 7,
+              "character": 8
+            }
+          },
+          "newText": "int intWithError = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 8
+            },
+            "end": {
+              "line": 7,
+              "character": 8
+            }
+          },
+          "newText": "check "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 27
+            },
+            "end": {
+              "line": 6,
+              "character": 27
+            }
+          },
+          "newText": " returns error?"
+        }
+      ]
+    },
+    {
+      "title": "Create variable",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 8
+            },
+            "end": {
+              "line": 7,
+              "character": 8
+            }
+          },
+          "newText": "int|error intWithError = "
+        }
+      ]
+    }
+  ]
+}

@@ -425,8 +425,8 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 0, "too many arguments in call to 'new()'", 18, 12);
         BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'other'", 27, 19);
         BAssertUtil.validateError(result, 2, "invalid variable definition; can not infer the assignment type.", 27, 19);
-        BAssertUtil.validateError(result, 3, "too many arguments in call to 'null()'", 35, 24);
-        BAssertUtil.validateError(result, 4, "too many arguments in call to 'null()'", 39, 23);
+        BAssertUtil.validateError(result, 3, "too many arguments in call to 'new()'", 35, 24);
+        BAssertUtil.validateError(result, 4, "too many arguments in call to 'new()'", 39, 23);
     }
 
     @Test(description = "Negative test to test returning different type without type name")
@@ -436,6 +436,7 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 0, "uninitialized field 'foo'", 18, 5);
     }
 
+    // https://github.com/ballerina-platform/ballerina-lang/issues/14633
     @Test(description = "Negative test to test self reference types", enabled = false)
     public void testSelfReferenceType() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_cyclic_self_reference.bal");
@@ -716,7 +717,7 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) result[1]).intValue(), 1);
     }
 
-    @Test(description = "Negative test for object union type inference", groups = { "brokenOnNewParser" })
+    @Test(description = "Negative test for object union type inference")
     public void testNegativeUnionTypeInit() {
         CompileResult resultNegative = BCompileUtil.compile("test-src/object/object_type_union_negative.bal");
         int i = 0;
@@ -727,9 +728,9 @@ public class ObjectTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected '(PersonRec|EmployeeRec)', found 'string'", 71, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "missing required parameter 'i' in call to 'new()'", 114, 38);
+                "cannot infer type of the object from '(InitObjOne|InitObjTwo|float)'", 114, 38);
         BAssertUtil.validateError(resultNegative, i++,
-                "positional argument not allowed after named arguments", 114, 53);
+                "named arg followed by positional arg", 114, 42);
         BAssertUtil.validateError(resultNegative, i++,
                 "cannot infer type of the object from '(InitObjOne|InitObjTwo|int)'", 119, 36);
         BAssertUtil.validateError(resultNegative, i++,
@@ -740,10 +741,10 @@ public class ObjectTest {
                 "incompatible types: expected 'int', found 'string'", 126, 51);
         BAssertUtil.validateError(resultNegative, i++,
                 "cannot infer type of the object from '(InitObjOne|InitObjThree|boolean|string)'", 127, 50);
-        BAssertUtil.validateError(resultNegative, i++,
-                "positional argument not allowed after named arguments", 128, 59);
-        BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type of the object from '(InitObjThree|InitObjOne|boolean|string)'", 129, 50);
+        BAssertUtil.validateError(resultNegative, i++, "named arg followed by positional arg", 128, 51);
+        BAssertUtil.validateError(resultNegative, i++, "named arg followed by positional arg", 129  , 62);
+        BAssertUtil.validateError(resultNegative, i++, "named arg followed by positional arg", 129  , 62);
+        BAssertUtil.validateError(resultNegative, i++, "named arg followed by positional arg", 129  , 62);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
@@ -770,5 +771,40 @@ public class ObjectTest {
         Assert.assertTrue(result[1] instanceof BString);
         Assert.assertEquals(result[0].stringValue(), "firstValue");
         Assert.assertEquals(result[1].stringValue(), "secondValue");
+    }
+
+    @Test(description = "Negative test to test duplicate fields")
+    public void testDuplicateFields() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_field_negative.bal");
+        BAssertUtil.validateError(result, 0, "redeclared symbol 'error'", 20, 18);
+        Assert.assertEquals(result.getErrorCount(), 1);
+    }
+
+    @Test(description = "Test lang lib object type inclusion")
+    public void testLangLibObjectInclusion() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_langlib_inclusion.bal");
+        BValue[] result = BRunUtil.invoke(compileResult, "testLangLibObjectInclusion");
+        Assert.assertEquals(result.length, 2);
+        Assert.assertTrue(result[0] instanceof BString);
+        Assert.assertTrue(result[1] instanceof BString);
+        Assert.assertEquals(result[0].stringValue(), "Name:David age:10");
+        Assert.assertEquals(result[1].stringValue(), "Default string");
+    }
+
+    @Test(description = "Negative test to test calling lang lib functions for objects")
+    public void testLangLibFunctionInvocation() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_langlib_function_invocation_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 4);
+        BAssertUtil.validateError(result, 0, "undefined method 'toString' in object 'Person'",
+                27, 25);
+        BAssertUtil.validateError(result, 1, "no implementation found for the method 'returnString' " +
+                        "of class 'FrameImpl'",
+                34, 1);
+        BAssertUtil.validateError(result, 2, "no implementation found for the method 'start' " +
+                        "of class 'DynamicListenerImpl'",
+                46, 1);
+        BAssertUtil.validateError(result, 3, "no implementation found for the method 'toString' " +
+                        "of class 'StackFrameImpl'",
+                58, 1);
     }
 }

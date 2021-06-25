@@ -69,7 +69,7 @@ public function testObjectOverrideInterfaceWithInterface() {
 
 public function testObjectWithOverriddenFieldsAndMethods() {
     foo:ManagingDirector p = new foo:ManagingDirector(20, "John");
-    assertEquality(2000000, p.getBonus(1, 1));
+    assertEquality(2000000.0, p.getBonus(1, 1));
     assertEquality("Hello Director, John", p.getName());
 }
 

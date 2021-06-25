@@ -1,5 +1,5 @@
 // Override lang.int with custom import
-import ballerina/foo.bar.baz as int;
+import foobar/foo.bar.baz as int;
 
 // Predeclared prefix in annotation and listener decl
 @int:annot
@@ -34,7 +34,14 @@ public function foo() returns int:c {
             io:println("custom object error");
         }
     }
+    transaction:Info info;
+    int:IntType info;
+    string:lastIndexOf();
+    string:fromBytes(byteArray1);
+    int:sum(4, 5);
 }
+
+transaction:Info info2;
 
 // Predeclared module prefix in conditional expression
 public function bar() {
@@ -43,3 +50,8 @@ public function bar() {
     any c = condition ? int:x : y;
     any d = condition ? int:x : boolean;
 }
+
+// Predeclared module prefix in array length
+int[int:SIGNED8_MAX_VALUE] x = [];
+
+xmlns boolean:qux as ns1;

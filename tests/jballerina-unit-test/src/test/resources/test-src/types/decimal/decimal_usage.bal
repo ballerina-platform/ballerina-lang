@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 // Decimal array.
 function testDecimalArray() returns [decimal[], int, decimal, decimal] {
     decimal[] dArr = [12.3, 23.2, 34.534, 5.4];
@@ -63,4 +65,17 @@ class Student {
         self.weight = weight;
         self.height = height;
     }
+}
+
+// Decimal defaultable parameters
+function testDecimalDefaultable() {
+    decimal price = decimalDefaultable(540.5, discountRate = 0.1);
+    decimal expected = 496.73;
+    test:assertEquals(price, expected);
+}
+
+function decimalDefaultable(decimal fixedPrice, decimal tax = 10.28, decimal discountRate = 0.05) returns decimal {
+    decimal discount = fixedPrice * discountRate;
+    decimal price = fixedPrice + tax - discount;
+    return price;
 }

@@ -38,10 +38,10 @@ public function main() {
     decimal result = 24.87;
     test:assertEquals(result, decimalVar);
 
-    test:assertEquals([1,2,3], intArr);
-    test:assertEquals([9.0, 5.6], floatArr);
-    test:assertEquals(["red", "yellow", "green" ], stringArr);
-    test:assertEquals([true, false, false, true], booleanArr);
+    test:assertEquals(<int[]>[1,2,3], intArr);
+    test:assertEquals(<float[]>[9.0, 5.6], floatArr);
+    test:assertEquals(<string[]>["red", "yellow", "green" ], stringArr);
+    test:assertEquals(<boolean[]>[true, false, false, true], booleanArr);
 
     decimal[] & readonly resultArr = [8.9, 4.5, 6.2];
     test:assertEquals(resultArr, decimalArr);

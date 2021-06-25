@@ -79,4 +79,24 @@ public class BallerinaDocumentation implements Documentation {
         }
         return Optional.ofNullable(this.markdownDocAttachment.returnValueDescription);
     }
+
+    @Override
+    public Optional<String> deprecatedDescription() {
+        if (this.markdownDocAttachment == null) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(this.markdownDocAttachment.deprecatedDocumentation);
+    }
+
+    @Override
+    public Map<String, String> deprecatedParametersMap() {
+        HashMap<String, String> paramMap = new LinkedHashMap<>();
+        if (this.markdownDocAttachment != null) {
+            this.markdownDocAttachment.deprecatedParams
+                    .forEach(parameter -> paramMap.put(parameter.name, parameter.description));
+        }
+
+        return paramMap;
+    }
 }

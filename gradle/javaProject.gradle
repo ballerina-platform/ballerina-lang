@@ -32,9 +32,8 @@ dependencies {
     implementation 'org.slf4j:slf4j-api:1.7.26'
 
     constraints {
-        implementation 'commons-beanutils:commons-beanutils:1.9.3'
         implementation 'commons-codec:commons-codec:1.14'
-        implementation 'commons-io:commons-io:2.6'
+        implementation 'commons-io:commons-io:2.7'
         implementation 'commons-logging:commons-logging:1.1.1'
         implementation 'com.atlassian.commonmark:commonmark:0.11.0'
         implementation 'com.atlassian.commonmark:commonmark-ext-gfm-tables:0.11.0'
@@ -75,7 +74,6 @@ dependencies {
         implementation 'org.codehaus.woodstox:woodstox-core-asl:4.4.1'
         implementation 'org.codehaus.woodstox:stax2-api:4.2'
         implementation 'org.awaitility:awaitility:3.1.6'
-        implementation 'org.apache.thrift:libthrift:0.12.0'
         implementation 'org.bouncycastle:bcprov-jdk15on:1.61'
         implementation 'org.bouncycastle:bcpkix-jdk15on:1.61'
         implementation 'org.bytedeco.javacpp-presets:llvm-platform:6.0.1-1.4.2'
@@ -100,11 +98,11 @@ dependencies {
         implementation 'org.slf4j:slf4j-jdk14:1.7.26'
         implementation 'org.testng:testng:6.14.3'
         implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
-        implementation 'org.wso2.orbit.org.yaml:snakeyaml:1.16.0.wso2v1'
+        implementation 'org.yaml:snakeyaml:1.24'
         implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.3.11'
         implementation 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
         implementation 'org.wso2.staxon:staxon-core:1.2.0.wso2v2'
-        implementation 'org.quartz-scheduler:quartz:2.3.1'
+        implementation 'org.quartz-scheduler:quartz:2.3.2'
         implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.1'
 
         implementation 'info.picocli:picocli:4.0.1'
@@ -115,14 +113,14 @@ dependencies {
         implementation 'io.netty:netty-codec:4.1.39.Final'
         implementation 'io.netty:netty-buffer:4.1.39.Final'
         implementation 'io.netty:netty-common:4.1.39.Final'
-        implementation 'io.netty:netty-codec-http:4.1.39.Final'
-        implementation 'io.netty:netty-codec-http2:4.1.39.Final'
-        implementation 'io.netty:netty-handler:4.1.39.Final'
+        implementation 'io.netty:netty-codec-http:4.1.59.Final'
+        implementation 'io.netty:netty-codec-http2:4.1.59.Final'
+        implementation 'io.netty:netty-handler:4.1.46.Final'
         implementation 'io.netty:netty-tcnative-boringssl-static:2.0.25.Final'
         implementation 'io.netty:netty-transport:4.1.39.Final'
-        implementation 'io.opentracing:opentracing-api:0.31.0'
-        implementation 'io.opentracing:opentracing-noop:0.31.0'
-        implementation 'io.opentracing:opentracing-mock:0.31.0'
+        implementation 'io.opentelemetry:opentelemetry-api:1.0.0'
+        implementation 'io.opentelemetry:opentelemetry-sdk-trace:1.0.0'
+        implementation 'io.opentelemetry:opentelemetry-sdk-testing:1.0.0'
         implementation 'io.swagger.core.v3:swagger-models:1.5.18'
         implementation 'io.swagger.parser.v3:swagger-parser:2.0.14'
         implementation 'io.swagger.parser.v3:swagger-parser-v2-converter:2.0.14'
@@ -178,6 +176,7 @@ test {
     }
     systemProperty "ballerina.home", "$buildDir"
     systemProperty "org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog"
+    systemProperty "LANG_REPO_BUILD", "true"
     testLogging {
         events "failed"
         exceptionFormat "full"
@@ -209,13 +208,9 @@ task jacocoMergeExec(type: JacocoMerge) {
 }
 
 publishing {
-    def artifactCodeCoverageReport = file("$buildDir/jacoco/jacoco.exec")
     publications {
         mavenJava {
             from components.java
-        }
-        CodeCov(MavenPublication) {
-            artifact source: artifactCodeCoverageReport
         }
     }
 }

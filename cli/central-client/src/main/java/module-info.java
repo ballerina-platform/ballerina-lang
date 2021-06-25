@@ -9,4 +9,7 @@ module io.ballerina.central.client {
     requires jdk.httpserver;
     requires io.ballerina.runtime;
     requires java.semver;
+    requires org.apache.commons.io;
+    requires okhttp3;
+    requires okio;
 }

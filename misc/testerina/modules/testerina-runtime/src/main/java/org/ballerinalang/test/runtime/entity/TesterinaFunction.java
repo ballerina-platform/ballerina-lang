@@ -19,7 +19,6 @@ package org.ballerinalang.test.runtime.entity;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
@@ -89,9 +88,12 @@ public class TesterinaFunction {
         try {
             final Method method = initClazz.getDeclaredMethod(funcName, paramTypes);
             return method.invoke(null, args);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (NoSuchMethodException | IllegalAccessException e) {
             throw new BallerinaTestException("Failed to invoke the function '" +
                                              funcName + " due to " + e.getMessage(), e);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            throw new BallerinaTestException(targetException.getMessage(), targetException);
         }
     }
 
@@ -107,26 +109,19 @@ public class TesterinaFunction {
                 } catch (InvocationTargetException e) {
                     return e.getTargetException();
                 } catch (IllegalAccessException e) {
-                    throw new BallerinaTestException("Error while invoking function '" + funcName + "'", e);
+                    return new BallerinaTestException("Error while invoking function '" + funcName + "'", e);
                 }
             };
             final BFuture out = scheduler.schedule(params, func, null, null, null, PredefinedTypes.TYPE_ANY,
                                                    null, null);
             scheduler.start();
             final Throwable t = out.getPanic();
-            final Object result = out.getResult();
-            if (result instanceof BError) {
-                throw new BallerinaTestException((BError) result);
-            }
-            if (result instanceof Exception) {
-                throw new BallerinaTestException((Exception) result);
-            }
             if (t != null) {
-                throw new BallerinaTestException("Error while invoking function '" + funcName + "'", t.getMessage());
+                return new BallerinaTestException("Error while invoking function '" + funcName + "'", t.getMessage());
             }
             return out.getResult();
         } catch (NoSuchMethodException e) {
-            throw new BallerinaTestException("Error while invoking function '" + funcName + "'\n" +
+            return new BallerinaTestException("Error while invoking function '" + funcName + "'\n" +
                     "If you are using data providers please check if types return from data provider " +
                     "match test function parameter types.", e);
         }

@@ -54,10 +54,12 @@ function stampAnydataToJSONV2() returns json|error  {
     return jsonValue;
 }
 
+type XmlType xml;
+
 function stampAnydataToXML() returns xml|error  {
     anydata anydataValue = xml `<book>The Lost World</book>`;
 
-    xml|error  xmlValue = anydataValue.cloneWithType(xml);
+    xml|error  xmlValue = anydataValue.cloneWithType(XmlType);
     return xmlValue;
 }
 

@@ -49,6 +49,8 @@ package io.ballerina.runtime.internal.values;
 
      public Callback callback;
 
+     private boolean waited;
+
      Type type;
 
      @Deprecated
@@ -68,7 +70,7 @@ package io.ballerina.runtime.internal.values;
          if (panic != null) {
              sj.add("panic:" + panic.getLocalizedMessage());
          }
-         return "future " + sj.toString();
+         return "future " + sj;
      }
 
     @Override
@@ -140,4 +142,11 @@ package io.ballerina.runtime.internal.values;
         return stringValue(null);
     }
 
+    public boolean hasWaited() {
+        return waited;
+    }
+
+    public void setWaited(boolean waited) {
+        this.waited = waited;
+    }
 }

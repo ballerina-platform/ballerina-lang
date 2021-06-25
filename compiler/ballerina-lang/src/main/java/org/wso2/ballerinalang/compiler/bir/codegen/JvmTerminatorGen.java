@@ -47,8 +47,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.Unifier;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -97,12 +97,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERROR_REASONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BIG_DECIMAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_EXCEPTION_HELPER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_ON_EXTERN_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULT_STRAND_DISPATCHER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
@@ -141,6 +143,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_TH
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_VALUE_ANY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WD_CHANNELS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_DATA_CHANNEL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_UTILS;
@@ -164,7 +167,7 @@ public class JvmTerminatorGen {
     private JvmInstructionGen jvmInstructionGen;
     private PackageCache packageCache;
     private SymbolTable symbolTable;
-    private ResolvedTypeBuilder typeBuilder;
+    private Unifier unifier;
     private JvmTypeGen jvmTypeGen;
     private JvmCastGen jvmCastGen;
     private AsyncDataCollector asyncDataCollector;
@@ -186,7 +189,7 @@ public class JvmTerminatorGen {
         this.symbolTable = jvmPackageGen.symbolTable;
         this.currentPackageName = JvmCodeGenUtil.getPackageName(packageID);
         this.moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
-        this.typeBuilder = new ResolvedTypeBuilder();
+        this.unifier = new Unifier();
         this.asyncDataCollector = asyncDataCollector;
     }
 
@@ -236,6 +239,15 @@ public class JvmTerminatorGen {
             case TypeTags.READONLY:
             case TypeTags.STREAM:
                 mv.visitInsn(ACONST_NULL);
+                break;
+            case TypeTags.DECIMAL:
+                mv.visitTypeInsn(NEW, DECIMAL_VALUE);
+                mv.visitInsn(DUP);
+                mv.visitInsn(DCONST_0);
+                mv.visitMethodInsn(INVOKESTATIC, BIG_DECIMAL, VALUE_OF_METHOD, String.format("(D)L%s;", BIG_DECIMAL),
+                        false);
+                mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, JVM_INIT_METHOD, String.format("(L%s;)V", BIG_DECIMAL),
+                        false);
                 break;
             case JTypeTags.JTYPE:
                 loadDefaultJValue(mv, (JType) bType);
@@ -708,7 +720,8 @@ public class JvmTerminatorGen {
         // load strand
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         String encodedMethodName = IdentifierUtils.encodeFunctionIdentifier(methodLookupName);
-        String lookupKey = JvmCodeGenUtil.getPackageName(packageID) + encodedMethodName;
+        String packageName = JvmCodeGenUtil.getPackageName(packageID);
+
 
         int argsCount = callIns.args.size();
         int i = 0;
@@ -719,7 +732,14 @@ public class JvmTerminatorGen {
                                      packageID.name.getValue()));
             i += 1;
         }
-        BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lookupKey);
+        BIRFunctionWrapper functionWrapper;
+        if (packageName.equals(currentPackageName)) {
+            functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(packageName + encodedMethodName);
+        } else {
+            // If the callee function from different module, we need to use decoded function name as lookup key.
+            functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(packageName + IdentifierUtils
+                    .decodeIdentifier(methodLookupName));
+        }
         String methodDesc;
         String jvmClass;
         if (functionWrapper != null) {
@@ -748,7 +768,7 @@ public class JvmTerminatorGen {
             jvmClass = JvmCodeGenUtil.getModuleLevelClassName(packageID,
                                                               JvmCodeGenUtil.cleanupPathSeparators(balFileName));
             //TODO: add receiver:  BType attachedType = type.r != null ? receiver.type : null;
-            BType retType = typeBuilder.build(type.retType);
+            BType retType = unifier.build(type.retType);
             methodDesc = JvmCodeGenUtil.getMethodDesc(params, retType);
         }
         this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, encodedMethodName, methodDesc, false);
@@ -1288,7 +1308,7 @@ public class JvmTerminatorGen {
 
     public void genReturnTerm(int returnVarRefIndex, BIRNode.BIRFunction func) {
 
-        BType bType = typeBuilder.build(func.type.retType);
+        BType bType = unifier.build(func.type.retType);
 
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             this.mv.visitVarInsn(LLOAD, returnVarRefIndex);

@@ -20,10 +20,11 @@ package io.ballerina.shell.snippet.types;
 
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
-import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.SnippetSubKind;
-import io.ballerina.shell.utils.StringUtils;
+import io.ballerina.shell.utils.QuotedIdentifier;
+import io.ballerina.shell.utils.QuotedImport;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class ImportDeclarationSnippet extends Snippet {
+public class ImportDeclarationSnippet extends AbstractSnippet<ImportDeclarationNode> implements DeclarationSnippet {
     public ImportDeclarationSnippet(ImportDeclarationNode rootNode) {
         super(SnippetSubKind.IMPORT_DECLARATION, rootNode);
     }
@@ -43,11 +44,11 @@ public class ImportDeclarationSnippet extends Snippet {
      *
      * @return Alias of this import.
      */
-    public String getPrefix() {
-        ImportDeclarationNode importNode = (ImportDeclarationNode) rootNode;
-        return importNode.prefix().isPresent()
-                ? importNode.prefix().get().prefix().text()
-                : importNode.moduleName().get(importNode.moduleName().size() - 1).text();
+    public QuotedIdentifier getPrefix() {
+        String importPrefix = rootNode.prefix().isPresent()
+                ? rootNode.prefix().get().prefix().text()
+                : rootNode.moduleName().get(rootNode.moduleName().size() - 1).text();
+        return new QuotedIdentifier(importPrefix);
     }
 
     /**
@@ -56,16 +57,14 @@ public class ImportDeclarationSnippet extends Snippet {
      *
      * @return Imported module expression.
      */
-    public String getImportedModule() {
-        ImportDeclarationNode importNode = (ImportDeclarationNode) rootNode;
-        String moduleName = importNode.moduleName().stream()
+    public QuotedImport getImportedModule() {
+        List<String> moduleNames = rootNode.moduleName().stream()
                 .map(IdentifierToken::text)
-                .map(StringUtils::quoted)
-                .collect(Collectors.joining("."));
-        if (importNode.orgName().isPresent()) {
-            String orgName = importNode.orgName().get().orgName().text();
-            return String.format("%s/%s", orgName, moduleName);
+                .collect(Collectors.toList());
+        if (rootNode.orgName().isPresent()) {
+            String orgName = rootNode.orgName().get().orgName().text();
+            return new QuotedImport(orgName, moduleNames);
         }
-        return moduleName;
+        return new QuotedImport(moduleNames);
     }
 }

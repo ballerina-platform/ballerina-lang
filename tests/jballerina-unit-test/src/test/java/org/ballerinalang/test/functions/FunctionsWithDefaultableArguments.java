@@ -19,7 +19,6 @@
 package org.ballerinalang.test.functions;
 
 import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
@@ -142,19 +141,7 @@ public class FunctionsWithDefaultableArguments {
 
     @Test(description = "Test functions arguments with error as default values")
     public void testDefaultValueWithError() {
-        BValue[] returns = BRunUtil.invoke(result, "testDefaultValueWithError");
-        Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertTrue(returns[1] instanceof BError);
-        Assert.assertTrue(returns[2] instanceof BError);
-
-        BError bError = (BError) returns[0];
-        Assert.assertEquals(bError.getReason(), "Generated Error");
-
-        bError = (BError) returns[1];
-        Assert.assertEquals(bError.getReason(), "Not Error 100");
-
-        bError = (BError) returns[2];
-        Assert.assertEquals(bError.getReason(), "Not Error 2");
+        BRunUtil.invoke(result, "testDefaultValueWithError");
     }
 
     @Test(description = "Test functions arguments with error as default values")

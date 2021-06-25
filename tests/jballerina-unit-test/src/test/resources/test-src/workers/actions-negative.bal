@@ -42,6 +42,7 @@ function workerActionFirstTest() {
         p1 -> w2;
         // Sync send expr should be of anydata
         var result = p1 ->> w2;
+        any|error val = result;
         // Invalid worker
         // var x = flush w4;
     }
@@ -59,6 +60,7 @@ function workerActionFirstTest() {
     worker w3 {
         // No send actions to particular worker
         var x = flush w1;
+        any|error val = x;
     }
 }
 
@@ -86,9 +88,9 @@ function workerActionSecTest() {
 function workerActionThirdTest() {
     worker w1 {
         int i = 5;
-        var x1 = i ->> w2;
-        var x2 = i ->> w2;
-        var result = flush w2;
+        error? x1 = i ->> w2;
+        error? x2 = i ->> w2;
+        error? result = flush w2;
     }
     worker w2 returns error?{
         if(false){
@@ -140,7 +142,7 @@ public function workerAsAFutureTest() returns int {
         any a = <- wy;
         "h" -> wy;
         future<int> fi = wy; // illegal peer worker ref
-        return wait fi;
+        return checkpanic wait fi;
     }
 
     worker wy returns int {
@@ -180,10 +182,10 @@ public function workerAsAFutureTest() returns int {
 
     future<int> fLambda0 = start lambda0();
 
-    function () returns int lambda1 = function () returns int {
+    function () returns int|error lambda1 = function () returns int|error {
         return wait fLambda0;
     };
-    future<int> fLambda1 = start lambda1();
+    future<int|error> fLambda1 = start lambda1();
 
     return wait wy;
 }
@@ -197,7 +199,7 @@ class ObjFuncUsingWorkersAsFutureValues {
             var f = function () {
                 _ = wait wy; // illegal peer worker ref within a worker
             };
-            return wait fi;
+            return checkpanic wait fi;
         }
 
         worker wy returns int {
@@ -231,8 +233,99 @@ class ObjFuncUsingWorkersAsFutureValues {
 
 }
 
-
-
 function bar() returns int {
     return  1;
 }
+
+
+function testUnsupportedWorkerPosition() {
+    worker w {
+        if 1 / 2 == 0 {
+            0 -> function;
+            if true {
+                1 -> function;
+            }
+        }
+
+        int i = 6;
+        foreach var index in 0 ..< i {
+            index -> function;
+            index -> w1;
+        }
+
+        while (true) {
+            i -> function;
+            i -> w1;
+        }
+
+        match i {
+            1 => {
+                i -> function;
+            }
+            2 => {
+                i -> w1;
+            }
+        }
+
+        function k = function() {
+                         i -> w1;
+                     };
+    }
+
+    worker w1 {
+        int i = 6;
+        foreach var index in 0 ..< i {
+            int k = <- w;
+        }
+    }
+
+    if (2 / 2 == 1) {
+        int res = <- w;
+    }
+}
+
+function f = function() {
+                 worker w {
+                     if 1 / 2 == 0 {
+                         0 -> function;
+                         if true {
+                             1 -> function;
+                         }
+                     }
+
+                     int i = 6;
+                     foreach var index in 0 ..< i {
+                         index -> function;
+                         index -> w1;
+                     }
+
+                     while (true) {
+                         i -> function;
+                         i -> w1;
+                     }
+
+                     match i {
+                         1 => {
+                             i -> function;
+                         }
+                         2 => {
+                             i -> w1;
+                         }
+                     }
+
+                     function k = function() {
+                                      i -> w1;
+                                  };
+                 }
+
+                 worker w1 {
+                     int i = 6;
+                     foreach var index in 0 ..< i {
+                         int k = <- w;
+                     }
+                 }
+
+                 if (2 / 2 == 1) {
+                     int res = <- w;
+                 }
+             };

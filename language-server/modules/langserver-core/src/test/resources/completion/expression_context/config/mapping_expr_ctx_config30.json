@@ -1,0 +1,51 @@
+{
+  "position": {
+    "line": 20,
+    "character": 28
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source30.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "address",
+      "kind": "Field",
+      "detail": "(record {| string name; int age; Address address; |}).address",
+      "sortText": "G",
+      "insertText": "address: {\n\tstreet: \"${1}\",\n\tcity: \"${2}\",\n\tpostalCode: \"${3}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name",
+      "kind": "Field",
+      "detail": "(record {| string name; int age; Address address; |}).name",
+      "sortText": "G",
+      "insertText": "name: \"${2}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "age",
+      "kind": "Field",
+      "detail": "(record {| string name; int age; Address address; |}).age",
+      "sortText": "G",
+      "insertText": "age: ${3:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill record {| string name; int age; Address address; |} Required Fields",
+      "kind": "Property",
+      "detail": "record {| string name; int age; Address address; |}",
+      "sortText": "Q",
+      "filterText": "fill",
+      "insertText": "address: {street: \"\", city: \"\", postalCode: \"\"},\nname: \"\",\nage: 0",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

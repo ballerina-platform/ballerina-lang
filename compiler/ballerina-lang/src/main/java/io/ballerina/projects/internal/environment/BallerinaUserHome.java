@@ -1,16 +1,22 @@
 package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.Settings;
+import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.PackageRepository;
+import io.ballerina.projects.internal.SettingsBuilder;
+import io.ballerina.projects.internal.repositories.FileSystemRepository;
 import io.ballerina.projects.internal.repositories.RemotePackageRepository;
 import io.ballerina.projects.util.ProjectConstants;
-import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.toml.parser.SettingsProcessor;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.USER_HOME;
 
@@ -23,11 +29,25 @@ public final class BallerinaUserHome {
 
     private final Path ballerinaUserHomeDirPath;
     private final RemotePackageRepository remotePackageRepository;
+    private final Map<String, PackageRepository> customRepositories;
 
     private BallerinaUserHome(Environment environment, Path ballerinaUserHomeDirPath) {
         this.ballerinaUserHomeDirPath = ballerinaUserHomeDirPath;
+        Path repositoryPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR);
+        Path remotePackageRepositoryPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
+                .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME);
+        try {
+            Files.createDirectories(remotePackageRepositoryPath);
+        } catch (AccessDeniedException ae) {
+            throw new ProjectException("permission denied to create the directory: " + repositoryPath);
+        } catch (IOException exception) {
+            throw new ProjectException("unable to create the file system cache of Ballerina Central repository: " +
+                    remotePackageRepositoryPath);
+        }
+
         this.remotePackageRepository = RemotePackageRepository
-                .from(environment, ballerinaUserHomeDirPath, readSettings());
+                .from(environment, remotePackageRepositoryPath, readSettings());
+        this.customRepositories = Map.of(ProjectConstants.LOCAL_REPOSITORY_NAME, createLocalRepository(environment));
     }
 
     public static BallerinaUserHome from(Environment environment, Path ballerinaUserHomeDirPath) {
@@ -49,6 +69,10 @@ public final class BallerinaUserHome {
         return this.remotePackageRepository;
     }
 
+    public Map<String, PackageRepository> customRepositories() {
+        return this.customRepositories;
+    }
+
     /**
      * Read Settings.toml to populate the configurations.
      *
@@ -59,16 +83,22 @@ public final class BallerinaUserHome {
         if (Files.notExists(settingsFilePath)) {
             try {
                 Files.createFile(settingsFilePath);
+            } catch (AccessDeniedException ae) {
+                throw new ProjectException("permission denied to create the file: "
+                        + ProjectConstants.SETTINGS_FILE_NAME + " in " + this.ballerinaUserHomeDirPath);
             } catch (IOException e) {
-                throw new ProjectException(
-                        ProjectConstants.SETTINGS_FILE_NAME + " does not exists in '" + ballerinaUserHomeDirPath
-                                + "', File creation also failed");
+                throw new ProjectException("failed to create file: " +  ProjectConstants.SETTINGS_FILE_NAME + " in "
+                        + this.ballerinaUserHomeDirPath + " " + e.getMessage());
             }
         }
         try {
-            return SettingsProcessor.parseTomlContentFromFile(settingsFilePath);
+            TomlDocument settingsTomlDocument = TomlDocument
+                    .from(String.valueOf(settingsFilePath.getFileName()), Files.readString(settingsFilePath));
+            SettingsBuilder settingsBuilder = SettingsBuilder.from(settingsTomlDocument);
+            return settingsBuilder.settings();
         } catch (IOException e) {
-            return new Settings();
+            // Ignore 'Settings.toml' reading and parsing errors and return empty Settings object
+            return Settings.from();
         }
     }
 
@@ -76,12 +106,24 @@ public final class BallerinaUserHome {
         // If directory does not exists, create it
         if (Files.notExists(ballerinaUserHomeDirPath) || !Files.isDirectory(ballerinaUserHomeDirPath)) {
             try {
-                Files.createDirectory(ballerinaUserHomeDirPath);
+                Files.createDirectories(ballerinaUserHomeDirPath);
             } catch (IOException e) {
                 throw new ProjectException(
                         "Ballerina user home directory does not exists in '" + ballerinaUserHomeDirPath
                                 + "', Directory creation also failed");
             }
         }
+    }
+
+    private FileSystemRepository createLocalRepository(Environment environment) {
+        Path repositoryPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
+                .resolve(ProjectConstants.LOCAL_REPOSITORY_NAME);
+        try {
+            Files.createDirectories(repositoryPath);
+        } catch (IOException exception) {
+            throw new ProjectException("unable to create repository: " + ProjectConstants.LOCAL_REPOSITORY_NAME);
+        }
+        String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
+        return new FileSystemRepository(environment, repositoryPath, ballerinaShortVersion);
     }
 }

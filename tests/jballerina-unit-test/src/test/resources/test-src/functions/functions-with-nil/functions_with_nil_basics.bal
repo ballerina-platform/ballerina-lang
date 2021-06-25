@@ -19,24 +19,56 @@ function funcReturnNilExplicit() returns () {
     return ();
 }
 
-function funcReturnNilOrError(int a) returns () | error {
-    string s = "test";
-    if( a > 20 ) {
-        error e = error("dummy error message");
-        return e;
-    }
+function funcReturnNilOrError(int a) returns ()|error {
+    var f = function(int a) returns ()|error {
+                string s = "test";
+                if (a > 20) {
+                    error e = error("dummy error message");
+                    return e;
+                }
 
-    return;
+                return;
+            };
+
+    error|() e = f(a);
+
+    if (a > 20) {
+        if (e is error && e.message() == "dummy error message") {
+            return;
+        }
+        panic error("Expected error with message = `dummy error message`, found: " + (typeof e).toString());
+    } else {
+        if (e is ()) {
+            return;
+        }
+        panic error("Expected nil, found: " + (typeof e).toString());
+    }
 }
 
 function funcReturnOptionallyError(int a) returns error? {
-    string s = "test";
-    if( a > 20 ) {
-        error e = error("dummy error message");
-        return e;
-    }
+    var f = function(int a) returns error? {
+                string s = "test";
+                if (a > 20) {
+                    error e = error("dummy error message");
+                    return e;
+                }
 
-    return;
+                return;
+            };
+
+    error? e = f(a);
+
+    if (a > 20) {
+        if (e is error && e.message() == "dummy error message") {
+            return;
+        }
+        panic error("Expected error with message = `dummy error message`, found: " + (typeof e).toString());
+    } else {
+        if (e is ()) {
+            return;
+        }
+        panic error("Expected nil, found: " + (typeof e).toString());
+    }
 }
 
 function testNilReturnAssignment() {

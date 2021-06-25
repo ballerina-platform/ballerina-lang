@@ -29,7 +29,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class AnnotationTest extends CompletionTestNew {
+public class AnnotationTest extends CompletionTest {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {

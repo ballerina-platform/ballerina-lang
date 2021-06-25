@@ -70,7 +70,7 @@ public class ValueUtils {
             if (val instanceof String) {
                 val = StringUtils.fromString((String) val);
             }
-            record.put(StringUtils.fromString(fieldEntry.getKey()), val);
+            record.populateInitialValue(StringUtils.fromString(fieldEntry.getKey()), val);
         }
 
         return record;

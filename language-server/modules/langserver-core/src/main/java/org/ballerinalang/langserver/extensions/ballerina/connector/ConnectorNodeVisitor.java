@@ -44,6 +44,7 @@ public class ConnectorNodeVisitor extends NodeVisitor {
     private final String name;
     private final List<ClassDefinitionNode> connectors;
     private final Map<String, TypeDefinitionNode> records;
+    private final Map<String, ClassDefinitionNode> objectTypes;
 
     private final SemanticModel semanticModel;
 
@@ -52,6 +53,7 @@ public class ConnectorNodeVisitor extends NodeVisitor {
         this.semanticModel = semanticModel;
         this.connectors = new ArrayList<>();
         this.records = new HashMap<>();
+        this.objectTypes = new HashMap<>();
     }
 
     public String getName() {
@@ -64,6 +66,10 @@ public class ConnectorNodeVisitor extends NodeVisitor {
 
     public Map<String, TypeDefinitionNode> getRecords() {
         return records;
+    }
+
+    public Map<String, ClassDefinitionNode> getObjectTypes() {
+        return objectTypes;
     }
 
     public void visit(ModulePartNode modulePartNode) {
@@ -84,6 +90,11 @@ public class ConnectorNodeVisitor extends NodeVisitor {
 
         if (isClient) {
             this.connectors.add(classDefinitionNode);
+        } else {
+            String typeName = String.format("%s:%s", symbol.get().getModule().get().id().toString(),
+                    symbol.get().getName().get());
+
+            this.objectTypes.put(typeName, classDefinitionNode);
         }
     }
 
@@ -92,8 +103,10 @@ public class ConnectorNodeVisitor extends NodeVisitor {
 
         if (typeSymbol.isPresent() && typeSymbol.get() instanceof TypeDefinitionSymbol) {
             TypeSymbol rawType = getRawType(((TypeDefinitionSymbol) typeSymbol.get()).typeDescriptor());
-            String typeName = String.format("%s:%s", typeSymbol.get().moduleID().toString(), typeSymbol.get().name());
-            if (rawType.typeKind() == TypeDescKind.RECORD || rawType.typeKind() == TypeDescKind.UNION) {
+            String typeName = String.format("%s:%s", typeSymbol.get().getModule().get().id().toString(),
+                    typeSymbol.get().getName().get());
+            if (rawType.typeKind() == TypeDescKind.RECORD || rawType.typeKind() == TypeDescKind.UNION
+                    || rawType.typeKind() == TypeDescKind.ERROR) {
                 this.records.put(typeName, typeDefinitionNode);
             }
         }

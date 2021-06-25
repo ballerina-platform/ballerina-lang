@@ -24,7 +24,7 @@
               ]
             },
             {
-              "kind": "ERROR_TYPE_PARAMS",
+              "kind": "TYPE_PARAMETER",
               "hasDiagnostics": true,
               "children": [
                 {

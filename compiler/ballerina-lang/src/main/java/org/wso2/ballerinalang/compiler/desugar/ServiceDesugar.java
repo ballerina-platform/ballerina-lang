@@ -33,21 +33,19 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
-import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -75,11 +73,12 @@ public class ServiceDesugar {
     private static final String GRACEFUL_STOP = "gracefulStop";
     private static final String ATTACH_METHOD = "attach";
     private static final String LISTENER = "$LISTENER";
+    private static final String ROOT_RESOURCE_PATH = "/";
 
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private final Names names;
-    private HttpFiltersDesugar httpFiltersDesugar;
+    private DeclarativeAuthDesugar declarativeAuthDesugar;
     private TransactionDesugar transactionDesugar;
     private final Types types;
 
@@ -97,24 +96,27 @@ public class ServiceDesugar {
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
-        this.httpFiltersDesugar = HttpFiltersDesugar.getInstance(context);
+        this.declarativeAuthDesugar = DeclarativeAuthDesugar.getInstance(context);
         this.transactionDesugar = TransactionDesugar.getInstance(context);
         this.types = Types.getInstance(context);
     }
 
-    void rewriteListeners(List<BLangSimpleVariable> variables, SymbolEnv env, BLangFunction startFunction,
+    void rewriteListeners(List<BLangVariable> variables, SymbolEnv env, BLangFunction startFunction,
                           BLangFunction stopFunction) {
-        variables.stream().filter(varNode -> Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER))
-                .forEach(varNode -> rewriteListener(varNode, env, startFunction, stopFunction));
+        for (BLangVariable varNode : variables) {
+            if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
+                rewriteListener(varNode, env, startFunction, stopFunction);
+            }
+        }
     }
 
-    private void rewriteListener(BLangSimpleVariable variable, SymbolEnv env, BLangFunction startFunction,
+    private void rewriteListener(BLangVariable variable, SymbolEnv env, BLangFunction startFunction,
                                  BLangFunction stopFunction) {
         rewriteListenerLifeCycleFunction(startFunction, variable, env, START_METHOD);
         rewriteListenerLifeCycleFunction(stopFunction, variable, env, GRACEFUL_STOP);
     }
 
-    private void rewriteListenerLifeCycleFunction(BLangFunction lifeCycleFunction, BLangSimpleVariable variable,
+    private void rewriteListenerLifeCycleFunction(BLangFunction lifeCycleFunction, BLangVariable variable,
             SymbolEnv env, String method) {
         // This method will generate and add following statement to give life cycle function.
         //
@@ -124,7 +126,7 @@ public class ServiceDesugar {
         final Location pos = variable.pos;
 
         // Find correct symbol.
-        BTypeSymbol listenerTypeSymbol = getListenerType(variable.type).tsymbol;
+        BTypeSymbol listenerTypeSymbol = getListenerType(variable.getBType()).tsymbol;
         final Name functionName = names
                 .fromString(Symbols.getAttachedFuncSymbolName(listenerTypeSymbol.name.value, method));
         BInvokableSymbol methodInvocationSymbol = (BInvokableSymbol) symResolver
@@ -164,22 +166,22 @@ public class ServiceDesugar {
             } else {
                 // Define anonymous listener variable.
                 BLangSimpleVariable listenerVar = ASTBuilderUtil
-                        .createVariable(pos, generateServiceListenerVarName(service) + count, attachExpr.type,
-                                attachExpr,
-                                null);
+                        .createVariable(pos, generateServiceListenerVarName(service) + count, attachExpr.getBType(),
+                                        attachExpr,
+                                        null);
                 ASTBuilderUtil.defineVariable(listenerVar, env.enclPkg.symbol, names);
                 listenerVar.symbol.flags |= Flags.LISTENER;
                 env.enclPkg.globalVars.add(listenerVar);
                 listenerVarRef = ASTBuilderUtil.createVariableRef(pos, listenerVar.symbol);
             }
 
-            if (types.containsErrorType(listenerVarRef.type)) {
+            if (types.containsErrorType(listenerVarRef.getBType())) {
                 BLangCheckedExpr listenerCheckExpr = ASTBuilderUtil.createCheckExpr(pos, listenerVarRef,
-                        getListenerType(listenerVarRef.type));
+                        getListenerType(listenerVarRef.getBType()));
                 listenerCheckExpr.equivalentErrorTypeList.add(symTable.errorType);
                 BLangSimpleVariable listenerWithoutErrors = ASTBuilderUtil.createVariable(pos,
                         generateServiceListenerVarName(service)  + "$CheckTemp" + count++,
-                        getListenerTypeWithoutError(listenerVarRef.type),
+                        getListenerTypeWithoutError(listenerVarRef.getBType()),
                         listenerCheckExpr,
                         null);
                 ASTBuilderUtil.defineVariable(listenerWithoutErrors, env.enclPkg.symbol, names);
@@ -190,7 +192,7 @@ public class ServiceDesugar {
 
             //      (.<init>)              ->      y.__attach(x, {});
             // Find correct symbol.
-            BTypeSymbol listenerTypeSymbol = getListenerType(listenerVarRef.type).tsymbol;
+            BTypeSymbol listenerTypeSymbol = getListenerType(listenerVarRef.getBType()).tsymbol;
             final Name functionName = names
                     .fromString(Symbols.getAttachedFuncSymbolName(listenerTypeSymbol.name.value, ATTACH_METHOD));
             BInvokableSymbol methodRef = (BInvokableSymbol) symResolver
@@ -201,14 +203,23 @@ public class ServiceDesugar {
             args.add(ASTBuilderUtil.createVariableRef(pos, service.serviceVariable.symbol));
 
             if (service.getServiceNameLiteral() == null) {
-                BLangListConstructorExpr.BLangArrayLiteral arrayLiteral =
-                        ASTBuilderUtil.createEmptyArrayLiteral(service.getPosition(), symTable.arrayStringType);
-                for (IdentifierNode path : service.getAbsolutePath()) {
-                    var literal = ASTBuilderUtil.createLiteral(path.getPosition(), symTable.stringType,
-                            path.getValue());
-                    arrayLiteral.exprs.add(literal);
+                if (service.getAbsolutePath().isEmpty()) {
+                    BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(service.getPosition(),
+                            symTable.nilType, null);
+                    args.add(nilLiteral);
+                } else {
+                    BLangListConstructorExpr.BLangArrayLiteral arrayLiteral =
+                            ASTBuilderUtil.createEmptyArrayLiteral(service.getPosition(), symTable.arrayStringType);
+                    List<IdentifierNode> pathNodes = service.getAbsolutePath();
+                    if (!(pathNodes.size() == 1 && pathNodes.get(0).getValue().trim().equals(ROOT_RESOURCE_PATH))) {
+                        for (IdentifierNode path : pathNodes) {
+                            var literal = ASTBuilderUtil.createLiteral(path.getPosition(), symTable.stringType,
+                                    path.getValue());
+                            arrayLiteral.exprs.add(literal);
+                        }
+                    }
+                    args.add(arrayLiteral);
                 }
-                args.add(arrayLiteral);
             } else {
                 args.add((BLangExpression) service.getServiceNameLiteral());
             }
@@ -256,12 +267,12 @@ public class ServiceDesugar {
         // If listener contain errors we need to cast this to a listener type so that, attached function invocation
         // call is generated in BIRGen. Casting to the first listener type should be fine as actual method invocation
         // is based on the value rather than the type.
-        BType listenerType = getListenerType(varRef.type);
-        if (!types.isSameType(listenerType, varRef.type)) {
+        BType listenerType = getListenerType(varRef.getBType());
+        if (!types.isSameType(listenerType, varRef.getBType())) {
             BLangTypeConversionExpr castExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
             castExpr.expr = varRef;
-            castExpr.type = listenerType;
-            castExpr.targetType = castExpr.type;
+            castExpr.setBType(listenerType);
+            castExpr.targetType = castExpr.getBType();
             methodInvocation.expr = castExpr;
         } else {
             methodInvocation.expr = varRef;
@@ -276,7 +287,7 @@ public class ServiceDesugar {
     }
 
     void engageCustomServiceDesugar(BLangService service, SymbolEnv env) {
-        List<BType> expressionTypes = service.attachedExprs.stream().map(expression -> expression.type)
+        List<BType> expressionTypes = service.attachedExprs.stream().map(expression -> expression.getBType())
                 .collect(Collectors.toList());
         service.serviceClass.functions.stream().filter(fun -> Symbols.isFlagOn(fun.symbol.flags, Flags.RESOURCE))
                 .forEach(func -> engageCustomResourceDesugar(func, env, expressionTypes));
@@ -288,26 +299,6 @@ public class ServiceDesugar {
                     .createBeginParticipantInvocation(functionNode.pos));
             ((BLangBlockFunctionBody) functionNode.body).stmts.add(0, stmt);
         }
-        if (httpFiltersDesugar.isHttpPackage(expressionTypes)) {
-            List<BLangStatement> statements = getFunctionBodyStatementList(functionNode);
-            httpFiltersDesugar.addFilterStatements((BLangResourceFunction) functionNode, env, statements);
-        }
-    }
-
-    private List<BLangStatement> getFunctionBodyStatementList(BLangFunction functionNode) {
-        List<BLangStatement> statements = null;
-        if (functionNode.body.getKind() == NodeKind.EXPR_FUNCTION_BODY) {
-            BLangExprFunctionBody exprFunctionBody = (BLangExprFunctionBody) functionNode.body;
-            BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(functionNode.getPosition());
-            statements = blockStmt.stmts;
-
-            BLangStatementExpression statementExpression = ASTBuilderUtil.createStatementExpression(
-                            blockStmt,
-                            exprFunctionBody.expr);
-            exprFunctionBody.expr = statementExpression;
-        } else {
-            statements = ((BLangBlockFunctionBody) functionNode.body).stmts;
-        }
-        return statements;
+        declarativeAuthDesugar.desugarFunction(functionNode, env, expressionTypes);
     }
 }

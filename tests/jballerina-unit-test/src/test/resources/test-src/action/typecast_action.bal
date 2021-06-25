@@ -111,11 +111,11 @@ function testTypecastingActions() {
     PersonObj po = new("John Doe", 25);
 
     future<string|int> f1 = start po.getDetails("name");
-    string name = <string>wait f1;
+    string name = <string>checkpanic wait f1;
     assert("John Doe", name);
 
     f1 = start po.getDetails("age");
-    int age = <int>wait f1;
+    int age = <int>checkpanic wait f1;
     assert(25, age);
 }
 

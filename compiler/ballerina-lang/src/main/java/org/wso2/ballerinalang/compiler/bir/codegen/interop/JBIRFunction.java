@@ -32,7 +32,7 @@ public class JBIRFunction extends BIRNode.BIRFunction {
               birFunction.requiredParams, birFunction.receiver, birFunction.restParam, birFunction.argsCount,
               birFunction.localVars, birFunction.returnVariable,
               birFunction.parameters, birFunction.basicBlocks, birFunction.errorTable, birFunction.workerName,
-              birFunction.workerChannels, birFunction.taintTable, birFunction.annotAttachments,
-              birFunction.dependentGlobalVars);
+              birFunction.workerChannels, birFunction.annotAttachments,
+              birFunction.returnTypeAnnots, birFunction.dependentGlobalVars);
     }
 }

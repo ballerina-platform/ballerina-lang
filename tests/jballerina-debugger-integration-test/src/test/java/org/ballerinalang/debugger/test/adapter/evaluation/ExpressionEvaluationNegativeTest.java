@@ -19,12 +19,19 @@
 package org.ballerinalang.debugger.test.adapter.evaluation;
 
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
  * Test implementation for debug expression evaluation negative scenarios.
  */
 public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTest {
+
+    @BeforeClass(alwaysRun = true)
+    public void setup() throws BallerinaTestException {
+        prepareForEvaluation();
+    }
 
     @Override
     @Test
@@ -157,7 +164,10 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void typeCastEvaluationTest() throws BallerinaTestException {
-        // Todo
+        debugTestRunner.assertEvaluationError(context, String.format("<boolean>%s", ANYDATA_VAR),
+                "{ballerina}TypeCastError");
+        debugTestRunner.assertEvaluationError(context, String.format("<boolean|string>%s", ANY_VAR),
+                "{ballerina}TypeCastError");
     }
 
     @Override
@@ -220,9 +230,12 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void comparisonEvaluationTest() throws BallerinaTestException {
-        // semantically incorrect expressions (multiplication between int and string)
+        // comparison between int and string
         debugTestRunner.assertEvaluationError(context, String.format("%s < %s", INT_VAR, STRING_VAR),
                 "operator '<' not defined for 'int' and 'string'.");
+        // comparison between int and float (disallowed by the latest spec)
+        debugTestRunner.assertEvaluationError(context, String.format("%s < %s", INT_VAR, FLOAT_VAR),
+                "operator '<' not defined for 'int' and 'float'.");
     }
 
     @Override
@@ -342,5 +355,19 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         debugTestRunner.assertEvaluationError(context, "new()",
                 String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION.getString(),
                         "'new()' - IMPLICIT_NEW_EXPRESSION"));
+    }
+
+    @Override
+    @Test
+    public void remoteCallActionEvaluationTest() throws BallerinaTestException {
+        debugTestRunner.assertEvaluationError(context, String.format("%s->undefinedFunction()", CLIENT_OBJECT_VAR),
+                String.format(EvaluationExceptionKind.REMOTE_METHOD_NOT_FOUND.getString(), "undefinedFunction",
+                        "Student"));
+    }
+
+    @AfterClass(alwaysRun = true)
+    public void cleanUp() {
+        debugTestRunner.terminateDebugSession();
+        this.context = null;
     }
 }

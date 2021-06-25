@@ -19,37 +19,42 @@ import io.ballerina.compiler.api.symbols.Documentation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.Position;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
 /**
- * Holds the meta information required for the documentation attachment.
+ * Holds the meta information required for the documentation attachment. This class expects a {@link LinkedHashMap} for
+ * the parameters in order to keep the ordering of the parameters at the same time.
  *
  * @since 0.985.0
  */
 public class DocAttachmentInfo implements Documentation {
+
     private final String description;
     private final Map<String, String> parameters;
     private final String returnDesc;
+    private final String deprecatedDesc;
     private final Position docStart;
     private final String padding;
 
-    public DocAttachmentInfo(String description, Map<String, String> parameters, String returnDesc,
-                             Position docStart, String padding) {
+    public DocAttachmentInfo(String description, LinkedHashMap<String, String> parameters, String returnDesc,
+                             String deprecatedDesc, Position docStart, String padding) {
         this.description = description;
         this.parameters = parameters;
         this.returnDesc = returnDesc;
+        this.deprecatedDesc = deprecatedDesc;
         this.docStart = docStart;
         this.padding = padding;
     }
 
     public DocAttachmentInfo(String description, Position docStart, String padding) {
         this.description = description;
-        this.parameters = new HashMap<>();
+        this.parameters = new LinkedHashMap<>();
         this.returnDesc = null;
+        this.deprecatedDesc = null;
         this.docStart = docStart;
         this.padding = padding;
     }
@@ -69,6 +74,16 @@ public class DocAttachmentInfo implements Documentation {
         return Optional.ofNullable(returnDesc);
     }
 
+    @Override
+    public Optional<String> deprecatedDescription() {
+        return Optional.ofNullable(deprecatedDesc);
+    }
+
+    @Override
+    public Map<String, String> deprecatedParametersMap() {
+        return Collections.emptyMap();
+    }
+
     public Position getDocStartPos() {
         return docStart;
     }
@@ -76,31 +91,61 @@ public class DocAttachmentInfo implements Documentation {
     public DocAttachmentInfo mergeDocAttachment(Documentation other) {
         String description = other.description().orElse(this.description);
         // NOTE: we prioritize current markdown attachment's params since it has the correct order and correct positions
-        Map<String, String> newParamsMap = new LinkedHashMap<>();
+        LinkedHashMap<String, String> newParamsMap = new LinkedHashMap<>();
         if (!this.parameters.isEmpty()) {
             parameters.forEach((key, value) -> newParamsMap.put(key, other.parameterMap().getOrDefault(key, value)));
         }
-        String returnValueDescription = (this.returnDesc != null) ?
-                other.returnDescription().orElse(this.returnDesc) : null;
 
-        return new DocAttachmentInfo(description, newParamsMap, returnValueDescription, docStart, padding);
+        // Check if no return type present -> handles removal of return type descriptor
+        String returnValueDescription = null;
+        if (this.returnDesc != null) {
+            returnValueDescription = other.returnDescription().orElse(this.returnDesc);
+        }
+
+        // Check if deprecated description is present -> handles removal of deprecated description
+        String deprecatedDescription = null;
+        if (this.deprecatedDesc != null) {
+            deprecatedDescription = other.deprecatedDescription().orElse(this.deprecatedDesc);
+        }
+
+        return new DocAttachmentInfo(description, newParamsMap, returnValueDescription, deprecatedDescription, 
+                docStart, padding);
     }
 
     public String getDocumentationString() {
-        String result = String.format("# %s%n", this.description.trim());
+        return getDocumentationString(true);
+    }
+    
+    public String getDocumentationString(boolean newlineAtEnd) {
+        StringBuilder result = new StringBuilder();
+        // TODO: Seems like the parser isn't honoring the platform specific line separator. Therefore, splitting with
+        //      "/n" for now
+        String[] descriptionLines = this.description.trim().split("\n");
+        for (String descriptionLine : descriptionLines) {
+            result.append(String.format("# %s%n", descriptionLine.trim()));
+        }
 
         if (!parameters.isEmpty()) {
             StringJoiner paramJoiner = new StringJoiner(CommonUtil.MD_LINE_SEPARATOR);
             for (Map.Entry<String, String> parameter : this.parameters.entrySet()) {
                 paramJoiner.add(String.format("%s# + %s - %s", padding, parameter.getKey(), parameter.getValue()));
             }
-            result += String.format("%s#%n%s%n", padding, paramJoiner.toString());
+            result.append(String.format("%s#%n%s%n", padding, paramJoiner.toString()));
         }
 
         if (returnDesc != null) {
-            result += String.format("%s# + return - %s%n", padding, this.returnDesc.trim());
+            result.append(String.format("%s# + return - %s%n", padding, this.returnDesc.trim()));
         }
 
-        return result.trim() + CommonUtil.MD_LINE_SEPARATOR + padding;
+        if (deprecatedDesc != null) {
+            result.append(String.format("%s# # Deprecated%n", padding));
+            result.append(String.format("%s# %s%n", padding, deprecatedDesc));
+        }
+
+        if (newlineAtEnd) {
+            return result.toString().trim() + CommonUtil.MD_LINE_SEPARATOR + padding;
+        } else {
+            return result.toString().trim();
+        }
     }
 }

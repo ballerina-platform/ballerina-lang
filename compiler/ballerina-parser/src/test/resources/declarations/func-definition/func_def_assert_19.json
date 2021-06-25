@@ -22,7 +22,7 @@
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "ballerina"
+                  "value": "foobar"
                 },
                 {
                   "kind": "SLASH_TOKEN"
@@ -34,7 +34,7 @@
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "io"
+                  "value": "bar"
                 }
               ]
             },
@@ -136,7 +136,7 @@
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "value": "io",
+                                  "value": "bar",
                                   "leadingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",

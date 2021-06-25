@@ -46,7 +46,6 @@ import org.eclipse.lsp4j.debug.ThreadsResponse;
 import org.eclipse.lsp4j.debug.VariablesArguments;
 import org.eclipse.lsp4j.debug.VariablesResponse;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
-import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -59,21 +58,6 @@ public class DAPRequestManager {
 
     private final TestDAPClientConnector clientConnector;
     private final IDebugProtocolServer server;
-
-    private static final int TIMEOUT_SET_BREAKPOINTS = 10000;
-    private static final int TIMEOUT_CONFIG_DONE = 2000;
-    private static final int TIMEOUT_CONFIG_ATTACH = 5000;
-    private static final int TIMEOUT_CONFIG_LAUNCH = 10000;
-    private static final int TIMEOUT_THREADS = 2000;
-    private static final int TIMEOUT_STACK_TRACE = 2000;
-    private static final int TIMEOUT_SCOPES = 2000;
-    private static final int TIMEOUT_VARIABLES = 2000;
-    private static final int TIMEOUT_EVALUATE = 10000;
-    private static final int TIMEOUT_STEP_OVER = 5000;
-    private static final int TIMEOUT_STEP_IN = 10000;
-    private static final int TIMEOUT_STEP_OUT = 5000;
-    private static final int TIMEOUT_RESUME = 10000;
-    private static final int TIMEOUT_DISCONNECT = 5000;
 
     public DAPRequestManager(TestDAPClientConnector clientConnector, DAPClient client, IDebugProtocolServer server,
                              Capabilities serverCapabilities) {
@@ -88,127 +72,182 @@ public class DAPRequestManager {
     // ------------------------------- Client to Server --------------------------------------------//
 
     public SetBreakpointsResponse setBreakpoints(SetBreakpointsArguments args) throws Exception {
+        return setBreakpoints(args, DefaultTimeouts.SET_BREAKPOINTS.getValue());
+    }
+
+    public SetBreakpointsResponse setBreakpoints(SetBreakpointsArguments args, long timeoutMillis) throws Exception {
         if (checkStatus()) {
             CompletableFuture<SetBreakpointsResponse> resp = server.setBreakpoints(args);
-            return resp.get(TIMEOUT_SET_BREAKPOINTS, TimeUnit.MILLISECONDS);
+            return resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }
     }
 
     public void configurationDone(ConfigurationDoneArguments args) throws Exception {
+        configurationDone(args, DefaultTimeouts.CONFIG_DONE.getValue());
+    }
+
+    public void configurationDone(ConfigurationDoneArguments args, long timeoutMillis) throws Exception {
         if (checkStatus()) {
             CompletableFuture<Void> resp = server.configurationDone(args);
-            resp.get(TIMEOUT_CONFIG_DONE, TimeUnit.MILLISECONDS);
+            resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }
     }
 
     public void attach(Map<String, Object> args) throws Exception {
+        attach(args, DefaultTimeouts.ATTACH.getValue());
+    }
+
+    public void attach(Map<String, Object> args, long timeoutMillis) throws Exception {
         if (checkStatus()) {
             CompletableFuture<Void> resp = server.attach(args);
-            resp.get(TIMEOUT_CONFIG_ATTACH, TimeUnit.MILLISECONDS);
+            resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }
     }
 
     public void launch(Map<String, Object> args) throws Exception {
+        launch(args, DefaultTimeouts.LAUNCH.getValue());
+    }
+
+    public void launch(Map<String, Object> args, long timeoutMillis) throws Exception {
         if (checkStatus()) {
             CompletableFuture<Void> resp = server.launch(args);
-            resp.get(TIMEOUT_CONFIG_LAUNCH, TimeUnit.MILLISECONDS);
+            resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }
     }
 
     public ThreadsResponse threads() throws Exception {
+        return threads(DefaultTimeouts.THREADS.getValue());
+    }
+
+    public ThreadsResponse threads(long timeoutMillis) throws Exception {
         if (checkStatus()) {
             CompletableFuture<ThreadsResponse> resp = server.threads();
-            return resp.get(TIMEOUT_THREADS, TimeUnit.MILLISECONDS);
+            return resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }
     }
 
     public StackTraceResponse stackTrace(StackTraceArguments args) throws Exception {
+        return stackTrace(args, DefaultTimeouts.STACK_TRACE.getValue());
+    }
+
+    public StackTraceResponse stackTrace(StackTraceArguments args, long timeoutMillis) throws Exception {
         if (checkStatus()) {
             CompletableFuture<StackTraceResponse> resp = server.stackTrace(args);
-            return resp.get(TIMEOUT_STACK_TRACE, TimeUnit.MILLISECONDS);
+            return resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }
     }
 
-    @JsonRequest
     public ScopesResponse scopes(ScopesArguments args) throws Exception {
+        return scopes(args, DefaultTimeouts.SCOPES.getValue());
+    }
+
+    public ScopesResponse scopes(ScopesArguments args, long timeoutMillis) throws Exception {
         if (checkStatus()) {
             CompletableFuture<ScopesResponse> resp = server.scopes(args);
-            return resp.get(TIMEOUT_SCOPES, TimeUnit.MILLISECONDS);
+            return resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }
     }
 
     public VariablesResponse variables(VariablesArguments args) throws Exception {
+        return variables(args, DefaultTimeouts.VARIABLES.getValue());
+    }
+
+    public VariablesResponse variables(VariablesArguments args, long timeoutMillis) throws Exception {
         if (checkStatus()) {
             CompletableFuture<VariablesResponse> resp = server.variables(args);
-            return resp.get(TIMEOUT_VARIABLES, TimeUnit.MILLISECONDS);
+            return resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }
     }
 
     public EvaluateResponse evaluate(EvaluateArguments args) throws Exception {
+        return evaluate(args, DefaultTimeouts.EVALUATE.getValue());
+    }
+
+    public EvaluateResponse evaluate(EvaluateArguments args, long timeoutMillis) throws Exception {
         if (checkStatus()) {
             CompletableFuture<EvaluateResponse> resp = server.evaluate(args);
-            return resp.get(TIMEOUT_EVALUATE, TimeUnit.MILLISECONDS);
+            return resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }
     }
 
     public void next(NextArguments args) throws Exception {
+        next(args, DefaultTimeouts.STEP_OVER.getValue());
+    }
+
+    public void next(NextArguments args, long timeoutMillis) throws Exception {
         if (checkStatus()) {
             CompletableFuture<Void> resp = server.next(args);
-            resp.get(TIMEOUT_STEP_OVER, TimeUnit.MILLISECONDS);
+            resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }
     }
 
     public void stepIn(StepInArguments args) throws Exception {
+        stepIn(args, DefaultTimeouts.STEP_IN.getValue());
+    }
+
+    public void stepIn(StepInArguments args, long timeoutMillis) throws Exception {
         if (checkStatus()) {
             CompletableFuture<Void> resp = server.stepIn(args);
-            resp.get(TIMEOUT_STEP_IN, TimeUnit.MILLISECONDS);
+            resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }
     }
 
     public void stepOut(StepOutArguments args) throws Exception {
+        stepOut(args, DefaultTimeouts.STEP_OUT.getValue());
+    }
+
+    public void stepOut(StepOutArguments args, long timeoutMillis) throws Exception {
         if (checkStatus()) {
             CompletableFuture<Void> resp = server.stepOut(args);
-            resp.get(TIMEOUT_STEP_OUT, TimeUnit.MILLISECONDS);
+            resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }
     }
 
     public ContinueResponse resume(ContinueArguments args) throws Exception {
+        return resume(args, DefaultTimeouts.RESUME.getValue());
+    }
+
+    public ContinueResponse resume(ContinueArguments args, long timeoutMillis) throws Exception {
         if (checkStatus()) {
             CompletableFuture<ContinueResponse> resp = server.continue_(args);
-            return resp.get(TIMEOUT_RESUME, TimeUnit.MILLISECONDS);
+            return resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }
     }
 
     public void disconnect(DisconnectArguments args) throws Exception {
+        disconnect(args, DefaultTimeouts.DISCONNECT.getValue());
+    }
+
+    public void disconnect(DisconnectArguments args, long timeoutMillis) throws Exception {
         if (checkStatus()) {
             CompletableFuture<Void> resp = server.disconnect(args);
-            resp.get(TIMEOUT_DISCONNECT, TimeUnit.MILLISECONDS);
+            resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }
@@ -266,5 +305,32 @@ public class DAPRequestManager {
 
     private boolean checkStatus() {
         return clientConnector != null && clientConnector.isConnected();
+    }
+
+    private enum DefaultTimeouts {
+        SET_BREAKPOINTS(10000),
+        CONFIG_DONE(2000),
+        ATTACH(5000),
+        LAUNCH(10000),
+        THREADS(2000),
+        STACK_TRACE(7000),
+        SCOPES(2000),
+        VARIABLES(10000),
+        EVALUATE(10000),
+        STEP_OVER(5000),
+        STEP_IN(10000),
+        STEP_OUT(5000),
+        RESUME(10000),
+        DISCONNECT(5000);
+
+        private final long value;
+
+        DefaultTimeouts(long value) {
+            this.value = value;
+        }
+
+        public long getValue() {
+            return this.value;
+        }
     }
 }

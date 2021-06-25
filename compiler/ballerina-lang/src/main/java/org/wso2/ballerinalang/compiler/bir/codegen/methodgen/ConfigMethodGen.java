@@ -18,6 +18,9 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
+import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -25,6 +28,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmBStringConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -47,6 +51,8 @@ import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.ICONST_0;
+import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
@@ -94,29 +100,37 @@ public class ConfigMethodGen {
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-        generateConfigInit(cw, imprtMods, pkg.packageID);
-        populateConfigDataMethod(cw, moduleInitClass, pkg, new JvmTypeGen(stringConstantsGen));
+        generateConfigInit(cw, moduleInitClass, imprtMods, pkg.packageID);
+        populateConfigDataMethod(cw, moduleInitClass, pkg, new JvmTypeGen(stringConstantsGen, pkg.packageID));
         cw.visitEnd();
         jarEntries.put(innerClassName + ".class", cw.toByteArray());
     }
 
-    private void generateConfigInit(ClassWriter cw, List<PackageID> imprtMods, PackageID packageID) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, CONFIGURE_INIT, "(L" + PATH + ";)V", null, null);
+    private void generateConfigInit(ClassWriter cw, String moduleInitClass, List<PackageID> imprtMods,
+                                    PackageID packageID) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, CONFIGURE_INIT,
+                String.format("([L%s;[L%s;L%s;L%s;)V", STRING_VALUE, PATH, STRING_VALUE, STRING_VALUE), null, null);
         mv.visitCode();
 
         mv.visitTypeInsn(NEW, HASH_MAP);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, HASH_MAP, JVM_INIT_METHOD, "()V", false);
-        mv.visitVarInsn(ASTORE, 1);
+
+        mv.visitVarInsn(ASTORE, 4);
 
         for (PackageID id : imprtMods) {
             generateInvokeConfiguration(mv, id);
         }
         generateInvokeConfiguration(mv, packageID);
+        mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", MODULE));
+        mv.visitVarInsn(ALOAD, 4);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitVarInsn(ALOAD, 3);
         mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "initConfigurableVariables",
-                String.format("(L%s;L%s;)V", PATH, MAP), false);
+                           String.format("(L%s;L%s;[L%s;[L%s;L%s;L%s;)V", MODULE, MAP, STRING_VALUE,
+                                         PATH, STRING_VALUE, STRING_VALUE), false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -128,15 +142,15 @@ public class ConfigMethodGen {
 
         mv.visitMethodInsn(INVOKESTATIC, moduleClass, POPULATE_CONFIG_DATA_METHOD,
                 String.format("()[L%s;", VARIABLE_KEY), false);
-        mv.visitVarInsn(ASTORE, 2);
+        mv.visitVarInsn(ASTORE, 5);
 
-        mv.visitVarInsn(ALOAD, 2);
+        mv.visitVarInsn(ALOAD, 5);
         mv.visitInsn(ARRAYLENGTH);
         Label elseLabel = new Label();
         mv.visitJumpInsn(IFEQ, elseLabel);
-        mv.visitVarInsn(ALOAD, 1);
+        mv.visitVarInsn(ALOAD, 4);
         mv.visitFieldInsn(GETSTATIC, initClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", MODULE));
-        mv.visitVarInsn(ALOAD, 2);
+        mv.visitVarInsn(ALOAD, 5);
 
         mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put", String.format("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), true);
         mv.visitInsn(POP);
@@ -165,8 +179,14 @@ public class ConfigMethodGen {
                         "L" + MODULE + ";");
                 mv.visitLdcInsn(globalVar.name.value);
                 jvmTypeGen.loadType(mv, globalVar.type);
-                mv.visitMethodInsn(INVOKESPECIAL, VARIABLE_KEY, JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;)V",
-                        MODULE, STRING_VALUE, TYPE), false);
+                mv.visitLdcInsn(getOneBasedLocationString(module, globalVar.pos));
+                if (Symbols.isFlagOn(globalVarFlags, Flags.REQUIRED)) {
+                    mv.visitInsn(ICONST_1);
+                } else {
+                    mv.visitInsn(ICONST_0);
+                }
+                mv.visitMethodInsn(INVOKESPECIAL, VARIABLE_KEY, JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;L%s;Z)V",
+                        MODULE, STRING_VALUE, TYPE,  STRING_VALUE), false);
                 mv.visitVarInsn(ASTORE, varCount + 1);
 
                 mv.visitVarInsn(ALOAD, 0);
@@ -180,6 +200,15 @@ public class ConfigMethodGen {
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    private String getOneBasedLocationString(BIRNode.BIRPackage module, Location location) {
+        LineRange lineRange = location.lineRange();
+        String oneBasedLineTrace = lineRange.filePath() + ":" + (lineRange.startLine().line() + 1);
+        if (module.packageID.equals(JvmConstants.DEFAULT)) {
+            return oneBasedLineTrace;
+        }
+        return IdentifierUtils.decodeIdentifier(module.packageID.toString()) + "(" + oneBasedLineTrace + ")";
     }
 
     private int calculateConfigArraySize(List<BIRNode.BIRGlobalVariableDcl> globalVars) {

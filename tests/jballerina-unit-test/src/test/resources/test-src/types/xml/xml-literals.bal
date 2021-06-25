@@ -1,3 +1,66 @@
+function testXMLSequence() {
+    string v1 = "interpolation1";
+    string v2 = "interpolation2";
+    xml x1 = xml `<foo>foo</foo><?foo?>text1<!--comment-->`;
+    assert(x1.toString(), "<foo>foo</foo><?foo ?>text1<!--comment-->");
+    xml x2 = xml `text1 text2 <foo>foo</foo>text2<!--comment-->text3 text4`;
+    assert(x2.toString(), "text1 text2 <foo>foo</foo>text2<!--comment-->text3 text4");
+    xml x3 = xml `text1${v1}<foo>foo</foo>text2${v2}<!--comment ${v2}-->text3`;
+    assert(x3.toString(), "text1interpolation1<foo>foo</foo>text2interpolation2<!--comment interpolation2-->text3");
+    xml x4 = xml `<!--comment--><?foo ${v1}?>text1${v1}<root>text2 ${v2}${v1} text3!<foo>12</foo><bar></bar></root>text2${v2}`;
+    assert(x4.toString(), "<!--comment--><?foo interpolation1?>text1interpolation1<root>text2 "+
+    "interpolation2interpolation1 text3!<foo>12</foo><bar></bar></root>text2interpolation2");
+    xml x5 = xml `<!--comment-->text1`;
+    assert(x5.toString(), "<!--comment-->text1");
+    xml x6 = xml `<!--comment-->`;
+    assert(x6.toString(), "<!--comment-->");
+
+    xml<'xml:Element> x23 = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
+    assert(x23.toString(), "<foo>Anne</foo><fuu>Peter</fuu>");
+    xml<xml<'xml:Element>> x24 = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
+    assert(x24.toString(), "<foo>Anne</foo><fuu>Peter</fuu>");
+
+    xml<'xml:ProcessingInstruction> x17 = xml `<?foo?><?faa?>`;
+    assert(x17.toString(), "<?foo ?><?faa ?>");
+    xml<xml<'xml:ProcessingInstruction>> x18 = xml `<?foo?><?faa?>`;
+    assert(x18.toString(), "<?foo ?><?faa ?>");
+
+    xml<'xml:Text> x7 = xml `text1 text2`;
+    assert(x7.toString(), "text1 text2");
+    'xml:Text x26 = x7;
+    assert(x26.toString(), "text1 text2");
+    xml<xml<'xml:Text>> x19 = xml `text1 text2`;
+    assert(x19.toString(), "text1 text2");
+    'xml:Text x20 = xml `text1 text2`;
+    assert(x20.toString(), "text1 text2");
+    'xml:Text x25 = xml `text1 ${v1}`;
+    assert(x25.toString(), "text1 interpolation1");
+    'xml:Text x8 = xml `text1`;
+    assert(x8.toString(), "text1");
+
+    xml<'xml:Comment> x21 = xml `<!--comment1--><!--comment2-->`;
+    assert(x21.toString(), "<!--comment1--><!--comment2-->");
+    xml<xml<'xml:Comment>> x22 = xml `<!--comment1--><!--comment2-->`;
+    assert(x22.toString(), "<!--comment1--><!--comment2-->");
+
+    xml<'xml:Text|'xml:Comment> x9 = xml `<!--comment-->`;
+    assert(x9.toString(), "<!--comment-->");
+    xml<'xml:Text>|xml<'xml:Comment> x12 = xml `<!--comment-->`;
+    assert(x12.toString(), "<!--comment-->");
+    xml<'xml:Text|'xml:Comment> x10 = xml `<!--comment-->text1`;
+    assert(x10.toString(), "<!--comment-->text1");
+    xml<'xml:Element|'xml:ProcessingInstruction> x11 = xml `<root> text1<foo>100</foo><foo>200</foo></root><?foo?>`;
+    assert(x11.toString(), "<root> text1<foo>100</foo><foo>200</foo></root><?foo ?>");
+    xml<'xml:Text>|xml<'xml:Comment> x13 = xml `<!--comment-->text1`;
+    assert(x13.toString(), "<!--comment-->text1");
+    xml<xml<'xml:Text>>|xml<xml<'xml:Comment>> x14 = xml `<!--comment-->text1`;
+    assert(x14.toString(), "<!--comment-->text1");
+    xml<'xml:Element>|'xml:Text x15 = xml `<root> text1<foo>100</foo><foo>200</foo></root> text1`;
+    assert(x15.toString(), "<root> text1<foo>100</foo><foo>200</foo></root> text1");
+    'xml:Text x16 = xml `text ${v1}`;
+    assert(x16.toString(), "text interpolation1");
+}
+
 function testXMLTextLiteral() returns [xml, xml, xml, xml, xml, xml] {
     string v1 = "11";
     string v2 = "22";
@@ -79,7 +142,7 @@ function testTextWithValidMultiTypeExpressions() returns (xml) {
 
 function testArithmaticExpreesionInXMLTemplate() returns (xml) {
     xml x1 = xml `<foo id="hello ${ 3 + 6 / 3}" >hello</foo>`;
-    
+
     return x1;
 }
 
@@ -138,4 +201,42 @@ function testDollarSignOnXMLLiteralTemplate() returns [xml, xml, xml] {
     xml x3 = xml `<foo id="hello $$ ${ 3 + 6 / 3}" >$$ ${a}</foo>`;
 
     return [x1, x2, x3];
+}
+
+function testXMLWithLeadingWhiteSpace() {
+    string title = "title";
+    string author = "author";
+
+    xml temp1 = xml `
+    <books>
+        <book>
+            <title>${title}</title>
+            <author>${author}</author>
+        </book>
+    </books>`;
+
+   assert(temp1[0] is 'xml:Text, true);
+
+   xml temp2 = xml `
+
+
+       <books>
+           <book>
+               <title>${title}</title>
+               <author>${author}</author>
+           </book>
+       </books>`;
+
+   assert(temp2[1] is 'xml:Text, false);
+}
+
+function assert(anydata actual, anydata expected) {
+    if (expected != actual) {
+        typedesc<anydata> expT = typeof expected;
+        typedesc<anydata> actT = typeof actual;
+        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        error e = error(reason);
+        panic e;
+    }
 }

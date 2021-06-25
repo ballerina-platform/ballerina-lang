@@ -1,5 +1,4 @@
 function foo() {object {
 public    int      y   ;
-            int    x
-            ;
+            int    x  ;
 }    parent   ;}

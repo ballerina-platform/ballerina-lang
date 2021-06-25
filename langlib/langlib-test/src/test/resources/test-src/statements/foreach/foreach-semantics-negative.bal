@@ -201,6 +201,20 @@ function test17() {
     }
 }
 
+function test18() {
+    map<anydata> keyValsMap = {foo:"sss", bar:"ffff"};
+    foreach var {k} in keyValsMap {
+
+    }
+}
+
+function test19() {
+    map<any> keyValsMap = {foo:"sss", bar:"ffff"};
+    foreach var {k} in keyValsMap {
+
+    }
+}
+
 public function main () {
     println("done");
 }

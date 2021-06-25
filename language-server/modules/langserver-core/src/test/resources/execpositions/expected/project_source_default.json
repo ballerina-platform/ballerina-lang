@@ -1,0 +1,36 @@
+{
+  "executorPositions": [
+    {
+      "kind": "source",
+      "name": "main",
+      "range": {
+        "filePath": "main.bal",
+        "startLine": {
+          "line": 3,
+          "offset": 16
+        },
+        "endLine": {
+          "line": 3,
+          "offset": 20
+        }
+      },
+      "filePath": "main.bal"
+    },
+    {
+      "kind": "source",
+      "range": {
+        "filePath": "main.bal",
+        "startLine": {
+          "line": 7,
+          "offset": 0
+        },
+        "endLine": {
+          "line": 12,
+          "offset": 1
+        }
+      },
+      "filePath": "main.bal",
+      "name": "hello"
+    }
+  ]
+}

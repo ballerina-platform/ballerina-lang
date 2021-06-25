@@ -47,27 +47,27 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
 
     private final Documentation docAttachment;
     private final BField bField;
-    private final CompilerContext context;
     private TypeSymbol typeDescriptor;
     private List<AnnotationSymbol> annots;
     private List<Qualifier> qualifiers;
     private String signature;
     private boolean deprecated;
+    private String escapedName;
 
     public BallerinaRecordFieldSymbol(CompilerContext context, BField bField) {
-        super(bField.name.value, bField.symbol.pkgID, SymbolKind.RECORD_FIELD, bField.symbol);
-        this.context = context;
+        super(bField.name.value, SymbolKind.RECORD_FIELD, bField.symbol, context);
         this.bField = bField;
         this.docAttachment = new BallerinaDocumentation(bField.symbol.markdownDocumentation);
         this.deprecated = Symbols.isFlagOn(bField.symbol.flags, Flags.DEPRECATED);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public String name() {
-        return this.bField.getName().getValue();
+    public Optional<String> getName() {
+        if (this.escapedName != null) {
+            return Optional.of(this.escapedName);
+        }
+        this.escapedName = escapeReservedKeyword(this.bField.getName().getValue());
+        return Optional.ofNullable(this.escapedName);
     }
 
     /**
@@ -160,7 +160,7 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
             joiner.add(qualifier.getValue());
         }
 
-        this.signature = joiner.add(this.typeDescriptor().signature()).add(this.name()).toString();
+        this.signature = joiner.add(this.typeDescriptor().signature()).add(this.getName().get()).toString();
 
         if (this.isOptional()) {
             this.signature += "?";

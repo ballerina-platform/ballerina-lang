@@ -1,0 +1,57 @@
+{
+  "source": {
+    "file": "testSource.bal"
+  },
+  "position": {
+    "line": 17,
+    "character": 7
+  },
+  "prepareRename": {
+    "valid": true
+  },
+  "result": {
+    "changes": {
+      "testSource.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 17,
+              "character": 21
+            },
+            "end": {
+              "line": 17,
+              "character": 32
+            }
+          },
+          "newText": "CyclicUnionNew"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 17,
+              "character": 5
+            },
+            "end": {
+              "line": 17,
+              "character": 16
+            }
+          },
+          "newText": "CyclicUnionNew"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 20,
+              "character": 4
+            },
+            "end": {
+              "line": 20,
+              "character": 15
+            }
+          },
+          "newText": "CyclicUnionNew"
+        }
+      ]
+    }
+  }
+}

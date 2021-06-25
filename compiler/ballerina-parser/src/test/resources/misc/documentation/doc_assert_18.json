@@ -64,6 +64,12 @@
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
                                 }
+                              ],
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
                               ]
                             },
                             {
@@ -71,7 +77,7 @@
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " Docs.",
+                                  "value": "Docs.",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",

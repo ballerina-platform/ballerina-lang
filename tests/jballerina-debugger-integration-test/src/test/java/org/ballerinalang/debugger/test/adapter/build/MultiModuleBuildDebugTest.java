@@ -62,7 +62,7 @@ public class MultiModuleBuildDebugTest extends BaseTestCase {
     }
 
     @AfterClass(alwaysRun = true)
-    private void cleanup() {
+    public void cleanUp() {
         debugTestRunner.terminateDebugSession();
     }
 }

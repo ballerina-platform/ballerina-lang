@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.observability.tracing;
 
-import org.ballerina.testobserve.tracing.extension.BMockSpan;
+import org.ballerinalang.observe.mockextension.BMockSpan;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
@@ -39,49 +39,56 @@ import java.util.stream.Collectors;
 @Test(groups = "tracing-test")
 public class ObservableAnnotationTestCase extends TracingBaseTestCase {
     private static final String FILE_NAME = "04_observability_annotation.bal";
-    private static final String SERVICE_NAME = "testServiceFour";
-    private static final String BASE_URL = "http://localhost:9094";
+    private static final String SERVICE_NAME = "testSvcFour";
+    private static final String BASE_PATH = "testServiceFour";
+    private static final String BASE_URL = "http://localhost:19094";
 
     @Test
     public void testObservableFunction() throws Exception {
         final String resourceName = "resourceOne";
-        final String span1Position = FILE_NAME + ":22:5";
-        final String span2Position = FILE_NAME + ":23:19";
-        final String span3Position = FILE_NAME + ":28:20";
+        final String resourceFunctionPosition = FILE_NAME + ":23:5";
+        final String span2Position = FILE_NAME + ":24:19";
+        final String span3Position = FILE_NAME + ":29:20";
 
-        HttpResponse httpResponse = HttpClientRequest.doPost(BASE_URL + "/" + SERVICE_NAME + "/" + resourceName,
+        HttpResponse httpResponse = HttpClientRequest.doPost(BASE_URL + "/" + BASE_PATH + "/" + resourceName,
                 "", Collections.emptyMap());
         Assert.assertEquals(httpResponse.getResponseCode(), 200);
         Assert.assertEquals(httpResponse.getData(), "Invocation Successful");
         Thread.sleep(1000);
 
-        List<BMockSpan> spans = this.getFinishedSpans(SERVICE_NAME, resourceName);
+        List<BMockSpan> spans = this.getFinishedSpans(SERVICE_NAME, DEFAULT_MODULE_ID, "/" + resourceName);
         Assert.assertEquals(spans.stream()
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),
-                new HashSet<>(Arrays.asList(span1Position, span2Position, span3Position)));
-        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
+                new HashSet<>(Arrays.asList(resourceFunctionPosition, span2Position, span3Position)));
+        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId().equals(ZERO_SPAN_ID))
+                .count(), 1);
 
         Optional<BMockSpan> span1 = spans.stream()
-                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), span1Position))
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), resourceFunctionPosition))
                 .findFirst();
         Assert.assertTrue(span1.isPresent());
-        long traceId = span1.get().getTraceId();
+        String traceId = span1.get().getTraceId();
         span1.ifPresent(span -> {
-            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
-                    && mockSpan.getSpanId() == span.getParentId()));
-            Assert.assertEquals(span.getOperationName(), resourceName);
+            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId().equals(traceId)
+                    && mockSpan.getSpanId().equals(span.getParentId())));
+            Assert.assertEquals(span.getOperationName(), "post /" + resourceName);
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("src.position", span1Position),
+                    new AbstractMap.SimpleEntry<>("src.position", resourceFunctionPosition),
                     new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
-                    new AbstractMap.SimpleEntry<>("http.url", "/" + SERVICE_NAME + "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("http.url", "/" + BASE_PATH + "/" + resourceName),
                     new AbstractMap.SimpleEntry<>("http.method", "POST"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
-                    new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
-                    new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("src.object.name", SERVER_CONNECTOR_NAME)
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", SERVICE_NAME),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
+                    new AbstractMap.SimpleEntry<>("src.object.name", SERVICE_NAME),
+                    new AbstractMap.SimpleEntry<>("listener.name", SERVER_CONNECTOR_NAME),
+                    new AbstractMap.SimpleEntry<>("src.resource.accessor", "post"),
+                    new AbstractMap.SimpleEntry<>("src.resource.path", "/" + resourceName)
             ));
         });
 
@@ -97,8 +104,10 @@ public class ObservableAnnotationTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span2Position),
-                    new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
-                    new AbstractMap.SimpleEntry<>("resource", resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", SERVICE_NAME),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     new AbstractMap.SimpleEntry<>("src.function.name", "calculateSumWithObservability")
             ));
         });
@@ -116,8 +125,10 @@ public class ObservableAnnotationTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span3Position),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
-                    new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
-                    new AbstractMap.SimpleEntry<>("resource", resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", SERVICE_NAME),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/testobserve/Caller"),
                     new AbstractMap.SimpleEntry<>("src.function.name", "respond")
             ));
@@ -127,43 +138,49 @@ public class ObservableAnnotationTestCase extends TracingBaseTestCase {
     @Test
     public void testObservableAttachedFunction() throws Exception {
         final String resourceName = "resourceTwo";
-        final String span1Position = FILE_NAME + ":32:5";
-        final String span2Position = FILE_NAME + ":34:19";
-        final String span3Position = FILE_NAME + ":39:20";
+        final String resourceFunctionPosition = FILE_NAME + ":33:5";
+        final String span2Position = FILE_NAME + ":35:19";
+        final String span3Position = FILE_NAME + ":40:20";
 
-        HttpResponse httpResponse = HttpClientRequest.doPost(BASE_URL + "/" + SERVICE_NAME + "/" + resourceName,
+        HttpResponse httpResponse = HttpClientRequest.doPost(BASE_URL + "/" + BASE_PATH + "/" + resourceName,
                 "", Collections.emptyMap());
         Assert.assertEquals(httpResponse.getResponseCode(), 200);
         Assert.assertEquals(httpResponse.getData(), "Invocation Successful");
         Thread.sleep(1000);
 
-        List<BMockSpan> spans = this.getFinishedSpans(SERVICE_NAME, resourceName);
+        List<BMockSpan> spans = this.getFinishedSpans(SERVICE_NAME, DEFAULT_MODULE_ID, "/" + resourceName);
         Assert.assertEquals(spans.stream()
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),
-                new HashSet<>(Arrays.asList(span1Position, span2Position, span3Position)));
-        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
+                new HashSet<>(Arrays.asList(resourceFunctionPosition, span2Position, span3Position)));
+        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId().equals(ZERO_SPAN_ID))
+                .count(), 1);
 
         Optional<BMockSpan> span1 = spans.stream()
-                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), span1Position))
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), resourceFunctionPosition))
                 .findFirst();
         Assert.assertTrue(span1.isPresent());
-        long traceId = span1.get().getTraceId();
+        String traceId = span1.get().getTraceId();
         span1.ifPresent(span -> {
-            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
-                    && mockSpan.getSpanId() == span.getParentId()));
-            Assert.assertEquals(span.getOperationName(), resourceName);
+            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId().equals(traceId)
+                    && mockSpan.getSpanId().equals(span.getParentId())));
+            Assert.assertEquals(span.getOperationName(), "post /" + resourceName);
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("src.position", span1Position),
+                    new AbstractMap.SimpleEntry<>("src.position", resourceFunctionPosition),
                     new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
-                    new AbstractMap.SimpleEntry<>("http.url", "/" + SERVICE_NAME + "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("http.url", "/" + BASE_PATH + "/" + resourceName),
                     new AbstractMap.SimpleEntry<>("http.method", "POST"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
-                    new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
-                    new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("src.object.name", SERVER_CONNECTOR_NAME)
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", SERVICE_NAME),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
+                    new AbstractMap.SimpleEntry<>("src.object.name", SERVICE_NAME),
+                    new AbstractMap.SimpleEntry<>("listener.name", SERVER_CONNECTOR_NAME),
+                    new AbstractMap.SimpleEntry<>("src.resource.accessor", "post"),
+                    new AbstractMap.SimpleEntry<>("src.resource.path", "/" + resourceName)
             ));
         });
 
@@ -179,8 +196,10 @@ public class ObservableAnnotationTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span2Position),
-                    new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
-                    new AbstractMap.SimpleEntry<>("resource", resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", SERVICE_NAME),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     new AbstractMap.SimpleEntry<>("src.object.name", OBSERVABLE_ADDER_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("src.function.name", "getSum")
             ));
@@ -199,8 +218,10 @@ public class ObservableAnnotationTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span3Position),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
-                    new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
-                    new AbstractMap.SimpleEntry<>("resource", resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", SERVICE_NAME),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/testobserve/Caller"),
                     new AbstractMap.SimpleEntry<>("src.function.name", "respond")
             ));

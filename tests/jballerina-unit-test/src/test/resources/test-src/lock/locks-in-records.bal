@@ -1,4 +1,4 @@
-import ballerina/runtime;
+import ballerina/jballerina.java;
 
 // Test field locking when a record is passed as a param
 function fieldLock() returns int {
@@ -13,7 +13,7 @@ function workerFuncParam(Student param, CircuitBreakerInferredConfig conf) {
     worker w1 {
         incrementParam(param, conf);
     }
-    runtime:sleep(10);
+    sleep(10);
     incrementParam(param, conf);
 }
 
@@ -68,7 +68,7 @@ function buckWorkerFuncParam(Bucket buck) {
         incrementParam2(buck);
     }
 
-    runtime:sleep(10);
+    sleep(10);
     incrementParam2(buck);
 }
 
@@ -79,3 +79,7 @@ function incrementParam2(Bucket buck) {
        }
     }
 }
+
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;

@@ -34,23 +34,29 @@ public class FindRefsInServiceDeclTest extends FindAllReferencesTest {
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
         return new Object[][]{
-                {16, 5, List.of(location(16, 5, 17),
+                {16, 5, location(16, 5, 17),
+                        List.of(location(16, 5, 17),
                                 location(23, 5, 17))
                 },
-                {48, 24, List.of(location(47, 38, 39),
-                                 location(48, 24, 25))
+                {48, 24, location(47, 38, 39),
+                        List.of(location(47, 38, 39),
+                                location(48, 24, 25))
                 },
-                {47, 52, List.of(location(47, 52, 53),
-                                 location(49, 32, 33))
+                {47, 52, location(47, 52, 53),
+                        List.of(location(47, 52, 53),
+                                location(49, 32, 33))
                 },
-                {60, 18, List.of(location(60, 18, 21),
-                                 location(66, 31, 34))
+                {60, 18, location(60, 18, 21),
+                        List.of(location(60, 18, 21),
+                                location(66, 31, 34))
                 },
-                {62, 5, List.of(location(66, 8, 25),
+                {62, 5, location(62, 5, 22),
+                        List.of(location(66, 8, 25),
                                 location(62, 5, 22))
                 },
-                {68, 18, List.of(location(68, 18, 23),
-                                 location(70, 74, 79))
+                {68, 18, location(68, 18, 23),
+                        List.of(location(68, 18, 23),
+                                location(70, 74, 79))
                 },
         };
     }

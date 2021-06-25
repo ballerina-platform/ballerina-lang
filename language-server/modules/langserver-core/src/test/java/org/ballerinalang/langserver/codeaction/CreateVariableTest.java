@@ -29,6 +29,7 @@ import java.io.IOException;
  * @since 2.0.0
  */
 public class CreateVariableTest extends AbstractCodeActionTest {
+
     @Override
     public String getResourceDir() {
         return "create-variable";
@@ -54,7 +55,7 @@ public class CreateVariableTest extends AbstractCodeActionTest {
                 {"variableAssignmentRequiredCodeAction8.json", "createVariable3.bal"},
                 {"variableAssignmentRequiredCodeAction9.json", "createVariable3.bal"},
                 {"variableAssignmentRequiredCodeAction10.json", "createVariable3.bal"},
-//                {"variableAssignmentRequiredCodeAction11.json", "createVariable3.bal"}, //disable xml
+                {"variableAssignmentRequiredCodeAction11.json", "createVariable3.bal"},
                 {"variableAssignmentRequiredCodeAction12.json", "createVariable3.bal"},
                 {"variableAssignmentRequiredCodeAction13.json", "createVariable3.bal"},
                 {"variableAssignmentRequiredCodeAction14.json", "createVariable3.bal"},
@@ -73,18 +74,34 @@ public class CreateVariableTest extends AbstractCodeActionTest {
                 {"variableAssignmentRequiredCodeAction27.json", "createVariable4.bal"},
                 {"variableAssignmentRequiredCodeAction28.json", "createVariable4.bal"},
                 {"variableAssignmentRequiredCodeAction29.json", "createVariable5.bal"},
-//                {"variableAssignmentRequiredCodeAction30.json", "createVariable5.bal"}, ref: #28033
+                {"variableAssignmentRequiredCodeAction30.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction31.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction32.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction33.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction34.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction35.json", "createVariable5.bal"},
-//                {"variableAssignmentRequiredCodeAction36.json", "createVariable5.bal"}, //disabled need isAssignable
+                {"variableAssignmentRequiredCodeAction36.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction37.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction38.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction39.json", "createVariable5.bal"},
-//                {"variableAssignmentRequiredCodeAction40.json", "createVariable5.bal"},   // disabled due to #26996
+                {"variableAssignmentRequiredCodeAction40.json", "createVariable5.bal"},
+                {"variableAssignmentRequiredCodeAction41.json", "createVariable6.bal"},
+                {"variableAssignmentRequiredCodeAction42.json", "createVariable7.bal"},
+                {"variableAssignmentRequiredCodeAction43.json", "createVariable7.bal"},
                 {"ignoreReturnValueCodeAction.json", "createVariable.bal"},
+                {"projectVariableAssignmentRequiredCodeAction1.json", "testproject/main.bal"},
+                {"projectVariableAssignmentRequiredCodeAction2.json", "testproject/main.bal"},
+                {"projectVariableAssignmentRequiredCodeAction3.json", "testproject/modules/module1/module1.bal"},
+                {"createVariableInClassMethod.json", "createVariableInClassMethod.bal"},
+                {"createVariableInServiceMethod.json", "createVariableInServiceMethod.bal"},
+                {"createVariableInServiceRemoteMethod.json", "createVariableInServiceMethod.bal"},
+                {"createVariableWithUnionType.json", "createVariableWithUnionType.bal"},
+                {"createVariableWithIntersectionType.json", "createVariableWithIntersectionType.bal"},
+                {"createVariableWithIntersectionType2.json", "createVariableWithIntersectionType.bal"},
+                
+                // Create variables of function/invocable type
+                {"createVariableWithFunctionType1.json", "createVariableWithFunctionType1.bal"},
+                {"createVariableWithFunctionType2.json", "createVariableWithFunctionType1.bal"},
         };
     }
 }

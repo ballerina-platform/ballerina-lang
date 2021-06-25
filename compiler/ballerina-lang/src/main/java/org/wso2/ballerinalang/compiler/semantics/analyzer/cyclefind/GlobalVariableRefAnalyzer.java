@@ -27,15 +27,16 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayDeque;
@@ -91,8 +92,10 @@ public class GlobalVariableRefAnalyzer {
     /**
      * Populate the InvokableSymbols with the dependent global variables.
      * @param globalNodeDependsOn symbol dependency relationship.
+     * @param globalVars
      */
-    public void populateFunctionDependencies(Map<BSymbol, Set<BSymbol>> globalNodeDependsOn) {
+    public void populateFunctionDependencies(Map<BSymbol, Set<BSymbol>> globalNodeDependsOn,
+                                             List<BLangVariable> globalVars) {
         resetAnalyzer();
         this.globalNodeDependsOn = globalNodeDependsOn;
 
@@ -102,7 +105,8 @@ public class GlobalVariableRefAnalyzer {
                 continue;
             }
 
-            analyzeDependenciesRecursively(dependent);
+            analyzeDependenciesRecursively(dependent, globalVars.stream()
+                    .map(v -> v.symbol).collect(Collectors.toCollection(HashSet::new)));
         }
     }
 
@@ -114,22 +118,22 @@ public class GlobalVariableRefAnalyzer {
         return this.globalVariablesDependsOn;
     }
 
-    private void analyzeDependenciesRecursively(BSymbol dependent) {
+    private void analyzeDependenciesRecursively(BSymbol dependent, Set<BSymbol> globalVars) {
         // Only analyze unvisited nodes.
         // Do DFS into dependency providers to detect cycles.
         if (!dependencyNodes.containsKey(dependent)) {
             NodeInfo node = new NodeInfo(curNodeId++, dependent);
             dependencyNodes.put(dependent, node);
-            analyzeDependenciesRecursively(node);
+            analyzeDependenciesRecursively(node, globalVars);
         }
     }
 
-    private Set<BVarSymbol> analyzeDependenciesRecursively(NodeInfo node) {
+    private Set<BVarSymbol> analyzeDependenciesRecursively(NodeInfo node, Set<BSymbol> globalVars) {
         if (node.onStack) {
-            return getGlobalVarFromCurrentNode(node);
+            return getGlobalVarFromCurrentNode(node, globalVars);
         }
         if (node.visited) {
-            return getDependentsFromSymbol(node.symbol);
+            return getDependentsFromSymbol(node.symbol, globalVars);
         }
 
         node.visited = true;
@@ -148,10 +152,10 @@ public class GlobalVariableRefAnalyzer {
         for (BSymbol providerSym : providers) {
             NodeInfo providerNode =
                     this.dependencyNodes.computeIfAbsent(providerSym, s -> new NodeInfo(curNodeId++, providerSym));
-            if (isGlobalVarSymbol(providerSym)) {
+            if (isGlobalVarSymbol(providerSym, globalVars)) {
                 currentDependencies.add((BVarSymbol) providerSym);
             }
-            currentDependencies.addAll(analyzeDependenciesRecursively(providerNode));
+            currentDependencies.addAll(analyzeDependenciesRecursively(providerNode, globalVars));
         }
 
         node.onStack = false;
@@ -167,23 +171,23 @@ public class GlobalVariableRefAnalyzer {
         return dependentGlobalVars;
     }
 
-    private Set<BVarSymbol> getGlobalVarFromCurrentNode(NodeInfo node) {
-        Set<BVarSymbol> globalVars = new HashSet<>();
+    private Set<BVarSymbol> getGlobalVarFromCurrentNode(NodeInfo node, Set<BSymbol> globalVars) {
+        Set<BVarSymbol> globalVarsForCurrentNode = new HashSet<>();
         Set<BSymbol> providers = this.globalNodeDependsOn.getOrDefault(node.symbol, new LinkedHashSet<>());
 
         for (BSymbol provider : providers) {
-            if (isGlobalVarSymbol(provider)) {
-                globalVars.add((BVarSymbol) provider);
+            if (isGlobalVarSymbol(provider, globalVars)) {
+                globalVarsForCurrentNode.add((BVarSymbol) provider);
             }
         }
 
-        return globalVars;
+        return globalVarsForCurrentNode;
     }
 
-    private Set<BVarSymbol> getDependentsFromSymbol(BSymbol symbol) {
+    private Set<BVarSymbol> getDependentsFromSymbol(BSymbol symbol, Set<BSymbol> globalVars) {
         if (isFunction(symbol)) {
             return ((BInvokableSymbol) symbol).dependentGlobalVars;
-        } else if (isGlobalVarSymbol(symbol)) {
+        } else if (isGlobalVarSymbol(symbol, globalVars)) {
             return this.globalVariablesDependsOn.getOrDefault(symbol, new HashSet<>());
         }
 
@@ -194,7 +198,7 @@ public class GlobalVariableRefAnalyzer {
         return (symbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION;
     }
 
-    private boolean isGlobalVarSymbol(BSymbol symbol) {
+    private boolean isGlobalVarSymbol(BSymbol symbol, Set<BSymbol> globalVars) {
         if (symbol == null) {
             return false;
         }
@@ -208,7 +212,7 @@ public class GlobalVariableRefAnalyzer {
             return false;
         }
 
-        return ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE);
+        return ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) && globalVars.contains(symbol);
     }
 
     /**
@@ -312,7 +316,7 @@ public class GlobalVariableRefAnalyzer {
         }
 
         // Dependent has a dependency on a global var.
-        if (provider.kind != SymbolKind.FUNCTION) {
+        if (provider.tag != SymTag.FUNCTION) {
             return;
         }
 
@@ -344,7 +348,7 @@ public class GlobalVariableRefAnalyzer {
     private void projectSortToTopLevelNodesList() {
         // Swap global variable nodes in 'topLevelNodes' list to reflect sorted global variables.
         List<Integer> topLevelPositions = new ArrayList<>();
-        for (BLangSimpleVariable globalVar : pkgNode.globalVars) {
+        for (BLangVariable globalVar : pkgNode.globalVars) {
             topLevelPositions.add(pkgNode.topLevelNodes.indexOf(globalVar));
         }
         topLevelPositions.sort(Comparator.comparingInt(i -> i));
@@ -365,16 +369,20 @@ public class GlobalVariableRefAnalyzer {
     }
 
     private void projectSortToGlobalVarsList(Set<BSymbol> sorted) {
-        Map<BSymbol, BLangSimpleVariable> varMap = this.pkgNode.globalVars.stream()
-                .collect(Collectors.toMap(k -> k.symbol, k -> k));
+        Map<BSymbol, BLangVariable> varMap = new HashMap<>();
+        this.pkgNode.globalVars.forEach(globalVar -> {
+            if (globalVar.symbol != null) {
+                varMap.put(globalVar.symbol, globalVar);
+            }
+        });
 
-        List<BLangSimpleVariable> sortedGlobalVars = sorted.stream()
+        List<BLangVariable> sortedGlobalVars = sorted.stream()
                 .filter(varMap::containsKey)
                 .map(varMap::get)
                 .collect(Collectors.toList());
 
         if (sortedGlobalVars.size() != this.pkgNode.globalVars.size()) {
-            List<BLangSimpleVariable> symbolLessGlobalVars = this.pkgNode.globalVars.stream()
+            List<BLangVariable> symbolLessGlobalVars = this.pkgNode.globalVars.stream()
                     .filter(g -> g.symbol == null)
                     .collect(Collectors.toList());
             sortedGlobalVars.addAll(symbolLessGlobalVars);
@@ -411,7 +419,7 @@ public class GlobalVariableRefAnalyzer {
             }
         }
 
-        for (BLangSimpleVariable var : this.pkgNode.globalVars) {
+        for (BLangVariable var : this.pkgNode.globalVars) {
             if (var.symbol != null) {
                 dependents.add(var.symbol);
             }
@@ -485,17 +493,21 @@ public class GlobalVariableRefAnalyzer {
     }
 
     private void emitErrorMessage(List<BSymbol> symbolsOfCycle) {
-        Optional<BSymbol> firstGlobalVar = symbolsOfCycle.stream().filter(s -> s.kind != SymbolKind.FUNCTION).findAny();
-        if (!firstGlobalVar.isPresent()) {
-            return;
+        List<TopLevelNode> nodesInCycle = new ArrayList<>();
+        for (TopLevelNode topLevelNode : pkgNode.topLevelNodes) {
+            BSymbol topLevelSymbol = getSymbol(topLevelNode);
+            for (BSymbol symbol : symbolsOfCycle) {
+                if (topLevelSymbol == symbol) {
+                    nodesInCycle.add(topLevelNode);
+                }
+            }
         }
 
-        BSymbol firstNodeSymbol = firstGlobalVar.get();
-        Optional<BLangNode> firstNode = pkgNode.topLevelNodes.stream()
-                .filter(t -> (t.getKind() == NodeKind.VARIABLE || t.getKind() == NodeKind.FUNCTION)
-                        && getSymbol(t) == firstNodeSymbol)
-                .map(t -> (BLangNode) t)
-                .findAny();
+        Optional<TopLevelNode> firstNode = nodesInCycle.stream()
+                .filter(node -> node.getKind() == NodeKind.VARIABLE)
+                .min(Comparator.comparingInt(o -> o.getPosition().lineRange().startLine().line()));
+
+        BSymbol firstNodeSymbol = getSymbol(firstNode.get());
 
         int splitFrom = symbolsOfCycle.indexOf(firstNodeSymbol);
         int len = symbolsOfCycle.size();
@@ -503,10 +515,8 @@ public class GlobalVariableRefAnalyzer {
         List<BSymbol> secondSubList = new ArrayList<>(symbolsOfCycle.subList(splitFrom, len));
         secondSubList.addAll(firstSubList);
 
-        if (firstNode.isPresent()) {
-            List<BLangIdentifier> names = secondSubList.stream().map(this::getNodeName).collect(Collectors.toList());
-            dlog.error(firstNode.get().pos, DiagnosticErrorCode.GLOBAL_VARIABLE_CYCLIC_DEFINITION, names);
-        }
+        List<BLangIdentifier> names = secondSubList.stream().map(this::getNodeName).collect(Collectors.toList());
+        dlog.error(firstNode.get().getPosition(), DiagnosticErrorCode.GLOBAL_VARIABLE_CYCLIC_DEFINITION, names);
     }
 
     private boolean doesContainAGlobalVar(List<BSymbol> symbolsOfCycle) {
@@ -522,8 +532,11 @@ public class GlobalVariableRefAnalyzer {
                     return ((BLangSimpleVariable) node).name;
                 } else if (node.getKind() == NodeKind.FUNCTION) {
                     return ((BLangFunction) node).name;
+                } else if (node.getKind() == NodeKind.CLASS_DEFN) {
+                    return ((BLangClassDefinition) node).name;
                 } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
-                    if (((BLangTypeDefinition) node).typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+                    BLangType typeNode = ((BLangTypeDefinition) node).typeNode;
+                    if (typeNode.getKind() == NodeKind.OBJECT_TYPE || typeNode.getKind() == NodeKind.RECORD_TYPE) {
                         return ((BLangTypeDefinition) node).name;
                     }
                 }
@@ -537,9 +550,12 @@ public class GlobalVariableRefAnalyzer {
             return ((BLangVariable) node).symbol;
         } else if (node.getKind() == NodeKind.FUNCTION) {
             return ((BLangFunction) node).symbol;
+        } else if (node.getKind() == NodeKind.CLASS_DEFN) {
+            return ((BLangClassDefinition) node).symbol;
         } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
-            if (((BLangTypeDefinition) node).typeNode.getKind() == NodeKind.OBJECT_TYPE) {
-                return ((BLangObjectTypeNode) ((BLangTypeDefinition) node).typeNode).symbol;
+            BLangType typeNode = ((BLangTypeDefinition) node).typeNode;
+            if (typeNode.getKind() == NodeKind.OBJECT_TYPE || typeNode.getKind() == NodeKind.RECORD_TYPE) {
+                return ((BLangStructureTypeNode) typeNode).symbol;
             }
         }
         return null;

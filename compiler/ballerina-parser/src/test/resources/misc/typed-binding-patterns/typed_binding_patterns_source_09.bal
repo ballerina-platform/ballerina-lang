@@ -8,4 +8,5 @@ function foo() {
     int[] [a, b;
     int[k] [a ...b];
     int[*] [a, [x, y] _ ];
+    int[]
 }

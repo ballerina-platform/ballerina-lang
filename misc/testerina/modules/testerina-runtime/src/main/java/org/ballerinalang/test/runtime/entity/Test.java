@@ -19,6 +19,7 @@
 package org.ballerinalang.test.runtime.entity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -89,5 +90,13 @@ public class Test {
     @Override
     public String toString() {
         return getTestName();
+    }
+
+    /**
+     * Sort all the lists in Test in alphabetical order.
+     */
+    public void sort() {
+        Collections.sort(dependsOnTestFunctions);
+        Collections.sort(groups);
     }
 }

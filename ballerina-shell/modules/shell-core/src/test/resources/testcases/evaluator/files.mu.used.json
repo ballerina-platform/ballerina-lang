@@ -1,0 +1,11 @@
+[
+  {
+    "description": "Load the declarations file.",
+    "code": "/file files/mu-used.bal"
+  },
+  {
+    "description": "Running the function.",
+    "code": "lookup(\"Hello\")",
+    "expr": "{\"msg\":\"world\"}"
+  }
+]

@@ -1,0 +1,7 @@
+Code coverage is not yet supported with single bal files. Ignoring the flag and continuing the test run...
+
+Compiling source
+	hello_world.bal
+
+Generating executable
+	hello_world.jar

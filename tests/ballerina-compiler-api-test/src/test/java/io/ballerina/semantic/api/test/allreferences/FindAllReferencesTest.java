@@ -59,13 +59,13 @@ public abstract class FindAllReferencesTest {
     }
 
     @Test(dataProvider = "PositionProvider")
-    public void testFindAllReferencesUsingLocation(int line, int col, List<Location> expLocations) {
+    public void testFindAllReferencesUsingLocation(int line, int col, Location def, List<Location> expLocations) {
         List<Location> locations = model.references(srcFile, LinePosition.from(line, col));
         assertLocations(locations, expLocations);
     }
 
     @Test(dataProvider = "PositionProvider")
-    public void testFindAllReferencesUsingSymbol(int line, int col, List<Location> expLocations) {
+    public void testFindAllReferencesUsingSymbol(int line, int col, Location def, List<Location> expLocations) {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
 
         if (expLocations.isEmpty()) {
@@ -75,6 +75,30 @@ public abstract class FindAllReferencesTest {
 
         List<Location> locations = model.references(symbol.get());
         assertLocations(locations, expLocations);
+    }
+
+    @Test(dataProvider = "PositionProvider")
+    public void testFindAllReferencesUsingLocationSansDef(int line, int col, Location def,
+                                                          List<Location> expLocations) {
+        List<Location> locations = model.references(srcFile, LinePosition.from(line, col), false);
+        List<Location> expLocationsSansDef = new ArrayList<>(expLocations);
+        expLocationsSansDef.remove(def);
+        assertLocations(locations, expLocationsSansDef);
+    }
+
+    @Test(dataProvider = "PositionProvider")
+    public void testFindAllReferencesUsingSymbolSansDef(int line, int col, Location def, List<Location> expLocations) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+
+        if (expLocations.isEmpty()) {
+            assertTrue(symbol.isEmpty());
+            return;
+        }
+
+        List<Location> locations = model.references(symbol.get(), false);
+        List<Location> expLocationsSansDef = new ArrayList<>(expLocations);
+        expLocationsSansDef.remove(def);
+        assertLocations(locations, expLocationsSansDef);
     }
 
     @DataProvider(name = "PositionProvider")
@@ -99,11 +123,8 @@ public abstract class FindAllReferencesTest {
     private void assertLocations(List<Location> locations, List<Location> expLocations) {
         assertEquals(locations.size(), expLocations.size());
 
-        for (int i = 0; i < expLocations.size(); i++) {
-            Location expLocation = expLocations.get(i);
-            Location location = locations.get(i);
-
-            assertEquals(location.lineRange(), expLocation.lineRange());
+        for (Location expLocation : expLocations) {
+            assertTrue(locations.contains(expLocation));
         }
     }
 }

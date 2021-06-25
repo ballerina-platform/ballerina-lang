@@ -17,6 +17,8 @@
  */
 package io.ballerina.runtime.observability.metrics;
 
+import io.ballerina.runtime.observability.metrics.noop.NoOpMetricProvider;
+
 import java.util.Objects;
 
 /**
@@ -24,8 +26,7 @@ import java.util.Objects;
  */
 public class DefaultMetricRegistry {
 
-    static boolean isNoOp;
-    private static MetricRegistry instance;
+    private static MetricRegistry instance = new MetricRegistry(new NoOpMetricProvider());
 
     /**
      * Get the default {@link MetricRegistry}.
@@ -42,7 +43,7 @@ public class DefaultMetricRegistry {
      * @param instance A new {@link MetricRegistry} instance.
      */
     public static void setInstance(MetricRegistry instance) {
-        if (!isNoOp && DefaultMetricRegistry.instance != null) {
+        if (!(DefaultMetricRegistry.instance.getMetricProvider() instanceof NoOpMetricProvider)) {
             throw new IllegalStateException("Default Metric Registry has already been set");
         }
         DefaultMetricRegistry.instance = Objects.requireNonNull(instance);

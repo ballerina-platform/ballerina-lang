@@ -157,4 +157,14 @@ public class ClassDefinitionTest extends AbstractDeclarationTest {
         testFile("class-def/class_def_source_37.bal", "class-def/class_def_assert_37.json");
         testFile("class-def/class_def_source_39.bal", "class-def/class_def_assert_39.json");
     }
+
+    @Test
+    public void testAnnotationInClassDefAtEOF() {
+        testFile("class-def/class_def_source_43.bal", "class-def/class_def_assert_43.json");
+    }
+
+    @Test
+    public void testErrorsBeforeClass() {
+        testFile("class-def/class_def_source_44.bal", "class-def/class_def_assert_44.json");
+    }
 }

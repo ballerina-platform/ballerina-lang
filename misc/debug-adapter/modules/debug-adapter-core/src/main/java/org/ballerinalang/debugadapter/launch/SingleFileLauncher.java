@@ -17,7 +17,8 @@
 
 package org.ballerinalang.debugadapter.launch;
 
-import java.io.IOException;
+import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -25,25 +26,30 @@ import java.util.Map;
 /**
  * Ballerina single file runner.
  */
-public class SingleFileLauncher extends Launcher {
+public class SingleFileLauncher extends ProgramLauncher {
 
-    public SingleFileLauncher(String projectRoot, Map<String, Object> args) {
-        super(projectRoot, args);
+    public SingleFileLauncher(ClientLaunchConfigHolder configHolder, String projectRoot) {
+        super(configHolder, projectRoot);
     }
 
     @Override
-    public Process start() throws IOException {
+    public Process start() throws Exception {
         ProcessBuilder processBuilder = new ProcessBuilder();
-        String balFile = args.get("script").toString();
-        processBuilder.command(getLauncherCommand(balFile));
+        String balFilePath = configHolder.getSourcePath();
+        processBuilder.command(getBallerinaCommand(balFilePath));
 
-        Map<String, String> env = processBuilder.environment();
-        // set environment ballerina home
-        env.put("BALLERINA_HOME", getBallerinaHome());
         Path singleFileRoot = Paths.get(projectRoot).getParent();
         if (singleFileRoot != null) {
             processBuilder.directory(singleFileRoot.toFile());
         }
+
+        Map<String, String> env = processBuilder.environment();
+        env.put("BALLERINA_HOME", configHolder.getBallerinaHome());
+        // Adds environment variables defined by the user.
+        if (configHolder.getEnv().isPresent()) {
+            configHolder.getEnv().get().forEach(env::put);
+        }
+
         return processBuilder.start();
     }
 }

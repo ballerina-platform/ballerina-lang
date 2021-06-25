@@ -15,11 +15,9 @@
 // under the License.
 package org.ballerinalang.test.statements.matchstmt;
 
-import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -29,19 +27,15 @@ import org.testng.annotations.Test;
  *
  * @since Swan Lake
  */
-@Test(groups = { "disableOnOldParser" })
 public class MatchStmtMappingMatchPatternTest {
 
-    private CompileResult result, resultNegative, resultRestPattern;
-    private String patternNotMatched = "pattern will not be matched";
-    private String unreachablePattern = "unreachable pattern";
+    private CompileResult result, resultRestPattern;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/matchstmt/mapping-match-pattern.bal");
         resultRestPattern = BCompileUtil.compile("test-src/statements/matchstmt/mapping-match-pattern-with-rest-match" +
                 "-pattern.bal");
-        resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/mapping-mach-pattern-negative.bal");
     }
 
     @Test
@@ -160,6 +154,26 @@ public class MatchStmtMappingMatchPatternTest {
     }
 
     @Test
+    public void testMappingMatchPattern24() {
+        BRunUtil.invoke(result, "testMappingMatchPattern24");
+    }
+
+    @Test
+    public void testMappingMatchPattern25() {
+        BRunUtil.invoke(result, "testMappingMatchPattern25");
+    }
+
+    @Test
+    public void testMappingMatchPatternWithWildCard() {
+        BRunUtil.invoke(result, "testMappingMatchPatternWithWildCard");
+    }
+
+    @Test
+    public void testMappingMatchPattern26() {
+        BRunUtil.invoke(result, "testMappingMatchPattern26");
+    }
+
+    @Test
     public void testMappingMatchPatternWithRestPattern1() {
         BRunUtil.invoke(resultRestPattern, "testMappingMatchPattern1");
     }
@@ -200,31 +214,33 @@ public class MatchStmtMappingMatchPatternTest {
     }
 
     @Test
-    public void testMappingMatchPatternNegative() {
-        int i = 0;
-        BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 23, 9);
-        BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 30, 9);
-        BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 33, 9);
-        BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 33, 26);
-        BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 36, 9);
-        BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 43, 9);
-        BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 46, 9);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 60, 28);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 64, 9);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 66, 26);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 68, 24);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 72, 9);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 76, 9);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 84, 9);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 91, 9);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 98, 9);
-        Assert.assertEquals(resultNegative.getErrorCount(), i);
+    public void testMappingMatchPatternWithMapAndAnydataIntersection() {
+        BRunUtil.invoke(resultRestPattern, "testMappingMatchPatternWithMapAndAnydataIntersection");
+    }
+
+    @Test
+    public void testMappingMatchPatternWithRestPattern11() {
+        BRunUtil.invoke(resultRestPattern, "testMappingMatchPatternWithRestPattern11");
+    }
+
+    @Test
+    public void testMappingMatchPatternWithClosedRecord() {
+        BRunUtil.invoke(resultRestPattern, "testMappingMatchPatternWithClosedRecord");
+    }
+
+    @Test
+    public void testMappingMatchPatternWithClosedRecordUnion() {
+        BRunUtil.invoke(resultRestPattern, "testMappingMatchPatternWithClosedRecordUnion");
+    }
+
+    @Test
+    public void testRestMappingAtRuntime() {
+        BRunUtil.invoke(resultRestPattern, "testRestMappingAtRuntime");
     }
 
     @AfterClass
     public void tearDown() {
         result = null;
         resultRestPattern = null;
-        resultNegative = null;
     }
 }

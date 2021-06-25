@@ -11,3 +11,10 @@ function foo() {
 function ()|() a = ();
 function ()? b = ();
 final function () c = ();
+
+function f7 = y;
+
+function bar() {
+    function f8;
+    function f9 = x;
+}

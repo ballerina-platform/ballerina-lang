@@ -160,7 +160,7 @@ function testMapWithAllFloatClosedRecord(float a, float b, float c) returns map<
     ClosedBar bar = {x: a, y: b, z: c};
 
     map<float> modBar = bar.'map(function (float val) returns float {
-        return val + 10;
+        return val + 10.0;
     });
 
     return modBar;
@@ -196,7 +196,7 @@ function testFilterWithAllFloatClosedRecord(float a, float b, float c) returns m
     ClosedBar bar = {x: a, y: b, z: c};
 
     map<float> modBar = bar.filter(function (float val) returns boolean {
-        if (val > 6) {
+        if (val > 6.0) {
             return true;
         }
         return false;
@@ -212,7 +212,8 @@ function testTerminalOpsOnAllIntClosedRecord(int m, int p, int c) returns [int, 
     int max = grades.reduce(function (int max, int v) returns int { return v > max ? v : max; }, 0);
     int min = grades.reduce(function (int min, int v) returns int { return v < min ? v : min; }, 1000000);
     int sum = grades.reduce(function (int sum, int v) returns int { return sum + v; }, 0);
-    float avg = grades.reduce(function (float avg, int v) returns float { return avg + <float>v / grades.length(); }, 0.0);
+    float avg = grades.reduce(function (float avg, int v) returns float {
+        return avg + <float>v / <float>grades.length(); }, 0.0);
 
     return [count, max, min, sum, avg];
 }
@@ -224,7 +225,8 @@ function testTerminalOpsOnAllIntClosedRecord2(int m, int p) returns [int, int, i
     int max = grades.reduce(function (int max, int v) returns int { return v > max ? v : max; }, 0);
     int min = grades.reduce(function (int min, int v) returns int { return v < min ? v : min; }, 1000000);
     int sum = grades.reduce(function (int sum, int v) returns int { return sum + v; }, 0);
-    float avg = grades.reduce(function (float avg, int v) returns float { return avg + <float>v / grades.length(); }, 0.0);
+    float avg = grades.reduce(function (float avg, int v) returns float {
+        return avg + <float>v / <float>grades.length(); }, 0.0);
 
     return [count, max, min, sum, avg];
 }
@@ -265,7 +267,8 @@ function testOpChainsWithTerminalOps(int m, int p, int c) returns [int, int, int
     int max = f.'map(mapTo).filter(filter).reduce(function (int max, int v) returns int { return v > max ? v : max; }, 0);
     int min = f.'map(mapTo).filter(filter).reduce(function (int min, int v) returns int { return v < min ? v : min; }, 100000);
     int length = f.'map(mapTo).filter(filter).length();
-    float avg = f.'map(mapTo).filter(filter).reduce(function (float avg, int v) returns float { return avg + <float>v / length; }, 0.0);
+    float avg = f.'map(mapTo).filter(filter).reduce(function (float avg, int v) returns float {
+        return avg + <float>v / <float>length; }, 0.0);
 
     return [count, sum, max, min, avg];
 }

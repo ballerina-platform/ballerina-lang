@@ -25,7 +25,6 @@ import java.util.Objects;
  * @since 2.0.0
  */
 public class ModuleName {
-    private static final String MODULE_NAME_SEPARATOR = ".";
 
     private final PackageName packageName;
     private final String moduleNamePart;
@@ -46,24 +45,6 @@ public class ModuleName {
         }
         // TODO Check whether the moduleNamePart is a valid list of identifiers
         return new ModuleName(packageName, moduleNamePart);
-    }
-
-    public static ModuleName from(String moduleNameStr, PackageOrg packageOrg) {
-        int indexOfModuleNameSeparator = moduleNameStr.indexOf(MODULE_NAME_SEPARATOR);
-        if (indexOfModuleNameSeparator == -1) {
-            return ModuleName.from(PackageName.from(moduleNameStr));
-        }
-
-        // There are one or more module name separators in the string
-        // Check whether moduleNameStr is a langlib module name
-        String langLibModulePrefix = PackageName.LANG_LIB_PACKAGE_NAME_PREFIX + MODULE_NAME_SEPARATOR;
-        if (packageOrg.isBallerinaOrg() && moduleNameStr.startsWith(langLibModulePrefix)) {
-            return ModuleName.from(PackageName.from(moduleNameStr));
-        }
-
-        PackageName packageName = PackageName.from(moduleNameStr.substring(0, indexOfModuleNameSeparator));
-        String moduleNamePart = moduleNameStr.substring(indexOfModuleNameSeparator + 1);
-        return ModuleName.from(packageName, moduleNamePart);
     }
 
     public PackageName packageName() {

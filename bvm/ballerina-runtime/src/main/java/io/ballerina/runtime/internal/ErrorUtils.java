@@ -43,6 +43,7 @@ public class ErrorUtils {
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
     private static final BString ERROR_CAUSE_FIELD = StringUtils.fromString("cause");
     private static final BString NULL_REF_EXCEPTION = StringUtils.fromString("NullReferenceException");
+    private static final BString INT_RANGE_OVERFLOW_ERROR = StringUtils.fromString(" int range overflow");
 
     /**
      * Create balleria error using java exception for interop.
@@ -99,6 +100,10 @@ public class ErrorUtils {
         return (ErrorValue) createError(BallerinaErrorReasons.FUTURE_CANCELLED);
     }
 
+    public static BError createIntOverflowError() {
+        throw createError(BallerinaErrorReasons.NUMBER_OVERFLOW, INT_RANGE_OVERFLOW_ERROR);
+    }
+
     public static BError createTypeCastError(Object sourceVal, Type targetType) {
         throw createError(BallerinaErrorReasons.TYPE_CAST_ERROR,
                           BLangExceptionHelper.getErrorMessage(RuntimeErrors.TYPE_CAST_ERROR,
@@ -123,5 +128,14 @@ public class ErrorUtils {
         throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
                 RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION, inputType, inputValue, targetType));
     }
-}
 
+    public static BError createOperationNotSupportedError(Type lhsType, Type rhsType) {
+        throw createError(BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_ERROR, BLangExceptionHelper.getErrorMessage(
+                RuntimeErrors.UNSUPPORTED_COMPARISON_OPERATION, lhsType, rhsType));
+    }
+
+    public static BError createUnorderedTypesError(Object lhsValue, Object rhsValue) {
+        throw createError(BallerinaErrorReasons.UNORDERED_TYPES_ERROR, BLangExceptionHelper.getErrorMessage(
+                RuntimeErrors.UNORDERED_TYPES_IN_COMPARISON, lhsValue, rhsValue));
+    }
+}

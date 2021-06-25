@@ -254,35 +254,16 @@ function testReassignValueInLet() returns FullName[]{
 
 	var outputNameList =
 	    from var student in studentList
-	    let float twiceScore = (student.score*2)
+	    let float twiceScore = (student.score * 2.0)
 	    do {
 	        twiceScore = 1000;
-	        if(twiceScore<50){
+	        if(twiceScore < 50.00){
 	            FullName fullname = {firstName:student.firstName,lastName:student.lastName};
 	            nameList.push(fullname);
 	        }
 	    };
 
     return  outputNameList;
-}
-
-function testQueryExprForXML() returns xml {
-    xml book1 = xml `<book>
-                           <name>Sherlock Holmes</name>
-                           <author>Sir Arthur Conan Doyle</author>
-                     </book>`;
-
-    xml book2 = xml `<book>
-                           <name>The Da Vinci Code</name>
-                           <author>Dan Brown</author>
-                    </book>`;
-
-    xml book = book1 + book2;
-
-    xml books = from var x in book/<name>
-                select x;
-
-    return  books;
 }
 
 function testQueryExprForString() returns string {
@@ -403,4 +384,51 @@ public function testMethodParamInQuery(int age) {
                    lastName: lastName,
                    age: age
              };
+}
+
+type TableRecord record {
+    readonly string name;
+    int id;
+};
+
+function testTableWithNonMappingType() {
+
+    table<TableRecord> key(name) t = table [
+            {name: "Amy", id: 1234},
+            {name: "John", id: 4567}
+        ];
+
+    table<int> ids = from var x in t select x.id;
+}
+
+function testTableWithNonMappingTypeWithBindingPatterns() {
+
+    table<TableRecord> key(name) t = table [
+            {name: "Amy", id: 1234},
+            {name: "John", id: 4567}
+        ];
+
+    table<int> ids = from var {id} in t select id;
+}
+
+public function testInvalidInputType() {
+    int x = 1;
+    int[] w = from var a in x
+                select 1;
+}
+
+function testIncompatibleSelectType(stream<string, error> clientStream) returns error? {
+    return from string num in clientStream select {a: 1};
+}
+
+function testMapBindingPatternsAnydataType() {
+    map<anydata> keyValsMap = {foo:"sss", bar:"ffff"};
+    var x = from var {k} in keyValsMap
+                 select k;
+}
+
+function testMapBindingPatternsAnyType() {
+    map<any> keyValsMap = {foo:"sss", bar:"ffff"};
+    var x = from var {k} in keyValsMap
+                 select k;
 }

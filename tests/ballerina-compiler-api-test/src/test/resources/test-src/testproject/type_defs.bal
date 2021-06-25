@@ -51,3 +51,47 @@ public type Error FileNotFoundError|EofError;
 public enum Colour {
    RED, GREEN, BLUE
 }
+
+public type Pet object {
+    string name;
+
+    public function getName() returns string;
+
+    public function kind() returns string;
+};
+
+public class Dog {
+    *Pet;
+
+    public function init(string name) {
+        self.name = name;
+    }
+
+    public function getName() returns string => self.name;
+
+    public function kind() returns string => "Dog";
+}
+
+public type Student record {|
+    *Person;
+    string school;
+|};
+
+public type Cat object {
+    *Pet;
+};
+
+public type Annot record {|
+    string host;
+|};
+
+public class EmployeeObj {
+    string name;
+    public string address = "No 20, Palm Grove";
+    public int age;
+
+    public function init(string name, int age) {
+        self.name = name;
+        self.age = age;
+    }
+}

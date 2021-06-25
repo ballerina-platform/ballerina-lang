@@ -97,8 +97,8 @@ public class BStreamValueTest {
     }
 
     @Test(description = "Test stream construct within never")
-    public void testStreamConstructWithNever() {
-        BValue[] values = BRunUtil.invoke(result, "testStreamConstructWithNever", new BValue[]{});
+    public void testStreamConstructWithNil() {
+        BValue[] values = BRunUtil.invoke(result, "testStreamConstructWithNil", new BValue[]{});
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
@@ -244,8 +244,15 @@ public class BStreamValueTest {
                 "'stream<int,error>'", 375, 20);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
                 "'stream<int,error>'", 376, 20);
-        BAssertUtil.validateError(negativeResult, i, "incompatible types: expected 'stream<int>', found " +
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
                 "'stream<int,error>'", 377, 20);
+
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype " +
+                "of 'object { public isolated function next() returns record {| int value; |}?; }', but found " +
+                "'string'", 381, 31);
+
+        Assert.assertEquals(i, negativeResult.getErrorCount());
+
     }
 
     @AfterClass

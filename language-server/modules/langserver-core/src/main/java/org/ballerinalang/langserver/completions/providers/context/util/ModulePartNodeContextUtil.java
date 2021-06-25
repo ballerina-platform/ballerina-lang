@@ -24,13 +24,13 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
-import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SnippetBlock;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -60,15 +60,17 @@ public class ModulePartNodeContextUtil {
      */
     public static List<LSCompletionItem> getTopLevelItems(BallerinaCompletionContext context) {
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
+        // Here we should add the function keyword as well, although it is added via #getTypeItems
         List<Snippet> snippets = Arrays.asList(
-                Snippet.KW_IMPORT, Snippet.KW_FUNCTION, Snippet.KW_TYPE, Snippet.KW_PUBLIC, Snippet.KW_ISOLATED,
+                Snippet.KW_IMPORT, Snippet.KW_TYPE, Snippet.KW_PUBLIC, Snippet.KW_ISOLATED,
                 Snippet.KW_FINAL, Snippet.KW_CONST, Snippet.KW_LISTENER, Snippet.KW_CLIENT, Snippet.KW_VAR,
-                Snippet.KW_ENUM, Snippet.KW_XMLNS, Snippet.KW_CLASS, Snippet.KW_DISTINCT, Snippet.KW_TRANSACTIONAL,
-                Snippet.DEF_FUNCTION, Snippet.DEF_MAIN_FUNCTION, Snippet.DEF_SERVICE, /*Snippet.DEF_SERVICE_WEBSOCKET,
-                Snippet.DEF_SERVICE_WS_CLIENT, Snippet.DEF_SERVICE_GRPC,*/ Snippet.DEF_ANNOTATION, Snippet.DEF_RECORD,
-                Snippet.STMT_NAMESPACE_DECLARATION, Snippet.DEF_OBJECT_SNIPPET, Snippet.DEF_CLASS, Snippet.DEF_ENUM,
-                Snippet.DEF_CLOSED_RECORD, Snippet.DEF_ERROR_TYPE, Snippet.DEF_TABLE_TYPE_DESC,
-                Snippet.DEF_TABLE_WITH_KEY_TYPE_DESC
+                Snippet.KW_ENUM, Snippet.KW_XMLNS, Snippet.KW_CLASS, Snippet.KW_TRANSACTIONAL,
+                Snippet.DEF_FUNCTION, Snippet.DEF_MAIN_FUNCTION, Snippet.DEF_SERVICE, Snippet.KW_CONFIGURABLE,
+                /*Snippet.DEF_SERVICE_WEBSOCKET, Snippet.DEF_SERVICE_WS_CLIENT, Snippet.DEF_SERVICE_GRPC,*/
+                Snippet.DEF_ANNOTATION, Snippet.DEF_RECORD, Snippet.STMT_NAMESPACE_DECLARATION,
+                Snippet.DEF_OBJECT_SNIPPET, Snippet.DEF_CLASS, Snippet.DEF_ENUM, Snippet.DEF_CLOSED_RECORD,
+                Snippet.DEF_ERROR_TYPE, Snippet.DEF_TABLE_TYPE_DESC, Snippet.DEF_TABLE_WITH_KEY_TYPE_DESC,
+                Snippet.DEF_STREAM, Snippet.DEF_SERVICE_COMMON
         );
 
         snippets.forEach(snippet -> completionItems.add(new SnippetCompletionItem(context, snippet.get())));

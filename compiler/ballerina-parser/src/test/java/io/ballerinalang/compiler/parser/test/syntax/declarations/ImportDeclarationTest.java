@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 
 /**
  * Test parsing import declarations.
- * 
+ *
  * @since 1.3.0
  */
 public class ImportDeclarationTest extends AbstractDeclarationTest {
@@ -49,6 +49,26 @@ public class ImportDeclarationTest extends AbstractDeclarationTest {
     }
 
     // Recovery tests
+
+    @Test
+    public void testImportWithMajorVersionNegative() {
+        test("import-decl/import_decl_source_04.bal", "import-decl/import_decl_assert_04.json");
+    }
+
+    @Test
+    public void testImportWithMinorVersionNegative() {
+        test("import-decl/import_decl_source_05.bal", "import-decl/import_decl_assert_05.json");
+    }
+
+    @Test
+    public void testImportWithPatchVersionNegative() {
+        test("import-decl/import_decl_source_06.bal", "import-decl/import_decl_assert_06.json");
+    }
+
+    @Test
+    public void testImportWithVersionAndPrefixNegative() {
+        test("import-decl/import_decl_source_08.bal", "import-decl/import_decl_assert_08.json");
+    }
 
     @Test
     public void testSimpleImportWithMissingModuleName() {
@@ -126,22 +146,7 @@ public class ImportDeclarationTest extends AbstractDeclarationTest {
     }
 
     @Test
-    public void testImportWithMajorVersionNegative() {
-        test("import-decl/import_decl_source_04.bal", "import-decl/import_decl_assert_04.json");
-    }
-
-    @Test
-    public void testImportWithMinorVersionNegative() {
-        test("import-decl/import_decl_source_05.bal", "import-decl/import_decl_assert_05.json");
-    }
-
-    @Test
-    public void testImportWithPatchVersionNegative() {
-        test("import-decl/import_decl_source_06.bal", "import-decl/import_decl_assert_06.json");
-    }
-
-    @Test
-    public void testImportWithVersionAndPrefixNegative() {
-        test("import-decl/import_decl_source_08.bal", "import-decl/import_decl_assert_08.json");
+    public void testImportWithExtraIdentifiers() {
+        testFile("import-decl/import_decl_source_24.bal", "import-decl/import_decl_assert_24.json");
     }
 }

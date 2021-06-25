@@ -76,8 +76,6 @@ dependencies {
     dist project(':ballerina-lang:query')
     dist project(':ballerina-lang:transaction')
     dist project(':ballerina-lang:jballerina.java')
-    dist project(':ballerina-observability')
-    dist project(':ballerina-observability-internal')
     dist project(':ballerina-shell:shell-rt')
 
     // Third party jars
@@ -96,8 +94,8 @@ dependencies {
     dist 'org.apache.ws.commons.axiom:axiom-api:1.2.20'
     dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
     dist 'commons-logging:commons-logging:1.1.1'
-    dist 'io.opentracing:opentracing-api:0.31.0'
-    dist 'io.opentracing:opentracing-noop:0.31.0'
+    dist 'io.opentelemetry:opentelemetry-api:1.0.0'
+    dist 'io.opentelemetry:opentelemetry-context:1.0.0'
     dist 'org.awaitility:awaitility:3.1.6'
     dist 'org.hdrhistogram:HdrHistogram:2.1.10'
     dist 'com.h2database:h2:1.4.199'

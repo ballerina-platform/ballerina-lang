@@ -106,7 +106,7 @@ function testFunctionPointer(string s, int... x) returns float {
 
     if (y is int) {
         foreach var item in x {
-            f += item * 1.0 * y;
+            f += <float>item * 1.0 * <float>y;
         }
     } else {
         panic y;
@@ -116,7 +116,7 @@ function testFunctionPointer(string s, int... x) returns float {
 
 function invokeFunctionPointer(int x, function (string, int...) returns float bar)
              returns float {
-    return x * bar("2", 2, 3, 4, 5);
+    return <float>x * bar("2", 2, 3, 4, 5);
 }
 
 function getFunctionPointer() returns
@@ -138,6 +138,9 @@ public function anonymousFunctions() {
             function (string x, string y) returns string {
                 return x + y;
             };
+    function func = function (string x, string y) returns string {
+                        return x + y;
+                    };
     _ = anonFunction("Hello ", "World.!!!");
 
     var anonFunction2 = function (string x, string y, string... z) returns string {

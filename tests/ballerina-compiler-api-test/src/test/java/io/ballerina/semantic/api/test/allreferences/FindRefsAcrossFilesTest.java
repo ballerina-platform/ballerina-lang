@@ -43,21 +43,25 @@ public class FindRefsAcrossFilesTest extends FindAllReferencesTest {
     public void setup() {
         Project project = BCompileUtil.loadProject(getTestSourcePath());
         Module baz = getModule(project, "baz");
-        model = baz.getCompilation().getSemanticModel();
+        model = project.currentPackage().getCompilation().getSemanticModel(baz.moduleId());
         srcFile = getDocument(baz);
     }
 
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
         return new Object[][]{
-                {22, 42, List.of(location(18, 6, 10, "constants.bal"),
-                                 location(22, 42, 46, getFileName()))
+                {22, 42, location(18, 6, 10),
+                        List.of(location(18, 6, 10, "constants.bal"),
+                                location(22, 42, 46, getFileName()))
                 },
-                {22, 56, List.of(location(16, 12, 18, "type_defs.bal"),
-                                 location(22, 56, 62, getFileName()))
+                {22, 56, location(16, 12, 18),
+                        List.of(location(16, 12, 18, "type_defs.bal"),
+                                location(22, 5, 11, "type_defs.bal"),
+                                location(22, 56, 62, getFileName()))
                 },
-                {16, 16, List.of(location(16, 16, 19, getFileName()),
-                                 location(25, 14, 17, "tests/test1.bal"))
+                {16, 16, location(16, 16, 19),
+                        List.of(location(16, 16, 19, getFileName()),
+                                location(25, 14, 17, "tests/test1.bal"))
                 },
         };
     }

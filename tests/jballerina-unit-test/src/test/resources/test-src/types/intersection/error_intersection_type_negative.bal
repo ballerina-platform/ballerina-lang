@@ -50,9 +50,33 @@ type IntersectionErrorThree ErrorOne & ErrorFour;
 
 type IntersectionErrorFour ErrorOne & ErrorFive;
 
-type DistinctErrorIntersection distinct ErrorOne & ErrorFive;
+type DistinctErrorIntersection distinct (ErrorOne & ErrorFive);
 
 function testRecordAndMapIntersection() {
     var err = error IntersectionErrorFour("message", x = "x", z = 10);
     DistinctErrorIntersection err2 = error IntersectionErrorFour("message", x = "x");
 }
+
+type DetailX record {
+    string x = "defaultt";
+};
+
+type DetailY record {
+    string x;
+    string y;
+};
+
+type ErrorX error<DetailX>;
+type ErrorY error<DetailY>;
+
+type IntersecDefaultValedDetail ErrorX & ErrorY;
+
+type IntersecDefaultValedDetailInline error<DetailX> & error<DetailY>;
+
+type IntersecDefaultValedDetailInlineMixed error<DetailY> & error<DetailX> & ErrorX;
+
+type CloseDetailWithBuildInDetail error & ErrorX;
+type CloseDetailWithBuildInDetail2 ErrorX & error;
+
+type E distinct error;
+type EDash distinct (E & ErrorX);

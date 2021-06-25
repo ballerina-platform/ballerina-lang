@@ -19,7 +19,6 @@ package io.ballerina.runtime.observability.tracer;
 
 import io.ballerina.runtime.observability.BallerinaObserver;
 import io.ballerina.runtime.observability.ObserverContext;
-import io.ballerina.runtime.observability.TracingUtils;
 
 /**
  * Observe the runtime and start/stop tracing.

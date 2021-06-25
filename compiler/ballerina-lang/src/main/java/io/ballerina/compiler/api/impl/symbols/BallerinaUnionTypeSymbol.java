@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INTERSECTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 
 /**
@@ -44,21 +45,20 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
  */
 public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements UnionTypeSymbol {
 
-    private static final String INT_CLONEABLE = "__Cloneable";
     private static final String CLONEABLE = "Cloneable";
     private static final String CLONEABLE_TYPE = "CloneableType";
-    private static final Pattern pCloneable = Pattern.compile(INT_CLONEABLE + "([12])?");
     private static final Pattern pCloneableType = Pattern.compile(CLONEABLE_TYPE);
 
     private List<TypeSymbol> memberTypes;
+    private List<TypeSymbol> originalMemberTypes;
     private String signature;
 
     public BallerinaUnionTypeSymbol(CompilerContext context, ModuleID moduleID, BUnionType unionType) {
-        super(context, TypeDescKind.UNION, moduleID, unionType);
+        super(context, TypeDescKind.UNION, unionType);
     }
 
     public BallerinaUnionTypeSymbol(CompilerContext context, ModuleID moduleID, BFiniteType finiteType) {
-        super(context, TypeDescKind.UNION, moduleID, finiteType);
+        super(context, TypeDescKind.UNION, finiteType);
     }
 
     @Override
@@ -74,7 +74,8 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
                 }
             } else {
                 for (BLangExpression value : ((BFiniteType) this.getBType()).getValueSpace()) {
-                    members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID(), value, value.type));
+                    ModuleID moduleID = getModule().isPresent() ? getModule().get().id() : null;
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID, value, value.getBType()));
                 }
             }
 
@@ -82,6 +83,30 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
         }
 
         return this.memberTypes;
+    }
+
+    @Override
+    public List<TypeSymbol> userSpecifiedMemberTypes() {
+        if (this.originalMemberTypes == null) {
+            List<TypeSymbol> members = new ArrayList<>();
+
+            if (this.getBType().tag == TypeTags.UNION) {
+                TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+
+                for (BType memberType : ((BUnionType) this.getBType()).getOriginalMemberTypes()) {
+                    members.add(typesFactory.getTypeDescriptor(memberType));
+                }
+            } else {
+                for (BLangExpression value : ((BFiniteType) this.getBType()).getValueSpace()) {
+                    ModuleID moduleID = getModule().isPresent() ? getModule().get().id() : null;
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID, value, value.getBType()));
+                }
+            }
+
+            this.originalMemberTypes = Collections.unmodifiableList(members);
+        }
+
+        return this.originalMemberTypes;
     }
 
     @Override
@@ -103,14 +128,11 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
     }
 
     private String getSignatureForUnion(BType type) {
-        BUnionType unionType = (BUnionType) this.getBType();
+        BUnionType unionType = (BUnionType) type;
         if (unionType.isCyclic && (unionType.tsymbol != null) && !unionType.tsymbol.getName().getValue().isEmpty()) {
             String typeStr;
             typeStr = unionType.tsymbol.getName().getValue();
-            if (pCloneable.matcher(typeStr).matches()) {
-                typeStr = CLONEABLE;
-            } else if (Symbols.isFlagOn(unionType.flags, Flags.TYPE_PARAM) &&
-                    pCloneableType.matcher(typeStr).matches()) {
+            if (Symbols.isFlagOn(unionType.flags, Flags.TYPE_PARAM) && pCloneableType.matcher(typeStr).matches()) {
                 typeStr = CLONEABLE;
             }
             return typeStr;
@@ -120,16 +142,16 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
             return "...";
         }
 
-        List<TypeSymbol> memberTypes = this.memberTypeDescriptors();
+        List<TypeSymbol> memberTypes = this.userSpecifiedMemberTypes();
         if (containsTwoElements(memberTypes) && containsNil(memberTypes)) {
             TypeSymbol member1 = memberTypes.get(0);
-            return member1.typeKind() == NIL ?
-                    memberTypes.get(1).signature() + "?" : member1.signature() + "?";
+            return member1.typeKind() == NIL ? getSignatureForIntersectionType(memberTypes.get(1)) + "?" :
+                    getSignatureForIntersectionType(member1) + "?";
         } else {
             StringJoiner joiner = new StringJoiner("|");
             unionType.resolvingToString = true;
             for (TypeSymbol typeDescriptor : memberTypes) {
-                joiner.add(typeDescriptor.signature());
+                joiner.add(getSignatureForIntersectionType(typeDescriptor));
             }
             unionType.resolvingToString = false;
             return joiner.toString();
@@ -137,12 +159,19 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
     }
 
     private String getSignatureForFiniteType() {
-        List<TypeSymbol> memberTypes = this.memberTypeDescriptors();
+        List<TypeSymbol> memberTypes = this.userSpecifiedMemberTypes();
         StringJoiner joiner = new StringJoiner("|");
         for (TypeSymbol typeDescriptor : memberTypes) {
             joiner.add(typeDescriptor.signature());
         }
         return joiner.toString();
+    }
+
+    private String getSignatureForIntersectionType(TypeSymbol typeSymbol) {
+        if (typeSymbol.typeKind() != INTERSECTION) {
+            return typeSymbol.signature();
+        }
+        return "(" + typeSymbol.signature() + ")";
     }
 
     private boolean containsNil(List<TypeSymbol> types) {

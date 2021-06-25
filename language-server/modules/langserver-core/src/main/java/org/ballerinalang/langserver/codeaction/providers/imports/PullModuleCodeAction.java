@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -41,6 +42,9 @@ import java.util.regex.Matcher;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class PullModuleCodeAction extends AbstractCodeActionProvider {
+
+    public static final String NAME = "Pull Module";
+
     private static final String UNRESOLVED_MODULE = "cannot resolve module";
 
     @Override
@@ -51,6 +55,7 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
 
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         if (!(diagnostic.message().startsWith(UNRESOLVED_MODULE))) {
             return Collections.emptyList();
@@ -79,6 +84,11 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
             return Collections.singletonList(action);
         }
         return Collections.emptyList();
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     private static String getVersion(CodeActionContext context, String pkgName, Matcher matcher) {

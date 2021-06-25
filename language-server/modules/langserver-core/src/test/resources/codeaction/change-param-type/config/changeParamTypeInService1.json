@@ -1,0 +1,24 @@
+{
+  "line": 4,
+  "character": 25,
+  "expected": [
+    {
+      "title": "Change parameter 'page' type to 'int'",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 32
+            },
+            "end": {
+              "line": 3,
+              "character": 38
+            }
+          },
+          "newText": "int"
+        }
+      ]
+    }
+  ]
+}

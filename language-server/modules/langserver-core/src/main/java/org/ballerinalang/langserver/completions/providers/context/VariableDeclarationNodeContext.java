@@ -15,15 +15,18 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion provider for {@link VariableDeclarationNode} context.
@@ -47,7 +50,7 @@ public class VariableDeclarationNodeContext extends VariableDeclarationProvider<
         List<LSCompletionItem> completionItems
                 = this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor());
         this.sort(context, node, completionItems);
-        
+
         return completionItems;
     }
 
@@ -59,5 +62,19 @@ public class VariableDeclarationNodeContext extends VariableDeclarationProvider<
         int textPosition = context.getCursorPositionInTree();
         TextRange equalTokenRange = node.equalsToken().get().textRange();
         return equalTokenRange.endOffset() <= textPosition;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, VariableDeclarationNode node,
+                     List<LSCompletionItem> completionItems) {
+        Optional<TypeSymbol> typeSymbolAtCursor = context.getContextType();
+        if (typeSymbolAtCursor.isEmpty()) {
+            super.sort(context, node, completionItems);
+        }
+        TypeSymbol symbol = typeSymbolAtCursor.get();
+        for (LSCompletionItem completionItem : completionItems) {
+            completionItem.getCompletionItem()
+                    .setSortText(SortingUtil.genSortTextByAssignability(completionItem, symbol));
+        }
     }
 }

@@ -47,7 +47,7 @@ public class RecordVariableReferenceTest {
         resultNegative = BCompileUtil.compile("test-src/expressions/varref/record-variable-reference-negative.bal");
     }
 
-    @Test(description = "Test simple record variable definition", enabled = false)
+    @Test(description = "Test simple record variable definition")
     public void testVariableAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "testVariableAssignment");
         Assert.assertEquals(returns.length, 4);
@@ -175,7 +175,7 @@ public class RecordVariableReferenceTest {
 //        Assert.assertEquals(((BMap) returns[2]).get("format").stringValue(), "Y");
 //    }
 
-    @Test(groups = {"disableOnOldParser", "brokenOnNewParser"})
+    @Test
     public void testRecordVariablesSemanticsNegative() {
         resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/varref/record-variable-reference" +
                 "-semantics-negative.bal");
@@ -210,23 +210,29 @@ public class RecordVariableReferenceTest {
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "unknown type 'Data'", 128, 6);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "incompatible types: expected 'map<int>', found 'map<anydata>'", 161, 16);
+                "incompatible types: expected 'map<int>', found 'record {| never name?; boolean married; int...; |}'",
+                161, 16);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "incompatible types: expected 'map<error>', found 'map'",
+                "incompatible types: expected 'map<error>', " +
+                        "found 'record {| never name?; boolean married; Object...; |}'",
                 164, 16);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "invalid binding pattern, variable reference 'm[var1]' cannot be used with binding pattern", 198, 12);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "invalid binding pattern, variable reference 'm[var2]' cannot be used with binding pattern", 198, 36);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 's'", 213, 6);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'i'", 213, 9);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'f'", 213, 12);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 's2'", 231, 6);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'iv'", 231, 19);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'b3'", 231, 23);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'm2'", 231, 31);
-
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid expr in assignment lhs", 198, 51);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
+    }
+
+    @Test
+    public void testRecordVariablesAssignmentToFinalVarNegative() {
+        CompileResult resultNegative = BCompileUtil.compile(
+                "test-src/expressions/varref/record_variable_reference_assignment_to_final_var_negative.bal");
+        int i = -1;
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 's'", 28, 6);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'i'", 28, 9);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'f'", 28, 12);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 's2'", 46, 6);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'iv'", 46, 19);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'b3'", 46, 23);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'm2'", 46, 31);
+        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 
     @Test

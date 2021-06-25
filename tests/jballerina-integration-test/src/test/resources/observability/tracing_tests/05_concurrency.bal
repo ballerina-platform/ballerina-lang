@@ -17,11 +17,11 @@
 import ballerina/testobserve;
 import intg_tests/tracing_tests.utils as utils;
 
-service /testServiceFive on new testobserve:Listener(9095) {
+service / on new testobserve:Listener(19095) {
     # Resource function for testing async remote call wait
     resource function post resourceOne(testobserve:Caller caller) {
         future<int> futureSum = start testClient->calculateSum(6, 17);
-        var sum = wait futureSum;
+        var sum = checkpanic wait futureSum;
         if (sum != 23) {    // Check for validating if normal execution is intact from instrumentation
             error err = error("failed to find the sum of 6 and 17. expected: 23 received: " + sum.toString());
             panic err;
@@ -32,7 +32,7 @@ service /testServiceFive on new testobserve:Listener(9095) {
     # Resource function for testing async observable call wait
     resource function post resourceTwo(testobserve:Caller caller) {
         future<int> futureSum = start calculateSumWithObservability(18, 31);
-        var sum = wait futureSum;
+        var sum = checkpanic wait futureSum;
         if (sum != 49) {    // Check for validating if normal execution is intact from instrumentation
             error err = error("failed to find the sum of 18 and 31. expected: 49 received: " + sum.toString());
             panic err;
@@ -44,7 +44,7 @@ service /testServiceFive on new testobserve:Listener(9095) {
     resource function post resourceThree(testobserve:Caller caller) {
         utils:ObservableAdderClass adder = new utils:ObservableAdder(61, 23);
         future<int> futureSum = start adder.getSum();
-        var sum = wait futureSum;
+        var sum = checkpanic wait futureSum;
         if (sum != 84) {    // Check for validating if normal execution is intact from instrumentation
             error err = error("failed to find the sum of 61 and 23. expected: 84 received: " + sum.toString());
             panic err;

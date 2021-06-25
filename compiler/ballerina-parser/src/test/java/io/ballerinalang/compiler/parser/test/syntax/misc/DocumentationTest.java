@@ -46,6 +46,7 @@ public class DocumentationTest extends AbstractMiscTest {
     @Test
     public void testSimpleDeprecationDocumentationLine() {
         testFile("documentation/doc_source_06.bal", "documentation/doc_assert_06.json");
+        testFile("documentation/doc_source_25.bal", "documentation/doc_assert_25.json");
     }
 
     @Test
@@ -77,6 +78,7 @@ public class DocumentationTest extends AbstractMiscTest {
     @Test
     public void testTippleBacktickDocumentation() {
         testFile("documentation/doc_source_10.bal", "documentation/doc_assert_10.json");
+        testFile("documentation/doc_source_24.bal", "documentation/doc_assert_24.json");
     }
 
     @Test
@@ -110,6 +112,11 @@ public class DocumentationTest extends AbstractMiscTest {
         testFile("documentation/doc_source_20.bal", "documentation/doc_assert_20.json");
     }
 
+    @Test
+    public void testHashInCodeReferences() {
+        testFile("documentation/doc_source_23.bal", "documentation/doc_assert_23.json");
+    }
+
     // Invalid Syntax
 
     @Test
@@ -125,5 +132,15 @@ public class DocumentationTest extends AbstractMiscTest {
     @Test
     public void testParameterDocWithMissingDescription() {
         testFile("documentation/doc_source_21.bal", "documentation/doc_assert_21.json");
+    }
+
+    @Test
+    public void testCodeBlockNegative() {
+        testFile("documentation/doc_source_22.bal", "documentation/doc_assert_22.json");
+    }
+
+    @Test
+    public void testDocumentationEOF() {
+        testFile("documentation/doc_source_26.bal", "documentation/doc_assert_26.json");
     }
 }

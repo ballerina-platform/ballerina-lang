@@ -54,7 +54,10 @@ public class Utils {
 
     public static String normalizeResourcePath(String resourcePath) {
         if (!resourcePath.startsWith("/")) {
-            resourcePath = "/"  + resourcePath;
+            resourcePath = "/" + resourcePath;
+        }
+        if (resourcePath.endsWith("/")) {
+            resourcePath = resourcePath.substring(0, resourcePath.length() - 1);
         }
         return resourcePath;
     }

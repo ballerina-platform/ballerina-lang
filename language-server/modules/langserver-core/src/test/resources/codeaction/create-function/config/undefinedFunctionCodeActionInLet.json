@@ -1,0 +1,28 @@
+{
+  "line": 13,
+  "character": 37,
+  "expected": [
+    {
+      "title": "Create function 'getYear(...)'",
+      "command": {
+        "title": "Create function 'getYear(...)'",
+        "command": "CREATE_FUNC",
+        "arguments": [
+          {
+            "key": "node.range",
+            "value": {
+              "start": {
+                "line": 13,
+                "character": 37
+              },
+              "end": {
+                "line": 13,
+                "character": 48
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

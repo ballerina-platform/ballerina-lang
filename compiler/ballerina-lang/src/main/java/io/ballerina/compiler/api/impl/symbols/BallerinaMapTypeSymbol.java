@@ -35,7 +35,7 @@ public class BallerinaMapTypeSymbol extends AbstractTypeSymbol implements MapTyp
     private TypeSymbol memberTypeDesc;
 
     public BallerinaMapTypeSymbol(CompilerContext context, ModuleID moduleID, BMapType mapType) {
-        super(context, TypeDescKind.MAP, moduleID, mapType);
+        super(context, TypeDescKind.MAP, mapType);
     }
 
     @Override
@@ -49,8 +49,18 @@ public class BallerinaMapTypeSymbol extends AbstractTypeSymbol implements MapTyp
     }
 
     @Override
+    public TypeSymbol typeParam() {
+        if (this.memberTypeDesc == null) {
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.memberTypeDesc = typesFactory.getTypeDescriptor(((BMapType) this.getBType()).constraint);
+        }
+
+        return this.memberTypeDesc;
+    }
+
+    @Override
     public String signature() {
-        Optional<TypeSymbol> memberTypeDescriptor = this.typeParameter();
-        return memberTypeDescriptor.map(typeDescriptor -> "map<" + typeDescriptor.signature() + ">").orElse("map");
+        TypeSymbol memberTypeDescriptor = this.typeParam();
+        return "map<" + memberTypeDescriptor.signature() + ">";
     }
 }

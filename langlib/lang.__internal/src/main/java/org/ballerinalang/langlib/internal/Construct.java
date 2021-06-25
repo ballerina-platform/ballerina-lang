@@ -25,21 +25,14 @@ import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BTypedesc;
 
 /**
- * Native implementation of lang.internal:construct(typeDesc, iterator).
+ * Native implementation of lang.internal:construct(typeDesc, typeDesc, iterator).
  *
  * @since 1.2.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.__internal", functionName = "construct",
-//        args = {
-//                @Argument(name = "td", type = TypeKind.TYPEDESC),
-//                @Argument(name = "iteratorObj", type = TypeKind.OBJECT)
-//        },
-//        returnType = {@ReturnType(type = TypeKind.STREAM)}
-//)
 public class Construct {
 
-    public static BStream construct(BTypedesc td, BObject iteratorObj) {
-        return ValueCreator.createStreamValue(TypeCreator.createStreamType(td.getDescribingType()), iteratorObj);
+    public static BStream construct(BTypedesc constraintTd, BTypedesc completionTd, BObject iteratorObj) {
+        return ValueCreator.createStreamValue(TypeCreator.createStreamType(
+                constraintTd.getDescribingType(), completionTd.getDescribingType()), iteratorObj);
     }
 }

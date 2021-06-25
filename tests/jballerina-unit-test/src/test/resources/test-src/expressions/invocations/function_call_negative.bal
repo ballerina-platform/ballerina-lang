@@ -53,3 +53,45 @@ function bar(int i, boolean... b) returns int {
 
 function baz(string s, float f = 2.0, boolean... b) {
 }
+
+function testInvalidArrayArg() {
+    int[1] a = [1];
+    int m = allInts(...a); // incompatible types: expected '([int,int,int...]|record {| int i; int j; |})', found 'int[1]'
+
+    (int|string)[3] b = [1, 2, 3];
+    int n = allInts(...b); // incompatible types: expected '([int,int,int...]|record {| int i; int j; |})', found '(int|string)[3]'
+    int o = intsWithStringRestParam(...b); // incompatible types: expected '([int,int,string...]|record {| int i; int j; |})', found '(int|string)[3]'
+
+    int[5] c = [1, 2, 3, 1, 2];
+    int p = intParam(...c); // incompatible types: expected '([int]|record {| int i; |})', found 'int[5]'
+
+    int[] d = [1, 1, 2, 2, 1];
+    int q = intsWithStringRestParam(...c); // incompatible types: expected '([int,int,string...]|record {| int i; int j; |})', found 'int[5]'
+    int r = intsWithStringRestParam(...d); // incompatible types: expected '([int,int,string...]|record {| int i; int j; |})', found 'int[]'
+
+    anydata[] e = [1, 2, 3, 4];
+    int s = intRestParam(...b); // incompatible types: expected 'int[]', found '(int|string)[3]'
+    int t = intRestParam(...e); // incompatible types: expected 'int[]', found 'anydata[]'
+}
+
+function allInts(int i, int j, int... k) returns int {
+    int tot = i + j;
+    foreach int x in k {
+        tot += x;
+    }
+    return tot;
+}
+
+function intsWithStringRestParam(int i, int j, string... k) returns int {
+    return 2 * (i + j + k.length());
+}
+
+function intRestParam(int... i) returns int {
+     int tot = 0;
+     foreach int x in i {
+         tot += x;
+     }
+     return tot;
+}
+
+function intParam(int i) returns int => i;

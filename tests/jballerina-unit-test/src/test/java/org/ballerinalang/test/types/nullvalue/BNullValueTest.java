@@ -30,34 +30,41 @@ import org.testng.annotations.Test;
  */
 public class BNullValueTest {
 
-    private CompileResult resultNegative, resultSemanticsNegative;
+    private CompileResult resultSemanticsNegative;
 
     @BeforeClass
     public void setup() {
-        resultNegative = BCompileUtil.compile("test-src/types/null/null-value-negative.bal");
         resultSemanticsNegative = BCompileUtil.compile("test-src/types/null/null-value-semantics-negative.bal");
     }
 
     @Test(description = "Test negative test cases")
     void testNullValueSemanticsNegative() {
-        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 5);
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 12);
         BAssertUtil.validateError(resultSemanticsNegative, 0, "operator '>' not defined for '()' and 'xml?'", 12, 13);
-        BAssertUtil.validateError(resultSemanticsNegative, 1, "incompatible types: expected 'int', found '()'", 16, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, 1, "incompatible types: expected 'int', found '()'",
+                16, 13);
         BAssertUtil.validateError(resultSemanticsNegative, 2, "operator '+' not defined for '()' and '()'", 20, 13);
         BAssertUtil.validateError(resultSemanticsNegative, 3, "incompatible types: expected 'string', found '()'", 24
                 , 16);
         BAssertUtil.validateError(resultSemanticsNegative, 4, "operator '+' not defined for '()' and '()'", 32, 13);
-    }
-
-    @Test(description = "Test negative test cases")
-    void testNullValueNegative() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        BAssertUtil.validateError(resultNegative, 0, "'null' literal is only supported for 'json'", 20, 12);
+        BAssertUtil.validateError(resultSemanticsNegative, 5, "incompatible types: expected 'string', found '()'",
+                39, 16);
+        BAssertUtil.validateError(resultSemanticsNegative, 6, "incompatible types: expected '(string|int)', " +
+                        "found '()'", 40, 20);
+        BAssertUtil.validateError(resultSemanticsNegative, 7, "incompatible types: expected 'map<string>', " +
+                        "found '()'", 41, 21);
+        BAssertUtil.validateError(resultSemanticsNegative, 8, "incompatible types: expected 'A', found '()'",
+                42, 11);
+        BAssertUtil.validateError(resultSemanticsNegative, 9, "incompatible types: expected 'int', " +
+                        "found '()'", 43, 16);
+        BAssertUtil.validateError(resultSemanticsNegative, 10, "incompatible types: expected 'string', " +
+                        "found '()'", 44, 24);
+        BAssertUtil.validateError(resultSemanticsNegative, 11, "incompatible types: expected 'Person', " +
+                        "found '()'", 45, 16);
     }
 
     @AfterClass
     public void tearDown() {
-        resultNegative = null;
         resultSemanticsNegative = null;
     }
 }

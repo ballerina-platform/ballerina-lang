@@ -43,13 +43,13 @@ public class TypeGuardTest {
         result = BCompileUtil.compile("test-src/statements/ifelse/type-guard.bal");
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test
     public void testTypeGuardNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/statements/ifelse/type-guard-negative.bal");
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'string' will not be matched to 'int'", 20, 27);
-        BAssertUtil.validateError(negativeResult, i++,
+        BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 29, 13);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'string' will not be matched to 'int'", 33, 13);
@@ -57,32 +57,50 @@ public class TypeGuardTest {
                                   "incompatible types: '(float|boolean)' will not be matched to 'string'", 53, 16);
         BAssertUtil.validateError(negativeResult, i++, "unreachable code", 84, 5);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: '(string|int)' will not be matched to 'float'", 91, 23);
+                                  "incompatible types: '(int|boolean)' will not be matched to 'float'", 90, 63);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: '(int|boolean)' will not be matched to 'float'", 99, 63);
+                                  "incompatible types: '(boolean|float)' will not be matched to 'int'", 99, 30);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: '(boolean|float)' will not be matched to 'int'", 108, 30);
+                                  "incompatible types: 'string' will not be matched to 'int'", 108, 25);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: 'string' will not be matched to 'int'", 117, 25);
+                                  "incompatible types: 'string' will not be matched to 'float'", 108, 37);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: 'string' will not be matched to 'float'", 117, 37);
+                                  "incompatible types: 'string' will not be matched to 'float'", 117, 25);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: 'string' will not be matched to 'float'", 126, 25);
+                                  "incompatible types: '(Person|Student)' will not be matched to 'string'", 138, 10);
+        BAssertUtil.validateHint(negativeResult, i++,
+                                  "unnecessary condition: expression will always evaluate to 'true'", 138, 25);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: '(Person|Student)' will not be matched to 'string'", 147, 10);
+                                  "incompatible types: '(Person|Student)' will not be matched to 'float'", 138, 40);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "unnecessary condition: expression will always evaluate to 'true'", 147, 25);
+                                  "incompatible types: '(Person|Student)' will not be matched to 'boolean'", 138, 56);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: '(Person|Student)' will not be matched to 'float'", 147, 40);
+                "incompatible types: '(Baz|int)' will not be matched to 'Bar'", 150, 15);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: '(Person|Student)' will not be matched to 'boolean'", 147, 56);
+                "incompatible types: '(Baz|int)' will not be matched to 'Qux'", 156, 15);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: 'any' will not be matched to 'error'", 157, 18);
+                "incompatible types: 'record {| int i; boolean b; |}' will not be matched to 'ClosedRec'", 187, 8);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'record {| int i; boolean s; boolean...; |}' will not be matched to 'ClosedRec'",
+                191, 8);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'RecordWithDefaultValue' will not be " +
+                        "matched to 'RecordWithNoDefaultValue'", 207, 8);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'map<(int|string)>' will not be matched to 'record {| int i; float f; |}'", 214,
+                8);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'map<(int|string)>' will not be matched " +
+                        "to 'map<boolean>'", 221, 8);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'CyclicComplexUnion' will not" +
+                " be matched to 'float'", 232, 8);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'CyclicComplexUnion' will not" +
+                " be matched to 'floatUnion'", 239, 8);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'CyclicComplexUnion' will not" +
+                " be matched to 'float[]'", 245, 8);
 
-        Assert.assertEquals(negativeResult.getErrorCount(), i);
+        Assert.assertEquals(negativeResult.getDiagnostics().length, i);
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test
     public void testTypeGuardSemanticsNegative() {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/statements/ifelse/type-guard-semantics-negative.bal");
@@ -103,6 +121,7 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++,
                                   "a type compatible with mapping constructor expressions not found in " +
                                           "type '(int|string|boolean)'", 137, 9);
+        BAssertUtil.validateWarning(negativeResult, i++, "pattern will not be matched", 144, 9);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|string)'",
                                   154, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|string)'",
@@ -138,6 +157,7 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++,
                                   "incompatible types: expected 'string', found '(Person|Student)'",
                                   240, 20);
+        BAssertUtil.validateWarning(negativeResult, i++, "pattern will not be matched", 247, 9);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found " +
                 "'(int|string|boolean)'", 257, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found '" +
@@ -171,8 +191,39 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 343, 22);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 355, 22);
         BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'j'", 377, 17);
-
-        Assert.assertEquals(negativeResult.getErrorCount(), i);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
+                "'record {| byte i?; boolean b; |}'", 398, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
+                "'record {| byte i?; boolean b; |}'", 403, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
+                "'record {| byte i; boolean b; |}'", 407, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
+                "'record {| byte i?; boolean b; |}'", 411, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
+                "'record {| byte i?; boolean b; |}'", 416, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
+                "'record {| byte i; boolean b; |}'", 420, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'record {| byte i?;" +
+                " boolean b; |}'", 429, 17);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'RecordWithReadOnlyFieldAndNonReadOnlyField', found 'record {| readonly int i; |} & readonly'", 452,
+                56);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'readonly', found 'record {| " +
+                "readonly int i; string s; |}'", 456, 22);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte i; |}', found " +
+                "'record {| byte i; boolean b?; |}'", 474, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<stream<int>>', found " +
+                "'map<int>'", 480, 30);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean[]', found '" +
+                "(string|boolean)[]'", 484, 23);
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type '(Bar & readonly)' does not support " +
+                "optional field access for field 't'", 498, 17);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', found '(record {| " +
+                "string s; |} & readonly)?'", 499, 21);
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type '(Bar & readonly)' does not support " +
+                "field access for non-required field 'baz'", 500, 50);
+        Assert.assertEquals(negativeResult.getErrorCount(), i - 2);
+        Assert.assertEquals(negativeResult.getWarnCount(), 2);
     }
 
     @Test
@@ -372,7 +423,7 @@ public class TypeGuardTest {
         Assert.assertEquals(returns[0].stringValue(), "status: 500");
     }
 
-    @Test(groups = { "brokenOnJBallerina", "brokenOnNewParser" })
+    @Test
     public void testTypeGuardsWithErrorInmatch() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardsWithErrorInmatch");
         Assert.assertEquals(returns[0].stringValue(), "some error");
@@ -481,31 +532,31 @@ public class TypeGuardTest {
     }
 
     @DataProvider(name = "finiteTypeAsBroaderTypesFunctions")
-    public Object[][] finiteTypeAsBroaderTypesFunctions() {
-        return new Object[][]{
-                {"testFiniteTypeAsBroaderTypes_1"},
-                {"testFiniteTypeAsBroaderTypes_2"},
-                {"testFiniteTypeAsBroaderTypes_3"},
-                {"testFiniteTypeAsBroaderTypes_4"}
+    public Object[] finiteTypeAsBroaderTypesFunctions() {
+        return new String[]{
+                "testFiniteTypeAsBroaderTypes_1",
+                "testFiniteTypeAsBroaderTypes_2",
+                "testFiniteTypeAsBroaderTypes_3",
+                "testFiniteTypeAsBroaderTypes_4"
         };
     }
 
     @DataProvider(name = "finiteTypeAsBroaderTypesAndFiniteTypeFunctions")
-    public Object[][] finiteTypeAsBroaderTypesAndFiniteTypeFunctions() {
-        return new Object[][]{
-                {"testFiniteTypeAsBroaderTypesAndFiniteType_1"},
-                {"testFiniteTypeAsBroaderTypesAndFiniteType_2"},
-                {"testFiniteTypeAsBroaderTypesAndFiniteType_3"},
-                {"testFiniteTypeAsBroaderTypesAndFiniteType_4"},
-                {"testFiniteTypeInUnionAsComplexFiniteTypes_1"},
-                {"testFiniteTypeInUnionAsComplexFiniteTypes_2"},
-                {"testFiniteTypeInUnionAsComplexFiniteTypes_3"},
-                {"testFiniteTypeInUnionAsComplexFiniteTypes_4"},
-                {"testFiniteTypeInUnionAsComplexFiniteTypes_5"},
-                {"testFiniteTypeInUnionAsComplexFiniteTypes_6"},
-                {"testFiniteTypeInUnionAsComplexFiniteTypes_7"},
-                {"testFiniteTypeAsFiniteTypeWithIntersectionPositive"},
-                {"testFiniteTypeAsBroaderTypeInStructurePositive"}
+    public Object[] finiteTypeAsBroaderTypesAndFiniteTypeFunctions() {
+        return new String[]{
+                "testFiniteTypeAsBroaderTypesAndFiniteType_1",
+                "testFiniteTypeAsBroaderTypesAndFiniteType_2",
+                "testFiniteTypeAsBroaderTypesAndFiniteType_3",
+                "testFiniteTypeAsBroaderTypesAndFiniteType_4",
+                "testFiniteTypeInUnionAsComplexFiniteTypes_1",
+                "testFiniteTypeInUnionAsComplexFiniteTypes_2",
+                "testFiniteTypeInUnionAsComplexFiniteTypes_3",
+                "testFiniteTypeInUnionAsComplexFiniteTypes_4",
+                "testFiniteTypeInUnionAsComplexFiniteTypes_5",
+                "testFiniteTypeInUnionAsComplexFiniteTypes_6",
+                "testFiniteTypeInUnionAsComplexFiniteTypes_7",
+                "testFiniteTypeAsFiniteTypeWithIntersectionPositive",
+                "testFiniteTypeAsBroaderTypeInStructurePositive"
         };
     }
 
@@ -515,7 +566,10 @@ public class TypeGuardTest {
                 {"testTypeNarrowingForIntersectingDirectUnion_1"},
                 {"testTypeNarrowingForIntersectingDirectUnion_2"},
                 {"testTypeNarrowingForIntersectingAssignableUnion_1"},
-                {"testTypeNarrowingForIntersectingAssignableUnion_2"}
+                {"testTypeNarrowingForIntersectingAssignableUnion_2"},
+                {"testTypeNarrowingForIntersectingUnionWithRecords"},
+                {"testTypeNarrowingForIntersectingCyclicUnion"},
+                {"testTypeNarrowingForIntersectingCyclicUnionNegative"}
         };
     }
 
@@ -588,43 +642,55 @@ public class TypeGuardTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(groups = { "brokenOnJBallerina", "brokenOnNewParser"})
+    @Test
     public void testTypeGuardForErrorDestructuringAssignmentPositive() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForErrorDestructuringAssignmentPositive");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(groups = { "brokenOnJBallerina", "brokenOnNewParser" })
+    @Test
     public void testTypeGuardForErrorDestructuringAssignmentNegative() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForErrorDestructuringAssignmentNegative");
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test
-    public void testNarrowedTypeResetWithMultipleBranches() {
-        BRunUtil.invoke(result, "testNarrowedTypeResetWithMultipleBranches");
-    }
-
-    @Test
-    public void testNarrowedTypeResetWithNestedTypeGuards() {
-        BRunUtil.invoke(result, "testNarrowedTypeResetWithNestedTypeGuards");
-    }
-
-    @Test
-    public void testSameVarNameInDifferentScopes() {
-        BRunUtil.invoke(result, "testSameVarNameInDifferentScopes");
-    }
-
     @Test(description = "Test Typetest for TypeDefs when types are equal")
     public void testTypetestForTypedefs1() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeDescTypeTest1");
-        Assert.assertEquals(BBoolean.TRUE, returns[0]);
+        Assert.assertEquals(returns[0], BBoolean.TRUE);
     }
 
     @Test(description = "Test Typetest for TypeDefs when types are not equal")
     public void testTypetestForTypedefs2() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeDescTypeTest2");
-        Assert.assertEquals(BBoolean.TRUE, returns[0]);
+        Assert.assertEquals(returns[0], BBoolean.TRUE);
+    }
+
+    @Test(dataProvider = "functionNamesProvider")
+    public void testInvokeFunctions(String funcName) {
+        BRunUtil.invoke(result, funcName);
+    }
+
+    @DataProvider(name = "functionNamesProvider")
+    public Object[] getFunctionNames() {
+        return new String[]{"testCustomErrorType", "testIntersectionWithIntersectionType", "testJsonIntersection",
+                "testMapIntersection", "testIntersectionReadOnlyness", "testClosedRecordAndMapIntersection",
+                "testRecordIntersectionWithDefaultValues",
+                "testRecordIntersectionWithClosedRecordAndRecordWithOptionalField2",
+                "testRecordIntersectionWithClosedRecordAndRecordWithOptionalField", "testSameVarNameInDifferentScopes",
+                "testNarrowedTypeResetWithNestedTypeGuards", "testNarrowedTypeResetWithMultipleBranches"};
+    }
+
+    @Test
+    public void testTypeGuardRuntimeWithAlwaysTrueHint() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/type_guard_with_always_true_hint.bal");
+
+        Assert.assertEquals(result.getHintCount(), 2);
+        BAssertUtil.validateHint(result, 0, "unnecessary condition: expression will always evaluate to 'true'", 23, 8);
+        BAssertUtil.validateHint(result, 1, "unnecessary condition: expression will always evaluate to 'true'", 33, 8);
+
+        BRunUtil.invoke(result, "testTypeGuardRuntimeWithAlwaysTrueHint1");
+        BRunUtil.invoke(result, "testTypeGuardRuntimeWithAlwaysTrueHint2");
     }
 
     @AfterClass

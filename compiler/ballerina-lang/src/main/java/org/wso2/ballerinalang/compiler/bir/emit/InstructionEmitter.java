@@ -87,6 +87,7 @@ class InstructionEmitter {
             case OBJECT_STORE:
             case XML_ATTRIBUTE_LOAD:
             case XML_ATTRIBUTE_STORE:
+            case XML_SEQ_LOAD:
                 return emitInsFieldAccess((BIRNonTerminator.FieldAccess) ins, tabs);
             case TYPE_CAST:
                 return emitInsTypeCast((BIRNonTerminator.TypeCast) ins, tabs);
@@ -98,6 +99,8 @@ class InstructionEmitter {
                 return emitInsMove((BIRNonTerminator.Move) ins, tabs);
             case NEW_XML_ELEMENT:
                 return emitInsNewXMLElement((BIRNonTerminator.NewXMLElement) ins, tabs);
+            case NEW_XML_SEQUENCE:
+                return emitInsNewXMLSequence((BIRNonTerminator.NewXMLSequence) ins, tabs);
             case NEW_XML_QNAME:
                 return emitInsNewXMLQName((BIRNonTerminator.NewXMLQName) ins, tabs);
             case NEW_STRING_XML_QNAME:
@@ -163,7 +166,7 @@ class InstructionEmitter {
             str += ":";
             str += ins.objectName;
         } else {
-            str += emitName(ins.def.name);
+            str += emitName(ins.def.internalName);
         }
         str += ";";
         return str;
@@ -349,6 +352,11 @@ class InstructionEmitter {
     }
 
     private static String emitInsNewXMLElement(BIRNonTerminator.NewXMLElement ins, int tabs) {
+        // TODO fill this
+        return "";
+    }
+
+    private static String emitInsNewXMLSequence(BIRNonTerminator.NewXMLSequence ins, int tabs) {
         // TODO fill this
         return "";
     }

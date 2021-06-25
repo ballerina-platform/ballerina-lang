@@ -62,7 +62,7 @@ public enum CompilerOptionName {
 
     EXPERIMENTAL_FEATURES_ENABLED("experimentalFeaturesEnabled"),
 
-    TAINT_CHECK("taintCheck"),
+    LIST_CONFLICTED_CLASSES("listConflictedClasses"),
 
     /**
      * We've introduced this temporary option to support old-project structure and the new package structure.

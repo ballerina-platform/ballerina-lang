@@ -12,10 +12,6 @@ function testAssignNeverReturnedFuncCall() {
     never x = functionWithNeverReturnType();
 }
 
-function testMisAssignNeverReturnedFuncCall() {
-    () x = functionWithNeverReturnType();
-}
-
 function testAssignAnyToNeverReturnedFuncCall() {
     any x = functionWithNeverReturnType();
 }
@@ -59,7 +55,7 @@ function testAssignValueToRequiredNeverField() {
 }
 
 function testAssignValueToOptionalNeverField() {
-    Foo foo = {x:2, y:"s"};
+    Bar bar = {x:2, y:"s"};
 }
 
 function testNeverFiledAssignNeverReturnedFunction() {
@@ -143,9 +139,6 @@ function testNeverInUnionTypedKeyConstraints() {
 
 //------------ Testing a never type assignment ---------
 function testNeverAssignment() {
-     never[] arr = [];
-     'xml:Text a = arr[0];
-     xml<never> b = arr[0];
      string empty = "";
      xml<never> c = xml `${empty}`;
      xml|'xml:Text d = xml ``;
@@ -154,4 +147,85 @@ function testNeverAssignment() {
      string g = f;
      xml<never> h = xml ``;
      int|float i = h;
+     string|'xml:Text p = xml ``;
+     string s8 = p;
+     int|string t = xml ``;
+}
+
+function testNeverTypeLocalVarDeclWithoutInit() {
+    never a;
+}
+
+never b;
+
+const never c = ();
+
+function testNeverTypeInTypedBindingPattern() {
+    never x = foo();
+    var y = foo();
+}
+
+function foo() returns never {
+  error e = error("Bad Sad!!");
+  panic e;
+}
+
+function blow1(never rec) {
+}
+
+function blow2(record {| never x; |} rec) {
+}
+
+function blow3(never rec) {
+}
+
+function blow4(int val, record {| never x; |} rec = {}) {
+}
+
+function blow5() returns error? {
+    Bam bam = new;
+    bam->func();
+    bam->func2();
+    bam->func3();
+}
+
+client class Bam {
+    remote function func() returns never {
+        panic error("error!");
+    }
+
+    remote function func2() returns [never] {
+        panic error("error!");
+    }
+
+    remote function func3() returns record {| never x; |} {
+        panic error("error!");
+    }
+}
+
+function testNeverTypeInTypedBindingPattern2() {
+    [never] x = [];
+}
+
+function testNeverEquivalentRequiredArgInFunc1([never] a = foo()) {
+
+}
+
+function testNeverEquivalentRequiredArgInFunc2(record {| never x; |} a, object { never value; } b) {
+
+}
+
+type Record1 record {|
+    int i;
+    record {| never x; |} j;
+|};
+
+type Record2 record {|
+    int i;
+    record {| never x; |} j = {};
+|};
+
+function testNeverEquivRecord() {
+    Record1 a = { i: 1 };
+    Record2 b = { i: 1 };
 }

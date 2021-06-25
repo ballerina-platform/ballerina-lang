@@ -23,10 +23,10 @@ import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -49,10 +49,10 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
     private final Documentation docAttachment;
     private final boolean deprecated;
 
-    private BallerinaAnnotationSymbol(String name, PackageID moduleID, List<Qualifier> qualifiers,
-                                      TypeSymbol typeDescriptor, List<AnnotationAttachPoint> attachPoints,
-                                      List<AnnotationSymbol> annots, BSymbol bSymbol) {
-        super(name, moduleID, SymbolKind.ANNOTATION, bSymbol);
+    private BallerinaAnnotationSymbol(String name, List<Qualifier> qualifiers, TypeSymbol typeDescriptor,
+                                      List<AnnotationAttachPoint> attachPoints, List<AnnotationSymbol> annots,
+                                      BSymbol bSymbol, CompilerContext context) {
+        super(name, SymbolKind.ANNOTATION, bSymbol, context);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.typeDescriptor = typeDescriptor;
         this.attachPoints = Collections.unmodifiableList(attachPoints);
@@ -118,14 +118,14 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
         private List<AnnotationAttachPoint> attachPoints;
         private List<AnnotationSymbol> annots = new ArrayList<>();
 
-        public AnnotationSymbolBuilder(String name, PackageID moduleID, BAnnotationSymbol annotationSymbol) {
-            super(name, moduleID, SymbolKind.ANNOTATION, annotationSymbol);
+        public AnnotationSymbolBuilder(String name, BAnnotationSymbol annotationSymbol, CompilerContext context) {
+            super(name, SymbolKind.ANNOTATION, annotationSymbol, context);
             withAttachPoints(annotationSymbol);
         }
 
         public BallerinaAnnotationSymbol build() {
-            return new BallerinaAnnotationSymbol(this.name, this.moduleID, this.qualifiers, this.typeDescriptor,
-                                                 this.attachPoints, this.annots, this.bSymbol);
+            return new BallerinaAnnotationSymbol(this.name, this.qualifiers, this.typeDescriptor, this.attachPoints,
+                                                 this.annots, this.bSymbol, this.context);
         }
 
         /**

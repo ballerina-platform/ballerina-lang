@@ -29,6 +29,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,13 +43,16 @@ import static io.ballerina.shell.cli.PropertiesLoader.REPL_PROMPT;
  * @since 2.0.0
  */
 public class TestIntegrator extends Thread {
+    private static final String[] SPECIAL_CONTROL_STRINGS = {"\\x1B>", "\\x1B=", "\\x08", "\r"};
     private final InputStream inputStream;
     private final OutputStream outputStream;
     private final ByteArrayOutputStream stdoutStream;
     private final List<TestCase> testCases;
+    private final String shellPrompt;
 
-    public TestIntegrator(InputStream inputStream, OutputStream outputStream,
-                          ByteArrayOutputStream stdoutStream, List<TestCase> testCases) {
+    public TestIntegrator(InputStream inputStream, OutputStream outputStream, ByteArrayOutputStream stdoutStream,
+                          List<TestCase> testCases) {
+        this.shellPrompt = PropertiesLoader.getProperty(REPL_PROMPT);
         this.inputStream = inputStream;
         this.outputStream = outputStream;
         this.stdoutStream = stdoutStream;
@@ -57,61 +62,89 @@ public class TestIntegrator extends Thread {
     @Override
     public void run() {
         try {
-            String shellPrompt = PropertiesLoader.getProperty(REPL_PROMPT);
             PrintStream testPrint = new PrintStream(outputStream, true, Charset.defaultCharset());
             InputStreamReader inStreamReader = new InputStreamReader(inputStream, Charset.defaultCharset());
             BufferedReader testReader = new BufferedReader(inStreamReader);
 
+            // The response here is not testable because it can change.
+            // The first readResponse is to read and ignore all the initial
+            // output from the CLI. (header text, etc...)
+            // The second readResponse is to read and ignore any response to the
+            // first request.
+            sendRequest(testPrint, "");
+            readResponse(testReader);
+            readResponse(testReader);
+
             for (TestCase testCase : testCases) {
-                // Give input and record shell in/out.
-                testPrint.println(testCase.getCode() + System.lineSeparator());
+                sendRequest(testPrint, testCase.getCode());
 
-                String recordedContent;
-                while (true) {
-                    StringBuilder recordedInput = new StringBuilder();
-                    while (true) {
-                        String line = Objects.requireNonNull(testReader.readLine());
-                        recordedInput.append(line).append(System.lineSeparator());
-                        if (line.endsWith(shellPrompt)) {
-                            break;
-                        }
-                    }
+                // Read input (ignore till first shell prompt)
+                String exprResponse = readResponse(testReader);
+                exprResponse = exprResponse.substring(exprResponse.indexOf(shellPrompt));
 
-                    // The input will be in format "[GARBAGE][PROMPT][INPUT][OUTPUT][PROMPT][GARBAGE]".
-                    recordedContent = filteredString(recordedInput.toString());
-                    // Remove all unnecessary prefix/prompt strings. (Remove GARBAGE and PROMPT)
-                    // recordedContent = [INPUT][OUTPUT][PROMPT][GARBAGE]
-                    recordedContent = recordedContent.substring(recordedContent.indexOf(shellPrompt) +
-                            shellPrompt.length());
-                    if (recordedContent.indexOf(shellPrompt) <= 0) {
-                        continue;
-                    }
+                // Expected format: [PROMPT][INPUT]\n\n[OUTPUT]\n\n[PROMPT]\n
+                String expectedExprResponse = String.format("%s%s%n%n%s%n%s%n",
+                        shellPrompt, testCase.getCode(), testCase.getExpr(), shellPrompt);
 
-                    // recordedContent = [INPUT][OUTPUT]
-                    recordedContent = recordedContent.substring(0, recordedContent.indexOf(shellPrompt));
-                    break;
-                }
+                // Remove special sequences
+                exprResponse = filteredString(exprResponse);
+                expectedExprResponse = filteredString(expectedExprResponse);
 
-                // Extract INPUT and verify.
-                String recordedContentInput = recordedContent.substring(0, testCase.getCode().length());
-                Assert.assertEquals(recordedContentInput, testCase.getCode(), testCase.getDescription());
-
-                // Extract OUTPUT and test.
-                String shellOutput = recordedContent.substring(testCase.getCode().length()).trim();
-                String expectedOutput = Objects.requireNonNullElse(testCase.getExpr(), "");
-                Assert.assertEquals(shellOutput.trim(), expectedOutput.trim(), testCase.getDescription());
-
-                Assert.assertEquals(stdoutStream.toString().trim(), testCase.getStdout().trim(),
+                Assert.assertEquals(exprResponse, expectedExprResponse,
+                        errorMessage(exprResponse, expectedExprResponse, testCase.getDescription()));
+                Assert.assertEquals(stdoutStream.toString(), testCase.getStdout(),
                         testCase.getDescription());
                 stdoutStream.reset();
             }
-        } catch (IOException ignored) {
+        } catch (IOException | InterruptedException ignored) {
         }
     }
 
-    private String filteredString(String rawString) {
-        return rawString
-                .replaceAll("(\\x9B|\\x1B\\[)[0-?]*[ -/]*[@-~]", "")
-                .replace("\r\n", "\n");
+    /**
+     * Reads data from the stream specified until if finds shell prompt as the EOL.
+     */
+    private String readResponse(BufferedReader stream) throws IOException {
+        String line = "";
+        StringBuilder data = new StringBuilder();
+        while (!line.endsWith(shellPrompt)) {
+            line = Objects.requireNonNull(stream.readLine());
+            data.append(line).append(System.lineSeparator());
+        }
+        return data.toString();
+    }
+
+    /**
+     * Send the data given to the specific stream.
+     */
+    private void sendRequest(PrintStream stream, String string) throws InterruptedException {
+        stream.append(string);
+        stream.println(System.lineSeparator());
+        stream.flush();
+    }
+
+    /**
+     * Remove invisible characters from the string.
+     * The removed characters are ansi characters that are added by jline.
+     */
+    private String filteredString(String string) {
+        // Remove all ANSI codes
+        string = string.replaceAll("(\\x9B|\\x1B\\[)[0-?]*[ -/]*[@-~]", "");
+        // Disable ANSI escape characters and Backspace character
+        string = string
+                .replaceAll("\\x9B", "\\\\x9B")
+                .replaceAll("\\x1B", "\\\\x1B")
+                .replaceAll("\\x08", "\\\\x08");
+        // Remove any special sequences known
+        for (String controlString : SPECIAL_CONTROL_STRINGS) {
+            string = string.replace(controlString, "");
+        }
+        // Remove new lines because new lines can vary
+        return string.replace("\n", "");
+    }
+
+    private String errorMessage(String original, String expected, String description) {
+        return description + " failed because " +
+                Arrays.toString(original.getBytes(StandardCharsets.UTF_8)) + "!=" +
+                Arrays.toString(expected.getBytes(StandardCharsets.UTF_8));
     }
 }

@@ -25,32 +25,37 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import okio.Buffer;
+import okio.BufferedSink;
+import okio.ForwardingSink;
+import okio.Okio;
+import okio.Sink;
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
-import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
+import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
+import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
 import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_REQUESTED_URI;
-import static org.ballerinalang.central.client.CentralClientConstants.SSL;
 
 /**
  * Utils class for this package.
@@ -67,41 +72,38 @@ public class Utils {
         GET, POST
     }
 
-    private static TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-            return new java.security.cert.X509Certificate[] {};
-        }
-
-        public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
-            //No need to implement.
-        }
-
-        public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
-            //No need to implement.
-        }
-    } };
-
     /**
      * Create the bala in home repo.
      *
-     * @param conn               http connection
-     * @param pkgPathInBalaCache package path in bala cache, <user.home>.ballerina/bala_cache/<org-name>/<pkg-name>
-     * @param pkgNameWithOrg     package name with org, <org-name>/<pkg-name>
-     * @param isNightlyBuild     is nightly build
-     * @param newUrl             new redirect url
-     * @param contentDisposition content disposition header
-     * @param outStream          Output print stream
-     * @param logFormatter       log formatter
+     * @param balaDownloadResponse  http response for downloading the bala file
+     * @param pkgPathInBalaCache    package path in bala cache, <user.home>.ballerina/bala_cache/<org-name>/<pkg-name>
+     * @param pkgOrg                package org
+     * @param pkgName               package name
+     * @param isNightlyBuild        is nightly build
+     * @param newUrl                new redirect url
+     * @param contentDisposition    content disposition header
+     * @param outStream             Output print stream
+     * @param logFormatter          log formatter
      */
-    public static void createBalaInHomeRepo(HttpURLConnection conn, Path pkgPathInBalaCache, String pkgNameWithOrg,
-            boolean isNightlyBuild, String newUrl, String contentDisposition, PrintStream outStream,
-            LogFormatter logFormatter) throws CentralClientException {
-        long responseContentLength = conn.getContentLengthLong();
-        if (responseContentLength <= 0) {
-            throw new CentralClientException(
-                    logFormatter.formatLog("invalid response from the server, please try again"));
+    public static void createBalaInHomeRepo(Response balaDownloadResponse, Path pkgPathInBalaCache, String pkgOrg,
+                                            String pkgName, boolean isNightlyBuild, String newUrl,
+                                            String contentDisposition, PrintStream outStream, LogFormatter logFormatter)
+            throws CentralClientException {
+
+        long responseContentLength = 0;
+        Optional<ResponseBody> downloadBody = Optional.ofNullable(balaDownloadResponse.body());
+        if (downloadBody.isPresent()) {
+            long contentLength = downloadBody.get().contentLength();
+            if (contentLength <= 0) {
+                downloadBody.get().close();
+                throw new CentralClientException(
+                        logFormatter.formatLog("invalid response from the server, please try again"));
+            } else {
+                responseContentLength = contentLength;
+            }
         }
-        String resolvedURI = conn.getHeaderField(RESOLVED_REQUESTED_URI);
+
+        String resolvedURI = balaDownloadResponse.header(RESOLVED_REQUESTED_URI);
         if (resolvedURI == null || resolvedURI.equals("")) {
             resolvedURI = newUrl;
         }
@@ -110,18 +112,26 @@ public class Utils {
 
         String validPkgVersion = validatePackageVersion(pkgVersion, logFormatter);
         String balaFile = getBalaFileName(contentDisposition, uriParts[uriParts.length - 1]);
-        Path balaCacheWithPkgPath = pkgPathInBalaCache.resolve(validPkgVersion);
+        String platform = getPlatformFromBala(balaFile, pkgName, validPkgVersion);
+        Path balaCacheWithPkgPath = pkgPathInBalaCache.resolve(validPkgVersion).resolve(platform);
         //<user.home>.ballerina/bala_cache/<org-name>/<pkg-name>/<pkg-version>
 
-        Path balaPath = Paths.get(balaCacheWithPkgPath.toString(), balaFile);
-        if (balaPath.toFile().exists()) {
+        try {
+            if (Files.isDirectory(balaCacheWithPkgPath) && Files.list(balaCacheWithPkgPath).findAny().isPresent()) {
+                downloadBody.ifPresent(ResponseBody::close);
+                throw new PackageAlreadyExistsException(
+                        logFormatter.formatLog("package already exists in the home repository: " +
+                                balaCacheWithPkgPath.toString()));
+            }
+        } catch (IOException e) {
+            downloadBody.ifPresent(ResponseBody::close);
             throw new PackageAlreadyExistsException(
-                    logFormatter.formatLog("package already exists in the home repository: " + balaPath.toString()));
+                    logFormatter.formatLog("error accessing bala : " + balaCacheWithPkgPath.toString()));
         }
 
         createBalaFileDirectory(balaCacheWithPkgPath, logFormatter);
-        writeBalaFile(conn, balaPath, pkgNameWithOrg + ":" + validPkgVersion, responseContentLength, outStream,
-                      logFormatter);
+        writeBalaFile(balaDownloadResponse, balaCacheWithPkgPath.resolve(balaFile), pkgOrg + "/" + pkgName +
+                ":" + validPkgVersion, responseContentLength, outStream, logFormatter);
         handleNightlyBuild(isNightlyBuild, balaCacheWithPkgPath, logFormatter);
     }
 
@@ -181,22 +191,39 @@ public class Utils {
     /**
      * Write bala file to the home repo.
      *
-     * @param conn             http connection
-     * @param balaPath         path of the bala file
-     * @param fullPkgName      full package name, <org-name>/<pkg-name>:<pkg-version>
-     * @param resContentLength response content length
-     * @param outStream        Output print stream
-     * @param logFormatter     log formatter
+     * @param balaDownloadResponse  http bala file download response
+     * @param balaPath              path of the bala file
+     * @param fullPkgName           full package name, <org-name>/<pkg-name>:<pkg-version>
+     * @param resContentLength      response content length
+     * @param outStream             Output print stream
+     * @param logFormatter          log formatter
      */
-    static void writeBalaFile(HttpURLConnection conn, Path balaPath, String fullPkgName, long resContentLength,
+    static void writeBalaFile(Response balaDownloadResponse, Path balaPath, String fullPkgName, long resContentLength,
             PrintStream outStream, LogFormatter logFormatter) throws CentralClientException {
-        try (InputStream inputStream = conn.getInputStream();
-                FileOutputStream outputStream = new FileOutputStream(balaPath.toString())) {
-            writeAndHandleProgress(inputStream, outputStream, resContentLength / 1024, fullPkgName, outStream,
-                                   logFormatter);
-        } catch (IOException e) {
+        Optional<ResponseBody> body = Optional.ofNullable(balaDownloadResponse.body());
+        if (body.isPresent()) {
+            try {
+                try (InputStream inputStream = body.get().byteStream();
+                     FileOutputStream outputStream = new FileOutputStream(balaPath.toString())) {
+                    writeAndHandleProgress(inputStream, outputStream, resContentLength / 1024, fullPkgName,
+                            outStream, logFormatter);
+                } catch (IOException e) {
+                    throw new CentralClientException(
+                            logFormatter.formatLog("error occurred copying the bala file: " + e.getMessage()));
+                }
+                try {
+                    extractBala(balaPath, Optional.of(balaPath.getParent()).get());
+                    Files.delete(balaPath);
+                } catch (IOException e) {
+                    throw new CentralClientException(
+                            logFormatter.formatLog("error occurred extracting the bala file: " + e.getMessage()));
+                }
+            } finally {
+                body.get().close();
+            }
+        } else {
             throw new CentralClientException(
-                    logFormatter.formatLog("error occurred copying the bala file: " + e.getMessage()));
+                    logFormatter.formatLog("error occurred extracting bytes of bala file: " + fullPkgName));
         }
     }
 
@@ -264,77 +291,6 @@ public class Utils {
     }
 
     /**
-     * Convert string to URL.
-     *
-     * @param url string URL
-     * @return URL
-     */
-    static URL convertToUrl(String url) throws ConnectionErrorException {
-        try {
-            return new URL(url);
-        } catch (MalformedURLException e) {
-            throw new ConnectionErrorException("malformed url:" + url, e);
-        }
-    }
-
-    /**
-     * Initialize SSL.
-     */
-    static void initializeSsl() throws CentralClientException {
-        try {
-            SSLContext sc = SSLContext.getInstance(SSL);
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            throw new CentralClientException("initializing SSL failed: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Set request method of the http connection.
-     *
-     * @param conn   http connection
-     * @param method request method
-     */
-    static void setRequestMethod(HttpURLConnection conn, RequestMethod method) throws CentralClientException {
-        try {
-            conn.setRequestMethod(method.name());
-        } catch (ProtocolException e) {
-            throw new CentralClientException(e.getMessage());
-        }
-    }
-
-    /**
-     * Get status code of http response.
-     *
-     * @param conn http connection
-     * @return status code
-     */
-    static int getStatusCode(HttpURLConnection conn) throws ConnectionErrorException {
-        try {
-            return conn.getResponseCode();
-        } catch (IOException e) {
-            throw new ConnectionErrorException("connection to the remote repository host failed: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Get total file size in kb.
-     *
-     * @param filePath path to the file
-     * @return size of the file in kb
-     */
-    static long getTotalFileSizeInKB(Path filePath) throws CentralClientException {
-        byte[] balaContent;
-        try {
-            balaContent = Files.readAllBytes(filePath);
-            return balaContent.length / 1024;
-        } catch (IOException e) {
-            throw new CentralClientException("cannot read the bala content");
-        }
-    }
-
-    /**
      * Get array like string as a list of strings. eg: `"["a", "b", "c"]"`
      *
      * @param arrayString array like string
@@ -342,5 +298,115 @@ public class Utils {
      */
     static List<String> getAsList(String arrayString) {
         return new Gson().fromJson(arrayString, new TypeToken<List<String>>() { }.getType());
+    }
+
+    /**
+     * Check if content type is json.
+     *
+     * @param contentType the content type
+     * @return true if its json, else false
+     */
+    static boolean isApplicationJsonContentType(String contentType) {
+        return contentType.startsWith(APPLICATION_JSON);
+    }
+
+    private static String getPlatformFromBala(String balaName, String packageName, String version) {
+        return balaName.split(packageName + "-")[1].split("-" + version)[0];
+    }
+
+    private static void extractBala(Path balaFilePath, Path balaFileDestPath) throws IOException {
+        Files.createDirectories(balaFileDestPath);
+        URI zipURI = URI.create("jar:" + balaFilePath.toUri().toString());
+        try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
+            Path packageRoot = zipFileSystem.getPath("/");
+            List<Path> paths = Files.walk(packageRoot).filter(path -> path != packageRoot).collect(Collectors.toList());
+            for (Path path : paths) {
+                Path destPath = balaFileDestPath.resolve(packageRoot.relativize(path).toString());
+                // Handle overwriting existing bala
+                if (destPath.toFile().isDirectory()) {
+                    FileUtils.deleteDirectory(destPath.toFile());
+                }
+                Files.copy(path, destPath, StandardCopyOption.REPLACE_EXISTING);
+            }
+        }
+    }
+
+    static String getBearerToken(String accessToken) {
+        return "Bearer " + accessToken;
+    }
+
+    /**
+     * Custom request body implementation that indicate the number of bytes written using a progress bar.
+     */
+    public static class ProgressRequestBody extends RequestBody {
+        private final RequestBody reqBody;
+        private final String task;
+        private final PrintStream out;
+    
+        public ProgressRequestBody(RequestBody reqBody, String task, PrintStream out) {
+            this.reqBody = reqBody;
+            this.task = task;
+            this.out = out;
+        }
+    
+        @Override
+        public MediaType contentType() {
+            return this.reqBody.contentType();
+        }
+
+        @Override
+        public long contentLength() throws IOException {
+            return this.reqBody.contentLength();
+        }
+
+        @Override
+        public void writeTo(BufferedSink sink) throws IOException {
+            final long totalBytes = contentLength();
+            long byteConverter;
+            String unitName;
+    
+            if (totalBytes < 1024 * 5) { // use bytes for progress bar if payload is less than 5 KB
+                byteConverter = 1;
+                unitName = " B";
+            } else if (totalBytes < 1024 * 1024 * 5) { // use kilobytes for progress bar if payload is less than 5 MB
+                byteConverter = 1024;
+                unitName = " KB";
+            } else { // else use megabytes for progress bar.
+                byteConverter = 1024 * 1024;
+                unitName = " MB";
+            }
+    
+            ProgressBar progressBar = new ProgressBar(task, contentLength(), 1000, out,
+                    ProgressBarStyle.ASCII, unitName, byteConverter);
+            CountingSink countingSink = new CountingSink(sink, progressBar);
+            BufferedSink progressSink = Okio.buffer(countingSink);
+            this.reqBody.writeTo(progressSink);
+            progressSink.flush();
+            progressBar.close();
+        }
+    }
+    
+    private static class CountingSink extends ForwardingSink {
+        private long bytesWritten = 0;
+        private final ProgressBar progressBar;
+    
+        public CountingSink(Sink delegate, ProgressBar progressBar) {
+            super(delegate);
+            this.progressBar = progressBar;
+        }
+        
+        @Override
+        public void write(Buffer source, long byteCount) throws IOException {
+            super.write(source, byteCount);
+            this.bytesWritten += byteCount;
+            this.progressBar.stepTo(bytesWritten);
+        }
+    }
+
+    /**
+     * A listener interface that allows tracking byte writing.
+     */
+    public interface ProgressListener {
+        void onRequestProgress(long bytesWritten, long contentLength) throws IOException;
     }
 }

@@ -35,7 +35,8 @@ public class PackageConfig {
     private final PackageManifest packageManifest;
     private final DocumentConfig ballerinaToml;
     private final DocumentConfig dependenciesToml;
-    private final DocumentConfig kubernetesToml;
+    private final DocumentConfig cloudToml;
+    private final DocumentConfig compilerPluginToml;
     private final Path packagePath;
     private final DependencyGraph<PackageDescriptor> packageDescDependencyGraph;
     private final Collection<ModuleConfig> otherModules;
@@ -46,7 +47,8 @@ public class PackageConfig {
                           PackageManifest packageManifest,
                           DocumentConfig ballerinaToml,
                           DocumentConfig dependenciesToml,
-                          DocumentConfig kubernetesToml,
+                          DocumentConfig cloudToml,
+                          DocumentConfig compilerPluginToml,
                           Collection<ModuleConfig> moduleConfigs,
                           DependencyGraph<PackageDescriptor> packageDescDependencyGraph,
                           DocumentConfig packageMd) {
@@ -55,7 +57,8 @@ public class PackageConfig {
         this.packageManifest = packageManifest;
         this.ballerinaToml = ballerinaToml;
         this.dependenciesToml = dependenciesToml;
-        this.kubernetesToml = kubernetesToml;
+        this.cloudToml = cloudToml;
+        this.compilerPluginToml = compilerPluginToml;
         this.otherModules = moduleConfigs;
         this.packageDescDependencyGraph = packageDescDependencyGraph;
         this.packageMd = packageMd;
@@ -66,11 +69,12 @@ public class PackageConfig {
                                      PackageManifest packageManifest,
                                      DocumentConfig ballerinaToml,
                                      DocumentConfig dependenciesToml,
-                                     DocumentConfig kubernetesToml,
+                                     DocumentConfig cloudToml,
+                                     DocumentConfig compilerPluginToml,
                                      DocumentConfig packageMd,
                                      Collection<ModuleConfig> moduleConfigs) {
         return new PackageConfig(packageId, packagePath, packageManifest, ballerinaToml, dependenciesToml,
-                kubernetesToml, moduleConfigs, DependencyGraph.emptyGraph(), packageMd);
+                cloudToml, compilerPluginToml, moduleConfigs, DependencyGraph.emptyGraph(), packageMd);
     }
 
     public static PackageConfig from(PackageId packageId,
@@ -78,12 +82,13 @@ public class PackageConfig {
                                      PackageManifest packageManifest,
                                      DocumentConfig ballerinaToml,
                                      DocumentConfig dependenciesToml,
-                                     DocumentConfig kubernetesToml,
+                                     DocumentConfig cloudToml,
+                                     DocumentConfig compilerPluginToml,
                                      DocumentConfig packageMd,
                                      Collection<ModuleConfig> moduleConfigs,
                                      DependencyGraph<PackageDescriptor> packageDescDependencyGraph) {
         return new PackageConfig(packageId, packagePath, packageManifest, ballerinaToml, dependenciesToml,
-                kubernetesToml, moduleConfigs, packageDescDependencyGraph, packageMd);
+                cloudToml, compilerPluginToml, moduleConfigs, packageDescDependencyGraph, packageMd);
     }
 
     public PackageId packageId() {
@@ -110,8 +115,12 @@ public class PackageConfig {
         return Optional.ofNullable(ballerinaToml);
     }
 
-    public Optional<DocumentConfig> kubernetesToml() {
-        return Optional.ofNullable(kubernetesToml);
+    public Optional<DocumentConfig> cloudToml() {
+        return Optional.ofNullable(cloudToml);
+    }
+
+    public Optional<DocumentConfig> compilerPluginToml() {
+        return Optional.ofNullable(compilerPluginToml);
     }
 
     public CompilationOptions compilationOptions() {

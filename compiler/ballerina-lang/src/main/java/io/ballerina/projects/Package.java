@@ -1,14 +1,19 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.internal.ManifestBuilder;
+import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
+import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -27,7 +32,8 @@ public class Package {
     private Optional<PackageMd> packageMd = null;
     private Optional<BallerinaToml> ballerinaToml = null;
     private Optional<DependenciesToml> dependenciesToml = null;
-    private Optional<KubernetesToml> kubernetesToml = null;
+    private Optional<CloudToml> cloudToml = null;
+    private Optional<CompilerPluginToml> compilerPluginToml = null;
 
     private Package(PackageContext packageContext, Project project) {
         this.packageContext = packageContext;
@@ -74,6 +80,10 @@ public class Package {
 
     public PackageDescriptor descriptor() {
         return packageContext.descriptor();
+    }
+
+    public Optional<CompilerPluginDescriptor> compilerPluginDescriptor() {
+        return packageContext.compilerPluginDescriptor();
     }
 
     public PackageManifest manifest() {
@@ -160,13 +170,20 @@ public class Package {
         return this.dependenciesToml;
     }
 
-    public Optional<KubernetesToml> kubernetesToml() {
-        if (null == this.kubernetesToml) {
-            this.kubernetesToml = this.packageContext.kubernetesTomlContext().map(c ->
-                    KubernetesToml.from(c, this)
-            );
+    public Optional<CloudToml> cloudToml() {
+        if (null == this.cloudToml) {
+            this.cloudToml = this.packageContext.cloudTomlContext().map(c ->
+                    CloudToml.from(c, this));
         }
-        return this.kubernetesToml;
+        return this.cloudToml;
+    }
+
+    public Optional<CompilerPluginToml> compilerPluginToml() {
+        if (null == this.compilerPluginToml) {
+            this.compilerPluginToml = this.packageContext.compilerPluginTomlContext()
+                    .map(c -> CompilerPluginToml.from(c, this));
+        }
+        return this.compilerPluginToml;
     }
 
     public Optional<PackageMd> packageMd() {
@@ -214,11 +231,12 @@ public class Package {
         private PackageManifest packageManifest;
         private Map<ModuleId, ModuleContext> moduleContextMap;
         private Project project;
-        private final DependencyGraph<PackageDescriptor> pkgDescDependencyGraph;
+        private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
         private CompilationOptions compilationOptions;
         private TomlDocumentContext ballerinaTomlContext;
         private TomlDocumentContext dependenciesTomlContext;
-        private TomlDocumentContext kubernetesTomlContext;
+        private TomlDocumentContext cloudTomlContext;
+        private TomlDocumentContext compilerPluginTomlContext;
         private MdDocumentContext packageMdContext;
 
         public Modifier(Package oldPackage) {
@@ -226,16 +244,19 @@ public class Package {
             this.packageManifest = oldPackage.manifest();
             this.moduleContextMap = copyModules(oldPackage);
             this.project = oldPackage.project;
-            this.pkgDescDependencyGraph = oldPackage.packageContext().dependencyGraph();
+            this.dependencyGraph = oldPackage.getResolution().dependencyGraph();
             this.compilationOptions = oldPackage.compilationOptions();
             this.ballerinaTomlContext = oldPackage.packageContext.ballerinaTomlContext().orElse(null);
             this.dependenciesTomlContext = oldPackage.packageContext.dependenciesTomlContext().orElse(null);
-            this.kubernetesTomlContext = oldPackage.packageContext.kubernetesTomlContext().orElse(null);
+            this.cloudTomlContext = oldPackage.packageContext.cloudTomlContext().orElse(null);
+            this.compilerPluginTomlContext = oldPackage.packageContext.compilerPluginTomlContext().orElse(null);
             this.packageMdContext = oldPackage.packageContext.packageMdContext().orElse(null);
         }
 
-        Modifier updateModule(ModuleContext newModuleContext) {
-            this.moduleContextMap.put(newModuleContext.moduleId(), newModuleContext);
+        Modifier updateModules(Set<ModuleContext> newModuleContexts) {
+            for (ModuleContext newModuleContext : newModuleContexts) {
+                this.moduleContextMap.put(newModuleContext.moduleId(), newModuleContext);
+            }
             return this;
         }
 
@@ -248,17 +269,6 @@ public class Package {
         public Modifier addModule(ModuleConfig moduleConfig) {
             ModuleContext newModuleContext = ModuleContext.from(this.project, moduleConfig);
             this.moduleContextMap.put(newModuleContext.moduleId(), newModuleContext);
-            return this;
-        }
-
-        /**
-         * Creates a copy of the existing package and removes the module from the new package.
-         *
-         * @param moduleId moduleId of the module to remove
-         * @return Package.Modifier which contains the updated package
-         */
-        public Modifier removeModule(ModuleId moduleId) {
-            moduleContextMap.remove(moduleId);
             return this;
         }
 
@@ -286,25 +296,48 @@ public class Package {
         }
 
         /**
-         * Adds a Kubernetes toml.
+         * Adds a Cloud toml.
          *
          * @param documentConfig configuration of the toml document
          * @return Package.Modifier which contains the updated package
          */
-        public Modifier addKubernetesToml(DocumentConfig documentConfig) {
+        public Modifier addCloudToml(DocumentConfig documentConfig) {
             TomlDocumentContext tomlDocumentContext = TomlDocumentContext.from(documentConfig);
-            this.kubernetesTomlContext = tomlDocumentContext;
+            this.cloudTomlContext = tomlDocumentContext;
             updateManifest();
             return this;
         }
 
         /**
-         * Remove Kubernetes toml.
+         * Remove Cloud toml.
          *
          * @return Package.Modifier which contains the updated package
          */
-        public Modifier removeKubernetesToml() {
-            this.kubernetesTomlContext = null;
+        public Modifier removeCloudToml() {
+            this.cloudTomlContext = null;
+            return this;
+        }
+
+        /**
+         * Adds a Compiler plugin toml.
+         *
+         * @param documentConfig configuration of the toml document
+         * @return Package.Modifier which contains the updated package
+         */
+        public Modifier addCompilerPluginToml(DocumentConfig documentConfig) {
+            TomlDocumentContext tomlDocumentContext = TomlDocumentContext.from(documentConfig);
+            this.compilerPluginTomlContext = tomlDocumentContext;
+            updateManifest();
+            return this;
+        }
+
+        /**
+         * Remove Compiler plugin toml.
+         *
+         * @return Package.Modifier which contains the updated package
+         */
+        public Modifier removeCompilerPluginToml() {
+            this.compilerPluginTomlContext = null;
             return this;
         }
 
@@ -335,17 +368,29 @@ public class Package {
         Modifier updateBallerinaToml(BallerinaToml ballerinaToml) {
             this.ballerinaTomlContext = ballerinaToml.ballerinaTomlContext();
             updateManifest();
+            updateModules();
             return this;
         }
 
         Modifier updateDependenciesToml(DependenciesToml dependenciesToml) {
             this.dependenciesTomlContext = dependenciesToml.dependenciesTomlContext();
             updateManifest();
+            updateModules();
             return this;
         }
 
-        Modifier updateKubernetesToml(KubernetesToml kubernetesToml) {
-            this.kubernetesTomlContext = kubernetesToml.kubernetesTomlContext();
+        Modifier updateCloudToml(CloudToml cloudToml) {
+            this.cloudTomlContext = cloudToml.cloudTomlContext();
+            return this;
+        }
+
+        Modifier updateCompilerPluginToml(CompilerPluginToml compilerPluginToml) {
+            this.compilerPluginTomlContext = compilerPluginToml.compilerPluginTomlContext();
+            return this;
+        }
+
+        Modifier updatePackageMd(MdDocumentContext packageMd) {
+            this.packageMdContext = packageMd;
             return this;
         }
 
@@ -360,7 +405,6 @@ public class Package {
 
         private Map<ModuleId, ModuleContext> copyModules(Package oldPackage) {
             Map<ModuleId, ModuleContext> moduleContextMap = new HashMap<>();
-
             for (ModuleId moduleId : oldPackage.packageContext.moduleIds()) {
                 moduleContextMap.put(moduleId, oldPackage.packageContext.moduleContext(moduleId));
             }
@@ -369,23 +413,66 @@ public class Package {
 
         private Package createNewPackage() {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
-                    this.ballerinaTomlContext, this.dependenciesTomlContext, this.kubernetesTomlContext,
-                    this.packageMdContext,  this.compilationOptions, this.moduleContextMap,
-                    this.pkgDescDependencyGraph);
+                    this.ballerinaTomlContext, this.dependenciesTomlContext, this.cloudTomlContext,
+                    this.compilerPluginTomlContext, this.packageMdContext,  this.compilationOptions,
+                    this.moduleContextMap, DependencyGraph.emptyGraph());
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
+
+            DependencyGraph<ResolvedPackageDependency> newDepGraph = this.project.currentPackage().getResolution()
+                    .dependencyGraph();
+            if (!this.dependencyGraph.difference(newDepGraph).isEmpty()) {
+                // A non-empty diff means deletion of nodes from the old graph is
+                // required to get the new graph, hence we flush out the package cache.
+                CompilerContext compilerContext = project.projectEnvironmentContext()
+                        .getService(CompilerContext.class);
+                PackageCache packageCache = PackageCache.getInstance(compilerContext);
+                packageCache.flush();
+            }
             return this.project.currentPackage();
         }
 
         private void updateManifest() {
             ManifestBuilder manifestBuilder = ManifestBuilder.from(this.ballerinaTomlContext.tomlDocument(),
                     Optional.ofNullable(this.dependenciesTomlContext).map(d -> d.tomlDocument()).orElse(null),
+                    Optional.ofNullable(this.compilerPluginTomlContext).map(d -> d.tomlDocument()).orElse(null),
                     this.project.sourceRoot());
             this.packageManifest = manifestBuilder.packageManifest();
+            BuildOptions newBuildOptions;
+            if (manifestBuilder.buildOptions() == null) {
+                newBuildOptions = new BuildOptionsBuilder().build();
+            } else {
+                newBuildOptions = manifestBuilder.buildOptions();
+            }
+            this.project.setBuildOptions(this.project.buildOptions().acceptTheirs(newBuildOptions));
         }
 
-        Modifier updatePackageMd(MdDocumentContext packageMd) {
-            this.packageMdContext = packageMd;
-            return this;
+        private void updateModules() {
+            Set<ModuleContext> moduleContextSet = new HashSet<>();
+            for (Map.Entry<ModuleId, ModuleContext> moduleIdModuleContextEntry : moduleContextMap.entrySet()) {
+                ModuleId moduleId = moduleIdModuleContextEntry.getKey();
+                ModuleContext oldModuleContext = moduleIdModuleContextEntry.getValue();
+
+                PackageDescriptor packageDescriptor = this.packageManifest.descriptor();
+                ModuleName moduleName = ModuleName.from(
+                        packageDescriptor.name(), oldModuleContext.moduleName().moduleNamePart());
+                ModuleDescriptor moduleDescriptor = ModuleDescriptor.from(moduleName, packageDescriptor);
+
+                Map<DocumentId, DocumentContext> srcDocContextMap = new HashMap<>();
+                for (DocumentId documentId : oldModuleContext.srcDocumentIds()) {
+                    srcDocContextMap.put(documentId, oldModuleContext.documentContext(documentId));
+                }
+
+                Map<DocumentId, DocumentContext> testDocContextMap = new HashMap<>();
+                for (DocumentId documentId : oldModuleContext.testSrcDocumentIds()) {
+                    testDocContextMap.put(documentId, oldModuleContext.documentContext(documentId));
+                }
+
+                moduleContextSet.add(new ModuleContext(this.project, moduleId, moduleDescriptor,
+                        oldModuleContext.isDefaultModule(), srcDocContextMap, testDocContextMap,
+                        oldModuleContext.moduleMdContext().orElse(null),
+                        oldModuleContext.moduleDescDependencies()));
+            }
+            updateModules(moduleContextSet);
         }
     }
 }

@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.internal;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.configurable.ConfigurableMap;
+import io.ballerina.runtime.internal.configurable.ConfigMap;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
@@ -36,17 +36,22 @@ public class Configurable {
                                               BString configVarName) {
         VariableKey key = new VariableKey(orgName.getValue(), moduleName.getValue(), versionNumber.getValue(),
                 configVarName.getValue());
-        return ConfigurableMap.containsKey(key);
+        return ConfigMap.containsKey(key);
     }
 
     public static Object getConfigurableValue(BString orgName, BString moduleName, BString versionNumber,
                                               BString configVarName) {
         VariableKey key = new VariableKey(orgName.getValue(), moduleName.getValue(), versionNumber.getValue(),
                 configVarName.getValue());
-        if (ConfigurableMap.containsKey(key)) {
-            return ConfigurableMap.get(key);
+        if (ConfigMap.containsKey(key)) {
+            return ConfigMap.get(key);
         }
+        configVarName = (moduleName.getValue().equals(".")) ? configVarName :
+                StringUtils.fromString(moduleName + ":" + configVarName);
         throw createError(StringUtils
                 .fromString("Value not provided for required configurable variable '" + configVarName + "'"));
+    }
+
+    private Configurable() {
     }
 }

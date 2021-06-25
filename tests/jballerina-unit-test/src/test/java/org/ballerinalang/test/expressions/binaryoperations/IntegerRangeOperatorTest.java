@@ -30,15 +30,18 @@ import org.testng.annotations.Test;
 /**
  * Class to test the functionality of integer range operators.
  */
-@Test(groups = { "brokenOnNewParser" })
+
 public class IntegerRangeOperatorTest {
 
     private CompileResult result;
+    private CompileResult runtimeResult;
     private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/binaryoperations/integer_range_operators.bal");
+        runtimeResult = BCompileUtil.
+                compile("test-src/expressions/binaryoperations/integer-range-operators-runtime.bal");
         negativeResult = BCompileUtil.
                 compile("test-src/expressions/binaryoperations/integer_range_operators_negative.bal");
     }
@@ -170,6 +173,20 @@ public class IntegerRangeOperatorTest {
         }
     }
 
+    @Test(description = "Test runtime anon type generation of int ranges")
+    public void testIntRangeRuntime() {
+        BRunUtil.invoke(runtimeResult, "testClosedIntRange");
+    }
+
+    @Test(description = "Test closed int range operator on int sub types")
+    public void testClosedIntRangeOnIntSubTypes() {
+        BRunUtil.invoke(result, "testClosedIntRangeOnIntSubTypes");
+    }
+
+    @Test(description = "Test half open int range operator on int sub types")
+    public void testHalfOpenIntRangeOnIntSubTypes() {
+        BRunUtil.invoke(result, "testHalfOpenIntRangeOnIntSubTypes");
+    }
 
     @Test(description = "Test integer range operators with errors")
     public void testSubtractStmtNegativeCases() {

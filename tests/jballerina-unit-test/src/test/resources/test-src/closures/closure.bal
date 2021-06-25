@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'string as strings;
+import ballerina/lang.'value;
 
 int globalA = 5;
 
@@ -649,60 +650,6 @@ function test29() returns [boolean, boolean, boolean, boolean, boolean, boolean,
     return [b10, b11, b20, b21, b30, b31, b40, b41];
 }
 
-function test30() returns int|string {
-    int|string x = 5;
-    var addFunc1 = function () {
-        if (x is int && x > 3) {
-            x = x + 1;
-        } else {
-            x = 0;
-        }
-    };
-    var y = addFunc1();
-    return x;
-}
-
-function test31() returns int|string {
-    int|string x = 5;
-    var func1 = function () {
-        if (x is int && x > 3) {
-            x = x + 1;
-            if (x > 5) {
-               x = x + 10;
-            }
-        } else {
-            x = 0;
-        }
-         var func2 = function () {
-            if (x is int && x > 5) {
-                x = x + 1;
-                var func3 = function () {
-                    if (x is int && x > 10) {
-                        x = x + 1;
-                    } else {
-                        x = 0;
-                    }
-                 };
-                 _ = func3();
-            } else {
-                x = 0;
-            }
-         };
-         _ = func2();
-    };
-    _ = func1();
-
-    if (x is int && x > 3) {
-        x = x + 10;
-        if (x > 25) {
-            x = x + 3;
-        }
-    } else {
-        x = 0;
-    }
-    return x;
-}
-
 public function laterInitCapture() returns string {
     string a;
     boolean test = true;
@@ -750,4 +697,53 @@ function funcAcceptingIntArgs(int... scores) returns int {
         return sum;
     };
     return fn();
+}
+
+string moduleLevel = "moduleText1 ";
+
+function errorConstructorReference1(string param1) returns error? {
+    string temp = "text " + param1;
+    var process = function(string param2) returns error? {
+        moduleLevel = moduleLevel + param2;
+        return error("An Error", tempString = temp, moduleString = moduleLevel, param1 = param1, param2 = param2);
+    };
+    return process("tempParam2");
+}
+
+function errorConstructorReference2(string[] arr) returns function() returns error? {
+    string temp = "text";
+    var process = function() returns error? {
+        return error("An Error", tempString = temp, arrayParam = arr);
+    };
+    return process;
+}
+
+function errorConstructorWithClosureTest() {
+     var temp = errorConstructorReference1("tempParam1");
+     error err = <error>temp;
+     map<value:Cloneable> errorDetail = err.detail();
+     assert("text tempParam1", <string> checkpanic errorDetail["tempString"]);
+     assert("moduleText1 tempParam2", <string> checkpanic errorDetail["moduleString"]);
+     assert("tempParam1", <string> checkpanic errorDetail["param1"]);
+     assert("tempParam2", <string> checkpanic errorDetail["param2"]);
+
+     string[] arr = ["array"];
+     var tempfunc = errorConstructorReference2(arr);
+     arr.push("text");
+     var tempErr = tempfunc();
+     err = <error>tempErr;
+     errorDetail = err.detail();
+     assert("text", <string> checkpanic errorDetail["tempString"]);
+     assert(<string[]>["array","text"],  <anydata>checkpanic errorDetail["arrayParam"]);
+}
+
+function assert(anydata actual, anydata expected) {
+    if (expected == actual) {
+            return;
+    }
+    typedesc<anydata> expT = typeof expected;
+    typedesc<anydata> actT = typeof actual;
+    string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+    panic error(reason);
 }

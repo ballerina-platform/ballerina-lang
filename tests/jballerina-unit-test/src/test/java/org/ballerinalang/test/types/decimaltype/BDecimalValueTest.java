@@ -268,6 +268,11 @@ public class BDecimalValueTest {
         Assert.assertEquals(returns[0], new BDecimal("2.0", DecimalValueKind.OTHER));
     }
 
+    @Test(description = "Test decimal filler value")
+    public void testDecimalFillerValue() {
+        BRunUtil.invoke(result, "testDecimalFillerValue");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

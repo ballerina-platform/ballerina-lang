@@ -36,18 +36,20 @@ dependencies {
     implementation project(':ballerina-tools-api')
     implementation project(':central-client')
     implementation 'info.picocli:picocli'
-    implementation 'org.apache.commons:commons-compress:1.18'
+    implementation 'org.apache.commons:commons-compress:1.19'
     implementation 'com.google.code.gson:gson:2.7'
     implementation project(':docerina')
     implementation project(':testerina:testerina-core')
     implementation project(':testerina:testerina-runtime')
     implementation project(':maven-resolver')
     implementation project(':ballerina-shell:shell-cli')
+    implementation project(':toml-parser')
 
     testCompile 'org.testng:testng'
     testCompile 'org.mockito:mockito-all'
     testImplementation 'org.powermock:powermock-mockito-release-full'
     testImplementation 'org.powermock:powermock-module-testng-common'
+    testImplementation 'commons-io:commons-io'
 
     distributionBala project(path: ':ballerina-langlib:test', configuration: 'distributionBala')
     distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')
@@ -92,7 +94,6 @@ processResources {
     include 'cli-help/*'
     include 'create_cmd_templates/**'
     include 'new_cmd_defaults/**'
-    include 'package_md_defaults/**'
     filter { String line -> line.replace('${project.version}', "${project.version}")}
     filter { String line -> line.replace('${short.version}', "${project.shortVersion}")}
     filter { String line -> line.replace('${display.text}', "${project.versionDisplayText}")}

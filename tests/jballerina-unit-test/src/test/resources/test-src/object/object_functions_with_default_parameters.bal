@@ -125,7 +125,8 @@ class ObjectTwo {
     float c;
     FooRecord d;
 
-    function init(int a = getInt() + 5 + getInt(), string b = "def" + getString(), float c = getFloat() + getInt(), FooRecord d = getRecord()) {
+    function init(int a = getInt() + 5 + getInt(), string b = "def" + getString(), float c = getFloat() + <float>getInt(),
+    FooRecord d = getRecord()) {
         self.a = a;
         self.b = b;
         self.c = c;
@@ -159,7 +160,8 @@ class ObjectThree {
         return [a, b * 2, c];
     }
 
-    function attachedFunction2(int a = getInt() + 10 + getInt(), string b = "def" + getString() + GLB_STRING, float c = getFloat() + getInt(), FooRecord d = getRecord()) returns [int, string, float, FooRecord] {
+    function attachedFunction2(int a = getInt() + 10 + getInt(), string b = "def" + getString() + GLB_STRING, float c
+     = getFloat() + <float>getInt(), FooRecord d = getRecord()) returns [int, string, float, FooRecord] {
         return [a, b, c, d];
     }
 }
@@ -186,20 +188,21 @@ class ObjectFour {
         return [a, b * 2, c];
     }
 
-    function attachedFunction2(int a = getInt() + 10 + getInt(), string b = "def" + getString() + GLB_STRING, float c = getFloat() + getInt(), FooRecord d = getRecord()) returns [int, string, float, FooRecord] {
+    function attachedFunction2(int a = getInt() + 10 + getInt(), string b = "def" + getString() + GLB_STRING, float c
+     = getFloat() + <float>getInt(), FooRecord d = getRecord()) returns [int, string, float, FooRecord] {
         return [a, b, c, d];
     }
 }
 
 class ObjectFive {
     function foo(int x = getInt(), float y = getFloat()) returns [int, float] {
-        return [x * 2, y * 2];
+        return [x * 2, y * 2.0];
     }
 }
 
 class ObjectSix {
-    function foo(int x = getInt() * 2, float y = getFloat() * 2) returns [int, float] {
-        return [x * 2, y * 2];
+    function foo(int x = getInt() * 2, float y = getFloat() * 2.0) returns [int, float] {
+        return [x * 2, y * 2.0];
     }
 }
 

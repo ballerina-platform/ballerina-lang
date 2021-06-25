@@ -14,8 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
+import ballerina/jballerina.java;
 
 public function main(decimal d) {
-    io:print(d);
+    print(d);
 }
+
+public function print(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;

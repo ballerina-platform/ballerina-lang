@@ -15,14 +15,17 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
@@ -46,6 +49,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -58,9 +62,8 @@ import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -173,13 +176,13 @@ public class CodeActionUtil {
      * Returns first possible type for this type descriptor.
      *
      * @param typeDescriptor {@link TypeSymbol}
-     * @param edits          a list of {@link TextEdit}
+     * @param importEdits    a list of import {@link TextEdit}
      * @param context        {@link CodeActionContext}
      * @return a list of possible type list
      */
-    public static Optional<String> getPossibleType(TypeSymbol typeDescriptor, List<TextEdit> edits,
-                                                   DocumentServiceContext context) {
-        List<String> possibleTypes = getPossibleTypes(typeDescriptor, edits, context);
+    public static Optional<String> getPossibleType(TypeSymbol typeDescriptor, List<TextEdit> importEdits,
+                                                   CodeActionContext context) {
+        List<String> possibleTypes = getPossibleTypes(typeDescriptor, importEdits, context);
         return possibleTypes.isEmpty() ? Optional.empty() : Optional.of(possibleTypes.get(0));
     }
 
@@ -187,13 +190,13 @@ public class CodeActionUtil {
      * Returns a list of possible types for this type descriptor.
      *
      * @param typeDescriptor {@link TypeSymbol}
-     * @param edits          a list of {@link TextEdit}
+     * @param importEdits    a list of import {@link TextEdit}
      * @param context        {@link CodeActionContext}
      * @return a list of possible type list
      */
-    public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, List<TextEdit> edits,
-                                                DocumentServiceContext context) {
-        if (typeDescriptor.name().startsWith("$")) {
+    public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, List<TextEdit> importEdits,
+                                                CodeActionContext context) {
+        if (typeDescriptor.getName().isPresent() && typeDescriptor.getName().get().startsWith("$")) {
             typeDescriptor = CommonUtil.getRawType(typeDescriptor);
         }
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
@@ -203,11 +206,20 @@ public class CodeActionUtil {
             // Handle ambiguous mapping construct types {}
 
             // Matching Record type
-            // TODO: Disabled due to #26789
-//            if (matchingRecordType != null) {
-//                String recType = FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor, context);
-//                types.add(recType);
-//            }
+            for (Symbol symbol : context.visibleSymbols(context.cursorPosition())) {
+                if (symbol instanceof TypeDefinitionSymbol &&
+                        ((TypeDefinitionSymbol) symbol).typeDescriptor().typeKind() == TypeDescKind.RECORD &&
+                        typeDescriptor.assignableTo(((TypeDefinitionSymbol) symbol).typeDescriptor())) {
+                    Optional<ModuleSymbol> module = symbol.getModule();
+                    String fqPrefix = "";
+                    if (module.isPresent() && !(ProjectConstants.ANON_ORG.equals(module.get().id().orgName()))) {
+                        ModuleID id = module.get().id();
+                        fqPrefix = id.orgName() + "/" + id.moduleName() + ":" + id.version() + ":";
+                    }
+                    String moduleQualifiedName = fqPrefix + symbol.getName().get();
+                    types.add(FunctionGenerator.processModuleIDsInText(importsAcceptor, moduleQualifiedName, context));
+                }
+            }
 
             // Anon Record
             String rType = FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor, context);
@@ -286,39 +298,46 @@ public class CodeActionUtil {
         } else if (typeDescriptor.typeKind() == TypeDescKind.ARRAY) {
             // Handle ambiguous array element types eg. record[], json[], map[]
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typeDescriptor;
-            return getPossibleTypes(arrayTypeSymbol.memberTypeDescriptor(), edits, context)
-                    .stream().map(m -> m + "[]")
+            return getPossibleTypes(arrayTypeSymbol.memberTypeDescriptor(), importEdits, context).stream()
+                    .map(m -> {
+                        switch (arrayTypeSymbol.memberTypeDescriptor().typeKind()) {
+                            case UNION:
+                            case FUNCTION:
+                                return "(" + m + ")[]";
+
+                            default:
+                                return m + "[]";
+                        }
+                    })
                     .collect(Collectors.toList());
         } else {
             types.add(FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor, context));
         }
 
-        // Remove brackets of the unions
-        types = types.stream().map(v -> v.replaceAll("^\\((.*)\\)$", "$1")).collect(Collectors.toList());
-        edits.addAll(importsAcceptor.getNewImportTextEdits());
+        importEdits.addAll(importsAcceptor.getNewImportTextEdits());
         return types;
     }
 
     /**
      * Returns position details for this cursor position.
      *
-     * @param range      cursor {@link Range}
      * @param syntaxTree {@link SyntaxTree}
+     * @param diagnostic {@link Diagnostic}
      * @param context    {@link CodeActionContext}
-     * @return {@link PositionDetails}
+     * @return {@link DiagBasedPositionDetails}
      */
-    public static PositionDetails computePositionDetails(Range range, SyntaxTree syntaxTree,
-                                                         CodeActionContext context) {
+    public static DiagBasedPositionDetails computePositionDetails(SyntaxTree syntaxTree, Diagnostic diagnostic,
+                                                                  CodeActionContext context) {
         // Find Cursor node
+        Range range = CommonUtil.toRange(diagnostic.location().lineRange());
         NonTerminalNode cursorNode = CommonUtil.findNode(range, syntaxTree);
-        Document srcFile = context.workspace().document(context.filePath()).orElseThrow();
-        SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
+        Document srcFile = context.currentDocument().orElseThrow();
+        SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
 
         Optional<Pair<NonTerminalNode, Symbol>> nodeAndSymbol = getMatchedNodeAndSymbol(cursorNode, range,
                                                                                         semanticModel, srcFile);
         Symbol matchedSymbol;
         NonTerminalNode matchedNode;
-        Optional<TypeSymbol> matchedExprTypeSymbol;
         if (nodeAndSymbol.isPresent()) {
             matchedNode = nodeAndSymbol.get().getLeft();
             matchedSymbol = nodeAndSymbol.get().getRight();
@@ -326,8 +345,7 @@ public class CodeActionUtil {
             matchedNode = cursorNode;
             matchedSymbol = null;
         }
-        matchedExprTypeSymbol = semanticModel.type(largestExpressionNode(cursorNode, range).lineRange());
-        return CodeActionPositionDetails.from(matchedNode, matchedSymbol, matchedExprTypeSymbol.orElse(null));
+        return DiagBasedPositionDetailsImpl.from(matchedNode, matchedSymbol, diagnostic);
     }
 
     public static List<TextEdit> getTypeGuardCodeActionEdits(String varName, Range range, UnionTypeSymbol unionType,
@@ -390,22 +408,32 @@ public class CodeActionUtil {
         return edits;
     }
 
-    public static List<TextEdit> getAddCheckTextEdits(Position pos, CodeActionContext context) {
-        Optional<FunctionDefinitionNode> enclosedFunc = getEnclosedFunction(context.positionDetails().matchedNode());
+    public static List<TextEdit> getAddCheckTextEdits(Position pos, NonTerminalNode matchedNode,
+                                                      CodeActionContext context) {
+        Optional<FunctionDefinitionNode> enclosedFunc = getEnclosedFunction(matchedNode);
         if (enclosedFunc.isEmpty()) {
             return Collections.emptyList();
         }
 
         List<TextEdit> edits = new ArrayList<>();
-        SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-        Document document = context.workspace().document(context.filePath()).orElseThrow();
+        SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
+        Document document = context.currentDocument().orElseThrow();
         Optional<Symbol> optEnclosedFuncSymbol =
                 semanticModel.symbol(document, enclosedFunc.get().functionName().lineRange().startLine());
 
         String returnText = "";
         Range returnRange = null;
-        if (optEnclosedFuncSymbol.isPresent() && optEnclosedFuncSymbol.get().kind() == SymbolKind.FUNCTION) {
-            FunctionSymbol enclosedFuncSymbol = (FunctionSymbol) optEnclosedFuncSymbol.get();
+
+        FunctionSymbol enclosedFuncSymbol = null;
+        if (optEnclosedFuncSymbol.isPresent()) {
+            Symbol funcSymbol = optEnclosedFuncSymbol.get();
+            if (funcSymbol.kind() == SymbolKind.FUNCTION || funcSymbol.kind() == SymbolKind.METHOD ||
+                    funcSymbol.kind() == SymbolKind.RESOURCE_METHOD) {
+                enclosedFuncSymbol = (FunctionSymbol) optEnclosedFuncSymbol.get();
+            }
+        }
+
+        if (enclosedFuncSymbol != null) {
             boolean hasFuncNodeReturn = enclosedFunc.get().functionSignature().returnTypeDesc().isPresent();
             boolean hasFuncSymbolReturn = enclosedFuncSymbol.typeDescriptor().returnTypeDescriptor().isPresent();
             if (hasFuncNodeReturn && hasFuncSymbolReturn) {
@@ -510,7 +538,7 @@ public class CodeActionUtil {
                             return Optional.of((NonTerminalNode) memberNode);
                         }
                     }
-                    return Optional.of(member);
+                    return Optional.empty();
                 }
             } else if (member.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION && isWithinStartSegment) {
                 return Optional.of(member);
@@ -540,6 +568,12 @@ public class CodeActionUtil {
                 }
                 return Optional.empty();
             } else if (member.kind() == SyntaxKind.RECORD_TYPE_DESC && isWithinBody) {
+                // A record type descriptor can be inside a type definition node
+                NonTerminalNode parent = member.parent();
+                if (parent != null && parent.kind() == SyntaxKind.TYPE_DEFINITION &&
+                        (isWithinStartCodeSegment(parent, cursorPosOffset) || isWithinBody(parent, cursorPosOffset))) {
+                    return Optional.of(parent);
+                }
                 return Optional.of(member);
             } else if (member.kind() == SyntaxKind.OBJECT_TYPE_DESC && isWithinStartSegment) {
                 return Optional.of(member);
@@ -559,7 +593,7 @@ public class CodeActionUtil {
                             return Optional.of((NonTerminalNode) memberNode);
                         }
                     }
-                    return Optional.of(member);
+                    return Optional.empty();
                 }
             } else if (member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION && isWithinStartSegment) {
                 return Optional.of(member);
@@ -739,33 +773,68 @@ public class CodeActionUtil {
         return Optional.of(new ImmutablePair<>(matchedNode, matchedSymbol));
     }
 
-    private static Optional<FunctionDefinitionNode> getEnclosedFunction(Node matchedNode) {
+    /**
+     * Given a node, tries to find the {@link FunctionDefinitionNode} which is enclosing the given node. Supports
+     * {@link SyntaxKind#FUNCTION_DEFINITION}, {@link SyntaxKind#OBJECT_METHOD_DEFINITION} and
+     * {@link SyntaxKind#RESOURCE_ACCESSOR_DEFINITION}s
+     *
+     * @param matchedNode Node which is enclosed within a function
+     * @return Optional function defintion node
+     */
+    public static Optional<FunctionDefinitionNode> getEnclosedFunction(Node matchedNode) {
+        if (matchedNode == null) {
+            return Optional.empty();
+        }
+
         FunctionDefinitionNode functionDefNode = null;
         Node parentNode = matchedNode;
-        while (parentNode.kind() != SyntaxKind.FUNCTION_DEFINITION || parentNode.kind() != SyntaxKind.MODULE_PART) {
-            parentNode = parentNode.parent();
-            if (parentNode == null) {
-                break;
-            }
+        while (parentNode.parent() != null) {
+            boolean isFunctionDef = false;
+            // A function definition can be within a class, service or in the module part
             if (parentNode.kind() == SyntaxKind.FUNCTION_DEFINITION &&
-                    parentNode.parent() != null && parentNode.parent().kind() == SyntaxKind.MODULE_PART) {
+                    parentNode.parent().kind() == SyntaxKind.MODULE_PART) {
+                isFunctionDef = true;
+            } else if (parentNode.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION &&
+                    (parentNode.parent().kind() == SyntaxKind.CLASS_DEFINITION
+                            || parentNode.parent().kind() == SyntaxKind.SERVICE_DECLARATION)) {
+                isFunctionDef = true;
+            } else if (parentNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION &&
+                    parentNode.parent().kind() == SyntaxKind.SERVICE_DECLARATION) {
+                isFunctionDef = true;
+            }
+
+            if (isFunctionDef) {
                 functionDefNode = (FunctionDefinitionNode) parentNode;
                 break;
             }
+
+            parentNode = parentNode.parent();
         }
+
         return Optional.ofNullable(functionDefNode);
+    }
+
+    /**
+     * Check if the provided union type contains at least one error member.
+     *
+     * @param unionTypeSymbol Union type
+     * @return true if the union type contains an error member
+     */
+    public static boolean hasErrorMemberType(UnionTypeSymbol unionTypeSymbol) {
+        return unionTypeSymbol.memberTypeDescriptors().stream()
+                .anyMatch(member -> member.typeKind() == TypeDescKind.ERROR);
     }
 
     private static String generateIfElseText(String varName, String spaces, String padding,
                                              List<String> memberTypes) {
         if (memberTypes.size() == 1) {
-            return LINE_SEPARATOR + String.format("%sif (%s is %s) {%s}", spaces, varName, memberTypes.get(0), padding);
+            return LINE_SEPARATOR + String.format("%sif %s is %s {%s}", spaces, varName, memberTypes.get(0), padding);
         }
         StringBuilder newTextBuilder = new StringBuilder();
         for (int i = 0; i < memberTypes.size() - 1; i++) {
             String memberType = memberTypes.get(i);
             String prefix = (i == 0) ? spaces : " else ";
-            newTextBuilder.append(String.format("%sif (%s is %s) {%s}", prefix, varName, memberType, padding));
+            newTextBuilder.append(String.format("%sif %s is %s {%s}", prefix, varName, memberType, padding));
         }
         newTextBuilder.append(String.format(" else {%s}%s", padding, LINE_SEPARATOR));
         return LINE_SEPARATOR + newTextBuilder.toString();

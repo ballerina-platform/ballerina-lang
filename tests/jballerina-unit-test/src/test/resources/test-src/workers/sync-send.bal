@@ -40,6 +40,7 @@ function multipleSyncSend() returns string {
     worker w1 {
         int a = 10;
         var result = a ->> w2;
+        error? res = result;
         foreach var i in 1 ... 5 {
             append2 = append2 + "w1";
         }
@@ -113,6 +114,7 @@ function multiWorkerSend() returns string {
     worker w1 {
         int a = 10;
         var result = a ->> w2;
+        error? res = result;
         a -> w3;
         foreach var i in 1 ... 5 {
             append3 = append3 + "w1";
@@ -173,77 +175,81 @@ function multiWorkerSend() returns string {
 
 string append4 = "";
 function errorResult() returns error? {
-    @strand{thread:"any"}
-    worker w1 returns error? {
-        int a = 10;
-        var result = a ->> w2;
-        result = a ->> w3;
-        foreach var i in 1 ... 5 {
-            append4 = append4 + "w1";
-        }
-        result = a ->> w2;
-        result = a ->> w3;
-        foreach var i in 1 ... 5 {
-            append3 = append4 + "w11";
+    var inner = function () returns error? {
+        @strand{thread:"any"}
+        worker w1 returns error? {
+            int a = 10;
+            var result = a ->> w2;
+            result = a ->> w3;
+            foreach var i in 1 ... 5 {
+                append4 = append4 + "w1";
+            }
+            result = a ->> w2;
+            result = a ->> w3;
+            foreach var i in 1 ... 5 {
+                append3 = append4 + "w11";
+            }
+
+            return result;
         }
 
-        return result;
-    }
-
-    @strand{thread:"any"}
-    worker w2 returns error? {
-        if (false) {
-            error err = error("err", message = "err msg");
-            return err;
-        }
-        int b = 15;
-        sleep(10);
-        foreach var i in 1 ... 5 {
-            append4 = append4 + "w2";
-        }
-        b -> w3;
-        b = <- w1;
-        var result = b ->> w3;
-        foreach var i in 1 ... 5 {
-            append4 = append4 + "w22";
-        }
-        b = <- w1;
-        return;
-    }
-
-    @strand{thread:"any"}
-    worker w3 returns error|string {
-        if (false) {
-            error err = error("err", message = "err msg");
-            return err;
-        }
-        int b;
-        int|error be;
-        be = <- w2;
-        foreach var i in 1 ... 5 {
-            append4 = append4 + "w3";
-        }
-        b = <- w1;
-
-        int|error res = <- w2;
-        if (res is int) {
-            b = res;
+        @strand{thread:"any"}
+        worker w2 returns error? {
+            if (false) {
+                error err = error("err", message = "err msg");
+                return err;
+            }
+            int b = 15;
+            sleep(10);
+            foreach var i in 1 ... 5 {
+                append4 = append4 + "w2";
+            }
+            b -> w3;
+            b = <- w1;
+            var result = b ->> w3;
+            error? res = result;
+            foreach var i in 1 ... 5 {
+                append4 = append4 + "w22";
+            }
+            b = <- w1;
+            return;
         }
 
-        if (b > 0) {
-            map<string> reason = {k1: "error3"};
-            error er3 = error(reason.get("k1"), message = "msg3");
-            return er3;
-        }
-        foreach var i in 1 ... 5 {
-            append4 = append4 + "w33";
-        }
-        b = <- w1;
-        return "success";
-    }
+        @strand{thread:"any"}
+        worker w3 returns error|string {
+            if (false) {
+                error err = error("err", message = "err msg");
+                return err;
+            }
+            int b;
+            int|error be;
+            be = <- w2;
+            foreach var i in 1 ... 5 {
+                append4 = append4 + "w3";
+            }
+            b = <- w1;
 
-    error? w1Result = wait w1;
-    return w1Result;
+            int|error res = <- w2;
+            if (res is int) {
+                b = res;
+            }
+
+            if (b > 0) {
+                map<string> reason = {k1: "error3"};
+                error er3 = error(reason.get("k1"), message = "msg3");
+                return er3;
+            }
+            foreach var i in 1 ... 5 {
+                append4 = append4 + "w33";
+            }
+            b = <- w1;
+            return "success";
+        }
+
+        error? w1Result = wait w1;
+        return w1Result;
+    };
+    validateError(inner(), "error3");
 }
 
 
@@ -269,7 +275,7 @@ function panicTest() returns error? {
         b -> w3;
         b = <- w1;
         var result = b ->> w3;
-
+        error? res = result;
         b = <- w1;
     }
 
@@ -439,29 +445,32 @@ function panicWithMultipleSendStmtsTest() returns error? {
     return res;
 }
 
-function errorResultWithMultipleWorkers() returns error? {
-    @strand{thread:"any"}
-    worker w1 returns error? {
-        int x = 30;
-        () n = x ->> w2;
-        error? res = x ->> w2;
-        return res;
-    }
-
-    @strand{thread:"any"}
-    worker w2 returns int|error {
-        int x = 0;
-        x = <- w1;
-        if (true) {
-            error err = error("err returned from w2");            // Already errored
-            return err;
+function errorResultWithMultipleWorkers() {
+    var inner = function () returns error? {
+        @strand{thread:"any"}
+        worker w1 returns error? {
+            int x = 30;
+            () n = x ->> w2;
+            error? res = x ->> w2;
+            return res;
         }
-        int res = <- w1;
-        return res;
-    }
 
-    error? eor = wait w1;
-    return eor;
+        @strand{thread:"any"}
+        worker w2 returns int|error {
+            int x = 0;
+            x = <- w1;
+            if (true) {
+                error err = error("err returned from w2");            // Already errored
+                return err;
+            }
+            int res = <- w1;
+            return res;
+        }
+
+        error? eor = wait w1;
+        return eor;
+    };
+
 }
 
 public type Rec record {
@@ -491,59 +500,67 @@ public function testComplexType() returns Rec {
     return wait w2;
 }
 
-public function multipleSendsToErroredChannel() returns error? {
-    @strand{thread:"any"}
-    worker w1 returns error? {
-        error? a = 5 ->> w2;
+public function multipleSendsToErroredChannel() {
+    var inner = function () returns error? {
+        @strand{thread:"any"}
+        worker w1 returns error? {
+            error? a = 5 ->> w2;
 
-        error? b = "foo" ->> w2;
+            error? b = "foo" ->> w2;
 
-        return b;
-    }
-
-    @strand{thread:"any"}
-    worker w2 returns error? {
-        boolean b = true;
-        if (b) {
-            error e1 = error("error one");
-            return e1;
+            return b;
         }
 
-        int x = <- w1;
+        @strand{thread:"any"}
+        worker w2 returns error? {
+            boolean b = true;
+            if (b) {
+                error e1 = error("error one");
+                return e1;
+            }
 
-        if (!b) {
-            error e2 = error("error two");
-            return e2;
+            int x = <- w1;
+
+            if (!b) {
+                error e2 = error("error two");
+                return e2;
+            }
+
+            string y = <- w1;
         }
 
-        string y = <- w1;
-    }
+        error? res = wait w1;
+        return res;
+    };
 
-    error? res = wait w1;
-    return res;
+    validateError(inner(), "error one");
 }
 
 public function testSyncSendAfterSend() returns error? {
-    @strand{thread:"any"}
-    worker w1 returns error? {
-        5 -> w2;
+    var inner = function () returns error? {
+        @strand{thread:"any"}
+        worker w1 returns error? {
+            5 -> w2;
 
-        error? x = "foo" ->> w2;
-        return x;
-    }
-
-    @strand{thread:"any"}
-    worker w2 returns error? {
-        if (true) {
-            error e = error("w2 error");
-            return e;
+            error? x = "foo" ->> w2;
+            return x;
         }
 
-        int x = <- w1;
-        string s = <- w1;
-    }
+        @strand{thread:"any"}
+        worker w2 returns error? {
+            if (true) {
+                error e = error("w2 error");
+                return e;
+            }
 
-    return wait w1;
+            int x = <- w1;
+            string s = <- w1;
+        }
+
+        return wait w1;
+    };
+
+    validateError(inner(), "w2 error");
 }
 
 const R1 = "r1";
@@ -575,11 +592,11 @@ public function testNoFailureForReceiveWithError() returns boolean {
             return error("w2 err");
         }
         string|E1|E2 v2 = <- w1;
-        return v1 == 100 && v2 == "hello";
+        return v1 === 100 && v2 === "hello";
     }
 
     record { boolean|E1|E2? w1; boolean|error? w2; } x = wait { w1, w2 };
-    return x.w1 == true && x.w2 == true;
+    return x.w1 === true && x.w2 === true;
 }
 
 public function testFailureForReceiveWithError() returns boolean {
@@ -605,11 +622,11 @@ public function testFailureForReceiveWithError() returns boolean {
             return error("w2 err");
         }
         string|E1|E2 v2 = <- w1;
-        return v1 == 100 && v2 is E2;
+        return v1 === 100 && v2 is E2;
     }
 
     record { boolean|E1|E2? w1; boolean|error? w2; } x = wait { w1, w2 };
-    return x.w1 is E2 && x.w2 == true;
+    return x.w1 is E2 && x.w2 === true;
 }
 
 function getFalse() returns boolean {
@@ -621,5 +638,15 @@ function getTrue() returns boolean {
 }
 
 public function sleep(int millis) = @java:Method {
-    'class: "org.ballerinalang.test.utils.interop.Sleep"
+    'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
+
+function validateError(any|error value, string message) {
+    if (value is error) {
+        if (value.message() == message) {
+            return;
+        }
+        panic error("Expected error message: " + message + ", found: " + value.message());
+    }
+    panic error("Expected error, found: " + (typeof value).toString());
+}

@@ -21,6 +21,7 @@ package io.ballerina.shell.test.unit;
 import io.ballerina.shell.Evaluator;
 import io.ballerina.shell.EvaluatorBuilder;
 import io.ballerina.shell.exceptions.BallerinaShellException;
+import io.ballerina.shell.test.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -35,14 +36,18 @@ import java.util.Set;
 public class EvaluatorMiscTest {
     @Test
     public void testInitialization() throws BallerinaShellException {
-        Evaluator evaluator = new EvaluatorBuilder().build();
+        Evaluator evaluator = new EvaluatorBuilder()
+                .treeParser(TestUtils.getTestTreeParser())
+                .build();
         evaluator.initialize();
         Assert.assertFalse(evaluator.hasErrors());
     }
 
     @Test
     public void testEvaluatorReset() throws BallerinaShellException {
-        Evaluator evaluator = new EvaluatorBuilder().build();
+        Evaluator evaluator = new EvaluatorBuilder()
+                .treeParser(TestUtils.getTestTreeParser())
+                .build();
         Assert.assertTrue(evaluator.diagnostics().isEmpty());
         evaluator.initialize();
         String result = evaluator.evaluate("int i = 4; i");
@@ -54,7 +59,9 @@ public class EvaluatorMiscTest {
 
     @Test
     public void testEvaluatorImportList() throws BallerinaShellException {
-        Evaluator evaluator = new EvaluatorBuilder().build();
+        Evaluator evaluator = new EvaluatorBuilder()
+                .treeParser(TestUtils.getTestTreeParser())
+                .build();
         evaluator.initialize();
         evaluator.evaluate("import ballerina/lang.'int as prefix");
         evaluator.evaluate("import ballerina/lang.'float as prefix2");
@@ -71,21 +78,23 @@ public class EvaluatorMiscTest {
 
     @Test
     public void testEvaluatorVarDclns() throws BallerinaShellException {
-        Evaluator evaluator = new EvaluatorBuilder().build();
+        Evaluator evaluator = new EvaluatorBuilder()
+                .treeParser(TestUtils.getTestTreeParser())
+                .build();
         evaluator.initialize();
         evaluator.evaluate("int i = 23");
         evaluator.evaluate("string? k = ()");
         evaluator.evaluate("string t = \"Hello\"");
         evaluator.evaluate("var f = function () returns int {return 1;}");
-        evaluator.evaluate("[int, string] [a, b] = [1, \"World\"]");
+        evaluator.evaluate("int a = 1; string b = \"World\"");
         Assert.assertEquals(new HashSet<>(evaluator.availableVariables()),
                 Set.of(
-                        "(a) int a = 1",
-                        "(k) string? k = ()",
-                        "(t) string t = \"Hello\"",
-                        "(f) function () returns int f = function function () returns (int)",
-                        "(i) int i = 23",
-                        "(b) string b = \"World\""
+                        "('a) int 'a = 1",
+                        "('k) string? 'k = ()",
+                        "('t) string 't = \"Hello\"",
+                        "('f) function () returns int 'f = function isolated function () returns (int)",
+                        "('i) int 'i = 23",
+                        "('b) string 'b = \"World\""
                 )
         );
         Assert.assertEquals(evaluator.availableImports().size(), 1);
@@ -94,7 +103,9 @@ public class EvaluatorMiscTest {
 
     @Test
     public void testEvaluatorModuleDclns() throws BallerinaShellException {
-        Evaluator evaluator = new EvaluatorBuilder().build();
+        Evaluator evaluator = new EvaluatorBuilder()
+                .treeParser(TestUtils.getTestTreeParser())
+                .build();
         evaluator.initialize();
         evaluator.evaluate("function a() {}");
         evaluator.evaluate("const t = 100");
@@ -102,10 +113,10 @@ public class EvaluatorMiscTest {
         evaluator.evaluate("enum B{C, D}");
         Assert.assertEquals(new HashSet<>(evaluator.availableModuleDeclarations()),
                 Set.of(
-                        "(a) function a() {}",
-                        "(t) const t = 100;",
-                        "(A) class A{}",
-                        "(B) enum B{C, D}"
+                        "('a) function a() {}",
+                        "('t) const t = 100;",
+                        "('A) class A{}",
+                        "('B) enum B{C, D}"
                 )
         );
         Assert.assertEquals(evaluator.availableImports().size(), 1);

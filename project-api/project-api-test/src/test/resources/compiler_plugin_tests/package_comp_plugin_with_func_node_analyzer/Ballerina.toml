@@ -1,0 +1,4 @@
+[package]
+org = "samjs"
+name = "package_comp_plugin_with_func_node_analyzer"
+version = "0.1.0"

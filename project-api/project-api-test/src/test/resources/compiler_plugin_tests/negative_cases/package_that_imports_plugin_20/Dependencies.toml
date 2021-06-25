@@ -1,0 +1,4 @@
+[[dependency]]
+org = "samjs"
+name = "package_compiler_plugin_20"
+version = "1.1.0"

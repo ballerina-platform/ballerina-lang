@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.types.RecordType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -64,6 +65,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAUNCH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATH;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TOML_DETAILS;
 
 /**
  * Generates Jvm byte code for the main method.
@@ -76,6 +79,7 @@ public class MainMethodGen {
     public static final String START_FUTURE_VAR = "startFutureVar";
     public static final String MAIN_FUTURE_VAR = "mainFutureVar";
     public static final String SCHEDULER_VAR = "schedulerVar";
+    public static final String CONFIG_VAR = "configVar";
     private final SymbolTable symbolTable;
     private final BIRVarToJVMIndexMap indexMap;
     private final JvmTypeGen jvmTypeGen;
@@ -107,8 +111,6 @@ public class MainMethodGen {
         // check for java compatibility
         generateJavaCompatibilityCheck(mv);
 
-        // set system properties
-        initConfigurations(mv);
         invokeConfigInit(mv, pkg.packageID);
         // start all listeners
         startListeners(mv, serviceEPAvailable);
@@ -125,7 +127,7 @@ public class MainMethodGen {
         }
 
         if (userMainFunc != null) {
-            generateUserMainFunctionCall(userMainFunc, initClass, asyncDataCollector, mv);
+            generateUserMainFunctionCall(userMainFunc, initClass, mv);
         }
 
 
@@ -141,7 +143,7 @@ public class MainMethodGen {
         mv.visitLabel(tryCatchEnd);
         mv.visitInsn(RETURN);
         mv.visitLabel(tryCatchHandle);
-        mv.visitMethodInsn(INVOKESTATIC, JvmConstants.RUNTIME_UTILS, JvmConstants.HANDLE_THROWABLE_METHOD,
+        mv.visitMethodInsn(INVOKESTATIC, JvmConstants.RUNTIME_UTILS, JvmConstants.HANDLE_ALL_THROWABLE_METHOD,
                            String.format("(L%s;)V", JvmConstants.THROWABLE), false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
@@ -165,8 +167,20 @@ public class MainMethodGen {
 
     private void invokeConfigInit(MethodVisitor mv, PackageID packageID) {
         String configClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, CONFIGURATION_CLASS_NAME);
-        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "getConfigPath", "()L" + PATH + ";", false);
-        mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT, "(L" + PATH + ";)V", false);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "getConfigurationDetails", "()L" + TOML_DETAILS + ";", false);
+        int configDetailsIndex = indexMap.addIfNotExists(CONFIG_VAR, symbolTable.anyType);
+
+        mv.visitVarInsn(ASTORE, configDetailsIndex);
+
+        mv.visitVarInsn(ALOAD, configDetailsIndex);
+        mv.visitFieldInsn(GETFIELD, TOML_DETAILS, "paths", "[L" + PATH + ";");
+        mv.visitVarInsn(ALOAD, configDetailsIndex);
+        mv.visitFieldInsn(GETFIELD, TOML_DETAILS, "secret", "L" + STRING_VALUE + ";");
+        mv.visitVarInsn(ALOAD, configDetailsIndex);
+        mv.visitFieldInsn(GETFIELD, TOML_DETAILS, "configContent", "L" + STRING_VALUE + ";");
+        mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT,
+                String.format("([L%s;[L%s;L%s;L%s;)V", STRING_VALUE, PATH, STRING_VALUE, STRING_VALUE), false);
     }
 
     private void generateJavaCompatibilityCheck(MethodVisitor mv) {
@@ -179,14 +193,6 @@ public class MainMethodGen {
         String versionProperty = "java.version";
         String javaVersion = System.getProperty(versionProperty);
         return Objects.requireNonNullElse(javaVersion, "");
-    }
-
-    private void initConfigurations(MethodVisitor mv) {
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC, JvmConstants.LAUNCH_UTILS,
-                           "initConfigurations",
-                           String.format("([L%s;)[L%s;", JvmConstants.STRING_VALUE, JvmConstants.STRING_VALUE), false);
-        mv.visitVarInsn(ASTORE, 0);
     }
 
     private void startListeners(MethodVisitor mv, boolean isServiceEPAvailable) {
@@ -229,12 +235,10 @@ public class MainMethodGen {
         }
     }
 
-    private void generateUserMainFunctionCall(BIRNode.BIRFunction userMainFunc, String initClass,
-                                              AsyncDataCollector asyncDataCollector, MethodVisitor mv) {
+    private void generateUserMainFunctionCall(BIRNode.BIRFunction userMainFunc, String initClass, MethodVisitor mv) {
         int schedulerVarIndex = indexMap.get(SCHEDULER_VAR);
         mv.visitVarInsn(ALOAD, schedulerVarIndex);
-        loadCLIArgsForMain(mv, new ArrayList<>(userMainFunc.parameters.keySet()), userMainFunc.restParam != null,
-                           userMainFunc.annotAttachments);
+        loadCLIArgsForMain(mv, new ArrayList<>(userMainFunc.parameters.keySet()), userMainFunc.annotAttachments);
 
         // invoke the user's main method
         genSubmitToScheduler(initClass, mv, "$lambda$main$", "main", MAIN_FUTURE_VAR);
@@ -253,56 +257,72 @@ public class MainMethodGen {
     }
 
     private void loadCLIArgsForMain(MethodVisitor mv, List<BIRNode.BIRFunctionParameter> params,
-                                    boolean hasRestParam,
                                     List<BIRNode.BIRAnnotationAttachment> annotAttachments) {
+        mv.visitTypeInsn(NEW, JvmConstants.CLI_SPEC);
+        mv.visitInsn(DUP);
         // get defaultable arg names from function annotation
         List<String> defaultableNames = getDefaultableNames(annotAttachments);
         // create function info array
         createFunctionInfoArray(mv, params, defaultableNames);
-        // load string[] that got parsed into to java main
-        loadStrings(mv, hasRestParam);
-        // invoke ArgumentParser.extractEntryFuncArgs()
-        mv.visitMethodInsn(INVOKESTATIC, JvmConstants.ARGUMENT_PARSER, "extractEntryFuncArgs",
-                           String.format("([L%s$ParamInfo;[L%s;Z)[L%s;", JvmConstants.RUNTIME_UTILS,
-                                         JvmConstants.STRING_VALUE, JvmConstants.OBJECT), false);
-    }
-
-    private void loadStrings(MethodVisitor mv, boolean hasRestParam) {
+        // load string[] that got parsed into java main
         mv.visitVarInsn(ALOAD, 0);
-        if (hasRestParam) {
-            mv.visitInsn(ICONST_1);
-        } else {
-            mv.visitInsn(ICONST_0);
-        }
+        mv.visitMethodInsn(INVOKESPECIAL, JvmConstants.CLI_SPEC, JvmConstants.JVM_INIT_METHOD,
+                           String.format("(L%s;[L%s;[L%s;)V", JvmConstants.OPTION, JvmConstants.OPERAND,
+                                         JvmConstants.STRING_VALUE), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, JvmConstants.CLI_SPEC, "getMainArgs", String.format("()[L%s;", OBJECT),
+                           false);
     }
 
     private void createFunctionInfoArray(MethodVisitor mv, List<BIRNode.BIRFunctionParameter> params,
                                          List<String> defaultableNames) {
-        mv.visitIntInsn(BIPUSH, params.size());
-        mv.visitTypeInsn(ANEWARRAY, String.format("%s$ParamInfo", JvmConstants.RUNTIME_UTILS));
-        int index = 0;
+        int size = params.size();
+        if (!params.isEmpty() && params.get(size - 1).type instanceof RecordType) {
+            BIRNode.BIRFunctionParameter param = params.get(size - 1);
+            createOption(mv, param, size - 1);
+            size--;
+        } else if (params.size() >= 2 && params.get(size - 2).type instanceof RecordType) {
+            BIRNode.BIRFunctionParameter param = params.get(size - 2);
+            createOption(mv, param, size - 2);
+            size--;
+        } else {
+            mv.visitInsn(ACONST_NULL);
+        }
+        mv.visitIntInsn(BIPUSH, size);
+        mv.visitTypeInsn(ANEWARRAY, JvmConstants.OPERAND);
         int defaultableIndex = 0;
-        for (BIRNode.BIRFunctionParameter param : params) {
+        int arrIndex = 0;
+        for (BIRNode.BIRFunctionParameter birFunctionParameter : params) {
+            if (birFunctionParameter != null && birFunctionParameter.type instanceof RecordType) {
+                defaultableIndex++;
+                continue;
+            }
             mv.visitInsn(DUP);
-            mv.visitIntInsn(BIPUSH, index);
-            index += 1;
-            mv.visitTypeInsn(NEW, String.format("%s$ParamInfo", JvmConstants.RUNTIME_UTILS));
+            mv.visitIntInsn(BIPUSH, arrIndex++);
+            mv.visitTypeInsn(NEW, JvmConstants.OPERAND);
             mv.visitInsn(DUP);
-            if (param != null) {
-                if (param.hasDefaultExpr) {
+            if (birFunctionParameter != null) {
+                if (birFunctionParameter.hasDefaultExpr) {
                     mv.visitInsn(ICONST_1);
                 } else {
                     mv.visitInsn(ICONST_0);
                 }
-                mv.visitLdcInsn(defaultableNames.get(defaultableIndex));
-                defaultableIndex += 1;
-                jvmTypeGen.loadType(mv, param.type);
+                mv.visitLdcInsn(defaultableNames.get(defaultableIndex++));
+                jvmTypeGen.loadType(mv, birFunctionParameter.type);
             }
-            mv.visitMethodInsn(INVOKESPECIAL, String.format("%s$ParamInfo", JvmConstants.RUNTIME_UTILS),
-                               JvmConstants.JVM_INIT_METHOD,
+            mv.visitMethodInsn(INVOKESPECIAL, JvmConstants.OPERAND, JvmConstants.JVM_INIT_METHOD,
                                String.format("(ZL%s;L%s;)V", JvmConstants.STRING_VALUE, JvmConstants.TYPE), false);
             mv.visitInsn(AASTORE);
         }
+    }
+
+    private void createOption(MethodVisitor mv, BIRNode.BIRFunctionParameter param, int location) {
+        mv.visitTypeInsn(NEW, JvmConstants.OPTION);
+        mv.visitInsn(DUP);
+        jvmTypeGen.loadType(mv, param.type);
+        mv.visitTypeInsn(CHECKCAST, JvmConstants.RECORD_TYPE);
+        mv.visitIntInsn(BIPUSH, location);
+        mv.visitMethodInsn(INVOKESPECIAL, JvmConstants.OPTION, JvmConstants.JVM_INIT_METHOD,
+                           String.format("(L%s;I)V", JvmConstants.TYPE), false);
     }
 
     private List<String> getDefaultableNames(List<BIRNode.BIRAnnotationAttachment> annotAttachments) {

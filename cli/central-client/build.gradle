@@ -35,6 +35,10 @@ dependencies {
     implementation 'com.google.code.gson:gson'
     implementation 'com.google.code.findbugs:jsr305'
     implementation 'com.github.zafarkhaja:java-semver'
+    implementation 'commons-io:commons-io'
+    implementation 'com.squareup.okhttp3:okhttp'
+    implementation 'com.squareup.okio:okio'
+
     testCompile 'org.testng:testng'
     testCompile 'org.awaitility:awaitility'
     testImplementation 'org.powermock:powermock-mockito-release-full'

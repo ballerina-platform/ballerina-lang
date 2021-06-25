@@ -274,3 +274,87 @@ function testXMLNeverType() {
     _ = g is string;
     _ = e is string;
 }
+
+function testRecordNegative() {
+    Baz|int val = 11;
+    boolean b = val is Bar;
+    boolean b2 = val is Qux;
+
+    Bar val2 = {};
+    boolean b3 = val2 is Baz;
+    boolean b4 = val2 is Quux;
+
+    Qux val3 = {code: new};
+    boolean b5 = val3 is Baz;
+    boolean b6 = val3 is Quux;
+
+    Quux val4 = {"i": 1, "j": 2};
+    boolean b7 = val4 is Bar;
+    boolean b8 = val4 is Qux;
+    boolean b9 = val4 is record {|int i; boolean b;|};
+
+    ClosedRecordWithIntField val5 = {i: 100};
+    boolean b10 = val5 is record {| int i; string s; |};
+}
+
+type Baz record {
+};
+
+type Foo record {
+    readonly Class code = new;
+};
+
+type Bar record {
+    readonly Class code = new;
+};
+
+type Qux record {
+    readonly Class code;
+};
+
+readonly class Class {
+
+}
+
+type Quux record {|
+    int...;
+|};
+
+type ClosedRecordWithIntField record {|
+    int i;
+|};
+
+function testAnydataAgainstInvalidArray() {
+    object {}[] arr1 = [];
+
+    if arr1 is anydata {
+        anydata[] p = arr1;
+    }
+
+    anydata arr2 = [];
+
+    if arr2 is object {}[] {
+        object {}[] p = arr2;
+    }
+}
+
+type RecordWithIntFieldAndNeverRestField record {|
+    int i;
+    never...;
+|};
+
+type RecordWithIntFieldAndEffectivelyNeverRestField record {|
+    int i;
+    [never, int]...;
+|};
+
+type Record record {|
+    int i;
+    string s;
+|};
+
+function testRecordNegative2() {
+    Record rec = {i: 1, s: ""};
+    boolean b2 = rec is RecordWithIntFieldAndNeverRestField;
+    boolean b3 = rec is RecordWithIntFieldAndEffectivelyNeverRestField;
+}

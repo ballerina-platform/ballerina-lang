@@ -27,7 +27,7 @@ function testStructuredMatchPatternsBasic1() returns string {
     match foo {
         var {s, i: integer, fib: [a, b, c]} => {
             integer += 1;
-            a += 1;
+            a += 1f;
             b += 1;
             return "Matched Values : " + s + ", " + integer.toString() + ", " + a.toString() + ", " + b.toString() +
                     ", " + c.toString();
@@ -59,8 +59,6 @@ function testStructuredMatchPatternsBasic2() returns string {
                         b.toString() + ", " + s2 + ", " + i3.toString() + ", " + f2.toString() + ", " + b2.toString();
         }
     }
-
-    return "Default";
 }
 
 function testErrorShouldNotMatchWildCardPatternVarIgnore() returns string {
@@ -77,7 +75,7 @@ function testErrorNotMatchingVarIgnoreAndFallThroughToErrorPattern() returns str
     match v {
         0 => { return "zero"; }
         var _ => { return "other"; }
-        error(var r) => { return <string>r; }
+        error(var r) => { return <string> r; }
     }
     return "no-match";
 }

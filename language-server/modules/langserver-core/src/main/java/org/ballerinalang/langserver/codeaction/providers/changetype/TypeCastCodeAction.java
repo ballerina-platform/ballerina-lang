@@ -15,31 +15,36 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.changetype;
 
-import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
-import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -52,76 +57,120 @@ import java.util.Optional;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class TypeCastCodeAction extends AbstractCodeActionProvider {
 
+    public static final String NAME = "Type Cast";
+
     /**
      * {@inheritDoc}
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
             return Collections.emptyList();
         }
-        Node matchedNode = context.positionDetails().matchedNode();
-        if (matchedNode.kind() != SyntaxKind.LOCAL_VAR_DECL &&
-                matchedNode.kind() != SyntaxKind.MODULE_VAR_DECL &&
-                matchedNode.kind() != SyntaxKind.ASSIGNMENT_STATEMENT) {
+        Node matchedNode = getMatchedNode(positionDetails.matchedNode());
+        if (matchedNode == null) {
             return Collections.emptyList();
         }
+
+        Optional<TypeSymbol> lhsTypeSymbol = positionDetails.diagnosticProperty(
+                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED_SYMBOL_INDEX);
+        Optional<TypeSymbol> rhsTypeSymbol = positionDetails.diagnosticProperty(
+                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
+        if (lhsTypeSymbol.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        if (rhsTypeSymbol.isPresent() && rhsTypeSymbol.get().typeKind() == TypeDescKind.UNION) {
+            // If RHS is a union and has error member type; skip code-action
+            if (CodeActionUtil.hasErrorMemberType((UnionTypeSymbol) rhsTypeSymbol.get())) {
+                return Collections.emptyList();
+            }
+        }
+
         Optional<ExpressionNode> expressionNode = getExpression(matchedNode);
-        Optional<TypeSymbol> variableTypeSymbol = getVariableTypeSymbol(matchedNode, context);
-        if (expressionNode.isEmpty() || variableTypeSymbol.isEmpty() ||
-                expressionNode.get().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
+        if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
             return Collections.emptyList();
         }
-        Position editPos = CommonUtil.toPosition(expressionNode.get().lineRange().startLine());
+
         List<TextEdit> edits = new ArrayList<>();
-        Optional<String> typeName = CodeActionUtil.getPossibleType(variableTypeSymbol.get(), edits, context);
+        Optional<String> typeName = CodeActionUtil.getPossibleType(lhsTypeSymbol.get(), edits, context);
         if (typeName.isEmpty()) {
             return Collections.emptyList();
         }
-        String editText = "<" + typeName.get() + "> ";
-        edits.add(new TextEdit(new Range(editPos, editPos), editText));
+
+        edits.addAll(getTextEdits(positionDetails, typeName.get()));
         String commandTitle = CommandConstants.ADD_TYPE_CAST_TITLE;
         return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
     }
 
-    private Optional<ExpressionNode> getExpression(Node node) {
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
+    protected NonTerminalNode getMatchedNode(NonTerminalNode node) {
+        List<SyntaxKind> syntaxKinds = Arrays.asList(SyntaxKind.LOCAL_VAR_DECL,
+                SyntaxKind.MODULE_VAR_DECL, SyntaxKind.ASSIGNMENT_STATEMENT, SyntaxKind.POSITIONAL_ARG);
+        while (node != null && !syntaxKinds.contains(node.kind())) {
+            node = node.parent();
+        }
+
+        return node;
+    }
+
+    protected Optional<ExpressionNode> getExpression(Node node) {
         if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             return ((VariableDeclarationNode) node).initializer();
         } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
             return ((ModuleVariableDeclarationNode) node).initializer();
         } else if (node.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
             return Optional.of(((AssignmentStatementNode) node).expression());
+        } else if (node.kind() == SyntaxKind.POSITIONAL_ARG) {
+            return Optional.of(((PositionalArgumentNode) node).expression());
         } else {
             return Optional.empty();
         }
     }
 
-    protected Optional<TypeSymbol> getVariableTypeSymbol(Node matchedNode, CodeActionContext context) {
-        switch (matchedNode.kind()) {
-            case LOCAL_VAR_DECL:
-            case MODULE_VAR_DECL:
-                return Optional.of(context.positionDetails().matchedExprType());
-            case ASSIGNMENT_STATEMENT:
-                Optional<VariableSymbol> optVariableSymbol = getVariableSymbol(context, matchedNode);
-                if (optVariableSymbol.isEmpty()) {
-                    return Optional.empty();
-                }
-                return Optional.of(optVariableSymbol.get().typeDescriptor());
-            default:
-                return Optional.empty();
-        }
-    }
-
     protected Optional<VariableSymbol> getVariableSymbol(CodeActionContext context, Node matchedNode) {
         AssignmentStatementNode assignmentStmtNode = (AssignmentStatementNode) matchedNode;
-        SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-        Document srcFile = context.workspace().document(context.filePath()).orElseThrow();
-        Optional<Symbol> symbol = semanticModel.symbol(srcFile,
-                                                       assignmentStmtNode.varRef().lineRange().startLine());
+        Optional<Symbol> symbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.symbol(assignmentStmtNode.varRef()));
+
         if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.VARIABLE) {
             return Optional.empty();
         }
         return Optional.of((VariableSymbol) symbol.get());
+    }
+
+    /**
+     * Get text edits for the provided type name to cast the node in focus to match the left hand side of
+     * the assignment/var declaration, etc. This considers if additional parentheses requires to be added around
+     * the RHS expression.
+     *
+     * @param positionDetails  Diagnostic based postion details
+     * @param expectedTypeName Expected type name as a string
+     * @return Text edits to perform the cast
+     */
+    private List<TextEdit> getTextEdits(DiagBasedPositionDetails positionDetails, String expectedTypeName) {
+        NonTerminalNode matchedNode = positionDetails.matchedNode();
+        Position startPosition = CommonUtil.toPosition(matchedNode.lineRange().startLine());
+        Position endPosition = CommonUtil.toPosition(matchedNode.lineRange().endLine());
+
+        String editText = "<" + expectedTypeName + "> ";
+
+        // If the expression is a binary expression, need to add parentheses around the expression
+        if (matchedNode.kind() == SyntaxKind.BINARY_EXPRESSION) {
+            editText = editText + CommonKeys.OPEN_PARENTHESES_KEY;
+            TextEdit castWithParentheses = new TextEdit(new Range(startPosition, startPosition), editText);
+            TextEdit closeParentheses = new TextEdit(new Range(endPosition, endPosition),
+                    CommonKeys.CLOSE_PARENTHESES_KEY);
+
+            return List.of(castWithParentheses, closeParentheses);
+        }
+        
+        return List.of(new TextEdit(new Range(startPosition, startPosition), editText));
     }
 }

@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.ForEachStatementNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
@@ -49,8 +50,7 @@ public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForE
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (withinTypeDescContext(context, node)) {
-            completionItems.addAll(this.getModuleCompletionItems(context));
-            completionItems.addAll(this.getTypeItems(context));
+            completionItems.addAll(this.getTypeDescContextItems(context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
         } else if (node.inKeyword().isMissing()) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IN.get()));
@@ -95,5 +95,20 @@ public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForE
         Position cursor = context.getCursorPosition();
         return (cursor.getLine() < inKWEnd.line())
                 || (cursor.getLine() == inKWEnd.line() && cursor.getCharacter() > inKWEnd.offset());
+    }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, ForEachStatementNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token matchKeyword = node.forEachKeyword();
+        BlockStatementNode blockStatement = (BlockStatementNode) node.blockStatement();
+        
+        /*
+        Validates the following
+        eg: 1) foreach ... <cursor>
+            2) foreach ... <cursor>{
+         */
+        return !matchKeyword.isMissing() && cursor >= matchKeyword.textRange().endOffset() + 1
+                && ((blockStatement.isMissing() || cursor < blockStatement.openBraceToken().textRange().endOffset()));
     }
 }

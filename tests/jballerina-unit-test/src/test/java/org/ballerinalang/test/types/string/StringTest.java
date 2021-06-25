@@ -226,17 +226,25 @@ public class StringTest {
         ByteArrayUtils.assertJBytesWithBBytes(bytes, bByteArray.getBytes());
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
     public void testMultilineStringLiterals() {
         CompileResult multilineLiterals = BCompileUtil.compile("test-src/types/string/string_negative.bal");
         int indx = 0;
         validateError(multilineLiterals, indx++, "missing double quote", 18, 17);
-        validateError(multilineLiterals, indx++, "missing plus token", 19, 1);
+        validateError(multilineLiterals, indx++, "missing semicolon token", 19, 1);
         validateError(multilineLiterals, indx++, "undefined symbol 'World'", 19, 5);
-        validateError(multilineLiterals, indx++, "missing plus token", 19, 10);
+        validateError(multilineLiterals, indx++, "missing equal token", 19, 10);
         validateError(multilineLiterals, indx++, "operator '!' not defined for 'string'", 19, 10);
         validateError(multilineLiterals, indx++, "missing double quote", 19, 11);
         validateError(multilineLiterals, indx++, "missing semicolon token", 20, 1);
+        validateError(multilineLiterals, indx++, "missing binary operator", 20, 28);
+        validateError(multilineLiterals, indx++, "undefined symbol 'Bob'", 20, 28);
+        validateError(multilineLiterals, indx++, "missing binary operator", 20, 32);
+        validateError(multilineLiterals, indx++, "missing double quote", 20, 32);
+        validateError(multilineLiterals, indx++, "missing semicolon token", 21, 1);
+        validateError(multilineLiterals, indx++, "missing binary operator", 21, 22);
+        validateError(multilineLiterals, indx++, "missing double quote", 21, 22);
+        validateError(multilineLiterals, indx++, "missing semicolon token", 22, 1);
         Assert.assertEquals(multilineLiterals.getErrorCount(), indx);
     }
 

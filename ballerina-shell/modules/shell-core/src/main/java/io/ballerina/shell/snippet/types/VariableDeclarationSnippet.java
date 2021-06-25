@@ -18,8 +18,20 @@
 
 package io.ballerina.shell.snippet.types;
 
+import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.FieldBindingPatternVarnameNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.RestBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.shell.snippet.SnippetSubKind;
+import io.ballerina.shell.utils.QuotedIdentifier;
+import io.ballerina.shell.utils.StringUtils;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * These will be variable declarations.
@@ -27,8 +39,71 @@ import io.ballerina.shell.snippet.SnippetSubKind;
  *
  * @since 2.0.0
  */
-public class VariableDeclarationSnippet extends ExecutableSnippet {
+public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDeclarationNode>
+        implements TopLevelDeclarationSnippet {
+    private Set<QuotedIdentifier> names;
+
     public VariableDeclarationSnippet(ModuleVariableDeclarationNode rootNode) {
         super(SnippetSubKind.VARIABLE_DECLARATION, rootNode);
+    }
+
+    /**
+     * This will ONLY return the metadata and qualifiers of this node.
+     * Whitespaces will be added between all qualifiers and metadata.
+     *
+     * @return Qualifiers/Metadata as string.
+     */
+    public String qualifiersAndMetadata() {
+        String metadata = rootNode.metadata().map(Node::toSourceCode).orElse("");
+        String qualifiers = rootNode.qualifiers().stream()
+                .map(Node::toSourceCode).collect(Collectors.joining(" "));
+        return metadata + qualifiers;
+    }
+
+    /**
+     * Variable names that are defined in this snippet.
+     */
+    public Set<QuotedIdentifier> names() {
+        if (names != null) {
+            return names;
+        }
+
+        names = new HashSet<>();
+        rootNode.typedBindingPattern().bindingPattern()
+                .accept(new VariableNameFinder(names));
+        return names;
+    }
+
+    /**
+     * A helper class to find the var dclns declared in a snippet.
+     *
+     * @since 2.0.0
+     */
+    private static class VariableNameFinder extends NodeVisitor {
+        private final Set<QuotedIdentifier> foundVariableIdentifiers;
+
+        public VariableNameFinder(Set<QuotedIdentifier> foundVariableIdentifiers) {
+            this.foundVariableIdentifiers = foundVariableIdentifiers;
+        }
+
+        @Override
+        public void visit(CaptureBindingPatternNode captureBindingPatternNode) {
+            addIdentifier(captureBindingPatternNode.variableName());
+        }
+
+        @Override
+        public void visit(RestBindingPatternNode restBindingPatternNode) {
+            addIdentifier(restBindingPatternNode.variableName().name());
+        }
+
+        @Override
+        public void visit(FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
+            addIdentifier(fieldBindingPatternVarnameNode.variableName().name());
+        }
+
+        private void addIdentifier(Token token) {
+            String unescapedIdentifier = StringUtils.unescapeUnicodeCodepoints(token.text());
+            foundVariableIdentifiers.add(new QuotedIdentifier(unescapedIdentifier));
+        }
     }
 }

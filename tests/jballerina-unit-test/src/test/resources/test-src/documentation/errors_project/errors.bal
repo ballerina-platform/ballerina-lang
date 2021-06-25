@@ -1,3 +1,20 @@
+# Account error data.
+public type AccountErrorData record {
+    int accountID;
+};
+
+# All account errors.
+public type AccountError distinct error<AccountErrorData>;
+
+# Invlaid account id error.
+public type InvalidAccountIdError distinct AccountError;
+
+# Acc not found error
+public type AccountNotFoundError distinct AccountError;
+
+# Represents the total Cache error type.
+public type TotalCacheError distinct CacheError;
+
 # Represents the Cache error type with details. This will be returned if an error occurred while doing any of the cache
 # operations.
 public type CacheError distinct error;
@@ -14,5 +31,11 @@ public type Error CacheError;
 # Represents gRPC related errors.
 public type GrpcError CancelledError | UnKnownError | CacheError;
 
-# Represents union of builtin error
-public type YErrorType error|never;
+# Represents link to GrpcError.
+public type LinkToGrpcError GrpcError;
+
+# Represents union of builtin error and string.
+public type YErrorType error | string;
+
+# Represents link to YErrorType.
+public type LinktoYError YErrorType;

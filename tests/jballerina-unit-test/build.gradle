@@ -24,15 +24,10 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
-configurations {
-    balRuntime
-}
-
 dependencies {
     implementation 'org.slf4j:slf4j-api'
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-io')
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-cli')
     implementation project(':ballerina-logging')
@@ -56,15 +51,13 @@ dependencies {
     testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-runtime')
+    testRuntime project(':ballerina-runtime')
 
-    balRuntime project(':ballerina-runtime')
-
-    distributionBala project(path: ':ballerina-io', configuration: 'distributionBala')
     distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-observability', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-observability-internal', configuration: 'distributionBala')
 
 //    balaTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-runtime-api', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-io', configuration: 'balaImplementation')
 ////    balaTestImplementation project(path: ':ballerina-transactions', configuration: 'balaImplementation')
 ////    balaTestImplementation project(path: ':ballerina-http', configuration: 'balaImplementation')
 //    balaTestImplementation project(path: ':ballerina-config-api', configuration: 'balaImplementation')

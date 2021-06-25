@@ -228,6 +228,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(restArgumentNode);
     }
 
+    public T transform(InferredTypedescDefaultNode inferredTypedescDefaultNode) {
+        return transformSyntaxNode(inferredTypedescDefaultNode);
+    }
+
     public T transform(ObjectTypeDescriptorNode objectTypeDescriptorNode) {
         return transformSyntaxNode(objectTypeDescriptorNode);
     }
@@ -292,8 +296,8 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(remoteMethodCallActionNode);
     }
 
-    public T transform(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
-        return transformSyntaxNode(parameterizedTypeDescriptorNode);
+    public T transform(MapTypeDescriptorNode mapTypeDescriptorNode) {
+        return transformSyntaxNode(mapTypeDescriptorNode);
     }
 
     public T transform(NilLiteralNode nilLiteralNode) {
@@ -372,14 +376,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(keySpecifierNode);
     }
 
-    public T transform(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
-        return transformSyntaxNode(errorTypeDescriptorNode);
-    }
-
-    public T transform(ErrorTypeParamsNode errorTypeParamsNode) {
-        return transformSyntaxNode(errorTypeParamsNode);
-    }
-
     public T transform(StreamTypeDescriptorNode streamTypeDescriptorNode) {
         return transformSyntaxNode(streamTypeDescriptorNode);
     }
@@ -388,16 +384,8 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(streamTypeParamsNode);
     }
 
-    public T transform(TypedescTypeDescriptorNode typedescTypeDescriptorNode) {
-        return transformSyntaxNode(typedescTypeDescriptorNode);
-    }
-
     public T transform(LetExpressionNode letExpressionNode) {
         return transformSyntaxNode(letExpressionNode);
-    }
-
-    public T transform(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
-        return transformSyntaxNode(xmlTypeDescriptorNode);
     }
 
     public T transform(LetVariableDeclarationNode letVariableDeclarationNode) {
@@ -780,8 +768,20 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(markdownParameterDocumentationLineNode);
     }
 
-    public T transform(DocumentationReferenceNode documentationReferenceNode) {
-        return transformSyntaxNode(documentationReferenceNode);
+    public T transform(BallerinaNameReferenceNode ballerinaNameReferenceNode) {
+        return transformSyntaxNode(ballerinaNameReferenceNode);
+    }
+
+    public T transform(InlineCodeReferenceNode inlineCodeReferenceNode) {
+        return transformSyntaxNode(inlineCodeReferenceNode);
+    }
+
+    public T transform(MarkdownCodeBlockNode markdownCodeBlockNode) {
+        return transformSyntaxNode(markdownCodeBlockNode);
+    }
+
+    public T transform(MarkdownCodeLineNode markdownCodeLineNode) {
+        return transformSyntaxNode(markdownCodeLineNode);
     }
 
     public T transform(OrderByClauseNode orderByClauseNode) {
@@ -814,6 +814,10 @@ public abstract class NodeTransformer<T> {
 
     public T transform(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
         return transformSyntaxNode(errorConstructorExpressionNode);
+    }
+
+    public T transform(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
+        return transformSyntaxNode(parameterizedTypeDescriptorNode);
     }
 
     // Tokens

@@ -3,7 +3,7 @@
     "character": 4,
     "expected": [
         {
-            "title": "Create variable with 'Person'",
+            "title": "Create variable with 'Person[]'",
             "edits": [
                 {
                     "range": {
@@ -16,7 +16,7 @@
                             "character": 4
                         }
                     },
-                    "newText": "Person a = "
+                    "newText": "Person[] listResult = "
                 }
             ]
         }

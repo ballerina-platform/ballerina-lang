@@ -54,7 +54,7 @@ function testFloat2() returns [int, float, float, float]{
 }
 
 function filterFloatNegative(float i) returns boolean {
-    return i >= 0;
+    return i >= 0.0;
 }
 
 string output = "";
@@ -81,7 +81,7 @@ function testBasicArray2(string[] values) returns string {
 
     index = 0;
     values.'map(function (string s) returns string {
-                    var value = index.toString() + s;
+                    string value = index.toString() + s;
                     index += 1;
                     return value;
                })
@@ -144,12 +144,9 @@ function xmlTest() returns [int, int, xml] {
     xml ch = xdata.getChildren().elements()[1];
     'xml:Element che = <'xml:Element> ch;
     xml m = che.getChildren().elements()
-                             .'map(function ('xml:Element|'xml:Text x) returns ('xml:Element|'xml:Text) {
+                             .'map(function ('xml:Element x) returns ('xml:Element) {
                                 index += 1;
-                                if x is 'xml:Element {
-                                    return x;
-                                }
-                                return xml ``;
+                                return x;
                      });
     return [nodeCount, elementCount, m];
 }

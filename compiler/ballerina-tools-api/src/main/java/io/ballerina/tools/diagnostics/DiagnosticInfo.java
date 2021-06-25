@@ -17,8 +17,10 @@
  */
 package io.ballerina.tools.diagnostics;
 
+import java.util.Arrays;
+
 /**
- * Represents a abstract shape of a {@code Diagnostic} that is independent of
+ * Represents an abstract shape of a {@link Diagnostic} that is independent of
  * the location and message arguments.
  *
  * @since 2.0.0
@@ -26,14 +28,21 @@ package io.ballerina.tools.diagnostics;
 public class DiagnosticInfo {
 
     private final String code;
-    private final String messageTemplate;
+    private final String messageFormat;
     private final DiagnosticSeverity severity;
 
+    /**
+     * Constructs an abstract shape of a {@link Diagnostic}.
+     *
+     * @param code          a code that can be used to uniquely identify a diagnostic category
+     * @param messageFormat a pattern that can be formatted with the {@link java.text.MessageFormat} utility
+     * @param severity      the severity of the diagnostic
+     */
     public DiagnosticInfo(String code,
-                          String messageTemplate,
+                          String messageFormat,
                           DiagnosticSeverity severity) {
         this.code = code;
-        this.messageTemplate = messageTemplate;
+        this.messageFormat = messageFormat;
         this.severity = severity;
     }
 
@@ -41,11 +50,34 @@ public class DiagnosticInfo {
         return code;
     }
 
-    public String messageTemplate() {
-        return messageTemplate;
+    public String messageFormat() {
+        return messageFormat;
     }
 
     public DiagnosticSeverity severity() {
         return severity;
+    }
+
+    @Override
+    public int hashCode() {
+        if (this.code == null) {
+            return Arrays.hashCode(new int[]{messageFormat.hashCode(), severity.hashCode()});
+        }
+        return Arrays.hashCode(new int[]{code.hashCode(), messageFormat.hashCode(), severity.hashCode()});
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof DiagnosticInfo) {
+            DiagnosticInfo that = (DiagnosticInfo) obj;
+            if (this.code != null) {
+                return this.code.equals(that.code) && this.messageFormat.equals(that.messageFormat)
+                        && this.severity.equals(that.severity);
+            } else if (that.code != null) {
+                return false;
+            }
+            return this.messageFormat.equals(that.messageFormat) && this.severity.equals(that.severity);
+        }
+        return false;
     }
 }

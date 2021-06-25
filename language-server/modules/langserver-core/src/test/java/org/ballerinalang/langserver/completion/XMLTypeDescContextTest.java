@@ -27,7 +27,7 @@ import java.io.IOException;
  *
  * @since 2.0.0
  */
-public class XMLTypeDescContextTest extends CompletionTestNew {
+public class XMLTypeDescContextTest extends CompletionTest {
 
     @Override
     public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {

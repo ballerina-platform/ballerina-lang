@@ -61,11 +61,11 @@ function errorVarInTupleVar() {
     [int, error] tuple = [100, error("Error Code")];
     var [a, error(reason, message = message)] = tuple;
     boolean r = reason; // incompatible types: expected 'boolean', found 'string'
-    string m = message; // incompatible types: expected 'string', found 'anydata|readonly'
+    string m = message; // incompatible types: expected 'string', found 'Cloneable'
 }
 
 function errorVarWithConstrainedMap() {
     error err = error("Error Code", message = "Fatal");
     var error (reason, message = message) = err;
-    string m = message; // incompatible types: expected 'string', found 'anydata|readonly'
+    string m = message; // incompatible types: expected 'string', found 'Cloneable'
 }

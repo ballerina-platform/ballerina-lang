@@ -19,9 +19,9 @@ function testBasicTypes() {
     future<boolean> f2 = start status();
     future<string> f3 = start concat("foo");
 
-    int result1 = wait f1;
-    boolean result2 = wait f2;
-    string result3 = wait f3;
+    int result1 = checkpanic wait f1;
+    boolean result2 = checkpanic wait f2;
+    string result3 = checkpanic wait f3;
 
     assertEquality(7, result1);
     assertEquality(true, result2);
@@ -46,8 +46,8 @@ function testRefTypes() {
     future<xml> a = start xmlFile();
     future<json> b = start getJson();
 
-    xml x = wait a;
-    json y = wait b;
+    xml x = checkpanic wait a;
+    json y = checkpanic wait b;
 
     assertEquality(xml `aaa`, x);
     assertEquality(5, y);
@@ -67,39 +67,39 @@ function testRefTypesWithoutFutureConstraint() {
 function testArrayTypes() {
     future<int[]> a = start intArray();
     
-    int[] x = wait a;
+    int[] x = checkpanic wait a;
     
     assertEquality(intArray(), x);
 }
 
 function testArrayTypesWithoutFutureConstraint() {
     future a = start intArray();
-    
+
     any|error x = wait a;
-    
+
     assertEquality(intArray(), x);
 }
 
 function testRecordTypes() {
     future<Person> a = start getNewPerson();
     
-    Person x = wait a;
+    Person x = checkpanic wait a;
     
     assertEquality(getNewPerson(), x);
 }
 
 function testRecordTypesWithoutFutureConstraint() {
     future a = start getNewPerson();
-    
+
     any|error x = wait a;
-    
+
     assertEquality(getNewPerson(), x);
 }
 
 function testObjectTypes() {
     future<PersonA> a = start getPersonAObject();
 
-    PersonA x = wait a;
+    PersonA x = checkpanic wait a;
     string name = x.getName();
     
     assertEquality("sample name", name);
@@ -108,9 +108,11 @@ function testObjectTypes() {
 function testObjectTypesWithoutFutureConstraint() {
     future a = start getPersonAObject();
 
-    any|error x = wait a;
-    
-    assertEquality("object PersonA", x.toString());
+    any x = checkpanic wait a;
+    PersonA personA = <PersonA>x;
+
+    assertEquality(getPersonAObject().age, personA.age);
+    assertEquality(getPersonAObject().name, personA.name);
 }
 
 function testCustomErrorFuture() {
@@ -125,8 +127,9 @@ function testCustomErrorFutureWithoutConstraint() {
     future te = start getError();
 
     any|error x = wait te;
+    string str = (<error>x).toString();
 
-    assertEquality(getError().toString(), x.toString());
+    assertEquality(getError().toString(), str);
 }
 
 function add(int i, int j) returns int {
@@ -185,6 +188,41 @@ function getError() returns error {
     error simpleError = error("SimpleErrorType", message = "Simple error occurred");
     return simpleError;
 }
+
+function testFutureTyping() {
+    Foo foo1 = {i: 1, "j": "hello"};
+    Foo foo2 = {i: 2, "j": "world"};
+
+    future<Foo> f1 = start getFoo();
+    any a1 = f1;
+    assertEquality(true, a1 is future<Foo>);
+    assertEquality(true, a1 is future<record {}>);
+    assertEquality(true, a1 is future<int|Foo>);
+    assertEquality(true, a1 is future<record {}|int[]>);
+    assertEquality(false, a1 is future<Bar>);
+
+    future<Foo|Bar> f2 = start getFoo();
+    future<Foo|Bar|int[]> f3 = f2;
+    any a2 = f3;
+    assertEquality(true, a2 is future<Foo>);
+    assertEquality(true, a2 is future<record {}>);
+    assertEquality(true, a2 is future<int|Foo>);
+    assertEquality(true, a2 is future<record {}|int[]>);
+    assertEquality(false, a2 is future<Bar>);
+}
+
+type Foo record {
+    int i;
+};
+
+type Bar record {|
+    float f;
+|};
+
+function getFoo() returns Foo => {i: 1, "j": "hello"};
+
+function getFooOrBar() returns Foo|Bar => {i: 2, "j": "world"};
+
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 

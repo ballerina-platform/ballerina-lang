@@ -17,13 +17,19 @@
  */
 package org.ballerinalang.docgen.generator.model.search;
 
+import com.google.gson.annotations.Expose;
+
 /**
  * JSON to hold search data for modules.
  */
 public class ModuleSearchJson {
+    @Expose
     private String id;
+    @Expose
     private String description;
+    @Expose
     private String orgName;
+    @Expose
     private String version;
 
     public ModuleSearchJson(String id, String orgName, String version, String description) {
@@ -64,4 +70,5 @@ public class ModuleSearchJson {
     public void setVersion(String version) {
         this.version = version;
     }
+
 }

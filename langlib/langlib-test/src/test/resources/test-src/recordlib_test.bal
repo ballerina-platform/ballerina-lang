@@ -97,7 +97,7 @@ function testFilter() returns map<int> {
 
 function testReduce() returns float {
     float avg = grades.reduce(function (float accum, int val) returns float {
-        return accum + <float>val / grades.length();
+        return accum + <float>val / <float>grades.length();
     }, 0.0);
     return avg;
 }

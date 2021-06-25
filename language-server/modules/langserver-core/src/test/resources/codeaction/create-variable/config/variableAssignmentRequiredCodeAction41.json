@@ -1,0 +1,24 @@
+{
+    "line": 14,
+    "character": 10,
+    "expected": [
+        {
+            "title": "Create variable",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 14,
+                            "character": 4
+                        },
+                        "end": {
+                            "line": 14,
+                            "character": 4
+                        }
+                    },
+                    "newText": "File|error file \u003d "
+                }
+            ]
+        }
+    ]
+}

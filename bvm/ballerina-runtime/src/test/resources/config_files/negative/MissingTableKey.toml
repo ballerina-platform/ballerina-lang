@@ -1,0 +1,8 @@
+[[test_module.tableVar]]
+name = "Elsa"
+id = 55
+age = 34
+
+[[test_module.tableVar]]
+id = 44
+age = 22

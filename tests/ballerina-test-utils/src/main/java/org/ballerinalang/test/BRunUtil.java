@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.test;
 
 import io.ballerina.projects.JarResolver;
@@ -37,6 +38,7 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.DecimalValueKind;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
@@ -380,6 +382,7 @@ public class BRunUtil {
                     break;
                 case TypeTags.UNION_TAG:
                 case TypeTags.ANY_TAG:
+                case TypeTags.ANYDATA_TAG:
                 case TypeTags.FINITE_TYPE_TAG:
                 case TypeTags.JSON_TAG:
                     typeClazz = Object.class;
@@ -1177,12 +1180,17 @@ public class BRunUtil {
                 bvmObjectType.setFields(objectFields);
                 return bvmObjectType;
             case io.ballerina.runtime.api.TypeTags.XML_TAG:
+            case io.ballerina.runtime.api.TypeTags.XML_ELEMENT_TAG:
+            case io.ballerina.runtime.api.TypeTags.XML_COMMENT_TAG:
+            case io.ballerina.runtime.api.TypeTags.XML_PI_TAG:
+            case io.ballerina.runtime.api.TypeTags.XML_TEXT_TAG:
                 return BTypes.typeXML;
             case io.ballerina.runtime.api.TypeTags.TYPEDESC_TAG:
                 TypedescType typedescType = (TypedescType) jvmType;
                 return new BTypeDesc(typedescType.getName(),
                         typedescType.getPackage() == null ? null : typedescType.getPackage().getName());
             case io.ballerina.runtime.api.TypeTags.NULL_TAG:
+            case io.ballerina.runtime.api.TypeTags.NEVER_TAG:
                 return BTypes.typeNull;
             case io.ballerina.runtime.api.TypeTags.FINITE_TYPE_TAG:
                 io.ballerina.runtime.api.types.FiniteType jvmBFiniteType =
@@ -1304,7 +1312,7 @@ public class BRunUtil {
         return invoke(compileResult, function, functionName, new BValue[0], new Class<?>[0]);
     }
 
-    public static String runMain(CompileResult compileResult, String[] args) {
+    public static String runMain(CompileResult compileResult, String... args) {
         ExitDetails exitDetails = run(compileResult, args);
         if (exitDetails.exitCode != 0) {
             throw new RuntimeException(exitDetails.errorOutput);
@@ -1312,7 +1320,7 @@ public class BRunUtil {
         return exitDetails.consoleOutput;
     }
 
-    public static ExitDetails run(CompileResult compileResult, String[] args) {
+    public static ExitDetails run(CompileResult compileResult, String... args) {
         PackageManifest packageManifest = compileResult.packageManifest();
         String initClassName = JarResolver.getQualifiedClassName(packageManifest.org().toString(),
                 packageManifest.name().toString(),
@@ -1368,8 +1376,11 @@ public class BRunUtil {
 
         Class<?> initClazz = compileResult.getClassLoader().loadClass(initClassName);
         final Scheduler scheduler = new Scheduler(false);
-        directRun(compileResult.getClassLoader().loadClass(configClassName), "$configureInit", new Class[]{Path.class},
-                new Object[]{LaunchUtils.getConfigPath()});
+        TomlDetails configurationDetails = LaunchUtils.getConfigurationDetails();
+        directRun(compileResult.getClassLoader().loadClass(configClassName), "$configureInit",
+                new Class[]{String[].class, Path[].class, String.class, String.class},
+                  new Object[]{new String[]{}, configurationDetails.paths,
+                        configurationDetails.secret, configurationDetails.configContent});
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleInit"), scheduler);
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleStart"), scheduler);
 //        if (temp) {
@@ -1447,5 +1458,8 @@ public class BRunUtil {
             this.consoleOutput = consoleOutput;
             this.errorOutput = errorOutput;
         }
+    }
+
+    private BRunUtil() {
     }
 }

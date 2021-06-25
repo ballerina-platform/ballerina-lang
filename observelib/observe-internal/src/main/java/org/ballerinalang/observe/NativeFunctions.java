@@ -23,12 +23,12 @@ import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.metrics.BallerinaMetricsObserver;
 import io.ballerina.runtime.observability.metrics.DefaultMetricRegistry;
 import io.ballerina.runtime.observability.metrics.MetricRegistry;
+import io.ballerina.runtime.observability.metrics.noop.NoOpMetricProvider;
 import io.ballerina.runtime.observability.metrics.spi.MetricProvider;
 import io.ballerina.runtime.observability.tracer.BallerinaTracingObserver;
 import io.ballerina.runtime.observability.tracer.TracersStore;
+import io.ballerina.runtime.observability.tracer.noop.NoOpTracerProvider;
 import io.ballerina.runtime.observability.tracer.spi.TracerProvider;
-import org.ballerinalang.observe.noop.NoOpMetricProvider;
-import org.ballerinalang.observe.noop.NoOpTracerProvider;
 
 import java.io.PrintStream;
 import java.util.ServiceLoader;
@@ -42,15 +42,19 @@ public class NativeFunctions {
     public static BError enableMetrics(BString providerName) {
         // Loading the proper Metrics Provider
         MetricProvider selectedProvider = null;
-        for (MetricProvider providerFactory : ServiceLoader.load(MetricProvider.class)) {
-            if (providerName.getValue().equalsIgnoreCase(providerFactory.getName())) {
-                selectedProvider = providerFactory;
-                break;
-            }
-        }
-        if (selectedProvider == null) {
-            errStream.println("error: metrics provider " + providerName + " not found");
+        if (NoOpMetricProvider.NAME.equalsIgnoreCase(providerName.getValue())) {
             selectedProvider = new NoOpMetricProvider();
+        } else {
+            for (MetricProvider providerFactory : ServiceLoader.load(MetricProvider.class)) {
+                if (providerName.getValue().equalsIgnoreCase(providerFactory.getName())) {
+                    selectedProvider = providerFactory;
+                    break;
+                }
+            }
+            if (selectedProvider == null) {
+                errStream.println("error: metrics provider " + providerName + " not found");
+                selectedProvider = new NoOpMetricProvider();
+            }
         }
 
         try {
@@ -66,14 +70,18 @@ public class NativeFunctions {
     public static BError enableTracing(BString providerName) {
         // Loading the proper tracing Provider
         TracerProvider selectedProvider = null;
-        for (TracerProvider providerFactory : ServiceLoader.load(TracerProvider.class)) {
-            if (providerName.getValue().equalsIgnoreCase(providerFactory.getName())) {
-                selectedProvider = providerFactory;
-            }
-        }
-        if (selectedProvider == null) {
-            errStream.println("error: tracer provider " + providerName + " not found");
+        if (NoOpTracerProvider.NAME.equalsIgnoreCase(providerName.getValue())) {
             selectedProvider = new NoOpTracerProvider();
+        } else {
+            for (TracerProvider providerFactory : ServiceLoader.load(TracerProvider.class)) {
+                if (providerName.getValue().equalsIgnoreCase(providerFactory.getName())) {
+                    selectedProvider = providerFactory;
+                }
+            }
+            if (selectedProvider == null) {
+                errStream.println("error: tracer provider " + providerName + " not found");
+                selectedProvider = new NoOpTracerProvider();
+            }
         }
 
         try {

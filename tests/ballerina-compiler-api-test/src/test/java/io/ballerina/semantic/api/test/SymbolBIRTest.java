@@ -19,15 +19,24 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
+import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
-import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -50,9 +59,15 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getSymbolNames;
+import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
@@ -64,6 +79,9 @@ import static org.testng.Assert.assertTrue;
  */
 public class SymbolBIRTest {
 
+    private SemanticModel model;
+    private Document srcFile;
+
     @BeforeClass
     public void setup() {
         CompileResult compileResult = BCompileUtil.compileAndCacheBala("test-src/testproject");
@@ -71,6 +89,39 @@ public class SymbolBIRTest {
             Arrays.stream(compileResult.getDiagnostics()).forEach(System.out::println);
             Assert.fail("Compilation contains error");
         }
+
+        Project project = BCompileUtil.loadProject("test-src/symbol_at_cursor_import_test.bal");
+        model = getDefaultModulesSemanticModel(project);
+        srcFile = getDocumentForSingleSource(project);
+    }
+
+    // Tests if the field symbols of a record type defined in testorg/testproject are accessible
+    @Test(dataProvider = "RecordFieldImports")
+    public void testRecordFieldSymbol(int line, int col, String fieldName, TypeDescKind typeKind, boolean isOptional,
+                                      boolean hasDefaultValue, String signature) {
+        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_record_field_imports_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        Symbol symbol = model.symbol(srcFile, from(line, col))
+                .orElseThrow(() -> new AssertionError("Expected a symbol at: (" + line + ", " + col + ")"));
+
+        assertEquals(symbol.kind(), SymbolKind.RECORD_FIELD);
+
+        RecordFieldSymbol fieldSymbol = (RecordFieldSymbol) symbol;
+        assertEquals(fieldSymbol.getName().get(), fieldName);
+        assertEquals(fieldSymbol.typeDescriptor().typeKind(), typeKind);
+        assertEquals(fieldSymbol.isOptional(), isOptional);
+        assertEquals(fieldSymbol.hasDefaultValue(), hasDefaultValue);
+        assertEquals(fieldSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "RecordFieldImports")
+    public Object[][] getRecordFieldPos() {
+        return new Object[][]{
+                {21, 17, "name", STRING, false, false, "string name"},
+                {22, 14, "age", INT, false, false, "int age"},
+        };
     }
 
     @Test
@@ -90,23 +141,24 @@ public class SymbolBIRTest {
         List<SymbolInfo> moduleSymbols = getModuleSymbolInfo();
         List<SymbolInfo> expSymbolNames = getSymbolNames(annotationModuleSymbols, moduleLevelSymbols, moduleSymbols);
 
-        List<Symbol> symbolsInScope = model.visibleSymbols(srcFile, LinePosition.from(18, 0));
+        List<Symbol> symbolsInScope = model.visibleSymbols(srcFile, from(18, 0));
         assertList(symbolsInScope, expSymbolNames);
 
         BallerinaModule fooModule = (BallerinaModule) symbolsInScope.stream()
-                .filter(sym -> sym.name().equals("testproject")).findAny().get();
+                .filter(sym -> sym.getName().get().equals("testproject")).findAny().get();
         List<String> fooFunctions = getSymbolNames(fooPkgSymbol, SymTag.FUNCTION);
         SemanticAPITestUtils.assertList(fooModule.functions(), fooFunctions);
 
         List<String> fooConstants = getSymbolNames(fooPkgSymbol, SymTag.CONSTANT);
         SemanticAPITestUtils.assertList(fooModule.constants(), fooConstants);
 
-        List<String> fooTypeDefs = getSymbolNames(getSymbolNames(fooPkgSymbol, SymTag.TYPE_DEF), "Digit");
+        List<String> fooTypeDefs = getSymbolNames(fooPkgSymbol, SymTag.TYPE_DEF);
         fooTypeDefs.remove("PersonObj");
         fooTypeDefs.remove("Colour");
+        fooTypeDefs.remove("Dog");
+        fooTypeDefs.remove("EmployeeObj");
         SemanticAPITestUtils.assertList(fooModule.typeDefinitions(), fooTypeDefs);
-
-        SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj"));
+        SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj", "Dog", "EmployeeObj"));
         SemanticAPITestUtils.assertList(fooModule.enums(), List.of("Colour"));
 
         List<String> allSymbols = getSymbolNames(fooPkgSymbol, 0);
@@ -115,12 +167,8 @@ public class SymbolBIRTest {
 
     @Test(dataProvider = "ImportSymbolPosProvider")
     public void testImportSymbols(int line, int column, String expSymbolName) {
-        Project project = BCompileUtil.loadProject("test-src/symbol_at_cursor_import_test.bal");
-        SemanticModel model = getDefaultModulesSemanticModel(project);
-        Document srcFile = getDocumentForSingleSource(project);
-
-        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
+        Optional<Symbol> symbol = model.symbol(srcFile, from(line, column));
+        symbol.ifPresent(value -> assertEquals(value.getName().get(), expSymbolName));
 
         if (symbol.isEmpty()) {
             assertNull(expSymbolName);
@@ -134,12 +182,43 @@ public class SymbolBIRTest {
                 {16, 10, "testproject"},
                 {16, 16, "testproject"},
                 {16, 26, null},
-//                {19, 17, "foo"}, // TODO: issue #25841
+                {19, 17, "testproject"},
                 {20, 13, "testproject"},
                 {22, 5, "testproject"},
-//                {26, 12, "foo"}, // TODO: issue #25841
+                {26, 12, "testproject"},
                 {31, 20, "getName"},
         };
+    }
+
+    @Test
+    public void testTypeInclusions() {
+        ModuleSymbol module = (ModuleSymbol) model.symbol(srcFile, from(16, 15)).get();
+
+        Optional<ClassSymbol> dog = module.classes().stream()
+                .filter(symbol -> "Dog".equals(symbol.getName().get())).findFirst();
+        List<TypeSymbol> inclusions = dog.get().typeInclusions();
+        assertEquals(inclusions.size(), 1);
+        assertEquals(inclusions.get(0).typeKind(), TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) inclusions.get(0)).typeDescriptor().typeKind(), OBJECT);
+        assertEquals(inclusions.get(0).getName().get(), "Pet");
+
+        Optional<TypeDefinitionSymbol> typeDef = module.typeDefinitions().stream()
+                .filter(symbol -> "Cat".equals(symbol.getName().get())).findFirst();
+        ObjectTypeSymbol cat = (ObjectTypeSymbol) typeDef.get().typeDescriptor();
+        inclusions = cat.typeInclusions();
+        assertEquals(inclusions.size(), 1);
+        assertEquals(inclusions.get(0).typeKind(), TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) inclusions.get(0)).typeDescriptor().typeKind(), OBJECT);
+        assertEquals(inclusions.get(0).getName().get(), "Pet");
+
+        typeDef = module.typeDefinitions().stream()
+                .filter(symbol -> "Student".equals(symbol.getName().get())).findFirst();
+        RecordTypeSymbol student = (RecordTypeSymbol) typeDef.get().typeDescriptor();
+        inclusions = student.typeInclusions();
+        assertEquals(inclusions.size(), 1);
+        assertEquals(inclusions.get(0).typeKind(), TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) inclusions.get(0)).typeDescriptor().typeKind(), RECORD);
+        assertEquals(inclusions.get(0).getName().get(), "Person");
     }
 
     // util methods
@@ -148,7 +227,8 @@ public class SymbolBIRTest {
         assertEquals(actualValues.size(), expectedValues.size());
 
         for (SymbolInfo val : expectedValues) {
-            assertTrue(actualValues.stream().anyMatch(sym -> val.equals(new SymbolInfo(sym.name(), sym.kind()))),
+            assertTrue(actualValues.stream()
+                               .anyMatch(sym -> val.equals(new SymbolInfo(sym.getName().get(), sym.kind()))),
                        "Symbol not found: " + val);
 
         }
@@ -177,7 +257,7 @@ public class SymbolBIRTest {
                         {"xml", MODULE}, {"testproject", MODULE}, {"object", MODULE}, {"error", MODULE},
                         {"boolean", MODULE}, {"decimal", MODULE}, {"typedesc", MODULE}, {"float", MODULE},
                         {"future", MODULE}, {"int", MODULE}, {"map", MODULE}, {"stream", MODULE},
-                        {"string", MODULE}, {"table", MODULE}
+                        {"string", MODULE}, {"table", MODULE}, {"transaction", MODULE}
                 });
     }
 
@@ -215,6 +295,30 @@ public class SymbolBIRTest {
         @Override
         public int hashCode() {
             return Objects.hash(this.name, this.kind);
+        }
+    }
+
+    @DataProvider(name = "hasDefaultTestProvider")
+    public Object[][] hasDefaultTest() {
+        return new Object[][]{
+                {21, 6, null},
+                {22, 6, true},
+                {23, 6, false}
+        };
+    }
+
+    @Test(dataProvider = "hasDefaultTestProvider")
+    public void testHasDefaultValue(int line, int col, Boolean hasDefault) {
+        Project projectDefaultValue = BCompileUtil.loadProject("test-src/symbol_lookup_with_class_field_test.bal");
+        SemanticModel modelDefaultValue = getDefaultModulesSemanticModel(projectDefaultValue);
+        Document srcFileDefaultValue = getDocumentForSingleSource(projectDefaultValue);
+        Optional<Symbol> symbol = modelDefaultValue.symbol(srcFileDefaultValue, from(line, col));
+
+        if (symbol.isEmpty()) {
+            assertNull(hasDefault);
+        } else {
+            ClassFieldSymbol fieldSymbol = (ClassFieldSymbol) symbol.get();
+            assertEquals((Boolean) fieldSymbol.hasDefaultValue(), hasDefault);
         }
     }
 }

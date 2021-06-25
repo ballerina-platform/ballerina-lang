@@ -17,11 +17,9 @@
  */
 package org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern;
 
-import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -33,9 +31,7 @@ import org.testng.annotations.Test;
  */
 @Test
 public class MappingBindingPatternTest {
-    private CompileResult result, restMatchPatternResult, resultNegative;
-    private String patternNotMatched = "pattern will not be matched";
-    private String unreachablePattern = "unreachable pattern";
+    private CompileResult result, restMatchPatternResult;
 
     @BeforeClass
     public void setup() {
@@ -43,8 +39,6 @@ public class MappingBindingPatternTest {
                 "/mapping_binding_pattern.bal");
         restMatchPatternResult = BCompileUtil.compile("test-src/statements/matchstmt/varbindingpatternmatchpattern" +
                 "/mapping_binding_pattern_with_rest_binding_pattern.bal");
-        resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/varbindingpatternmatchpattern" +
-                "/mapping_binding_pattern_negative.bal");
     }
 
     @Test
@@ -128,6 +122,11 @@ public class MappingBindingPatternTest {
     }
 
     @Test
+    public void testMappingBindingPattern17() {
+        BRunUtil.invoke(result, "testMappingBindingPattern17");
+    }
+
+    @Test
     public void testMappingBindingPatternWithRest1() {
         BRunUtil.invoke(restMatchPatternResult, "testMappingBindingPatternWithRest1");
     }
@@ -148,22 +147,43 @@ public class MappingBindingPatternTest {
     }
 
     @Test
-    public void testMappingBindingPatternNegative() {
-        int i = -1;
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 20, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 27, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 38, 28);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 42, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 46, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 54, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 61, 9);
-        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
+    public void testMappingBindingPatternWithRest5() {
+        BRunUtil.invoke(restMatchPatternResult, "testMappingBindingPatternWithRest5");
+    }
+
+    @Test
+    public void testMappingBindingPatternWithRest6() {
+        BRunUtil.invoke(restMatchPatternResult, "testMappingBindingPatternWithRest6");
+    }
+
+    @Test
+    public void testMappingBindingPatternWithRest7() {
+        BRunUtil.invoke(restMatchPatternResult, "testMappingBindingPatternWithRest7");
+    }
+
+    @Test
+    public void testMappingBindingPatternWithRest8() {
+        BRunUtil.invoke(restMatchPatternResult, "testMappingBindingPatternWithRest8");
+    }
+
+    @Test
+    public void testRestMappingAtRuntime() {
+        BRunUtil.invoke(restMatchPatternResult, "testRestMappingAtRuntime");
+    }
+
+    @Test
+    public void testRestRecordPattern() {
+        BRunUtil.invoke(restMatchPatternResult, "testRestRecordPattern");
+    }
+
+    @Test
+    public void testReachableMappingBinding() {
+        BRunUtil.invoke(restMatchPatternResult, "testReachableMappingBinding");
     }
 
     @AfterClass
     public void tearDown() {
         result = null;
         restMatchPatternResult = null;
-        resultNegative = null;
     }
 }

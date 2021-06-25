@@ -17,6 +17,12 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
+
+import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
+
 /**
  * JVM bytecode generation related constants.
  *
@@ -70,6 +76,7 @@ public class JvmConstants {
     public static final String B_HANDLE = "io/ballerina/runtime/api/values/BHandle";
 
     public static final String B_INITIAL_VALUE_ENTRY = "io/ballerina/runtime/api/values/BInitialValueEntry";
+    public static final String B_LIST_INITIAL_VALUE_ENTRY = "io/ballerina/runtime/api/values/BListInitialValueEntry";
     public static final String B_MAPPING_INITIAL_VALUE_ENTRY = "io/ballerina/runtime/api/values/BMapInitialValueEntry";
     public static final String MAPPING_INITIAL_VALUE_ENTRY =
             "io/ballerina/runtime/internal/values/MappingInitialValueEntry";
@@ -146,6 +153,7 @@ public class JvmConstants {
     public static final String CURRENT_MODULE_VAR_NAME = "$moduleName";
     public static final String B_STRING_VAR_PREFIX = "$bString";
     public static final String VARIABLE_KEY = "io/ballerina/runtime/internal/configurable/VariableKey";
+    public static final String TOML_DETAILS = "io/ballerina/runtime/internal/configurable/providers/toml/TomlDetails";
     public static final String TYPE_ID_SET = "io/ballerina/runtime/internal/types/BTypeIdSet";
     public static final String TYPE_ID = "io/ballerina/runtime/internal/types/BTypeIdSet$TypeId";
 
@@ -161,6 +169,7 @@ public class JvmConstants {
     public static final String STRAND_STATE = "io/ballerina/runtime/internal/scheduling/State";
     public static final String VALUE_CREATOR = "io/ballerina/runtime/internal/values/ValueCreator";
     public static final String XML_FACTORY = "io/ballerina/runtime/internal/XmlFactory";
+    public static final String XML_SEQUENCE = "io/ballerina/runtime/internal/values/XmlSequence";
     public static final String WD_CHANNELS = "io/ballerina/runtime/internal/scheduling/WDChannels";
     public static final String WORKER_DATA_CHANNEL = "io/ballerina/runtime/internal/scheduling/WorkerDataChannel";
     public static final String CHANNEL_DETAILS = "io/ballerina/runtime/internal/values/ChannelDetails";
@@ -171,7 +180,9 @@ public class JvmConstants {
     public static final String ERROR_UTILS = "io/ballerina/runtime/internal/ErrorUtils";
     public static final String ERROR_CREATOR = "io/ballerina/runtime/api/ErrorCreator";
     public static final String RUNTIME_UTILS = "io/ballerina/runtime/internal/util/RuntimeUtils";
-    public static final String ARGUMENT_PARSER = "io/ballerina/runtime/internal/util/ArgumentParser";
+    public static final String OPTION = "io/ballerina/runtime/internal/cli/Option";
+    public static final String OPERAND = "io/ballerina/runtime/internal/cli/Operand";
+    public static final String CLI_SPEC = "io/ballerina/runtime/internal/cli/CliSpec";
     public static final String LAUNCH_UTILS = "io/ballerina/runtime/internal/launch/LaunchUtils";
     public static final String MATH_UTILS = "io/ballerina/runtime/internal/MathUtils";
     public static final String BAL_ERROR_REASONS =
@@ -182,6 +193,7 @@ public class JvmConstants {
     public static final String COMPATIBILITY_CHECKER = "io/ballerina/runtime/internal/util/CompatibilityChecker";
     public static final String LISTENER_REGISTRY_CLASS =
             "io/ballerina/runtime/internal/scheduling/Scheduler$ListenerRegistry";
+    public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/ValueComparisonUtils";
 
     // other java classes
     public static final String OBJECT = "java/lang/Object";
@@ -205,6 +217,7 @@ public class JvmConstants {
     public static final String PATH = "java/nio/file/Path";
     public static final String PATHS = "java/nio/file/Paths";
     public static final String SYSTEM = "java/lang/System";
+    public static final String BIG_DECIMAL = "java/math/BigDecimal";
 
     // service objects, annotation processing related classes
     public static final String ANNOTATION_UTILS = "io/ballerina/runtime/internal/AnnotationUtils";
@@ -224,8 +237,9 @@ public class JvmConstants {
     public static final String BLOCKED_ON_EXTERN_FIELD = "blockedOnExtern";
     public static final String IS_BLOCKED_ON_EXTERN_FIELD = "isBlockedOnExtern";
 
-    // union related constants
+    // union and tuple related constants
     public static final String SET_MEMBERS_METHOD = "setMemberTypes";
+    public static final String SET_ORIGINAL_MEMBERS_METHOD = "setOriginalMemberTypes";
     public static final String SET_CYCLIC_METHOD = "setCyclic";
 
     // Immutable type related constants.
@@ -236,7 +250,8 @@ public class JvmConstants {
             "io/ballerina/runtime/internal/util/exceptions/BLangRuntimeException";
     public static final String THROWABLE = "java/lang/Throwable";
     public static final String STACK_OVERFLOW_ERROR = "java/lang/StackOverflowError";
-    public static final String HANDLE_THROWABLE_METHOD = "handleRuntimeErrorsAndExit";
+    public static final String HANDLE_THROWABLE_METHOD = "handleBErrorAndExit";
+    public static final String HANDLE_ALL_THROWABLE_METHOD = "handleAllRuntimeErrorsAndExit";
     public static final String HANDLE_RETURNED_ERROR_METHOD = "handleRuntimeReturnValues";
     public static final String UNSUPPORTED_OPERATION_EXCEPTION = "java/lang/UnsupportedOperationException";
     public static final String HANDLE_STOP_PANIC_METHOD = "handleRuntimeErrors";
@@ -258,6 +273,8 @@ public class JvmConstants {
     public static final String TYPEDESC_CLASS_PREFIX = "$typedesc$";
     public static final String BALLERINA = "ballerina";
     public static final String ENCODED_DOT_CHARACTER = "$0046";
+    public static final PackageID DEFAULT = new PackageID(Names.ANON_ORG, new Name(ENCODED_DOT_CHARACTER),
+                                                          DEFAULT_VERSION);
     public static final String BUILT_IN_PACKAGE_NAME = "lang" + ENCODED_DOT_CHARACTER + "annotations";
     public static final String MODULE_START_ATTEMPTED = "$moduleStartAttempted";
     public static final String MODULE_STARTED = "$moduleStarted";
@@ -294,6 +311,8 @@ public class JvmConstants {
     public static final String SCHEDULER_START_METHOD = "start";
     public static final String CREATE_RECORD_VALUE = "createRecordValue";
     public static final String CREATE_OBJECT_VALUE = "createObjectValue";
+    public static final String CREATE_ERROR_VALUE = "createErrorValue";
+    public static final String GET_ANON_TYPE = "getAnonType";
 
     // strand data related constants
     public static final String STRAND = "strand";
@@ -311,6 +330,7 @@ public class JvmConstants {
     public static final String REPORT_ERROR_METHOD = "reportError";
     public static final String STOP_OBSERVATION_METHOD = "stopObservation";
     public static final String OBSERVABLE_ANNOTATION = "ballerina/observe/Observable";
+    public static final String DISPLAY_ANNOTATION = "display";
     public static final String RECORD_CHECKPOINT_METHOD = "recordCheckpoint";
 
     // visibility flags

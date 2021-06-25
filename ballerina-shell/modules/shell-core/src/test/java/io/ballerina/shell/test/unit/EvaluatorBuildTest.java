@@ -56,20 +56,6 @@ public class EvaluatorBuildTest {
         Assert.assertEquals(evaluator.getInvoker().getClass(), CustomInvoker.class);
     }
 
-    @Test
-    public void testCustomConstructor() {
-        Evaluator evaluator = new Evaluator(
-                new CustomPreprocessor(),
-                new CustomTreeParser(),
-                new CustomSnippetFactory(),
-                new CustomInvoker()
-        );
-        Assert.assertEquals(evaluator.getPreprocessor().getClass(), CustomPreprocessor.class);
-        Assert.assertEquals(evaluator.getTreeParser().getClass(), CustomTreeParser.class);
-        Assert.assertEquals(evaluator.getSnippetFactory().getClass(), CustomSnippetFactory.class);
-        Assert.assertEquals(evaluator.getInvoker().getClass(), CustomInvoker.class);
-    }
-
     private static class CustomPreprocessor extends SeparatorPreprocessor {
     }
 

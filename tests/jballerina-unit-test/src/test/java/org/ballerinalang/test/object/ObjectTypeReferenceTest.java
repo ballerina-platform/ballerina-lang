@@ -76,23 +76,15 @@ public class ObjectTypeReferenceTest {
                                   "invalid cyclic type reference in '[C, D, A, B, C]'", 74, 1);
         BAssertUtil.validateError(negativeResult, i++,
                                   "invalid cyclic type reference in '[E, C, E]'", 74, 1);
-        // Disable as new class definition will replace objects that can have method implementations.
-//        BAssertUtil.validateError(negativeResult, i++,
-//                                  "no implementation found for the function 'getName' of non-abstract object " +
-//                                          "'Manager2'", 96, 5);
-        i++;
-//        BAssertUtil.validateError(negativeResult, i++,
-//                "no implementation found for the function 'getSalary' of non-abstract object 'Manager2'", 96, 5);
-        i++;
+        BAssertUtil.validateError(negativeResult, i++,
+                "no implementation found for the method 'getName' of class 'Manager2'", 95, 1);
+        BAssertUtil.validateError(negativeResult, i++,
+                "no implementation found for the method 'getSalary' of class 'Manager2'", 95, 1);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Q' is not an object", 101, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared type reference 'Person1'", 111, 6);
-        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'getName': trying to copy a duplicate " +
-                "function through referenced type 'ObjectWithFunction'", 120, 5);
-        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'getName': trying to copy a duplicate " +
-                "function through referenced type 'ObjectWithRedeclaredFunction_1'", 125, 6);
-        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Baz'", 129, 6);
-        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Tar'", 133, 6);
-        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'xyz'", 154, 6);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Baz'", 119, 6);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Tar'", 123, 6);
+        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'xyz'", 144, 6);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -111,6 +103,16 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 66, 6);
         BAssertUtil.validateError(negativeResult, i++, "variable 'name' is not initialized", 69, 16);
         BAssertUtil.validateError(negativeResult, i++, "variable 'salary' is not initialized", 73, 16);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
+    }
+
+    @Test
+    public void testOutOfOrderObjectTypeReferenceNegative() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/object" +
+                "/object_out_of_order_inclusion_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "included field 'body' of type 'anydata' cannot " +
+                "be overridden by a field of type 'Baz2': expected a subtype of 'anydata'", 24, 5);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -208,6 +210,34 @@ public class ObjectTypeReferenceTest {
                 "descriptor in a 'class' that is not 'readonly'", 135, 6);
         BAssertUtil.validateError(negativeResult, i++, "object type inclusion cannot be used with a 'readonly' type " +
                 "descriptor in an 'object' type descriptor", 141, 6);
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'vals' with " +
+                "object type inclusion", 156, 5);
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'name' with " +
+                "object type inclusion", 157, 5);
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'age' with " +
+                "object type inclusion", 158, 5);
+        BAssertUtil.validateError(negativeResult, i++, "mismatched function signatures: expected 'function " +
+                "foo(float ratio, int months) returns float', found 'public function " +
+                "foo(float ratio, int months) returns float'", 162, 5);
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'a' with " +
+                "object type inclusion", 175, 5);
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'b' with " +
+                "object type inclusion", 176, 5);
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'x' with " +
+                "object type inclusion", 181, 5);
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'y' with " +
+                "object type inclusion", 182, 5);
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'l' with " +
+                "object type inclusion", 195, 5);
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'm' with " +
+                "object type inclusion", 196, 5);
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'n' with " +
+                "object type inclusion", 197, 5);
+        BAssertUtil.validateError(negativeResult, i++, "mismatched function signatures: expected 'public function " +
+                "foo(float ratio, int months) returns float', found 'private function foo(float ratio, int months) " +
+                "returns float'", 199, 5);
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'q' with " +
+                "object type inclusion", 210, 5);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -336,7 +366,6 @@ public class ObjectTypeReferenceTest {
 
     @Test
     public void testInvalidTypeReferenceAcrossModules() {
-//        CompileResult result = BCompileUtil.compile("test-src/object/ObjectProject", "object_reference_negative");
         CompileResult result = BCompileUtil.compile("test-src/object/ObjectRefNegativeProject");
         int index = 0;
 

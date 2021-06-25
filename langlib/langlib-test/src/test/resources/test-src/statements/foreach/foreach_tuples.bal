@@ -203,3 +203,99 @@ function testTupleWithNullElements() returns string {
     }
     return output;
 }
+
+function testTupleWithRestDescriptorInForeach1() {
+    [[int, int, int...]] x = [[1, 2, 3, 4, 5]];
+    foreach [int, int...] [a, ...b] in x {
+        assertEquality(1, a);
+        assertEquality(2, b[0]);
+        assertEquality(3, b[1]);
+        assertEquality(4, b[2]);
+        assertEquality(5, b[3]);
+    }
+}
+
+function testTupleWithRestDescriptorInForeach2() {
+    [int[3]...] x = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
+    [int, int[]][] arr = [];
+    foreach [int, int...] [a, ...b] in x {
+        arr.push([a, b]);
+    }
+    assertEquality(1, arr[0][0]);
+    assertEquality(2, arr[0][1][0]);
+    assertEquality(3, arr[0][1][1]);
+    assertEquality(4, arr[1][0]);
+    assertEquality(5, arr[1][1][0]);
+    assertEquality(6, arr[1][1][1]);
+    assertEquality(7, arr[2][0]);
+    assertEquality(8, arr[2][1][0]);
+    assertEquality(9, arr[2][1][1]);
+}
+
+function testTupleWithRestDescriptorInForeach3() {
+    [[int, int...], [int, int, int], [int, int, int...]] x = [[1, 2], [3, 4, 5], [7, 8, 9, 10]];
+    [int, int[]][] arr = [];
+    foreach [int, int...] [a, ...b] in x {
+        arr.push([a, b]);
+    }
+    assertEquality(1, arr[0][0]);
+    assertEquality(2, arr[0][1][0]);
+    assertEquality(3, arr[1][0]);
+    assertEquality(4, arr[1][1][0]);
+    assertEquality(5, arr[1][1][1]);
+    assertEquality(7, arr[2][0]);
+    assertEquality(8, arr[2][1][0]);
+    assertEquality(9, arr[2][1][1]);
+    assertEquality(10, arr[2][1][2]);
+}
+
+function testTupleWithRestDescriptorInForeach4() {
+    [[int, int...], int[4]] x = [[1, 2, 3, 4], [7, 8, 9, 10]];
+    int[][] arr = [];
+    foreach [int...] [...a] in x {
+        arr.push(a);
+    }
+    assertEquality(1, arr[0][0]);
+    assertEquality(2, arr[0][1]);
+    assertEquality(3, arr[0][2]);
+    assertEquality(4, arr[0][3]);
+    assertEquality(7, arr[1][0]);
+    assertEquality(8, arr[1][1]);
+    assertEquality(9, arr[1][2]);
+    assertEquality(10, arr[1][3]);
+}
+
+function testTupleWithRestDescriptorInForeach5() {
+    [[int, int], [int, int, int...], int[2]...] x = [[1, 2], [3, 4, 5, 6], [7, 8], [9, 10]];
+    [int, int[]][] arr = [];
+    foreach var [a, ...b] in x {
+        arr.push([a, b]);
+    }
+    assertEquality(1, arr[0][0]);
+    assertEquality(2, arr[0][1][0]);
+    assertEquality(3, arr[1][0]);
+    assertEquality(4, arr[1][1][0]);
+    assertEquality(5, arr[1][1][1]);
+    assertEquality(6, arr[1][1][2]);
+    assertEquality(7, arr[2][0]);
+    assertEquality(8, arr[2][1][0]);
+    assertEquality(9, arr[3][0]);
+    assertEquality(10, arr[3][1][0]);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}

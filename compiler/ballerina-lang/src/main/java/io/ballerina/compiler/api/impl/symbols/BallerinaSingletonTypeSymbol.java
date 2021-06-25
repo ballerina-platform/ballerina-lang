@@ -24,7 +24,9 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
 
@@ -35,12 +37,19 @@ import java.util.List;
  */
 public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements SingletonTypeSymbol {
 
-    private String typeName;
+    private final String typeName;
 
     public BallerinaSingletonTypeSymbol(CompilerContext context, ModuleID moduleID, BLangExpression shape,
                                         BType bType) {
-        super(context, TypeDescKind.SINGLETON, moduleID, bType);
-        this.typeName = shape.toString();
+        super(context, TypeDescKind.SINGLETON, bType);
+
+        // Special case handling for `()` since in BLangLiteral, `null` is used to represent nil.
+        if (shape instanceof BLangLiteral && ((BLangLiteral) shape).value == null
+                && shape.getBType().tag == TypeTags.NIL) {
+            this.typeName = "()";
+        } else {
+            this.typeName = shape.toString();
+        }
     }
 
     @Override
@@ -48,7 +57,7 @@ public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements 
         if (this.langLibFunctions == null) {
             LangLibrary langLibrary = LangLibrary.getInstance(this.context);
             BFiniteType internalType = (BFiniteType) this.getBType();
-            BType valueType = internalType.getValueSpace().iterator().next().type;
+            BType valueType = internalType.getValueSpace().iterator().next().getBType();
             List<FunctionSymbol> functions = langLibrary.getMethods(valueType.getKind());
             this.langLibFunctions = filterLangLibMethods(functions, valueType);
         }

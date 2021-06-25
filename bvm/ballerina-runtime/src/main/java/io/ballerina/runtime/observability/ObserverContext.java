@@ -18,6 +18,7 @@
 package io.ballerina.runtime.observability;
 
 import io.ballerina.runtime.observability.metrics.Tag;
+import io.ballerina.runtime.observability.tracer.BSpan;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,9 +48,15 @@ public class ObserverContext {
      */
     public Map<String, Tag> customMetricTags;
 
+    private BSpan span;
+
     private String entrypointFunctionModule;
 
-    private String entrypointFunctionPosition;
+    private String entrypointServiceName;
+
+    private String entrypointFunctionName;
+
+    private String entrypointResourceAccessor;
 
     private String serviceName;
 
@@ -64,6 +71,8 @@ public class ObserverContext {
     private ObserverContext parent;
 
     private boolean isSystemSpan;
+
+    private boolean manuallyClosed;
 
     public ObserverContext() {
         this.properties = new HashMap<>();
@@ -92,6 +101,14 @@ public class ObserverContext {
         return new HashSet<>(tags.values());
     }
 
+    public BSpan getSpan() {
+        return span;
+    }
+
+    public void setSpan(BSpan span) {
+        this.span = span;
+    }
+
     public String getEntrypointFunctionModule() {
         return entrypointFunctionModule;
     }
@@ -100,12 +117,28 @@ public class ObserverContext {
         this.entrypointFunctionModule = entrypointFunctionModule;
     }
 
-    public String getEntrypointFunctionPosition() {
-        return entrypointFunctionPosition;
+    public String getEntrypointServiceName() {
+        return entrypointServiceName;
     }
 
-    public void setEntrypointFunctionPosition(String entrypointFunctionPosition) {
-        this.entrypointFunctionPosition = entrypointFunctionPosition;
+    public void setEntrypointServiceName(String entrypointServiceName) {
+        this.entrypointServiceName = entrypointServiceName;
+    }
+
+    public String getEntrypointFunctionName() {
+        return entrypointFunctionName;
+    }
+
+    public void setEntrypointFunctionName(String entrypointFunctionName) {
+        this.entrypointFunctionName = entrypointFunctionName;
+    }
+
+    public String getEntrypointResourceAccessor() {
+        return entrypointResourceAccessor;
+    }
+
+    public void setEntrypointResourceAccessor(String entrypointResourceAccessor) {
+        this.entrypointResourceAccessor = entrypointResourceAccessor;
     }
 
     public String getServiceName() {
@@ -162,6 +195,14 @@ public class ObserverContext {
 
     public void setSystemSpan(boolean userSpan) {
         isSystemSpan = userSpan;
+    }
+
+    public boolean isManuallyClosed() {
+        return manuallyClosed;
+    }
+
+    public void setManuallyClosed(boolean manuallyClosed) {
+        this.manuallyClosed = manuallyClosed;
     }
 
     @Deprecated

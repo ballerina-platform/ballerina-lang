@@ -17,8 +17,6 @@
  */
 package io.ballerina.tools.diagnostics;
 
-import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
-
 import java.util.List;
 
 /**
@@ -29,31 +27,31 @@ import java.util.List;
 public abstract class Diagnostic {
 
     /**
-     * Get the location of the diagnostic.
+     * Returns the location of the diagnostic.
      *
      * @return {@link Location} of the diagnostic
      */
     public abstract Location location();
 
     /**
-     * Get additional info associated with he diagnostic.
+     * Returns the abstract shape of the diagnostic that independent of the location and message arguments.
      *
-     * @return Additional {@link DiagnosticInfo}
+     * @return the abstract shape of the {@link Diagnostic}
      */
     public abstract DiagnosticInfo diagnosticInfo();
 
     /**
-     * Get the diagnostic message.
+     * Returns the diagnostic message.
      *
      * @return diagnostic message
      */
     public abstract String message();
 
-    /*
-    * Get the diagnostic-properties passed when logging.
-    *
-    * @return {@link DiagnosticProperty} of the diagnostic.
-    * */
+    /**
+     * Returns the associated additional properties.
+     *
+     * @return {@link DiagnosticProperty} of the diagnostic
+     */
     public abstract List<DiagnosticProperty<?>> properties();
 
     @Override

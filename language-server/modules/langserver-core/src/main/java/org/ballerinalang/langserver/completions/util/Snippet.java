@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
-import org.ballerinalang.langserver.SnippetBlock;
-import org.ballerinalang.langserver.SnippetGenerator;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 
 /**
  * Snippet for the Ballerina language constructs.
@@ -100,7 +100,9 @@ public enum Snippet {
 //
 //    DEF_RESOURCE_WEBSUB_NOTIFY(SnippetGenerator.getWebSubResourceOnNotificationSnippet()),
 
-    DEF_SERVICE(SnippetGenerator.getServiceDefSnippet()),
+    DEF_SERVICE(SnippetGenerator.getHttpServiceDefSnippet()),
+
+    DEF_SERVICE_COMMON(SnippetGenerator.getCommonServiceSnippet()),
 
 //    DEF_SERVICE_VAR(SnippetGenerator.getServiceVarSnippet()),
 
@@ -212,6 +214,8 @@ public enum Snippet {
 
     KW_FINAL(SnippetGenerator.getFinalKeywordSnippet()),
 
+    KW_CONFIGURABLE(SnippetGenerator.getConfigurableKeywordSnippet()),
+
     KW_FAIL(SnippetGenerator.getFailKeywordSnippet()),
 
     KW_REMOTE(SnippetGenerator.getRemoteKeywordSnippet()),
@@ -254,8 +258,6 @@ public enum Snippet {
 
     KW_TYPEOF(SnippetGenerator.getTypeofKeywordSnippet()),
 
-    KW_COMMIT(SnippetGenerator.getCommitKeywordSnippet()),
-
     KW_IS(SnippetGenerator.getIsKeywordSnippet()),
 
     KW_ASCENDING(SnippetGenerator.getAscendingKeywordSnippet()),
@@ -264,15 +266,21 @@ public enum Snippet {
 
     KW_TRANSACTIONAL(SnippetGenerator.getTransactionalKeywordSnippet()),
 
+    KW_WORKER(SnippetGenerator.getKeywordSnippet("worker")),
+
+    KW_FIELD(SnippetGenerator.getKeywordSnippet("field")),
+
     KW_SOURCE(SnippetGenerator.getKeywordSnippet("source")),
 
     KW_OBJ_FUNCTION(SnippetGenerator.getKeywordSnippet("object function")),
 
     KW_SERVICE_REMOTE_FUNCTION(SnippetGenerator.getKeywordSnippet("service remote function")),
 
+    KW_REMOTE_FUNCTION(SnippetGenerator.getKeywordSnippet("remote function")),
+
     KW_PARAMETER(SnippetGenerator.getKeywordSnippet("parameter")),
 
-    KW_RETURN(SnippetGenerator.getKeywordSnippet("parameter")),
+    KW_RETURN(SnippetGenerator.getKeywordSnippet("return")),
 
     KW_OBJECT_FIELD(SnippetGenerator.getKeywordSnippet("object field")),
 
@@ -290,14 +298,22 @@ public enum Snippet {
 
     KW_SOURCE_WORKER(SnippetGenerator.getKeywordSnippet("source worker")),
 
+    KW_TRUE(SnippetGenerator.getKeywordSnippet("true")),
+
+    KW_FALSE(SnippetGenerator.getKeywordSnippet("false")),
+
     // Statement Snippets
     STMT_BREAK(SnippetGenerator.getBreakSnippet()),
 
     STMT_ROLLBACK(SnippetGenerator.getRollbackStatementSnippet()),
 
+    STMT_COMMIT(SnippetGenerator.getCommitStatementSnippet()),
+
     STMT_CONTINUE(SnippetGenerator.getContinueStatmentSnippet()),
 
     STMT_FOREACH(SnippetGenerator.getForeachSnippet()),
+
+    STMT_FOREACH_RANGE_EXP(SnippetGenerator.getForeachRangeExpressionSnippet()),
 
     STMT_FORK(SnippetGenerator.getForkStatementSnippet()),
 
@@ -315,9 +331,13 @@ public enum Snippet {
 
     STMT_RETURN(SnippetGenerator.getReturnStatementSnippet()),
 
+    STMT_RETURN_SC(SnippetGenerator.getReturnSCStatementSnippet()),
+
     STMT_PANIC(SnippetGenerator.getPanicStatementSnippet()),
 
     STMT_TRANSACTION(SnippetGenerator.getTransactionStatementSnippet()),
+
+    STMT_RETRY(SnippetGenerator.getRetryStatementSnippet()),
 
     STMT_RETRY_TRANSACTION(SnippetGenerator.getRetryTransactionStatementSnippet()),
 
@@ -329,34 +349,31 @@ public enum Snippet {
 
     // Snippets related to various clauses such as from, where and etc
     CLAUSE_FROM(SnippetGenerator.getFromClauseSnippet()),
-    
+
+    CLAUSE_DO(SnippetGenerator.getDoClauseSnippet()),
+
     CLAUSE_LET(SnippetGenerator.getLetClauseSnippet()),
-    
+
     CLAUSE_JOIN(SnippetGenerator.getJoinClauseSnippet()),
-    
+
     CLAUSE_ON_FAIL(SnippetGenerator.getOnFailClauseSnippet()),
-    
+
     CLAUSE_ON_CONFLICT(SnippetGenerator.getOnConflictClauseSnippet()),
-    
+
     TYPE_MAP(SnippetGenerator.getMapTypeSnippet());
 
-    private final String snippetName;
     private final SnippetBlock snippetBlock;
 
     Snippet(SnippetBlock snippetBlock) {
-        this.snippetName = null;
         this.snippetBlock = snippetBlock;
+        this.snippetBlock.setId(name());
     }
-
-    /**
-     * Get the Snippet Name.
-     *
-     * @return {@link String} snippet name
-     */
-    public String snippetName() {
-        return this.snippetName;
+    
+    public boolean equals(LSCompletionItem lsCItem) {
+        return lsCItem.getType() == LSCompletionItem.CompletionItemType.SNIPPET
+                && ((SnippetCompletionItem) lsCItem).id().equals(name());
     }
-
+    
     /**
      * Get the SnippetBlock.
      *

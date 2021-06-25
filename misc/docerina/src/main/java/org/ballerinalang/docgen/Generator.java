@@ -36,21 +36,25 @@ import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.DistinctTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.EnumMemberNode;
-import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.IncludedRecordParameterNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.MarkdownCodeBlockNode;
+import io.ballerina.compiler.syntax.tree.MarkdownCodeLineNode;
 import io.ballerina.compiler.syntax.tree.MarkdownDocumentationLineNode;
 import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
 import io.ballerina.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
@@ -63,13 +67,11 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
-import io.ballerina.compiler.syntax.tree.TypedescTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.generator.model.Annotation;
-import org.ballerinalang.docgen.generator.model.BAbstractObject;
 import org.ballerinalang.docgen.generator.model.BClass;
+import org.ballerinalang.docgen.generator.model.BObjectType;
 import org.ballerinalang.docgen.generator.model.BType;
 import org.ballerinalang.docgen.generator.model.Client;
 import org.ballerinalang.docgen.generator.model.Constant;
@@ -119,68 +121,9 @@ public class Generator {
                 if (node.kind().equals(SyntaxKind.TYPE_DEFINITION)) {
                     TypeDefinitionNode typeDefinition = (TypeDefinitionNode) node;
                     if (typeDefinition.visibilityQualifier().isPresent() && typeDefinition.visibilityQualifier().get()
-                            .kind().equals(SyntaxKind.PUBLIC_KEYWORD) || isTypePram(typeDefinition.metadata())) {
-                        if (typeDefinition.typeDescriptor().kind().equals(SyntaxKind.RECORD_TYPE_DESC)) {
-                            hasPublicConstructs = true;
-                            module.records.add(getRecordTypeModel(typeDefinition, semanticModel));
-                        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.OBJECT_TYPE_DESC) {
-                            hasPublicConstructs = true;
-                            module.abstractObjects.add(getAbstractObjectModel(typeDefinition, semanticModel));
-                        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.UNION_TYPE_DESC) {
-                            hasPublicConstructs = true;
-                            Type firstType = Type.fromNode(((UnionTypeDescriptorNode) (typeDefinition.typeDescriptor()))
-                                    .leftTypeDesc(), semanticModel);
-                            if (firstType.category.equals("errors") ||
-                                    (firstType.category.equals("builtin") && firstType.name.equals("error"))) {
-                                module.errors.add(new Error(typeDefinition.typeName().text(),
-                                        getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition
-                                        .metadata()), Type.fromNode(typeDefinition.typeDescriptor(), semanticModel)));
-                            } else {
-                                module.types.add(getUnionTypeModel(typeDefinition, semanticModel));
-                            }
-                        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-                            hasPublicConstructs = true;
-                            Type refType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
-                            if (refType.category.equals("errors")) {
-                                module.errors.add(new Error(typeDefinition.typeName().text(),
-                                        getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition
-                                        .metadata()), refType));
-                            } else {
-                                module.types.add(getUnionTypeModel(typeDefinition, semanticModel));
-                            }
-                        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
-                                ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
-                                        == SyntaxKind.ERROR_TYPE_DESC) {
-                            hasPublicConstructs = true;
-                            module.errors.add(new Error(typeDefinition.typeName().text(),
-                                    getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition
-                                    .metadata()), null));
-                        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.ERROR_TYPE_DESC) {
-                            hasPublicConstructs = true;
-                            ErrorTypeDescriptorNode errorTypeDescriptor = (ErrorTypeDescriptorNode)
-                                    typeDefinition.typeDescriptor();
-                            Type type = null;
-                            if (errorTypeDescriptor.errorTypeParamsNode().isPresent()) {
-                                type = Type.fromNode(errorTypeDescriptor.errorTypeParamsNode().get().parameter(),
-                                        semanticModel);
-                            }
-                            module.errors.add(new Error(typeDefinition.typeName().text(),
-                                    getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition
-                                    .metadata()), type));
-                        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TUPLE_TYPE_DESC) {
-                            hasPublicConstructs = true;
-                            module.types.add(getTupleTypeModel(typeDefinition, semanticModel));
-                        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.INTERSECTION_TYPE_DESC) {
-                            hasPublicConstructs = true;
-                            module.types.add(getIntersectionTypeModel(typeDefinition, semanticModel));
-                        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TYPEDESC_TYPE_DESC) {
-                            hasPublicConstructs = true;
-                            module.types.add(getTypeDescModel(typeDefinition, semanticModel));
-                        }
-                        // TODO: handle value type nodes
-                        // TODO: handle function type nodes
-                        // TODO: handle built in ref type
-                        // TODO: handle constrained types
+                            .kind().equals(SyntaxKind.PUBLIC_KEYWORD) ||
+                            isTypePramOrBuiltinSubtype(typeDefinition.metadata())) {
+                        hasPublicConstructs = addTypeDefinition(typeDefinition, module, semanticModel);
                     }
                 } else if (node.kind() == SyntaxKind.CLASS_DEFINITION) {
                     ClassDefinitionNode classDefinition = (ClassDefinitionNode) node;
@@ -214,19 +157,135 @@ public class Generator {
                         ((EnumDeclarationNode) node).qualifier().isPresent() &&
                         ((EnumDeclarationNode) node).qualifier().get().kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
                     module.enums.add(getEnumModel((EnumDeclarationNode) node));
+                } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL &&
+                        ((ModuleVariableDeclarationNode) node).visibilityQualifier().isPresent() &&
+                        ((ModuleVariableDeclarationNode) node).visibilityQualifier().get().kind()
+                                .equals(SyntaxKind.PUBLIC_KEYWORD)) {
+                    module.variables.add(getModuleVariable((ModuleVariableDeclarationNode) node, semanticModel));
                 }
             }
         }
         return hasPublicConstructs;
     }
 
-    private static boolean containsToken(NodeList<Token> nodeList, SyntaxKind kind) {
+    public static boolean addTypeDefinition(TypeDefinitionNode typeDefinition, Module module, SemanticModel
+            semanticModel) {
+
+        String typeName = typeDefinition.typeName().text();
+        Optional<MetadataNode> metaDataNode = typeDefinition.metadata();
+        if (typeDefinition.typeDescriptor().kind().equals(SyntaxKind.RECORD_TYPE_DESC)) {
+            module.records.add(getRecordTypeModel((RecordTypeDescriptorNode) typeDefinition.typeDescriptor(),
+                    typeName, metaDataNode, semanticModel));
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.OBJECT_TYPE_DESC) {
+            module.objectTypes.add(getObjectTypeModel((ObjectTypeDescriptorNode) typeDefinition.typeDescriptor(),
+                    typeName, metaDataNode, semanticModel));
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.UNION_TYPE_DESC) {
+            Type unionType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
+            if (unionType.memberTypes.stream().allMatch(type -> type.category.equals("errors") ||
+                    (type.category.equals("builtin") && type.name.equals("error")))) {
+                module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode),
+                        Type.fromNode(typeDefinition.typeDescriptor(), semanticModel)));
+            } else {
+                module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(),
+                        typeName, metaDataNode, semanticModel));
+            }
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            Type refType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
+            if (refType.category.equals("errors")) {
+                module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode),
+                        refType));
+            } else {
+                module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
+                        semanticModel));
+            }
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
+                ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
+                        == SyntaxKind.ERROR_TYPE_DESC) {
+            Type detailType = null;
+            ParameterizedTypeDescriptorNode parameterizedTypeDescNode = (ParameterizedTypeDescriptorNode)
+                    ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor();
+            if (parameterizedTypeDescNode.typeParamNode().isPresent()) {
+                detailType = Type.fromNode(parameterizedTypeDescNode.typeParamNode().get().typeNode(), semanticModel);
+            }
+            Error err = new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), detailType);
+            err.isDistinct = true;
+            module.errors.add(err);
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
+                ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
+                        == SyntaxKind.OBJECT_TYPE_DESC) {
+            BObjectType bObj = getObjectTypeModel((ObjectTypeDescriptorNode)
+                            ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor(), typeName,
+                    metaDataNode, semanticModel);
+            bObj.isDistinct = true;
+            module.objectTypes.add(bObj);
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
+                ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
+                        == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            Type refType = Type.fromNode(((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor()))
+                    .typeDescriptor(), semanticModel);
+            if (refType.category.equals("errors")) {
+                Error err = new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), refType);
+                err.isDistinct = true;
+                module.errors.add(err);
+            } else {
+                List<Type> memberTypes = new ArrayList<>();
+                memberTypes.add(refType);
+                BType bType = new BType(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode),
+                        memberTypes);
+                bType.isAnonymousUnionType = true;
+                module.types.add(bType);
+            }
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.ERROR_TYPE_DESC) {
+            ParameterizedTypeDescriptorNode parameterizedTypeDescNode =
+                    (ParameterizedTypeDescriptorNode) typeDefinition.typeDescriptor();
+            Type type = null;
+            if (parameterizedTypeDescNode.typeParamNode().isPresent()) {
+                type = Type.fromNode(parameterizedTypeDescNode.typeParamNode().get().typeNode(),
+                        semanticModel);
+            }
+            module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), type));
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TUPLE_TYPE_DESC) {
+            module.types.add(getTupleTypeModel((TupleTypeDescriptorNode) typeDefinition.typeDescriptor(),
+                    typeName, metaDataNode, semanticModel));
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.INTERSECTION_TYPE_DESC) {
+            addIntersectionTypeModel((IntersectionTypeDescriptorNode) typeDefinition.typeDescriptor(), typeName,
+                    metaDataNode, semanticModel, module);
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TYPEDESC_TYPE_DESC) {
+            module.types.add(getTypeDescModel((ParameterizedTypeDescriptorNode) typeDefinition.typeDescriptor(),
+                    typeName, metaDataNode, semanticModel));
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.INT_TYPE_DESC ||
+                typeDefinition.typeDescriptor().kind() == SyntaxKind.DECIMAL_TYPE_DESC ||
+                typeDefinition.typeDescriptor().kind() == SyntaxKind.XML_TYPE_DESC ||
+                typeDefinition.typeDescriptor().kind() == SyntaxKind.FUNCTION_TYPE_DESC ||
+                typeDefinition.typeDescriptor().kind() == SyntaxKind.ANYDATA_TYPE_DESC ||
+                typeDefinition.typeDescriptor().kind() == SyntaxKind.STRING_TYPE_DESC) {
+            module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode, semanticModel));
+        } else {
+            return false;
+        }
+        return true;
+        // TODO: handle value type nodes
+        // TODO: handle built in ref type
+        // TODO: handle constrained types
+    }
+
+    public static boolean containsToken(NodeList<Token> nodeList, SyntaxKind kind) {
         for (Node node: nodeList) {
             if (node.kind() == kind) {
                 return true;
             }
         }
         return false;
+    }
+
+    public static DefaultableVariable getModuleVariable(ModuleVariableDeclarationNode moduleVariableNode,
+                                                        SemanticModel semanticModel) {
+        String name = moduleVariableNode.typedBindingPattern().bindingPattern().toSourceCode().replace(" ", "");
+        String doc = getDocFromMetadata(moduleVariableNode.metadata());
+        String defaultValue = moduleVariableNode.initializer().isPresent() ?
+                moduleVariableNode.initializer().get().toSourceCode() : "";
+        Type type = Type.fromNode(moduleVariableNode.typedBindingPattern().typeDescriptor(), semanticModel);
+        return new DefaultableVariable(name, doc, false, type, defaultValue);
     }
 
     public static Enum getEnumModel(EnumDeclarationNode enumDeclaration) {
@@ -291,57 +350,67 @@ public class Generator {
         return new Constant(constantName, desc, isDeprecated(constantNode.metadata()), type, value);
     }
 
-    private static BType getIntersectionTypeModel(TypeDefinitionNode typeDefinition,
-                                                  SemanticModel semanticModel) {
+    private static void addIntersectionTypeModel(IntersectionTypeDescriptorNode typeDescriptor, String typeName,
+                                                 Optional<MetadataNode> optionalMetadataNode,
+                                                 SemanticModel semanticModel, Module module) {
+        boolean isReadonly = typeDescriptor.leftTypeDesc().kind() == SyntaxKind.READONLY_TYPE_DESC ||
+                typeDescriptor.rightTypeDesc().kind() == SyntaxKind.READONLY_TYPE_DESC;
+        if (isReadonly) {
+            Node typeDef = typeDescriptor.leftTypeDesc().kind() == SyntaxKind.READONLY_TYPE_DESC ?
+                    typeDescriptor.rightTypeDesc() : typeDescriptor.leftTypeDesc();
+            if (typeDef.kind() == SyntaxKind.RECORD_TYPE_DESC) {
+                Record record = getRecordTypeModel((RecordTypeDescriptorNode) typeDef, typeName, optionalMetadataNode,
+                        semanticModel);
+                record.isReadOnly = true;
+                module.records.add(record);
+                return;
+            } else if (typeDef.kind() == SyntaxKind.OBJECT_TYPE_DESC) {
+                BObjectType bObj = getObjectTypeModel((ObjectTypeDescriptorNode) typeDef, typeName,
+                        optionalMetadataNode, semanticModel);
+                bObj.isReadOnly = true;
+                module.objectTypes.add(bObj);
+                return;
+            }
+        }
         List<Type> memberTypes = new ArrayList<>();
-        IntersectionTypeDescriptorNode typeDescriptor = (IntersectionTypeDescriptorNode) typeDefinition
-                .typeDescriptor();
-        memberTypes.add(Type.fromNode(typeDescriptor.leftTypeDesc(), semanticModel));
-        memberTypes.add(Type.fromNode(typeDescriptor.rightTypeDesc(), semanticModel));
-        BType bType = new BType(typeDefinition.typeName().text(),
-                getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition.metadata()), memberTypes);
+        Type.addIntersectionMemberTypes(typeDescriptor, semanticModel, memberTypes);
+        BType bType = new BType(typeName, getDocFromMetadata(optionalMetadataNode),
+                isDeprecated(optionalMetadataNode), memberTypes);
         bType.isIntersectionType = true;
-        return bType;
+        module.types.add(bType);
     }
 
-    private static BType getTupleTypeModel(TypeDefinitionNode typeDefinition,
-                                           SemanticModel semanticModel) {
+    private static BType getTupleTypeModel(TupleTypeDescriptorNode typeDescriptor, String tupleTypeName,
+                                           Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel) {
         List<Type> memberTypes = new ArrayList<>();
-        TupleTypeDescriptorNode typeDescriptor = (TupleTypeDescriptorNode) typeDefinition.typeDescriptor();
         memberTypes.addAll(typeDescriptor.memberTypeDesc().stream().map(type ->
                 Type.fromNode(type, semanticModel)).collect(Collectors.toList()));
-        BType bType = new BType(typeDefinition.typeName().text(),
-                getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition.metadata()), memberTypes);
+        BType bType = new BType(tupleTypeName, getDocFromMetadata(optionalMetadataNode),
+                isDeprecated(optionalMetadataNode), memberTypes);
         bType.isTuple = true;
         return bType;
     }
 
-    private static BType getTypeDescModel(TypeDefinitionNode typeDefinition,
-                                           SemanticModel semanticModel) {
-        TypedescTypeDescriptorNode typeDescriptor = (TypedescTypeDescriptorNode) typeDefinition.typeDescriptor();
+    private static BType getTypeDescModel(ParameterizedTypeDescriptorNode typeDescriptor, String typeName,
+                                          Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel) {
         Type type = null;
-        if (typeDescriptor.typedescTypeParamsNode().isPresent()) {
-            type = Type.fromNode(typeDescriptor.typedescTypeParamsNode().get().typeNode(), semanticModel);
+        if (typeDescriptor.typeParamNode().isPresent()) {
+            type = Type.fromNode(typeDescriptor.typeParamNode().get().typeNode(), semanticModel);
         }
-        BType bType = new BType(typeDefinition.typeName().text(),
-                getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition.metadata()), null);
+        BType bType = new BType(typeName, getDocFromMetadata(optionalMetadataNode), isDeprecated(optionalMetadataNode),
+                null);
         bType.isTypeDesc = true;
+        bType.version = BallerinaDocGenerator.getBallerinaShortVersion();
         bType.elementType = type;
         return bType;
     }
 
-    private static BType getUnionTypeModel(TypeDefinitionNode typeDefinition,
-                                           SemanticModel semanticModel) {
+    private static BType getUnionTypeModel(Node unionTypeDescriptor, String unionName,
+                                           Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel) {
         List<Type> memberTypes = new ArrayList<>();
-        Node typeDescriptor = typeDefinition.typeDescriptor();
-        while (typeDescriptor.kind().equals(SyntaxKind.UNION_TYPE_DESC)) {
-            UnionTypeDescriptorNode unionType = (UnionTypeDescriptorNode) typeDescriptor;
-            memberTypes.add(Type.fromNode(unionType.leftTypeDesc(), semanticModel));
-            typeDescriptor = unionType.rightTypeDesc();
-        }
-        memberTypes.add(Type.fromNode(typeDescriptor, semanticModel));
-        BType bType = new BType(typeDefinition.typeName().text(), getDocFromMetadata(typeDefinition.metadata()),
-                                isDeprecated(typeDefinition.metadata()), memberTypes);
+        Type.addUnionMemberTypes(unionTypeDescriptor, semanticModel, memberTypes);
+        BType bType = new BType(unionName, getDocFromMetadata(optionalMetadataNode),
+                                isDeprecated(optionalMetadataNode), memberTypes);
         bType.isAnonymousUnionType = true;
         return bType;
     }
@@ -367,6 +436,9 @@ public class Generator {
                 TypeSymbol typeSymbol = null;
                 try {
                     Optional<Symbol> symbol = semanticModel.symbol(member);
+                    if (symbol.isEmpty()) {
+                        continue;
+                    }
                     typeSymbol = ((TypeReferenceTypeSymbol) symbol.get()).typeDescriptor();
                 } catch (NullPointerException nullException) {
                     if (BallerinaDocUtils.isDebugEnabled()) {
@@ -388,21 +460,21 @@ public class Generator {
         }
     }
 
-    private static BAbstractObject getAbstractObjectModel(TypeDefinitionNode typeDefinition,
-                                                          SemanticModel semanticModel) {
+    private static BObjectType getObjectTypeModel(ObjectTypeDescriptorNode typeDescriptorNode, String objectName,
+                                                  Optional<MetadataNode> optionalMetadataNode,
+                                                  SemanticModel semanticModel) {
         List<Function> functions = new ArrayList<>();
-        String name = typeDefinition.typeName().text();
-        String description = getDocFromMetadata(typeDefinition.metadata());
-        ObjectTypeDescriptorNode typeDescriptorNode = (ObjectTypeDescriptorNode) typeDefinition.typeDescriptor();
-        boolean isDeprecated = isDeprecated(typeDefinition.metadata());
+        String description = getDocFromMetadata(optionalMetadataNode);
+        boolean isDeprecated = isDeprecated(optionalMetadataNode);
 
         List<DefaultableVariable> fields = getDefaultableVariableList(typeDescriptorNode.members(),
-                typeDefinition.metadata(), semanticModel);
+                optionalMetadataNode, semanticModel);
 
         for (Node member : typeDescriptorNode.members()) {
             if (member instanceof MethodDeclarationNode) {
                 MethodDeclarationNode methodNode = (MethodDeclarationNode) member;
-                if (containsToken(methodNode.qualifierList(), SyntaxKind.PUBLIC_KEYWORD)) {
+                if (containsToken(methodNode.qualifierList(), SyntaxKind.PUBLIC_KEYWORD) ||
+                        containsToken(methodNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD)) {
                     String methodName = methodNode.methodName().text();
 
                     List<Variable> returnParams = new ArrayList<>();
@@ -442,7 +514,7 @@ public class Generator {
                 functions.addAll(getInclusionFunctions(typeSymbol, originType, typeDescriptorNode.members()));
             }
         }
-        return new BAbstractObject(name, description, isDeprecated, fields, functions);
+        return new BObjectType(objectName, description, isDeprecated, fields, functions);
     }
 
     // TODO: Revisit this. This probably can be written in a much simpler way.
@@ -452,7 +524,7 @@ public class Generator {
         if (typeSymbol instanceof ObjectTypeSymbol) {
             ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) typeSymbol;
             objectTypeSymbol.methods().values().forEach(methodSymbol -> {
-                String methodName = methodSymbol.name();
+                String methodName = methodSymbol.getName().get();
                 // Check if the inclusion function is overridden
                 if (members.stream().anyMatch(node -> {
                     if (node instanceof MethodDeclarationNode && ((MethodDeclarationNode) node).methodName()
@@ -471,26 +543,26 @@ public class Generator {
                 List<DefaultableVariable> parameters = new ArrayList<>();
                 List<Variable> returnParams = new ArrayList<>();
 
-                methodSymbol.typeDescriptor().parameters().forEach(parameterSymbol -> {
+                methodSymbol.typeDescriptor().params().get().forEach(parameterSymbol -> {
                     boolean parameterDeprecated = parameterSymbol.annotations().stream()
-                            .anyMatch(annotationSymbol -> annotationSymbol.name().equals("deprecated"));
+                            .anyMatch(annotationSymbol -> annotationSymbol.getName().get().equals("deprecated"));
                     Type type = new Type(parameterSymbol.typeDescriptor().signature());
                     Type.resolveSymbol(type, parameterSymbol.typeDescriptor());
-                    parameters.add(new DefaultableVariable(parameterSymbol.name().isPresent() ?
-                            parameterSymbol.name().get() : "", "", parameterDeprecated, type, ""));
+                    parameters.add(new DefaultableVariable(parameterSymbol.getName().isPresent() ?
+                            parameterSymbol.getName().get() : "", "", parameterDeprecated, type, ""));
                 });
 
                 if (methodSymbol.typeDescriptor().restParam().isPresent()) {
                     ParameterSymbol restParam = methodSymbol.typeDescriptor().restParam().get();
                     boolean parameterDeprecated = restParam.annotations().stream()
-                            .anyMatch(annotationSymbol -> annotationSymbol.name().equals("deprecated"));
-                    Type type = new Type(restParam.name().isPresent() ? restParam.name().get() : "");
+                            .anyMatch(annotationSymbol -> annotationSymbol.getName().get().equals("deprecated"));
+                    Type type = new Type(restParam.getName().isPresent() ? restParam.getName().get() : "");
                     type.isRestParam = true;
                     Type elemType = new Type(restParam.typeDescriptor().signature());
                     Type.resolveSymbol(elemType, restParam.typeDescriptor());
                     type.elementType = elemType;
-                    parameters.add(new DefaultableVariable(restParam.name().isPresent() ?
-                            restParam.name().get() : "", "", parameterDeprecated, type, ""));
+                    parameters.add(new DefaultableVariable(restParam.getName().isPresent() ?
+                            restParam.getName().get() : "", "", parameterDeprecated, type, ""));
                 }
 
                 if (methodSymbol.typeDescriptor().returnTypeDescriptor().isPresent()) {
@@ -540,15 +612,20 @@ public class Generator {
                 returnParams);
     }
 
-    private static Record getRecordTypeModel(TypeDefinitionNode recordTypeDefinition,
+    private static Record getRecordTypeModel(RecordTypeDescriptorNode recordTypeDesc, String recordName,
+                                             Optional<MetadataNode> optionalMetadataNode,
                                              SemanticModel semanticModel) {
-        String recordName = recordTypeDefinition.typeName().text();
-        List<DefaultableVariable> fields = getDefaultableVariableList(((RecordTypeDescriptorNode) recordTypeDefinition
-                .typeDescriptor()).fields(), recordTypeDefinition.metadata(), semanticModel);
-        boolean isClosed = ((((RecordTypeDescriptorNode) recordTypeDefinition.typeDescriptor()).bodyStartDelimiter()))
-                .kind().equals(SyntaxKind.OPEN_BRACE_PIPE_TOKEN);
-        return new Record(recordName, getDocFromMetadata(recordTypeDefinition.metadata()),
-                          isDeprecated(recordTypeDefinition.metadata()), isClosed, fields);
+
+        List<DefaultableVariable> fields = getDefaultableVariableList(recordTypeDesc.fields(),
+                optionalMetadataNode, semanticModel);
+        boolean isClosed = (recordTypeDesc.bodyStartDelimiter()).kind().equals(SyntaxKind.OPEN_BRACE_PIPE_TOKEN);
+        if (recordTypeDesc.recordRestDescriptor().isPresent()) {
+            DefaultableVariable restVariable = new DefaultableVariable("", "Rest field",
+                    false, Type.fromNode(recordTypeDesc.recordRestDescriptor().get(), semanticModel), "");
+            fields.add(restVariable);
+        }
+        return new Record(recordName, getDocFromMetadata(optionalMetadataNode),
+                          isDeprecated(optionalMetadataNode), isClosed, fields);
     }
 
     public static List<DefaultableVariable> getDefaultableVariableList(NodeList nodeList,
@@ -566,9 +643,12 @@ public class Generator {
                 }
                 String defaultValue = recordField.expression().toString();
                 Type type = Type.fromNode(recordField.typeName(), semanticModel);
-                type.isReadOnly = recordField.readonlyKeyword().isPresent();
                 DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc, false, type,
                         defaultValue);
+                if (recordField.readonlyKeyword().isPresent()) {
+                    defaultableVariable.isReadOnly = true;
+                    defaultableVariable.builtInVersion = BallerinaDocGenerator.getBallerinaShortVersion();
+                }
                 variables.add(defaultableVariable);
             } else if (node instanceof RecordFieldNode) {
                 RecordFieldNode recordField = (RecordFieldNode) node;
@@ -579,9 +659,12 @@ public class Generator {
                 }
                 Type type = Type.fromNode(recordField.typeName(), semanticModel);
                 type.isNullable = recordField.questionMarkToken().isPresent();
-                type.isReadOnly = recordField.readonlyKeyword().isPresent();
                 DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc, false, type,
                         "");
+                if (recordField.readonlyKeyword().isPresent()) {
+                    defaultableVariable.isReadOnly = true;
+                    defaultableVariable.builtInVersion = BallerinaDocGenerator.getBallerinaShortVersion();
+                }
                 variables.add(defaultableVariable);
             } else if (node instanceof TypeReferenceNode) {
                 Type originType = Type.fromNode(((TypeReferenceNode) node).typeName(), semanticModel);
@@ -591,6 +674,9 @@ public class Generator {
                 TypeSymbol typeSymbol = null;
                 try {
                     Optional<Symbol> symbol = semanticModel.symbol(node);
+                    if (symbol.isEmpty()) {
+                        continue;
+                    }
                     typeSymbol = ((TypeReferenceTypeSymbol) symbol.get()).typeDescriptor();
                 } catch (NullPointerException nullException) {
                     if (BallerinaDocUtils.isDebugEnabled()) {
@@ -605,7 +691,7 @@ public class Generator {
                         Type elemType;
                         String typeName;
                         if (field.typeDescriptor() instanceof TypeReferenceTypeSymbol) {
-                            typeName = field.typeDescriptor().name();
+                            typeName = field.typeDescriptor().getName().get();
                         } else {
                             typeName = field.typeDescriptor().signature();
                         }
@@ -621,7 +707,7 @@ public class Generator {
                         Type elemType;
                         String typeName;
                         if (field.typeDescriptor() instanceof TypeReferenceTypeSymbol) {
-                            typeName = field.typeDescriptor().name();
+                            typeName = field.typeDescriptor().getName().get();
                         } else {
                             typeName = field.typeDescriptor().signature();
                         }
@@ -631,8 +717,9 @@ public class Generator {
                         originType.memberTypes.add(type);
                     });
                 }
-                defaultableVariable.type = originType;
-                variables.add(defaultableVariable);
+                if (originType.memberTypes.size() > 0) {
+                    variables.add(defaultableVariable);
+                }
             } else if (node instanceof ObjectFieldNode) {
                 ObjectFieldNode objectField = (ObjectFieldNode) node;
                 if (objectField.visibilityQualifier().isPresent() && objectField.visibilityQualifier().get().kind()
@@ -677,23 +764,27 @@ public class Generator {
                 type.elementType = Type.fromNode(restParameter.typeName(), semanticModel);
                 variables.add(new DefaultableVariable(paramName, getParameterDocFromMetadataList(paramName,
                         optionalMetadataNode), false, type, ""));
+            } else if (node instanceof IncludedRecordParameterNode) {
+                IncludedRecordParameterNode includedRecord = (IncludedRecordParameterNode) node;
+                String paramName = includedRecord.paramName().isPresent() ?
+                        includedRecord.paramName().get().text() : "";
+                Type type = Type.fromNode(includedRecord.typeName(), semanticModel);
+                type.isInclusion = true;
+                variables.add(new DefaultableVariable(paramName, getParameterDocFromMetadataList(paramName,
+                        optionalMetadataNode), false, type, ""));
             }
 
         }
         return variables;
     }
 
-    private static boolean isTypePram(Optional<MetadataNode> metadataNode) {
+    private static boolean isTypePramOrBuiltinSubtype(Optional<MetadataNode> metadataNode) {
         if (metadataNode.isEmpty()) {
             return false;
         }
-        NodeList<AnnotationNode> annotations = metadataNode.get().annotations();
-        for (AnnotationNode annotationNode : annotations) {
-            if (annotationNode.toString().contains("@typeParam")) {
-                return true;
-            }
-        }
-        return false;
+        return metadataNode.get().annotations().stream().anyMatch(annotationNode ->
+                annotationNode.toString().contains("@typeParam") ||
+                        annotationNode.toString().contains("@builtinSubtype"));
     }
 
     private static boolean isDeprecated(NodeList<AnnotationNode> annotations) {
@@ -722,22 +813,23 @@ public class Generator {
         if (optionalMetadataNode.isEmpty()) {
             return "";
         }
-        String doc = "";
+        StringBuilder doc = new StringBuilder();
         MarkdownDocumentationNode docLines = optionalMetadataNode.get().documentationString().isPresent() ?
                 (MarkdownDocumentationNode) optionalMetadataNode.get().documentationString().get() : null;
         if (docLines != null) {
             for (Node docLine : docLines.documentationLines()) {
                 if (docLine instanceof MarkdownDocumentationLineNode) {
-                    doc += !((MarkdownDocumentationLineNode) docLine).documentElements().isEmpty() ?
-                            getDocString(((MarkdownDocumentationLineNode) docLine).documentElements()) : "\n";
+                    doc.append(!((MarkdownDocumentationLineNode) docLine).documentElements().isEmpty() ?
+                            getDocLineString(((MarkdownDocumentationLineNode) docLine).documentElements()) : "\n");
+                } else if (docLine instanceof MarkdownCodeBlockNode) {
+                    doc.append(getDocCodeBlockString((MarkdownCodeBlockNode) docLine));
                 } else {
                     break;
                 }
             }
-            return doc;
-        } else {
-            return "";
         }
+
+        return doc.toString();
     }
 
     private static String getParameterDocFromMetadataList(String parameterName,
@@ -754,23 +846,22 @@ public class Generator {
                 if (docLine instanceof MarkdownParameterDocumentationLineNode) {
                     if (((MarkdownParameterDocumentationLineNode) docLine).parameterName().text()
                             .equals(parameterName)) {
-                        parameterDoc.append(getDocString(((MarkdownParameterDocumentationLineNode) docLine)
+                        parameterDoc.append(getDocLineString(((MarkdownParameterDocumentationLineNode) docLine)
                                 .documentElements()));
                         lookForMoreLines = true;
                     } else {
                         lookForMoreLines = false;
                     }
                 } else if (lookForMoreLines && docLine instanceof MarkdownDocumentationLineNode) {
-                    parameterDoc.append(getDocString(((MarkdownDocumentationLineNode) docLine).documentElements()));
+                    parameterDoc.append(getDocLineString(((MarkdownDocumentationLineNode) docLine).documentElements()));
                 }
             }
-            return parameterDoc.toString();
-        } else {
-            return "";
         }
+
+        return parameterDoc.toString();
     }
 
-    private static String getDocString(NodeList<Node> documentElements) {
+    private static String getDocLineString(NodeList<Node> documentElements) {
         if (documentElements.isEmpty()) {
             return "";
         }
@@ -778,9 +869,21 @@ public class Generator {
         for (Node docNode : documentElements) {
             doc.append(docNode.toString());
         }
-        if (doc.toString().startsWith(" ")) {
-            return doc.substring(1);
+
+        return doc.toString();
+    }
+
+    private static String getDocCodeBlockString(MarkdownCodeBlockNode markdownCodeBlockNode) {
+        StringBuilder doc = new StringBuilder();
+
+        doc.append(markdownCodeBlockNode.startBacktick().toString());
+        markdownCodeBlockNode.langAttribute().ifPresent(langAttribute -> doc.append(langAttribute.toString()));
+
+        for (MarkdownCodeLineNode codeLineNode : markdownCodeBlockNode.codeLines()) {
+            doc.append(codeLineNode.codeDescription().toString());
         }
+
+        doc.append(markdownCodeBlockNode.endBacktick().toString());
         return doc.toString();
     }
 }

@@ -49,17 +49,24 @@
     ]
   },
   {
-    "name": "Module Variable Declaration",
-    "input": "int t = 4;",
+    "name": "Enum Declaration",
+    "input": "enum Color { RED, GREEN, BLUE };",
+    "expected": [
+      "EnumDeclarationNode"
+    ]
+  },
+  {
+    "name": "Variable Declaration I",
+    "input": "final int i = 100;",
     "expected": [
       "ModuleVariableDeclarationNode"
     ]
   },
   {
-    "name": "Enum Declaration",
-    "input": "enum Color { RED, GREEN, BLUE };",
+    "name": "Variable Declaration II",
+    "input": "final int i;",
     "expected": [
-      "EnumDeclarationNode"
+      "ModuleVariableDeclarationNode"
     ]
   }
 ]

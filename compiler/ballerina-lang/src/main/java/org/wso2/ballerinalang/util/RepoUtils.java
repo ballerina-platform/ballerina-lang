@@ -51,7 +51,7 @@ public class RepoUtils {
     private static final String DEFAULT_TERMINAL_SIZE = "80";
     private static final String BALLERINA_CLI_WIDTH = "BALLERINA_CLI_WIDTH";
     private static final String PRODUCTION_URL = "https://api.central.ballerina.io/2.0/registry";
-    private static final String STAGING_URL = "https://api.staging-central.ballerina.io/1.0";
+    private static final String STAGING_URL = "https://api.staging-central.ballerina.io/2.0/registry";
     private static final String DEV_URL = "https://api.dev-central.ballerina.io/2.0/registry";
 
     private static final String BALLERINA_ORG = "ballerina";
@@ -63,6 +63,8 @@ public class RepoUtils {
             System.getenv(BALLERINA_STAGE_CENTRAL));
     public static final boolean SET_BALLERINA_DEV_CENTRAL = Boolean.parseBoolean(
             System.getenv(BALLERINA_DEV_CENTRAL));
+
+    private static final String UNKNOWN = "unknown";
     
     /**
      * Create and get the home repository path.
@@ -201,7 +203,7 @@ public class RepoUtils {
             return properties.getProperty(ProjectDirConstants.BALLERINA_VERSION);
         } catch (Throwable ignore) {
         }
-        return "unknown";
+        return UNKNOWN;
     }
 
     public static String getBallerinaPackVersion() {
@@ -211,19 +213,28 @@ public class RepoUtils {
             return properties.getProperty(ProjectDirConstants.BALLERINA_PACK_VERSION);
         } catch (Throwable ignore) {
         }
-        return "unknown";
+        return UNKNOWN;
     }
 
-    public static String getBallerinaVersionDisplayName() {
+    public static String getBallerinaShortVersion() {
         try (InputStream inputStream = RepoUtils.class.getResourceAsStream(ProjectDirConstants.PROPERTIES_FILE)) {
             Properties properties = new Properties();
             properties.load(inputStream);
-            return properties.getProperty(ProjectDirConstants.BALLERINA_VERSION_DISPLAY_NAME);
+            return properties.getProperty(ProjectDirConstants.BALLERINA_SHORT_VERSION);
         } catch (Throwable ignore) {
         }
-        return "unknown";
+        return UNKNOWN;
     }
 
+    public static String getBallerinaSpecVersion() {
+        try (InputStream inputStream = RepoUtils.class.getResourceAsStream(ProjectDirConstants.PROPERTIES_FILE)) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            return properties.getProperty(ProjectDirConstants.BALLERINA_SPEC_VERSION);
+        } catch (Throwable ignore) {
+        }
+        return UNKNOWN;
+    }
 
     /**
      * Validates the org-name and package name.

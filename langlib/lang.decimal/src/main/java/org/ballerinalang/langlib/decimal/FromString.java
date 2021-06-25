@@ -18,12 +18,16 @@
 
 package org.ballerinalang.langlib.decimal;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.TypeConverter;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
-import java.math.BigDecimal;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.DECIMAL_LANG_LIB;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Native implementation of lang.decimal:fromString(string).
@@ -38,12 +42,17 @@ import java.math.BigDecimal;
 //)
 public class FromString {
 
+    private static final BString ERROR_REASON = getModulePrefixedReason(DECIMAL_LANG_LIB,
+                                                                        NUMBER_PARSING_ERROR_IDENTIFIER);
+
     public static Object fromString(BString s) {
         try {
-            return ValueCreator.createDecimalValue(new BigDecimal(s.getValue()));
+            return TypeConverter.stringToDecimal(s.getValue());
         } catch (NumberFormatException e) {
-            // TODO: 6/21/19 Improve this error value
-            return ErrorCreator.createError(StringUtils.fromString(e.getMessage()), e);
+            return ErrorCreator.createError(ERROR_REASON,
+                                            BLangExceptionHelper.getErrorMessage(
+                                                    RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
+                                                    PredefinedTypes.TYPE_STRING, s, PredefinedTypes.TYPE_DECIMAL));
         }
     }
 }

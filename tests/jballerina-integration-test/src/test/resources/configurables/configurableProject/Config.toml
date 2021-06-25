@@ -1,21 +1,46 @@
 [main]
 intVar = 42
+byteVar = 22
 floatVar = 3.5
 stringVar = "abc"
 booleanVar = true
 decimalVar = 24.87
 
 intArr = [1,2,3]
+byteArr = [11,22,33,44,55,66,77,88,99]
 floatArr = [9.0, 5.6]
 stringArr = ["red", "yellow", "green"]
 booleanArr = [true, false, false, true]
 decimalArr = [8.9, 4.5, 6.2]
+
+int2DArr = [[1,2],[3,4]]
+byte2DArr = [[11,22,33,44],[55,66,77,88,99]]
+float2DArr = [[9.0, 5.6], [4.1, 56.7]]
+string2DArr = [["red", "yellow", "green"], ["white", "purple"]]
+boolean2DArr = [[true, false], [false, true]]
+decimal2DArr = [[8.9, 4.5, 6.2], [5.4, 8.5]]
+
+int3DArr = [[[1,2],[3,4]],[[1,2],[3,4]]]
+customType1Array = [[1,2],[3,4]]
+customType2Array = [[5,6],[7,8]]
+customType3DArray = [[[5,6],[7,8]],[[5,6],[7,8]]]
+
+color = "GREEN"
+countryCode = "United States"
 
 [main.admin]
 username = "jack"
 password = "password"
 scopes = ["write","read","execute"]
 isAdmin = true
+
+[main.personInfo]
+name = "harry"
+age = 28
+
+[main.empInfo]
+id = 34
+salary = 75000.0
 
 [[main.users]]
 username = "alice"
@@ -33,3 +58,69 @@ scopes=["write", "read"]
 username = "john"
 id = 33
 password="password3"
+
+[[main.nonKeyUsers]]
+username = "alice"
+id = 11
+password="password1"
+scopes=["write"]
+
+[[main.nonKeyUsers]]
+username = "bob"
+id = 22
+password="password2"
+scopes=["write", "read"]
+
+[[main.nonKeyUsers]]
+username = "john"
+id = 33
+password="password3"
+
+[[main.employees]]
+id = 111
+name = "anna"
+
+[[main.employees]]
+id = 222
+name = "elsa"
+salary = 25000.0
+
+[[main.employees]]
+id = 333
+name = "tom"
+
+[[main.people]]
+name = "alice"
+address = "London"
+age = 22
+
+[[main.people]]
+name = "bob"
+
+[[main.people]]
+name = "john"
+age = 25
+
+[[main.peopleInfo]]
+name = "bill"
+address = "Paris"
+age = 27
+
+[[main.peopleInfo]]
+name = "james"
+
+[[main.peopleInfo]]
+name = "ben"
+age = 21
+
+[[main.empInfoTab]]
+id = 101
+name = "jim"
+
+[[main.empInfoTab]]
+id = 202
+salary = 25000.0
+
+[[main.empInfoTab]]
+id = 303
+name = "belle"

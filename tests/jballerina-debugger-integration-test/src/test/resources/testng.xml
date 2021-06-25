@@ -47,6 +47,10 @@ under the License.
             <class name="org.ballerinalang.debugger.test.adapter.CallStackDebugTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.LanguageConstructDebugTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.DebugTerminationTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.DebugInstructionTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.LangLibDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.ConditionalBreakpointTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.run.DebugEngageTest"/>
 
             <!--Debug Variables Tests-->
             <class name="org.ballerinalang.debugger.test.adapter.variables.VariableVisibilityTest"/>

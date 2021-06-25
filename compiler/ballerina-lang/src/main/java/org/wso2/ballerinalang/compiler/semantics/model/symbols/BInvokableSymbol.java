@@ -21,6 +21,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.InvokableSymbol;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -42,7 +43,6 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     public List<BVarSymbol> params;
     public BVarSymbol restParam;
     public BType retType;
-    public Map<Integer, TaintRecord> taintTable;
     public List<BLangAnnotationAttachment> annAttachments;
     public Map<String, BType> paramDefaultValTypes;
 
@@ -73,6 +73,7 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
         this.annAttachments = new ArrayList<>();
         this.dependentGlobalVars = new HashSet<>();
         this.paramDefaultValTypes = new HashMap<>();
+        this.kind = SymbolKind.FUNCTION;
     }
 
     @Override

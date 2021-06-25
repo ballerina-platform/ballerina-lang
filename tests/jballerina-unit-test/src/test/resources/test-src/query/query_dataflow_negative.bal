@@ -39,7 +39,7 @@ function testQueryActionWithMutableParams() returns Person[]{
 
     Person[] personList = [p1, p2, p3];
 
-    var x = from var person in personList
+    error? x = from var person in personList
             do {
                 person = {firstName: "XYZ", lastName: "George", age: 30};
             };
@@ -55,12 +55,12 @@ function testReassignValueInLet() {
     Student[] studentList = [s1, s2];
 	FullName[] nameList = [];
 
-	var outputNameList =
+	error? outputNameList =
 	    from var student in studentList
-	    let float twiceScore = (student.score*2)
+	    let float twiceScore = (student.score * 2.0)
 	    do {
 	        twiceScore = 1000;
-	        if (twiceScore < 50) {
+	        if (twiceScore < 50.00) {
 	            FullName fullname = {firstName:student.firstName,lastName:student.lastName};
 	            nameList.push(fullname);
 	        }

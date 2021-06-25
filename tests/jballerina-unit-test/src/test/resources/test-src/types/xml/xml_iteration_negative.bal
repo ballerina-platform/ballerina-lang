@@ -23,7 +23,7 @@ function concatString (string v) {
 }
 
 function xmlTypeParamElementIter() {
-    'xml:Element el2 = xml `<foo>foo</foo><bar/>`;
+    'xml:Element el2 = xml `<foo>foo</foo>`;
 
     result = "";
     foreach 'xml:Element elem in el2 {

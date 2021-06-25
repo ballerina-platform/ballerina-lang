@@ -16,6 +16,7 @@
 
 import ballerina/lang.'string as strings;
 import ballerina/lang.'int as ints;
+import ballerina/lang.value;
 
 type Address record {
     string country;
@@ -257,12 +258,12 @@ function testObjectToBalString() {
     Foo obj5 = new;
     Bar obj6 = new("Old Haunt");
 
-    assert(obj1.toBalString() === obj2.toBalString(), false);
-    assert(obj1.toBalString() === obj3.toBalString(), true);
-    assert(strings:startsWith(obj3.toBalString(), "object "), true);
-    assert(obj4.toBalString(), "object Rola from MMV");
-    assert(strings:startsWith(obj5.toBalString(), "object Foo"), true);
-    assert(obj6.toBalString(), "object Bar name is Old Haunt");
+    assert(value:toBalString(obj1) === value:toBalString(obj2), false);
+    assert(value:toBalString(obj1) === value:toBalString(obj3), true);
+    assert(strings:startsWith(value:toBalString(obj3), "object "), true);
+    assert(value:toBalString(obj4), "object Rola from MMV");
+    assert(strings:startsWith(value:toBalString(obj5), "object Foo"), true);
+    assert(value:toBalString(obj6), "object Bar name is Old Haunt");
 }
 
 function testToBalStringOnCycles() {

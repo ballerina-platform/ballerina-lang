@@ -18,8 +18,6 @@
 
 package io.ballerina.shell.invoker.classload.context;
 
-import io.ballerina.shell.snippet.types.ExecutableSnippet;
-
 /**
  * A context representing a statement/expression.
  *
@@ -30,21 +28,14 @@ public class StatementContext {
     private final boolean statement;
 
     /**
-     * Creates a null expression.
-     */
-    public StatementContext() {
-        this.code = "()";
-        this.statement = false;
-    }
-
-    /**
      * Creates a statement/expression context.
      *
-     * @param snippet Snippet content.
+     * @param snippet   Snippet content.
+     * @param statement Whether this is a statement.
      */
-    public StatementContext(ExecutableSnippet snippet) {
-        this.code = snippet.toString();
-        this.statement = snippet.isStatement();
+    public StatementContext(String snippet, boolean statement) {
+        this.code = snippet;
+        this.statement = statement;
     }
 
     public String code() {

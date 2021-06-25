@@ -53,17 +53,24 @@ public class GenDocsForBalaTest {
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
         BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+
+        BallerinaDocGenerator.generateAPIDocs(balaProject, this.docsPath.toString(), true);
     
-        BallerinaDocGenerator.generateAPIDocs(balaProject, this.docsPath.toString());
-    
-        String apiDocsJsonAsString = Files.readString(
-                this.docsPath.resolve("sf").resolve("data").resolve("doc_data.json"));
-        Assert.assertTrue(apiDocsJsonAsString.contains("# Salesforce Package\\nConnecto Salesforce easily\\n"),
-                "Package.md content is missing");
-        
-        String apiSearchJsonAsString = Files.readString(
-                this.docsPath.resolve("sf").resolve("doc-search").resolve("search-data.json"));
-        Assert.assertTrue(apiSearchJsonAsString.contains("baz"), "baz function is missing");
+        String sfModuleApiDocsJsonAsString = Files.readString(
+                this.docsPath.resolve("foo").resolve("sf").resolve("1.3.5")
+                        .resolve(BallerinaDocGenerator.API_DOCS_JSON));
+        Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("## Module Overview\\n\\n" +
+                        "Module.md content [Ballerina](https://ballerina.io)."),
+                "Module.md content is missing");
+        Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("Block"), "Block type is missing");
+        Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("\"summary\":" +
+                        "\"Module.md content [Ballerina](https://ballerina.io).\\n\""),
+                "Module summary missing");
+
+        String sfWorldModuleApiDocsJsonAsString = Files.readString(
+                this.docsPath.resolve("foo").resolve("sf.world").resolve("1.3.5")
+                        .resolve(BallerinaDocGenerator.API_DOCS_JSON));
+        Assert.assertTrue(sfWorldModuleApiDocsJsonAsString.contains("PersonZ"), "PersonZ class is missing");
     }
     
     @AfterMethod

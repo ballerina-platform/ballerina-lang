@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/lang.array;
 import ballerina/lang.'string as strings;
 import ballerina/lang.'int as ints;
@@ -73,6 +74,67 @@ function testSlice() returns [float[], int, float[], int, float[], int] {
     return [r1, r1.length(), r2, r2.length(), r3, r3.length()];
 }
 
+function testModificationAfterSliceOfReadonlyIntArray() {
+    readonly & int[] a = [1, 2, 3, 4, 5];
+    int[] b = a.slice(2, 4);
+    b[0] = 7;
+    assertValueEquality([7, 4], b);
+}
+
+function testModificationAfterSliceOfReadonlyStringArray() {
+    readonly & string[] roNames = ["x"];
+    string[] rwNames = roNames.slice(0);
+    rwNames[0] = "y";
+    assertValueEquality(["y"], rwNames);
+}
+
+function testModificationAfterSliceOfReadonlyBooleanArray() {
+    readonly & boolean[] a = [true, false, true, true];
+    boolean[] b = a.slice(2);
+    b[1] = false;
+    assertValueEquality([true, false], b);
+}
+
+function testModificationAfterSliceOfReadonlyByteArray() {
+    readonly & byte[] a = [1, 2, 3];
+    byte[] b = a.slice(1);
+    b[1] = 4;
+    assertValueEquality([2, 4], b);
+}
+
+function testModificationAfterSliceOfReadonlyFloatArray() {
+    readonly & float[] f = [1.2, 3.4, 5, 7.3, 9.47];
+    float[] g = f.slice(2, 4);
+    g[2] = 6.78;
+    assertValueEquality([5.0, 7.3, 6.78], g);
+}
+
+function testModificationAfterSliceOfReadonlyRecordArray() {
+    readonly & Employee[] arr = [{name: "John Doe", age: 25, designation: "Software Engineer"}];
+    Employee[] s = arr.slice(0);
+    s[0] = {name: "Jane Doe", age: 27, designation: "UX Engineer"};
+}
+
+type Person2 record {
+    int id;
+    string name;
+    int age;
+};
+
+type Student2 record {
+    int id;
+    string name;
+    string school;
+    float average;
+};
+
+function testSliceOfIntersectionOfReadonlyRecordArray() {
+    readonly & (readonly & Person2 & Student2)[] ps = [{id: 16158, name: "Arun", age: 12, average: 89.9, school: "JHC"}];
+    (readonly & Person2 & Student2)[] s = ps.slice(0);
+    s[0] = {id: 175149, name: "Roy", age: 12, school: "RC", average: 84.9};
+    assertValueEquality([{id: 175149, name: "Roy", age: 12, school: "RC", average: 84.9}], s);
+}
+
 function testPushAfterSlice() returns [int, int, float[]] {
      float[] arr = [12.34, 23.45, 34.56, 45.67, 56.78];
      float[] s = arr.slice(1, 4);
@@ -89,6 +151,12 @@ function testPushAfterSliceFixed() returns [int, int, int[]] {
      s.push(88);
      int slp = s.length();
      return [sl, slp, s];
+}
+
+function testPushAfterSliceOfReadonlyMapArray() {
+    readonly & map<string>[] arr = [{x: "a"}, {y: "b"}];
+    map<string>[] r = arr.slice(1);
+    r.push({z: "c"});
 }
 
 function testSliceOnTupleWithRestDesc() {
@@ -115,7 +183,7 @@ function testRemove() returns [string, string[]] {
 function testReduce() returns float {
     int[] arr = [12, 15, 7, 10, 25];
     float avg = arr.reduce(function (float accum, int val) returns float {
-        return accum + <float>val / arr.length();
+        return accum + <float>val / <float>arr.length();
     }, 0.0);
     return avg;
 }
@@ -130,7 +198,7 @@ function testIterableOpChain() returns float {
      }, 0);
 
     float gpa = grades.'map(gradeToValue).reduce(function (float accum, [float, int] gradePoint) returns float {
-        return accum + (gradePoint[0] * gradePoint[1]) / totalCredits;
+        return accum + (gradePoint[0] * <float>gradePoint[1]) / <float>totalCredits;
     }, 0.0);
 
     return gpa;
@@ -234,8 +302,8 @@ function testReverseRecord() {
 function testArrayReverseEquality() {
     int[] x = [1, 2, 3, 4, 5];
     int[] y = x.reverse();
-    assertValueEquality(x == y, true);
-    assertValueEquality(x === y, true);
+    assertValueEquality(x == y, false);
+    assertValueEquality(x === y, false);
 }
 
 type Person record {|
@@ -574,7 +642,7 @@ function testShiftOnTupleWithoutValuesForRestParameter() {
     var message = err.detail()["message"];
     string detailMessage = message is error? message.toString() : message.toString();
     assertValueEquality("{ballerina/lang.array}OperationNotSupported", err.message());
-    assertValueEquality("shift() not supported on type 'null'", detailMessage);
+    assertValueEquality("shift() not supported on type '[int,int...]'", detailMessage);
 }
 
 type Student record {|
@@ -1114,6 +1182,49 @@ function testSort10() {
     assertValueEquality(sortedArr6, arr3);
 }
 
+function testTupleReverse() {
+    [int, string, float] tupleArr = [2,  "abc", 2.4];
+    anydata[] y = tupleArr.reverse();
+    (int|string|float)[] expected = [2.4,  "abc", 2];
+    assertValueEquality(expected, y);
+
+    [int, int, int] arr1 = [1, 2, 3];
+    y = arr1.reverse();
+    int[]  res = [3, 2, 1];
+    assertValueEquality(res, y);
+
+
+    [int, int, int...] arr2 = [1, 2, 3, 4, 5];
+    y = arr2.reverse();
+    anydata[]  res1 = [5, 4, 3, 2, 1];
+    assertValueEquality(res1, y);
+}
+
+function testTupleFilter() {
+    [int, string, float] tupleArr = [2,  "abc", 2.4];
+    anydata[] y = tupleArr.filter(function (anydata value) returns boolean {
+        return (value is int);
+    });
+
+    (int|string|float)[] expected = [2];
+    assertValueEquality(expected, y);
+
+    [int, int, int] arr1 = [1, 2, 3];
+    y = arr1.filter(function (int value) returns boolean {
+        return value >= 2;
+    });
+    int[] res = [2, 3];
+    assertValueEquality(res, y);
+
+
+    [int, int, int...] arr2 = [1, 2, 3, 4, 5];
+    y = arr2.filter(function (int value) returns boolean {
+        return value > 2;
+    });
+    anydata[]  res1 = [3, 4, 5];
+    assertValueEquality(res1, y);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
@@ -1150,18 +1261,18 @@ function testAsyncFpArgsWithArrays() returns [int, int[]] {
     int count = 0;
     int[] filter = numbers.filter(function (int i) returns boolean {
         future<int> f1 = start getRandomNumber(i);
-        int a = wait f1;
+        int a = checkpanic wait f1;
         return a >= 0;
     });
     filter.forEach(function (int i) {
         future<int> f1 = start getRandomNumber(i);
-        int a = wait f1;
+        int a = checkpanic wait f1;
         filter[count] = i + 2;
         count = count + 1;
     });
     int reduce = filter.reduce(function (int total, int i) returns int {
         future<int> f1 = start getRandomNumber(i);
-        int a = wait f1;
+        int a = checkpanic wait f1;
         return total + a;
     }, 0);
     return [reduce, filter];

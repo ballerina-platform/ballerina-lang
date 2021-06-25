@@ -15,3 +15,13 @@ float \+b;
 string a\%b\#c\-\>d;
 
 string \+a\%b\#c\-\>d;
+
+public string name = "Ballerina";
+
+public T myObj = new;
+
+public [int, string] [intVar, stringVar] = [5, "myString"];
+
+public isolated function () returns int myIsolatedFunction;
+
+public isolated object {} myObj;

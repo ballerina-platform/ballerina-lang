@@ -41,6 +41,15 @@ public class RecordDefNegativeTest {
                 43, 10);
     }
 
+    @Test(description = "Test duplicate fields")
+    public void duplicateFieldTest() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/duplicate-field-negative.bal");
+        int errorIndex = 0;
+        BAssertUtil.validateError(compileResult, errorIndex++, "redeclared symbol 'error'", 19, 11);
+        BAssertUtil.validateError(compileResult, errorIndex++, "redeclared symbol 'name'", 24, 12);
+        assertEquals(compileResult.getErrorCount(), errorIndex);
+    }
+
     @Test
     public void testFieldRefFromWithinARecordDef() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/field_ref_in_own_record.bal");
@@ -60,5 +69,14 @@ public class RecordDefNegativeTest {
         BAssertUtil.validateError(compileResult, indx++, "undefined symbol 'a'", 69, 37);
         BAssertUtil.validateError(compileResult, indx++, "incompatible types: expected 'string', found 'int'", 79, 16);
         assertEquals(compileResult.getErrorCount(), indx);
+    }
+
+    @Test(description = "Test record destructure negative cases")
+    public void recordDestructureTest() {
+        CompileResult compileResult = BCompileUtil.
+                compile("test-src/record/negative/record-destructure-negative.bal");
+        BAssertUtil.validateError(compileResult, 0,
+                "invalid record binding pattern; unknown field '_' in record type 'Person'",
+                27, 5);
     }
 }

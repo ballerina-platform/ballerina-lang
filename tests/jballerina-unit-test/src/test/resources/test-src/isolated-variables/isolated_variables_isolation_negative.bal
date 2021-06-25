@@ -13,9 +13,9 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.array;
 
 int[] a = getIntArray();
-
 isolated int[][] b = [a, getIntArray()];
 
 isolated record {
@@ -216,4 +216,120 @@ function testInvalidTransferInAsArgInLockAccessingIsolatedVar(int[] n) {
 
 isolated function update(int[][] x, int[] y) {
     x.push(y);
+}
+
+isolated int[][] arr = [];
+
+function getArrayMemberDirect() returns int[] {
+    lock {
+        return arr[0];
+    }
+}
+
+function getArrayMemberViaFunctionCall() returns int[] {
+    lock {
+        return getMember(arr);
+    }
+}
+
+isolated function getMember(int[][] x) returns int[] {
+    return x[0];
+}
+
+isolated map<int[]> mp = {};
+
+function getMapMemberDirect() returns int[] {
+    lock {
+        if true {
+            return <int[]> mp["x"];
+        } else {
+            return mp.get("x");
+        }
+    }
+}
+
+function getMapMemberViaFunctionCall() returns int[] {
+    lock {
+        return getMapMember(mp);
+    }
+}
+
+isolated function getMapMember(map<int[]> mp) returns int[] {
+    return <int[]> mp["a"];
+}
+
+function getArrayMemberViaFunctionCall2() returns int[] {
+    lock {
+        int[][] arr2 = [arr[0]];
+        return getMember(arr2);
+    }
+}
+
+function getMapMemberViaFunctionCall2() returns int[] {
+    lock {
+        map<int[]> mp2 = {x: arr[0]};
+        return getMapMember(mp2);
+    }
+}
+
+class NonIsolatedClass {
+    int[] m = [];
+
+    isolated function getMember() {
+        lock {
+            arr[0] = self.m;
+            arr.push(self.m);
+        }
+    }
+
+    isolated function getMember2() returns int[] {
+        lock {
+            arr[0] = self.getMemberInternal();
+            return getMemberUsingSelf(self);
+        }
+    }
+
+    isolated function getMemberInternal() returns int[] {
+        return self.m;
+    }
+}
+
+isolated function getMemberUsingSelf(NonIsolatedClass cl) returns int[] => cl.getMemberInternal();
+
+isolated map<int> isolatedModuleLevelMap = {};
+
+isolated function invalidCopyInInMethodCall1() returns map<int>[] {
+    map<int>[] y = [];
+
+    lock {
+        y[0] = isolatedModuleLevelMap;
+        y.push(isolatedModuleLevelMap);
+        array:push(y, isolatedModuleLevelMap);
+        return y;
+    }
+}
+
+function invalidCopyInInMethodCall2(map<int[]> y) {
+    lock {
+        _ = y.remove(isolatedModuleLevelMap["a"].toString());
+    }
+}
+
+function invalidCopyOutAccessingIsolatedVar() returns map<int>[] {
+    map<int>[] y = [];
+    map<int> z;
+    lock {
+        map<int>[] y2 = [];
+        y[0] = isolatedModuleLevelMap;
+        z = isolatedModuleLevelMap;
+        return y2;
+    }
+}
+
+isolated isolated object {}[] isolatedIsolatedObjArr = [];
+
+isolated function getArr() returns isolated object {}[] {
+    lock {
+        return from var ob in isolatedIsolatedObjArr select ob;
+    }
 }

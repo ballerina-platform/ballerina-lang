@@ -29,6 +29,10 @@ public class Construct {
     public boolean isDeprecated;
     @Expose
     public Type inclusionType = null;
+    @Expose
+    public boolean isReadOnly;
+    @Expose
+    public String builtInVersion;
     public Construct(String name, String description, boolean isDeprecated) {
         this.name = name;
         this.description = description;

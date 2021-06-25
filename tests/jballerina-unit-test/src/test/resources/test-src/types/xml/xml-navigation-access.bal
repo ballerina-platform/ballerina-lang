@@ -128,3 +128,23 @@ function testXMLNavigationExpressionWithQuotedIdentifiers() returns [xml, xml] {
 
     return [x/<'object>, x/<ns0:'object>];
 }
+
+function testXMLNavigationExpressionWithXMLSubtypeOnLHS() {
+        xml val = xml `<foo><bar>0</bar><baz>1</baz><bar>2</bar></foo>`;
+        xml<xml:Element> xmlResult = val/<bar>;
+        string s = xmlResult.toString();
+        if (s == "<bar>0</bar><bar>2</bar>") {
+            return;
+        }
+        panic error("Assertion error, expected: `<bar>0</bar><bar>2</bar>`, found: " + s);
+}
+
+function testXMLNavigationDescendantsStepWithXMLSubtypeOnLHS() {
+        xml val = xml `<foo><bar>0</bar><baz>1</baz><bar>2</bar></foo>`;
+        xml<xml:Element> xmlResult = val/**/<baz>;
+        string s = xmlResult.toString();
+        if (s == "<baz>1</baz>") {
+            return;
+        }
+        panic error("Assertion error, expected: `<baz>1</baz>`, found: " + s);
+}

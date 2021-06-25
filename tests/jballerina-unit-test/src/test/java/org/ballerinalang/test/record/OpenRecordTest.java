@@ -460,6 +460,12 @@ public class OpenRecordTest {
     }
 
     @Test
+    public void testLangFuncOnRecord() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testLangFuncOnRecord");
+        Assert.assertEquals(((BInteger) ((BMap) returns[0]).getMap().get("toJson")).intValue(), 44);
+    }
+
+    @Test
     public void testExprsAsRecordLiteralKeysSemanticsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/record/open_record_invalid_key_expr_semantics_negative" +
                 ".bal");
@@ -513,6 +519,11 @@ public class OpenRecordTest {
     @Test
     public void testScopingRules() {
         BRunUtil.invoke(compileResult, "testScopingRules");
+    }
+
+    @Test
+    public void testRecordsWithFieldsWithBuiltinNames() {
+        BRunUtil.invoke(compileResult, "testRecordsWithFieldsWithBuiltinNames");
     }
 
     @AfterClass

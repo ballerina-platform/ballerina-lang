@@ -31,7 +31,6 @@ import org.testng.annotations.Test;
  *
  * @since 2.0.0
  */
-@Test(groups = { "disableOnOldParser" })
 public class ListBindingPatternTest {
     private CompileResult result, restMatchPatternResult, resultNegative;
     private String patternNotMatched = "pattern will not be matched";
@@ -139,6 +138,26 @@ public class ListBindingPatternTest {
     }
 
     @Test
+    public void testListBindingPattern19() {
+        BRunUtil.invoke(result, "testListBindingPattern19");
+    }
+
+    @Test
+    public void testListBindingPattern20() {
+        BRunUtil.invoke(result, "testListBindingPattern20");
+    }
+
+    @Test
+    public void testListBindingPattern21() {
+        BRunUtil.invoke(result, "testListBindingPattern21");
+    }
+
+    @Test
+    public void testListBindingPattern22() {
+        BRunUtil.invoke(result, "testListBindingPattern22");
+    }
+
+    @Test
     public void testRestBindingPattern1() {
         BRunUtil.invoke(restMatchPatternResult, "testListBindingPatternWithRest1");
     }
@@ -169,45 +188,78 @@ public class ListBindingPatternTest {
     }
 
     @Test
+    public void testRestBindingPatternWithClosedArray() {
+        BRunUtil.invoke(restMatchPatternResult, "testRestBindingPatternWithClosedArray");
+    }
+
+    @Test
+    public void testRestBindingPattern8() {
+        BRunUtil.invoke(restMatchPatternResult, "testRestBindingPattern8");
+    }
+
+    @Test
     public void testListBindingPatternNegative() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 8);
+        Assert.assertEquals(resultNegative.getWarnCount(), 25);
         int i = -1;
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 23, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 23, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 28, 5);
         BAssertUtil.validateError(resultNegative, ++i, "all match patterns should contain the same set of variables",
                 30, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 30, 17);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 30, 17);
         BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 35, 5);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 37, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 40, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 47, 13);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 37, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 40, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 47, 13);
         BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 52, 5);
         BAssertUtil.validateError(resultNegative, ++i, "all match patterns should contain the same set of variables",
                 58, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 63, 5);
         BAssertUtil.validateError(resultNegative, ++i, "all match patterns should contain the same set of variables",
                 65, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 65, 35);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 65, 35);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 65, 35);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 65, 35);
         BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 71, 5);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 79, 22);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 79, 22);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 81, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 81, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 83, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 83, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 85, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 85, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 85, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 93, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 100, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 107, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 114, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 124, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 135, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 146, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 166, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 79, 22);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 81, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 81, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 83, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 83, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 85, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 85, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 93, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 100, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 107, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 114, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 124, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 135, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 146, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 166, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 172, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 174, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 176, 9);
+    }
 
-        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
+    @Test
+    public void testNegativeSemantics() {
+        CompileResult resultSemanticsNegative = BCompileUtil.compile("test-src/statements/matchstmt/" +
+                "varbindingpatternmatchpattern/list_binding_pattern_semantics_negative.bal");
+        int i = -1;
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "redeclared symbol 'a'", 20, 17);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "redeclared symbol 'a'", 21, 18);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'string[]', found " +
+                "'int[]'", 28, 26);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int[][]', found '" +
+                "(int|error)[][]'", 29, 27);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int', found 'json'",
+                37, 21);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'boolean[]', found " +
+                        "'json[]'", 37, 24);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int', found 'json'",
+                40, 21);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'boolean', found 'json'",
+                40, 25);
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 
     @AfterClass

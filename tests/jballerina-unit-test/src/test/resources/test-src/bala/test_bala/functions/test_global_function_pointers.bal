@@ -47,3 +47,24 @@ function test6() returns string {
     return f("test6", true);
 }
 
+function test7() {
+    assertEquality(true, foo:anyFunction1() is function (string a, boolean b) returns string);
+    assertEquality(false, foo:anyFunction1() is function (int a, boolean b) returns string);
+    assertEquality(false, foo:anyFunction2(test0) is function (int a, boolean b) returns string);
+    assertEquality(true, foo:anyFunction2(test0) is function (string, int) returns string);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any expected, any actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

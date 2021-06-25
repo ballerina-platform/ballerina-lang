@@ -1,0 +1,7 @@
+[test_module]
+intVar = 56
+stringVar = "green"
+
+[test_module.util]
+intVar = 78
+stringVar = "blue"

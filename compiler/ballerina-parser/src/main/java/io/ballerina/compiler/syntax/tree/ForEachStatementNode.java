@@ -49,7 +49,7 @@ public class ForEachStatementNode extends StatementNode {
         return childInBucket(3);
     }
 
-    public StatementNode blockStatement() {
+    public BlockStatementNode blockStatement() {
         return childInBucket(4);
     }
 
@@ -83,7 +83,7 @@ public class ForEachStatementNode extends StatementNode {
             TypedBindingPatternNode typedBindingPattern,
             Token inKeyword,
             Node actionOrExpressionNode,
-            StatementNode blockStatement,
+            BlockStatementNode blockStatement,
             OnFailClauseNode onFailClause) {
         if (checkForReferenceEquality(
                 forEachKeyword,
@@ -119,7 +119,7 @@ public class ForEachStatementNode extends StatementNode {
         private TypedBindingPatternNode typedBindingPattern;
         private Token inKeyword;
         private Node actionOrExpressionNode;
-        private StatementNode blockStatement;
+        private BlockStatementNode blockStatement;
         private OnFailClauseNode onFailClause;
 
         public ForEachStatementNodeModifier(ForEachStatementNode oldNode) {
@@ -161,7 +161,7 @@ public class ForEachStatementNode extends StatementNode {
         }
 
         public ForEachStatementNodeModifier withBlockStatement(
-                StatementNode blockStatement) {
+                BlockStatementNode blockStatement) {
             Objects.requireNonNull(blockStatement, "blockStatement must not be null");
             this.blockStatement = blockStatement;
             return this;

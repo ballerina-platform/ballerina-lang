@@ -61,6 +61,6 @@ function testFiniteTypeAsIndex() {
 
     string|boolean|int|float? v4 = bar[f1]; // incompatible types: expected 'string', found 'fieldOne|fieldTwo|0'
     string|boolean|int|float? v5 = bar[f2]; // incompatible types: expected 'string', found '0|1'
-    string|boolean|int|float? v6 = bar[f4]; // invalid record index expression: value space 'fieldOne|fieldTwo|fieldThree' out of range
-    var v7 = bar[f5]; // invalid record index expression: value space 'fieldOne|fieldTwo|fieldThree|fieldFour' out of range
+    string|boolean|int|float? v6 = bar[f4]; // invalid record index expression: value space 'NoIntersection' out of range
+    var v7 = bar[f5]; // invalid record index expression: value space 'NoIntersection' out of range
 }

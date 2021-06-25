@@ -18,19 +18,23 @@
 
 package org.ballerinalang.langlib.array;
 
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import org.ballerinalang.langlib.array.utils.ArrayUtils;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSupportedError;
 import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 
 /**
@@ -44,7 +48,19 @@ public class Filter {
                                                                       ARRAY_VERSION, "filter");
 
     public static BArray filter(BArray arr, BFunctionPointer<Object, Boolean> func) {
-        BArray newArr = ValueCreator.createArrayValue(TypeCreator.createArrayType(arr.getElementType()));
+        BArray newArr;
+        Type arrType = arr.getType();
+        switch (arrType.getTag()) {
+            case TypeTags.ARRAY_TAG:
+                newArr = ValueCreator.createArrayValue(TypeCreator.createArrayType(arr.getElementType()));
+                break;
+            case TypeTags.TUPLE_TAG:
+                newArr = ArrayUtils.createEmptyArrayFromTuple(arr);
+                break;
+            default:
+                throw createOpNotSupportedError(arrType, "filter()");
+
+        }
         int size = arr.size();
         AtomicInteger newArraySize = new AtomicInteger(-1);
         AtomicInteger index = new AtomicInteger(-1);
@@ -54,11 +70,14 @@ public class Filter {
                                                                  arr.get(index.incrementAndGet()),
                                                                  true},
                                                          result -> {
-                                                             if ((Boolean) result) {
+                                                             if ((boolean) result) {
                                                                  newArr.add(newArraySize.incrementAndGet(),
                                                                             arr.get(index.get()));
                                                              }
                                                          }, () -> newArr, Scheduler.getStrand().scheduler);
         return newArr;
+    }
+
+    private Filter() {
     }
 }

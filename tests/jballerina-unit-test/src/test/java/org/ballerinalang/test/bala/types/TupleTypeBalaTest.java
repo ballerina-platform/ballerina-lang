@@ -40,8 +40,8 @@ public class TupleTypeBalaTest {
 
     @BeforeClass
     public void setup() {
-        BCompileUtil.compileAndCacheBala("test-src/balo/test_projects/tuple_type_project");
-        result = BCompileUtil.compile("test-src/balo/test_balo/types/test_tuple_type.bal");
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/tuple_type_project");
+        result = BCompileUtil.compile("test-src/bala/test_bala/types/test_tuple_type.bal");
     }
 
     @Test(dataProvider = "tupleTypeTests")
@@ -63,7 +63,7 @@ public class TupleTypeBalaTest {
     @Test
     public void testTupleTypeNegative() {
         CompileResult negativeResult =
-                BCompileUtil.compile("test-src/balo/test_balo/types/test_tuple_type_negative.bal");
+                BCompileUtil.compile("test-src/bala/test_bala/types/test_tuple_type_negative.bal");
 
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected '[int]', found '[int,string...]'", 18, 15);

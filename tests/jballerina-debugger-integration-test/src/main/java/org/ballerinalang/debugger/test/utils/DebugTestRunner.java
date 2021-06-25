@@ -84,7 +84,6 @@ public class DebugTestRunner {
     private BMainInstance balClient = null;
     private Process debuggeeProcess;
     private DebugHitListener listener;
-    private DebugTerminationListener terminationListener;
     private AssertionMode assertionMode;
     private SoftAssert softAsserter;
 
@@ -127,7 +126,7 @@ public class DebugTestRunner {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient = new BMainInstance(balServer);
         debuggeeProcess = balClient.debugMain("build", new String[]{"--debug", String.valueOf(port)},
-            null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath, 20, true);
+                null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath, 20, true);
         clientLeecher.waitForText(20000);
     }
 
@@ -139,8 +138,7 @@ public class DebugTestRunner {
      * @throws BallerinaTestException if any exception is occurred during initialization.
      */
     public void initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind) throws BallerinaTestException {
-        port = findFreePort();
-        initDebugSession(executionKind, port);
+        initDebugSession(executionKind, new HashMap<>());
     }
 
     /**
@@ -152,9 +150,38 @@ public class DebugTestRunner {
      * @throws BallerinaTestException if any exception is occurred during initialization.
      */
     public void initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind, int port)
-        throws BallerinaTestException {
-        debugClientConnector = new TestDAPClientConnector(balServer.getServerHome(), testProjectPath, testEntryFilePath,
-            port);
+            throws BallerinaTestException {
+        initDebugSession(executionKind, port, new HashMap<>());
+    }
+
+    /**
+     * Initialize test debug session.
+     *
+     * @param executionKind Defines ballerina command type to be used to launch the debuggee.(If set to null, adapter
+     *                      will try to attach to the debuggee, instead of launching)
+     * @param launchArgs    debug launch request arguments
+     * @throws BallerinaTestException if any exception is occurred during initialization.
+     */
+    public void initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind, Map<String, Object> launchArgs)
+            throws BallerinaTestException {
+        port = findFreePort();
+        initDebugSession(executionKind, port, launchArgs);
+    }
+
+    /**
+     * Initialize test debug session.
+     *
+     * @param executionKind Defines ballerina command type to be used to launch the debuggee.(If set to null, adapter
+     *                      will try to attach to the debuggee, instead of launching)
+     * @param port          debug session port
+     * @param launchArgs    debug launch request arguments
+     * @throws BallerinaTestException if any exception is occurred during initialization.
+     */
+    public void initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind,
+                                 int port, Map<String, Object> launchArgs) throws BallerinaTestException {
+
+        debugClientConnector = new TestDAPClientConnector(balServer.getServerHome(), testProjectPath,
+                testEntryFilePath, port);
 
         if (debugClientConnector.isConnected()) {
             isConnected = true;
@@ -195,7 +222,7 @@ public class DebugTestRunner {
         if (executionKind == DebugUtils.DebuggeeExecutionKind.BUILD) {
             attachToDebuggee();
         } else {
-            launchDebuggee(executionKind);
+            launchDebuggee(executionKind, launchArgs);
         }
     }
 
@@ -210,7 +237,8 @@ public class DebugTestRunner {
         debugClientConnector.attachToServer();
     }
 
-    private void launchDebuggee(DebugUtils.DebuggeeExecutionKind launchKind) throws BallerinaTestException {
+    private void launchDebuggee(DebugUtils.DebuggeeExecutionKind launchKind, Map<String, Object> args)
+            throws BallerinaTestException {
         try {
             // Sends "configuration done" notification to the debug server.
             debugClientConnector.getRequestManager().configurationDone(new ConfigurationDoneArguments());
@@ -218,7 +246,7 @@ public class DebugTestRunner {
             LOGGER.error("ConfigurationDone request failed.", e);
             throw new BallerinaTestException("ConfigurationDone request failed.", e);
         }
-        debugClientConnector.launchServer(launchKind);
+        debugClientConnector.launchServer(launchKind, args);
     }
 
     /**
@@ -359,7 +387,7 @@ public class DebugTestRunner {
      * @return boolean true if debug termination is found.
      */
     public boolean waitForDebugTermination(long timeoutMillis) {
-        terminationListener = new DebugTerminationListener(debugClientConnector);
+        DebugTerminationListener terminationListener = new DebugTerminationListener(debugClientConnector);
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(terminationListener, 0, 1000);
         try {
@@ -462,19 +490,18 @@ public class DebugTestRunner {
     /**
      * Can be used to get child variables from parent variable.
      *
-     * @param childVariable child variable
+     * @param parentVariable parent variable
      * @return variable map with child variables information
      * @throws BallerinaTestException if an error occurs when fetching debug hit child variables
      */
-    public Map<String, Variable> fetchChildVariables(Variable childVariable) throws BallerinaTestException {
-        Map<String, Variable> variables = new HashMap<>();
-        VariablesArguments childVariableArgs = new VariablesArguments();
-        childVariableArgs.setVariablesReference(childVariable.getVariablesReference());
+    public Map<String, Variable> fetchChildVariables(Variable parentVariable) throws BallerinaTestException {
         try {
-            VariablesResponse childVariableResp = listener.getConnector().getRequestManager()
-                .variables(childVariableArgs);
-            Arrays.stream(childVariableResp.getVariables())
-                .forEach(variable -> variables.put(variable.getName(), variable));
+            Map<String, Variable> variables = new HashMap<>();
+            VariablesArguments childVarArgs = new VariablesArguments();
+            childVarArgs.setVariablesReference(parentVariable.getVariablesReference());
+            childVarArgs.setCount(parentVariable.getIndexedVariables());
+            VariablesResponse response = listener.getConnector().getRequestManager().variables(childVarArgs);
+            Arrays.stream(response.getVariables()).forEach(variable -> variables.put(variable.getName(), variable));
             return variables;
         } catch (Exception e) {
             LOGGER.warn("Error occurred when fetching debug hit child variables", e);
@@ -561,12 +588,12 @@ public class DebugTestRunner {
         switch (assertionMode) {
             case HARD_ASSERT:
                 Assert.assertEquals(frame.getName(), name);
-                Assert.assertEquals(frame.getLine().intValue(), line);
+                Assert.assertEquals(frame.getLine(), line);
                 Assert.assertEquals(frame.getSource().getName(), source);
                 return;
             case SOFT_ASSERT:
                 softAsserter.assertEquals(frame.getName(), name);
-                softAsserter.assertEquals(frame.getLine().intValue(), line);
+                softAsserter.assertEquals(frame.getLine(), line);
                 softAsserter.assertEquals(frame.getSource().getName(), source);
         }
     }
@@ -670,7 +697,7 @@ public class DebugTestRunner {
 
     /**
      * Debugger test framework supports both modes (hard assertions and soft assertions).
-    */
+     */
     public enum AssertionMode {
         HARD_ASSERT,
         SOFT_ASSERT,

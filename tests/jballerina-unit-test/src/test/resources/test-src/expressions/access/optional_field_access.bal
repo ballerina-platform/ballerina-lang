@@ -142,13 +142,13 @@ function testOptionalFieldAccessNilLiftingOnJson1() returns boolean {
     json j = ();
     json|error j2 = j?.a;
     json|error j3 = j?.a?.b;
-    return j2 == () && j3 == ();
+    return j2 is () && j3 is ();
 }
 
 function testOptionalFieldAccessNilLiftingOnJson2() returns boolean {
     json x = { c: 3, d: () };
     json j = { a: 1, b: x };
-    return j?.b?.d?.onNil == ();
+    return j?.b?.d?.onNil is ();
 }
 
 function testOptionalFieldAccessNilLiftingOnMapJson() returns boolean {
@@ -183,7 +183,7 @@ function testOptionalFieldAccessOnJsonMappingPositive() returns boolean {
     json|error j2 = j?.a;
     json|error j3 = j?.b;
     json|error j4 = j?.b?.c;
-    return j2 == 1 && j3 == x && j4 == 3;
+    return j2 === 1 && j3 === x && j4 === 3;
 }
 
 function testOptionalFieldAccessOnMapJsonPositive() returns boolean {
@@ -199,7 +199,7 @@ function testOptionalFieldAccessOnMapJsonPositive() returns boolean {
     map<json> m1 = { b: 1, c: "hello" };
     map<json> m2 = { e: 2.0 };
 
-    return j == 3 && j2 == m1 && j3 == 1 && j4 == m2 && j5 == 2.0;
+    return j === 3 && j2 == m1 && j3 === 1 && j4 == m2 && j5 === 2.0;
 }
 
 function testOptionalFieldAccessNilReturnOnMissingKey() returns boolean {
@@ -208,7 +208,7 @@ function testOptionalFieldAccessNilReturnOnMissingKey() returns boolean {
     json|error j2 = j?.x;
     json|error j3 = j?.y?.z;
     json|error j4 = j?.b?.d;
-    return j2 == () && j3 == () && j4 == ();
+    return j2 === () && j3 === () && j4 === ();
 }
 
 function testOptionalFieldAccessNilReturnOnMissingKeyInJsonMap() returns boolean {
@@ -217,7 +217,7 @@ function testOptionalFieldAccessNilReturnOnMissingKeyInJsonMap() returns boolean
     json j2 = j?.x;
     json|error j3 = j?.y?.z;
     json|error j4 = j?.b?.d;
-    return j2 == () && j3 == () && j4 == ();
+    return j2 === () && j3 === () && j4 === ();
 }
 
 function testOptionalFieldAccessOnLaxUnionPositive() returns boolean {
@@ -236,7 +236,7 @@ function testOptionalFieldAccessOnLaxUnionPositive() returns boolean {
     map<json> m1 = { b: 1, c: "hello" };
     map<json> m2 = { e: 2.0 };
 
-    return j == 3 && j2 == m1 && j3 == 1 && j4 == m2 && j5 == 2.0;
+    return j === 3 && j2 == m1 && j3 === 1 && j4 == m2 && j5 === 2.0;
 }
 
 function testOptionalFieldAccessNilReturnOnLaxUnion() returns boolean {
@@ -331,7 +331,7 @@ function testNilLiftingWithOptionalFieldAccessOnNillableTypeInvocation() returns
 
 function testJsonOptionalFieldAccessOnInvocation() returns boolean {
     json|error v = getJson()?.x?.y;
-    return v == 1;
+    return v === 1;
 }
 
 function getJson() returns json {
@@ -531,6 +531,43 @@ function testNilValuedFinalAccessInNestedAccess() {
     assertTrue(n is ());
     assertTrue(o is ());
     assertTrue(p is ());
+}
+
+public type Quux record {|
+    int i;
+    Baz baz?;
+|};
+
+public type Baz record {|
+    string a;
+    int i?;
+|};
+
+public function testNestedOptionalFieldAccessOnIntersectionTypes() {
+    Quux & readonly q1 = {i: 1, baz: {a: "hello", i: 2}};
+    var v1 = q1?.baz?.i;
+    assertTrue(v1 is int);
+    assertEquality(2, v1);
+
+    Quux & readonly q2 = {i: 1, baz: {a: "hello"}};
+    int? v2 = q2?.baz?.i;
+    assertTrue(v2 is ());
+    assertEquality((), v2);
+
+    Quux & readonly q3 = {i: 1};
+    var v3 = q3?.baz?.i;
+    assertTrue(v3 is ());
+    assertEquality((), v3);
+
+    Quux & readonly q4 = {i: 1, baz: {a: "hello", i: 2}};
+    var v4 = q4?.baz["i"];
+    assertTrue(v4 is int);
+    assertEquality(2, v4);
+
+    Quux & readonly q5 = {i: 1, baz: {a: "hello"}};
+    int? v5 = q5["baz"]?.i;
+    assertTrue(v5 is ());
+    assertEquality((), v5);
 }
 
 function assertTrue(anydata actual) {

@@ -1,0 +1,20 @@
+{
+  "organization": "foo",
+  "name": "winery",
+  "version": "0.1.0",
+  "authors": [ "wso2"],
+  "export": [ "winery", "winery.service" ],
+  "ballerina_version": "Ballerina 2.0.0",
+  "implementation_vendor": "WSO2",
+  "language_spec_version": "2020r2",
+  "platform": "java11",
+  "platformDependencies": [
+    {
+      "path": "platform/java11/ballerina-io-1.0.0-java.txt",
+      "groupId": "ballerina",
+      "artifactId": "ldap",
+      "version": "1.0.0"
+    }
+  ],
+  "template": false
+}

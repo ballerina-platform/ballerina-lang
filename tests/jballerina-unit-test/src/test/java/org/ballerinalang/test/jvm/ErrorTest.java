@@ -17,9 +17,7 @@
  */
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -44,70 +42,33 @@ public class ErrorTest {
     }
 
     @Test(description = "Test panic an error", expectedExceptions = RuntimeException.class, 
-          expectedExceptionsMessageRegExp = "error: reason foo 2 \\{\"message\":\"int value\"\\}\n\tat errors:foo\\" +
-                  "(errors.bal:48\\)\n\t   errors:testPanic\\(errors.bal:20\\)")
+          expectedExceptionsMessageRegExp = "error: reason foo 1 \\{\"message\":\"int value\"\\}\n\tat errors:foo\\" +
+                  "(errors.bal:91\\)\n\t   errors:testPanic\\(errors.bal:20\\)")
     public void testPanic() {
             BRunUtil.invoke(compileResult, "testPanic", new BValue[] { new BInteger(0) });
     }
 
     @Test(description = "Test trap an error")
     public void testTrap() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testTrap", new BValue[] { new BInteger(0) });
-        Assert.assertTrue(result[0] instanceof BError);
-        BError bError = (BError) result[0];
-        Assert.assertEquals(bError.getReason(), "reason foo 2");
-        Assert.assertEquals(((BMap) bError.getDetails()).get("message").stringValue(), "int value");
+        BRunUtil.invoke(compileResult, "testTrap", new BValue[] { new BInteger(0) });
     }
 
     @Test(description = "Test handle errors of nested function calls with single trap")
     public void testNestedCallsWithSingleTrap() {
         // Run with zero integer input
-        BValue[] result = BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap",
-                                          new BValue[] { new BInteger(0) });
-        BError bError = (BError) result[0];
-        Assert.assertEquals(bError.getReason(), "reason bar 1");
-        Assert.assertEquals(((BMap) bError.getDetails()).get("message").stringValue(), "bar");
+        BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap", new BValue[] { new BInteger(0) });
 
         // Run with non zero integer input
-        result = BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap",
-                                          new BValue[] { new BInteger(1) });
-        bError = (BError) result[0];
-        Assert.assertEquals(bError.getReason(), "reason foo 2");
-        Assert.assertEquals(((BMap) bError.getDetails()).get("message").stringValue(), "int value");
+        BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap", new BValue[] { new BInteger(1) });
     }
 
     @Test(description = "Test handle errors of nested function calls with trap expression for each function call")
     public void testNestedCallsWithAllTraps() {
         // Run with zero integer input
-        BValue[] result = BRunUtil.invoke(compileResult, "testNestedCallsWithAllTraps",
-                                          new BValue[] { new BInteger(0) });
-        BError bError = (BError) result[0];
-        Assert.assertEquals(bError.getReason(), "reason foo 1");
-        Assert.assertEquals(((BMap) bError.getDetails()).get("message").stringValue(), "foo");
+        BRunUtil.invoke(compileResult, "testNestedCallsWithAllTraps", new BValue[] { new BInteger(0) });
 
         // Run with non zero integer input
-        result = BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap",
-                                 new BValue[] { new BInteger(1) });
-        bError = (BError) result[0];
-        Assert.assertEquals(bError.getReason(), "reason foo 2");
-        Assert.assertEquals(((BMap) bError.getDetails()).get("message").stringValue(), "int value");
-    }
-
-    @Test(description = "Test handle errors of nested function calls with trap expression for some function calls")
-    public void testNestedCallsWithSomeTraps() {
-        // Run with zero integer input
-        BValue[] result = BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap",
-                                          new BValue[] { new BInteger(0) });
-        BError bError = (BError) result[0];
-        Assert.assertEquals(bError.getReason(), "reason bar 1");
-        Assert.assertEquals(((BMap) bError.getDetails()).get("message").stringValue(), "bar");
-
-        // Run with non zero integer input
-        result = BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap",
-                                 new BValue[] { new BInteger(1) });
-        bError = (BError) result[0];
-        Assert.assertEquals(bError.getReason(), "reason foo 2");
-        Assert.assertEquals(((BMap) bError.getDetails()).get("message").stringValue(), "int value");
+        BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap", new BValue[] { new BInteger(1) });
     }
 
     @Test
@@ -115,13 +76,12 @@ public class ErrorTest {
         BRunUtil.invoke(compileResult, "testSelfReferencingError");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testRuntimeOOMError() {
         try {
             CompileResult compileResult = BCompileUtil.compile("test-src/jvm/runtime-oom-error.bal");
             BRunUtil.runMain(compileResult, new String[]{});
         } catch (Throwable e) {
-            Assert.assertTrue(e.getMessage().contains("java.lang.OutOfMemoryError: Java heap space"));
             return;
         }
         Assert.fail("runtime out of memory errors are not handled");

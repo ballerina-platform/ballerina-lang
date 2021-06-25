@@ -36,7 +36,7 @@ public class PackageJson {
     private List<String> authors; //?
     private String source_repository; //?
     private List<String> keywords; //?
-    private List<String> exported; //?
+    private List<String> export; //?
 
     // Distribution details
     private String ballerina_version;
@@ -114,12 +114,12 @@ public class PackageJson {
         this.keywords = keywords;
     }
 
-    public List<String> getExported() {
-        return exported;
+    public List<String> getExport() {
+        return export;
     }
 
-    public void setExported(List<String> exported) {
-        this.exported = exported;
+    public void setExport(List<String> export) {
+        this.export = export;
     }
 
     public String getBallerinaVersion() {

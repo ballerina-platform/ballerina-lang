@@ -52,13 +52,26 @@ import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorCauseBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorFieldBindingPatterns;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorMessageBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangFieldBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -74,6 +87,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
@@ -91,6 +105,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecation
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -130,11 +145,24 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorFieldMatchPatterns;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMessageMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangFieldMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangNamedArgMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangSimpleMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -143,8 +171,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -176,6 +203,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -258,6 +286,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNodes(funcNode.annAttachments);
         lookupNodes(funcNode.requiredParams);
         lookupNode(funcNode.restParam);
+        lookupNodes(funcNode.returnTypeAnnAttachments);
         lookupNode(funcNode.returnTypeNode);
         lookupNode(funcNode.body);
     }
@@ -287,6 +316,12 @@ class SymbolFinder extends BaseVisitor {
         lookupNodes(serviceNode.annAttachments);
         lookupNode(serviceNode.serviceClass);
         lookupNodes(serviceNode.attachedExprs);
+
+        // A service decl is a special case. Since there isn't a name associated with it, we take the starting
+        // position of the node to lookup the service symbol.
+        if (this.symbolAtCursor == null && this.cursorPos.equals(serviceNode.pos.lineRange().startLine())) {
+            this.symbolAtCursor = serviceNode.symbol;
+        }
     }
 
     @Override
@@ -305,6 +340,7 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
+        lookupNodes(constant.annAttachments);
         lookupNode(constant.typeNode);
         lookupNode(constant.expr);
     }
@@ -315,6 +351,7 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
+        lookupNodes(varNode.annAttachments);
         lookupNode(varNode.typeNode);
         lookupNode(varNode.expr);
     }
@@ -330,18 +367,22 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
+        lookupNodes(annotationNode.annAttachments);
         lookupNode(annotationNode.typeNode);
     }
 
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
+        if (annAttachmentNode.annotationSymbol != null
+                && setEnclosingNode(annAttachmentNode.annotationSymbol.owner, annAttachmentNode.pkgAlias.pos)) {
+            return;
+        }
+
         if (setEnclosingNode(annAttachmentNode.annotationSymbol, annAttachmentNode.annotationName.pos)) {
             return;
         }
 
         lookupNode(annAttachmentNode.expr);
-
-        // TODO: See how we can return module info if the cursor is at the module alias
     }
 
     @Override
@@ -448,16 +489,152 @@ class SymbolFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangMatch matchNode) {
-        lookupNode(matchNode.expr);
-        lookupNodes(matchNode.patternClauses);
+    public void visit(BLangCaptureBindingPattern captureBindingPattern) {
+        setEnclosingNode(captureBindingPattern.symbol, captureBindingPattern.getIdentifier().getPosition());
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        lookupNode(patternClauseNode.matchExpr);
-        lookupNode(patternClauseNode.variable);
-        lookupNode(patternClauseNode.body);
+    public void visit(BLangListBindingPattern listBindingPattern) {
+        lookupNodes(listBindingPattern.bindingPatterns);
+        lookupNode(listBindingPattern.restBindingPattern);
+    }
+
+    @Override
+    public void visit(BLangMappingBindingPattern mappingBindingPattern) {
+        lookupNodes(mappingBindingPattern.fieldBindingPatterns);
+        lookupNode(mappingBindingPattern.restBindingPattern);
+    }
+
+    @Override
+    public void visit(BLangFieldBindingPattern fieldBindingPattern) {
+        lookupNode(fieldBindingPattern.bindingPattern);
+    }
+
+    @Override
+    public void visit(BLangRestBindingPattern restBindingPattern) {
+        setEnclosingNode(restBindingPattern.symbol, restBindingPattern.getIdentifier().getPosition());
+    }
+
+    @Override
+    public void visit(BLangErrorBindingPattern errorBindingPattern) {
+        lookupNode(errorBindingPattern.errorTypeReference);
+        lookupNode(errorBindingPattern.errorMessageBindingPattern);
+        lookupNode(errorBindingPattern.errorCauseBindingPattern);
+        lookupNode(errorBindingPattern.errorFieldBindingPatterns);
+    }
+
+    @Override
+    public void visit(BLangErrorMessageBindingPattern errorMessageBindingPattern) {
+        lookupNode(errorMessageBindingPattern.simpleBindingPattern);
+    }
+
+    @Override
+    public void visit(BLangErrorCauseBindingPattern errorCauseBindingPattern) {
+        lookupNode(errorCauseBindingPattern.simpleBindingPattern);
+        lookupNode(errorCauseBindingPattern.errorBindingPattern);
+    }
+
+    @Override
+    public void visit(BLangErrorFieldBindingPatterns errorFieldBindingPatterns) {
+        lookupNodes(errorFieldBindingPatterns.namedArgBindingPatterns);
+        lookupNode(errorFieldBindingPatterns.restBindingPattern);
+    }
+
+    @Override
+    public void visit(BLangSimpleBindingPattern simpleBindingPattern) {
+        lookupNode(simpleBindingPattern.captureBindingPattern);
+    }
+
+    @Override
+    public void visit(BLangNamedArgBindingPattern namedArgBindingPattern) {
+        lookupNode(namedArgBindingPattern.bindingPattern);
+    }
+
+    @Override
+    public void visit(BLangMatchStatement matchStatementNode) {
+        lookupNode(matchStatementNode.expr);
+        lookupNodes(matchStatementNode.matchClauses);
+        lookupNode(matchStatementNode.onFailClause);
+    }
+
+    @Override
+    public void visit(BLangMatchClause matchClause) {
+        lookupNodes(matchClause.matchPatterns);
+        lookupNode(matchClause.matchGuard);
+        lookupNode(matchClause.blockStmt);
+    }
+
+    @Override
+    public void visit(BLangConstPattern constMatchPattern) {
+        lookupNode(constMatchPattern.expr);
+    }
+
+    @Override
+    public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
+        lookupNode(varBindingPattern.getBindingPattern());
+    }
+
+    @Override
+    public void visit(BLangMappingMatchPattern mappingMatchPattern) {
+        lookupNodes(mappingMatchPattern.fieldMatchPatterns);
+        lookupNode(mappingMatchPattern.restMatchPattern);
+    }
+
+    @Override
+    public void visit(BLangFieldMatchPattern fieldMatchPattern) {
+        lookupNode(fieldMatchPattern.matchPattern);
+    }
+
+    @Override
+    public void visit(BLangRestMatchPattern restMatchPattern) {
+        setEnclosingNode(restMatchPattern.symbol, restMatchPattern.variableName.pos);
+    }
+
+    @Override
+    public void visit(BLangListMatchPattern listMatchPattern) {
+        lookupNodes(listMatchPattern.matchPatterns);
+        lookupNode(listMatchPattern.restMatchPattern);
+    }
+
+    @Override
+    public void visit(BLangErrorMatchPattern errorMatchPattern) {
+        lookupNode(errorMatchPattern.errorTypeReference);
+        lookupNode(errorMatchPattern.errorMessageMatchPattern);
+        lookupNode(errorMatchPattern.errorCauseMatchPattern);
+        lookupNode(errorMatchPattern.errorFieldMatchPatterns);
+    }
+
+    @Override
+    public void visit(BLangErrorMessageMatchPattern errorMessageMatchPattern) {
+        lookupNode(errorMessageMatchPattern.simpleMatchPattern);
+    }
+
+    @Override
+    public void visit(BLangErrorCauseMatchPattern errorCauseMatchPattern) {
+        lookupNode(errorCauseMatchPattern.simpleMatchPattern);
+        lookupNode(errorCauseMatchPattern.errorMatchPattern);
+    }
+
+    @Override
+    public void visit(BLangErrorFieldMatchPatterns errorFieldMatchPatterns) {
+        lookupNodes(errorFieldMatchPatterns.namedArgMatchPatterns);
+        lookupNode(errorFieldMatchPatterns.restMatchPattern);
+    }
+
+    @Override
+    public void visit(BLangSimpleMatchPattern simpleMatchPattern) {
+        lookupNode(simpleMatchPattern.constPattern);
+        lookupNode(simpleMatchPattern.varVariableName);
+    }
+
+    @Override
+    public void visit(BLangNamedArgMatchPattern namedArgMatchPattern) {
+        lookupNode(namedArgMatchPattern.matchPattern);
+    }
+
+    @Override
+    public void visit(BLangMatchGuard matchGuard) {
+        lookupNode(matchGuard.expr);
     }
 
     @Override
@@ -465,6 +642,12 @@ class SymbolFinder extends BaseVisitor {
         lookupNode((BLangNode) foreach.variableDefinitionNode);
         lookupNode(foreach.collection);
         lookupNode(foreach.body);
+    }
+
+    @Override
+    public void visit(BLangDo doNode) {
+        lookupNode(doNode.body);
+        lookupNode(doNode.onFailClause);
     }
 
     @Override
@@ -518,6 +701,12 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangDoClause doClause) {
         lookupNode(doClause.body);
+    }
+
+    @Override
+    public void visit(BLangOnFailClause onFailClause) {
+        lookupNode((BLangNode) onFailClause.variableDefinitionNode);
+        lookupNode(onFailClause.body);
     }
 
     @Override
@@ -595,6 +784,9 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangConstRef constRef) {
+        if (constRef.symbol != null && setEnclosingNode(constRef.symbol.owner, constRef.pkgAlias.pos)) {
+            return;
+        }
         this.symbolAtCursor = constRef.symbol;
     }
 
@@ -618,7 +810,11 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangRecordVarRef varRefExpr) {
-        // TODO: implement this
+        for (BLangRecordVarRef.BLangRecordVarRefKeyValue recordRefField : varRefExpr.recordRefFields) {
+            lookupNode(recordRefField.getBindingPattern());
+        }
+
+        lookupNode((BLangExpression) varRefExpr.restParam);
     }
 
     @Override
@@ -676,7 +872,7 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangTypeInit typeInit) {
         lookupNodes(typeInit.argsExpr);
-        setEnclosingNode(typeInit.type.tsymbol, typeInit.pos);
+        lookupNode(typeInit.userDefinedType);
     }
 
     @Override
@@ -912,7 +1108,7 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-
+        lookupNodes(queryExpr.queryClauseList);
     }
 
     @Override
@@ -932,17 +1128,18 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangValueType valueType) {
-        this.symbolAtCursor = valueType.type.tsymbol;
+        this.symbolAtCursor = valueType.getBType().tsymbol;
     }
 
     @Override
     public void visit(BLangArrayType arrayType) {
         lookupNode(arrayType.elemtype);
+        lookupNodes(Arrays.asList(arrayType.sizes));
     }
 
     @Override
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
-        this.symbolAtCursor = builtInRefType.type.tsymbol;
+        this.symbolAtCursor = builtInRefType.getBType().tsymbol;
     }
 
     @Override
@@ -950,7 +1147,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(constrainedType.constraint);
 
         if (this.symbolAtCursor == null) {
-            this.symbolAtCursor = ((BLangNode) constrainedType).type.tsymbol;
+            this.symbolAtCursor = ((BLangNode) constrainedType).getBType().tsymbol;
         }
     }
 
@@ -958,6 +1155,10 @@ class SymbolFinder extends BaseVisitor {
     public void visit(BLangStreamType streamType) {
         lookupNode(streamType.constraint);
         lookupNode(streamType.error);
+
+        if (symbolAtCursor == null) {
+            this.symbolAtCursor = streamType.type.getBType().tsymbol;
+        }
     }
 
     @Override
@@ -965,6 +1166,10 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(tableType.constraint);
         lookupNode(tableType.tableKeySpecifier);
         lookupNode(tableType.tableKeyTypeConstraint);
+
+        if (this.symbolAtCursor == null) {
+            this.symbolAtCursor = tableType.type.getBType().tsymbol;
+        }
     }
 
     @Override
@@ -1007,6 +1212,11 @@ class SymbolFinder extends BaseVisitor {
         }
 
         lookupNodes(classDefinition.annAttachments);
+
+        for (BLangSimpleVariable field : classDefinition.fields) {
+            lookupNodes(field.annAttachments);
+        }
+
         lookupNodes(classDefinition.fields);
         lookupNodes(classDefinition.referencedFields);
         lookupNode(classDefinition.initFunction);
@@ -1016,6 +1226,10 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
+        for (BLangSimpleVariable field : objectTypeNode.fields) {
+            lookupNodes(field.annAttachments);
+        }
+
         lookupNodes(objectTypeNode.fields);
         lookupNodes(objectTypeNode.functions);
         lookupNodes(objectTypeNode.typeRefs);
@@ -1023,6 +1237,10 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
+        for (BLangSimpleVariable field : recordTypeNode.fields) {
+            lookupNodes(field.annAttachments);
+        }
+
         lookupNodes(recordTypeNode.fields);
         lookupNodes(recordTypeNode.typeRefs);
     }
@@ -1224,6 +1442,7 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
+        lookupNodes(bLangTupleVariable.annAttachments);
         lookupNodes(bLangTupleVariable.memberVariables);
         lookupNode(bLangTupleVariable.restVariable);
         lookupNode(bLangTupleVariable.expr);
@@ -1265,21 +1484,6 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
         lookupNode(bLangErrorVariableDef.errorVariable);
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause bLangMatchStmtStaticBindingPatternClause) {
-        lookupNode(bLangMatchStmtStaticBindingPatternClause.matchExpr);
-        lookupNode(bLangMatchStmtStaticBindingPatternClause.literal);
-        lookupNode(bLangMatchStmtStaticBindingPatternClause.body);
-    }
-
-    @Override
-    public void visit(BLangMatchStructuredBindingPatternClause bLangMatchStmtStructuredBindingPatternClause) {
-        lookupNode(bLangMatchStmtStructuredBindingPatternClause.bindingPatternVariable);
-        lookupNode(bLangMatchStmtStructuredBindingPatternClause.typeGuardExpr);
-        lookupNode(bLangMatchStmtStructuredBindingPatternClause.matchExpr);
-        lookupNode(bLangMatchStmtStructuredBindingPatternClause.body);
     }
 
     @Override

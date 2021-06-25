@@ -18,12 +18,10 @@
 
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
-import org.ballerinalang.cli.module.Pull;
-import org.ballerinalang.cli.module.exeptions.CommandException;
+import io.ballerina.projects.internal.model.Proxy;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.toml.model.Proxy;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeBalaRepo;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -38,7 +36,6 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTATION_VERSION;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
 /**
@@ -123,14 +120,6 @@ public class URIConverter implements Converter<URI> {
         boolean nightlyBuild = RepoUtils.getBallerinaVersion().contains("SNAPSHOT");
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
             String errorMessage = "";
-            try {
-                Pull.execute(remoteURI.toString(), modulePathInBalaCache.toString(), orgName + "/" + moduleName,
-                        proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(),
-                        supportedVersionRange, this.isBuild, nightlyBuild, IMPLEMENTATION_VERSION, supportedPlatform,
-                        RepoUtils.getBallerinaVersion());
-            } catch (CommandException e) {
-                errorMessage = e.getMessage().trim();
-            }
 
             if (!"".equals(errorMessage)) {
                 // removing the error stack

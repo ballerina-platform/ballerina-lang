@@ -189,44 +189,6 @@ class T2 {
     public function getName() returns string { return self.name; }
 }
 
-//@v1 {
-//    val: "v1"
-//}
-//@v2 {
-//    val: "v2"
-//}
-//@v5 {
-//    val: "v5"
-//}
-//@v6 {
-//    val: "v6"
-//}
-//@v7
-//@v8 {
-//    val: "v8"
-//}
-//@v9 {
-//    val: "v9"
-//}
-//@v10 {
-//    val: "v10"
-//}
-//@v11 {
-//    val: 11
-//}
-//@v12 {
-//    val: "v12"
-//}
-//@v13 {
-//    val: "v13"
-//}
-//@v15 {
-//    val: false
-//}
-//public function T2.getName() returns string {
-//    return self.name;
-//}
-
 @v1 {
     val: "v1"
 }
@@ -772,45 +734,47 @@ function funcWithWorker() {
     }
 }
 
-future<()> fn =
-@v1 {
-    val: "v1"
+function loo() {
+    future<()> fn =
+    @v1 {
+        val: "v1"
+    }
+    @v2 {
+        val: "v2"
+    }
+    @v3 {
+        val: "v3"
+    }
+    @v4 {
+        val: 4
+    }
+    @v5 {
+        val: "v5"
+    }
+    @v6 {
+        val: "v6"
+    }
+    @v7
+    @v8 {
+        val: "v8"
+    }
+    @v9 {
+        val: "v9"
+    }
+    @v10 {
+        val: "v10"
+    }
+    @v11 {
+        val: 11
+    }
+    @v12 {
+        val: "v12"
+    }
+    @v13 {
+        val: "v13"
+    }
+    start funcWithWorker();
 }
-@v2 {
-    val: "v2"
-}
-@v3 {
-    val: "v3"
-}
-@v4 {
-    val: 4
-}
-@v5 {
-    val: "v5"
-}
-@v6 {
-    val: "v6"
-}
-@v7
-@v8 {
-    val: "v8"
-}
-@v9 {
-    val: "v9"
-}
-@v10 {
-    val: "v10"
-}
-@v11 {
-    val: 11
-}
-@v12 {
-    val: "v12"
-}
-@v13 {
-    val: "v13"
-}
-start funcWithWorker();
 
 public annotation v16 on field;
 annotation map<int> v17 on object field;
@@ -854,4 +818,81 @@ public const annotation v20 on class;
     function init() {
         self.i = 2;
     }
+}
+
+@tainted
+class MyClass {
+}
+
+
+@tainted {
+}
+type MyObject object {
+};
+
+function myFunction() returns @v7 {} string => "hello";
+
+@v1
+type MyType int|string;
+
+@v3
+function myFunction1(@v6 string name) returns string {
+    return "Hello " + name;
+}
+
+annotation Annot[] v21 on function;
+
+@v21
+@v21
+public function myFunction6(string... argv) {
+}
+
+@tainted
+@tainted
+@v1 {val: "one"}
+@v1 {val: "two"}
+type MyTypeTwo int|boolean;
+
+@v1 {
+    val: "one"
+}
+@v2 {
+    val: "v2"
+}
+@v3 {
+    val: "v3"
+}
+@v4 {
+    val: 4
+}
+@v5 {
+    val: "v5"
+}
+@v6 {
+    val: "v6"
+}
+@v7
+@v8 {
+    val: "v8"
+}
+@v9 {
+    val: "v9"
+}
+@v10 {
+    val: "v10"
+}
+@v11 {
+    val: 11
+}
+@v12 {
+    val: "v12"
+}
+@v13 {
+    val: "v13"
+}
+@v15 {
+    val: false
+}
+service class ServiceClass {
+
 }

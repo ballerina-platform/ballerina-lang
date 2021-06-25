@@ -15,25 +15,23 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package io.ballerina.runtime.internal.util;
 
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeConverter;
+import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
-import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Optional;
-import java.util.logging.FileHandler;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MAX_VALUE;
@@ -48,15 +46,11 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MIN_VALU
 public class RuntimeUtils {
 
     private static final String CRASH_LOGGER = "b7a.log.crash";
-    private static final String DEFAULT_CRASH_LOG_FILE = "ballerina-internal.log";
-    private static final String ENCODING_PATTERN = "\\$(\\d{4})";
-    private static PrintStream errStream = System.err;
+    private static final PrintStream errStream = System.err;
     public static final String USER_DIR = System.getProperty("user.dir");
     public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
-    private static Logger crashLogger = Logger.getLogger(CRASH_LOGGER);
-
-    private static final PrintStream stderr = System.err;
-    private static FileHandler handler;
+    private static final Logger crashLogger = Logger.getLogger(CRASH_LOGGER);
+    private static ConsoleHandler handler;
 
     /**
      * Used to handle rest args passed in to the main method.
@@ -79,7 +73,7 @@ public class RuntimeUtils {
         // TODO: need to add parsing logic for ref values for both var args and other args as well.
         switch (type.getTag()) {
             case TypeTags.STRING_TAG:
-                array.add(array.size(), value);
+                array.add(array.size(), StringUtils.fromString(value));
                 break;
             case TypeTags.INT_TAG:
                 array.add(array.size(), (long) TypeConverter.convertValues(type, value));
@@ -94,7 +88,7 @@ public class RuntimeUtils {
                 array.add(array.size(), (int) TypeConverter.convertValues(type, value));
                 break;
             default:
-                array.append((Object) value);
+                array.append(value);
         }
     }
 
@@ -113,40 +107,54 @@ public class RuntimeUtils {
      * Keep a function parameter info, required for argument parsing.
      */
     public static class ParamInfo {
-
         String name;
         boolean hasDefaultable;
         Type type;
-        int index = -1;
 
         public ParamInfo(boolean hasDefaultable, String name, Type type) {
-
             this.name = name;
             this.hasDefaultable = hasDefaultable;
             this.type = type;
         }
     }
 
-    public static void handleRuntimeErrorsAndExit(Throwable throwable) {
-        handleRuntimeErrors(throwable);
+    public static void handleBErrorAndExit(Throwable throwable) {
+        if (throwable instanceof ErrorValue) {
+            printToConsole((ErrorValue) throwable);
+        }
         Runtime.getRuntime().exit(1);
     }
 
-    public static void handleRuntimeErrors(Throwable throwable) {
+    public static void handleAllRuntimeErrorsAndExit(Throwable throwable) {
+        handleAllRuntimeErrors(throwable);
+        Runtime.getRuntime().exit(1);
+    }
+
+    public static void handleAllRuntimeErrors(Throwable throwable) {
         if (throwable instanceof ErrorValue) {
-            errStream.println("error: " + ((ErrorValue) throwable).getPrintableStackTrace());
+            printToConsole((ErrorValue) throwable);
         } else {
-            // These errors are unhandled errors in JVM, hence logging them to bre log.
-            errStream.println(RuntimeConstants.INTERNAL_ERROR_MESSAGE);
-            silentlyLogBadSad(throwable);
+            logBadSad(throwable);
         }
+    }
+
+    private static void printToConsole(ErrorValue throwable) {
+        errStream.println("error: " + throwable.getPrintableStackTrace());
     }
 
     public static void handleRuntimeReturnValues(Object returnValue) {
         if (returnValue instanceof ErrorValue) {
             ErrorValue errorValue = (ErrorValue) returnValue;
             errStream.println("error: " + errorValue.getMessage() +
-                    Optional.ofNullable(errorValue.getDetails()).map(details -> " " + details).orElse(""));
+                                      Optional.ofNullable(errorValue.getDetails()).map(details -> " " + details)
+                                              .orElse(""));
+            Runtime.getRuntime().exit(1);
+        }
+    }
+
+    public static void handleDiagnosticErrors(RuntimeDiagnosticLog diagnosticLog) {
+        diagnosticLog.getDiagnosticList().forEach(diagnostic -> errStream.println(diagnostic.toString()));
+        if (diagnosticLog.getErrorCount() > 0) {
             Runtime.getRuntime().exit(1);
         }
     }
@@ -164,7 +172,7 @@ public class RuntimeUtils {
         Runtime.getRuntime().exit(1);
     }
 
-    public static void silentlyLogBadSad(Throwable throwable) {
+    public static void logBadSad(Throwable throwable) {
         // These errors are unhandled errors in JVM, hence logging them to bre log.
         printCrashLog(throwable);
     }
@@ -174,32 +182,18 @@ public class RuntimeUtils {
         // Which result in empty ballerina-internal.log files always getting created.
         Level logLevel = Level.ALL;
 
-        try {
-            synchronized (crashLogger) {
-                if (handler == null) {
-                    handler = new FileHandler(initBRELogHandler(), true);
-                    handler.setFormatter(new DefaultLogFormatter());
-                    crashLogger.addHandler(handler);
-                    crashLogger.setUseParentHandlers(false);
-                    crashLogger.setLevel(logLevel);
-                }
+        synchronized (crashLogger) {
+            if (handler == null) {
+                handler = new ConsoleHandler();
+                handler.setFormatter(new DefaultLogFormatter());
+                crashLogger.addHandler(handler);
+                crashLogger.setUseParentHandlers(false);
+                crashLogger.setLevel(logLevel);
             }
-        } catch (IOException ioException) {
-            stderr.print("error initializing crash logger");
         }
         crashLogger.log(Level.SEVERE, throwable.getMessage(), throwable);
     }
 
-    private static String initBRELogHandler() {
-        String fileName = LogManager.getLogManager().getProperty(RuntimeConstants.DEFAULT_LOG_FILE_HANDLER_PATTERN);
-        if (fileName == null || fileName.trim().isEmpty()) {
-            fileName = DEFAULT_CRASH_LOG_FILE;
-        }
-
-        if (Files.isWritable(Paths.get(USER_DIR))) {
-            return Paths.get(USER_DIR, fileName).toString();
-        } else {
-            return Paths.get(TEMP_DIR, fileName).toString();
-        }
+    private RuntimeUtils() {
     }
 }

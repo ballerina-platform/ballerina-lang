@@ -1,0 +1,7 @@
+[package]
+org = "testOrg"
+name = "configUnionTypes"
+version = "0.1.0"
+
+[build-options]
+observabilityIncluded = true

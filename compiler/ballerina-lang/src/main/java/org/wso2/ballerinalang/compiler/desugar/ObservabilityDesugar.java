@@ -16,11 +16,11 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -37,8 +37,7 @@ import java.util.List;
 public class ObservabilityDesugar {
     private static final CompilerContext.Key<ObservabilityDesugar> OBSERVE_DESUGAR_KEY = new CompilerContext.Key<>();
     private final boolean observabilityIncluded;
-    private final BPackageSymbol internalObserveModuleSymbol;
-    private final BPackageSymbol observeModuleSymbol;
+    private final PackageCache packageCache;
 
     public static ObservabilityDesugar getInstance(CompilerContext context) {
         ObservabilityDesugar desugar = context.get(OBSERVE_DESUGAR_KEY);
@@ -53,12 +52,12 @@ public class ObservabilityDesugar {
         observabilityIncluded = Boolean.parseBoolean(CompilerOptions.getInstance(context)
                 .get(CompilerOptionName.OBSERVABILITY_INCLUDED));
         // TODO: Merge both modules into one user facing module
-        internalObserveModuleSymbol = PackageCache.getInstance(context).getSymbol(PackageID.OBSERVE_INTERNAL);
-        observeModuleSymbol = PackageCache.getInstance(context).getSymbol(PackageID.OBSERVE);
+        packageCache = PackageCache.getInstance(context);
     }
 
     void addObserveInternalModuleImport(BLangPackage pkgNode) {
-        if (observabilityIncluded) {
+        if (observabilityIncluded &&
+                (pkgNode.projectKind != null && !pkgNode.projectKind.equals(ProjectKind.BALA_PROJECT))) {
             BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
             List<BLangIdentifier> pkgNameComps = new ArrayList<>();
             pkgNameComps.add(ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.OBSERVE.value));
@@ -67,14 +66,15 @@ public class ObservabilityDesugar {
             importDcl.orgName = ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.BALLERINA_INTERNAL_ORG.value);
             importDcl.alias = ASTBuilderUtil.createIdentifier(pkgNode.pos, "_");
             importDcl.version = ASTBuilderUtil.createIdentifier(pkgNode.pos, "");
-            importDcl.symbol = internalObserveModuleSymbol;
+            importDcl.symbol = packageCache.getSymbol(PackageID.OBSERVE_INTERNAL);
             pkgNode.imports.add(importDcl);
             pkgNode.symbol.imports.add(importDcl.symbol);
         }
     }
 
     void addObserveModuleImport(BLangPackage pkgNode) {
-        if (observabilityIncluded) {
+        if (observabilityIncluded &&
+                (pkgNode.projectKind != null && !pkgNode.projectKind.equals(ProjectKind.BALA_PROJECT))) {
             BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
             List<BLangIdentifier> pkgNameComps = new ArrayList<>();
             pkgNameComps.add(ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.OBSERVE.value));
@@ -83,7 +83,7 @@ public class ObservabilityDesugar {
             importDcl.orgName = ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.BALLERINA_ORG.value);
             importDcl.alias = ASTBuilderUtil.createIdentifier(pkgNode.pos, "_");
             importDcl.version = ASTBuilderUtil.createIdentifier(pkgNode.pos, "");
-            importDcl.symbol = observeModuleSymbol;
+            importDcl.symbol = packageCache.getSymbol(PackageID.OBSERVE);
             pkgNode.imports.add(importDcl);
             pkgNode.symbol.imports.add(importDcl.symbol);
         }

@@ -67,7 +67,8 @@ public class BallerinaErrorReasons {
     public static final String INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER = "InherentTypeViolation";
     public static final String OPERATION_NOT_SUPPORTED_IDENTIFIER = "OperationNotSupported";
     public static final String KEY_NOT_FOUND_ERROR_IDENTIFIER = "KeyNotFound";
-    public static final String INVALID_TYPE_TO_SORT = "InvalidTypeToSort";
+    public static final String INVALID_TYPE_TO_SORT = "SortOperationError";
+    public static final String UNORDERED_TYPES = "UnorderedTypesError";
 
     public static final BString INDEX_OUT_OF_RANGE_ERROR = StringUtils
             .fromString(INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER);
@@ -106,6 +107,7 @@ public class BallerinaErrorReasons {
 
     public static final BString ASYNC_CALL_INSIDE_LOCK =
             StringUtils.fromString(BALLERINA_PREFIX.concat("AsyncCallInsideLockError"));
+    public static final BString UNORDERED_TYPES_ERROR = StringUtils.fromString(UNORDERED_TYPES);
 
     public static BString getModulePrefixedReason(String moduleName, String identifier) {
         return StringUtils.fromString(BALLERINA_ORG_PREFIX.concat(moduleName)

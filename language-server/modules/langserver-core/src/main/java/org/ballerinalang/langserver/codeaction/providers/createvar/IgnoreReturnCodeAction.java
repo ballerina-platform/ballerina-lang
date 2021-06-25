@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvi
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -32,6 +33,7 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Code Action for ignore variable assignment.
@@ -41,30 +43,39 @@ import java.util.List;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class IgnoreReturnCodeAction extends AbstractCodeActionProvider {
 
+    public static final String NAME = "Ignore Return Type";
+
     /**
      * {@inheritDoc}
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         if (!(diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return Collections.emptyList();
         }
 
-        TypeSymbol typeDescriptor = context.positionDetails().matchedExprType();
-        if (typeDescriptor == null) {
+        Optional<TypeSymbol> typeDescriptor = positionDetails.diagnosticProperty(
+                DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX);
+        if (typeDescriptor.isEmpty()) {
             return Collections.emptyList();
         }
         String uri = context.fileUri();
         Position pos = CommonUtil.toRange(diagnostic.location().lineRange()).getStart();
         // Add ignore return value code action
-        if (!hasErrorType(typeDescriptor)) {
+        if (!hasErrorType(typeDescriptor.get())) {
             String commandTitle = CommandConstants.IGNORE_RETURN_TITLE;
             return Collections.singletonList(
                     createQuickFixCodeAction(commandTitle, getIgnoreCodeActionEdits(pos), uri)
             );
         }
         return Collections.emptyList();
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     private boolean hasErrorType(TypeSymbol typeSymbol) {

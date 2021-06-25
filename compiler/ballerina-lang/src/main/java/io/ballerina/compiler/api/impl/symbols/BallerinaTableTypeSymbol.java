@@ -43,7 +43,7 @@ public class BallerinaTableTypeSymbol extends AbstractTypeSymbol implements Tabl
     private String signature;
 
     public BallerinaTableTypeSymbol(CompilerContext context, ModuleID moduleID, BTableType tableType) {
-        super(context, TypeDescKind.TABLE, moduleID, tableType);
+        super(context, TypeDescKind.TABLE, tableType);
     }
 
     @Override

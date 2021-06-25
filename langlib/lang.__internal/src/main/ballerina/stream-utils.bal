@@ -18,21 +18,28 @@ import ballerina/jballerina.java;
 
 # This file contains the utility functions implemented natively which are used by the 'stream' langib module.
 
+# A type parameter that is a subtype of `error?`.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
+# This represents the result type of an iterator.
+@typeParam
+public type CompletionType error?;
+
 # A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-public type ErrorType error|never;
-
-@typeParam
 public type Type any|error;
 
+# A type parameter that is a subtype of `any|error`.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
 @typeParam
 public type Type1 any|error;
 
 # An `EmptyIterator` which returns nil on next() method invocation.
 class EmptyIterator {
-    public isolated function next() returns record {|Type value;|}? {
+    public isolated function next() returns record {|Type value;|}|CompletionType {
         return ();
     }
 }
@@ -50,12 +57,14 @@ public isolated function setNarrowType(typedesc<Type> td, record {|Type value;|}
 
 # Takes in an iterator object and returns a new stream out of it.
 #
-# + td - A type description.
+# + constraintTd - stream constraint type description.
+# + completionTd - stream completion type description.
 # + iteratorObj - An iterator object.
 # + return - New stream containing results of `iteratorObj` object's next function invocations.
-public isolated function construct(typedesc<Type> td, object { public isolated function next() returns
-        record {|Type value;|}|ErrorType?;} iteratorObj = new EmptyIterator())
-        returns stream<Type, ErrorType> = @java:Method {
+public isolated function construct(typedesc<Type> constraintTd, typedesc<CompletionType> completionTd = (typeof ()),
+    object { public isolated function next() returns record {|Type value;|}|CompletionType;
+    } iteratorObj = new EmptyIterator())
+        returns stream<Type, CompletionType> = @java:Method {
             'class: "org.ballerinalang.langlib.internal.Construct",
             name: "construct"
         } external;
@@ -64,10 +73,20 @@ public isolated function construct(typedesc<Type> td, object { public isolated f
 #
 # + td - An array or stream type desc.
 # + return - The typedesc of the element, constraint type.
-public isolated function getElementType(typedesc<Type[]> | typedesc<stream<Type, ErrorType>> td)
+public isolated function getElementType(typedesc<Type[]> | typedesc<stream<Type, CompletionType>> td)
 returns typedesc<Type> = @java:Method {
     'class: "org.ballerinalang.langlib.internal.GetElementType",
     name: "getElementType"
+} external;
+
+# Takes a typedesc of a stream and returns the typedesc of the completion type.
+#
+# + td - A stream type desc.
+# + return - The typedesc of the completion type.
+public isolated function getCompletionType(typedesc<stream<Type, CompletionType>> td)
+    returns typedesc<CompletionType> = @java:Method {
+    'class: "org.ballerinalang.langlib.internal.GetCompletionType",
+    name: "getCompletionType"
 } external;
 
 # Change the given filter function's parameter to any|error and returns the same function.
@@ -88,7 +107,7 @@ public isolated function getMapFunc(any func) returns function(Type) returns Typ
     name: "getMapFunc"
 } external;
 
-# Get the return type of a given function
+# Get the return type of a given function.
 #
 # + func - The input function
 # + return - The typedesc of the return type of the input function
@@ -101,12 +120,11 @@ public isolated function getReturnType(any func) returns typedesc<Type> = @java:
 #
 # + strm - The stream
 # + return - An abstract object which is iterable
-public isolated function getIteratorObj(stream<Type, ErrorType> strm) returns
+public isolated function getIteratorObj(stream<Type, CompletionType> strm) returns
+    object { public isolated function next() returns record {|Type value;|}|CompletionType; } |
     object {
-        public isolated function next() returns record {|Type value;|}|ErrorType?;} |
-    object {
-        public isolated function next() returns record {|Type value;|}|ErrorType?;
-        public isolated function close() returns ErrorType?;
+        public isolated function next() returns record {|Type value;|}|CompletionType;
+        public isolated function close() returns CompletionType?;
     } = @java:Method {
         'class: "org.ballerinalang.langlib.internal.GetIteratorObj",
         name: "getIteratorObj"

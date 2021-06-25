@@ -17,7 +17,7 @@
               "kind": "ERROR_KEYWORD"
             },
             {
-              "kind": "ERROR_TYPE_PARAMS",
+              "kind": "TYPE_PARAMETER",
               "children": [
                 {
                   "kind": "LT_TOKEN"

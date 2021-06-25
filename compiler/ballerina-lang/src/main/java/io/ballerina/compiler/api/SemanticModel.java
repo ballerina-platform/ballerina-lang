@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.api;
 
+import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -44,6 +45,17 @@ public interface SemanticModel {
      * @return {@link List} of visible symbols in the given location
      */
     List<Symbol> visibleSymbols(Document sourceFile, LinePosition position);
+
+    /**
+     * Lookup the visible symbols at the given location. This additionally takes a list of diagnostic states. These are
+     * used to determine whether to include variable symbols with varying diagnostic states.
+     *
+     * @param sourceFile The source file document in which to look up the position
+     * @param position   text position in the source
+     * @param states     The allowed states of in-scope variable symbols
+     * @return {@link List} of visible symbols in the given location
+     */
+    List<Symbol> visibleSymbols(Document sourceFile, LinePosition position, DiagnosticState... states);
 
     /**
      * Lookup the symbol at the given location.
@@ -77,7 +89,7 @@ public interface SemanticModel {
     /**
      * Finds all the references of the specified symbol within the relevant scope.
      *
-     * @param symbol a {@link Symbol} insance
+     * @param symbol a {@link Symbol} instance
      * @return A {@link List} of line ranges of all the references
      */
     List<Location> references(Symbol symbol);
@@ -87,10 +99,31 @@ public interface SemanticModel {
      * the specified symbol within the relevant scope.
      *
      * @param sourceDocument The source file document in which to look up the position
-     * @param position   a cursor position in the source
+     * @param position       a cursor position in the source
      * @return A {@link List} of line ranges of all the references
      */
     List<Location> references(Document sourceDocument, LinePosition position);
+
+    /**
+     * Finds all the references of the specified symbol within the relevant scope. This list excludes the reference in
+     * the definition.
+     *
+     * @param symbol         a {@link Symbol} instance
+     * @param withDefinition Whether the definition should be counted as a reference or not
+     * @return A {@link List} of line ranges of all the references except the definition
+     */
+    List<Location> references(Symbol symbol, boolean withDefinition);
+
+    /**
+     * If there's an identifier associated with a symbol at the specified cursor position, finds all the references of
+     * the specified symbol within the relevant scope. This list excludes the reference in the definition.
+     *
+     * @param sourceDocument The source file document in which to look up the position
+     * @param position       a cursor position in the source
+     * @param withDefinition Whether the definition should be counted as a reference or not
+     * @return A {@link List} of line ranges of all the references except the definition
+     */
+    List<Location> references(Document sourceDocument, LinePosition position, boolean withDefinition);
 
     /**
      * Retrieves the type of the expression in the specified text range. If it's not a valid expression, returns an
@@ -98,7 +131,9 @@ public interface SemanticModel {
      *
      * @param range the text range of the expression
      * @return the type of the expression
+     * @deprecated This method will be removed in a later version. Use typeOf() instead.
      */
+    @Deprecated
     Optional<TypeSymbol> type(LineRange range);
 
     /**
@@ -107,8 +142,28 @@ public interface SemanticModel {
      *
      * @param node The expression node of which the type is needed
      * @return The type if it's a valid expression node, if not, returns empty
+     * @deprecated Deprecated since this returns type for non-expression nodes as well. Use typeOf() instead.
      */
+    @Deprecated
     Optional<TypeSymbol> type(Node node);
+
+    /**
+     * Retrieves the type of the node in the specified text range. The node matching the specified range should be an
+     * expression. For any other kind of node, this will return empty.
+     *
+     * @param range the text range of the expression
+     * @return the type of the expression
+     */
+    Optional<TypeSymbol> typeOf(LineRange range);
+
+    /**
+     * Given a syntax tree node, returns the type of that node, if it is an expression node. For any other node, this
+     * will return empty.
+     *
+     * @param node The expression node of which the type is needed
+     * @return The type if it's a valid expression node, if not, returns empty
+     */
+    Optional<TypeSymbol> typeOf(Node node);
 
     /**
      * Get the diagnostics within the given text Span.

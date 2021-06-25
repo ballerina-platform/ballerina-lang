@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.docgen.generator.model.search;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,17 +26,29 @@ import java.util.List;
  * JSON to hold search data.
  */
 public class SearchJson {
+    @Expose
     private List<ModuleSearchJson> modules;
+    @Expose
     private List<ConstructSearchJson> classes;
+    @Expose
     private List<ConstructSearchJson> functions;
+    @Expose
     private List<ConstructSearchJson> records;
+    @Expose
     private List<ConstructSearchJson> constants;
+    @Expose
     private List<ConstructSearchJson> errors;
+    @Expose
     private List<ConstructSearchJson> types;
+    @Expose
     private List<ConstructSearchJson> clients;
+    @Expose
     private List<ConstructSearchJson> listeners;
+    @Expose
     private List<ConstructSearchJson> annotations;
-    private List<ConstructSearchJson> abstractObjects;
+    @Expose
+    private List<ConstructSearchJson> objectTypes;
+    @Expose
     private List<ConstructSearchJson> enums;
 
     public SearchJson(List<ModuleSearchJson> modules,
@@ -47,7 +61,7 @@ public class SearchJson {
                       List<ConstructSearchJson> clients,
                       List<ConstructSearchJson> listeners,
                       List<ConstructSearchJson> annotations,
-                      List<ConstructSearchJson> abstractObjects,
+                      List<ConstructSearchJson> objectTypes,
                       List<ConstructSearchJson> enums) {
         this.modules = modules;
         this.classes = classes;
@@ -59,7 +73,7 @@ public class SearchJson {
         this.clients = clients;
         this.listeners = listeners;
         this.annotations = annotations;
-        this.abstractObjects = abstractObjects;
+        this.objectTypes = objectTypes;
         this.enums = enums;
     }
 
@@ -74,7 +88,7 @@ public class SearchJson {
         this.clients = new ArrayList<>();
         this.listeners = new ArrayList<>();
         this.annotations = new ArrayList<>();
-        this.abstractObjects = new ArrayList<>();
+        this.objectTypes = new ArrayList<>();
         this.enums = new ArrayList<>();
     }
 
@@ -158,12 +172,12 @@ public class SearchJson {
         this.annotations = annotations;
     }
 
-    public List<ConstructSearchJson> getAbstractObjects() {
-        return abstractObjects;
+    public List<ConstructSearchJson> getObjectTypes() {
+        return objectTypes;
     }
 
-    public void setAbstractObjects(List<ConstructSearchJson> abstractObjects) {
-        this.abstractObjects = abstractObjects;
+    public void setObjectTypes(List<ConstructSearchJson> objectTypes) {
+        this.objectTypes = objectTypes;
     }
 
     public List<ConstructSearchJson> getEnums() {

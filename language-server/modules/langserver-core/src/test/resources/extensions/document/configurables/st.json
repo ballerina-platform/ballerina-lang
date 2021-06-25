@@ -1,0 +1,1818 @@
+{
+  "imports": [
+    {
+      "kind": "ImportDeclaration",
+      "importKeyword": {
+        "kind": "ImportKeyword",
+        "isToken": true,
+        "value": "import",
+        "position": {
+          "startLine": 0,
+          "startColumn": 0,
+          "endLine": 0,
+          "endColumn": 6
+        }
+      },
+      "orgName": {
+        "kind": "ImportOrgName",
+        "orgName": {
+          "kind": "IdentifierToken",
+          "isToken": true,
+          "value": "ballerina",
+          "position": {
+            "startLine": 0,
+            "startColumn": 7,
+            "endLine": 0,
+            "endColumn": 16
+          }
+        },
+        "slashToken": {
+          "kind": "SlashToken",
+          "isToken": true,
+          "value": "/",
+          "position": {
+            "startLine": 0,
+            "startColumn": 16,
+            "endLine": 0,
+            "endColumn": 17
+          }
+        },
+        "source": "ballerina/",
+        "position": {
+          "startLine": 0,
+          "startColumn": 7,
+          "endLine": 0,
+          "endColumn": 17
+        },
+        "typeData": {
+          "diagnostics": []
+        }
+      },
+      "moduleName": [
+        {
+          "kind": "IdentifierToken",
+          "isToken": true,
+          "value": "io",
+          "position": {
+            "startLine": 0,
+            "startColumn": 17,
+            "endLine": 0,
+            "endColumn": 19
+          }
+        }
+      ],
+      "semicolon": {
+        "kind": "SemicolonToken",
+        "isToken": true,
+        "value": ";",
+        "position": {
+          "startLine": 0,
+          "startColumn": 19,
+          "endLine": 0,
+          "endColumn": 20
+        }
+      },
+      "source": "import ballerina/io;\n",
+      "position": {
+        "startLine": 0,
+        "startColumn": 0,
+        "endLine": 0,
+        "endColumn": 20
+      },
+      "typeData": {
+        "diagnostics": [
+          {
+            "message": "cannot resolve module 'ballerina/io'",
+            "diagnosticInfo": {
+              "code": "BCE2003",
+              "severity": "ERROR"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "members": [
+    {
+      "kind": "TypeDefinition",
+      "typeKeyword": {
+        "kind": "TypeKeyword",
+        "isToken": true,
+        "value": "type",
+        "position": {
+          "startLine": 2,
+          "startColumn": 0,
+          "endLine": 2,
+          "endColumn": 4
+        }
+      },
+      "typeName": {
+        "kind": "IdentifierToken",
+        "isToken": true,
+        "value": "UserInfo",
+        "position": {
+          "startLine": 2,
+          "startColumn": 5,
+          "endLine": 2,
+          "endColumn": 13
+        }
+      },
+      "typeDescriptor": {
+        "kind": "RecordTypeDesc",
+        "recordKeyword": {
+          "kind": "RecordKeyword",
+          "isToken": true,
+          "value": "record",
+          "position": {
+            "startLine": 2,
+            "startColumn": 14,
+            "endLine": 2,
+            "endColumn": 20
+          }
+        },
+        "bodyStartDelimiter": {
+          "kind": "OpenBracePipeToken",
+          "isToken": true,
+          "value": "{|",
+          "position": {
+            "startLine": 2,
+            "startColumn": 21,
+            "endLine": 2,
+            "endColumn": 23
+          }
+        },
+        "fields": [
+          {
+            "kind": "RecordField",
+            "readonlyKeyword": {
+              "kind": "ReadonlyKeyword",
+              "isToken": true,
+              "value": "readonly",
+              "position": {
+                "startLine": 3,
+                "startColumn": 4,
+                "endLine": 3,
+                "endColumn": 12
+              }
+            },
+            "typeName": {
+              "kind": "StringTypeDesc",
+              "name": {
+                "kind": "StringKeyword",
+                "isToken": true,
+                "value": "string",
+                "position": {
+                  "startLine": 3,
+                  "startColumn": 13,
+                  "endLine": 3,
+                  "endColumn": 19
+                }
+              },
+              "source": "string ",
+              "position": {
+                "startLine": 3,
+                "startColumn": 13,
+                "endLine": 3,
+                "endColumn": 19
+              },
+              "typeData": {
+                "typeSymbol": {
+                  "typeKind": "string",
+                  "kind": "TYPE",
+                  "signature": "string"
+                },
+                "symbol": {
+                  "name": "string",
+                  "typeKind": "typeReference",
+                  "kind": "TYPE",
+                  "signature": "string"
+                },
+                "diagnostics": []
+              }
+            },
+            "fieldName": {
+              "kind": "IdentifierToken",
+              "isToken": true,
+              "value": "username",
+              "position": {
+                "startLine": 3,
+                "startColumn": 20,
+                "endLine": 3,
+                "endColumn": 28
+              }
+            },
+            "semicolonToken": {
+              "kind": "SemicolonToken",
+              "isToken": true,
+              "value": ";",
+              "position": {
+                "startLine": 3,
+                "startColumn": 28,
+                "endLine": 3,
+                "endColumn": 29
+              }
+            },
+            "source": "    readonly string username;\n",
+            "position": {
+              "startLine": 3,
+              "startColumn": 4,
+              "endLine": 3,
+              "endColumn": 29
+            },
+            "typeData": {
+              "typeSymbol": {
+                "typeKind": "string",
+                "kind": "TYPE",
+                "signature": "string"
+              },
+              "symbol": {
+                "isOptional": false,
+                "deprecated": false,
+                "hasDefaultValue": false,
+                "kind": "RECORD_FIELD",
+                "signature": "readonly string username"
+              },
+              "diagnostics": []
+            }
+          },
+          {
+            "kind": "RecordField",
+            "typeName": {
+              "kind": "StringTypeDesc",
+              "name": {
+                "kind": "StringKeyword",
+                "isToken": true,
+                "value": "string",
+                "position": {
+                  "startLine": 4,
+                  "startColumn": 4,
+                  "endLine": 4,
+                  "endColumn": 10
+                }
+              },
+              "source": "    string ",
+              "position": {
+                "startLine": 4,
+                "startColumn": 4,
+                "endLine": 4,
+                "endColumn": 10
+              },
+              "typeData": {
+                "typeSymbol": {
+                  "typeKind": "string",
+                  "kind": "TYPE",
+                  "signature": "string"
+                },
+                "symbol": {
+                  "name": "string",
+                  "typeKind": "typeReference",
+                  "kind": "TYPE",
+                  "signature": "string"
+                },
+                "diagnostics": []
+              }
+            },
+            "fieldName": {
+              "kind": "IdentifierToken",
+              "isToken": true,
+              "value": "password",
+              "position": {
+                "startLine": 4,
+                "startColumn": 11,
+                "endLine": 4,
+                "endColumn": 19
+              }
+            },
+            "semicolonToken": {
+              "kind": "SemicolonToken",
+              "isToken": true,
+              "value": ";",
+              "position": {
+                "startLine": 4,
+                "startColumn": 19,
+                "endLine": 4,
+                "endColumn": 20
+              }
+            },
+            "source": "    string password;\n",
+            "position": {
+              "startLine": 4,
+              "startColumn": 4,
+              "endLine": 4,
+              "endColumn": 20
+            },
+            "typeData": {
+              "typeSymbol": {
+                "typeKind": "string",
+                "kind": "TYPE",
+                "signature": "string"
+              },
+              "symbol": {
+                "isOptional": false,
+                "deprecated": false,
+                "hasDefaultValue": false,
+                "kind": "RECORD_FIELD",
+                "signature": "string password"
+              },
+              "diagnostics": []
+            }
+          }
+        ],
+        "bodyEndDelimiter": {
+          "kind": "CloseBracePipeToken",
+          "isToken": true,
+          "value": "|}",
+          "position": {
+            "startLine": 5,
+            "startColumn": 0,
+            "endLine": 5,
+            "endColumn": 2
+          }
+        },
+        "source": "record {|\n    readonly string username;\n    string password;\n|}",
+        "position": {
+          "startLine": 2,
+          "startColumn": 14,
+          "endLine": 5,
+          "endColumn": 2
+        },
+        "typeData": {
+          "typeSymbol": {
+            "name": "UserInfo",
+            "typeKind": "typeReference",
+            "kind": "TYPE",
+            "signature": "UserInfo"
+          },
+          "diagnostics": []
+        }
+      },
+      "semicolonToken": {
+        "kind": "SemicolonToken",
+        "isToken": true,
+        "value": ";",
+        "position": {
+          "startLine": 5,
+          "startColumn": 2,
+          "endLine": 5,
+          "endColumn": 3
+        }
+      },
+      "source": "\ntype UserInfo record {|\n    readonly string username;\n    string password;\n|};\n",
+      "position": {
+        "startLine": 2,
+        "startColumn": 0,
+        "endLine": 5,
+        "endColumn": 3
+      },
+      "typeData": {
+        "symbol": {
+          "readonly": false,
+          "deprecated": false,
+          "kind": "TYPE_DEFINITION",
+          "moduleQualifiedName": ".:UserInfo"
+        },
+        "diagnostics": []
+      }
+    },
+    {
+      "kind": "ModuleVarDecl",
+      "qualifiers": [
+        {
+          "kind": "ConfigurableKeyword",
+          "isToken": true,
+          "value": "configurable",
+          "position": {
+            "startLine": 7,
+            "startColumn": 0,
+            "endLine": 7,
+            "endColumn": 12
+          }
+        }
+      ],
+      "typedBindingPattern": {
+        "kind": "TypedBindingPattern",
+        "typeDescriptor": {
+          "kind": "StringTypeDesc",
+          "name": {
+            "kind": "StringKeyword",
+            "isToken": true,
+            "value": "string",
+            "position": {
+              "startLine": 7,
+              "startColumn": 13,
+              "endLine": 7,
+              "endColumn": 19
+            }
+          },
+          "source": "string ",
+          "position": {
+            "startLine": 7,
+            "startColumn": 13,
+            "endLine": 7,
+            "endColumn": 19
+          },
+          "typeData": {
+            "typeSymbol": {
+              "typeKind": "string",
+              "kind": "TYPE",
+              "signature": "string"
+            },
+            "symbol": {
+              "name": "string",
+              "typeKind": "typeReference",
+              "kind": "TYPE",
+              "signature": "string"
+            },
+            "diagnostics": []
+          }
+        },
+        "bindingPattern": {
+          "kind": "CaptureBindingPattern",
+          "variableName": {
+            "kind": "IdentifierToken",
+            "isToken": true,
+            "value": "hostName",
+            "position": {
+              "startLine": 7,
+              "startColumn": 20,
+              "endLine": 7,
+              "endColumn": 28
+            }
+          },
+          "source": "hostName ",
+          "position": {
+            "startLine": 7,
+            "startColumn": 20,
+            "endLine": 7,
+            "endColumn": 28
+          },
+          "typeData": {
+            "typeSymbol": {
+              "typeKind": "string",
+              "kind": "TYPE",
+              "signature": "string"
+            },
+            "symbol": {
+              "deprecated": false,
+              "kind": "VARIABLE"
+            },
+            "diagnostics": []
+          }
+        },
+        "source": "string hostName ",
+        "position": {
+          "startLine": 7,
+          "startColumn": 13,
+          "endLine": 7,
+          "endColumn": 28
+        },
+        "typeData": {
+          "symbol": {
+            "deprecated": false,
+            "kind": "VARIABLE"
+          },
+          "diagnostics": []
+        }
+      },
+      "equalsToken": {
+        "kind": "EqualToken",
+        "isToken": true,
+        "value": "=",
+        "position": {
+          "startLine": 7,
+          "startColumn": 29,
+          "endLine": 7,
+          "endColumn": 30
+        }
+      },
+      "initializer": {
+        "kind": "RequiredExpression",
+        "questionMarkToken": {
+          "kind": "QuestionMarkToken",
+          "isToken": true,
+          "value": "?",
+          "position": {
+            "startLine": 7,
+            "startColumn": 31,
+            "endLine": 7,
+            "endColumn": 32
+          }
+        },
+        "source": "?",
+        "position": {
+          "startLine": 7,
+          "startColumn": 31,
+          "endLine": 7,
+          "endColumn": 32
+        },
+        "typeData": {
+          "diagnostics": []
+        }
+      },
+      "semicolonToken": {
+        "kind": "SemicolonToken",
+        "isToken": true,
+        "value": ";",
+        "position": {
+          "startLine": 7,
+          "startColumn": 32,
+          "endLine": 7,
+          "endColumn": 33
+        }
+      },
+      "source": "\nconfigurable string hostName = ?;\n",
+      "position": {
+        "startLine": 7,
+        "startColumn": 0,
+        "endLine": 7,
+        "endColumn": 33
+      },
+      "typeData": {
+        "symbol": {
+          "deprecated": false,
+          "kind": "VARIABLE"
+        },
+        "diagnostics": []
+      }
+    },
+    {
+      "kind": "ModuleVarDecl",
+      "qualifiers": [
+        {
+          "kind": "ConfigurableKeyword",
+          "isToken": true,
+          "value": "configurable",
+          "position": {
+            "startLine": 8,
+            "startColumn": 0,
+            "endLine": 8,
+            "endColumn": 12
+          }
+        }
+      ],
+      "typedBindingPattern": {
+        "kind": "TypedBindingPattern",
+        "typeDescriptor": {
+          "kind": "IntTypeDesc",
+          "name": {
+            "kind": "IntKeyword",
+            "isToken": true,
+            "value": "int",
+            "position": {
+              "startLine": 8,
+              "startColumn": 13,
+              "endLine": 8,
+              "endColumn": 16
+            }
+          },
+          "source": "int ",
+          "position": {
+            "startLine": 8,
+            "startColumn": 13,
+            "endLine": 8,
+            "endColumn": 16
+          },
+          "typeData": {
+            "typeSymbol": {
+              "typeKind": "int",
+              "kind": "TYPE",
+              "signature": "int"
+            },
+            "symbol": {
+              "name": "int",
+              "typeKind": "typeReference",
+              "kind": "TYPE",
+              "signature": "int"
+            },
+            "diagnostics": []
+          }
+        },
+        "bindingPattern": {
+          "kind": "CaptureBindingPattern",
+          "variableName": {
+            "kind": "IdentifierToken",
+            "isToken": true,
+            "value": "port",
+            "position": {
+              "startLine": 8,
+              "startColumn": 17,
+              "endLine": 8,
+              "endColumn": 21
+            }
+          },
+          "source": "port ",
+          "position": {
+            "startLine": 8,
+            "startColumn": 17,
+            "endLine": 8,
+            "endColumn": 21
+          },
+          "typeData": {
+            "typeSymbol": {
+              "typeKind": "int",
+              "kind": "TYPE",
+              "signature": "int"
+            },
+            "symbol": {
+              "deprecated": false,
+              "kind": "VARIABLE"
+            },
+            "diagnostics": []
+          }
+        },
+        "source": "int port ",
+        "position": {
+          "startLine": 8,
+          "startColumn": 13,
+          "endLine": 8,
+          "endColumn": 21
+        },
+        "typeData": {
+          "symbol": {
+            "deprecated": false,
+            "kind": "VARIABLE"
+          },
+          "diagnostics": []
+        }
+      },
+      "equalsToken": {
+        "kind": "EqualToken",
+        "isToken": true,
+        "value": "=",
+        "position": {
+          "startLine": 8,
+          "startColumn": 22,
+          "endLine": 8,
+          "endColumn": 23
+        }
+      },
+      "initializer": {
+        "kind": "RequiredExpression",
+        "questionMarkToken": {
+          "kind": "QuestionMarkToken",
+          "isToken": true,
+          "value": "?",
+          "position": {
+            "startLine": 8,
+            "startColumn": 24,
+            "endLine": 8,
+            "endColumn": 25
+          }
+        },
+        "source": "?",
+        "position": {
+          "startLine": 8,
+          "startColumn": 24,
+          "endLine": 8,
+          "endColumn": 25
+        },
+        "typeData": {
+          "diagnostics": []
+        }
+      },
+      "semicolonToken": {
+        "kind": "SemicolonToken",
+        "isToken": true,
+        "value": ";",
+        "position": {
+          "startLine": 8,
+          "startColumn": 25,
+          "endLine": 8,
+          "endColumn": 26
+        }
+      },
+      "source": "configurable int port = ?;\n",
+      "position": {
+        "startLine": 8,
+        "startColumn": 0,
+        "endLine": 8,
+        "endColumn": 26
+      },
+      "typeData": {
+        "symbol": {
+          "deprecated": false,
+          "kind": "VARIABLE"
+        },
+        "diagnostics": []
+      }
+    },
+    {
+      "kind": "ModuleVarDecl",
+      "qualifiers": [
+        {
+          "kind": "ConfigurableKeyword",
+          "isToken": true,
+          "value": "configurable",
+          "position": {
+            "startLine": 9,
+            "startColumn": 0,
+            "endLine": 9,
+            "endColumn": 12
+          }
+        }
+      ],
+      "typedBindingPattern": {
+        "kind": "TypedBindingPattern",
+        "typeDescriptor": {
+          "kind": "BooleanTypeDesc",
+          "name": {
+            "kind": "BooleanKeyword",
+            "isToken": true,
+            "value": "boolean",
+            "position": {
+              "startLine": 9,
+              "startColumn": 13,
+              "endLine": 9,
+              "endColumn": 20
+            }
+          },
+          "source": "boolean ",
+          "position": {
+            "startLine": 9,
+            "startColumn": 13,
+            "endLine": 9,
+            "endColumn": 20
+          },
+          "typeData": {
+            "typeSymbol": {
+              "typeKind": "boolean",
+              "kind": "TYPE",
+              "signature": "boolean"
+            },
+            "symbol": {
+              "name": "boolean",
+              "typeKind": "typeReference",
+              "kind": "TYPE",
+              "signature": "boolean"
+            },
+            "diagnostics": []
+          }
+        },
+        "bindingPattern": {
+          "kind": "CaptureBindingPattern",
+          "variableName": {
+            "kind": "IdentifierToken",
+            "isToken": true,
+            "value": "enableRemote",
+            "position": {
+              "startLine": 9,
+              "startColumn": 21,
+              "endLine": 9,
+              "endColumn": 33
+            }
+          },
+          "source": "enableRemote ",
+          "position": {
+            "startLine": 9,
+            "startColumn": 21,
+            "endLine": 9,
+            "endColumn": 33
+          },
+          "typeData": {
+            "typeSymbol": {
+              "typeKind": "boolean",
+              "kind": "TYPE",
+              "signature": "boolean"
+            },
+            "symbol": {
+              "deprecated": false,
+              "kind": "VARIABLE"
+            },
+            "diagnostics": []
+          }
+        },
+        "source": "boolean enableRemote ",
+        "position": {
+          "startLine": 9,
+          "startColumn": 13,
+          "endLine": 9,
+          "endColumn": 33
+        },
+        "typeData": {
+          "symbol": {
+            "deprecated": false,
+            "kind": "VARIABLE"
+          },
+          "diagnostics": []
+        }
+      },
+      "equalsToken": {
+        "kind": "EqualToken",
+        "isToken": true,
+        "value": "=",
+        "position": {
+          "startLine": 9,
+          "startColumn": 34,
+          "endLine": 9,
+          "endColumn": 35
+        }
+      },
+      "initializer": {
+        "kind": "BooleanLiteral",
+        "literalToken": {
+          "kind": "TrueKeyword",
+          "isToken": true,
+          "value": "true",
+          "position": {
+            "startLine": 9,
+            "startColumn": 36,
+            "endLine": 9,
+            "endColumn": 40
+          }
+        },
+        "source": "true",
+        "position": {
+          "startLine": 9,
+          "startColumn": 36,
+          "endLine": 9,
+          "endColumn": 40
+        },
+        "typeData": {
+          "typeSymbol": {
+            "typeKind": "boolean",
+            "kind": "TYPE",
+            "signature": "boolean"
+          },
+          "diagnostics": []
+        }
+      },
+      "semicolonToken": {
+        "kind": "SemicolonToken",
+        "isToken": true,
+        "value": ";",
+        "position": {
+          "startLine": 9,
+          "startColumn": 40,
+          "endLine": 9,
+          "endColumn": 41
+        }
+      },
+      "source": "configurable boolean enableRemote = true;\n",
+      "position": {
+        "startLine": 9,
+        "startColumn": 0,
+        "endLine": 9,
+        "endColumn": 41
+      },
+      "typeData": {
+        "symbol": {
+          "deprecated": false,
+          "kind": "VARIABLE"
+        },
+        "diagnostics": []
+      }
+    },
+    {
+      "kind": "ModuleVarDecl",
+      "qualifiers": [
+        {
+          "kind": "ConfigurableKeyword",
+          "isToken": true,
+          "value": "configurable",
+          "position": {
+            "startLine": 10,
+            "startColumn": 0,
+            "endLine": 10,
+            "endColumn": 12
+          }
+        }
+      ],
+      "typedBindingPattern": {
+        "kind": "TypedBindingPattern",
+        "typeDescriptor": {
+          "kind": "FloatTypeDesc",
+          "name": {
+            "kind": "FloatKeyword",
+            "isToken": true,
+            "value": "float",
+            "position": {
+              "startLine": 10,
+              "startColumn": 13,
+              "endLine": 10,
+              "endColumn": 18
+            }
+          },
+          "source": "float ",
+          "position": {
+            "startLine": 10,
+            "startColumn": 13,
+            "endLine": 10,
+            "endColumn": 18
+          },
+          "typeData": {
+            "typeSymbol": {
+              "typeKind": "float",
+              "kind": "TYPE",
+              "signature": "float"
+            },
+            "symbol": {
+              "name": "float",
+              "typeKind": "typeReference",
+              "kind": "TYPE",
+              "signature": "float"
+            },
+            "diagnostics": []
+          }
+        },
+        "bindingPattern": {
+          "kind": "CaptureBindingPattern",
+          "variableName": {
+            "kind": "IdentifierToken",
+            "isToken": true,
+            "value": "maxPayload",
+            "position": {
+              "startLine": 10,
+              "startColumn": 19,
+              "endLine": 10,
+              "endColumn": 29
+            }
+          },
+          "source": "maxPayload ",
+          "position": {
+            "startLine": 10,
+            "startColumn": 19,
+            "endLine": 10,
+            "endColumn": 29
+          },
+          "typeData": {
+            "typeSymbol": {
+              "typeKind": "float",
+              "kind": "TYPE",
+              "signature": "float"
+            },
+            "symbol": {
+              "deprecated": false,
+              "kind": "VARIABLE"
+            },
+            "diagnostics": []
+          }
+        },
+        "source": "float maxPayload ",
+        "position": {
+          "startLine": 10,
+          "startColumn": 13,
+          "endLine": 10,
+          "endColumn": 29
+        },
+        "typeData": {
+          "symbol": {
+            "deprecated": false,
+            "kind": "VARIABLE"
+          },
+          "diagnostics": []
+        }
+      },
+      "equalsToken": {
+        "kind": "EqualToken",
+        "isToken": true,
+        "value": "=",
+        "position": {
+          "startLine": 10,
+          "startColumn": 30,
+          "endLine": 10,
+          "endColumn": 31
+        }
+      },
+      "initializer": {
+        "kind": "NumericLiteral",
+        "literalToken": {
+          "kind": "DecimalFloatingPointLiteralToken",
+          "isToken": true,
+          "value": "1.0",
+          "position": {
+            "startLine": 10,
+            "startColumn": 32,
+            "endLine": 10,
+            "endColumn": 35
+          }
+        },
+        "source": "1.0",
+        "position": {
+          "startLine": 10,
+          "startColumn": 32,
+          "endLine": 10,
+          "endColumn": 35
+        },
+        "typeData": {
+          "typeSymbol": {
+            "typeKind": "float",
+            "kind": "TYPE",
+            "signature": "float"
+          },
+          "diagnostics": []
+        }
+      },
+      "semicolonToken": {
+        "kind": "SemicolonToken",
+        "isToken": true,
+        "value": ";",
+        "position": {
+          "startLine": 10,
+          "startColumn": 35,
+          "endLine": 10,
+          "endColumn": 36
+        }
+      },
+      "source": "configurable float maxPayload = 1.0;\n",
+      "position": {
+        "startLine": 10,
+        "startColumn": 0,
+        "endLine": 10,
+        "endColumn": 36
+      },
+      "typeData": {
+        "symbol": {
+          "deprecated": false,
+          "kind": "VARIABLE"
+        },
+        "diagnostics": []
+      }
+    },
+    {
+      "kind": "ModuleVarDecl",
+      "qualifiers": [
+        {
+          "kind": "ConfigurableKeyword",
+          "isToken": true,
+          "value": "configurable",
+          "position": {
+            "startLine": 11,
+            "startColumn": 0,
+            "endLine": 11,
+            "endColumn": 12
+          }
+        }
+      ],
+      "typedBindingPattern": {
+        "kind": "TypedBindingPattern",
+        "typeDescriptor": {
+          "kind": "StringTypeDesc",
+          "name": {
+            "kind": "StringKeyword",
+            "isToken": true,
+            "value": "string",
+            "position": {
+              "startLine": 11,
+              "startColumn": 13,
+              "endLine": 11,
+              "endColumn": 19
+            }
+          },
+          "source": "string ",
+          "position": {
+            "startLine": 11,
+            "startColumn": 13,
+            "endLine": 11,
+            "endColumn": 19
+          },
+          "typeData": {
+            "typeSymbol": {
+              "typeKind": "string",
+              "kind": "TYPE",
+              "signature": "string"
+            },
+            "symbol": {
+              "name": "string",
+              "typeKind": "typeReference",
+              "kind": "TYPE",
+              "signature": "string"
+            },
+            "diagnostics": []
+          }
+        },
+        "bindingPattern": {
+          "kind": "CaptureBindingPattern",
+          "variableName": {
+            "kind": "IdentifierToken",
+            "isToken": true,
+            "value": "protocol",
+            "position": {
+              "startLine": 11,
+              "startColumn": 20,
+              "endLine": 11,
+              "endColumn": 28
+            }
+          },
+          "source": "protocol ",
+          "position": {
+            "startLine": 11,
+            "startColumn": 20,
+            "endLine": 11,
+            "endColumn": 28
+          },
+          "typeData": {
+            "typeSymbol": {
+              "typeKind": "string",
+              "kind": "TYPE",
+              "signature": "string"
+            },
+            "symbol": {
+              "deprecated": false,
+              "kind": "VARIABLE"
+            },
+            "diagnostics": []
+          }
+        },
+        "source": "string protocol ",
+        "position": {
+          "startLine": 11,
+          "startColumn": 13,
+          "endLine": 11,
+          "endColumn": 28
+        },
+        "typeData": {
+          "symbol": {
+            "deprecated": false,
+            "kind": "VARIABLE"
+          },
+          "diagnostics": []
+        }
+      },
+      "equalsToken": {
+        "kind": "EqualToken",
+        "isToken": true,
+        "value": "=",
+        "position": {
+          "startLine": 11,
+          "startColumn": 29,
+          "endLine": 11,
+          "endColumn": 30
+        }
+      },
+      "initializer": {
+        "kind": "StringLiteral",
+        "literalToken": {
+          "kind": "StringLiteralToken",
+          "isToken": true,
+          "value": "\"http\"",
+          "position": {
+            "startLine": 11,
+            "startColumn": 31,
+            "endLine": 11,
+            "endColumn": 37
+          }
+        },
+        "source": "\"http\"",
+        "position": {
+          "startLine": 11,
+          "startColumn": 31,
+          "endLine": 11,
+          "endColumn": 37
+        },
+        "typeData": {
+          "typeSymbol": {
+            "typeKind": "string",
+            "kind": "TYPE",
+            "signature": "string"
+          },
+          "diagnostics": []
+        }
+      },
+      "semicolonToken": {
+        "kind": "SemicolonToken",
+        "isToken": true,
+        "value": ";",
+        "position": {
+          "startLine": 11,
+          "startColumn": 37,
+          "endLine": 11,
+          "endColumn": 38
+        }
+      },
+      "source": "configurable string protocol = \"http\";\n",
+      "position": {
+        "startLine": 11,
+        "startColumn": 0,
+        "endLine": 11,
+        "endColumn": 38
+      },
+      "typeData": {
+        "symbol": {
+          "deprecated": false,
+          "kind": "VARIABLE"
+        },
+        "diagnostics": []
+      }
+    },
+    {
+      "kind": "ModuleVarDecl",
+      "qualifiers": [
+        {
+          "kind": "ConfigurableKeyword",
+          "isToken": true,
+          "value": "configurable",
+          "position": {
+            "startLine": 12,
+            "startColumn": 0,
+            "endLine": 12,
+            "endColumn": 12
+          }
+        }
+      ],
+      "typedBindingPattern": {
+        "kind": "TypedBindingPattern",
+        "typeDescriptor": {
+          "kind": "SimpleNameReference",
+          "name": {
+            "kind": "IdentifierToken",
+            "isToken": true,
+            "value": "UserInfo",
+            "position": {
+              "startLine": 12,
+              "startColumn": 13,
+              "endLine": 12,
+              "endColumn": 21
+            }
+          },
+          "source": "UserInfo ",
+          "position": {
+            "startLine": 12,
+            "startColumn": 13,
+            "endLine": 12,
+            "endColumn": 21
+          },
+          "typeData": {
+            "typeSymbol": {
+              "name": "UserInfo",
+              "typeKind": "typeReference",
+              "kind": "TYPE",
+              "signature": "UserInfo"
+            },
+            "symbol": {
+              "name": "UserInfo",
+              "typeKind": "typeReference",
+              "kind": "TYPE",
+              "signature": "UserInfo"
+            },
+            "diagnostics": [
+              {
+                "message": "type of configurable variable must be anydata&readonly",
+                "diagnosticInfo": {
+                  "code": "BCE3964",
+                  "severity": "ERROR"
+                }
+              }
+            ]
+          }
+        },
+        "bindingPattern": {
+          "kind": "CaptureBindingPattern",
+          "variableName": {
+            "kind": "IdentifierToken",
+            "isToken": true,
+            "value": "admin",
+            "position": {
+              "startLine": 12,
+              "startColumn": 22,
+              "endLine": 12,
+              "endColumn": 27
+            }
+          },
+          "source": "admin ",
+          "position": {
+            "startLine": 12,
+            "startColumn": 22,
+            "endLine": 12,
+            "endColumn": 27
+          },
+          "typeData": {
+            "typeSymbol": {
+              "name": "UserInfo",
+              "typeKind": "typeReference",
+              "kind": "TYPE",
+              "signature": "UserInfo"
+            },
+            "symbol": {
+              "deprecated": false,
+              "kind": "VARIABLE"
+            },
+            "diagnostics": []
+          }
+        },
+        "source": "UserInfo admin ",
+        "position": {
+          "startLine": 12,
+          "startColumn": 13,
+          "endLine": 12,
+          "endColumn": 27
+        },
+        "typeData": {
+          "symbol": {
+            "deprecated": false,
+            "kind": "VARIABLE"
+          },
+          "diagnostics": [
+            {
+              "message": "type of configurable variable must be anydata&readonly",
+              "diagnosticInfo": {
+                "code": "BCE3964",
+                "severity": "ERROR"
+              }
+            }
+          ]
+        }
+      },
+      "equalsToken": {
+        "kind": "EqualToken",
+        "isToken": true,
+        "value": "=",
+        "position": {
+          "startLine": 12,
+          "startColumn": 28,
+          "endLine": 12,
+          "endColumn": 29
+        }
+      },
+      "initializer": {
+        "kind": "RequiredExpression",
+        "questionMarkToken": {
+          "kind": "QuestionMarkToken",
+          "isToken": true,
+          "value": "?",
+          "position": {
+            "startLine": 12,
+            "startColumn": 30,
+            "endLine": 12,
+            "endColumn": 31
+          }
+        },
+        "source": "?",
+        "position": {
+          "startLine": 12,
+          "startColumn": 30,
+          "endLine": 12,
+          "endColumn": 31
+        },
+        "typeData": {
+          "diagnostics": []
+        }
+      },
+      "semicolonToken": {
+        "kind": "SemicolonToken",
+        "isToken": true,
+        "value": ";",
+        "position": {
+          "startLine": 12,
+          "startColumn": 31,
+          "endLine": 12,
+          "endColumn": 32
+        }
+      },
+      "source": "configurable UserInfo admin = ?;\n",
+      "position": {
+        "startLine": 12,
+        "startColumn": 0,
+        "endLine": 12,
+        "endColumn": 32
+      },
+      "typeData": {
+        "symbol": {
+          "deprecated": false,
+          "kind": "VARIABLE"
+        },
+        "diagnostics": [
+          {
+            "message": "type of configurable variable must be anydata&readonly",
+            "diagnosticInfo": {
+              "code": "BCE3964",
+              "severity": "ERROR"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "FunctionDefinition",
+      "qualifierList": [
+        {
+          "kind": "PublicKeyword",
+          "isToken": true,
+          "value": "public",
+          "position": {
+            "startLine": 14,
+            "startColumn": 0,
+            "endLine": 14,
+            "endColumn": 6
+          }
+        }
+      ],
+      "functionKeyword": {
+        "kind": "FunctionKeyword",
+        "isToken": true,
+        "value": "function",
+        "position": {
+          "startLine": 14,
+          "startColumn": 7,
+          "endLine": 14,
+          "endColumn": 15
+        }
+      },
+      "functionName": {
+        "kind": "IdentifierToken",
+        "isToken": true,
+        "value": "main",
+        "position": {
+          "startLine": 14,
+          "startColumn": 16,
+          "endLine": 14,
+          "endColumn": 20
+        }
+      },
+      "relativeResourcePath": [],
+      "functionSignature": {
+        "kind": "FunctionSignature",
+        "openParenToken": {
+          "kind": "OpenParenToken",
+          "isToken": true,
+          "value": "(",
+          "position": {
+            "startLine": 14,
+            "startColumn": 20,
+            "endLine": 14,
+            "endColumn": 21
+          }
+        },
+        "parameters": [],
+        "closeParenToken": {
+          "kind": "CloseParenToken",
+          "isToken": true,
+          "value": ")",
+          "position": {
+            "startLine": 14,
+            "startColumn": 21,
+            "endLine": 14,
+            "endColumn": 22
+          }
+        },
+        "source": "() ",
+        "position": {
+          "startLine": 14,
+          "startColumn": 20,
+          "endLine": 14,
+          "endColumn": 22
+        },
+        "typeData": {
+          "diagnostics": []
+        }
+      },
+      "functionBody": {
+        "kind": "FunctionBodyBlock",
+        "openBraceToken": {
+          "kind": "OpenBraceToken",
+          "isToken": true,
+          "value": "{",
+          "position": {
+            "startLine": 14,
+            "startColumn": 23,
+            "endLine": 14,
+            "endColumn": 24
+          }
+        },
+        "statements": [
+          {
+            "kind": "CallStatement",
+            "expression": {
+              "kind": "FunctionCall",
+              "functionName": {
+                "kind": "QualifiedNameReference",
+                "modulePrefix": {
+                  "kind": "IdentifierToken",
+                  "isToken": true,
+                  "value": "io",
+                  "position": {
+                    "startLine": 15,
+                    "startColumn": 4,
+                    "endLine": 15,
+                    "endColumn": 6
+                  }
+                },
+                "colon": {
+                  "kind": "ColonToken",
+                  "isToken": true,
+                  "value": ":",
+                  "position": {
+                    "startLine": 15,
+                    "startColumn": 6,
+                    "endLine": 15,
+                    "endColumn": 7
+                  }
+                },
+                "identifier": {
+                  "kind": "IdentifierToken",
+                  "isToken": true,
+                  "value": "println",
+                  "position": {
+                    "startLine": 15,
+                    "startColumn": 7,
+                    "endLine": 15,
+                    "endColumn": 14
+                  }
+                },
+                "source": "    io:println",
+                "position": {
+                  "startLine": 15,
+                  "startColumn": 4,
+                  "endLine": 15,
+                  "endColumn": 14
+                },
+                "typeData": {
+                  "typeSymbol": {
+                    "typeKind": "CompilationError",
+                    "kind": "TYPE",
+                    "signature": "$CompilationError$"
+                  },
+                  "diagnostics": [
+                    {
+                      "message": "undefined function 'println'",
+                      "diagnosticInfo": {
+                        "code": "BCE2011",
+                        "severity": "ERROR"
+                      }
+                    },
+                    {
+                      "message": "undefined module 'io'",
+                      "diagnosticInfo": {
+                        "code": "BCE2000",
+                        "severity": "ERROR"
+                      }
+                    }
+                  ]
+                }
+              },
+              "openParenToken": {
+                "kind": "OpenParenToken",
+                "isToken": true,
+                "value": "(",
+                "position": {
+                  "startLine": 15,
+                  "startColumn": 14,
+                  "endLine": 15,
+                  "endColumn": 15
+                }
+              },
+              "arguments": [
+                {
+                  "kind": "PositionalArg",
+                  "expression": {
+                    "kind": "StringLiteral",
+                    "literalToken": {
+                      "kind": "StringLiteralToken",
+                      "isToken": true,
+                      "value": "\"host: \"",
+                      "position": {
+                        "startLine": 15,
+                        "startColumn": 15,
+                        "endLine": 15,
+                        "endColumn": 23
+                      }
+                    },
+                    "source": "\"host: \"",
+                    "position": {
+                      "startLine": 15,
+                      "startColumn": 15,
+                      "endLine": 15,
+                      "endColumn": 23
+                    },
+                    "typeData": {
+                      "typeSymbol": {
+                        "typeKind": "CompilationError",
+                        "kind": "TYPE",
+                        "signature": "$CompilationError$"
+                      },
+                      "diagnostics": []
+                    }
+                  },
+                  "source": "\"host: \"",
+                  "position": {
+                    "startLine": 15,
+                    "startColumn": 15,
+                    "endLine": 15,
+                    "endColumn": 23
+                  },
+                  "typeData": {
+                    "typeSymbol": {
+                      "typeKind": "CompilationError",
+                      "kind": "TYPE",
+                      "signature": "$CompilationError$"
+                    },
+                    "diagnostics": []
+                  }
+                },
+                {
+                  "kind": "CommaToken",
+                  "isToken": true,
+                  "value": ",",
+                  "position": {
+                    "startLine": 15,
+                    "startColumn": 23,
+                    "endLine": 15,
+                    "endColumn": 24
+                  }
+                },
+                {
+                  "kind": "PositionalArg",
+                  "expression": {
+                    "kind": "SimpleNameReference",
+                    "name": {
+                      "kind": "IdentifierToken",
+                      "isToken": true,
+                      "value": "hostName",
+                      "position": {
+                        "startLine": 15,
+                        "startColumn": 25,
+                        "endLine": 15,
+                        "endColumn": 33
+                      }
+                    },
+                    "source": "hostName",
+                    "position": {
+                      "startLine": 15,
+                      "startColumn": 25,
+                      "endLine": 15,
+                      "endColumn": 33
+                    },
+                    "typeData": {
+                      "typeSymbol": {
+                        "typeKind": "CompilationError",
+                        "kind": "TYPE",
+                        "signature": "$CompilationError$"
+                      },
+                      "symbol": {
+                        "deprecated": false,
+                        "kind": "VARIABLE"
+                      },
+                      "diagnostics": []
+                    }
+                  },
+                  "source": "hostName",
+                  "position": {
+                    "startLine": 15,
+                    "startColumn": 25,
+                    "endLine": 15,
+                    "endColumn": 33
+                  },
+                  "typeData": {
+                    "typeSymbol": {
+                      "typeKind": "CompilationError",
+                      "kind": "TYPE",
+                      "signature": "$CompilationError$"
+                    },
+                    "diagnostics": []
+                  }
+                }
+              ],
+              "closeParenToken": {
+                "kind": "CloseParenToken",
+                "isToken": true,
+                "value": ")",
+                "position": {
+                  "startLine": 15,
+                  "startColumn": 33,
+                  "endLine": 15,
+                  "endColumn": 34
+                }
+              },
+              "source": "    io:println(\"host: \", hostName)",
+              "position": {
+                "startLine": 15,
+                "startColumn": 4,
+                "endLine": 15,
+                "endColumn": 34
+              },
+              "typeData": {
+                "typeSymbol": {
+                  "typeKind": "CompilationError",
+                  "kind": "TYPE",
+                  "signature": "$CompilationError$"
+                },
+                "diagnostics": [
+                  {
+                    "message": "undefined function 'println'",
+                    "diagnosticInfo": {
+                      "code": "BCE2011",
+                      "severity": "ERROR"
+                    }
+                  },
+                  {
+                    "message": "undefined module 'io'",
+                    "diagnosticInfo": {
+                      "code": "BCE2000",
+                      "severity": "ERROR"
+                    }
+                  }
+                ]
+              }
+            },
+            "semicolonToken": {
+              "kind": "SemicolonToken",
+              "isToken": true,
+              "value": ";",
+              "position": {
+                "startLine": 15,
+                "startColumn": 34,
+                "endLine": 15,
+                "endColumn": 35
+              }
+            },
+            "source": "    io:println(\"host: \", hostName);\n",
+            "position": {
+              "startLine": 15,
+              "startColumn": 4,
+              "endLine": 15,
+              "endColumn": 35
+            },
+            "typeData": {
+              "typeSymbol": {
+                "typeKind": "CompilationError",
+                "kind": "TYPE",
+                "signature": "$CompilationError$"
+              },
+              "diagnostics": [
+                {
+                  "message": "undefined function 'println'",
+                  "diagnosticInfo": {
+                    "code": "BCE2011",
+                    "severity": "ERROR"
+                  }
+                },
+                {
+                  "message": "undefined module 'io'",
+                  "diagnosticInfo": {
+                    "code": "BCE2000",
+                    "severity": "ERROR"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "closeBraceToken": {
+          "kind": "CloseBraceToken",
+          "isToken": true,
+          "value": "}",
+          "position": {
+            "startLine": 16,
+            "startColumn": 0,
+            "endLine": 16,
+            "endColumn": 1
+          }
+        },
+        "source": "{\n    io:println(\"host: \", hostName);\n}\n",
+        "position": {
+          "startLine": 14,
+          "startColumn": 23,
+          "endLine": 16,
+          "endColumn": 1
+        },
+        "typeData": {
+          "diagnostics": []
+        }
+      },
+      "source": "\npublic function main() {\n    io:println(\"host: \", hostName);\n}\n",
+      "position": {
+        "startLine": 14,
+        "startColumn": 0,
+        "endLine": 16,
+        "endColumn": 1
+      },
+      "typeData": {
+        "symbol": {
+          "external": false,
+          "deprecated": false,
+          "kind": "FUNCTION"
+        },
+        "diagnostics": []
+      }
+    }
+  ],
+  "eofToken": {
+    "kind": "EofToken",
+    "isToken": true,
+    "value": "",
+    "position": {
+      "startLine": 17,
+      "startColumn": 0,
+      "endLine": 17,
+      "endColumn": 0
+    }
+  },
+  "source": "import ballerina/io;\n\ntype UserInfo record {|\n    readonly string username;\n    string password;\n|};\n\nconfigurable string hostName = ?;\nconfigurable int port = ?;\nconfigurable boolean enableRemote = true;\nconfigurable float maxPayload = 1.0;\nconfigurable string protocol = \"http\";\nconfigurable UserInfo admin = ?;\n\npublic function main() {\n    io:println(\"host: \", hostName);\n}\n",
+  "kind": "ModulePart",
+  "position": {
+    "startLine": 0,
+    "startColumn": 0,
+    "endLine": 16,
+    "endColumn": 1
+  },
+  "typeData": {
+    "diagnostics": [
+      {
+        "message": "cannot resolve module 'ballerina/io'",
+        "diagnosticInfo": {
+          "code": "BCE2003",
+          "severity": "ERROR"
+        }
+      }
+    ]
+  }
+}

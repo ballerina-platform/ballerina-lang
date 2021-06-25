@@ -40,7 +40,6 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
-import static io.ballerina.projects.util.ProjectUtils.checkWritePermission;
 
 /**
  * Task for creating the executable jar file.
@@ -68,16 +67,6 @@ public class CreateExecutableTask implements Task {
         Target target;
 
         try {
-            if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
-                checkWritePermission(currentDir);
-            } else {
-                checkWritePermission(project.sourceRoot());
-            }
-        } catch (ProjectException e) {
-            throw createLauncherException(e.getMessage());
-        }
-
-        try {
             if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
                 target = new Target(project.sourceRoot());
             } else {
@@ -86,6 +75,8 @@ public class CreateExecutableTask implements Task {
             }
         } catch (IOException e) {
             throw createLauncherException("unable to resolve target path:" + e.getMessage());
+        } catch (ProjectException e) {
+            throw createLauncherException("unable to create executable:" + e.getMessage());
         }
 
         Path executablePath;
@@ -99,6 +90,14 @@ public class CreateExecutableTask implements Task {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_11);
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
+
+            // Print warnings for conflicted jars
+            if (!jBallerinaBackend.conflictedJars().isEmpty()) {
+                out.println("\twarning: Detected conflicting jar files:");
+                for (JBallerinaBackend.JarConflict conflict : jBallerinaBackend.conflictedJars()) {
+                    out.println(conflict.getWarning(project.buildOptions().listConflictedClasses()));
+                }
+            }
         } catch (ProjectException e) {
             throw createLauncherException(e.getMessage());
         }

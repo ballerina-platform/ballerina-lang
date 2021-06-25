@@ -1,0 +1,46 @@
+{
+  "source": {
+    "file": "modules/module2/module2.bal"
+  },
+  "position": {
+    "line": 51,
+    "character": 14
+  },
+  "prepareRename": {
+    "valid": true
+  },
+  "result": {
+    "changes": {
+      "modules/module2/module2.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 51,
+              "character": 14
+            },
+            "end": {
+              "line": 51,
+              "character": 27
+            }
+          },
+          "newText": "path"
+        }
+      ],
+      "modules/module1/module1.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 17,
+              "character": 19
+            },
+            "end": {
+              "line": 17,
+              "character": 32
+            }
+          },
+          "newText": "path"
+        }
+      ]
+    }
+  }
+}

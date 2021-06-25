@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.runtime.util;
 
-import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.test.runtime.BTestRunner;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
@@ -32,8 +32,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
 import static io.ballerina.runtime.api.utils.IdentifierUtils.encodeNonFunctionIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.ANON_ORG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
@@ -45,6 +50,14 @@ public class TesterinaUtils {
 
     private static final PrintStream outStream = System.out;
     private static final PrintStream errStream = System.err;
+
+    private static final String GENERATE_OBJECT_CLASS_PREFIX = ".$value$";
+    private static final String GENERATE_PKG_INIT = "___init_";
+    private static final String GENERATE_PKG_START = "___start_";
+    private static final String GENERATE_PKG_STOP = "___stop_";
+    private static final String INIT_FUNCTION_SUFFIX = "..<init>";
+    private static final String START_FUNCTION_SUFFIX = ".<start>";
+    private static final String STOP_FUNCTION_SUFFIX = ".<stop>";
 
     /**
      * Cleans up any remaining testerina metadata.
@@ -68,21 +81,20 @@ public class TesterinaUtils {
      * @param sourceRootPath source root path
      * @param testSuite test meta data
      */
-    public static void executeTests(Path sourceRootPath, TestSuite testSuite) throws RuntimeException {
+    public static void executeTests(Path sourceRootPath, TestSuite testSuite, ClassLoader classLoader)
+            throws RuntimeException {
         try {
             BTestRunner testRunner = new BTestRunner(outStream, errStream);
             // Run the tests
-            testRunner.runTest(testSuite);
+            testRunner.runTest(testSuite, classLoader);
             cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
             if (testRunner.getTesterinaReport().isFailure()) {
                 throw new RuntimeException("there are test failures");
             }
         } catch (BallerinaTestException e) {
             errStream.println("error: " + e.getMessage());
-            RuntimeUtils.silentlyLogBadSad(e);
             throw e;
         } catch (Throwable e) {
-            RuntimeUtils.silentlyLogBadSad(e);
             throw new RuntimeException("test execution failed due to runtime exception");
         }
     }
@@ -217,23 +229,13 @@ public class TesterinaUtils {
                 String[] functionDetail = function.split(":");
                 try {
                     if (functionDetail[0].equals(suite.getPackageID())) {
-                        if (functionDetail[1].equals(TesterinaConstants.WILDCARD)) {
-                            handleWildCard(filteredList, suite.getTests());
-                        } else if (functionDetail[1].endsWith(TesterinaConstants.WILDCARD)) {
-                            handleEndingWithWildCard(filteredList, suite.getTests(), functionDetail[1]);
-                        } else {
-                            filteredList.add(functionDetail[1]);
-                        }
+                        handleWildCards(filteredList, suite.getTests(), functionDetail[1]);
                     }
                 } catch (IndexOutOfBoundsException e) {
-                    errStream.println("Error occured while executing tests. Test list cannot be empty");
+                    errStream.println("Error occurred while executing tests. Test list cannot be empty");
                 }
             } else {
-                if (function.endsWith(TesterinaConstants.WILDCARD)) {
-                    handleEndingWithWildCard(filteredList, suite.getTests(), function);
-                } else {
-                    filteredList.add(function);
-                }
+                handleWildCards(filteredList, suite.getTests(), function);
             }
         }
 
@@ -248,24 +250,120 @@ public class TesterinaUtils {
         return updatedTestList;
     }
 
-    private static void handleWildCard(List<String> filteredList, List<Test> suiteTests) {
-        for (Test test : suiteTests) {
-            filteredList.add(test.getTestName());
-        }
-    }
-
-    private static void handleEndingWithWildCard(List<String> filteredList, List<Test> suiteTests, String function) {
-        String fn = function.replace(TesterinaConstants.WILDCARD, "");
-        for (Test test : suiteTests) {
-            if (test.getTestName().startsWith(fn)) {
-                filteredList.add(test.getTestName());
+    private static void handleWildCards(List<String> filteredList, List<Test> suiteTests, String function) {
+        if (function.contains(TesterinaConstants.WILDCARD)) {
+            for (Test test: suiteTests) {
+                if (Pattern.matches(function.replace(TesterinaConstants.WILDCARD, DOT + TesterinaConstants.WILDCARD),
+                        test.getTestName())) {
+                    filteredList.add(test.getTestName());
+                }
             }
+        } else {
+            filteredList.add(function);
         }
     }
 
     public static List<org.ballerinalang.test.runtime.entity.Test> getSingleExecutionTestsOld(
             List<org.ballerinalang.test.runtime.entity.Test> currentTests, List<String> functions) {
         return Collections.emptyList();
+    }
+
+    public static String getPrintableStackTrace(Throwable throwable) {
+        String errorMsg = throwable.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append(errorMsg);
+        // Append function/action/resource name with package path (if any)
+        StackTraceElement[] stackTrace = throwable.getStackTrace();
+        if (stackTrace.length == 0) {
+            return sb.toString();
+        }
+        sb.append("\n\tat ");
+        // print first element
+        printStackElement(sb, stackTrace[0], "");
+        for (int i = 1; i < stackTrace.length; i++) {
+            printStackElement(sb, stackTrace[i], "\n\t   ");
+        }
+        return sb.toString();
+    }
+
+    private static void printStackElement(StringBuilder sb, StackTraceElement stackTraceElement, String tab) {
+        String pkgName = IdentifierUtils.decodeIdentifier(stackTraceElement.getClassName());
+        String fileName = stackTraceElement.getFileName();
+
+        // clean file name from pkgName since we print the file name after the method name.
+        fileName = fileName.replace(BLANG_SRC_FILE_SUFFIX, "");
+        fileName = fileName.replace("/", "-");
+        int index = pkgName.lastIndexOf("." + fileName);
+        if (index != -1) {
+            pkgName = pkgName.substring(0, index);
+        }
+        // todo we need to seperate orgname and module name with '/'
+
+        sb.append(tab);
+        if (!pkgName.equals(MODULE_INIT_CLASS_NAME)) {
+            sb.append(pkgName).append(":");
+        }
+
+        // Append the method name
+        sb.append(IdentifierUtils.decodeIdentifier(stackTraceElement.getMethodName()));
+        // Append the filename
+        sb.append("(").append(stackTraceElement.getFileName());
+        // Append the line number
+        sb.append(":").append(stackTraceElement.getLineNumber()).append(")");
+    }
+
+    public static StackTraceElement[] getStackTrace(Throwable throwable) {
+        StackTraceElement[] stackTrace = throwable.getStackTrace();
+        List<StackTraceElement> filteredStack = new LinkedList<>();
+        int index = 0;
+        for (StackTraceElement stackFrame : stackTrace) {
+            Optional<StackTraceElement> stackTraceElement = filterStackTraceElement(stackFrame, index++);
+            stackTraceElement.ifPresent(filteredStack::add);
+        }
+        StackTraceElement[] filteredStackArray = new StackTraceElement[filteredStack.size()];
+        return filteredStack.toArray(filteredStackArray);
+    }
+
+    private static Optional<StackTraceElement> filterStackTraceElement(StackTraceElement stackFrame, int currentIndex) {
+        String fileName = stackFrame.getFileName();
+        int lineNo = stackFrame.getLineNumber();
+        if (lineNo < 0) {
+            return Optional.empty();
+        }
+        // Handle init function
+        String className = stackFrame.getClassName();
+        String methodName = stackFrame.getMethodName();
+        if (className.equals(MODULE_INIT_CLASS_NAME)) {
+            if (currentIndex == 0) {
+                return Optional.empty();
+            }
+            switch (methodName) {
+                case GENERATE_PKG_INIT:
+                    methodName = INIT_FUNCTION_SUFFIX;
+                    break;
+                case GENERATE_PKG_START:
+                    methodName = START_FUNCTION_SUFFIX;
+                    break;
+                case GENERATE_PKG_STOP:
+                    methodName = STOP_FUNCTION_SUFFIX;
+                    break;
+                default:
+                    return Optional.empty();
+            }
+            return Optional.of(new StackTraceElement(cleanupClassName(className), methodName, fileName,
+                    stackFrame.getLineNumber()));
+
+        }
+        if (fileName != null && !fileName.endsWith(BLANG_SRC_FILE_SUFFIX)) {
+            // Remove java sources for bal stacktrace if they are not extern functions.
+            return Optional.empty();
+        }
+        return Optional.of(
+                new StackTraceElement(cleanupClassName(className), methodName, fileName, stackFrame.getLineNumber()));
+    }
+
+    private static String cleanupClassName(String className) {
+        return className.replace(GENERATE_OBJECT_CLASS_PREFIX, ".");
     }
 
 }

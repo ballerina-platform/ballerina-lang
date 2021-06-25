@@ -22,17 +22,18 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.CloudToml;
+import io.ballerina.projects.CompilerPluginToml;
 import io.ballerina.projects.DependenciesToml;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
-import io.ballerina.projects.KubernetesToml;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleCompilation;
 import io.ballerina.projects.ModuleConfig;
 import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleId;
@@ -40,6 +41,7 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.PlatformLibraryScope;
@@ -115,14 +117,46 @@ public class TestBuildProject {
             for (DocumentId testDocumentId : module.testDocumentIds()) {
                 noOfTestDocuments++;
             }
-            for (Document doc : module.documents()) {
-                Assert.assertNotNull(doc.syntaxTree());
+            for (DocumentId docId : module.documentIds()) {
+                Assert.assertNotNull(module.document(docId).syntaxTree());
             }
         }
 
         Assert.assertEquals(noOfSrcDocuments, 4);
         Assert.assertEquals(noOfTestDocuments, 3);
 
+    }
+
+    @Test (description = "tests loading a build project containing invalid platformdependency paths")
+    public void testBuildProjectWithInvalidDependencyPaths() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject_invalidDependencyPath");
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Load the package
+        Package currentPackage = project.currentPackage();
+        // 3) Load the default module
+        Module defaultModule = currentPackage.getDefaultModule();
+        Assert.assertEquals(defaultModule.documentIds().size(), 1);
+
+        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        Assert.assertEquals(packageCompilation.diagnosticResult().diagnosticCount(), 1);
+        Assert.assertEquals(packageCompilation.diagnosticResult().diagnostics().stream().findFirst().get().toString(),
+                "ERROR [Ballerina.toml:(3:0,3:43)] " +
+                        "could not locate dependency path './libs/ballerina-io-1.0.0-java.txt'");
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        Assert.assertEquals(jBallerinaBackend.diagnosticResult().diagnosticCount(), 1);
+
+        EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, Paths.get("test.jar"));
+        Assert.assertFalse(emitResult.successful());
+
+        emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, projectPath);
+        Assert.assertFalse(emitResult.successful());
     }
 
     @Test (description = "tests loading a build project with no read permission")
@@ -706,34 +740,6 @@ public class TestBuildProject {
     }
 
     @Test
-    public void testRemoveModule() {
-        Path filePath =
-                RESOURCE_DIRECTORY.resolve("myproject").resolve(ProjectConstants.MODULES_ROOT).resolve("storage")
-                        .toAbsolutePath();
-        BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
-        Package oldPackage = buildProject.currentPackage();
-        // get module to remove
-        Module module = buildProject.currentPackage().module(ModuleName.from(
-                buildProject.currentPackage().packageName(), filePath.getFileName().toString()));
-
-        ModuleId removeId = module.moduleId();
-        Package newPackage = oldPackage.modify().removeModule(removeId).apply();
-
-        Assert.assertEquals(newPackage.moduleIds().size(), (oldPackage.moduleIds().size() - 1));
-        Assert.assertEquals(newPackage.moduleIds().size(), 2);
-        Assert.assertTrue(oldPackage.moduleIds().contains(removeId));
-        Assert.assertFalse(newPackage.moduleIds().contains(removeId));
-
-        for (ModuleId moduleId : oldPackage.moduleIds()) {
-            if (moduleId == removeId) {
-                Assert.assertFalse(newPackage.moduleIds().contains(moduleId));
-            } else {
-                Assert.assertTrue(newPackage.moduleIds().contains(moduleId));
-            }
-        }
-    }
-
-    @Test
     public void testAccessNonExistingDocument() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
         Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("db.bal").toAbsolutePath();
@@ -778,17 +784,17 @@ public class TestBuildProject {
         Module defaultModule = currentPackage.getDefaultModule();
         Assert.assertEquals(defaultModule.documentIds().size(), 2);
 
-        // 5) Compile the module
-        ModuleCompilation compilation = defaultModule.getCompilation();
+        // 5) Compile the package
+        PackageCompilation compilation = project.currentPackage().getCompilation();
 
         // 6) Get semantic model
-        SemanticModel semanticModel = compilation.getSemanticModel();
+        SemanticModel semanticModel = compilation.getSemanticModel(defaultModule.moduleId());
 
         // 7) Get the document
         Document srcFile = null;
-        for (Document doc : defaultModule.documents()) {
-            if (doc.name().equals("main.bal")) {
-                srcFile = doc;
+        for (DocumentId docId : defaultModule.documentIds()) {
+            if (defaultModule.document(docId).name().equals("main.bal")) {
+                srcFile = defaultModule.document(docId);
                 break;
             }
         }
@@ -803,7 +809,7 @@ public class TestBuildProject {
 
         // Test symbol
         Optional<Symbol> symbol = semanticModel.symbol(srcFile, LinePosition.from(5, 10));
-        symbol.ifPresent(value -> assertEquals(value.name(), "runServices"));
+        symbol.ifPresent(value -> assertEquals(value.getName().get(), "runServices"));
     }
 
     @Test(description = "tests if other documents exists ie. Ballerina.toml, Package.md", enabled = true)
@@ -821,7 +827,8 @@ public class TestBuildProject {
         Package currentPackage = project.currentPackage();
         Assert.assertTrue(currentPackage.ballerinaToml().isPresent());
         Assert.assertTrue(currentPackage.dependenciesToml().isPresent());
-        Assert.assertTrue(currentPackage.kubernetesToml().isPresent());
+        Assert.assertTrue(currentPackage.cloudToml().isPresent());
+        Assert.assertTrue(currentPackage.compilerPluginToml().isPresent());
         Assert.assertTrue(currentPackage.packageMd().isPresent());
         // Check module.md files
         Module defaultModule = currentPackage.getDefaultModule();
@@ -840,11 +847,109 @@ public class TestBuildProject {
         TomlTableNode dependenciesToml = currentPackage.dependenciesToml().get().tomlAstNode();
         Assert.assertEquals(dependenciesToml.entries().size(), 1);
 
-        TomlTableNode kubernetesToml = currentPackage.kubernetesToml().get().tomlAstNode();
-        Assert.assertEquals(kubernetesToml.entries().size(), 1);
+        TomlTableNode cloudToml = currentPackage.cloudToml().get().tomlAstNode();
+        Assert.assertEquals(cloudToml.entries().size(), 1);
+
+        TomlTableNode compilerPluginToml = currentPackage.compilerPluginToml().get().tomlAstNode();
+        Assert.assertEquals(compilerPluginToml.entries().size(), 2);
     }
 
-    @Test(description = "tests if other documents can be edited ie. Ballerina.toml, Package.md")
+    @Test(description = "test editing Ballerina.toml")
+    public void testModifyBallerinaToml() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("project_with_tests");
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Assert.assertTrue(project.currentPackage().module(moduleId).moduleName().toString().contains("myproject"));
+        }
+
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        // there should be 3 diagnostics coming from test files
+        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 3);
+
+        // 2) Check editing file - add build option
+        BallerinaToml newBallerinaToml = project.currentPackage().ballerinaToml().get().modify().withContent("" +
+                "[package]\n" +
+                "org = \"sameera\"\n" +
+                "name = \"myproject\"\n" +
+                "version = \"0.1.0\"\n" +
+                "[build-options]\n" +
+                "skipTests = true").apply();
+        TomlTableNode ballerinaToml = newBallerinaToml.tomlAstNode();
+        Assert.assertEquals(ballerinaToml.entries().size(), 2);
+        Package newPackage = newBallerinaToml.packageInstance();
+
+        PackageCompilation newPackageCompilation = newPackage.getCompilation();
+        // the 3 test diagnostics should be removed since test sources are not expected to compile
+        Assert.assertEquals(newPackageCompilation.diagnosticResult().diagnosticCount(), 0);
+
+        // 2) Check editing file - change package metadata
+        newBallerinaToml = project.currentPackage().ballerinaToml().get().modify().withContent("" +
+                "[package]\n" +
+                "org = \"sameera\"\n" +
+                "name = \"yourproject\"\n" +
+                "version = \"0.1.0\"\n" +
+                "[sample]\n" +
+                "test = \"attribute\"").apply();
+        ballerinaToml = newBallerinaToml.tomlAstNode();
+        Assert.assertEquals(ballerinaToml.entries().size(), 2);
+        newPackage = newBallerinaToml.packageInstance();
+        Assert.assertEquals(newPackage.packageName().toString(), "yourproject");
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Assert.assertTrue(
+                    project.currentPackage().module(moduleId).moduleName().toString().contains("yourproject"));
+        }
+
+        newPackageCompilation = newPackage.getCompilation();
+        // imports within the package should not be resolved since the package name has changed
+        // the original 3 test diagnostics should also be present
+        Assert.assertEquals(newPackageCompilation.diagnosticResult().diagnosticCount(), 9);
+    }
+
+    @Test(description = "test editing Ballerina.toml")
+    public void testModifyDependenciesToml() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_edit_api_tests/package_test_dependencies_toml");
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        ResolvedPackageDependency packageDep =
+                project.currentPackage().getResolution().dependencyGraph().toTopologicallySortedList()
+                        .stream().filter(resolvedPackageDependency -> resolvedPackageDependency
+                        .packageInstance().packageName().toString().equals("package_dep")).findFirst().get();
+        Assert.assertEquals(packageDep.packageInstance().packageVersion().toString(), "0.1.0");
+        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 0);
+
+        DependenciesToml newDependenciesToml = project.currentPackage().dependenciesToml()
+                .get().modify().withContent("" +
+                        "[[dependency]]\n" +
+                        "org = \"foo\"\n" +
+                        "name = \"package_dep\"\n" +
+                        "version = \"0.1.1\"\n").apply();
+        TomlTableNode dependenciesToml = newDependenciesToml.tomlAstNode();
+        Assert.assertEquals(((TomlTableArrayNode) dependenciesToml.entries().get("dependency")).children().size(), 1);
+
+        PackageCompilation newCompilation = project.currentPackage().getCompilation();
+        ResolvedPackageDependency packageDepNew =
+                project.currentPackage().getResolution().dependencyGraph().toTopologicallySortedList()
+                        .stream().filter(resolvedPackageDependency -> resolvedPackageDependency
+                        .packageInstance().packageName().toString().equals("package_dep")).findFirst().get();
+        Assert.assertEquals(packageDepNew.packageInstance().packageVersion().toString(), "0.1.1");
+        Assert.assertEquals(newCompilation.diagnosticResult().diagnosticCount(), 1);
+    }
+
+    @Test(description = "tests if other documents can be edited ie. Dependencies.toml, Package.md")
     public void testOtherDocumentModify() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
@@ -856,19 +961,6 @@ public class TestBuildProject {
             Assert.fail(e.getMessage());
         }
         // 2) Check editing files
-        BallerinaToml newBallerinaToml = project.currentPackage().ballerinaToml().get().modify().withContent("" +
-                "[package]\n" +
-                "org = \"sameera\"\n" +
-                "name = \"yourproject\"\n" +
-                "version = \"0.1.0\"\n" +
-                "[sample]\n" +
-                "test = \"attribute\"").apply();
-        TomlTableNode ballerinaToml = newBallerinaToml.tomlAstNode();
-        Assert.assertEquals(ballerinaToml.entries().size(), 2);
-        Package newPackage = newBallerinaToml.packageInstance();
-        Assert.assertEquals(newPackage.packageName().toString(), "yourproject");
-        PackageCompilation compilation = newPackage.getCompilation();
-
         DependenciesToml newDependenciesToml = project.currentPackage().dependenciesToml()
                 .get().modify().withContent("" +
                 "[[dependency]]\n" +
@@ -882,13 +974,24 @@ public class TestBuildProject {
         TomlTableNode dependenciesToml = newDependenciesToml.tomlAstNode();
         Assert.assertEquals(((TomlTableArrayNode) dependenciesToml.entries().get("dependency")).children().size(), 2);
 
-        KubernetesToml newKubernetesToml = project.currentPackage().kubernetesToml().get().modify().withContent("" +
+        CloudToml newCloudToml = project.currentPackage().cloudToml().get().modify().withContent("" +
                 "[test]\n" +
                 "attribute = \"value\"\n" +
                 "[test2]\n" +
                 "attribute = \"value2\"").apply();
-        TomlTableNode kubernetesToml = newKubernetesToml.tomlAstNode();
-        Assert.assertEquals(kubernetesToml.entries().size(), 2);
+        TomlTableNode cloudToml = newCloudToml.tomlAstNode();
+        Assert.assertEquals(cloudToml.entries().size(), 2);
+
+        CompilerPluginToml newCompilerPluginToml = project.currentPackage().compilerPluginToml().get().modify()
+                .withContent("" +
+                            "[plugin]\n" +
+                            "id = \"openapi-validator\"\n" +
+                            "class = \"io.ballerina.openapi.Validator\"\n" +
+                            "\n" +
+                            "[[dependency]]\n" +
+                            "path = \"./libs/platform-io-1.3.0-java.txt\"\n").apply();
+        TomlTableNode compilerPluginToml = newCompilerPluginToml.tomlAstNode();
+        Assert.assertEquals(compilerPluginToml.entries().size(), 2);
 
         // Check if PackageMd is editable
         project.currentPackage().packageMd().get().modify().withContent("#Modified").apply();
@@ -910,11 +1013,13 @@ public class TestBuildProject {
         // Test remove capability
         project.currentPackage().modify().removePackageMd().apply();
         project.currentPackage().modify().removeDependenciesToml().apply();
-        project.currentPackage().modify().removeKubernetesToml().apply();
+        project.currentPackage().modify().removeCloudToml().apply();
+        project.currentPackage().modify().removeCompilerPluginToml().apply();
         project.currentPackage().getDefaultModule().modify().removeModuleMd().apply();
 
         Assert.assertTrue(project.currentPackage().packageMd().isEmpty());
-        Assert.assertTrue(project.currentPackage().kubernetesToml().isEmpty());
+        Assert.assertTrue(project.currentPackage().cloudToml().isEmpty());
+        Assert.assertTrue(project.currentPackage().compilerPluginToml().isEmpty());
         Assert.assertTrue(project.currentPackage().dependenciesToml().isEmpty());
         Assert.assertTrue(project.currentPackage().getDefaultModule().moduleMd().isEmpty());
     }
@@ -934,7 +1039,8 @@ public class TestBuildProject {
         Package currentPackage = project.currentPackage();
 
         Assert.assertTrue(currentPackage.dependenciesToml().isEmpty());
-        Assert.assertTrue(currentPackage.kubernetesToml().isEmpty());
+        Assert.assertTrue(currentPackage.cloudToml().isEmpty());
+        Assert.assertTrue(currentPackage.compilerPluginToml().isEmpty());
         // Assert.assertTrue(currentPackage.packageMd().isEmpty());
 
         DocumentConfig dependenciesToml = DocumentConfig.from(
@@ -955,20 +1061,33 @@ public class TestBuildProject {
         Assert.assertEquals(((TomlTableArrayNode) dependenciesTomlTable.entries()
                 .get("dependency")).children().size(), 2);
 
-        DocumentConfig kubernetesToml = DocumentConfig.from(
-                DocumentId.create(ProjectConstants.KUBERNETES_TOML, null),
+        DocumentConfig cloudToml = DocumentConfig.from(
+                DocumentId.create(ProjectConstants.CLOUD_TOML, null),
                 "[test]\n" +
                   "attribute = \"value\"\n" +
                   "[test2]\n" +
                   "attribute = \"value2\"",
-                ProjectConstants.KUBERNETES_TOML
+                ProjectConstants.CLOUD_TOML
         );
 
-        currentPackage = currentPackage.modify().addKubernetesToml(kubernetesToml).apply();
-        TomlTableNode kubernetesTomlTable = currentPackage.kubernetesToml().get().tomlAstNode();
+        currentPackage = currentPackage.modify().addCloudToml(cloudToml).apply();
+        TomlTableNode cloudTomlTable = currentPackage.cloudToml().get().tomlAstNode();
         Assert.assertEquals(((TomlTableArrayNode) dependenciesTomlTable.entries()
                 .get("dependency")).children().size(), 2);
 
+        DocumentConfig compilerPluginToml = DocumentConfig.from(
+                DocumentId.create(ProjectConstants.COMPILER_PLUGIN_TOML, null),
+                "[plugin]\n" +
+                        "id = \"openapi-validator\"\n" +
+                        "class = \"io.ballerina.openapi.Validator\"\n" +
+                        "\n" +
+                        "[[dependency]]\n" +
+                        "path = \"./libs/platform-io-1.3.0-java.txt\"\n",
+                ProjectConstants.COMPILER_PLUGIN_TOML);
+
+        currentPackage = currentPackage.modify().addCompilerPluginToml(compilerPluginToml).apply();
+        TomlTableNode compilerPluginTomlTable = currentPackage.compilerPluginToml().get().tomlAstNode();
+        Assert.assertEquals(compilerPluginTomlTable.entries().size(), 2);
     }
 
     @Test(description = "tests if other documents can be edited ie. Ballerina.toml, Package.md", enabled = true)
@@ -995,6 +1114,41 @@ public class TestBuildProject {
                 "name=\"te");
         data.add("[package]" +
                 "name=\"test");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "or");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=win");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=winery");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=winery" +
+                 "ver");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=winery" +
+                 "version");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=winery" +
+                 "version=");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=winery" +
+                 "version=1.");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=winery" +
+                 "version=1.0.0");
 
         for (String dataItem: data) {
             BallerinaToml newBallerinaToml = currentPackage.ballerinaToml().get().modify().withContent("" +
@@ -1003,6 +1157,179 @@ public class TestBuildProject {
             Package newPackage = newBallerinaToml.packageInstance();
         }
 
+    }
+
+    @Test
+    public void testEditDependantModuleDocument() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_edit_api_tests/package_with_dependencies");
+        String updatedFunctionStr = "public function concatStrings(string a, string b, string c) returns string {\n" +
+                "\treturn a + b;\n" +
+                "}\n";
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Load current package
+        Package currentPackage = project.currentPackage();
+
+        // 3) Compile the package
+        PackageCompilation compilation = currentPackage.getCompilation();
+        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 0);
+
+        // 4) Edit a module that is used by another module
+        Module module = currentPackage.module(ModuleName.from(PackageName.from("myproject"), "util"));
+        DocumentId documentId = module.documentIds().stream().findFirst().get();
+        module.document(documentId).modify().withContent(updatedFunctionStr).apply();
+
+        PackageCompilation compilation1 = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
+        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
+                "main.bal");
+        Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
+                .contains("missing required parameter 'c'"));
+    }
+
+    @Test
+    public void testRemoveDependantModuleDocument() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_edit_api_tests/package_with_dependencies");
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Load current package
+        Package currentPackage = project.currentPackage();
+
+        // 3) Compile the package
+        PackageCompilation compilation = currentPackage.getCompilation();
+        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 0);
+
+        // 4) Edit a module that is used by another module
+        Module module = currentPackage.module(ModuleName.from(PackageName.from("myproject"), "util"));
+        DocumentId documentId = module.documentIds().stream().findFirst().get();
+        module.modify().removeDocument(documentId).apply();
+
+        PackageCompilation compilation1 = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
+        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
+                "main.bal");
+        Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
+                .contains("undefined function 'concatStrings'"));
+    }
+
+    @Test
+    public void testEditTransitivelyDependantModuleDocument() {
+        Path projectPath = RESOURCE_DIRECTORY
+                .resolve("projects_for_edit_api_tests/package_with_transitive_dependencies");
+        String updatedFunctionStr = "public function concatStrings(string a, string b) returns string {\n" +
+                "\treturn a + b;\n" +
+                "}\n";
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Load current package
+        Package currentPackage = project.currentPackage();
+
+        // 3) Compile the package
+        PackageCompilation compilation = currentPackage.getCompilation();
+        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 0);
+
+        // 4) Edit a module that is used by another module
+        Module module = currentPackage.module(ModuleName.from(PackageName.from("myproject"), "util"));
+        DocumentId documentId = module.documentIds().stream().findFirst().get();
+        module.document(documentId).modify().withContent(updatedFunctionStr).apply();
+
+        PackageCompilation compilation1 = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
+
+        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
+                Paths.get("modules").resolve("schema").resolve("schema.bal").toString());
+        Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
+                .contains("unknown type 'PersonalDetails'"));
+    }
+
+    @Test
+    public void testEditPackageWithCyclicDependency() {
+        Path projectPath = RESOURCE_DIRECTORY
+                .resolve("projects_for_edit_api_tests/package_with_cyclic_dependencies");
+        String updatedFunctionStr = "public function concatStrings(string a, string b) returns string {\n" +
+                "\treturn a + b;\n" +
+                "}\n";
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Load current package
+        Package currentPackage = project.currentPackage();
+
+        // 3) Compile the package
+        PackageCompilation compilation = currentPackage.getCompilation();
+        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 4);
+
+        // 4) Edit a module that is used by another module
+        Module module = currentPackage.module(ModuleName.from(PackageName.from("myproject"), "util"));
+        DocumentId documentId = module.documentIds().stream().findFirst().get();
+        module.document(documentId).modify().withContent(updatedFunctionStr).apply();
+
+        PackageCompilation compilation1 = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
+
+        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
+                Paths.get("modules").resolve("schema").resolve("schema.bal").toString());
+        Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
+                .contains("unknown type 'PersonalDetails'"));
+    }
+
+    /**
+     * Test DocumentId of a document which it's module name contains package name.
+     * Package name: winery
+     * Module name: winery1
+     */
+    @Test
+    public void testDocumentIdWhichModuleContainsPackageName() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projectForDocumentIdTest");
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Load current package
+        Package currentPackage = project.currentPackage();
+
+        // 3) Compile the package
+        PackageCompilation compilation = currentPackage.getCompilation();
+        Assert.assertFalse(compilation.diagnosticResult().hasErrors());
+
+        // Inputs from langserver
+        Path filePath = RESOURCE_DIRECTORY.resolve("projectForDocumentIdTest").resolve("modules").resolve("winery1")
+                .resolve("winery1.bal").toAbsolutePath();
+
+        // Load the project from document filepath
+        Project buildProject = ProjectLoader.loadProject(filePath);
+        buildProject.documentId(filePath); // get the document ID
     }
 
     @AfterClass (alwaysRun = true)

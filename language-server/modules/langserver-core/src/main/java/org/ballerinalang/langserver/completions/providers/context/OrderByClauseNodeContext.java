@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.OrderByClauseNode;
 import io.ballerina.compiler.syntax.tree.OrderKeyNode;
@@ -27,11 +28,11 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion provider for {@link OrderByClauseNode} context.
@@ -39,7 +40,7 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class OrderByClauseNodeContext extends AbstractCompletionProvider<OrderByClauseNode> {
+public class OrderByClauseNodeContext extends IntermediateClauseNodeContext<OrderByClauseNode> {
 
     public OrderByClauseNodeContext() {
         super(OrderByClauseNode.class);
@@ -51,8 +52,13 @@ public class OrderByClauseNodeContext extends AbstractCompletionProvider<OrderBy
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (onSuggestDirectionKeywords(context, node)) {
+            // Direction is optional
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ASCENDING.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_DESCENDING.get()));
+            // Add query expression keywords (where, let, join, etc)
+            completionItems.addAll(this.getKeywordCompletions(context, node));
+        } else if (cursorAtTheEndOfClause(context, node)) {
+            completionItems.addAll(this.getKeywordCompletions(context, node));
         } else if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             /*
             Covers the cases where the cursor is within the expression context
@@ -85,5 +91,37 @@ public class OrderByClauseNodeContext extends AbstractCompletionProvider<OrderBy
         OrderKeyNode lastOrderKey = orderKeyNodes.get(orderKeyNodes.size() - 1);
 
         return cursor > lastOrderKey.textRange().endOffset();
+    }
+
+    protected boolean cursorAtTheEndOfClause(BallerinaCompletionContext context, OrderByClauseNode node) {
+        if (node.orderKey().isEmpty()) {
+            return false;
+        }
+
+        OrderKeyNode lastOrderKey = node.orderKey().get(node.orderKey().size() - 1);
+        int cursor = context.getCursorPositionInTree();
+
+        if (lastOrderKey.orderDirection().isPresent()) {
+            return lastOrderKey.orderDirection().get().textRange().endOffset() < cursor;
+        } else if (lastOrderKey.expression() != null && !lastOrderKey.expression().isMissing()) {
+            return lastOrderKey.expression().textRange().endOffset() < cursor;
+        }
+
+        return false;
+    }
+
+    @Override
+    protected Optional<Node> getLastNodeOfClause(OrderByClauseNode node) {
+        if (node.orderKey().isEmpty()) {
+            return Optional.empty();
+        }
+
+        OrderKeyNode lastOrderKey = node.orderKey().get(node.orderKey().size() - 1);
+
+        if (lastOrderKey.orderDirection().isPresent()) {
+            return lastOrderKey.orderDirection().flatMap(Optional::of);
+        } else {
+            return Optional.of(lastOrderKey.expression());
+        }
     }
 }

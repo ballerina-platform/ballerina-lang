@@ -42,13 +42,11 @@ import java.util.StringJoiner;
 public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements RecordTypeSymbol {
 
     private Map<String, RecordFieldSymbol> fieldSymbols;
-    private final boolean isInclusive;
     private TypeSymbol restTypeDesc;
     private List<TypeSymbol> typeInclusions;
 
     public BallerinaRecordTypeSymbol(CompilerContext context, ModuleID moduleID, BRecordType recordType) {
-        super(context, TypeDescKind.RECORD, moduleID, recordType);
-        this.isInclusive = !recordType.sealed;
+        super(context, TypeDescKind.RECORD, recordType);
     }
 
     @Override
@@ -103,12 +101,8 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
 
     @Override
     public String signature() {
-        StringJoiner joiner;
-        if (this.isInclusive) {
-            joiner = new StringJoiner(" ", "{ ", " }");
-        } else {
-            joiner = new StringJoiner(" ", "{| ", " |}");
-        }
+        // Treating every record typedesc as exclusive record typedescs.
+        StringJoiner joiner = new StringJoiner(" ", "{| ", " |}");
         for (RecordFieldSymbol fieldSymbol : this.fieldDescriptors().values()) {
             String ballerinaFieldSignature = fieldSymbol.signature() + ";";
             joiner.add(ballerinaFieldSignature);

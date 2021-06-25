@@ -43,6 +43,11 @@ public class BuildOptionsBuilder {
         return this;
     }
 
+    public BuildOptionsBuilder listConflictedClasses(Boolean value) {
+        compilationOptionsBuilder.listConflictedClasses(value);
+        return this;
+    }
+
     public BuildOptionsBuilder skipTests(Boolean value) {
         compilationOptionsBuilder.skipTests(value);
         return this;
@@ -75,11 +80,6 @@ public class BuildOptionsBuilder {
 
     public BuildOptionsBuilder dumpBirFile(String value) {
         compilationOptionsBuilder.dumpBirFile(value);
-        return this;
-    }
-
-    public BuildOptionsBuilder taintCheck(Boolean value) {
-        compilationOptionsBuilder.taintCheck(value);
         return this;
     }
 

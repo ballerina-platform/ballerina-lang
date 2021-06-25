@@ -1,8 +1,8 @@
+import ballerina/jballerina.java;
 import unit_tests/proj8.a as a;
-import ballerina/io;
 
 function init() {
-	io:println("Initializing module b");
+	println("Initializing module b");
 }
 
 public function sample() {
@@ -10,3 +10,7 @@ public function sample() {
 }
 
 listener a:ABC ep = new a:ABC("ModB");
+
+public function println(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;

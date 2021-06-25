@@ -22,7 +22,7 @@ import io.ballerina.compiler.syntax.tree.NodeLocation;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
-import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
 
 import java.util.List;
 

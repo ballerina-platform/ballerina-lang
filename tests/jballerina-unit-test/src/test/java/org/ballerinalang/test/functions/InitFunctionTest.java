@@ -16,16 +16,17 @@
  */
 package org.ballerinalang.test.functions;
 
-import org.ballerinalang.core.model.types.TypeTags;
-import org.ballerinalang.core.model.values.BError;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.Test;
 
+import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
@@ -37,40 +38,37 @@ import static org.testng.Assert.assertEquals;
 public class InitFunctionTest {
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testMainFunctionWithUserDefinedInit() {
         CompileResult compileResult = BCompileUtil.compile("test-src/functions/test_main_with_init_function.bal");
-        BValue[] result = BRunUtil.invoke(compileResult, "main");
+        Object value = BRunUtil.invokeAndGetJVMResult(compileResult, "main");
 
-        assertEquals(result.length, 1);
-        assertEquals(result[0].getType().getTag(), TypeTags.ERROR_TAG);
+        assertEquals(((BValue) value).getType().getTag(), TypeTags.ERROR_TAG);
 
-        BError errorValue = (BError) result[0];
+        BError error = (BError) value;
+        assertEquals(error.getErrorMessage().getValue(), "errorCode");
 
-        BValue iValue = ((BMap) errorValue.getDetails()).get("i");
-        assertEquals(iValue.getType().getTag(), TypeTags.INT_TAG);
-        assertEquals(((BInteger) iValue).intValue(), 24L);
+        BMap<BString, BValue> details = (BMap<BString, BValue>) error.getDetails();
+        assertEquals(details.get(fromString("i")), 24L);
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testMainFunctionWithImportsWithUserDefinedInit() {
         CompileResult compileResult = BCompileUtil.compile("test-src/functions/test_proj_with_init_funcs");
-        BValue[] result = BRunUtil.invoke(compileResult, "main");
+        Object value = BRunUtil.invokeAndGetJVMResult(compileResult, "main");
 
-        assertEquals(result.length, 1);
-        assertEquals(result[0].getType().getTag(), TypeTags.ERROR_TAG);
+        assertEquals(((BValue) value).getType().getTag(), TypeTags.ERROR_TAG);
 
-        BError errorValue = (BError) result[0];
+        BError error = (BError) value;
+        assertEquals(error.getErrorMessage().getValue(), "errorCode");
 
-        BValue iValue = ((BMap) errorValue.getDetails()).get("i");
-        assertEquals(iValue.getType().getTag(), TypeTags.INT_TAG);
-        assertEquals(((BInteger) iValue).intValue(), 110L);
-
-        BValue sValue = ((BMap) errorValue.getDetails()).get("s");
-        assertEquals(sValue.getType().getTag(), TypeTags.STRING_TAG);
-        assertEquals(sValue.stringValue(), "hello world");
+        BMap<BString, BValue> details = (BMap<BString, BValue>) error.getDetails();
+        assertEquals(details.get(fromString("i")), 110L);
+        assertEquals(details.get(fromString("s")), fromString("hello world"));
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test
     public void invalidInitFunctionSignatureTest() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/functions/test_init_function_negative.bal");
         assertEquals(negativeResult.getErrorCount(), 3);

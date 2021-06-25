@@ -94,6 +94,11 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
                 "query-expr/query_expr_assert_55.json");
     }
 
+    @Test
+    public void testNestedQueryExpr() {
+        testFile("query-expr/query_expr_source_67.bal", "query-expr/query_expr_assert_67.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -229,5 +234,21 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
         test("from int a in b join int c in d select g", "query-expr/query_expr_assert_61.json");
         test("from int a in b outer join int c in d select g", "query-expr/query_expr_assert_62.json");
         test("from int a in b equals select g", "query-expr/query_expr_assert_64.json");
+    }
+
+    @Test
+    public void testIncompleteClauses() {
+        testFile("query-expr/query_expr_source_65.bal", "query-expr/query_expr_assert_65.json");
+        testFile("query-expr/query_expr_source_66.bal", "query-expr/query_expr_assert_66.json");
+    }
+
+    @Test
+    public void testIntermediateClauseStartRecovery() {
+        testFile("query-expr/query_expr_source_68.bal", "query-expr/query_expr_assert_68.json");
+    }
+
+    @Test
+    public void testSelectClauseStartRecovery() {
+        testFile("query-expr/query_expr_source_69.bal", "query-expr/query_expr_assert_69.json");
     }
 }

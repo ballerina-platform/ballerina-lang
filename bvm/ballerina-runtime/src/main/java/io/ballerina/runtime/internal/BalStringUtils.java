@@ -18,24 +18,19 @@
 
 package io.ballerina.runtime.internal;
 
-import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.constants.TypeConstants;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.types.BAnyType;
-import io.ballerina.runtime.internal.types.BAnydataType;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
-import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
@@ -45,7 +40,6 @@ import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.XmlSequence;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,7 +47,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ERROR;
 
 /**
  * Common utility methods used for Ballerina expression syntax manipulation.
@@ -61,7 +54,6 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ERROR;
  * @since 2.0.0
  */
 public class BalStringUtils {
-    private static final UnionType bUnionType = new BUnionType(Arrays.asList(TYPE_ANYDATA, TYPE_ERROR));
     private static boolean hasCycles = false;
 
     /**
@@ -72,7 +64,7 @@ public class BalStringUtils {
      */
     public static Object parseArrayExpressionStringValue(String exprValue, BLink parent) {
         List<String> list = getElements(exprValue);
-        ArrayValueImpl arr = new ArrayValueImpl(new BArrayType(bUnionType));
+        ArrayValueImpl arr = new ArrayValueImpl(new BArrayType(TYPE_ANYDATA));
         if (list.size() == 0) {
             return arr;
         }
@@ -155,7 +147,7 @@ public class BalStringUtils {
      */
     public static Object parseMapExpressionStringValue(String exprValue, BLink parent) {
         List<String> list = getElements(exprValue);
-        MapValueImpl eleMap = new MapValueImpl(new BMapType(bUnionType));
+        MapValueImpl eleMap = new MapValueImpl(new BMapType(TYPE_ANYDATA));
         if (list.size() == 0) {
             return eleMap;
         }
@@ -206,17 +198,20 @@ public class BalStringUtils {
         // start index of table keys string = index of '(' + 1
         String[] keys = exprValue.substring
                 (exprValue.indexOf('(') + 1, exprValue.indexOf(')')).split(",");
-        ArrayValue fieldNames = (ArrayValue) StringUtils.fromStringArray(keys);
+        ArrayValue keyFieldNames = keys[0].isEmpty() ? (ArrayValue) ValueCreator.createArrayValue(new BString[]{}) :
+                (ArrayValue) StringUtils.fromStringArray(keys);
         // start index of table members string = index of ')' + 2
         ArrayValueImpl data = (ArrayValueImpl) StringUtils.parseExpressionStringValue(exprValue.substring
                 (exprValue.indexOf(')') + 2), parent);
 
-        BType typeAnydata = new BAnydataType((BUnionType) PredefinedTypes.TYPE_ANYDATA, TypeConstants.ANYDATA_TNAME,
-                false);
-        BType typeAny = new BAnyType(TypeConstants.ANY_TNAME, new Module(null, null, null), false);
-        BType typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, new Module(null, null, null));
-
-        return new TableValueImpl<>(new BTableType(typeMap, typeAnydata, false), data, fieldNames);
+        MapType mapType = TypeCreator.createMapType(TYPE_ANYDATA, false);
+        BTableType tableType;
+        if (keyFieldNames.size() == 0) {
+            tableType =  (BTableType) TypeCreator.createTableType(mapType, false);
+        } else {
+            tableType =  (BTableType) TypeCreator.createTableType(mapType, keys, false);
+        }
+        return new TableValueImpl<>(tableType, data, keyFieldNames);
     }
 
     /**

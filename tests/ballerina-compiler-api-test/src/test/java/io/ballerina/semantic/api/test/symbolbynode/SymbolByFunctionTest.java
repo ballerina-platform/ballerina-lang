@@ -18,6 +18,7 @@
 package io.ballerina.semantic.api.test.symbolbynode;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
@@ -32,8 +33,11 @@ import org.testng.annotations.Test;
 
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.ParameterKind.DEFAULTABLE;
+import static io.ballerina.compiler.api.symbols.ParameterKind.REQUIRED;
+import static io.ballerina.compiler.api.symbols.ParameterKind.REST;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
-import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
+import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -65,20 +69,29 @@ public class SymbolByFunctionTest extends SymbolByNodeTest {
 
             @Override
             public void visit(RequiredParameterNode requiredParameterNode) {
-                assertSymbol(requiredParameterNode, model, VARIABLE, "a");
-                assertSymbol(requiredParameterNode.paramName().get(), model, VARIABLE, "a");
+                Symbol symbol = assertSymbol(requiredParameterNode, model, PARAMETER, "a");
+                assertEquals(((ParameterSymbol) symbol).paramKind(), REQUIRED);
+
+                symbol = assertSymbol(requiredParameterNode.paramName().get(), model, PARAMETER, "a");
+                assertEquals(((ParameterSymbol) symbol).paramKind(), REQUIRED);
             }
 
             @Override
             public void visit(DefaultableParameterNode defaultableParameterNode) {
-                assertSymbol(defaultableParameterNode, model, VARIABLE, "b");
-                assertSymbol(defaultableParameterNode.paramName().get(), model, VARIABLE, "b");
+                Symbol symbol = assertSymbol(defaultableParameterNode, model, PARAMETER, "b");
+                assertEquals(((ParameterSymbol) symbol).paramKind(), DEFAULTABLE);
+
+                symbol = assertSymbol(defaultableParameterNode.paramName().get(), model, PARAMETER, "b");
+                assertEquals(((ParameterSymbol) symbol).paramKind(), DEFAULTABLE);
             }
 
             @Override
             public void visit(RestParameterNode restParameterNode) {
-                assertSymbol(restParameterNode, model, VARIABLE, "c");
-                assertSymbol(restParameterNode.paramName().get(), model, VARIABLE, "c");
+                Symbol symbol = assertSymbol(restParameterNode, model, PARAMETER, "c");
+                assertEquals(((ParameterSymbol) symbol).paramKind(), REST);
+
+                symbol = assertSymbol(restParameterNode.paramName().get(), model, PARAMETER, "c");
+                assertEquals(((ParameterSymbol) symbol).paramKind(), REST);
             }
 
             @Override
@@ -100,10 +113,11 @@ public class SymbolByFunctionTest extends SymbolByNodeTest {
         assertEquals(getAssertCount(), 13);
     }
 
-    private void assertSymbol(Node node, SemanticModel model, SymbolKind kind, String name) {
+    private Symbol assertSymbol(Node node, SemanticModel model, SymbolKind kind, String name) {
         Optional<Symbol> symbol = model.symbol(node);
         assertEquals(symbol.get().kind(), kind);
-        assertEquals(symbol.get().name(), name);
+        assertEquals(symbol.get().getName().get(), name);
         incrementAssertCount();
+        return symbol.get();
     }
 }

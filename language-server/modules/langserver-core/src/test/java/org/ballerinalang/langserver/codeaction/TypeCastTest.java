@@ -29,6 +29,7 @@ import java.io.IOException;
  * @since 2.0.0
  */
 public class TypeCastTest extends AbstractCodeActionTest {
+
     @Override
     public String getResourceDir() {
         return "type-cast";
@@ -40,12 +41,31 @@ public class TypeCastTest extends AbstractCodeActionTest {
         super.test(config, source);
     }
 
+    @Override
+    @Test(dataProvider = "negative-test-data-provider")
+    public void negativeTest(String config, String source) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config, source);
+    }
+
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
                 {"typeCast1.json", "typeCast.bal"},
                 {"typeCast2.json", "typeCast.bal"},
+                {"typeCast3.json", "typeCast.bal"},
+                {"typeCast4.json", "typeCast.bal"},
+                //{"typeCast5.json", "typeCast.bal"},
+                {"typeCast6.json", "typeCast.bal"},
+                {"nilTypeCast.json", "typeCast.bal"},
+                {"type_cast_function_param_config1.json", "type_cast_function_param_config1.bal"},
+        };
+    }
+
+    @DataProvider(name = "negative-test-data-provider")
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
+                {"typeCastNegative1.json", "typeCast2.bal"},
         };
     }
 }

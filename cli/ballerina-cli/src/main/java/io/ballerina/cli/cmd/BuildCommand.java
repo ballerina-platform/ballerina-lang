@@ -28,23 +28,24 @@ import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.runtime.api.constants.RuntimeConstants;
-import io.ballerina.runtime.internal.launch.LaunchUtils;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
+import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.JACOCO_XML_FORMAT;
 
 /**
  * This class represents the "bal build" command.
@@ -57,7 +58,6 @@ public class BuildCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
     private final PrintStream errStream;
-    private Path projectPath;
     private boolean exitWhenFinish;
     private boolean skipCopyLibsFromDist;
 
@@ -79,7 +79,18 @@ public class BuildCommand implements BLauncherCmd {
     }
 
     public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                        boolean skipCopyLibsFromDist, Boolean skipTests, Boolean testReport) {
+                        boolean skipCopyLibsFromDist, boolean compile) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        this.compile = compile;
+    }
+
+    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                        boolean skipCopyLibsFromDist, Boolean skipTests, Boolean testReport, Boolean coverage,
+                        String coverageFormat) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -87,6 +98,8 @@ public class BuildCommand implements BLauncherCmd {
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
         this.skipTests = skipTests;
         this.testReport = testReport;
+        this.coverage = coverage;
+        this.coverageFormat = coverageFormat;
     }
 
     public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
@@ -115,8 +128,8 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
     private Boolean skipTests;
 
-    @CommandLine.Parameters
-    private List<String> argList;
+    @CommandLine.Parameters (arity = "0..1")
+    private final Path projectPath;
 
     @CommandLine.Option(names = "--dump-bir", hidden = true)
     private boolean dumpBIR;
@@ -134,13 +147,16 @@ public class BuildCommand implements BLauncherCmd {
     private String debugPort;
 
     private static final String buildCmd = "bal build [-o <output>] [--offline] [--skip-tests] [--taint-check]\n" +
-            "                    [<ballerina-file | package-path>] [(--key=value)...]";
+            "                    [<ballerina-file | package-path>]";
 
     @CommandLine.Option(names = "--test-report", description = "enable test report generation")
     private Boolean testReport;
 
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
     private Boolean coverage;
+
+    @CommandLine.Option(names = "--coverage-format", description = "list of supported coverage report formats")
+    private String coverageFormat;
 
     @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
             "JAR file(s).")
@@ -149,37 +165,18 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
     private String cloud;
 
-    @CommandLine.Option(names = "--taint-check", description = "perform taint flow analysis")
-    private Boolean taintCheck;
-
     @CommandLine.Option(names = "--includes", hidden = true,
             description = "hidden option for code coverage to include all classes")
     private String includes;
+
+    @CommandLine.Option(names = "--list-conflicted-classes",
+            description = "list conflicted classes when generating executable")
+    private Boolean listConflictedClasses;
 
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
             this.errStream.println(commandUsageInfo);
-            return;
-        }
-
-        String[] args;
-        if (this.argList == null) {
-            args = new String[0];
-            this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
-        } else if (this.argList.get(0).startsWith(RuntimeConstants.BALLERINA_ARGS_INIT_PREFIX)) {
-            args = argList.toArray(new String[0]);
-            this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
-        } else {
-            args = argList.subList(1, argList.size()).toArray(new String[0]);
-            this.projectPath = Paths.get(argList.get(0));
-        }
-
-        String[] userArgs = LaunchUtils.getUserArgs(args, new HashMap<>());
-        // check if there are too many arguments.
-        if (userArgs.length > 0) {
-            CommandUtil.printError(this.errStream, "too many arguments.", buildCmd, false);
-            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
@@ -190,24 +187,25 @@ public class BuildCommand implements BLauncherCmd {
         if (FileUtils.hasExtension(this.projectPath)) {
             if (coverage != null && coverage) {
                 this.outStream.println("Code coverage is not yet supported with single bal files. Ignoring the flag " +
-                        "and continuing the test run...");
+                        "and continuing the test run...\n");
             }
             coverage = false;
         }
+
         BuildOptions buildOptions = constructBuildOptions();
 
         boolean isSingleFileBuild = false;
         if (FileUtils.hasExtension(this.projectPath)) {
             if (this.compile) {
                 CommandUtil.printError(this.errStream,
-                        "'-c' or '--compile' can only be used with modules.", null, false);
+                        "'-c' or '--compile' can only be used with a Ballerina package.", null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
             try {
                 project = SingleFileProject.load(this.projectPath, buildOptions);
             } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), buildCmd, false);
+                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -226,38 +224,95 @@ public class BuildCommand implements BLauncherCmd {
             try {
                 project = BuildProject.load(this.projectPath, buildOptions);
             } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), buildCmd, false);
+                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
+        }
+
+        if (!(this.compile && project.currentPackage().compilerPluginToml().isPresent())) {
+            if (isProjectEmpty(project)) {
+                CommandUtil.printError(this.errStream, "package is empty. please add at least one .bal file.", null,
+                        false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+        }
+
+        if (this.compile && project.currentPackage().ballerinaToml().get().tomlDocument().toml()
+                .getTable("package").isEmpty()) {
+            CommandUtil.printError(this.errStream,
+                    "'package' information not found in " + ProjectConstants.BALLERINA_TOML,
+                    null,
+                    true);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+
         }
 
         // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
         if (!project.buildOptions().skipTests() && this.debugPort != null) {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
-
-        // Skip --includes flag if it is set without code coverage
-        if (!project.buildOptions().codeCoverage() && includes != null) {
-            this.outStream.println("warning: ignoring --includes flag since code coverage is not enabled");
+        if (project.buildOptions().codeCoverage()) {
+            if (coverageFormat != null) {
+                if (!coverageFormat.equals(JACOCO_XML_FORMAT)) {
+                    String errMsg = "unsupported coverage report format '" + coverageFormat + "' found. Only '" +
+                            JACOCO_XML_FORMAT + "' format is supported.";
+                    CommandUtil.printError(this.errStream, errMsg, null, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                }
+            }
+        } else {
+            // Skip --includes flag if it is set without code coverage
+            if (includes != null) {
+                this.outStream.println("warning: ignoring --includes flag since code coverage is not enabled");
+            }
+            // Skip --coverage-format flag if it is set without code coverage
+            if (coverageFormat != null) {
+                this.outStream.println("warning: ignoring --coverage-format flag since code coverage is not " +
+                        "enabled");
+            }
+        }
+        // Validate Settings.toml file
+        try {
+            readSettings();
+        } catch (SettingsTomlException e) {
+            this.outStream.println("warning: " + e.getMessage());
         }
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
-                .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
-                .addTask(new CompileTask(outStream, errStream)) // compile the modules
+                // clean the target directory(projects only)
+                .addTask(new CleanTargetDirTask(), isSingleFileBuild)
+                // resolve maven dependencies in Ballerina.toml
+                .addTask(new ResolveMavenDependenciesTask(outStream))
+                // compile the modules
+                .addTask(new CompileTask(outStream, errStream))
 //                .addTask(new CopyResourcesTask()) // merged with CreateJarTask
-                .addTask(new RunTestsTask(outStream, errStream, args, includes),
+                // run tests (projects only)
+                .addTask(new RunTestsTask(outStream, errStream, includes, coverageFormat),
                         project.buildOptions().skipTests() || isSingleFileBuild)
-                    // run tests (projects only)
-                .addTask(new CreateBalaTask(outStream), isSingleFileBuild) // create the BALA ( build projects only)
-                .addTask(new CreateExecutableTask(outStream, this.output), this.compile) //create the executable jar
+                // create the BALA if -c provided (build projects only)
+                .addTask(new CreateBalaTask(outStream), isSingleFileBuild || !this.compile)
+                // create the executable jar, skip if -c flag is provided
+                .addTask(new CreateExecutableTask(outStream, this.output), this.compile)
                 .build();
 
         taskExecutor.executeTasks(project);
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
+    }
+
+    private boolean isProjectEmpty(Project project) {
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Module module = project.currentPackage().module(moduleId);
+            if (!module.documentIds().isEmpty() || !module.testDocumentIds().isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private BuildOptions constructBuildOptions() {
@@ -269,9 +324,9 @@ public class BuildCommand implements BLauncherCmd {
                 .testReport(testReport)
                 .observabilityIncluded(observabilityIncluded)
                 .cloud(cloud)
-                .taintCheck(taintCheck)
                 .dumpBir(dumpBIR)
                 .dumpBirFile(dumpBIRFile)
+                .listConflictedClasses(listConflictedClasses)
                 .build();
     }
 
@@ -296,8 +351,8 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal build [-o <output-file>] [--offline] [--skip-tests] [--skip-lock]  [--taint-check]" +
-                   "{<ballerina-file | module-name> | -a | --all} [--] [(--key=value)...]\n");
+        out.append("  bal build [-o <output>] [--offline] [--skip-tests]\\n\" +\n" +
+                "            \"                    [<ballerina-file | package-path>]");
     }
 
     @Override

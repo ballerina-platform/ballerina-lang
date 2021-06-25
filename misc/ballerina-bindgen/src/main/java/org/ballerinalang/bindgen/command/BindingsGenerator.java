@@ -17,39 +17,35 @@
  */
 package org.ballerinalang.bindgen.command;
 
+import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.internal.ManifestBuilder;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.bindgen.model.JClass;
 import org.ballerinalang.bindgen.model.JError;
+import org.ballerinalang.bindgen.utils.BindgenEnv;
 import org.ballerinalang.bindgen.utils.BindgenMvnResolver;
-import org.ballerinalang.toml.model.Library;
-import org.ballerinalang.toml.model.Manifest;
-import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BAL_EXTENSION;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.BBGEN_CLASS_TEMPLATE_NAME;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_FILE_NAME;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_TEMPLATE_NAME;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.DEFAULT_TEMPLATE_DIR;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.ERROR_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.MODULES_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.createDirectory;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getClassLoader;
-import static org.ballerinalang.bindgen.utils.BindgenUtils.getUpdatedConstantsList;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicClass;
-import static org.ballerinalang.bindgen.utils.BindgenUtils.writeOutputFile;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.outputSyntaxTreeFile;
 
 /**
  * Class for generating Ballerina bindings for Java APIs.
@@ -58,37 +54,23 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.writeOutputFile;
  */
 public class BindingsGenerator {
 
+    private final BindgenEnv env;
+
     private Path modulePath;
-    private Path projectRoot;
     private Path dependenciesPath;
     private Path utilsDirPath;
     private String mvnGroupId;
     private String mvnArtifactId;
     private String mvnVersion;
-    private String accessModifier;
     private PrintStream errStream;
     private PrintStream outStream;
     private Set<String> classNames = new HashSet<>();
-
-    private static String outputPath;
-    private static String balPackageName;
-    private static boolean modulesFlag = false;
-    private static boolean directJavaClass = true;
-    private static Set<String> classPaths = new HashSet<>();
-    private static Path userDir = Paths.get(System.getProperty(USER_DIR));
-
-    private static Set<String> allClasses = new HashSet<>();
-    private static Set<String> allPackages = new HashSet<>();
-    private static Set<String> classListForLooping = new HashSet<>();
-    private static Set<String> allJavaClasses = new HashSet<>();
-    private static Set<JError> exceptionList = new HashSet<>();
-    private static Map<String, String> failedClassGens = new HashMap<>();
-
-    public static Map<String, String> aliases = new HashMap<>();
+    private Path userDir = Paths.get(System.getProperty(USER_DIR));
 
     BindingsGenerator(PrintStream out, PrintStream err) {
         this.outStream = out;
         this.errStream = err;
+        this.env = new BindgenEnv();
     }
 
     void generateJavaBindings() throws BindgenException {
@@ -98,7 +80,8 @@ public class BindingsGenerator {
         // Resolve the maven dependency received through the tool and update the Ballerina.toml file
         // with the direct and transitive platform.libraries
         if ((mvnGroupId != null) && (mvnArtifactId != null) && (mvnVersion != null)) {
-            new BindgenMvnResolver(outStream).mavenResolver(mvnGroupId, mvnArtifactId, mvnVersion, projectRoot, true);
+            new BindgenMvnResolver(outStream, env).mavenResolver(mvnGroupId, mvnArtifactId, mvnVersion,
+                    env.getProjectRoot(), true);
         }
 
         ClassLoader classLoader = setClassLoader();
@@ -110,15 +93,15 @@ public class BindingsGenerator {
             generateBindings(classNames, classLoader, modulePath);
 
             // Generate bindings for dependent Java classes.
-            if (!classListForLooping.isEmpty()) {
+            if (!env.getClassListForLooping().isEmpty()) {
                 outStream.println("\nGenerating dependency bindings for: ");
-                setDependentJavaClass();
+                env.setDirectJavaClass(false);
             }
-            while (!classListForLooping.isEmpty()) {
-                Set<String> newSet = new HashSet<>(classListForLooping);
+            while (!env.getClassListForLooping().isEmpty()) {
+                Set<String> newSet = new HashSet<>(env.getClassListForLooping());
                 newSet.removeAll(classNames);
-                allJavaClasses.addAll(newSet);
-                classListForLooping.clear();
+                env.setAllJavaClasses(newSet);
+                env.clearClassListForLooping();
                 generateBindings(newSet, classLoader, dependenciesPath);
             }
 
@@ -126,9 +109,17 @@ public class BindingsGenerator {
             generateUtilFiles();
 
             // Handle failed binding generations.
-            if (failedClassGens != null) {
+            if (env.getFailedClassGens() != null) {
                 handleFailedClassGens();
             }
+
+            // Handle failed method generations.
+            if (env.getFailedMethodGens() != null) {
+                for (String entry : env.getFailedMethodGens()) {
+                    errStream.println(entry);
+                }
+            }
+
             try {
                 ((URLClassLoader) classLoader).close();
             } catch (IOException e) {
@@ -140,46 +131,69 @@ public class BindingsGenerator {
     }
 
     private void resolvePlatformLibraries() throws BindgenException {
-        if (projectRoot != null) {
-            Manifest manifest = TomlParserUtils.getManifest(projectRoot);
-            if (manifest != null) {
-                List<Library> platformLibraries = manifest.getPlatform().getLibraries();
-                if (platformLibraries != null) {
-                    for (Library library : platformLibraries) {
-                        if (library.path != null) {
-                            classPaths.add(Paths.get(projectRoot.toString(), library.path).toString());
-                        } else if (library.groupId != null && library.artifactId != null && library.version != null) {
-                            new BindgenMvnResolver(outStream).mavenResolver(library.groupId, library.artifactId,
-                                    library.version, projectRoot, false);
-                        }
+        if (env.getProjectRoot() != null) {
+            TomlDocument tomlDocument = env.getTomlDocument();
+            PackageManifest.Platform platform = getPackagePlatform(tomlDocument);
+            if (platform != null && platform.dependencies() != null) {
+                for (Map<String, Object> library : platform.dependencies()) {
+                    if (library.get("path") != null) {
+                        handlePathDependency(library.get("path").toString());
+                    } else if (library.get("groupId") != null && library.get("artifactId") != null &&
+                            library.get("version") != null) {
+                        resolveMvnDependency(library.get("groupId").toString(),
+                                library.get("artifactId").toString(), library.get("version").toString());
                     }
                 }
             }
         }
     }
 
+    private PackageManifest.Platform getPackagePlatform(TomlDocument tomlDocument) {
+        if (tomlDocument != null) {
+            PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null, null,
+                    env.getProjectRoot()).packageManifest();
+            if (packageManifest != null) {
+                return packageManifest.platform(JvmTarget.JAVA_11.code());
+            }
+        }
+        return null;
+    }
+
+    private void handlePathDependency(String libPath) {
+        Path libraryPath;
+        if (Paths.get(libPath).isAbsolute()) {
+            libraryPath = Paths.get(libPath);
+        } else {
+            libraryPath = Paths.get(env.getProjectRoot().toString(), libPath);
+        }
+        env.addClasspath(libraryPath.toString());
+    }
+
+    private void resolveMvnDependency(String mvnGroupId, String mvnArtifactId, String mvnVersion)
+            throws BindgenException {
+        new BindgenMvnResolver(outStream, env).mavenResolver(mvnGroupId, mvnArtifactId, mvnVersion,
+                env.getProjectRoot(), false);
+    }
+
     private ClassLoader setClassLoader() throws BindgenException {
         ClassLoader classLoader;
-        try {
-            if (!classPaths.isEmpty()) {
-                classLoader = getClassLoader(classPaths, this.getClass().getClassLoader());
-            } else {
-                outStream.println("\nNo classpaths were detected.");
-                classLoader = this.getClass().getClassLoader();
-            }
-        } catch (BindgenException e) {
-            throw new BindgenException("Error while loading the classpaths.", e);
+        if (!env.getClassPaths().isEmpty()) {
+            classLoader = getClassLoader(env.getClassPaths(), this.getClass().getClassLoader());
+        } else {
+            outStream.println("\nNo classpaths were detected.");
+            classLoader = this.getClass().getClassLoader();
         }
         return classLoader;
     }
 
     private void setDirectoryPaths() throws BindgenException {
         String userPath = userDir.toString();
-        if (modulesFlag) {
+        String outputPath = env.getOutputPath();
+        if (env.getModulesFlag()) {
             userPath = Paths.get(userPath, MODULES_DIR).toString();
         } else if (outputPath != null) {
             if (!Paths.get(outputPath).toFile().exists()) {
-                throw new BindgenException("Output path provided [" + outputPath + "] could not be found.");
+                throw new BindgenException("error: output path provided could not be found: " + outputPath);
             }
             userPath = outputPath;
         }
@@ -188,10 +202,10 @@ public class BindingsGenerator {
 
     private void handleFailedClassGens() {
         errStream.print("\n");
-        for (Map.Entry<String, String> entry : failedClassGens.entrySet()) {
+        for (Map.Entry<String, String> entry : env.getFailedClassGens().entrySet()) {
             if (classNames.contains(entry.getKey())) {
-                errStream.println("Bindings for '" + entry.getKey() + "' class could not be generated.\n\t" +
-                        entry.getValue() + "\n");
+                errStream.println("error: unable to generate the '" + entry.getKey() + "' binding class: "
+                        + entry.getValue());
             }
         }
     }
@@ -200,47 +214,26 @@ public class BindingsGenerator {
         String utilsDirStrPath = utilsDirPath.toString();
         createDirectory(utilsDirStrPath);
 
-        // Create the Constants.bal file.
-        if (!modulesFlag) {
-            Path constantsPath = Paths.get(utilsDirPath.toString(), CONSTANTS_FILE_NAME);
-            generateConstantFiles(constantsPath);
-        } else {
-            for (String packagePath : allPackages) {
-                Path constantsPath = Paths.get(modulePath.toString(), packagePath, CONSTANTS_FILE_NAME);
-                generateConstantFiles(constantsPath);
-            }
-        }
-
         // Create the .bal files for Ballerina error types.
-        for (JError jError : exceptionList) {
-            jError.setAccessModifier(accessModifier);
+        for (JError jError : env.getExceptionList()) {
             String fileName = jError.getShortExceptionName() + BAL_EXTENSION;
-            if (modulesFlag) {
+            if (env.getModulesFlag()) {
                 utilsDirStrPath = Paths.get(modulePath.toString(), jError.getPackageName()).toString();
                 createDirectory(utilsDirStrPath);
             }
             // The folder structure is flattened to address the Project API changes.
-            writeOutputFile(jError, DEFAULT_TEMPLATE_DIR, ERROR_TEMPLATE_NAME,
-                    Paths.get(utilsDirStrPath, fileName).toString(), false);
+            outputSyntaxTreeFile(jError, env, Paths.get(utilsDirStrPath, fileName).toString(), false);
         }
     }
 
-    private void generateConstantFiles(Path constantPaths) throws BindgenException {
-        Set<String> names = new HashSet<>(allClasses);
-        if (constantPaths.toFile().exists()) {
-            getUpdatedConstantsList(constantPaths, names);
-        }
-        if (!names.isEmpty()) {
-            writeOutputFile(names, DEFAULT_TEMPLATE_DIR, CONSTANTS_TEMPLATE_NAME, constantPaths.toString(), true);
-        }
-    }
-
-    static void setOutputPath(String output) {
-        outputPath = output;
+    void setOutputPath(String output) {
+        this.env.setOutputPath(output);
     }
 
     void setDependentJars(String[] jarPaths) {
-        Collections.addAll(classPaths, jarPaths);
+        for (String path : jarPaths) {
+            env.addClasspath(path);
+        }
     }
 
     void setClassNames(List<String> classNames) {
@@ -255,54 +248,27 @@ public class BindingsGenerator {
                 if (classLoader != null) {
                     Class classInstance = classLoader.loadClass(c);
                     if (classInstance != null && isPublicClass(classInstance)) {
-                        JClass jClass = new JClass(classInstance);
-                        jClass.setAccessModifier(accessModifier);
-                        allPackages.add(jClass.getPackageName());
-                        String filePath;
-                        if (modulesFlag) {
+                        JClass jClass = new JClass(classInstance, env);
+                        Path filePath;
+                        if (env.getModulesFlag()) {
                             String outputFile = Paths.get(modulePath.toString(), jClass.getPackageName()).toString();
                             createDirectory(outputFile);
-                            filePath = Paths.get(outputFile, jClass.getShortClassName() + BAL_EXTENSION).toString();
+                            filePath = Paths.get(outputFile, jClass.getShortClassName() + BAL_EXTENSION);
                         } else {
-                            filePath = Paths.get(modulePath.toString(), jClass.getShortClassName()
-                                    + BAL_EXTENSION).toString();
+                            filePath = Paths.get(modulePath.toString(), jClass.getShortClassName() + BAL_EXTENSION);
                         }
-                        writeOutputFile(jClass, DEFAULT_TEMPLATE_DIR, BBGEN_CLASS_TEMPLATE_NAME, filePath, false);
+                        // Prevent the overwriting of existing class implementations with partially generated classes.
+                        if (Files.exists(filePath) && !env.isDirectJavaClass()) {
+                            return;
+                        }
+                        outputSyntaxTreeFile(jClass, env, filePath.toString(), false);
                         outStream.println("\t" + c);
                     }
                 }
             } catch (ClassNotFoundException | NoClassDefFoundError e) {
-                failedClassGens.put(c, e.toString());
+                env.setFailedClassGens(c, e.toString());
             }
         }
-    }
-
-    public static boolean isDirectJavaClass() {
-        return directJavaClass;
-    }
-
-    private static void setDependentJavaClass() {
-        BindingsGenerator.directJavaClass = false;
-    }
-
-    public static Set<String> getAllJavaClasses() {
-        return allJavaClasses;
-    }
-
-    public static void setClassListForLooping(String classListForLooping) {
-        BindingsGenerator.classListForLooping.add(classListForLooping);
-    }
-
-    public static void setAllClasses(String allClasses) {
-        BindingsGenerator.allClasses.add(allClasses);
-    }
-
-    public static void setExceptionList(JError exception) {
-        BindingsGenerator.exceptionList.add(exception);
-    }
-
-    void setProjectRoot(Path projectRoot) {
-        this.projectRoot = projectRoot;
     }
 
     void setMvnGroupId(String mvnGroupId) {
@@ -317,31 +283,16 @@ public class BindingsGenerator {
         this.mvnVersion = mvnVersion;
     }
 
-    public static void setClassPaths(String classPath) {
-        BindingsGenerator.classPaths.add(classPath);
-    }
-
-    public static String getOutputPath() {
-        return outputPath;
-    }
-
     void setPublic() {
-        this.accessModifier = "public ";
+        this.env.setPublicFlag(true);
     }
 
-    static void setModulesFlag(boolean modulesFlag) {
-        BindingsGenerator.modulesFlag = modulesFlag;
+    void setModulesFlag(boolean modulesFlag) {
+        this.env.setPublicFlag(true);
+        this.env.setModulesFlag(modulesFlag);
     }
 
-    public static boolean getModulesFlag() {
-        return modulesFlag;
-    }
-
-    public static void setBalPackageName(String balPackageName) {
-        BindingsGenerator.balPackageName = balPackageName;
-    }
-
-    public static String getBalPackageName() {
-        return balPackageName;
+    void setProject(Project project) {
+        this.env.setProject(project);
     }
 }

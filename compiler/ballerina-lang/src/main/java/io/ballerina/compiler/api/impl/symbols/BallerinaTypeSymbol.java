@@ -30,13 +30,8 @@ public class BallerinaTypeSymbol extends AbstractTypeSymbol {
     private final String typeName;
 
     public BallerinaTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType) {
-        super(context, TypesFactory.getTypeDescKind(bType.getKind()), moduleID, bType);
+        super(context, TypesFactory.getTypeDescKind(bType.getKind()), bType);
         this.typeName = bType.getKind().typeName();
-    }
-
-    @Override
-    public String name() {
-        return this.typeName;
     }
 
     @Override

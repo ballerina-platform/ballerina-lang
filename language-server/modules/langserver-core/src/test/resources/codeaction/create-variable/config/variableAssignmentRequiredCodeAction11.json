@@ -13,24 +13,11 @@
                         },
                         "end": {
                             "line": 4,
-                        "character": 4
-                    }
-                },
-                "newText": "'xml:Element element = "
-            },
-            {
-                "range": {
-                    "start": {
-                        "line": 0,
-                        "character": 0
+                            "character": 4
+                        }
                     },
-                    "end": {
-                        "line": 0,
-                        "character": 0
-                    }
-                },
-                "newText": "import ballerina/lang.'xml;\n"
-            }
+                    "newText": "xml:Element element = "
+                }
             ]
         }
     ]

@@ -100,10 +100,7 @@ public class ObjectInitializerTest {
 
     @Test(description = "Test error returning object initializer invocation")
     public void testErrorReturningInitializer() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testErrorReturningInitializer");
-
-        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
-        Assert.assertEquals(((BError) returns[0]).getReason(), "failed to create Person object");
+        BRunUtil.invoke(compileResult, "testErrorReturningInitializer");
     }
 
     @Test(description = "Test initializer with rest args")
@@ -117,7 +114,7 @@ public class ObjectInitializerTest {
         Assert.assertEquals(person.get("misc").stringValue(), "[{\"city\":\"Colombo\", \"country\":\"Sri Lanka\"}]");
     }
 
-    @Test(description = "Test returning a custom error from initializer", groups = { "brokenOnNewParser" })
+    @Test(description = "Test returning a custom error from initializer")
     public void testCustomErrorReturn() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCustomErrorReturn");
 
@@ -153,19 +150,12 @@ public class ObjectInitializerTest {
 
     @Test(description = "Test assigning to a variable declared with var")
     public void testAssigningToVar() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAssigningToVar");
-
-        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
-        Assert.assertEquals(((BError) returns[0]).getReason(), "failed to create Person object");
-        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(), "{\"f\":\"foo\"}");
+        BRunUtil.invoke(compileResult, "testAssigningToVar");
     }
 
     @Test(description = "Test checkpanic expression in object init expr's argument")
     public void testCheckPanicInObjectInitArg() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCheckPanicInObjectInitArg");
-
-        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
-        Assert.assertEquals(((BError) returns[0]).getReason(), "Panicked");
+        BRunUtil.invoke(compileResult, "testCheckPanicInObjectInitArg");
     }
 
     @Test(description = "Test checkpanic expression in object init expr's argument")
@@ -181,8 +171,7 @@ public class ObjectInitializerTest {
 
     @Test(description = "Test panic in object init function")
     public void testObjectInitPanic() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectInitPanic");
-        Assert.assertEquals(((BError) returns[0]).stringValue(), "init panicked {}");
+        BRunUtil.invoke(compileResult, "testObjectInitPanic");
     }
 
     @Test(description = "Test invoking 'init' function in a function inside object descriptor")

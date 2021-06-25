@@ -31,9 +31,12 @@ public class MarkdownDocAttachment {
     public String description;
     public List<Parameter> parameters;
     public String returnValueDescription;
+    public String deprecatedDocumentation;
+    public List<Parameter> deprecatedParams;
 
     public MarkdownDocAttachment(int paramCount) {
         this.parameters = new ArrayList<>(paramCount);
+        this.deprecatedParams = new ArrayList<>();
     }
 
     /**

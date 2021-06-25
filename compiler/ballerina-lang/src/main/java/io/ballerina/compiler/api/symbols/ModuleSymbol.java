@@ -17,6 +17,8 @@
  */
 package io.ballerina.compiler.api.symbols;
 
+import io.ballerina.compiler.api.ModuleID;
+
 import java.util.List;
 
 /**
@@ -25,6 +27,14 @@ import java.util.List;
  * @since 2.0.0
  */
 public interface ModuleSymbol extends Symbol {
+
+    /**
+     * Returns a {@link ModuleID} instance which contains organization, name, version and module prefix info of the
+     * module.
+     *
+     * @return The ID of the module
+     */
+    ModuleID id();
 
     /**
      * Get the public functions defined within the module.

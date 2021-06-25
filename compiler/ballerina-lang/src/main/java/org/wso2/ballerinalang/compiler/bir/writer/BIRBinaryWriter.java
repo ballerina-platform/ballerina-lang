@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.ConstValue;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.TaintTable;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
@@ -85,6 +84,8 @@ public class BIRBinaryWriter {
         writeFunctions(birbuf, typeWriter, birPackage.functions);
         // Write annotations
         writeAnnotations(birbuf, typeWriter, birPackage.annotations);
+        // Write service declarations
+        writeServiceDeclarations(birbuf, birPackage.serviceDecls);
 
         // Write the constant pool entries.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -169,7 +170,7 @@ public class BIRBinaryWriter {
                            BIRTypeDefinition typeDef) {
         writePosition(buf, typeDef.pos);
         // Type name CP Index
-        buf.writeInt(addStringCPEntry(typeDef.name.value));
+        buf.writeInt(addStringCPEntry(typeDef.internalName.value));
         // Flags
         buf.writeLong(typeDef.flags);
         buf.writeByte(typeDef.isLabel ? 1 : 0);
@@ -206,6 +207,9 @@ public class BIRBinaryWriter {
         // Store annotations here...
         writeAnnotAttachments(buf, birFunction.annotAttachments);
 
+        // Store return type annotations
+        writeAnnotAttachments(buf, birFunction.returnTypeAnnots);
+
         buf.writeInt(birFunction.requiredParams.size());
         for (BIRParameter parameter : birFunction.requiredParams) {
             buf.writeInt(addStringCPEntry(parameter.name.value));
@@ -226,8 +230,6 @@ public class BIRBinaryWriter {
             writeType(buf, birFunction.receiver.type);
             buf.writeInt(addStringCPEntry(birFunction.receiver.name.value));
         }
-
-        writeTaintTable(buf, birFunction.taintTable);
 
         typeWriter.writeMarkdownDocAttachment(buf, birFunction.markdownDocAttachment);
 
@@ -317,24 +319,6 @@ public class BIRBinaryWriter {
         buf.writeLong(length + 4);
         buf.writeInt(scopeCount);
         buf.writeBytes(scopebuf.nioBuffer().array(), 0, length);
-    }
-
-    private void writeTaintTable(ByteBuf buf, TaintTable taintTable) {
-        ByteBuf birbuf = Unpooled.buffer();
-        birbuf.writeShort(taintTable.rowCount);
-        birbuf.writeShort(taintTable.columnCount);
-        birbuf.writeInt(taintTable.taintTable.size());
-        for (Integer paramIndex : taintTable.taintTable.keySet()) {
-            birbuf.writeShort(paramIndex);
-            List<Byte> taintRecord = taintTable.taintTable.get(paramIndex);
-            birbuf.writeInt(taintRecord.size());
-            for (Byte taintStatus : taintRecord) {
-                birbuf.writeByte(taintStatus);
-            }
-        }
-        int length = birbuf.nioBuffer().limit();
-        buf.writeLong(length);
-        buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
     }
 
     private void writeAnnotations(ByteBuf buf, BIRTypeWriter typeWriter,
@@ -432,6 +416,44 @@ public class BIRBinaryWriter {
                 throw new UnsupportedOperationException(
                         "finite type value is not supported for type: " + constValue.type);
 
+        }
+    }
+
+    private void writeServiceDeclarations(ByteBuf buf,
+                                          List<BIRNode.BIRServiceDeclaration> birServiceDeclList) {
+        buf.writeInt(birServiceDeclList.size());
+        birServiceDeclList.forEach(service -> writeServiceDeclaration(buf, service));
+    }
+
+    private void writeServiceDeclaration(ByteBuf buf, BIRNode.BIRServiceDeclaration birServiceDecl) {
+        buf.writeInt(addStringCPEntry(birServiceDecl.generatedName.value));
+        buf.writeInt(addStringCPEntry(birServiceDecl.associatedClassName.value));
+        buf.writeLong(birServiceDecl.flags);
+        buf.writeByte(birServiceDecl.origin.value());
+        writePosition(buf, birServiceDecl.pos);
+
+        buf.writeBoolean(birServiceDecl.type != null);
+        if (birServiceDecl.type != null) {
+            writeType(buf, birServiceDecl.type);
+        }
+
+        buf.writeBoolean(birServiceDecl.attachPoint != null);
+        if (birServiceDecl.attachPoint != null) {
+            buf.writeInt(birServiceDecl.attachPoint.size());
+
+            for (String pathSegment : birServiceDecl.attachPoint) {
+                buf.writeInt(addStringCPEntry(pathSegment));
+            }
+        }
+
+        buf.writeBoolean(birServiceDecl.attachPointLiteral != null);
+        if (birServiceDecl.attachPointLiteral != null) {
+            buf.writeInt(addStringCPEntry(birServiceDecl.attachPointLiteral));
+        }
+
+        buf.writeInt(birServiceDecl.listenerTypes.size());
+        for (BType listenerType : birServiceDecl.listenerTypes) {
+            writeType(buf, listenerType);
         }
     }
 

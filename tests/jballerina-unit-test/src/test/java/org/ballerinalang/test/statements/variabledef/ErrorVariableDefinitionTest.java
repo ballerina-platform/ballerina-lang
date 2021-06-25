@@ -83,8 +83,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertNull(returns[11]);
     }
 
-    @Test(description = "Test simple error var def with string and map declared with var", groups = {
-            "brokenOnSpecDeviation" })
+    @Test(description = "Test simple error var def with string and map declared with var")
     public void testVarBasicErrorVariableWithMapDetails() {
         BValue[] returns = BRunUtil.invoke(result, "testVarBasicErrorVariableWithMapDetails");
         Assert.assertEquals(returns.length, 12);
@@ -103,8 +102,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertNull(returns[11]);
     }
 
-    @Test(description = "Test simple error var def with const and map declared with var", groups = {
-            "brokenOnSpecDeviation" })
+    @Test(description = "Test simple error var def with const and map declared with var")
     public void testVarBasicErrorVariableWithConstAndMap() {
         BValue[] returns = BRunUtil.invoke(result, "testVarBasicErrorVariableWithConstAndMap");
         Assert.assertEquals(returns.length, 12);
@@ -156,7 +154,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertFalse(((BBoolean) returns[4]).booleanValue());
     }
 
-    @Test(description = "Test simple error var def inside tuple with destructuring error", enabled = false)
+    @Test(description = "Test simple error var def inside tuple with destructuring error")
     public void testErrorInTupleWithDestructure() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTupleWithDestructure");
         Assert.assertEquals(returns.length, 5);
@@ -167,8 +165,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
     }
 
-    @Test(description = "Test simple error var def inside tuple with destructuring error", groups = {
-            "brokenOnSpecDeviation" })
+    @Test(description = "Test simple error var def inside tuple with destructuring error")
     public void testErrorInTupleWithDestructure2() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTupleWithDestructure2");
         Assert.assertEquals(returns.length, 5);
@@ -179,7 +176,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
     }
 
-    @Test(description = "Test simple error var def inside tuple with destructuring error", enabled = false)
+    @Test(description = "Test simple error var def inside tuple with destructuring error")
     public void testErrorInRecordWithDestructure() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInRecordWithDestructure");
         Assert.assertEquals(returns.length, 3);
@@ -188,8 +185,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns[2].stringValue(), "Something Wrong3");
     }
 
-    @Test(description = "Test simple error var def inside tuple with destructuring error", groups = {
-            "brokenOnSpecDeviation" })
+    @Test(description = "Test simple error var def inside tuple with destructuring error")
     public void testErrorWithAnonErrorType() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorWithAnonErrorType");
         Assert.assertEquals(returns.length, 2);
@@ -238,11 +234,21 @@ public class ErrorVariableDefinitionTest {
     }
 
     @Test
+    public void testLocalErrorType() {
+        BRunUtil.invoke(result, "testLocalErrorType");
+    }
+
+    @Test
     public void testNegativeErrorVariables() {
         CompileResult resultNegative = BCompileUtil.
                 compile("test-src/statements/variabledef/error_variable_definition_stmt_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 13);
         int i = -1;
+        BAssertUtil.validateError(resultNegative, ++i, "error constructor does not accept additional detail args " +
+                "'detail' when error detail type 'record {| string message?; error cause?; string...; |}' " +
+                "contains individual field descriptors", 21, 60);
+        BAssertUtil.validateError(resultNegative, ++i, "error constructor does not accept additional detail args " +
+                "'fatal' when error detail type 'record {| string message?; error cause?; anydata...; |}' " +
+                "contains individual field descriptors", 22, 60);
         BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 27, 16);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'SMS', found 'SMA'", 28, 85);
@@ -250,6 +256,12 @@ public class ErrorVariableDefinitionTest {
                 "incompatible types: expected 'boolean', found 'string'", 30, 26);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 31, 28);
+        BAssertUtil.validateError(resultNegative, ++i, "error constructor does not accept additional detail args " +
+                "'detail' when error detail type 'record {| string message?; error cause?; string...; |}' " +
+                "contains individual field descriptors", 35, 60);
+        BAssertUtil.validateError(resultNegative, ++i, "error constructor does not accept additional detail args " +
+                "'fatal' when error detail type 'record {| string message?; error cause?; anydata...; |}' " +
+                "contains individual field descriptors", 36, 60);
         BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 41, 16);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 44, 26);
@@ -258,17 +270,16 @@ public class ErrorVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "redeclared symbol 'message'", 54, 36);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'int', found 'map<Cloneable>'", 56, 18);
+                "incompatible types: expected 'int', found 'map<ballerina/lang.value:1.0.0:Cloneable>'", 56, 18);
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid error variable; expecting an error type but found 'int' in type definition", 57, 47);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 63, 17);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found " +
-                        "'(readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>)'", 64, 16);
+                "incompatible types: expected 'string', found 'ballerina/lang.value:1.0.0:Cloneable'", 64, 16);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found " +
-                        "'(readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>)'", 70, 16);
+                "incompatible types: expected 'string', found 'ballerina/lang.value:1.0.0:Cloneable'", 70, 16);
+        Assert.assertEquals(resultNegative.getErrorCount(), ++i);
     }
 
     @AfterClass

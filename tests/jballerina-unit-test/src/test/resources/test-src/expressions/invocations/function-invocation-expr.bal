@@ -1,5 +1,3 @@
-import ballerina/math;
-
 type BooleanArray boolean[];
 type StringArray string[];
 
@@ -35,7 +33,7 @@ function testReturnFuncInvocationWithinFuncInvocation(int a, int b) returns (int
 }
 
 function testReturnNativeFuncInvocationWithinNativeFuncInvocation(float x) returns (float) {
-    return math:sqrt(math:pow(x, 2.0));
+    return float:sqrt(float:pow(x, 2.0));
 }
 
 function sum (int a) returns @untainted int {
@@ -49,18 +47,8 @@ function sum (int a) returns @untainted int {
 }
 
 function getPowerOfN (float a, float n) returns (float) {
-    float v = math:pow(a, n);
+    float v = float:pow(a, n);
     return v;
-}
-
-function testInvocationWithArgVarargMix() {
-    testInvocationWithArgVarargMixWithoutDefaultableParam();
-    testInvocationWithArgVarargMixWithDefaultableParam();
-    testVarargEvaluationCount();
-    testMethodInvocationWithArgVarargMixWithoutDefaultableParam();
-    testMethodInvocationWithArgVarargMixWithDefaultableParam();
-    testMethodVarargEvaluationCount();
-    testVarargForParamsOfDifferentKinds();
 }
 
 function testInvocationWithArgVarargMixWithoutDefaultableParam() {
@@ -317,6 +305,44 @@ function takeParamsOfDifferentKinds(boolean b, int i, string... s) returns ArgsA
     return {b, i, s};
 }
 
+function testArrayVarArg() {
+    int[2] a = [1, 2];
+    assertValueEquality(3, allInts(...a));
+
+    int[3] b = [1, 2, 3];
+    assertValueEquality(6, allInts(...b));
+
+    int[5] c = [1, 2, 3, 1, 2];
+    assertValueEquality(9, allInts(...c));
+
+    int[] d = [1, 1, 2, 2, 1];
+    assertValueEquality(7, intRestParam(...d));
+
+    assertValueEquality(3, intRestParam(...a));
+
+    assertValueEquality(6, intsWithStringRestParam(...a));
+}
+
+function allInts(int i, int j, int... k) returns int {
+    int tot = i + j;
+    foreach int x in k {
+        tot += x;
+    }
+    return tot;
+}
+
+function intsWithStringRestParam(int i, int j, string... k) returns int {
+    return 2 * (i + j + k.length());
+}
+
+function intRestParam(int... i) returns int {
+     int tot = 0;
+     foreach int x in i {
+         tot += x;
+     }
+     return tot;
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
@@ -325,7 +351,7 @@ function assertTrue(any|error actual) {
     }
 
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected 'true', found '" + actual.toString () + "'");
+                message = "expected 'true', found '" + (actual is error ? actual.toString() : actual.toString()) + "'");
 }
 
 function assertFalse(any|error actual) {
@@ -334,16 +360,14 @@ function assertFalse(any|error actual) {
     }
 
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected 'false', found '" + actual.toString () + "'");
+                message = "expected 'false', found '" + (actual is error ? actual.toString() : actual.toString()) + "'");
 }
 
-function assertValueEquality(anydata|error expected, anydata|error actual) {
+function assertValueEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;
     }
 
-    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
-    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+                message = "expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }

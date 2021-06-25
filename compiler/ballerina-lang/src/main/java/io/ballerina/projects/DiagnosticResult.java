@@ -31,6 +31,7 @@ public abstract class DiagnosticResult {
     protected final Collection<Diagnostic> allDiagnostics;
     protected Collection<Diagnostic> errors;
     protected Collection<Diagnostic> warnings;
+    protected Collection<Diagnostic> hints;
 
     protected DiagnosticResult(Collection<Diagnostic> allDiagnostics) {
         this.allDiagnostics = Collections.unmodifiableCollection(allDiagnostics);
@@ -48,6 +49,10 @@ public abstract class DiagnosticResult {
         return getWarnings(allDiagnostics);
     }
 
+    public Collection<Diagnostic> hints() {
+        return getHints(allDiagnostics);
+    }
+
     public int diagnosticCount() {
         return allDiagnostics.size();
     }
@@ -58,6 +63,10 @@ public abstract class DiagnosticResult {
 
     public int warningCount() {
         return getWarnings(allDiagnostics).size();
+    }
+
+    public int hintCount() {
+        return getHints(allDiagnostics).size();
     }
 
     public boolean hasErrors() {
@@ -84,5 +93,14 @@ public abstract class DiagnosticResult {
 
         warnings = Diagnostics.filterWarnings(diagnostics);
         return warnings;
+    }
+
+    private Collection<Diagnostic> getHints(Collection<Diagnostic> diagnostics) {
+        if (hints != null) {
+            return hints;
+        }
+
+        hints = Diagnostics.filterHints(diagnostics);
+        return hints;
     }
 }

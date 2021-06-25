@@ -326,7 +326,7 @@ function testTableNoDuplicatesAndOnConflictReturnTable() returns boolean {
     return testPassed;
 }
 
-function testTableWithDuplicatesAndOnConflictReturnTable() returns CustomerTable|error {
+function testTableWithDuplicatesAndOnConflictReturnTable() {
      error onConflictError = error("Key Conflict", message = "cannot insert.");
 
      Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
@@ -342,10 +342,10 @@ function testTableWithDuplicatesAndOnConflictReturnTable() returns CustomerTable
          }
          on conflict onConflictError;
 
-     return customerTable;
+     validateKeyConflictError(customerTable);
 }
 
-function testQueryExprWithOtherClausesReturnTable() returns CustomerTable|error {
+function testQueryExprWithOtherClausesReturnTable() {
      error onConflictError = error("Key Conflict", message = "cannot insert.");
 
      Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
@@ -370,10 +370,23 @@ function testQueryExprWithOtherClausesReturnTable() returns CustomerTable|error 
          }
          on conflict onConflictError;
 
-     return customerTable;
+     validateKeyConflictError(customerTable);
 }
 
-function testQueryExprWithJoinClauseReturnTable() returns CustomerTable|error {
+function validateKeyConflictError(any|error value) {
+     if (value is error) {
+         any|error detailMessage = value.detail()["message"];
+         if (value.message() == "Key Conflict"
+            && detailMessage is string
+            && detailMessage == "cannot insert.") {
+             return;
+         }
+         panic error("Assertion error");
+     }
+     panic error("Expected error, found: " + (typeof value).toString());
+}
+
+function testQueryExprWithJoinClauseReturnTable() {
      error onConflictError = error("Key Conflict", message = "cannot insert.");
 
      Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
@@ -395,7 +408,7 @@ function testQueryExprWithJoinClauseReturnTable() returns CustomerTable|error {
          }
          on conflict onConflictError;
 
-     return customerTable;
+     validateKeyConflictError(customerTable);
 }
 
 function testQueryExprWithLimitClauseReturnTable() returns boolean {

@@ -73,8 +73,16 @@ public class SemanticVersion {
             return false;
         }
 
+        return !isPreReleaseVersion();
+    }
+
+    public boolean isPreReleaseVersion() {
         String preReleaseComp = version.getPreReleaseVersion();
-        return preReleaseComp == null || preReleaseComp.trim().isEmpty();
+        return preReleaseComp != null && !preReleaseComp.trim().isEmpty();
+    }
+
+    public boolean isInitialVersion() {
+        return this.major() == 0;
     }
 
     public boolean greaterThan(SemanticVersion other) {
@@ -124,12 +132,11 @@ public class SemanticVersion {
             return VersionCompatibilityResult.EQUAL;
         }
 
-        // Eliminate initial versions, pre-release and build metadata
-        if (!this.isStable() || !other.isStable()) {
+        if (this.major() != other.major()) {
             return VersionCompatibilityResult.INCOMPATIBLE;
         }
 
-        if (this.major() != other.major()) {
+        if (this.isInitialVersion()) {
             return VersionCompatibilityResult.INCOMPATIBLE;
         }
 

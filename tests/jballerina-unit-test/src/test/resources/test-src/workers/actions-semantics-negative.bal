@@ -134,3 +134,17 @@ function getStdId() returns future<int> {
     future <int> id = start getId();
     return id;
 }
+
+function testWorkerIdentifiers() {
+    worker  {
+
+    }
+
+    worker int {
+
+    }
+    
+    worker ' {
+    
+    }
+}

@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
+import ballerina/lang.array;
 isolated class InvalidIsolatedClassWithNonPrivateMutableFields {
     int a;
     public map<int> b;
@@ -339,24 +339,6 @@ isolated class InvalidIsolatedClassWithNonInvalidObjectFields {
     final object {} c = object {}; // should be an `isolated object`
 }
 
-isolated class InvalidIsolatedClassReferringSelfOutsideLock {
-    final int a = 1;
-    private int[] b = [];
-
-    function foo() {
-        bar(self);
-        self.baz();
-    }
-
-    function baz() {
-
-    }
-}
-
-function bar(InvalidIsolatedClassReferringSelfOutsideLock x) {
-
-}
-
 isolated class IsolatedClass {
     function nonIsolatedFunc() returns int => 1;
 }
@@ -507,5 +489,263 @@ service isolated class InvalidIsolatedServiceClassNotOverridingMutableFieldsInIn
     function init() {
         self.a = 1;
         self.b = [];
+    }
+}
+
+isolated int[] isolatedArr = [];
+
+isolated service / on new Listener() {
+    int[] x = [];
+
+    remote function foo() {
+        self.x = [2, 3];
+    }
+
+    resource function get bar() {
+        self.x = [2, 3];
+    }
+
+    function baz() {
+        self.x = [2, 3];
+    }
+
+    isolated function qux() {
+        globIntArr = [];
+    }
+
+    isolated resource function get quux() {
+        globIntArr = [];
+    }
+
+    resource function get corge() {
+        lock {
+            self.x = [2, 3];
+            isolatedArr = [];
+        }
+    }
+}
+
+service object {} ser = isolated service object {
+    int[] x = [];
+
+    remote function foo() {
+        self.x = [2, 3];
+    }
+
+    resource function get bar() {
+        self.x = [2, 3];
+    }
+
+    function baz() {
+        self.x = [2, 3];
+    }
+
+    isolated function qux() {
+        globIntArr = [];
+    }
+
+    isolated resource function get quux() {
+        globIntArr = [];
+    }
+
+    resource function get corge() {
+        lock {
+            self.x = [2, 3];
+            isolatedArr = [];
+        }
+    }
+};
+
+isolated service class ServiceClass {
+    int[] x = [];
+
+    remote function foo() {
+        self.x = [2, 3];
+    }
+
+    resource function get bar() {
+        self.x = [2, 3];
+    }
+
+    function baz() {
+        self.x = [2, 3];
+    }
+
+    isolated function qux() {
+        globIntArr = [];
+    }
+
+    isolated resource function get quux() {
+        globIntArr = [];
+    }
+
+    resource function get corge() {
+        lock {
+            self.x = [2, 3];
+            isolatedArr = [];
+        }
+    }
+
+    function quuz() {
+        lock {
+            self.x = [2, 3];
+            isolatedArr = [];
+        }
+    }
+}
+
+public class Listener {
+
+    public function 'start() returns error? {}
+
+    public function gracefulStop() returns error? {}
+
+    public function immediateStop() returns error? {}
+
+    public function detach(service object {} s) returns error? {}
+
+    public function attach(service object {} s, string[]? name = ()) returns error? {}
+}
+
+isolated int[] x = [];
+
+function testInvalidCopyInWithNonObjectSelf1(int[] 'self) {
+    lock {
+        x = 'self;
+    }
+}
+
+function testInvalidCopyInWithNonObjectSelf2() {
+    lock {
+        int[] 'self = [];
+        x = 'self;
+    }
+}
+
+public isolated class IsolatedClassWithBoundMethodAccess {
+
+    public isolated function bar() {
+        isolated function () fn = self.baz;
+    }
+
+    isolated function baz() {
+    }
+}
+
+isolated class IsolatedClassWithInvalidCopyInInMethodCall {
+    private map<int> m = {};
+
+    isolated function baz() returns map<int>[] {
+        map<int>[] y = [];
+
+        lock {
+            y[0] = self.m;
+            y.push(self.m);
+            array:push(y, self.m);
+        }
+
+        return y;
+    }
+
+    function qux(map<int[]> y) {
+        lock {
+            _ = y.remove(self.m["a"].toString());
+        }
+    }
+}
+
+var isolatedObjectWithInvalidCopyInInMethodCall = isolated object {
+    private map<int> m = {};
+
+    isolated function baz() returns map<int>[] {
+        map<int>[] y = [];
+
+        lock {
+            y[0] = self.m;
+            y.push(self.m);
+            array:push(y, self.m);
+            return y;
+        }
+    }
+
+    function qux(map<int[]> y) {
+        lock {
+            _ = y.remove(self.m["a"].toString());
+        }
+    }
+};
+
+isolated class IsolatedClassWithInvalidCopyOut2 {
+    private map<int> m = {};
+
+    isolated function baz() returns map<int>[] {
+        map<int>[] y = [];
+        map<int> z;
+        lock {
+            map<int>[] y2 = [];
+            y[0] = self.m;
+            z = self.m;
+            return y2;
+        }
+    }
+}
+
+const fromMobile = "";
+configurable string toMobile = ?;
+
+isolated NonIsolatedClient cl = new;
+
+service / on new Listener() {
+   isolated resource function post foo() returns error? {
+      Response resp;
+      lock {
+         resp = check cl->sendMessage(fromMobile, toMobile, "Hi!");
+      }
+   }
+}
+
+type Response record {|
+   string message;
+   int id;
+|};
+
+public client class NonIsolatedClient {
+   int i = 1;
+
+   isolated remote function sendMessage(string x, string y, string z)
+      returns Response|error => {message: "Hello", id: 0};
+}
+
+isolated class IsolatedClassWithQueryExprAsTransferOut {
+    private isolated object {}[] arr = [];
+
+    function getArr() returns isolated object {}[] {
+        lock {
+            return from var ob in self.arr select ob;
+        }
+    }
+}
+
+isolated class IsolatedClassWithInvalidRawTemplateTransfer {
+    private int[] arr = [];
+    private isolated object {}[] arr2 = [];
+
+    function getArrOne() returns any {
+        lock {
+            return `values: ${self.arr}`;
+        }
+    }
+
+    function getArrTwo() returns any {
+        lock {
+            return `values: OK ${self.arr.clone()} invalid ${self.arr2}`;
+        }
+    }
+
+    function getArrs(int[] intArr) returns any {
+        lock {
+            any val = `arr: ${intArr}`;
+            return `values: ${self.arr2}, ${"Hello"}, ${self.arr}, ${val}, ${self.arr.clone()}`;
+        }
     }
 }

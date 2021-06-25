@@ -34,6 +34,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -91,7 +92,7 @@ public class LangLibFunctionTest {
         TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), INT);
 
-        List<String> expFunctions = List.of("abs", "max", "min", "toHexString", "clone", "cloneReadOnly",
+        List<String> expFunctions = List.of("abs", "max", "min", "sum", "toHexString", "clone", "cloneReadOnly",
                                             "cloneWithType", "isReadOnly", "toString", "toBalString", "toJson",
                                             "toJsonString", "fromJsonWithType", "mergeJson", "ensureType");
 
@@ -109,7 +110,7 @@ public class LangLibFunctionTest {
                                             "acos", "atan", "atan2", "sinh", "cosh", "tanh", "toHexString", "toBitsInt",
                                             "clone", "cloneReadOnly", "cloneWithType", "isReadOnly", "toString",
                                             "toBalString", "toJson", "toJsonString", "fromJsonWithType", "mergeJson",
-                                            "ensureType");
+                                            "ensureType", "sum", "min", "max");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
@@ -120,9 +121,9 @@ public class LangLibFunctionTest {
         TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), DECIMAL);
 
-        List<String> expFunctions = List.of("abs", "max", "min", "round", "floor", "ceiling", "clone", "cloneReadOnly",
-                                            "cloneWithType", "isReadOnly", "toString", "toBalString", "toJson",
-                                            "toJsonString", "fromJsonWithType", "mergeJson", "ensureType");
+        List<String> expFunctions = List.of("abs", "max", "min", "sum", "round", "floor", "ceiling", "clone",
+                                            "cloneReadOnly", "cloneWithType", "isReadOnly", "toString", "toBalString",
+                                            "toJson", "toJsonString", "fromJsonWithType", "mergeJson", "ensureType");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
@@ -140,7 +141,7 @@ public class LangLibFunctionTest {
                                             "toString", "toBalString", "fromBalString", "toJson", "toJsonString",
                                             "fromJsonWithType", "mergeJson", "ensureType", "fromJsonString",
                                             "fromJsonFloatString", "fromJsonDecimalString", "fromJsonStringWithType",
-                                            "includes");
+                                            "includes", "concat");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
@@ -161,9 +162,9 @@ public class LangLibFunctionTest {
         TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), ARRAY);
 
-        List<String> expFunctions = List.of("length", "iterator", "enumerate", "map", "forEach", "filter", "reduce",
-                                            "slice", "remove", "removeAll", "setLength", "indexOf", "lastIndexOf",
-                                            "reverse", "sort", "pop", "push", "shift", "unshift", "toString",
+        List<String> expFunctions = List.of("length", "iterator", "enumerate", "map", "forEach", "filter",
+                                            "reduce", "slice", "remove", "removeAll", "setLength", "reverse",
+                                            "sort", "pop", "push", "shift", "unshift", "toString",
                                             "toBalString", "toStream", "ensureType");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
@@ -197,7 +198,7 @@ public class LangLibFunctionTest {
         List<String> expFunctions = List.of("length", "iterator", "forEach", "map", "filter", "get", "slice", "strip",
                                             "elements", "children", "elementChildren", "clone", "cloneReadOnly",
                                             "cloneWithType", "isReadOnly", "toString", "toBalString", "toJson",
-                                            "toJsonString", "ensureType");
+                                            "toJsonString", "ensureType", "text", "data");
 
 //        List<String> additionalFuncs = List.of("getName", "setName", "getChildren", "setChildren", "getAttributes");
 
@@ -226,7 +227,7 @@ public class LangLibFunctionTest {
         ClassSymbol clazz = ((ClassSymbol) symbol);
         assertEquals(clazz.typeKind(), OBJECT);
 
-        List<String> expFunctions = List.of("toString", "toBalString", "ensureType");
+        List<String> expFunctions = Collections.emptyList();
         assertLangLibList(clazz.langLibMethods(), expFunctions);
     }
 
@@ -266,7 +267,8 @@ public class LangLibFunctionTest {
         TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), TYPEDESC);
 
-        List<String> expFunctions = List.of("toString", "toBalString", "ensureType", "clone", "cloneReadOnly");
+        List<String> expFunctions =
+                List.of("toString", "toBalString", "ensureType", "clone", "cloneReadOnly", "typeIds");
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
 
@@ -350,7 +352,7 @@ public class LangLibFunctionTest {
     }
 
     private void assertLangLibList(List<FunctionSymbol> langLib, List<String> expFunctions) {
-        Set<String> langLibSet = langLib.stream().map(FunctionSymbol::name).collect(Collectors.toSet());
+        Set<String> langLibSet = langLib.stream().map(s -> s.getName().get()).collect(Collectors.toSet());
 
         for (String expFunction : expFunctions) {
             assertTrue(langLibSet.contains(expFunction), "Expected function '" + expFunction + "' not found");

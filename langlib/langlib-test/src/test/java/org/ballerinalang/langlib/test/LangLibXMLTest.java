@@ -170,9 +170,18 @@ public class LangLibXMLTest {
     @Test
     public void testGetContent() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetContent");
-        assertEquals((returns[0]).stringValue(), "hello world");
-        assertEquals((returns[1]).stringValue(), "type=\"cont\"");
-        assertEquals((returns[2]).stringValue(), " this is a comment text ");
+        assertEquals((returns[0]).stringValue(), "type=\"cont\"");
+        assertEquals((returns[1]).stringValue(), " this is a comment text ");
+    }
+
+    @Test
+    public void xmlGetContentOverACommentSequence() {
+        BRunUtil.invoke(compileResult, "testXmlGetContentOverACommentSequence");
+    }
+
+    @Test
+    public void xmlGetContentOverAProcessingInstructionSequence() {
+        BRunUtil.invoke(compileResult, "testXmlGetContentOverAProcInstructionSequence");
     }
 
     @Test
@@ -232,6 +241,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testXMLStrip() {
+        BRunUtil.invoke(compileResult, "testXMLStrip");
+    }
+
+    @Test
     public void testGet() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGet");
         assertEquals(returns[0].stringValue(), "<elem/>");
@@ -277,6 +291,36 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testSelectingTextFromXml() {
+        BRunUtil.invoke(compileResult, "testSelectingTextFromXml");
+    }
+
+    @Test
+    public void testXmlFilter() {
+        BRunUtil.invoke(compileResult, "testXmlFilter");
+    }
+
+    @Test
+    public void testGetDescendants() {
+        BRunUtil.invoke(compileResult, "testGetDescendants");
+    }
+
+    @Test
+    public void testData() {
+        BRunUtil.invoke(compileResult, "testData");
+    }
+
+    @Test
+    public void fromStringTest() {
+        BRunUtil.invoke(compileResult, "fromStringTest");
+    }
+
+    @Test
+    public void testXmlSubtypeFillerValue() {
+        BRunUtil.invoke(compileResult, "testXmlSubtypeFillerValue");
+    }
+
+    @Test
     public void testNegativeCases() {
         negativeResult = BCompileUtil.compile("test-src/xmllib_test_negative.bal");
         int i = 0;
@@ -288,7 +332,10 @@ public class LangLibXMLTest {
         validateError(negativeResult, i++, "incompatible types: expected 'xml:ProcessingInstruction', found 'xml'",
                 56, 8);
         validateError(negativeResult, i++, "incompatible types: expected " +
-                "'(xml:Text|xml:ProcessingInstruction|xml:Comment)', found 'xml:Element'", 61, 12);
+                "'(xml:ProcessingInstruction|xml:Comment)', found 'xml:Element'", 61, 12);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml:Element', found 'xml'", 69, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml<xml:Element>', found 'xml'",
+                75, 28);
         assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -312,16 +359,17 @@ public class LangLibXMLTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: " +
-                    "'xml\\<lang\\.xml:Element\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction" +
-                    "\\|lang\\.xml:Text\\>' cannot be cast to 'xml\\<lang\\.xml:Comment\\>.*")
+                    "'xml\\<\\(lang\\.xml:Element\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction" +
+                    "\\|lang\\.xml:Text\\)\\>' cannot be cast to 'xml\\<lang\\.xml:Comment\\>.*")
     public void xmlConstraintRuntimeCastInvalid() {
         BRunUtil.invoke(constrainedTest, "xmlConstraintRuntimeCastInvalid");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: " +
-                    "'xml\\<lang\\.xml:Element\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction" +
-                    "\\|lang\\.xml:Text\\>' cannot be cast to 'xml\\<lang\\.xml:Element\\|lang\\.xml:Text\\>'.*")
+                    "'xml\\<\\(lang\\.xml:Element\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction" +
+                    "\\|lang\\.xml:Text\\)\\>' cannot be cast to 'xml\\<\\(lang\\.xml:Element\\|lang\\.xml:Text\\)" +
+                    "\\>'.*")
     public void xmlConstraintRuntimeCastUnionInvalid() {
         BRunUtil.invoke(constrainedTest, "xmlConstraintRuntimeCastUnionInvalid");
     }
@@ -338,13 +386,13 @@ public class LangLibXMLTest {
         constraintNegative = BCompileUtil.compile("test-src/xmllib_constrained_negative_test.bal");
         int i = 0;
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:Comment', found 'xml:Element'",
-                20, 28);
+                20, 23);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:ProcessingInstruction', " +
-                "found 'xml:Element'", 21, 42);
+                "found 'xml:Element'", 21, 37);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:Comment>', found 'xml:Element'",
-                25, 33);
+                25, 28);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:ProcessingInstruction>'," +
-                " found 'xml:Element'", 26, 47);
+                " found 'xml:Element'", 26, 42);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:Comment', found 'xml<xml:Element>'",
                 29, 26);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:Element>', found 'xml:Comment'",
@@ -356,21 +404,21 @@ public class LangLibXMLTest {
                 " found 'xml<(xml:Element|xml:Comment)>'", 41, 29);
 
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:Element', found 'xml:Comment'",
-                45, 31);
+                45, 26);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:Element'," +
-                " found 'xml:ProcessingInstruction'", 46, 18);
+                " found 'xml:ProcessingInstruction'", 46, 13);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:Element', found 'xml:Text'",
-                47, 18);
+                47, 13);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:Element', found 'xml<xml:Comment>'",
                 50, 13);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:Comment>', found 'xml:Element'",
-                52, 51);
+                52, 46);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:Comment>'," +
                 " found 'xml<xml:Element>'", 55, 28);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:Element', found 'xml:Comment'",
-                60, 26);
+                60, 21);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:Element', found 'xml:Comment'",
-                62, 34);
+                62, 29);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:Element', found 'xml<xml:Comment>'",
                 65, 19);
         assertEquals(constraintNegative.getErrorCount(), i);

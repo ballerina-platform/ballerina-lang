@@ -18,7 +18,6 @@
 package org.ballerinalang.test.worker;
 
 import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BValue;
@@ -29,6 +28,8 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.Arrays;
 
 /**
  * Tests the sync send worker action.
@@ -41,7 +42,7 @@ public class WorkerSyncSendTest {
     public void setup() {
 
         this.result = BCompileUtil.compile("test-src/workers/sync-send.bal");
-        Assert.assertEquals(result.getErrorCount(), 0, result.toString());
+        Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getDiagnostics()).toString());
     }
 
     @Test
@@ -81,10 +82,7 @@ public class WorkerSyncSendTest {
 
     @Test
     public void errorAfterSendTest() {
-
-        BValue[] returns = BRunUtil.invoke(result, "errorResult");
-        Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).getReason(), "error3");
+        BRunUtil.invoke(result, "errorResult");
     }
 
     @Test
@@ -97,8 +95,8 @@ public class WorkerSyncSendTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result = "error: error3 {\"message\":\"msg3\"}\n" + "\tat sync-send:$lambda$_14(sync-send.bal:289)\n" +
-                "\t   sync-send:$lambda$_14$lambda14$(sync-send.bal:277)";
+        String result = "error: error3 {\"message\":\"msg3\"}\n" + "\tat sync-send:$lambda$_15(sync-send.bal:295)\n" +
+                "\t   sync-send:$lambda$_15$lambda15$(sync-send.bal:283)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
@@ -117,8 +115,8 @@ public class WorkerSyncSendTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result = "error: err from panic from w2\n\tat sync-send:$lambda$_18(sync-send.bal:342)\n" +
-                "\t   sync-send:$lambda$_18$lambda18$(sync-send.bal:339)";
+        String result = "error: err from panic from w2\n\tat sync-send:$lambda$_19(sync-send.bal:348)\n" +
+                "\t   sync-send:$lambda$_19$lambda19$(sync-send.bal:345)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
@@ -131,8 +129,8 @@ public class WorkerSyncSendTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result = "error: err from panic from w1 w1\n\tat sync-send:$lambda$_19(sync-send.bal:358)\n" +
-                "\t   sync-send:$lambda$_19$lambda19$(sync-send.bal:354)";
+        String result = "error: err from panic from w1 w1\n\tat sync-send:$lambda$_20(sync-send.bal:364)\n" +
+                "\t   sync-send:$lambda$_20$lambda20$(sync-send.bal:360)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
@@ -145,8 +143,8 @@ public class WorkerSyncSendTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result = "error: err from panic from w2\n\tat sync-send:$lambda$_22(sync-send.bal:390)\n" +
-                "\t   sync-send:$lambda$_22$lambda22$(sync-send.bal:387)";
+        String result = "error: err from panic from w2\n\tat sync-send:$lambda$_23(sync-send.bal:396)\n" +
+                "\t   sync-send:$lambda$_23$lambda23$(sync-send.bal:393)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
@@ -159,16 +157,14 @@ public class WorkerSyncSendTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result = "error: err from panic from w3w3\n\tat sync-send:$lambda$_25(sync-send.bal:430)\n" +
-                "\t   sync-send:$lambda$_25$lambda25$(sync-send.bal:419)";
+        String result = "error: err from panic from w3w3\n\tat sync-send:$lambda$_26(sync-send.bal:436)\n" +
+                "\t   sync-send:$lambda$_26$lambda26$(sync-send.bal:425)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
     @Test()
     public void errorResultWithMultipleWorkers() {
-        BValue[] returns = BRunUtil.invoke(result, "errorResultWithMultipleWorkers");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals("err returned from w2", ((BError) returns[0]).getReason());
+        BRunUtil.invoke(result, "errorResultWithMultipleWorkers");
     }
 
     @Test
@@ -181,18 +177,12 @@ public class WorkerSyncSendTest {
 
     @Test
     public void multipleSendsToErroredWorker() {
-        BValue[] returns = BRunUtil.invoke(result, "multipleSendsToErroredChannel");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].getType().getName(), "error");
-        Assert.assertEquals(returns[0].stringValue(), "error one {}");
+        BRunUtil.invoke(result, "multipleSendsToErroredChannel");
     }
 
     @Test
     public void testSyncSendAfterSend() {
-        BValue[] returns = BRunUtil.invoke(result, "testSyncSendAfterSend");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].getType().getName(), "error");
-        Assert.assertEquals(returns[0].stringValue(), "w2 error {}");
+        BRunUtil.invoke(result, "testSyncSendAfterSend");
     }
 
     @Test

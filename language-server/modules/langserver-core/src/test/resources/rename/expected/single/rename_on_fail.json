@@ -1,0 +1,44 @@
+{
+  "source": {
+    "file": "testSource.bal"
+  },
+  "position": {
+    "line": 10,
+    "character": 18
+  },
+  "prepareRename": {
+    "valid": true
+  },
+  "result": {
+    "changes": {
+      "testSource.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 18
+            },
+            "end": {
+              "line": 10,
+              "character": 25
+            }
+          },
+          "newText": "myVarName"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 17
+            },
+            "end": {
+              "line": 11,
+              "character": 24
+            }
+          },
+          "newText": "myVarName"
+        }
+      ]
+    }
+  }
+}

@@ -1,9 +1,0 @@
-// Ballerina error type for {{exceptionName}}.
-
-{{accessModifier}}const {{exceptionConstName}} = "{{shortExceptionName}}";
-
-type {{shortExceptionName}}Data record {
-    string message;
-};
-
-{{accessModifier}}type {{shortExceptionName}} distinct error<{{shortExceptionName}}Data>;

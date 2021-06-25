@@ -101,29 +101,19 @@ function checkEqualityToNilNegative(any a) returns boolean {
     return (a == ()) || !(a != ());
 }
 
+function checkAnyDataEqualityPositive(anydata a, anydata b) returns boolean {
+    return (a == b) && !(a != b);
+}
+
+function checkAnyDataEqualityNegative(anydata a, anydata b) returns boolean {
+    return (a == b) || !(a != b);
+}
+
 type ErrorDetail record {
     string message?;
     error cause?;
+    int intVal?;
 };
-
-type MyError error<ErrorDetail>;
-
-function testErrorEqualityPositive() returns boolean {
-    error e1 = error("reason 1");
-    error e2 = error("reason 1");
-    MyError e3 = error MyError("reason 1");
-
-    error e4 = error("reason 1", message = "error message", intVal = 5);
-    MyError e5 = error MyError("reason 1", message = "error message", intVal = 5);
-    return e1 == e2 && !(e1 != e2) && e2 == e3 && !(e2 != e3)&& e4 == e5 && !(e4 != e5);
-}
-
-function testErrorEqualityNegative() returns boolean {
-    error e1 = error("reason 1");
-    error e2 = error("reason 2");
-    MyError e3 = error MyError("reason 1", message = "error message");
-    return e1 == e2 && !(e1 != e2) && e1 == e3 && !(e1 != e3);
-}
 
 function checkOpenRecordEqualityPositive() returns boolean {
     OpenEmployee e1 = { name: "Em", id: 4000 };
@@ -874,6 +864,26 @@ function testSimpleXmlPositive() returns boolean {
     return x1 == x2 && !(x1 != x2) && x3 == x4 && !(x3 != x4) && x5 == x6 && !(x5 != x6) && x7 == x8 && !(x7 != x8);
 }
 
+function testReferenceEqualityXml() {
+    assert(xml`abc` === xml`abc`, true);
+    assert(xml`<book>The Lost World</book>` === xml`<book>The Lost World</book>`, false);
+    assert(xml`<!--comment-->` === xml`<!--comment-->`, false);
+    assert(xml`<?target data?>` === xml`<?target data?>`, false);
+    //assert(xml`<?target data?><!--comment--><root>test</root>` === xml`<?target data?><!--comment--><root>test</root>`,
+    //true);
+    assert(xml`<?target data?><!--comment--><root>test</root>` === xml`<?target data?><!--comment-->test`,
+    false);
+
+    assert(xml`abc` !== xml`abc`, false);
+    assert(xml`<book>The Lost World</book>` !== xml`<book>The Lost World</book>`, true);
+    assert(xml`<!--comment-->` !== xml`<!--comment-->`, true);
+    assert(xml`<?target data?>` !== xml`<?target data?>`, true);
+    //assert(xml`<?target data?><!--comment--><root>test</root>` !== xml`<?target data?><!--comment--><root>test</root>`,
+    //false);
+    assert(xml`<?target data?><!--comment--><root>test</root>` !== xml`<?target data?><!--comment-->test`,
+    true);
+}
+
 function testSimpleXmlNegative() returns boolean {
     xml x1 = xml `<book>The Lot World</book>`;
     xml x2 = xml `<book>The Lost World</book>`;
@@ -1232,11 +1242,96 @@ public function testSelfAndCyclicReferencingTupleEqualityNegative() returns bool
 }
 
 function testEmptyMapAndRecordEquality() returns boolean {
-    map<error> m = {};
+    map<string> m = {};
     record {| string s?; int...; |} r = {};
     return m == r;
+}
+
+type Student record {
+    readonly string name;
+    int id;
+};
+
+type Teacher record {
+    string name;
+    int id;
+};
+
+type StudentTable table<Student> key(name);
+type TeacherTable table<Teacher>;
+
+function testTableEquality() {
+    table<Student> key(name) tbl1 = table [
+        {name: "Amy", id: 1234},
+        {name: "John", id: 4567}
+    ];
+    table<Student> key(name) tbl2 = table [
+        {name: "Amy", id: 1234},
+        {name: "John", id: 4567}
+    ];
+    var tbl3 = table key(name) [
+        {name: "Amy", id: 1234},
+        {name: "John", id: 4567}
+    ];
+    var tbl4 = tbl2;
+    anydata tbl5 = table key(name) [
+        {name: "Amy", id: 1234},
+        {name: "John", id: 4567}
+    ];
+    var ids = checkpanic table key(id) from var {id} in tbl1 select {id};
+    table<record {| int id; |}> key(id) tbl6 = ids;
+    StudentTable tbl7 = table key(name) [
+        {name: "Amy", id: 1234},
+        {name: "John", id: 4567}
+    ];
+    StudentTable|int tbl8 = tbl7;
+    map<anydata> a1 = {"a": table key(id) [{"id": 1234}, {"id": 4567}], "b": 12};
+    record {| int id; anydata tbl9; |} a2 = {id: 1, tbl9: table key(id) [{"id": 1234}, {"id": 4567}]};
+    anydata[] a3 = [12, "A", table key(id) [{"id": 1234}, {"id": 4567}]];
+    [StudentTable, int, string] a4 = [table key(name) [{name: "Amy", id: 1234}, {name: "John", id: 4567}], 12, "A"];
+    TeacherTable tbl10 = table [{name: "Amy", id: 1234}, {name: "John", id: 4567}];
+    var tbl11 = table [{name: "Amy", id: 1234}, {name: "John", id: 4567}];
+    table<record {| string name; int id; |}> tbl12 = table [{name: "Amy", id: 1234}, {name: "John", id: 4567}];
+    var tbl13 = table [{name: "Amber", id: 1234}, {name: "John", id: 4567}];
+    TeacherTable tbl14 = table [{name: "John", id: 4567}, {name: "Amber", id: 1234}];
+
+    assert(tbl1 == tbl2, true);
+    assert(tbl1 == tbl3, true);
+    assert(tbl3 == tbl4, true);
+    assert(tbl2 == tbl5, true);
+    assert(tbl3 == tbl5, true);
+    assert(table key(id) [{"id": 1234}, {"id": 4567}] == tbl6, true);
+    assert(tbl1 == tbl7, true);
+    assert(tbl3 == tbl7, true);
+    assert(tbl5 == tbl7, true);
+    assert(tbl1 == tbl8, true);
+    assert(a1["a"] == tbl6, true);
+    assert(a1["a"] == a2.tbl9, true);
+    assert(a2.tbl9 == a3[2], true);
+    assert(tbl1 == a4[0], true);
+    assert(tbl10 == tbl11, true);
+    assert(tbl10 == tbl12, true);
+    assert(tbl3 != tbl11, true);
+    assert(tbl5 != tbl6, true);
+    assert(tbl2 != tbl10, true);
+    assert(a1["a"] != tbl12, true);
+    assert(tbl11 != tbl13, true);
+    assert(tbl10 != tbl14, true);
+    assert(table key(id) [{"id": 4567}, {"id": 1234}] != tbl6, true);
 }
 
 function isEqual(anydata a, anydata b) returns boolean {
     return a == b && !(b != a);
 }
+
+function assert(anydata actual, anydata expected) {
+    if (expected != actual) {
+        typedesc<anydata> expT = typeof expected;
+        typedesc<anydata> actT = typeof actual;
+        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        error e = error(reason);
+        panic e;
+    }
+}
+

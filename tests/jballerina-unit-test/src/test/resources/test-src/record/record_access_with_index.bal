@@ -1,5 +1,3 @@
-import ballerina/io;
-
 type Department record {
     string dptName = "";
     Person[] employees = [];
@@ -131,37 +129,37 @@ function testDynamicIndexAccessTypes() returns string {
     string index = "fieldOne";
     var res1 = f[index];
     if (res1 is string) {
-        result += io:sprintf("string:%s", res1);
+        result += "string:" + res1;
     }
 
     index = "fieldTwo";
     string|int|boolean|()|float|decimal res2 = f[index];
     if (res2 is int) {
-        result += io:sprintf(":int:%s", res2);
+        result += ":int:" + res2.toString();
     }
 
     index = "fieldThree";
     res2 = f[index];
     if (res2 is boolean) {
-        result += io:sprintf(":boolean:%s", res2);
+        result += ":boolean:" + res2.toString();
     }
 
     index = "fieldFour";
     string|int|boolean|()|float|decimal res4 = f[index];
     if (res4 is ()) {
-        result += io:sprintf(":():%s", res4);
+        result += ":():" + res4.toString();
     }
 
     index = "fieldFive";
     var res5 = f[index];
     if (res5 is float) {
-        result += io:sprintf(":float:%s", res5);
+        result += ":float:" + res5.toString();
     }
 
     index = "fieldSix";
     res5 = f[index];
     if (res5 is decimal) {
-        result += io:sprintf(":decimal:%s", res5);
+        result += ":decimal:" + res5.toString();
     }
 
     return result;
@@ -184,13 +182,13 @@ function testDynamicIndexAccessTypesWithRestParam(string arg) returns string {
 
     int|string|float|boolean? res1 = f[arg];
     if (res1 is int) {
-        result += io:sprintf(":int:%s", res1);
+        result += ":int:" + res1.toString();
     }
     if (res1 is string) {
-        result += io:sprintf(":string:%s", res1);
+        result += ":string:" + res1.toString();
     }
     if (res1 is boolean) {
-        result += io:sprintf(":boolean:%s", res1);
+        result += ":boolean:" + res1.toString();
     }
     if (res1 is ()) {
         result += "()";
@@ -229,11 +227,11 @@ function testDynamicIndexAccessTypesWithOpenRecord() returns string {
     foreach var index in indexArr {
         Obj|(function (int) returns int)|json|anydata|error res = fb[getIndex(index)];
         if (res is Obj) {
-            result += io:sprintf(":object:%s", res.getIntField());
+            result += ":object:" + res.getIntField().toString();
             continue;
         }
         if (res is function (int) returns int) {
-            result += io:sprintf(":function:%s", res(8));
+            result += ":function:" + res(8).toString();
             continue;
         }
         if (res is ()) {
@@ -241,11 +239,11 @@ function testDynamicIndexAccessTypesWithOpenRecord() returns string {
             continue;
         }
         if (res is boolean) {
-            result += io:sprintf(":boolean:%s", res);
+            result += ":boolean:" + res.toString();
             continue;
         }
         if (res is json) {
-            result += io:sprintf(":json:%s", res);
+            result += ":json:" + res.toString();
             continue;
         }
     }
@@ -344,11 +342,11 @@ function testFiniteTypeAsIndex() returns string {
         }
     }
     if r3 is float {
-        result += io:sprintf("%s", r3);
+        result += r3.toString();
     }
     if r4 is Qux {
         int? r5 = r4[index1];
-        result += io:sprintf("%s", r5);
+        result += r5.toString();
     }
 
     return result;
@@ -384,10 +382,10 @@ function testUnionInFiniteTypeAsIndex() returns string {
         result += r1;
     }
     if r2 is int {
-        result += io:sprintf("%s", r2);
+        result += r2.toString();
     }
     if r3 is boolean {
-        result += io:sprintf("%s", r3);
+        result += r3.toString();
     }
     if r4 is () {
         result += "()";

@@ -92,7 +92,7 @@
                               "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "                           "
+                                  "value": "    "
                                 }
                               ],
                               "trailingMinutiae": [
@@ -130,7 +130,7 @@
                               "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "                           "
+                                  "value": "    "
                                 }
                               ],
                               "trailingMinutiae": [
@@ -192,7 +192,7 @@
                               "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "                           "
+                                  "value": "    "
                                 }
                               ],
                               "trailingMinutiae": [
@@ -234,7 +234,7 @@
                                 },
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "                           "
+                                  "value": "    "
                                 }
                               ],
                               "trailingMinutiae": [
@@ -267,7 +267,7 @@
                                           "leadingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "                               "
+                                              "value": "        "
                                             }
                                           ],
                                           "trailingMinutiae": [
@@ -305,7 +305,7 @@
                                           "leadingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "                               "
+                                              "value": "        "
                                             }
                                           ],
                                           "trailingMinutiae": [
@@ -364,7 +364,7 @@
                                       "leadingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "                               "
+                                          "value": "        "
                                         }
                                       ]
                                     },
@@ -395,7 +395,7 @@
                               "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "                           "
+                                  "value": "    "
                                 }
                               ],
                               "trailingMinutiae": [
@@ -434,7 +434,7 @@
                             },
                             {
                               "kind": "WHITESPACE_MINUTIAE",
-                              "value": "                           "
+                              "value": "    "
                             }
                           ]
                         },
@@ -471,7 +471,7 @@
                           "leadingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
-                              "value": "                           "
+                              "value": "    "
                             }
                           ]
                         }
@@ -493,12 +493,6 @@
                 },
                 {
                   "kind": "CLOSE_BRACE_PIPE_TOKEN",
-                  "leadingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "                       "
-                    }
-                  ],
                   "trailingMinutiae": [
                     {
                       "kind": "WHITESPACE_MINUTIAE",

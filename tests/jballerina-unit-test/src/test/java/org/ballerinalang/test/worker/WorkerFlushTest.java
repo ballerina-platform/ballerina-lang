@@ -17,7 +17,6 @@
 
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -36,28 +35,24 @@ public class WorkerFlushTest {
 
     @BeforeClass
     public void setup() {
-
         this.result = BCompileUtil.compile("test-src/workers/flush-workers.bal");
         Assert.assertEquals(result.getErrorCount(), 0, result.toString());
     }
 
     @Test
     public void simpleFlushTest() {
-
         BValue[] returns = BRunUtil.invoke(result, "singleFlush");
         Assert.assertEquals(returns[0].stringValue(), "w2w2w2w2w2w1w1w1w1w1");
     }
 
     @Test
     public void flushReturnNilTest() {
-
         BValue[] returns = BRunUtil.invoke(result, "flushReturn");
         Assert.assertNull(returns[0]);
     }
 
     @Test
     public void flushAll() {
-
         BValue[] returns = BRunUtil.invoke(result, "flushAll");
         Assert.assertFalse(returns[0].stringValue().startsWith("w1"),
                 "Returned wrong value:" + returns[0].stringValue());
@@ -65,15 +60,11 @@ public class WorkerFlushTest {
 
     @Test
     public void errorBeforeFlush() {
-
-        BValue[] returns = BRunUtil.invoke(result, "errorTest");
-        Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).getReason(), "error3");
+        BRunUtil.invoke(result, "errorTest");
     }
 
     @Test
     public void panicBeforeFlush() {
-
         Exception expectedException = null;
         try {
             BRunUtil.invoke(result, "panicTest");
@@ -82,22 +73,18 @@ public class WorkerFlushTest {
         }
         Assert.assertNotNull(expectedException);
         String result =
-                "error: error3 {\"message\":\"msg3\"}\n" + "\tat flush-workers:$lambda$_12(flush-workers.bal:187)\n" +
-                "\t   flush-workers:$lambda$_12$lambda12$(flush-workers.bal:178)";
+                "error: error3 {\"message\":\"msg3\"}\n" + "\tat flush-workers:$lambda$_13(flush-workers.bal:193)\n" +
+                "\t   flush-workers:$lambda$_13$lambda13$(flush-workers.bal:184)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
     @Test
     public void flushInDefaultError() {
-
-        BValue[] returns = BRunUtil.invoke(result, "flushInDefaultError");
-        Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).getReason(), "err");
+        BRunUtil.invoke(result, "flushInDefaultError");
     }
 
     @Test
     public void flushInDefault() {
-
         BValue[] returns = BRunUtil.invoke(result, "flushInDefault");
         Assert.assertEquals(returns[0].stringValue(), "25");
     }

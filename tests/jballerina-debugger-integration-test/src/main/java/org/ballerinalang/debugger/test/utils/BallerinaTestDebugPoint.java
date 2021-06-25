@@ -27,11 +27,17 @@ import java.io.File;
  */
 public class BallerinaTestDebugPoint {
     String filePath;
-    long line;
+    int line;
+    String condition;
 
-    public BallerinaTestDebugPoint(String filePath, long line) {
+    public BallerinaTestDebugPoint(String filePath, int line) {
+        this(filePath, line, null);
+    }
+
+    public BallerinaTestDebugPoint(String filePath, int line, String condition) {
         this.filePath = filePath;
         this.line = line;
+        this.condition = condition;
     }
 
     public Source getSource() {
@@ -46,7 +52,8 @@ public class BallerinaTestDebugPoint {
     public SourceBreakpoint getDAPBreakPoint() {
         SourceBreakpoint breakpoint = new SourceBreakpoint();
         breakpoint.setLine(line);
-        breakpoint.setColumn(0L);
+        breakpoint.setColumn(0);
+        breakpoint.setCondition(condition);
         return breakpoint;
     }
 
@@ -64,7 +71,7 @@ public class BallerinaTestDebugPoint {
 
     @Override
     public int hashCode() {
-        return 7 * (int) line + filePath.hashCode();
+        return 7 * line + filePath.hashCode();
     }
 
     @Override

@@ -20,3 +20,22 @@ function testCyclicCloneableTypeWithAny() {
     value:Cloneable x = error("x");
     any y = x; // Should fail since `value:Cloneable` includes `error` and `x` can hold an error.
 }
+
+class MyClass {
+    int i = 1;
+}
+
+function testCloneWithTypeWithInvalidInferredType() {
+    anydata x = {};
+    MyClass|error y = x.cloneWithType();
+    MyClass|error z = value:cloneWithType(x);
+}
+
+type Person record {
+    int name;
+};
+
+function testEnsureTypeFunction() returns error? {
+    Person p = {name: 12};
+    int age = check p.name;
+}

@@ -1,3 +1,0 @@
-function testWithNoImport() {
-    io:
-}

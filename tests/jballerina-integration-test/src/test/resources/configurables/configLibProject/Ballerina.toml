@@ -1,0 +1,8 @@
+[package]
+org = "testOrg"
+name = "configLib"
+version = "0.1.0"
+export = ["configLib", "configLib.mod1"]
+
+[build-options]
+observabilityIncluded = true

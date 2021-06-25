@@ -19,7 +19,6 @@
 package org.ballerinalang.test.documentation;
 
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
-import org.ballerinalang.docgen.generator.model.DocPackage;
 import org.ballerinalang.docgen.generator.model.Function;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.ModuleDoc;
@@ -30,6 +29,7 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -55,13 +55,12 @@ public class MultilineDocsTest {
             "X - HEX (ALL_CAPS)\n" +
             "\n" +
             "s - string (This specifier is applicable for any of the supported types in Ballerina.\n" +
-            "            These values will be converted to their string representation.)\n" +
+            "These values will be converted to their string representation.)\n" +
             "\n" +
             "```ballerina\n" +
-            "# string s8 = io:sprintf(\"%s scored %d for %s and has an average of %.2f.\", name, marks, " +
+            "string s8 = io:sprintf(\"%s scored %d for %s and has an average of %.2f.\", name, marks, " +
             "subjects[0], average);\n" +
-            "# ```\n" +
-            "\n";
+            "```\n\n";
 
     @BeforeClass
     public void setup() throws IOException {
@@ -69,9 +68,9 @@ public class MultilineDocsTest {
                 "test-src" + File.separator + "documentation" + File.separator + "multi_line_docs_project";
         io.ballerina.projects.Project project = BCompileUtil.loadProject(sourceRoot);
         Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator.generateModuleDocMap(project);
-        DocPackage docerinaDocPackage = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
+        List<Module> modulesList = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
                 .packageOrg().toString(), project.currentPackage().packageVersion().toString());
-        Module testModule = docerinaDocPackage.modules.get(0);
+        Module testModule = modulesList.get(0);
 
         for (Function function : testModule.functions) {
             String funcName = function.name;

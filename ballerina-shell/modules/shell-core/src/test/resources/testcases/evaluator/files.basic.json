@@ -1,0 +1,11 @@
+[
+  {
+    "description": "Load the declarations file.",
+    "code": "/file files/basic.bal"
+  },
+  {
+    "description": "Running the function.",
+    "code": "cube(value)",
+    "expr": "64"
+  }
+]

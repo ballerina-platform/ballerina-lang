@@ -61,20 +61,25 @@ public class BindgenTestCase extends BaseTest {
      */
     @Test(description = "Test the bindgen command functionality.")
     public void bindgenTest() throws BallerinaTestException {
-        String buildMsg = "target/bin/bindgen-0.1.0.jar";
+        String buildMsg = "target/bin/bindgen.jar";
         LogLeecher buildLeecher = new LogLeecher(buildMsg);
 
-        String bindgenMsg = "class could not be generated.";
-        LogLeecher bindgenLeecher = new LogLeecher(bindgenMsg, ERROR);
+        String bindgenMsg1 = "error: unable to generate the '";
+        LogLeecher bindgenLeecher1 = new LogLeecher(bindgenMsg1, ERROR);
+
+        String bindgenMsg2 = "Oh no, something really went wrong. Bad. Sad.";
+        LogLeecher bindgenLeecher2 = new LogLeecher(bindgenMsg2, ERROR);
 
         String[] args = {"-mvn=org.yaml:snakeyaml:1.25", "-o=.", "org.yaml.snakeyaml.Yaml"};
         try {
             balClient.runMain("bindgen", args, null, new String[]{},
-                    new LogLeecher[]{bindgenLeecher}, tempProjectsDir.toString());
+                    new LogLeecher[]{bindgenLeecher1, bindgenLeecher2}, tempProjectsDir.toString());
             throw new BallerinaTestException("Contains classes not generated.");
         } catch (BallerinaTestException e) {
-            if (bindgenLeecher.isTextFound()) {
-                throw new BallerinaTestException("Contains classes not generated.", e);
+            if (bindgenLeecher1.isTextFound()) {
+                throw new BallerinaTestException("Bindings for some classes not generated.");
+            } else if (bindgenLeecher2.isTextFound()) {
+                throw new BallerinaTestException("Error while generating bindings: Bad. Sad. error occurred.");
             }
         }
 

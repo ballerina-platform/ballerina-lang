@@ -18,19 +18,19 @@ import ballerina/jballerina.java;
 
 function waitTest1() returns int {
     future<int> f1 = @strand{thread:"any"} start add(5, 2);
-    int result = wait f1;
+    int result = checkpanic wait f1;
     return result;
 }
 
 function waitTest2() returns boolean {
     future<boolean> f6 = @strand{thread:"any"} start status();
-    boolean result = wait f6;
+    boolean result = checkpanic wait f6;
     return result;
 }
 
 function waitTest3() returns any {
     future<string> f4 = @strand{thread:"any"} start concat("foo");
-    any result = wait f4;
+    any result = checkpanic wait f4;
     return result;
 }
 
@@ -39,9 +39,9 @@ function waitTest4() returns any[] {
     future<string> f5 = @strand{thread:"any"} start concat("bar");
     future<int|string> f7 =  @strand{thread:"any"} start concat("xyz");
 
-    int|string result1 = wait f2;
-    int|string result2 = wait f5;
-    int|string result3 = wait f7;
+    int|string result1 = checkpanic wait f2;
+    int|string result2 = checkpanic wait f5;
+    int|string result3 = checkpanic wait f7;
 
     any[] arr = [];
     arr[0] = result1;
@@ -52,24 +52,24 @@ function waitTest4() returns any[] {
 
 function waitTest5() returns map<string> {
     future<map<string>> f9 = @strand{thread:"any"} start getEmpMap();
-    map<string> m = wait f9;
+    map<string> m = checkpanic wait f9;
     return m;
 }
 
 function waitTest6() returns int|float {
     future<int|float> f8 = @strand{thread:"any"} start add(66, 33);
-    int|float result = wait f8;
+    int|float result = checkpanic wait f8;
     return result;
 }
 
 function waitTest7() returns int {
-    int result = wait fuInt();
+    int result = checkpanic  wait fuInt();
     return result;
 }
 
 function waitTest8() returns int {
     future<int> f1 = @strand{thread:"any"} start add_panic(5, 2);
-    int result = wait f1;
+    int result = checkpanic wait f1;
     return result;
 }
 
@@ -141,5 +141,5 @@ function asyncObjectCreationTest() {
 }
 
 public function sleep(int millis) = @java:Method {
-    'class: "org.ballerinalang.test.utils.interop.Sleep"
+    'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;

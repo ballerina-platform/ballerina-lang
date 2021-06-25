@@ -571,7 +571,7 @@
                 },
                 {
                     "name": "blockStatement",
-                    "type": "StatementNode"
+                    "type": "BlockStatementNode"
                 },
                 {
                     "name": "onFailClause",
@@ -627,7 +627,7 @@
                 },
                 {
                     "name": "blockStatement",
-                    "type": "StatementNode"
+                    "type": "BlockStatementNode"
                 },
                 {
                     "name": "onFailClause",
@@ -1141,6 +1141,21 @@
             ]
         },
         {
+            "name": "InferredTypedescDefaultNode",
+            "base": "ExpressionNode",
+            "kind": "INFERRED_TYPEDESC_DEFAULT",
+            "attributes": [
+                {
+                    "name": "ltToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "gtToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "ObjectTypeDescriptorNode",
             "base": "TypeDescriptorNode",
             "kind": "OBJECT_TYPE_DESC",
@@ -1488,6 +1503,11 @@
                     "isOptional": true
                 },
                 {
+                    "name": "visibilityQualifier",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
                     "name": "qualifiers",
                     "type": "Token",
                     "occurrences": "MULTIPLE"
@@ -1569,16 +1589,16 @@
             ]
         },
         {
-            "name": "ParameterizedTypeDescriptorNode",
+            "name": "MapTypeDescriptorNode",
             "base": "TypeDescriptorNode",
-            "kind": "PARAMETERIZED_TYPE_DESC",
+            "kind": "MAP_TYPE_DESC",
             "attributes": [
                 {
-                    "name": "parameterizedType",
+                    "name": "mapKeywordToken",
                     "type": "Token"
                 },
                 {
-                    "name": "typeParameter",
+                    "name": "mapTypeParamsNode",
                     "type": "TypeParameterNode"
                 }
             ]
@@ -2005,41 +2025,6 @@
             ]
         },
         {
-            "name": "ErrorTypeDescriptorNode",
-            "base": "TypeDescriptorNode",
-            "kind": "ERROR_TYPE_DESC",
-            "attributes": [
-                {
-                    "name": "errorKeywordToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "errorTypeParamsNode",
-                    "type": "ErrorTypeParamsNode",
-                    "isOptional": true
-                }
-            ]
-        },
-        {
-            "name": "ErrorTypeParamsNode",
-            "base": "Node",
-            "kind": "ERROR_TYPE_PARAMS",
-            "attributes": [
-                {
-                    "name": "ltToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "parameter",
-                    "type": "Node"
-                },
-                {
-                    "name": "gtToken",
-                    "type": "Token"
-                }
-            ]
-        },
-        {
             "name": "StreamTypeDescriptorNode",
             "base": "TypeDescriptorNode",
             "kind": "STREAM_TYPE_DESC",
@@ -2085,22 +2070,6 @@
             ]
         },
         {
-            "name": "TypedescTypeDescriptorNode",
-            "base": "TypeDescriptorNode",
-            "kind": "TYPEDESC_TYPE_DESC",
-            "attributes": [
-                {
-                    "name": "typedescKeywordToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "typedescTypeParamsNode",
-                    "type": "TypeParameterNode",
-                    "isOptional": true
-                }
-            ]
-        },
-        {
             "name": "LetExpressionNode",
             "base": "ExpressionNode",
             "kind": "LET_EXPRESSION",
@@ -2121,22 +2090,6 @@
                 {
                     "name": "expression",
                     "type": "ExpressionNode"
-                }
-            ]
-        },
-        {
-            "name": "XmlTypeDescriptorNode",
-            "base": "TypeDescriptorNode",
-            "kind": "XML_TYPE_DESC",
-            "attributes": [
-                {
-                    "name": "xmlKeywordToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "xmlTypeParamsNode",
-                    "type": "TypeParameterNode",
-                    "isOptional": true
                 }
             ]
         },
@@ -2511,7 +2464,8 @@
                 },
                 {
                     "name": "functionSignature",
-                    "type": "FunctionSignatureNode"
+                    "type": "FunctionSignatureNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -4068,9 +4022,9 @@
             ]
         },
         {
-            "name": "DocumentationReferenceNode",
+            "name": "BallerinaNameReferenceNode",
             "base": "DocumentationNode",
-            "kind": "DOCUMENTATION_REFERENCE",
+            "kind": "BALLERINA_NAME_REFERENCE",
             "attributes": [
                 {
                     "name": "referenceType",
@@ -4082,11 +4036,78 @@
                     "type": "Token"
                 },
                 {
-                    "name": "backtickContent",
+                    "name": "nameReference",
                     "type": "Node"
                 },
                 {
                     "name": "endBacktick",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "InlineCodeReferenceNode",
+            "base": "DocumentationNode",
+            "kind": "INLINE_CODE_REFERENCE",
+            "attributes": [
+                {
+                    "name": "startBacktick",
+                    "type": "Token"
+                },
+                {
+                    "name": "codeReference",
+                    "type": "Token"
+                },
+                {
+                    "name": "endBacktick",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "MarkdownCodeBlockNode",
+            "base": "DocumentationNode",
+            "kind": "MARKDOWN_CODE_BLOCK",
+            "attributes": [
+                {
+                    "name": "startLineHashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "startBacktick",
+                    "type": "Token"
+                },
+                {
+                    "name": "langAttribute",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "codeLines",
+                    "type": "MarkdownCodeLineNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "endLineHashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "endBacktick",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "MarkdownCodeLineNode",
+            "base": "DocumentationNode",
+            "kind": "MARKDOWN_CODE_LINE",
+            "attributes": [
+                {
+                    "name": "hashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "codeDescription",
                     "type": "Token"
                 }
             ]
@@ -4286,6 +4307,21 @@
                 {
                     "name": "closeParenToken",
                     "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "ParameterizedTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "attributes": [
+                {
+                    "name": "keywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeParamNode",
+                    "type": "TypeParameterNode",
+                    "isOptional": true
                 }
             ]
         }

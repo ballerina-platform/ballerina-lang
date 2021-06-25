@@ -24,16 +24,15 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 import java.util.Optional;
 
 /**
- * When this class is used as the first argument of an interop method, Ballerina
- * will inject an instance of the class when calling. That instance can be used to
- * communicate with currently executing Ballerina runtime.
+ * When this class is used as the first argument of an interop method, Ballerina will inject an instance of the class
+ * when calling. That instance can be used to communicate with currently executing Ballerina runtime.
  *
  * @since 2.0.0
  */
 public class Environment {
 
-    private Strand strand;
-
+    private final Strand strand;
+    private Future future;
     private Module currentModule;
 
     public Environment(Strand strand) {
@@ -43,12 +42,13 @@ public class Environment {
     public Environment(Strand strand, Module currentModule) {
         this.strand = strand;
         this.currentModule = currentModule;
+        future = new Future(this.strand);
     }
 
     /**
      * Mark the current executing strand as async. Execution of Ballerina code after the current
      * interop will stop until given BalFuture is completed. However the java thread will not be blocked
-     * and will be reused for running other Ballerina code in the meantime. Therefor callee of this method
+     * and will be reused for running other Ballerina code in the meantime. Therefore callee of this method
      * must return as soon as possible to avoid starvation of ballerina code execution.
      *
      * @return BalFuture which will resume the current strand when completed.
@@ -56,7 +56,7 @@ public class Environment {
     public Future markAsync() {
         strand.blockedOnExtern = true;
         strand.setState(State.BLOCK_AND_YIELD);
-        return new Future(this.strand);
+        return future;
     }
 
     public Runtime getRuntime() {

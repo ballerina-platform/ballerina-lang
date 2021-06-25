@@ -21,6 +21,7 @@ import ballerina/lang.'string as lang_string;
 import ballerina/lang.'xml as lang_xml;
 import ballerina/lang.'stream as lang_stream;
 import ballerina/lang.'table as lang_table;
+import ballerina/lang.'object as lang_object;
 
 # A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration
@@ -32,25 +33,34 @@ type Type any|error;
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type ErrorType error|never;
+type ErrorType error;
+
+# A type parameter that is a subtype of `error?`.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
+# This represents the result type of an iterator.
+@typeParam
+type CompletionType error?;
 
 # An abstract `_Iterator` object.
 type _Iterator object {
-    public isolated function next() returns record {|Type value;|}|ErrorType?;
+    public function next() returns record {|Type value;|}|CompletionType;
 };
 
-# An abstract `_CloseableIterator` object.
-type _CloseableIterator object {
-    public isolated function next() returns record {|Type value;|}|ErrorType?;
-    public isolated function close() returns ErrorType?;
+# An abstract `_StreamImplementor` object
+type _StreamImplementor object {
+    public isolated function next() returns record {|Type value;|}|CompletionType;
+};
+
+# An abstract `_CloseableStreamImplementor` object.
+type _CloseableStreamImplementor object {
+    public isolated function next() returns record {|Type value;|}|CompletionType;
+    public isolated function close() returns CompletionType;
 };
 
 # An abstract `_Iterable` object.
 type _Iterable object {
-    public function __iterator() returns
-        object {
-            public isolated function next() returns record {|Type value;|}|ErrorType?;
-        };
+    *lang_object:Iterable;
 };
 
 type _StreamFunction object {
@@ -65,13 +75,15 @@ type _Frame record {|
 
 class _StreamPipeline {
     _StreamFunction streamFunction;
-    typedesc<Type> resType;
+    typedesc<Type> constraintTd;
+    typedesc<CompletionType> completionTd;
 
     function init(
-            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, ErrorType>|_Iterable collection,
-            typedesc<Type> resType) {
+            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type,CompletionType>|_Iterable collection,
+            typedesc<Type> constraintTd, typedesc<CompletionType> completionTd) {
         self.streamFunction = new _InitFunction(collection);
-        self.resType = resType;
+        self.constraintTd = constraintTd;
+        self.completionTd = completionTd;
     }
 
     public isolated function next() returns _Frame|error? {
@@ -93,9 +105,9 @@ class _StreamPipeline {
         self.streamFunction = streamFunction;
     }
 
-    public function getStream() returns stream <Type, ErrorType> {
-        IterHelper itrObj = new (self, self.resType);
-        var strm = internal:construct(self.resType, itrObj);
+    public function getStream() returns stream <Type,CompletionType> {
+        IterHelper itrObj = new (self, self.constraintTd);
+        var strm = internal:construct(self.constraintTd, self.completionTd, itrObj);
         return strm;
     }
 }
@@ -104,10 +116,10 @@ class _InitFunction {
     *_StreamFunction;
     _Iterator? itr;
     boolean resettable = true;
-    Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, ErrorType>|_Iterable collection;
+    Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type,CompletionType>|_Iterable collection;
 
     function init(
-            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, ErrorType>|_Iterable collection) {
+            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type,CompletionType>|_Iterable collection) {
         self.prevFunc = ();
         self.itr = ();
         self.collection = collection;
@@ -133,7 +145,7 @@ class _InitFunction {
     }
 
     function _getIterator(
-            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, ErrorType>|_Iterable collection)
+            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type,CompletionType>|_Iterable collection)
                 returns _Iterator {
         if (collection is Type[]) {
             return lang_array:iterator(collection);
@@ -141,14 +153,14 @@ class _InitFunction {
             return lang_map:iterator(collection);
         } else if (collection is map<Type>) {
             return lang_map:iterator(collection);
-        } else if (collection is string) {
-            return lang_string:iterator(collection);
         } else if (collection is xml) {
             return lang_xml:iterator(collection);
+        } else if (collection is string) {
+            return lang_string:iterator(collection);
         } else if (collection is table<map<Type>>) {
             return lang_table:iterator(collection);
         } else if (collection is _Iterable) {
-            return collection.__iterator();
+            return collection.iterator();
         } else {
             // stream.iterator() is not resettable.
             self.resettable = false;
@@ -261,15 +273,15 @@ class _NestedFromFunction {
             return lang_map:iterator(collection);
         } else if (collection is map<Type>) {
             return lang_map:iterator(collection);
-        } else if (collection is string) {
-            return lang_string:iterator(collection);
         } else if (collection is xml) {
             return lang_xml:iterator(collection);
+        } else if (collection is string) {
+            return lang_string:iterator(collection);
         } else if (collection is table<map<Type>>) {
             return lang_table:iterator(collection);
         } else if (collection is _Iterable) {
-            return collection.__iterator();
-        } else if (collection is stream <Type, ErrorType>) {
+            return collection.iterator();
+        } else if (collection is stream <Type,CompletionType>) {
             return lang_stream:iterator(collection);
         }
         panic error("Unsuppored collection", message = "unsuppored collection type.");

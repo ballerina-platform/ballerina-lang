@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvi
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -31,6 +32,7 @@ import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -41,6 +43,9 @@ import java.util.stream.Collectors;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class CreateVariableCodeAction extends AbstractCodeActionProvider {
+    
+    public static final String NAME = "Create Variable";
+    
     /**
      * {@inheritDoc}
      */
@@ -54,18 +59,23 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
         if (!(diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return actions;
         }
-        if (context.positionDetails().matchedExprType() == null) {
+
+        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(
+                DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX);
+        if (typeSymbol.isEmpty()) {
             return actions;
         }
 
         String uri = context.fileUri();
         Range range = CommonUtil.toRange(diagnostic.location().lineRange());
-        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, context);
+        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, typeSymbol.get(),
+                                                                          context);
         List<String> types = createVarTextEdits.types;
         for (int i = 0; i < types.size(); i++) {
             String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
@@ -84,14 +94,19 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         return actions;
     }
 
-    CreateVariableOut getCreateVariableTextEdits(Range range,
-                                                 CodeActionContext context) {
-        Symbol matchedSymbol = context.positionDetails().matchedSymbol();
-        TypeSymbol typeDescriptor = context.positionDetails().matchedExprType();
+    @Override
+    public String getName() {
+        return NAME;
+    }
 
-        Position position = CommonUtil.toPosition(context.positionDetails().matchedNode().lineRange().startLine());
+    CreateVariableOut getCreateVariableTextEdits(Range range, DiagBasedPositionDetails positionDetails,
+                                                 TypeSymbol typeDescriptor, CodeActionContext context) {
+        Symbol matchedSymbol = positionDetails.matchedSymbol();
+
+        Position position = CommonUtil.toPosition(positionDetails.matchedNode().lineRange().startLine());
         Set<String> allNameEntries = context.visibleSymbols(position).stream()
-                .map(Symbol::name)
+                .filter(s -> s.getName().isPresent())
+                .map(s -> s.getName().get())
                 .collect(Collectors.toSet());
 
         String name = CommonUtil.generateVariableName(matchedSymbol, typeDescriptor, allNameEntries);

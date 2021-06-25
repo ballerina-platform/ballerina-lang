@@ -75,6 +75,7 @@ public class RuntimeConstants {
     public static final String TABLE_LANG_LIB = "lang.table";
     public static final String INT_LANG_LIB = "lang.int";
     public static final String FLOAT_LANG_LIB = "lang.float";
+    public static final String DECIMAL_LANG_LIB = "lang.decimal";
     public static final String BOOLEAN_LANG_LIB = "lang.boolean";
     public static final String TRANSACTION_LANG_LIB = "lang.transaction";
 
@@ -116,11 +117,10 @@ public class RuntimeConstants {
     public static final String INTERNAL_ERROR_MESSAGE =
             "ballerina: Oh no, something really went wrong.\n" +
             "\n" +
-            "The `ballerina-internal.log` file located in the current directory\n" + 
-            "will indicate what the problem is.\n" +
-            "We really appreciate it if you can share with us, the code\n" +
-            "that broke Ballerina, together with this log file by creating a\n" +
-            "bug report in https://github.com/ballerina-platform/ballerina-lang/issues.\n";
+            "If you are able to share with us the code that broke Ballerina then\n" +
+            "we would REALLY appreciate if you would report this to us:\n" +
+            "go to https://github.com/ballerina-platform/ballerina-lang/issues and\n" +
+            "create a bug report with both this log and the sample code.\n";
 
     public static final String DEFAULT_LOG_FILE_HANDLER_PATTERN =
             "org.ballerinalang.logging.handlers.DefaultLogFileHandler.pattern";
@@ -135,6 +135,7 @@ public class RuntimeConstants {
     // Transaction constants
     public static final String GLOBAL_TRANSACTION_ID = "globalTransactionId";
     public static final String TRANSACTION_URL = "transactionUrl";
+    public static final String TRANSACTION_INFO = "transactionInfo";
 
     // Instance id key
     public static final String STATE_ID = "b7a.state.id";
@@ -151,5 +152,7 @@ public class RuntimeConstants {
     public static final String DISTRIBUTED_TRANSACTIONS = "b7a.distributed.transactions.enabled";
 
     public static final String FALSE = "false";
+
+    public static final String CURRENT_TRANSACTION_CONTEXT_PROPERTY = "currentTrxContext";
 
 }

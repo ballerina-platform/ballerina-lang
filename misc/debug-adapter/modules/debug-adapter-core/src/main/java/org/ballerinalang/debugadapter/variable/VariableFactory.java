@@ -22,6 +22,7 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.types.BArray;
 import org.ballerinalang.debugadapter.variable.types.BBoolean;
+import org.ballerinalang.debugadapter.variable.types.BByte;
 import org.ballerinalang.debugadapter.variable.types.BDecimal;
 import org.ballerinalang.debugadapter.variable.types.BError;
 import org.ballerinalang.debugadapter.variable.types.BFloat;
@@ -52,6 +53,7 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.ST
 import static org.ballerinalang.debugadapter.variable.VariableUtils.isJson;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.isObject;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.isService;
 
 /**
  * Factory implementation of ballerina debug variable types.
@@ -133,6 +135,8 @@ public class VariableFactory {
         } else if (valueTypeName.equals(JVMValueType.DOUBLE.getString())
                 || valueTypeName.equals(JVMValueType.J_DOUBLE.getString())) {
             return new BFloat(context, varName, value);
+        } else if (valueTypeName.equals(JVMValueType.BYTE.getString())) {
+            return new BByte(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.DECIMAL.getString())) {
             return new BDecimal(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.BMPSTRING.getString())
@@ -169,9 +173,7 @@ public class VariableFactory {
             return new BXmlItem(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.XML_ATTRIB_MAP.getString())) {
             return new BXmlItemAttributeMap(context, varName, value);
-        } else if (valueTypeName.contains(JVMValueType.ANON_SERVICE.getString())) {
-            return new BService(context, varName, value);
-        } else if (valueTypeName.contains(JVMValueType.MAP_VALUE.getString())) {
+        } else if (valueTypeName.contains(JVMValueType.MAP_VALUE.getString()) && !isRecord(value)) {
             if (isJson(value)) {
                 return new BJson(context, varName, value);
             } else {
@@ -182,6 +184,8 @@ public class VariableFactory {
                 return new BObject(context, varName, value);
             } else if (isRecord(value)) {
                 return new BRecord(context, varName, value);
+            } else if (isService(value)) {
+                return new BService(context, varName, value);
             }
         }
         // If the variable doesn't match any of the above types, returns as a variable with type "unknown".

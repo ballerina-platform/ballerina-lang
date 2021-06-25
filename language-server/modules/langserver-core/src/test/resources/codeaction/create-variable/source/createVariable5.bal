@@ -7,12 +7,12 @@ type Address record {|
     string country;
 |};
 
-type Person record {|
+type Person record {
    string firstName;
    string lastName;
    string deptAccess;
    int age = 0;
-|};
+};
 
 type FullName record {
     string firstName;
@@ -30,16 +30,16 @@ client class MySQLClient {
     }
 }
 
-public type ApplicationErrorData record {
-    string message;
-    error cause?;
-};
+Foo[] fooArr = [{v: "foo1"}, {v: "foo2"}];
+
+
+
 
 function queryBinaryType(MySQLClient mysqlClient) {
     Foo f = {};
     mysqlClient->query("Select * from Customers", Foo);
     var resultStream = mysqlClient->query("Select * from Customers", Foo);
-    <stream<Foo, ApplicationErrorData>>resultStream;
+    fooArr.toStream();
     <int>1.1;
     Address address = {city: "Colombo", country: "Sri Lanka"};
     {
@@ -71,7 +71,8 @@ function testMultipleSelectClausesWithSimpleVariable() {
             select {
                    firstName: person.firstName,
                    lastName: person.lastName,
-                   deptAccess: dept.name
+                   deptAccess: dept.name,
+                   age: 0
             };
 
 
@@ -88,6 +89,6 @@ function testMultipleSelectClausesWithSimpleVariable() {
     start testAsync();
 }
 
-public function testAsync() {
+public function testAsync() returns int {
     // do something
 }

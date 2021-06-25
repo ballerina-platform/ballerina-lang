@@ -14,13 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/baz;
+import testorg/testproject;
 import ballerina/lang.'string as str;
 
-baz:Digit zero = 0;
+testproject:Digit zero = 0;
 
 function test() {
-    baz:Person p = {name: "John Doe", age: 24};
+    testproject:Person p = {name: "John Doe", age: 24};
 
     if (true) {
         int x = 'int:fromString("100");
@@ -34,10 +34,14 @@ function test() {
 
             int f = 60;
             byte[] bytes = str:toBytes(p.name);
-            var pObj = new baz:PersonObj("Jane", 20);
+            var pObj = new testproject:PersonObj("Jane", 20);
         }
 
-        float circum  = 2 * baz:PI * 10;
-        int xum = baz:add(10, 20);
+        float circum  = 2 * testproject:PI * 10;
+        int xum = testproject:add(10, 20);
     }
+}
+
+@testproject:Config {host: "localhost""}
+function foo() {
 }

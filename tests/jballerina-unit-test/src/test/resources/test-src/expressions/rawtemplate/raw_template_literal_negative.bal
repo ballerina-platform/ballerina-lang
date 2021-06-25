@@ -38,6 +38,7 @@ function testSubtyping1() {
 }
 
 type Template object {
+    *ob:RawTemplate;
     public (readonly & string[]) strings;
     public [int, string] insertions;
 };
@@ -49,8 +50,8 @@ function testSubtyping2() {
 
     Template t1 = `Using tuples: ${x}, ${s}, ${f}`; // extra insertions
     Template t2 = `Using tuples: ${x}`; // missing insertions
-
     object {
+        *ob:RawTemplate;
         public (readonly & string[]) strings;
         public [int, string, anydata...] insertions;
     } temp2 = `Using tuples 2: ${x}, ${s}, ${t1}`;
@@ -58,19 +59,19 @@ function testSubtyping2() {
 
 const FOO = "Foo";
 const BAR = "Bar";
-
 type FooBar FOO|BAR;
 
 function testSubtyping3() {
     int x = 10;
-
     object {
+        *ob:RawTemplate;
         public (FooBar[] & readonly) strings;
         public int[] insertions;
     } temp1 = `Foo ${x}Bar`;
 }
 
 class Template1 {
+    *ob:RawTemplate;
     public (string[] & readonly) strings = [];
     public int[] insertions = [];
 }
@@ -86,8 +87,8 @@ function testSubtyping5() {
     int x = 25;
     string s = "foo";
     float f = 12.34;
-
     object {
+        *ob:RawTemplate;
         public (string[] & readonly) strings;
         public [anydata...] insertions;
         string name;
@@ -96,6 +97,7 @@ function testSubtyping5() {
 
 function testSubtyping6() {
     object {
+        *ob:RawTemplate;
         public (readonly & string[]) strings;
         public int[] insertions;
         int name;
@@ -118,14 +120,15 @@ function testSubtyping6() {
     } rt5 = `Hello World!`;
 
     object {
+        *ob:RawTemplate;
         public (readonly & string[]) strings;
         public int[] insertions;
-
         function shouldNotBeHere();
     } rt6 = `Hello World!`;
 }
 
 type Temp1 object {
+    *ob:RawTemplate;
     public ([string, string, string] & readonly) strings;
     public [int, float] insertions;
 };
@@ -137,6 +140,7 @@ function testTypeChecking() {
 }
 
 public type Temp2 object {
+    *ob:RawTemplate;
     public (string[2] & readonly) strings;
     public int[1] insertions;
 };
@@ -147,6 +151,7 @@ function testFixedLengthArrays() {
 }
 
 public type Temp3 object {
+    *ob:RawTemplate;
     public string[] strings; // non-readonly field
     public int[] insertions;
 };

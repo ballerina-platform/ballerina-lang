@@ -19,7 +19,7 @@ import ballerina/http;
 @http:ServiceConfig {
     basePath:"/test-service"
 }
-service testServiceTwo on new http:Listener(9092) {
+service testServiceTwo on new http:Listener(19092) {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/resource-1"

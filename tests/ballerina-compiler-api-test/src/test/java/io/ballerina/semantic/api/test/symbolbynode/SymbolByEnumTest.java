@@ -29,8 +29,8 @@ import org.testng.annotations.Test;
 
 import java.util.Optional;
 
-import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
+import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM_MEMBER;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -61,12 +61,12 @@ public class SymbolByEnumTest extends SymbolByNodeTest {
 
             @Override
             public void visit(EnumMemberNode enumMemberNode) {
-                assertSymbol(enumMemberNode, model, CONSTANT, enumMemberNode.identifier().text());
+                assertSymbol(enumMemberNode, model, ENUM_MEMBER, enumMemberNode.identifier().text());
             }
 
             @Override
             public void visit(VariableDeclarationNode variableDeclarationNode) {
-                assertSymbol(variableDeclarationNode.initializer().get(), model, CONSTANT, "RED");
+                assertSymbol(variableDeclarationNode.initializer().get(), model, ENUM_MEMBER, "RED");
             }
         };
     }
@@ -79,7 +79,7 @@ public class SymbolByEnumTest extends SymbolByNodeTest {
     private void assertSymbol(Node node, SemanticModel model, SymbolKind kind, String name) {
         Optional<Symbol> symbol = model.symbol(node);
         assertEquals(symbol.get().kind(), kind);
-        assertEquals(symbol.get().name(), name);
+        assertEquals(symbol.get().getName().get(), name);
         incrementAssertCount();
     }
 }

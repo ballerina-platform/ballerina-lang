@@ -1,11 +1,11 @@
-import ballerina/io;
+import ballerina/jballerina.java;
 
 public class Response {
 
   function f1() returns string|error {
     string|error ret = "";
     if (ret is error) {
-      io:println("ERROR");
+      println("ERROR");
     } else if (ret is string) {
       boolean x = true;
       if (x) {
@@ -17,3 +17,7 @@ public class Response {
   }
 
 }
+
+public function println(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;

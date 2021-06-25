@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -43,18 +44,18 @@ public class FunctionBodyBlockNodeContext extends BlockNodeContextProvider<Funct
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>(super.getCompletions(context, node));
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        if (!this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (!QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_WORKER.get()));
         }
         this.sort(context, node, completionItems);
-        
+
         return completionItems;
     }
 
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, FunctionBodyBlockNode node) {
         int cursor = context.getCursorPositionInTree();
-        return !node.openBraceToken().isMissing() && !node.closeBraceToken().isMissing()
+        return !node.openBraceToken().isMissing()
                 && node.closeBraceToken().textRange().startOffset() >= cursor
                 && node.openBraceToken().textRange().endOffset() <= cursor;
     }

@@ -15,9 +15,14 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.document;
 
+import org.ballerinalang.langserver.extensions.ballerina.packages.PackageMetadataResponse;
+
 /**
  * Represents metadata of a Ballerina Project.
+ *
+ * @deprecated use {@link PackageMetadataResponse} instead.
  */
+@Deprecated (since = "2.0.0", forRemoval = true)
 public class BallerinaProject {
 
     private String path;

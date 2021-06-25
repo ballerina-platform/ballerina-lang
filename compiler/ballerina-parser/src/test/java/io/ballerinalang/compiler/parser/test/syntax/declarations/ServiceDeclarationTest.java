@@ -87,6 +87,7 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
     @Test
     public void testMissingListener() {
         test("service-decl/service_decl_source_06.bal", "service-decl/service_decl_assert_06.json");
+        testFile("service-decl/service_decl_source_20.bal", "service-decl/service_decl_assert_20.json");
     }
 
     @Test
@@ -147,5 +148,15 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
     public void testMissingTokensWithQualifiers() {
         testFile("service-decl/isolated_service_func_source_04.bal",
                 "service-decl/isolated_service_func_assert_04.json");
+    }
+
+    @Test
+    public void testMissingServiceMemberWithPublicQual() {
+        testFile("service-decl/service_decl_source_21.bal", "service-decl/service_decl_assert_21.json");
+    }
+
+    @Test
+    public void testMethodQualifierRecoveryWhenTyping() {
+        testFile("service-decl/service_decl_source_22.bal", "service-decl/service_decl_assert_22.json");
     }
 }

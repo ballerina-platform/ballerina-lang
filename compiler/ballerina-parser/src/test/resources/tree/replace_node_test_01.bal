@@ -1,4 +1,4 @@
-import ballerina/io;
+import foobar/bar;
 
 function bar() returns int {
     return a + b + d + (s * 6);

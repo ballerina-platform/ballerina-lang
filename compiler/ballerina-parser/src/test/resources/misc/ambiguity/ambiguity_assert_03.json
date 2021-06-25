@@ -75,14 +75,9 @@
                   "children": [
                     {
                       "kind": "ACTION_STATEMENT",
-                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "ASYNC_SEND_ACTION",
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_EXPRESSION_EXPECTED_ACTION_FOUND"
-                          ],
                           "children": [
                             {
                               "kind": "LIST_CONSTRUCTOR",

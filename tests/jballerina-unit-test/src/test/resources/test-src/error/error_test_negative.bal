@@ -42,7 +42,7 @@ type InvalidErrorOne error<map<any>>;
 type InvalidErrorTwo error<boolean>;
 
 const FLOAT = 1.0;
-error<Foo> e1 = error("message", message = "string val", one = 1);
+error<Foo> e1 = error("message", message = "string val", one = 1.0);
 
 function testInvalidErrorTypeInFunc() {
     error<boolean> e = error(true);
@@ -122,9 +122,23 @@ function errorDefinitionNegative() {
     error<record { string message?; error cause?; int i;}> e  = 1;
 }
 
-function testErrorTypeInfer() {
-    int i = 0;
-    error<*> e0 = i;
-    error<*> e1 = "hello";
-    error<*> e2 = { a: "abc"};
+type Detail record {|
+    int code;
+|};
+
+type CloseDetail record {|
+
+|};
+
+type OpenDetail record {
+
+};
+
+function errorDetailNegative() {
+    error<Detail> err1 = error("Error!", code = 404); // valid
+    error<string, Detail> err2 = error("Error!", code = 404); // invalid
+    error<string> err3 = error("Error!"); // invalid
+    error<int> err4 = error("Error!"); // invalid
+    error<OpenDetail> err5 = error("Error!", id = 404); // valid
+    error<CloseDetail> err6 = error("Error!", id = 404); // invalid
 }

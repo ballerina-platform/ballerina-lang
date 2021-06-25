@@ -65,7 +65,7 @@ function testKeys() returns string[] {
 
 function testMap() returns map<float> {
     map<int> m = {"1":1, "2":2, "3":3};
-    return m.'map(function (int v) returns float { return v * 5.5; });
+    return m.'map(function (int v) returns float { return <float>v * 5.5; });
 }
 
 function testForEach() returns string {
@@ -78,14 +78,14 @@ function testForEach() returns string {
 
 function testFilter() returns map<decimal> {
     map<decimal> m = {"1":12.34, "2":3.45, "3":7.89, "4":21.2};
-    map<decimal> filteredM = m.filter(function (decimal d) returns boolean { return d > 10; });
+    map<decimal> filteredM = m.filter(function (decimal d) returns boolean { return d > 10d; });
     return filteredM;
 }
 
 function testReduce() returns float {
     map<int> grades = {"maths":79, "physics":84, "chemistry":72, "ict":87};
     float avg = grades.reduce(function (float accum, int val) returns float {
-        return accum + <float>val / grades.length();
+        return accum + <float>val / <float>grades.length();
     }, 0.0);
     return avg;
 }
@@ -277,26 +277,26 @@ function testAsyncFpArgsWithMaps() returns [int, map<int>] {
     map<int> marks = {a: 12, b: 34, c: 76};
     map<int> newMarks = marks.map(function (int entry) returns int {
         future<int> f1 = start getRandomNumber(entry);
-        return wait f1;
+        return checkpanic wait f1;
     });
 
     map<int> passMarks = newMarks.filter(function (int entry) returns boolean {
         future<int> f1 = start getRandomNumber(entry);
-        int n = wait f1;
+        int n = checkpanic wait f1;
         return n > 35;
     });
 
     int total = 0;
     passMarks.forEach(function (int entry) {
         future<int> f1 = start getRandomNumber(entry);
-        int n = wait f1;
+        int n = checkpanic wait f1;
         total = total + n;
 
     });
 
     int finalResult = passMarks.reduce(function (int sum, int entry) returns int {
         future<int> f1 = start getRandomNumber(entry);
-        int n = wait f1;
+        int n = checkpanic wait f1;
         return sum + n;
 
     }, 0);

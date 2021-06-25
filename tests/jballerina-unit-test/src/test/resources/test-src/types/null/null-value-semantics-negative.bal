@@ -31,3 +31,16 @@ function testNullForValueType3() {
 function testArithmaticOperationOnNull2() returns (any) {
     return (() + ());
 }
+
+type A A[]|int;
+type Person record {| string name; |};
+
+function testNullValueNegativeScenarios() {
+    string a = null;
+    string|int b = null;
+    map<string> c = null;
+    A d = null;
+    int[] e = [null];
+    [string, int] f = [null, 2];
+    Person g = null;
+}

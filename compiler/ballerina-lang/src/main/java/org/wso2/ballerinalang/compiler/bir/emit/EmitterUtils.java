@@ -116,11 +116,11 @@ class EmitterUtils {
 
     static String emitFlags(long flag) {
 
-        if (SymbolFlags.isFlagOn(SymbolFlags.PRIVATE, flag)) {
+        if (SymbolFlags.isFlagOn(flag, SymbolFlags.PRIVATE)) {
             return "private";
-        } else if (SymbolFlags.isFlagOn(SymbolFlags.PUBLIC, flag)) {
+        } else if (SymbolFlags.isFlagOn(flag, SymbolFlags.PUBLIC)) {
             return "public";
-        } else if (SymbolFlags.isFlagOn(SymbolFlags.TRANSACTIONAL, flag)) {
+        } else if (SymbolFlags.isFlagOn(flag, SymbolFlags.TRANSACTIONAL)) {
             return "transactional";
         }
         return "";

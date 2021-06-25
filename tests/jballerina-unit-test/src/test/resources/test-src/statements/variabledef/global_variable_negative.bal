@@ -24,10 +24,6 @@ function getGlobalVars() returns float {
     return f;
 }
 
-public int invalidPublicGlobalInt = 1;
-
-public int invalidPublicGobalVar = 1;
-
 listener Listener uninitializedModuleListener;
 
 public listener Listener uninitializedPublicModuleListener;

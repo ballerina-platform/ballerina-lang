@@ -21,12 +21,11 @@ dependencies {
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-parser')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-cli-module')
     implementation project(':toml-parser')
     implementation project(':central-client')
+    implementation project(':maven-resolver')
     implementation 'com.moandjiezana.toml:toml4j'
-    implementation 'org.apache.commons:commons-lang3'
-    implementation 'org.apache.commons:commons-compress:1.18'
+    implementation 'org.apache.commons:commons-compress:1.19'
     implementation 'io.netty:netty-buffer'
     implementation 'org.ow2.asm:asm'
     implementation 'org.ow2.asm:asm-util'
@@ -41,12 +40,14 @@ description = 'Ballerina - Lang'
 checkstyleMain {
     exclude 'io/ballerina/projects/internal/bala/BalaJson.java'
     exclude 'io/ballerina/projects/internal/bala/PackageJson.java'
+    exclude 'io/ballerina/projects/internal/bala/CompilerPluginJson.java'
     exclude 'org/ballerinalang/toml/model/Module.java'
     exclude 'org/ballerinalang/toml/model/Bala.java'
     exclude 'org/ballerinalang/toml/model/LockFile.java'
     exclude 'org/ballerinalang/toml/model/LockFileImport.java'
     exclude 'io/ballerina/projects/internal/model/BalaJson.java'
     exclude 'io/ballerina/projects/internal/model/PackageJson.java'
+    exclude 'io/ballerina/projects/internal/model/CompilerPluginToml.java'
 }
 
 test {

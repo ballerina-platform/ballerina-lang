@@ -107,14 +107,10 @@
                                         "children": [
                                           {
                                             "kind": "INVALID_TOKEN",
-                                            "value": "😃invalidToken"
+                                            "value": "😃 "
                                           }
                                         ]
                                       }
-                                    },
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
                                     }
                                   ],
                                   "trailingMinutiae": [

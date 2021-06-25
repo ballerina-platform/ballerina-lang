@@ -44,6 +44,12 @@ public class ServiceDeclTest {
     }
 
     @Test
+    public void testAttachMethodParams() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/services/service_attach_test.bal");
+        BRunUtil.invoke(compileResult, "testAttachMethodParams");
+    }
+
+    @Test
     public void testServiceDeclAndListenerAttachmentsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/services/service_decl_negative.bal");
         int i = 0;
@@ -63,8 +69,11 @@ public class ServiceDeclTest {
         validateError(result, i++, "listener variable incompatible types: 'ul' is not a Listener object", 159, 1);
         validateError(result, i++, "listener variable incompatible types: 'ue' is not a Listener object", 162, 1);
         validateError(result, i++, "listener variable incompatible types: 'ui' is not a Listener object", 165, 1);
-        validateError(result, i++, "incompatible types: expected 'listener', found '(PathOnlyListener|int)'", 167, 14);
+        validateError(result, i++, "incompatible types: expected 'listener', found 'UnionWithInt'", 167, 14);
         validateError(result, i++, "service type is not supported by the listener", 190, 14);
+        validateError(result, i++, "service absolute path or literal is required by listener", 209, 12);
+        validateError(result, i++, "no implementation found for the method 'exec' of service declaration " +
+                "'object { function exec () returns ((any|error)); }'", 213, 1);
         Assert.assertEquals(i, result.getErrorCount());
     }
 }

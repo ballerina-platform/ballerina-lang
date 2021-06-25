@@ -140,14 +140,19 @@
               ]
             },
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "package"
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "package"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -171,18 +176,23 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "LIST",
+                      "kind": "KEY",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_LITERAL",
+                          "kind": "LIST",
                           "children": [
                             {
                               "kind": "IDENTIFIER_LITERAL",
-                              "value": "name",
-                              "trailingMinutiae": [
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "name",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -232,18 +242,23 @@
                   "kind": "KEY_VALUE",
                   "children": [
                     {
-                      "kind": "LIST",
+                      "kind": "KEY",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_LITERAL",
+                          "kind": "LIST",
                           "children": [
                             {
                               "kind": "IDENTIFIER_LITERAL",
-                              "value": "org",
-                              "trailingMinutiae": [
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "org",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -287,18 +302,23 @@
                   "kind": "KEY_VALUE",
                   "children": [
                     {
-                      "kind": "LIST",
+                      "kind": "KEY",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_LITERAL",
+                          "kind": "LIST",
                           "children": [
                             {
                               "kind": "IDENTIFIER_LITERAL",
-                              "value": "version",
-                              "trailingMinutiae": [
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "version",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }

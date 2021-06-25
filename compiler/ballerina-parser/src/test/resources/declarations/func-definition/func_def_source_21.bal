@@ -1,3 +1,3 @@
-import ballerina/http;
+import foobar/baz;
 
 public 

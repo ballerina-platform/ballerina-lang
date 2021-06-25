@@ -39,14 +39,17 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -237,6 +240,21 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         notifyProcessors(attachmentList, (processor, list) -> processor.process(varNode, list));
     }
 
+    @Override
+    public void visit(BLangTupleVariable tupleVariableNode) {
+        /* ignore */
+    }
+
+    @Override
+    public void visit(BLangRecordVariable bLangRecordVariable) {
+        /* ignore */
+    }
+
+    @Override
+    public void visit(BLangErrorVariable bLangErrorVariable) {
+        /* ignore */
+    }
+
     public void visit(BLangXMLNS xmlnsNode) {
     }
 
@@ -384,7 +402,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             BType listenerType;
             if ((listenerType = serviceListenerMap.get(plugin)) != null) {
                 for (BLangExpression expr : serviceNode.getAttachedExprs()) {
-                    if (!types.isSameType(expr.type, listenerType)) {
+                    if (!types.isSameType(expr.getBType(), listenerType)) {
                         continue;
                     }
                     isCurrentPluginProcessed = true;

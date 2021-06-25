@@ -42,8 +42,16 @@ public class Diagnostics {
         return filterDiagnostics(diagnostics, DiagnosticSeverity.WARNING);
     }
 
+    public static Collection<Diagnostic> filterHints(Collection<Diagnostic> diagnostics) {
+        return filterDiagnostics(diagnostics, DiagnosticSeverity.HINT);
+    }
+
     public static boolean hasWarnings(Collection<Diagnostic> diagnostics) {
         return hasDiagnosticsWithSeverity(diagnostics, DiagnosticSeverity.WARNING);
+    }
+
+    public static boolean hasHints(Collection<Diagnostic> diagnostics) {
+        return hasDiagnosticsWithSeverity(diagnostics, DiagnosticSeverity.HINT);
     }
 
     private static Collection<Diagnostic> filterDiagnostics(Collection<Diagnostic> diagnostics,

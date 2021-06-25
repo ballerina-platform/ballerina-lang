@@ -25,7 +25,11 @@ import org.testng.annotations.Test;
 public class NewExpressionTest extends AbstractExpressionsTest {
 
     // Valid syntax
-
+    @Test
+    public void testSimplestImplicitNewExpr() {
+        test("new;", "new-expr/new_expr_assert_01.json");
+    }
+    
     @Test
     public void testImplicitNewWithoutArgs() {
         test("new();", "new-expr/implicit-new-without-args.json");
@@ -57,21 +61,8 @@ public class NewExpressionTest extends AbstractExpressionsTest {
     }
 
     @Test
-    public void testExplicitNewWithObjectTypeDescriptorWithoutArgs() {
-        testFile("new-expr/explicit-new-with-object-keyword-with-no-args.bal",
-                "new-expr/explicit-new-with-object-keyword-with-no-args.json");
-    }
-
-    @Test
-    public void testExplicitNewWithObjectTypeDescriptorWithOneArg() {
-        testFile("new-expr/explicit-new-with-object-keyword-with-one-args.bal",
-                "new-expr/explicit-new-with-object-keyword-with-one-args.json");
-    }
-
-    @Test
-    public void testExplicitNewWithObjectTypeDescriptorWithMultipleArgs() {
-        testFile("new-expr/explicit-new-with-object-keyword-with-multiple-args.bal",
-                "new-expr/explicit-new-with-object-keyword-with-multiple-args.json");
+    public void testNewExpr() {
+        testFile("new-expr/new_expr_source_02.bal", "new-expr/new_expr_assert_02.json");
     }
 
     // Invalid syntax
@@ -103,18 +94,13 @@ public class NewExpressionTest extends AbstractExpressionsTest {
     }
 
     @Test
-    public void testExplicitNewWithObjectTypeDescriptorWithOneArgNegative() {
-        testFile("new-expr/explicit-new-with-object-keyword-with-one-arg-negative01.bal",
-                "new-expr/explicit-new-with-object-keyword-with-one-arg-negative01.json");
-        testFile("new-expr/explicit-new-with-object-keyword-with-one-arg-negative02.bal",
-                "new-expr/explicit-new-with-object-keyword-with-one-arg-negative02.json");
+    public void testOutdatedGrammarExplicitNewWithObjectType() {
+        testFile("new-expr/explicit-new-with-object-keyword-with-multiple-args.bal",
+                "new-expr/explicit-new-with-object-keyword-with-multiple-args.json");
     }
 
     @Test
-    public void testExplicitNewWithObjectTypeDescriptorWithMultipleArgsNegative() {
-        testFile("new-expr/explicit-new-with-object-keyword-with-multiple-args-negative01.bal",
-                "new-expr/explicit-new-with-object-keyword-with-multiple-args-negative01.json");
-        testFile("new-expr/explicit-new-with-object-keyword-with-multiple-args-negative02.bal",
-                "new-expr/explicit-new-with-object-keyword-with-multiple-args-negative02.json");
+    public void testNewExprRecovery() {
+        testFile("new-expr/new_expr_source_03.bal", "new-expr/new_expr_assert_03.json");
     }
 }

@@ -44,10 +44,9 @@ public class AnnotationExpressionCodeAnalysisNegative {
         int i = 0;
         BAssertUtil.validateError(compileResult, i++, "invalid key 'i': identifiers cannot be used as rest field " +
                 "keys, expected a string literal or an expression", 26, 5);
-        BAssertUtil.validateError(compileResult, i++, "'null' literal is only supported for 'json'", 40, 9);
         BAssertUtil.validateError(compileResult, i++, "invalid usage of record literal: duplicate key 'i' via spread " +
-                "operator '...fl'", 64, 8);
-        BAssertUtil.validateError(compileResult, i++, "invalid usage of record literal: duplicate key 's'", 65, 5);
+                "operator '...fl'", 49, 8);
+        BAssertUtil.validateError(compileResult, i++, "invalid usage of record literal: duplicate key 's'", 50, 5);
         Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 

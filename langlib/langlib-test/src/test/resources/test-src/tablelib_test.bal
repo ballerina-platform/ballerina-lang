@@ -250,7 +250,7 @@ function testFilter() returns boolean {
 
 function testReduce() returns float {
     float avg = tab.reduce(function (float accum, Person val) returns float {
-                               return accum + <float>val.age / tab.length();
+                               return accum + <float>val.age / <float>tab.length();
                            }, 0.0);
     return avg;
 }
@@ -702,6 +702,18 @@ function testReadOnlyTableFilter() {
     assertFalse(children.isReadOnly());
 }
 
+type UnionConstraint Person|Employee;
+
+type UnionConstrinedTbl table<UnionConstraint> key(name);
+
+function testGetKeysFromUnionConstrained() returns any[] {
+    UnionConstrinedTbl tab = table key(name)[
+      { name: "Adam", age: 33 },
+      { name: "Mark", department: "HR" }
+    ];
+    return tab.keys();
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(boolean actual) {
@@ -722,4 +734,3 @@ function assertEquals(anydata expected, anydata actual) {
                             + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
     panic error(ASSERTION_ERROR_REASON, message = msg);
 }
-

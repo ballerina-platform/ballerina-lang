@@ -1,4 +1,4 @@
-import ballerina/io;
+import foobar/bar;
 
 public function add(int x, int y) returns int {
     int a;

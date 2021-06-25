@@ -1,0 +1,9 @@
+{
+  "line": 1,
+  "character": 20,
+  "expected": [
+    {
+      "title": "Add 'check' error"
+    }
+  ]
+}

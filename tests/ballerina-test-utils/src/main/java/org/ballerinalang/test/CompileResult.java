@@ -91,11 +91,19 @@ public class CompileResult {
         return diagnosticResult.warningCount();
     }
 
+    public int getHintCount() {
+        return diagnosticResult.hintCount();
+    }
+
     BIRNode.BIRPackage defaultModuleBIR() {
         return packageCompilation.defaultModuleBLangPackage().symbol.bir;
     }
 
     PackageManifest packageManifest() {
         return this.pkg.manifest();
+    }
+
+    public DiagnosticResult getDiagnosticResult() {
+        return diagnosticResult;
     }
 }

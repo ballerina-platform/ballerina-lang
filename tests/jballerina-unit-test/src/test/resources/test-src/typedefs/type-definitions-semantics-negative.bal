@@ -13,3 +13,12 @@ type T6 object { G g; };
 type T7 int[]|A[]|[B, C]|map<string>|map<D>|E|int|record { F f; }|object { G g; }|error;
 
 type T8 [int[], A[], [B, C], map<string>, map<D>, E, int, record { F f; }, object { G g; }, error];
+
+type PersonOrInt int|Person;
+type PersonOrNil Person?;
+
+type InvalidIntersectionType int & string;
+
+function foo() {
+    type MyType int;
+}

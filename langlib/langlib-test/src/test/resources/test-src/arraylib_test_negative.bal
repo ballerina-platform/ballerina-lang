@@ -120,6 +120,13 @@ function testShiftOnUnionOfDifferentTuplesTypeNarrowed() {
     }
 }
 
+type Person record {|
+    string name;
+|};
+
+Person person1 = {name: "Mike"};
+Person person2 = {name: "John"};
+
 function testArrSortNegativeScenarios() {
     int[] arr = [21, 76, 2, 20, 10, 5];
 
@@ -131,15 +138,15 @@ function testArrSortNegativeScenarios() {
         return x;
     }, array:DESCENDING);
 
-    (string|int)[] arr2 = [23, "A", "Z", 10, "D"];
+    (Person|int)[] arr2 = [23, person1, person2, 10, 13];
 
-    (string|int)[] sortedArr3 = arr2.sort();
+    (Person|int)[] sortedArr3 = arr2.sort();
 
-    (string|int)[] sortedArr4 = arr2.sort(array:DESCENDING);
+    (Person|int)[] sortedArr4 = arr2.sort(array:DESCENDING);
 
-    (string|int)[] sortedArr5 = arr2.sort(array:DESCENDING, ());
+    (Person|int)[] sortedArr5 = arr2.sort(array:DESCENDING, ());
 
-    (string|int)[] sortedArr6 = arr2.sort(array:DESCENDING, isolated function((string|int) val) returns string|int {
+    (Person|int)[] sortedArr6 = arr2.sort(array:DESCENDING, isolated function((Person|int) val) returns Person|int {
         return val;
     });
 
@@ -155,23 +162,39 @@ function testArrSortNegativeScenarios() {
             return x;
     }, "descending");
 
-    (string|int)[] sortedArr10 = array:sort(arr2);
+    (Person|int)[] sortedArr10 = array:sort(arr2);
 
-    (string|int)[] sortedArr11 = array:sort(arr2, array:DESCENDING);
+    (Person|int)[] sortedArr11 = array:sort(arr2, array:DESCENDING);
 
-    (string|int)[] sortedArr12 = array:sort(arr2, array:DESCENDING, ());
+    (Person|int)[] sortedArr12 = array:sort(arr2, array:DESCENDING, ());
 
     (map<string>)?[] sortedArr13 = array:sort(arr3);
 
-    int[] sortedArr14 = array:sort(arr, array:ASCENDING, isolated function(int x) returns string[]|int => [x.toString(),
-    "World"]);
-
-    var addFunc1 = isolated function (int funcInt1) returns (int|string) {
-        return funcInt1;
-    };
-
-    int[] sortedArr15 = arr.sort(array:DESCENDING, addFunc1);
-
     any[] arr4 = [2, "AC", {"x":10}, 12.30];
     any[] sortedArr16 = arr4.sort(array:DESCENDING, (x) => x);
+
+    (string|int)[] arr5 = [23, "A", "Z", 10, "D"];
+
+    (string|int)[] sortedArr17 = arr5.sort();
+
+    (string|int)[] sortedArr18 = arr5.sort(array:DESCENDING);
+
+    (string|int)[] sortedArr19 = arr5.sort(array:DESCENDING, ());
+
+    (string|int)[] sortedArr20 = arr5.sort(array:DESCENDING, isolated function((string|int) val) returns string|int {
+        return val;
+    });
+}
+
+function passThrough(int int1) returns int {
+    return int1;
+}
+
+function testLastIndexOf() {
+    (Person|error)[] personArray = [];
+    int? i1 = personArray.lastIndexOf(person1);
+    int? i2 = personArray.indexOf(person1);
+    function[] sd = [];
+    function (int) returns (int) d;
+    int? i3 = sd.indexOf(d);
 }

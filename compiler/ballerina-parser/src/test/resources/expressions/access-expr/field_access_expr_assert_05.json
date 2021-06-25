@@ -55,7 +55,7 @@
           "isMissing": true,
           "hasDiagnostics": true,
           "diagnostics": [
-            "ERROR_MISSING_PLUS_TOKEN"
+            "ERROR_MISSING_BINARY_OPERATOR"
           ]
         },
         {
@@ -95,7 +95,7 @@
       "isMissing": true,
       "hasDiagnostics": true,
       "diagnostics": [
-        "ERROR_MISSING_PLUS_TOKEN"
+        "ERROR_MISSING_BINARY_OPERATOR"
       ]
     },
     {

@@ -13,3 +13,16 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
+# Distinct Iterable type.
+#
+# An object can make itself iterable by using `*object:Iterable;`,
+# and then defining an `iterator` method.
+public type Iterable distinct object {
+    # Create a new iterator.
+    #
+    # + return - a new iterator object
+    public function iterator() returns object {
+        public function next() returns record {| any|error value; |}|error?;
+    };
+};

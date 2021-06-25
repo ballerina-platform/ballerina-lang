@@ -22,12 +22,18 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.jballerina.JarWriter;
+import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.ballerinalang.maven.Dependency;
+import org.ballerinalang.maven.MavenResolver;
+import org.ballerinalang.maven.Utils;
+import org.ballerinalang.maven.exceptions.MavenResolverException;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
@@ -41,8 +47,10 @@ import org.wso2.ballerinalang.util.Lists;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -62,7 +70,7 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
-import static io.ballerina.projects.util.ProjectUtils.checkWritePermission;
+import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 
 /**
@@ -78,6 +86,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private static final String TEST_JAR_FILE_NAME_SUFFIX = "-testable";
     private static final String JAR_FILE_NAME_SUFFIX = "";
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
+    private static final PrintStream out = System.out;
 
     private final PackageResolution pkgResolution;
     private final JvmTarget jdkVersion;
@@ -88,18 +97,27 @@ public class JBallerinaBackend extends CompilerBackend {
     private final InteropValidator interopValidator;
     private final JarResolver jarResolver;
     private final CompilerOptions compilerOptions;
+    private final PackageCompilation packageCompilation;
     private DiagnosticResult diagnosticResult;
     private boolean codeGenCompleted;
+    private List<JarConflict> conflictedJars;
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         // Check if the project has write permissions
-        checkWritePermission(packageCompilation.packageContext().project().sourceRoot());
+        if (packageCompilation.packageContext().project().kind().equals(ProjectKind.BUILD_PROJECT)) {
+            try {
+                new Target(packageCompilation.packageContext().project().sourceRoot());
+            } catch (IOException e) {
+                throw new ProjectException("error while checking permissions of target directory", e);
+            }
+        }
         return packageCompilation.getCompilerBackend(jdkVersion,
                 (targetPlatform -> new JBallerinaBackend(packageCompilation, jdkVersion)));
     }
 
     private JBallerinaBackend(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         this.jdkVersion = jdkVersion;
+        this.packageCompilation = packageCompilation;
         this.packageContext = packageCompilation.packageContext();
         this.pkgResolution = packageContext.getResolution();
         this.jarResolver = new JarResolver(this, packageContext.getResolution());
@@ -117,6 +135,7 @@ public class JBallerinaBackend extends CompilerBackend {
                     = ObservabilitySymbolCollectorRunner.getInstance(compilerContext);
             observabilitySymbolCollector.process(packageContext.project());
         }
+        this.conflictedJars = new ArrayList<>();
 
         // Trigger code generation
         performCodeGen();
@@ -133,9 +152,13 @@ public class JBallerinaBackend extends CompilerBackend {
 
         List<Diagnostic> diagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
-            moduleContext.generatePlatformSpecificCode(compilerContext, this);
-            moduleContext.diagnostics().forEach(diagnostic ->
-                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
+            // We can't generate backend code when one of its dependencies have errors.
+            if (hasNoErrors(diagnostics)) {
+                moduleContext.generatePlatformSpecificCode(compilerContext, this);
+            }
+            for (Diagnostic diagnostic : moduleContext.diagnostics()) {
+                diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+            }
         }
 
         // add plugin diagnostics
@@ -145,6 +168,15 @@ public class JBallerinaBackend extends CompilerBackend {
 
         this.diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         codeGenCompleted = true;
+    }
+
+    private boolean hasNoErrors(List<Diagnostic> diagnostics) {
+        for (Diagnostic diagnostic : diagnostics) {
+            if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public DiagnosticResult diagnosticResult() {
@@ -169,6 +201,15 @@ public class JBallerinaBackend extends CompilerBackend {
             default:
                 throw new RuntimeException("Unexpected output type: " + outputType);
         }
+
+        List<Diagnostic> pluginDiagnostics = packageCompilation.notifyCompilationCompletion(filePath);
+        if (!pluginDiagnostics.isEmpty()) {
+            ArrayList<Diagnostic> diagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
+            diagnostics.addAll(pluginDiagnostics);
+
+            diagnosticResult = new DefaultDiagnosticResult(diagnostics);
+        }
+
         // TODO handle the EmitResult properly
         return new EmitResult(true, diagnosticResult, generatedArtifact);
     }
@@ -202,10 +243,16 @@ public class JBallerinaBackend extends CompilerBackend {
 
         List<PlatformLibrary> platformLibraries = new ArrayList<>();
         for (Map<String, Object> dependency : javaPlatform.dependencies()) {
-            String dependencyFilePath = (String) dependency.get(JarLibrary.KEY_PATH);
             String artifactId = (String) dependency.get(JarLibrary.KEY_ARTIFACT_ID);
             String version = (String) dependency.get(JarLibrary.KEY_VERSION);
             String groupId = (String) dependency.get(JarLibrary.KEY_GROUP_ID);
+
+            String dependencyFilePath = (String) dependency.get(JarLibrary.KEY_PATH);
+            // If dependencyFilePath does not exists, resolve it using MavenResolver
+            if (dependencyFilePath == null || dependencyFilePath.isEmpty()) {
+                dependencyFilePath = getPlatformLibPath(groupId, artifactId, version);
+            }
+
             // If the path is relative we will covert to absolute relative to Ballerina.toml file
             Path jarPath = Paths.get(dependencyFilePath);
             if (!jarPath.isAbsolute()) {
@@ -213,7 +260,8 @@ public class JBallerinaBackend extends CompilerBackend {
             }
 
             PlatformLibraryScope scope = getPlatformLibraryScope(dependency);
-            platformLibraries.add(new JarLibrary(jarPath, scope, artifactId, groupId, version));
+            platformLibraries.add(new JarLibrary(jarPath, scope, artifactId, groupId, version,
+                                                 pkg.packageOrg().value() + "/" + pkg.packageName().value()));
         }
 
         return platformLibraries;
@@ -285,6 +333,10 @@ public class JBallerinaBackend extends CompilerBackend {
         return jarResolver;
     }
 
+    public List<JarConflict> conflictedJars() {
+        return conflictedJars;
+    }
+
     // TODO Can we move this method to Module.displayName()
     private String getJarFileName(ModuleContext moduleContext) {
         String jarName;
@@ -293,7 +345,9 @@ public class JBallerinaBackend extends CompilerBackend {
             String documentName = moduleContext.documentContext(documentId).name();
             jarName = getFileNameWithoutExtension(documentName);
         } else {
-            jarName = moduleContext.moduleName().toString();
+            jarName = getThinJarFileName(moduleContext.descriptor().org(),
+                                         moduleContext.moduleName().toString(),
+                                         moduleContext.descriptor().version());
         }
 
         return jarName;
@@ -301,9 +355,9 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private void assembleExecutableJar(Path executableFilePath,
                                        Manifest manifest,
-                                       Collection<Path> jarFilePaths) throws IOException {
+                                       Collection<JarLibrary> jarLibraries) throws IOException {
         // Used to prevent adding duplicated entries during the final jar creation.
-        HashSet<String> copiedEntries = new HashSet<>();
+        HashMap<String, JarLibrary> copiedEntries = new HashMap<>();
 
         // Used to process SPI related metadata entries separately. The reason is unlike the other entry types,
         // service loader related information should be merged together in the final executable jar creation.
@@ -314,8 +368,8 @@ public class JBallerinaBackend extends CompilerBackend {
             writeManifest(manifest, outStream);
 
             // Copy all the jars
-            for (Path jarFilePath : jarFilePaths) {
-                copyJar(outStream, jarFilePath, copiedEntries, serviceEntries);
+            for (JarLibrary library : jarLibraries) {
+                copyJar(outStream, library, copiedEntries, serviceEntries);
             }
 
             // Copy merged spi services.
@@ -362,15 +416,15 @@ public class JBallerinaBackend extends CompilerBackend {
      * Copies a given jar file into the executable fat jar.
      *
      * @param outStream     Output stream of the final uber jar.
-     * @param jarFilePath   Path of the source jar file.
+     * @param jarLibrary    jar library.
      * @param copiedEntries Entries set will be used to ignore duplicate files.
      * @param services      Services will be used to temporary hold merged spi files.
      * @throws IOException If jar file copying is failed.
      */
-    private void copyJar(ZipArchiveOutputStream outStream, Path jarFilePath, HashSet<String> copiedEntries,
-                         HashMap<String, StringBuilder> services) throws IOException {
+    private void copyJar(ZipArchiveOutputStream outStream, JarLibrary jarLibrary,
+            HashMap<String, JarLibrary> copiedEntries, HashMap<String, StringBuilder> services) throws IOException {
 
-        ZipFile zipFile = new ZipFile(jarFilePath.toFile());
+        ZipFile zipFile = new ZipFile(jarLibrary.path().toFile());
         ZipArchiveEntryPredicate predicate = entry -> {
             String entryName = entry.getName();
             if (entryName.equals("META-INF/MANIFEST.MF")) {
@@ -404,11 +458,15 @@ public class JBallerinaBackend extends CompilerBackend {
             }
 
             // Skip already copied files or excluded extensions.
-            if (isCopiedOrExcludedEntry(entryName, copiedEntries)) {
+            if (isCopiedEntry(entryName, copiedEntries)) {
+                addConflictedJars(jarLibrary, copiedEntries, entryName);
+                return false;
+            }
+            if (isExcludedEntry(entryName)) {
                 return false;
             }
             // SPIs will be merged first and then put into jar separately.
-            copiedEntries.add(entryName);
+            copiedEntries.put(entryName, jarLibrary);
             return true;
         };
 
@@ -418,9 +476,12 @@ public class JBallerinaBackend extends CompilerBackend {
         zipFile.close();
     }
 
-    private static boolean isCopiedOrExcludedEntry(String entryName, HashSet<String> copiedEntries) {
-        return copiedEntries.contains(entryName) ||
-                excludeExtensions.contains(entryName.substring(entryName.lastIndexOf(".") + 1));
+    private static boolean isCopiedEntry(String entryName, HashMap<String, JarLibrary> copiedEntries) {
+        return copiedEntries.keySet().contains(entryName);
+    }
+
+    private static boolean isExcludedEntry(String entryName) {
+        return excludeExtensions.contains(entryName.substring(entryName.lastIndexOf('.') + 1));
     }
 
     private PlatformLibrary codeGeneratedLibrary(PackageId packageId,
@@ -440,17 +501,10 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private Path emitExecutable(Path executableFilePath) {
         Manifest manifest = createManifest();
-        Collection<Path> jarLibraryPaths = jarResolver.getJarFilePathsRequiredForExecution();
+        Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution();
 
         try {
-            assembleExecutableJar(executableFilePath, manifest, jarLibraryPaths);
-
-            // TODO: Move to a compiler extension once Compiler revamp is complete
-            if (packageContext.compilationOptions().observabilityIncluded()) {
-                ObservabilitySymbolCollector observabilitySymbolCollector
-                        = ObservabilitySymbolCollectorRunner.getInstance(compilerContext);
-                observabilitySymbolCollector.writeToExecutable(executableFilePath);
-            }
+            assembleExecutableJar(executableFilePath, manifest, jarLibraries);
         } catch (IOException e) {
             throw new ProjectException("error while creating the executable jar file for package: " +
                     this.packageContext.packageName(), e);
@@ -473,6 +527,27 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     /**
+     * Get platform lib path for given maven dependency.
+     *
+     * @param groupId    group id
+     * @param artifactId artifact id
+     * @param version    version
+     * @return platform lib path
+     */
+    private String getPlatformLibPath(String groupId, String artifactId, String version) {
+        String targetRepo =
+                this.packageContext.project().sourceRoot().toString() + File.separator + "target" + File.separator
+                        + "platform-libs";
+        MavenResolver resolver = new MavenResolver(targetRepo);
+        try {
+            Dependency dependency = resolver.resolve(groupId, artifactId, version, false);
+            return Utils.getJarPath(targetRepo, dependency);
+        } catch (MavenResolverException e) {
+            throw new ProjectException("cannot resolve " + artifactId + ": " + e.getMessage());
+        }
+    }
+
+    /**
      * Enum to represent output types.
      */
     public enum OutputType {
@@ -489,5 +564,81 @@ public class JBallerinaBackend extends CompilerBackend {
 
     JvmTarget jdkVersion() {
         return jdkVersion;
+    }
+
+    /**
+     * Inner class to represent jar conflict.
+     */
+    public static class JarConflict {
+        JarLibrary firstJarLibrary;
+        JarLibrary secondJarLibrary;
+        List<String> classes;
+
+        JarConflict(JarLibrary firstJarLibrary, JarLibrary secondJarLibrary, List<String> classes) {
+            this.firstJarLibrary = firstJarLibrary;
+            this.secondJarLibrary = secondJarLibrary;
+            this.classes = classes;
+        }
+
+        JarLibrary firstJarLibrary() {
+            return firstJarLibrary;
+        }
+
+        void addClasses(String entry) {
+            classes.add(entry);
+        }
+
+        public String getWarning(boolean listClasses) {
+            String conflictedJarPkg1 = "";
+            String conflictedJarPkg2 = "";
+            if (firstJarLibrary.packageName().isPresent()) {
+                conflictedJarPkg1 = " dependency of '" + firstJarLibrary.packageName().get() + "'";
+            }
+            if (secondJarLibrary.packageName().isPresent()) {
+                conflictedJarPkg2 = " dependency of '" + secondJarLibrary.packageName().get() + "'";
+            }
+
+            StringBuilder warning = new StringBuilder(
+                    "\t\t'" + firstJarLibrary.path().getFileName() + "'" + conflictedJarPkg1 + " conflict with '"
+                            + secondJarLibrary.path().getFileName() + "'" + conflictedJarPkg2);
+
+            if (listClasses) {
+                for (String conflictedClass : classes) {
+                    warning.append("\n\t\t\t").append(conflictedClass);
+                }
+            }
+            return String.valueOf(warning);
+        }
+    }
+
+    private void addConflictedJars(JarLibrary jarLibrary, HashMap<String, JarLibrary> copiedEntries, String entryName) {
+        if (entryName.endsWith(".class") && !entryName.equals("module-info.class")) {
+            JarLibrary conflictingJar = copiedEntries.get(entryName);
+
+            // Ignore if conflicting jars has same name
+            Path jarFileName = jarLibrary.path().getFileName();
+            Path conflictingJarFileName = conflictingJar.path().getFileName();
+            if (jarFileName != null && conflictingJarFileName != null &&
+                    !jarFileName.toString().equals(conflictingJarFileName.toString())) {
+                JarConflict jarConflict = getJarConflict(conflictingJar);
+
+                // If jar conflict already exists
+                if (jarConflict != null) {
+                    jarConflict.addClasses(entryName);
+                } else { // New jar conflict
+                    this.conflictedJars.add(new JarConflict(conflictingJar, jarLibrary,
+                                                            new ArrayList<>(Collections.singletonList(entryName))));
+                }
+            }
+        }
+    }
+
+    private JarConflict getJarConflict(JarLibrary conflictingJar) {
+        for (JarConflict jarConflict: this.conflictedJars) {
+            if (jarConflict.firstJarLibrary().path() == conflictingJar.path()) {
+                return jarConflict;
+            }
+        }
+        return null;
     }
 }

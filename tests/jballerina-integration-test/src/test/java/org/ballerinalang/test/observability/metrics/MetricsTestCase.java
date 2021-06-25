@@ -23,9 +23,9 @@ import com.google.gson.reflect.TypeToken;
 import io.ballerina.runtime.observability.metrics.PercentileValue;
 import io.ballerina.runtime.observability.metrics.Snapshot;
 import io.ballerina.runtime.observability.metrics.Tag;
-import org.ballerina.testobserve.metrics.extension.model.Metrics;
-import org.ballerina.testobserve.metrics.extension.model.MockGauge;
-import org.ballerina.testobserve.metrics.extension.model.MockMetric;
+import org.ballerinalang.observe.mockextension.model.Metrics;
+import org.ballerinalang.observe.mockextension.model.MockGauge;
+import org.ballerinalang.observe.mockextension.model.MockMetric;
 import org.ballerinalang.test.observability.ObservabilityBaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
@@ -62,7 +62,7 @@ public class MetricsTestCase extends ObservabilityBaseTest {
 
     @BeforeClass(alwaysRun = true)
     public void setup() throws Exception {
-        super.setupServer(TEST_SRC_PROJECT_NAME, TEST_SRC_PACKAGE_NAME + "-0.0.1", new int[] {10090, 10091, 10092});
+        super.setupServer(TEST_SRC_PROJECT_NAME, TEST_SRC_PACKAGE_NAME, new int[] {10090, 10091, 10092});
     }
 
     @AfterClass(alwaysRun = true)
@@ -264,8 +264,8 @@ public class MetricsTestCase extends ObservabilityBaseTest {
      * @param snapshot The snapshot to test
      */
     private void testFunctionResponseTimeGaugeSnapshot(long invocationCount, Snapshot snapshot) {
-        List<Duration> durations = Arrays.asList(Duration.ofMinutes(1), Duration.ofMinutes(5),
-                Duration.ofMinutes(15));
+        List<Duration> durations = Arrays.asList(Duration.ofSeconds(10), Duration.ofMinutes(1),
+                Duration.ofMinutes(5));
         Assert.assertTrue(durations.contains(snapshot.getTimeWindow()), "time window "
                 + snapshot.getTimeWindow() + " of snapshot not equal to either one of "
                 + durations.toString());
@@ -326,18 +326,18 @@ public class MetricsTestCase extends ObservabilityBaseTest {
                 Tag.of("src.function.name", "main"),
                 Tag.of("src.main", "true"),
                 Tag.of("entrypoint.function.module", "intg_tests/metrics_tests:0.0.1"),
-                Tag.of("entrypoint.function.position", "01_main_function.bal:19:1")
+                Tag.of("entrypoint.function.name", "main")
         );
         testFunctionMetrics(metrics, fileName + ":24:24", 1,
                 Tag.of("src.object.name", OBSERVABLE_ADDER_OBJECT_NAME),
                 Tag.of("src.function.name", "getSum"),
                 Tag.of("entrypoint.function.module", "intg_tests/metrics_tests:0.0.1"),
-                Tag.of("entrypoint.function.position", "01_main_function.bal:19:1")
+                Tag.of("entrypoint.function.name", "main")
         );
         testFunctionMetrics(metrics, fileName + ":38:12", 3,
                 Tag.of("src.function.name", "calculateSumWithObservability"),
                 Tag.of("entrypoint.function.module", "intg_tests/metrics_tests:0.0.1"),
-                Tag.of("entrypoint.function.position", "01_main_function.bal:19:1")
+                Tag.of("entrypoint.function.name", "main")
         );
     }
 

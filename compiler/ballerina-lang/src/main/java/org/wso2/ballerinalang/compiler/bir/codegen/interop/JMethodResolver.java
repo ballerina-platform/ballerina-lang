@@ -286,7 +286,7 @@ class JMethodResolver {
                 jParamType = jParamTypes[0];
             }
             BType bParamType = jMethod.getReceiverType();
-            if (!isValidParamBType(jParamTypes[0], bParamType, false, jMethodRequest.restParamExist)) {
+            if (!isValidParamBType(jParamType, bParamType, false, jMethodRequest.restParamExist)) {
                 throwNoSuchMethodError(jMethodRequest.methodName, jParamType, bParamType,
                                            jMethodRequest.declaringClass);
             }
@@ -449,7 +449,7 @@ class JMethodResolver {
                     Set<BLangExpression> valueSpace = ((BFiniteType) bType).getValueSpace();
                     for (Iterator<BLangExpression> iterator = valueSpace.iterator(); iterator.hasNext(); ) {
                         BLangExpression value = iterator.next();
-                        if (!isValidParamBType(jType, value.type, isLastParam, restParamExist)) {
+                        if (!isValidParamBType(jType, value.getBType(), isLastParam, restParamExist)) {
                             return false;
                         }
                     }
@@ -606,7 +606,7 @@ class JMethodResolver {
 
                     Set<BLangExpression> valueSpace = ((BFiniteType) bType).getValueSpace();
                     for (BLangExpression value : valueSpace) {
-                        if (isValidReturnBType(jType, value.type, jMethodRequest, visitedSet)) {
+                        if (isValidReturnBType(jType, value.getBType(), jMethodRequest, visitedSet)) {
                             return true;
                         }
                     }
@@ -681,6 +681,9 @@ class JMethodResolver {
             executable = tryResolveExactWithBalEnv(paramTypes, clazz, name);
         }
         if (executable != null) {
+            if (kind == JMethodKind.CONSTRUCTOR) {
+                return JMethod.build(kind, executable, null);
+            }
             return JMethod.build(kind, executable, receiverType);
         } else {
             return JMethod.NO_SUCH_METHOD;

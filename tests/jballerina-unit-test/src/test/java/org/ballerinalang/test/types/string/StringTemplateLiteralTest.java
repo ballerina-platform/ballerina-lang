@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
 /**
  * Test class for String Template Literal.
  */
-@Test(groups = { "disableOnOldParser" })
 public class StringTemplateLiteralTest {
 
     private CompileResult result;
@@ -303,6 +302,11 @@ public class StringTemplateLiteralTest {
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(),
                 "Hello \\n$\\\\$$\\{Dummy\\tText\\`\\\\test Ballerina endText\\\\{{{{{innerStartText 7 }}!!!");
+    }
+
+    @Test
+    public void testStringTemplateExprWithUnionType() {
+        BRunUtil.invoke(result, "testStringTemplateExprWithUnionType");
     }
 
     @AfterClass

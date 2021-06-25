@@ -141,7 +141,7 @@
                       "isMissing": true,
                       "hasDiagnostics": true,
                       "diagnostics": [
-                        "ERROR_MISSING_PLUS_TOKEN"
+                        "ERROR_MISSING_BINARY_OPERATOR"
                       ]
                     },
                     {
@@ -168,6 +168,7 @@
             },
             {
               "kind": "DEFAULTABLE_PARAM",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -207,15 +208,38 @@
                   ]
                 },
                 {
-                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "kind": "BINARY_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "trailingMinutiae": [
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "PLUS_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_BINARY_OPERATOR"
+                      ]
+                    },
+                    {
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
                         }
                       ]
                     }
@@ -227,24 +251,6 @@
         },
         {
           "kind": "CLOSE_PAREN_TOKEN",
-          "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_INVALID_TOKEN"
-          ],
-          "leadingMinutiae": [
-            {
-              "kind": "INVALID_NODE_MINUTIAE",
-              "invalidNode": {
-                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                "children": [
-                  {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "b"
-                  }
-                ]
-              }
-            }
-          ],
           "trailingMinutiae": [
             {
               "kind": "WHITESPACE_MINUTIAE",

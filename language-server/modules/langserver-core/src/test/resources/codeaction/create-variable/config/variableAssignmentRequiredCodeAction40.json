@@ -1,5 +1,5 @@
 {
-    "line": 87,
+    "line": 88,
     "character": 4,
     "expected": [
         {
@@ -8,15 +8,15 @@
                 {
                     "range": {
                         "start": {
-                            "line": 87,
+                            "line": 88,
                             "character": 4
                         },
                         "end": {
-                            "line": 87,
+                            "line": 88,
                             "character": 4
                         }
                     },
-                    "newText": "var a \u003d "
+                    "newText": "future<int> futureResult = "
                 }
             ]
         }

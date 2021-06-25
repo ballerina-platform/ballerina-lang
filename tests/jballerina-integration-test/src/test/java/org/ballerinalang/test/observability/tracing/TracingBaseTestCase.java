@@ -20,7 +20,7 @@ package org.ballerinalang.test.observability.tracing;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.ballerina.testobserve.tracing.extension.BMockSpan;
+import org.ballerinalang.observe.mockextension.BMockSpan;
 import org.ballerinalang.test.observability.ObservabilityBaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.testng.annotations.AfterGroups;
@@ -55,11 +55,12 @@ public class TracingBaseTestCase extends ObservabilityBaseTest {
             + "/MockClient";
     protected static final String OBSERVABLE_ADDER_OBJECT_NAME = TEST_SRC_ORG_NAME + "/" + TEST_SRC_UTILS_MODULE_NAME
             + "/ObservableAdder";
+    protected static final String ZERO_SPAN_ID = "0000000000000000";
 
     @BeforeGroups(value = "tracing-test", alwaysRun = true)
     public void setup() throws Exception {
-        super.setupServer(TEST_SRC_PROJECT_NAME, TEST_SRC_PACKAGE_NAME + "-0.0.1",
-                new int[] {9090, 9091, 9092, 9093, 9094, 9095});
+        super.setupServer(TEST_SRC_PROJECT_NAME, TEST_SRC_PACKAGE_NAME,
+                new int[] {19090, 19091, 19092, 19093, 19094, 19095, 19096, 19097});
     }
 
     @AfterGroups(value = "tracing-test", alwaysRun = true)
@@ -67,14 +68,16 @@ public class TracingBaseTestCase extends ObservabilityBaseTest {
         super.cleanupServer();
     }
 
-    protected List<BMockSpan> getFinishedSpans(String serviceName, String resource) throws IOException {
+    protected List<BMockSpan> getFinishedSpans(String serviceName, String entrypointModule,
+                                               String entrypointFunction) throws IOException {
         return getFinishedSpans(serviceName).stream()
-                .filter(span -> Objects.equals(span.getTags().get("resource"), resource))
+                .filter(span -> Objects.equals(span.getTags().get("entrypoint.function.module"), entrypointModule) &&
+                        Objects.equals(span.getTags().get("entrypoint.function.name"), entrypointFunction))
                 .collect(Collectors.toList());
     }
 
     protected List<BMockSpan> getFinishedSpans(String service) throws IOException {
-        String requestUrl = "http://localhost:9090/mockTracer/getMockTraces";
+        String requestUrl = "http://localhost:19090/mockTracer/getMockTraces";
         String data = HttpClientRequest.doPost(requestUrl, service, Collections.emptyMap()).getData();
         Type type = new TypeToken<List<BMockSpan>>() { }.getType();
         return new Gson().fromJson(data, type);

@@ -58,7 +58,7 @@ public class NodeLocationTest extends AbstractSyntaxTreeAPITest {
         ImportDeclarationNode importDeclNode = modulePartNode.imports().get(0);
 
         LinePosition expectedStartPos = LinePosition.from(0, 0);
-        LinePosition expectedEndPos = LinePosition.from(0, 20);
+        LinePosition expectedEndPos = LinePosition.from(0, 18);
         LineRange expectedLineRange = LineRange.from(sourceFileName, expectedStartPos, expectedEndPos);
         assertLineRange(importDeclNode.location().lineRange(), expectedLineRange);
     }
@@ -158,7 +158,7 @@ public class NodeLocationTest extends AbstractSyntaxTreeAPITest {
         ImportDeclarationNode importDeclarationNode = modulePartNode.imports().get(3);
 
         LinePosition expectedStartPos = LinePosition.from(3, 0);
-        LinePosition expectedEndPos = LinePosition.from(3, 29);
+        LinePosition expectedEndPos = LinePosition.from(3, 19);
         LineRange expectedLineRange = LineRange.from(sourceFileName, expectedStartPos, expectedEndPos);
         assertLineRange(importDeclarationNode.location().lineRange(), expectedLineRange);
     }

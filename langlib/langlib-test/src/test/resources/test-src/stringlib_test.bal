@@ -31,24 +31,33 @@ function testSubString() returns [string,string, string] {
     return [str.substring(6, 9), str.substring(6), strings:substring(str,6)];
 }
 
-function testIterator() returns string[] {
+function testIterator() {
     string str = "Foo Bar";
+    string:Char[] expected = ["F", "o", "o", " ", "B", "a", "r"];
+    int i = 0;
 
     object {
-         public isolated function next() returns record {| string value; |}?;
-    } itr = str.iterator();
-
-    string[] chars = [];
-    int i = 0;
-    record {| string value; |}|() elem = itr.next();
-
-    while (elem is record {| string value; |}) {
-        chars[i] = elem.value;
-        elem = itr.next();
+        public isolated function next() returns record {| string:Char value; |}?;
+    } itr1 = str.iterator();
+    record {| string:Char value; |}|() elem1 = itr1.next();
+    while (elem1 is record {| string:Char value; |}) {
+        assertEquals(expected[i], elem1.value);
+        elem1 = itr1.next();
         i += 1;
     }
+    assertEquals(7, i);
 
-    return chars;
+    i = 0;
+    object {
+        public isolated function next() returns record {| string value; |}?;
+    } itr2 = str.iterator();
+    record {| string value; |}|() elem2 = itr2.next();
+    while (elem2 is record {| string:Char value; |}) {
+        assertEquals(expected[i], elem2.value);
+        elem2 = itr2.next();
+        i+= 1;
+    }
+    assertEquals(7, i);
 }
 
 function testStartsWith() returns boolean {
@@ -136,4 +145,24 @@ function testEqualsIgnoreCaseAscii() {
 
 function testIncludes() returns boolean {
     return strings:includes(str1, str, 6);
+}
+
+function testChainedStringFunctions() returns string {
+    string foo = "foo1";
+    foo = foo.concat("foo2").concat("foo3").concat("foo4");
+    return foo;
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquals(anydata expected, anydata actual) {
+    if (expected == actual) {
+        return;
+    }
+
+    typedesc<anydata> expT = typeof expected;
+    typedesc<anydata> actT = typeof actual;
+    string msg = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+    panic error(ASSERTION_ERROR_REASON, message = msg);
 }

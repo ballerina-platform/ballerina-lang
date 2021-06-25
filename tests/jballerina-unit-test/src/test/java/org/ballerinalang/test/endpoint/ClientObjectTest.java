@@ -82,52 +82,61 @@ public class ClientObjectTest {
     public void testReferringEndpointInDifferentPkg() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/TestEndpointProject");
 
-        BValue[] result = BRunUtil.invoke(compileResult, "testCheck");
-        Assert.assertEquals(result.length, 1);
-        Assert.assertEquals(result[0].stringValue(), "i1 {}");
+        BRunUtil.invoke(compileResult, "testCheck");
 
-        result = BRunUtil.invoke(compileResult, "testNewEP", new BValue[] { new BString("done") });
-        Assert.assertEquals(result.length, 1);
-        Assert.assertEquals(result[0].stringValue(), "donedone");
+        BRunUtil.invoke(compileResult, "testNewEP", new BValue[] { new BString("done") });
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test
     public void testRemoteBasicsNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/remote_basic_negative.bal");
         int errIdx = 0;
-        BAssertUtil.validateError(compileResult, errIdx++,
-                                  "remote modifier not allowed in non-object attached function test1", 22, 1);
-        BAssertUtil.validateError(compileResult, errIdx++,
-                                  "remote modifier not allowed in non-object attached function test2", 26, 1);
-        BAssertUtil.validateError(compileResult, errIdx++,
-                                  "remote modifier not allowed in non-object attached function test3", 30, 1);
-
+        BAssertUtil.validateError(compileResult, errIdx++, "invalid token 'remote'", 22, 8);
+        BAssertUtil.validateError(compileResult, errIdx++, "invalid token 'remote'", 26, 8);
+        BAssertUtil.validateError(compileResult, errIdx++, "invalid token 'remote'", 30, 8);
         BAssertUtil
                 .validateError(compileResult, errIdx++,
-                               "invalid remote method call '.pqr()': use '->pqr()' for remote method calls", 51, 13);
+                        "invalid remote method call '.pqr()': use '->pqr()' for remote method calls", 51, 13);
         BAssertUtil
                 .validateError(compileResult, errIdx++,
-                               "invalid method call '->abc()': '->' can only be used with remote methods", 53, 13);
+                        "invalid method call '->abc()': '->' can only be used with remote methods", 53, 13);
 
         BAssertUtil.validateError(compileResult, errIdx++, "unknown type 'XXX'", 59, 5);
         BAssertUtil
                 .validateError(compileResult, errIdx++,
-                               "invalid remote method call: expected a client object, but found 'other'", 61, 13);
+                        "invalid remote method call: expected a client object, but found 'other'", 61, 13);
         BAssertUtil
                 .validateError(compileResult, errIdx++,
-                               "invalid remote method call: expected a client object, but found 'map'", 65, 9);
+                        "invalid remote method call: expected a client object, but found 'map'", 65, 9);
         BAssertUtil
                 .validateError(compileResult, errIdx++,
-                               "invalid remote method call: expected a client object, but found 'Bar'", 69, 9);
+                        "invalid remote method call: expected a client object, but found 'Bar'", 69, 9);
         BAssertUtil
                 .validateError(compileResult, errIdx++,
-                               "invalid remote method call '.pqr()': use '->pqr()' for remote method calls", 85, 13);
+                        "invalid remote method call '.pqr()': use '->pqr()' for remote method calls", 85, 13);
         BAssertUtil
                 .validateError(compileResult, errIdx++,
-                               "invalid remote method call '.pqr()': use '->pqr()' for remote method calls", 93, 13);
-        BAssertUtil.validateError(compileResult, errIdx++, "a remote function in a non client object", 112, 5);
-        BAssertUtil.validateError(compileResult, errIdx++, "a remote function in a non client object", 121, 5);
-        Assert.assertEquals(compileResult.getErrorCount(), errIdx);
+                        "invalid remote method call '.pqr()': use '->pqr()' for remote method calls", 93, 13);
+        BAssertUtil.validateError(compileResult, errIdx++, "remote qualifier only allowed in client and " +
+                "service objects", 112, 5);
+        BAssertUtil.validateError(compileResult, errIdx++, "remote qualifier only allowed in client and " +
+                "service objects", 121, 5);
+        BAssertUtil.validateError(compileResult, errIdx++, "invalid remote method call '.foo()': use '->foo()'" +
+                " for remote method calls", 146, 5);
+        BAssertUtil.validateError(compileResult, errIdx++, "invalid method call '->bar()': '->' can only be used" +
+                " with remote methods", 147, 5);
+        String doubleDeclMessage =
+                "unsupported remote method name, '%s' already exists as a method or field name in the object type";
+        BAssertUtil.validateError(compileResult, errIdx++,
+                String.format(doubleDeclMessage, "DoubleMethod.a"), 155, 14);
+        BAssertUtil.validateError(compileResult, errIdx++,
+                String.format(doubleDeclMessage, "DoubleMethodOtherOrder.a"), 165, 21);
+        BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol 'DoubleRemoteMethod.a'", 175, 21);
+        BAssertUtil.validateError(compileResult, errIdx++,
+                String.format(doubleDeclMessage, "$anonType$_0.a"), 186, 18);
+        BAssertUtil.validateError(compileResult, errIdx++,
+                String.format(doubleDeclMessage, "$anonType$_1.a"), 196, 25);
+        BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol '$anonType$_2.a'", 206, 25);
         Assert.assertEquals(compileResult.getErrorCount(), errIdx);
     }
 }

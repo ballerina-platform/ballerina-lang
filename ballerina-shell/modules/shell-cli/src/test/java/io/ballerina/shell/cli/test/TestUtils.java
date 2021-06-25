@@ -20,7 +20,9 @@ package io.ballerina.shell.cli.test;
 
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Objects;
 import java.util.Scanner;
@@ -59,5 +61,11 @@ public abstract class TestUtils {
         try (Scanner scanner = new Scanner(inputStream, Charset.defaultCharset()).useDelimiter(SPECIAL_DELIMITER)) {
             return scanner.hasNext() ? scanner.next() : "";
         }
+    }
+
+    public static File getFile(String fileName) {
+        URL url = TestUtils.class.getClassLoader().getResource(fileName);
+        Objects.requireNonNull(url, "Test file does not exist: " + fileName);
+        return new File(url.getPath());
     }
 }

@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
  */
 public class ArraySizeDefinitionTest {
 
-    private String sizeMismatchError = "size mismatch in sealed array. expected '2', but found '3'";
+    private String sizeMismatchError = "size mismatch in closed array. expected '2', but found '3'";
     private String invalidReferenceExpressionError = "invalid reference expression " +
             "'intLength' as array size: expected a constant reference expression";
     private String incompatibleTypeError = "incompatible types: expected 'int', found 'string'";

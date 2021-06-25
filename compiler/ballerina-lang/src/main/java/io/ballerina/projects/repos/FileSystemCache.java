@@ -56,7 +56,7 @@ public class FileSystemCache extends CompilationCache {
 
     public FileSystemCache(Project project, Path cacheDirPath) {
         super(project);
-        this.cacheDirPath = cacheDirPath.resolve(ProjectConstants.REPO_CACHE_DIR_NAME);
+        this.cacheDirPath = cacheDirPath;
     }
 
     @Override

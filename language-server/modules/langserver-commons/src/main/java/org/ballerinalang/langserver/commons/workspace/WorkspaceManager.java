@@ -27,6 +27,7 @@ import io.ballerina.projects.Project;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
+import org.eclipse.lsp4j.FileEvent;
 
 import java.nio.file.Path;
 import java.util.Optional;
@@ -40,7 +41,7 @@ public interface WorkspaceManager {
 
     /**
      * Get the relative file path of the document in the given path.
-     * 
+     *
      * @param path document path to evaluate
      * @return {@link String} relative path
      */
@@ -129,4 +130,13 @@ public interface WorkspaceManager {
      * @throws WorkspaceDocumentException project not found
      */
     void didClose(Path filePath, DidCloseTextDocumentParams params) throws WorkspaceDocumentException;
+
+    /**
+     * The file change notification is sent from the client to the server to signal changes to watched files.
+     *
+     * @param filePath  {@link Path} of the document
+     * @param fileEvent {@link FileEvent}
+     * @throws WorkspaceDocumentException when project or document not found
+     */
+    void didChangeWatched(Path filePath, FileEvent fileEvent) throws WorkspaceDocumentException;
 }

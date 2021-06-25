@@ -1,4 +1,4 @@
-import ballerina/io;
+import ballerina/jballerina.java;
 
 function successfulXmlCasting() returns (string)  {
   var abc = jsonReturnFunction();
@@ -23,20 +23,28 @@ function jsonReturnFunction() returns (json) {
 
 function printlnAnyVal() {
     any val = jsonReturnFunction();
-    io:println(val);
+    println(val);
 }
 
 function printAnyVal() {
     any val = jsonReturnFunction();
-    io:print(val);
+    print(val);
 }
 
 function findBestNativeFunctionPrintln() {
     int val = 8;
-    io:println(val);
+    println(val);
 }
 
 function findBestNativeFunctionPrint() {
     int val = 7;
-    io:print(val);
+    print(val);
 }
+
+public function print(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;
+
+public function println(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;

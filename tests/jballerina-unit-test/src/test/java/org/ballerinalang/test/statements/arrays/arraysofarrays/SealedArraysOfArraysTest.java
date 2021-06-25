@@ -109,23 +109,23 @@ public class SealedArraysOfArraysTest {
         Assert.assertEquals(resultNegative.getErrorCount(), 24);
         int i = 0;
         BAssertUtil.validateError(
-                resultNegative, i++, "size mismatch in sealed array. expected '2', but found '3'", 19, 23);
+                resultNegative, i++, "size mismatch in closed array. expected '2', but found '3'", 19, 23);
         BAssertUtil.validateError(
-                resultNegative, i++, "size mismatch in sealed array. expected '2', but found '3'", 20, 36);
+                resultNegative, i++, "size mismatch in closed array. expected '2', but found '3'", 20, 36);
         BAssertUtil.validateError(
-                resultNegative, i++, "size mismatch in sealed array. expected '2', but found '3'", 21, 24);
+                resultNegative, i++, "size mismatch in closed array. expected '2', but found '3'", 21, 24);
         BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '2'", 27, 21);
         BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '3'", 37, 8);
         BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '3'", 38, 11);
         BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '3'", 39, 14);
         BAssertUtil.validateError(
-                resultNegative, i++, "size mismatch in sealed array. expected '3', but found '4'", 40, 16);
+                resultNegative, i++, "size mismatch in closed array. expected '3', but found '4'", 40, 16);
         BAssertUtil.validateError(
                 resultNegative, i++, "incompatible types: expected 'int[3]', found 'int'", 41, 14);
         BAssertUtil.validateError(
                 resultNegative, i++, "incompatible types: expected 'int[3]', found 'int'", 41, 17);
         BAssertUtil.validateError(
-                resultNegative, i++, "size mismatch in sealed array. expected '3', but found '4'", 42, 25);
+                resultNegative, i++, "size mismatch in closed array. expected '3', but found '4'", 42, 25);
         BAssertUtil.validateError(
                 resultNegative, i++, "incompatible types: expected 'int[3]', found 'int[]'", 47, 21);
         BAssertUtil.validateError(
@@ -141,15 +141,15 @@ public class SealedArraysOfArraysTest {
         BAssertUtil.validateError(
                 resultNegative, i++, "list index out of range: index: '4'", 68, 14);
         BAssertUtil.validateError(
-                resultNegative, i++, "size mismatch in sealed array. expected '3', but found '5'", 73, 46);
+                resultNegative, i++, "size mismatch in closed array. expected '3', but found '5'", 73, 46);
         BAssertUtil.validateError(
-                resultNegative, i++, "size mismatch in sealed array. expected '3', but found '4'", 73, 66);
+                resultNegative, i++, "size mismatch in closed array. expected '3', but found '4'", 73, 66);
         BAssertUtil.validateError(
-                resultNegative, i++, "invalid usage of sealed type: can not infer array size", 75, 22);
+                resultNegative, i++, "invalid usage of closed type: can not infer array size", 75, 22);
         BAssertUtil.validateError(
-                resultNegative, i++, "invalid usage of sealed type: can not infer array size", 75, 26);
+                resultNegative, i++, "invalid usage of closed type: can not infer array size", 75, 26);
         BAssertUtil.validateError(
-                resultNegative, i++, "invalid usage of sealed type: array not initialized", 76, 5);
+                resultNegative, i++, "invalid usage of closed type: array not initialized", 76, 5);
         BAssertUtil.validateError(
                 resultNegative, i, "list index out of range: index: '4'", 83, 11);
     }

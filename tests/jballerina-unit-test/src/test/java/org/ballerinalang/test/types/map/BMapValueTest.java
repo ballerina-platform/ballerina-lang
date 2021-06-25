@@ -33,9 +33,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -45,28 +42,6 @@ import static org.testng.Assert.assertTrue;
 public class BMapValueTest {
 
     private CompileResult programFile;
-
-    @Test
-    public void testStandardJavaMap() {
-        // Standard Map
-        Map<String, Integer> map = new HashMap<String, Integer>();
-        map.put("Chanaka", 1);
-        map.put("Udaya", 2);
-        map.put("Chanaka", 1);
-        assertEquals((int) map.get("Chanaka"), 1);
-
-        for (int i = 0; i < 100; i++) {
-            map.put(String.valueOf(i), i);
-        }
-        assertEquals(map.size(), 102);
-        assertEquals((int) map.get("51"), 51);
-
-        map.remove("Chanaka");
-        assertEquals(map.size(), 101);
-
-        map.remove("WSO2");
-        assertEquals(map.size(), 101);
-    }
 
     @Test
     public void testBMap() {

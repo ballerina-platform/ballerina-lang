@@ -24,14 +24,20 @@
                           "kind": "MARKDOWN_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " This is to test single backtick content",
+                                  "value": "This is to test single backtick reference",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -65,24 +71,30 @@
                           "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " This is an invalid content "
+                                  "value": "This is a code reference "
                                 },
                                 {
-                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "kind": "INLINE_CODE_REFERENCE",
                                   "children": [
                                     {
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
-                                      "value": "invalid content"
+                                      "kind": "CODE_CONTENT",
+                                      "value": "code content"
                                     },
                                     {
                                       "kind": "BACKTICK_TOKEN",
@@ -121,14 +133,20 @@
                           "kind": "MARKDOWN_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " Following are valid backtick content",
+                                  "value": "Following are ballerina name references",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -144,17 +162,19 @@
                           "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " "
-                                },
-                                {
-                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "kind": "BALLERINA_NAME_REFERENCE",
                                   "children": [
                                     {
                                       "kind": "BACKTICK_TOKEN"
@@ -202,17 +222,19 @@
                           "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " "
-                                },
-                                {
-                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "kind": "BALLERINA_NAME_REFERENCE",
                                   "children": [
                                     {
                                       "kind": "BACKTICK_TOKEN"
@@ -267,17 +289,19 @@
                           "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " "
-                                },
-                                {
-                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "kind": "BALLERINA_NAME_REFERENCE",
                                   "children": [
                                     {
                                       "kind": "BACKTICK_TOKEN"
@@ -337,17 +361,19 @@
                           "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " "
-                                },
-                                {
-                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "kind": "BALLERINA_NAME_REFERENCE",
                                   "children": [
                                     {
                                       "kind": "BACKTICK_TOKEN"

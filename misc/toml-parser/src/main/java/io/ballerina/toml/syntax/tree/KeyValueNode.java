@@ -32,8 +32,8 @@ public class KeyValueNode extends DocumentMemberDeclarationNode {
         super(internalNode, position, parent);
     }
 
-    public SeparatedNodeList<ValueNode> identifier() {
-        return new SeparatedNodeList<>(childInBucket(0));
+    public KeyNode identifier() {
+        return childInBucket(0);
     }
 
     public Token assign() {
@@ -63,11 +63,11 @@ public class KeyValueNode extends DocumentMemberDeclarationNode {
     }
 
     public KeyValueNode modify(
-            SeparatedNodeList<ValueNode> identifier,
+            KeyNode identifier,
             Token assign,
             ValueNode value) {
         if (checkForReferenceEquality(
-                identifier.underlyingListNode(),
+                identifier,
                 assign,
                 value)) {
             return this;
@@ -90,7 +90,7 @@ public class KeyValueNode extends DocumentMemberDeclarationNode {
      */
     public static class KeyValueNodeModifier {
         private final KeyValueNode oldNode;
-        private SeparatedNodeList<ValueNode> identifier;
+        private KeyNode identifier;
         private Token assign;
         private ValueNode value;
 
@@ -102,7 +102,7 @@ public class KeyValueNode extends DocumentMemberDeclarationNode {
         }
 
         public KeyValueNodeModifier withIdentifier(
-                SeparatedNodeList<ValueNode> identifier) {
+                KeyNode identifier) {
             Objects.requireNonNull(identifier, "identifier must not be null");
             this.identifier = identifier;
             return this;

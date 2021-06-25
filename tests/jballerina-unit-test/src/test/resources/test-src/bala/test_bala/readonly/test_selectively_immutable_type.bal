@@ -141,36 +141,34 @@ function testImmutableMappings() {
 
     assertEquality(emp, r2);
     var val = r2;
-    if (val is error) {
-        assertTrue(false);
-    } else {
-        se:Employee rec = <se:Employee & readonly> val;
-        assertTrue(rec is se:Employee & readonly);
-        assertTrue(rec.isReadOnly());
-
-        se:Details det = rec.details;
-        assertTrue(det is se:Details & readonly);
-        assertTrue(det.isReadOnly());
-
-        se:Employee & readonly emp2 = {
-            details: {
-                name: "Mary",
-                id: 4567
-            },
-            department: "IT"
-        };
-
-        assertFalse(d is se:Employee & readonly);
-        assertTrue(d is se:Employee);
-
-        assertEquality(emp2, d);
-    }
-    any val2 = d;
-    se:Employee rec = <se:Employee> val2;
-    //assertFalse(rec is se:Employee & readonly);
-    assertFalse(rec.isReadOnly());
+    assertFalse(val is error);
+    se:Employee rec = <se:Employee & readonly> checkpanic val;
+    assertTrue(rec is se:Employee & readonly);
+    assertTrue(rec.isReadOnly());
 
     se:Details det = rec.details;
+    assertTrue(det is se:Details & readonly);
+    assertTrue(det.isReadOnly());
+
+    se:Employee & readonly emp2 = {
+        details: {
+            name: "Mary",
+            id: 4567
+        },
+        department: "IT"
+    };
+
+    assertFalse(d is se:Employee & readonly);
+    assertTrue(d is se:Employee);
+
+    assertEquality(emp2, d);
+
+    any val2 = d;
+    rec = <se:Employee> val2;
+    assertFalse(rec is se:Employee & readonly);
+    assertFalse(rec.isReadOnly());
+
+    det = rec.details;
     assertFalse(det is se:Details & readonly);
     assertFalse(det.isReadOnly());
 
@@ -180,18 +178,15 @@ function testImmutableMappings() {
 
     r3 = <readonly> e;
     val = r3;
-    if (val is error) {
-        assertTrue(false);
-    } else {
-        se:Student stVal = <se:Student & readonly> val;
-        assertTrue(stVal.isReadOnly());
-        assertTrue(stVal.details.isReadOnly());
-        assertEquality(<se:Details> {name: "Jo", id: 4567}, stVal.details);
+    assertFalse(val is error);
+    se:Student stVal = <se:Student & readonly> checkpanic val;
+    assertTrue(stVal.isReadOnly());
+    assertTrue(stVal.details.isReadOnly());
+    assertEquality(<se:Details> {name: "Jo", id: 4567}, stVal.details);
 
-        assertTrue(stVal["math"] is [se:RESULT, int] & readonly);
-        assertTrue(stVal["math"].isReadOnly());
-        assertEquality(<[se:RESULT, int]> ["P", 75], stVal["math"]);
-    }
+    assertTrue(stVal["math"] is [se:RESULT, int] & readonly);
+    assertTrue(stVal["math"].isReadOnly());
+    assertEquality(<[se:RESULT, int]> ["P", 75], stVal["math"]);
 }
 
 function testMutability() {

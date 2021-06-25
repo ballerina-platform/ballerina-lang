@@ -36,11 +36,6 @@ public class ErrorTypeTest extends AbstractTypesTest {
     }
 
     @Test
-    public void testValidModuleLevelErrorTypeWithAsterisk() {
-        test("error<*> a;", "error-type/error_type_assert_03.json");
-    }
-
-    @Test
     public void testValidMErrorTypeAsReturnType() {
         testTopLevelNode("error-type/error_type_assert_02.bal", "error-type/error_type_assert_04.json");
     }

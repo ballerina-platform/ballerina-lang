@@ -120,21 +120,32 @@ public class CommandUtil {
      * @throws IOException  If any IO exception occurred
      * @throws URISyntaxException If any URISyntaxException occurred
      */
-    public static void initProjectByTemplate(Path path, String packageName, String template) throws IOException,
+    public static void initPackageByTemplate(Path path, String packageName, String template) throws IOException,
             URISyntaxException {
         // We will be creating following in the project directory
         // - Ballerina.toml
         // - main.bal
         // - .gitignore       <- git ignore file
-        initProject(path, packageName);
+
         applyTemplate(path, template);
         if (template.equalsIgnoreCase("lib")) {
+            initLibPackage(path, packageName);
             Path source = path.resolve("lib.bal");
             Files.move(source, source.resolveSibling(guessPkgName(packageName) + ".bal"),
                     StandardCopyOption.REPLACE_EXISTING);
+
+            String packageMd = FileUtils.readFileAsString(
+                    NEW_CMD_DEFAULTS + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME);
+
+            Files.write(path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME),
+                    packageMd.getBytes(StandardCharsets.UTF_8));
+        } else {
+            initPackage(path);
         }
         Path gitignore = path.resolve(ProjectConstants.GITIGNORE_FILE_NAME);
-        Files.createFile(gitignore);
+        if (Files.notExists(gitignore)) {
+            Files.createFile(gitignore);
+        }
         String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + GITIGNORE);
         Files.write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
     }
@@ -203,17 +214,13 @@ public class CommandUtil {
      * Initialize a new ballerina project in the given path.
      *
      * @param path Project path
-     * @param packageName Project name
      * @throws IOException If any IO exception occurred
      */
-    public static void initProject(Path path, String packageName) throws IOException {
+    public static void initPackage(Path path) throws IOException {
         Path ballerinaToml = path.resolve(ProjectConstants.BALLERINA_TOML);
         Files.createFile(ballerinaToml);
-        String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest.toml");
-        // replace manifest org and name with a guessed value.
-        defaultManifest = defaultManifest.replaceAll(ORG_NAME, ProjectUtils.guessOrgName()).
-                replaceAll(PKG_NAME, ProjectUtils.guessPkgName(packageName));
 
+        String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-app.toml");
         Files.write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -227,6 +234,18 @@ public class CommandUtil {
         } catch (IOException e) {
             throw new BLangCompilerException("error resolving bir_cache dir for package: " + pkg.packageName());
         }
+    }
+
+    private static void initLibPackage(Path path, String packageName) throws IOException {
+        Path ballerinaToml = path.resolve(ProjectConstants.BALLERINA_TOML);
+        Files.createFile(ballerinaToml);
+
+        String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-lib.toml");
+        // replace manifest org and name with a guessed value.
+        defaultManifest = defaultManifest.replaceAll(ORG_NAME, ProjectUtils.guessOrgName()).
+                replaceAll(PKG_NAME, ProjectUtils.guessPkgName(packageName));
+
+        Files.write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
     }
 
     public static Path getJarCacheFromHome() {

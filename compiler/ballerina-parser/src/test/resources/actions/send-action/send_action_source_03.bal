@@ -2,7 +2,7 @@ function foo() {
     a -> ;
     x = a -> ;
     
-    any x a -> default ;
+    any x a -> function ;
     
-    x = a -> default + c;
+    x = a -> function + c;
 }

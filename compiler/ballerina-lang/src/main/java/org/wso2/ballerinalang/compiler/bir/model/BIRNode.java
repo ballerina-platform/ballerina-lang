@@ -62,6 +62,7 @@ public abstract class BIRNode {
         public final List<BIRFunction> functions;
         public final List<BIRAnnotation> annotations;
         public final List<BIRConstant> constants;
+        public final List<BIRServiceDeclaration> serviceDecls;
         public boolean isListenerAvailable;
 
         public BIRPackage(Location pos, Name org, Name name, Name version,
@@ -74,6 +75,7 @@ public abstract class BIRNode {
             this.functions = new ArrayList<>();
             this.annotations = new ArrayList<>();
             this.constants = new ArrayList<>();
+            this.serviceDecls = new ArrayList<>();
         }
 
         @Override
@@ -317,12 +319,9 @@ public abstract class BIRNode {
          */
         public ChannelDetails[] workerChannels;
 
-        /**
-         * Taint table for the function.
-         */
-        public TaintTable taintTable;
-
         public List<BIRAnnotationAttachment> annotAttachments;
+
+        public List<BIRAnnotationAttachment> returnTypeAnnots;
 
         public Set<BIRGlobalVariableDcl> dependentGlobalVars = new TreeSet<>();
 
@@ -331,8 +330,9 @@ public abstract class BIRNode {
                            int argsCount, List<BIRVariableDcl> localVars,
                            BIRVariableDcl returnVariable, Map<BIRFunctionParameter, List<BIRBasicBlock>> parameters,
                            List<BIRBasicBlock> basicBlocks, List<BIRErrorEntry> errorTable, Name workerName,
-                           ChannelDetails[] workerChannels, TaintTable taintTable,
+                           ChannelDetails[] workerChannels,
                            List<BIRAnnotationAttachment> annotAttachments,
+                           List<BIRAnnotationAttachment> returnTypeAnnots,
                            Set<BIRGlobalVariableDcl> dependentGlobalVars) {
             super(pos);
             this.name = name;
@@ -350,13 +350,13 @@ public abstract class BIRNode {
             this.errorTable = errorTable;
             this.workerName = workerName;
             this.workerChannels = workerChannels;
-            this.taintTable = taintTable;
             this.annotAttachments = annotAttachments;
+            this.returnTypeAnnots = returnTypeAnnots;
             this.dependentGlobalVars = dependentGlobalVars;
         }
 
         public BIRFunction(Location pos, Name name, long flags, BInvokableType type, Name workerName,
-                           int sendInsCount, TaintTable taintTable, SymbolOrigin origin) {
+                           int sendInsCount, SymbolOrigin origin) {
             super(pos);
             this.name = name;
             this.flags = flags;
@@ -368,8 +368,8 @@ public abstract class BIRNode {
             this.errorTable = new ArrayList<>();
             this.workerName = workerName;
             this.workerChannels = new ChannelDetails[sendInsCount];
-            this.taintTable = taintTable;
             this.annotAttachments = new ArrayList<>();
+            this.returnTypeAnnots = new ArrayList<>();
             this.origin = origin;
         }
 
@@ -379,7 +379,7 @@ public abstract class BIRNode {
         }
 
         public BIRFunction duplicate() {
-            BIRFunction f = new BIRFunction(pos, name, flags, type, workerName, 0, taintTable, origin);
+            BIRFunction f = new BIRFunction(pos, name, flags, type, workerName, 0, origin);
             f.localVars = localVars;
             f.parameters = parameters;
             f.requiredParams = requiredParams;
@@ -387,6 +387,7 @@ public abstract class BIRNode {
             f.errorTable = errorTable;
             f.workerChannels = workerChannels;
             f.annotAttachments = annotAttachments;
+            f.returnTypeAnnots = returnTypeAnnots;
             return f;
 
         }
@@ -432,10 +433,13 @@ public abstract class BIRNode {
      */
     public static class BIRTypeDefinition extends BIRDocumentableNode implements NamedNode {
 
-        /**
-         * Name of the type definition.
-         */
         public Name name;
+
+        /**
+         * internal name of the type definition.
+         * for anonTypes this will be something like $anonType2 while name will reflect the structure
+         */
+        public Name internalName;
 
         public List<BIRFunction> attachedFuncs;
 
@@ -459,11 +463,10 @@ public abstract class BIRNode {
          */
         public int index;
 
-        public BIRTypeDefinition(Location pos, Name name, long flags, boolean isLabel, boolean isBuiltin,
-                                 BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin) {
-
+        public BIRTypeDefinition(Location pos, Name internalName, long flags, boolean isLabel, boolean isBuiltin,
+                                 BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin, Name name) {
             super(pos);
-            this.name = name;
+            this.internalName = internalName;
             this.flags = flags;
             this.isLabel = isLabel;
             this.isBuiltin = isBuiltin;
@@ -471,7 +474,13 @@ public abstract class BIRNode {
             this.attachedFuncs = attachedFuncs;
             this.referencedTypes = new ArrayList<>();
             this.origin = origin;
+            this.name = name;
             this.annotAttachments = new ArrayList<>();
+        }
+
+        public BIRTypeDefinition(Location pos, Name name, long flags, boolean isLabel, boolean isBuiltin,
+                                 BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin) {
+            this(pos, name, flags, isLabel, isBuiltin, type, attachedFuncs, origin, name);
         }
 
         @Override
@@ -481,7 +490,7 @@ public abstract class BIRNode {
 
         @Override
         public String toString() {
-            return type + " " + name;
+            return type + " " + internalName;
         }
 
         @Override
@@ -735,21 +744,6 @@ public abstract class BIRNode {
     }
 
     /**
-     * Taint table of the function.
-     *
-     * @since 0.995.0
-     */
-    public static class TaintTable {
-        public int columnCount;
-        public int rowCount;
-        public Map<Integer, List<Byte>> taintTable;
-
-        public TaintTable() {
-            this.taintTable = new LinkedHashMap<>();
-        }
-    }
-
-    /**
      * Documentable node which can have markdown documentations.
      *
      * @since 1.0.0
@@ -841,6 +835,42 @@ public abstract class BIRNode {
         @Override
         public boolean isKeyValuePair() {
             return false;
+        }
+    }
+
+    /**
+     * Represents a service declaration.
+     *
+     * @since 2.0.0
+     */
+    public static class BIRServiceDeclaration extends BIRDocumentableNode {
+
+        public List<String> attachPoint;
+        public String attachPointLiteral;
+        public List<BType> listenerTypes;
+        public Name generatedName;
+        public Name associatedClassName;
+        public BType type;
+        public SymbolOrigin origin;
+        public long flags;
+
+        public BIRServiceDeclaration(List<String> attachPoint, String attachPointLiteral, List<BType> listenerTypes,
+                                     Name generatedName, Name associatedClassName, BType type, SymbolOrigin origin,
+                                     long flags, Location location) {
+            super(location);
+            this.attachPoint = attachPoint;
+            this.attachPointLiteral = attachPointLiteral;
+            this.listenerTypes = listenerTypes;
+            this.generatedName = generatedName;
+            this.associatedClassName = associatedClassName;
+            this.type = type;
+            this.origin = origin;
+            this.flags = flags;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
         }
     }
 }

@@ -35,6 +35,7 @@ public class SemanticVersionTests {
         Assert.assertEquals(version.patch(), 1);
         Assert.assertEquals(version.preReleasePart(), "alpha");
         Assert.assertFalse(version.isStable());
+        Assert.assertTrue(version.isPreReleaseVersion());
 
         version = SemanticVersion.from("1.0.1-alpha.1.2.3.4.23423");
         Assert.assertEquals(version.preReleasePart(), "alpha.1.2.3.4.23423");
@@ -73,6 +74,7 @@ public class SemanticVersionTests {
         Assert.assertEquals(version.minor(), 0);
         Assert.assertEquals(version.patch(), 1);
         Assert.assertTrue(version.isStable());
+        Assert.assertFalse(version.isPreReleaseVersion());
     }
 
     @Test
@@ -82,5 +84,6 @@ public class SemanticVersionTests {
         Assert.assertEquals(version.minor(), 1);
         Assert.assertEquals(version.patch(), 0);
         Assert.assertFalse(version.isStable());
+        Assert.assertTrue(version.isPreReleaseVersion());
     }
 }

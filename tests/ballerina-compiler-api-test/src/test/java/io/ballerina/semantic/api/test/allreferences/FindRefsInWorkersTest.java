@@ -34,30 +34,37 @@ public class FindRefsInWorkersTest extends FindAllReferencesTest {
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
         return new Object[][]{
-                {17, 8, List.of(location(17, 8, 9),
+                {17, 8, location(17, 8, 9),
+                        List.of(location(17, 8, 9),
                                 location(20, 7, 8),
                                 location(34, 11, 12))
                 },
-                {19, 11, List.of(location(19, 11, 13),
-                                 location(32, 9, 11))
+                {19, 11, location(19, 11, 13),
+                        List.of(location(19, 11, 13),
+                                location(32, 9, 11))
                 },
-                {23, 11, List.of(location(23, 11, 13),
-                                 location(31, 22, 24))
+                {23, 11, location(23, 11, 13),
+                        List.of(location(23, 11, 13),
+                                location(31, 22, 24))
                 },
-                {38, 11, List.of(location(38, 11, 13),
-                                 location(45, 13, 15),
-                                 location(49, 25, 27))
+                {38, 11, location(38, 11, 13),
+                        List.of(location(38, 11, 13),
+                                location(45, 13, 15),
+                                location(49, 25, 27))
                 },
-                {40, 11, List.of(location(40, 11, 13),
-                                 location(43, 11, 13),
-                                 location(49, 29, 31))
+                {40, 11, location(43, 11, 13),
+                        List.of(location(40, 11, 13),
+                                location(43, 11, 13),
+                                location(49, 29, 31))
                 },
-                {53, 11, List.of(location(53, 11, 13),
-                                 location(61, 13, 15))
+                {53, 11, location(53, 11, 13),
+                        List.of(location(53, 11, 13),
+                                location(61, 13, 15))
                 },
-                {59, 11, List.of(location(55, 12, 14),
-                                 location(56, 25, 27),
-                                 location(59, 11, 13))
+                {59, 11, location(59, 11, 13),
+                        List.of(location(55, 12, 14),
+                                location(56, 25, 27),
+                                location(59, 11, 13))
                 },
         };
     }

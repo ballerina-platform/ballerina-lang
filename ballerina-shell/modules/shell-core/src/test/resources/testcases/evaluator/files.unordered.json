@@ -1,0 +1,20 @@
+[
+  {
+    "description": "Load the declarations file.",
+    "code": "/file files/unordered.bal"
+  },
+  {
+    "description": "Running the function.",
+    "code": "multip(value)",
+    "expr": "64"
+  },
+  {
+    "description": "Define variable.",
+    "code": "int b = 10;"
+  },
+  {
+    "description": "Running the function.",
+    "code": "multip(b)",
+    "expr": "400"
+  }
+]

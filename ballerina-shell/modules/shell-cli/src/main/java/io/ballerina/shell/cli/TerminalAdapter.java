@@ -57,8 +57,9 @@ public abstract class TerminalAdapter {
      * @param prefix  Prefix of the input prompt.
      * @param postfix Postfix of the input prompt.
      * @return Input string.
+     * @throws ShellExitException when user sends Ctrl+D or input file ends.
      */
-    public abstract String readLine(String prefix, String postfix);
+    public abstract String readLine(String prefix, String postfix) throws ShellExitException;
 
     /**
      * Prints a line of text to the terminal.

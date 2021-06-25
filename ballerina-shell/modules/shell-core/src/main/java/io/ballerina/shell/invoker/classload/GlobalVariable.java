@@ -18,7 +18,8 @@
 
 package io.ballerina.shell.invoker.classload;
 
-import java.util.Collection;
+import io.ballerina.shell.utils.QuotedIdentifier;
+
 import java.util.Objects;
 
 /**
@@ -30,36 +31,32 @@ import java.util.Objects;
  */
 public class GlobalVariable {
     private final String type;
-    private final String variableName;
-    private final ElevatedType elevatedType;
+    private final QuotedIdentifier variableName;
+    private final boolean isAssignableToAny;
+    private final String qualifiersAndMetadata;
 
-    public GlobalVariable(String type, String variableName, ElevatedType elevatedType) {
-        this.type = type;
+    public GlobalVariable(String type, QuotedIdentifier variableName,
+                          boolean isAssignableToAny, String qualifiersAndMetadata) {
+        this.type = Objects.requireNonNull(type);
+        this.isAssignableToAny = isAssignableToAny;
+        this.qualifiersAndMetadata = Objects.requireNonNull(qualifiersAndMetadata);
         this.variableName = variableName;
-        this.elevatedType = elevatedType;
-    }
-
-    /**
-     * Function to check whether a variable name is defined inside a collection.
-     *
-     * @param globalVariables Global variable collection to search.
-     * @param variableName    Variable name to search.
-     * @return Whether the variable is contained inside the collection.
-     */
-    public static boolean isDefined(Collection<GlobalVariable> globalVariables, String variableName) {
-        return globalVariables.contains(new GlobalVariable("", variableName, null));
     }
 
     public String getType() {
         return type;
     }
 
-    public String getVariableName() {
+    public QuotedIdentifier getVariableName() {
         return variableName;
     }
 
-    public ElevatedType getElevatedType() {
-        return elevatedType;
+    public boolean isAssignableToAny() {
+        return isAssignableToAny;
+    }
+
+    public String getQualifiersAndMetadata() {
+        return qualifiersAndMetadata;
     }
 
     @Override
@@ -81,6 +78,7 @@ public class GlobalVariable {
 
     @Override
     public String toString() {
-        return String.format("<%s> %s %s", elevatedType, type, variableName);
+        String elevType = isAssignableToAny ? "any" : "any|error";
+        return String.format("<%s> %s %s %s", elevType, qualifiersAndMetadata, type, variableName);
     }
 }

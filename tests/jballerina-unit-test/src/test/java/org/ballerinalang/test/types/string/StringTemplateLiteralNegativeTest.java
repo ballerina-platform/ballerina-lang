@@ -35,33 +35,38 @@ public class StringTemplateLiteralNegativeTest {
     @Test(description = "Test string template literal with errors")
     public void testStringTemplateLiteralNegativeCases() {
         resultNegative = BCompileUtil.compile("test-src/types/string/string-template-literal-negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        Assert.assertEquals(resultNegative.getErrorCount(), 5);
         //testUndefinedSymbol
         BAssertUtil.validateError(resultNegative, 0, "undefined symbol 'name'", 2, 32);
         //testIncompatibleTypes
         BAssertUtil.validateError(resultNegative, 1,
                 "incompatible types: expected '(int|float|decimal|string|boolean)', found 'json'", 8, 32);
+        BAssertUtil.validateError(resultNegative, 2,
+                "incompatible types: expected '(int|float|decimal|string|boolean)', found 'Foo'", 16, 21);
+        BAssertUtil.validateError(resultNegative, 3,
+                "incompatible types: expected '(int|float|decimal|string|boolean)', found '()'", 21, 21);
+        BAssertUtil.validateError(resultNegative, 4,
+                "incompatible types: expected '(int|float|decimal|string|boolean)', found '(int[]|string[])'", 26, 21);
     }
 
-    @Test(description = "Test string template literal syntax errors", groups = { "disableOnOldParser" })
+    @Test(description = "Test string template literal syntax errors")
     public void testStringTemplateLiteralSyntaxNegativeCases() {
         resultNegative = BCompileUtil.compile("test-src/types/string/string-template-literal-syntax-negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 14);
+        Assert.assertEquals(resultNegative.getErrorCount(), 13);
         int index = 0;
         BAssertUtil.validateError(resultNegative, index++, "invalid token ';'", 4, 74);
         BAssertUtil.validateError(resultNegative, index++, "invalid token ';'", 4, 74);
         BAssertUtil.validateError(resultNegative, index++, "invalid token 'return'", 4, 74);
         BAssertUtil.validateError(resultNegative, index++, "invalid token 's'", 4, 74);
         BAssertUtil.validateError(resultNegative, index++, "invalid escape sequence '\\l'", 10, 24);
-        BAssertUtil.validateError(resultNegative, index++, "missing plus token", 10, 24);
-        BAssertUtil.validateError(resultNegative, index++, "undefined symbol 'He\\llo'", 10, 24);
-        BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 31);
+        BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 24);
+        BAssertUtil.validateError(resultNegative, index++, "unknown type 'He\\llo'", 10, 24);
+        BAssertUtil.validateError(resultNegative, index++, "invalid record binding pattern with type 'other'", 10, 33);
         BAssertUtil.validateError(resultNegative, index++, "invalid token '$'", 10, 33);
-        BAssertUtil.validateError(resultNegative, index++, "unknown type 'name'", 10, 34);
-        BAssertUtil.validateError(resultNegative, index++, "missing identifier", 10, 38);
-        BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 38);
+        BAssertUtil.validateError(resultNegative, index++, "complex variable must be initialized", 10, 39);
+        BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 39);
         BAssertUtil.validateError(resultNegative, index++, "invalid token ';\n    return s;\n}\n'", 13, 1);
-        BAssertUtil.validateError(resultNegative, index++, "invalid token '`'", 13, 1);
+        BAssertUtil.validateError(resultNegative, index, "invalid token '`'", 13, 1);
     }
 
     @AfterClass

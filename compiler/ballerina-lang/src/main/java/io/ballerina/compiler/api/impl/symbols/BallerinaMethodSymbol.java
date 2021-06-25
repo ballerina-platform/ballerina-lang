@@ -17,16 +17,20 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,11 +41,15 @@ import java.util.StringJoiner;
  *
  * @since 2.0.0
  */
-public class BallerinaMethodSymbol implements MethodSymbol {
+public class BallerinaMethodSymbol extends BallerinaSymbol implements MethodSymbol {
 
     private final FunctionSymbol functionSymbol;
+    private String signature;
 
-    public BallerinaMethodSymbol(FunctionSymbol functionSymbol) {
+    public BallerinaMethodSymbol(FunctionSymbol functionSymbol,
+                                 BInvokableSymbol invokableSymbol,
+                                 CompilerContext context) {
+        super(functionSymbol.getName().get(), functionSymbol.kind(), invokableSymbol, context);
         this.functionSymbol = functionSymbol;
     }
 
@@ -51,13 +59,13 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     }
 
     @Override
-    public String name() {
-        return this.functionSymbol.name();
+    public Optional<String> getName() {
+        return this.functionSymbol.getName();
     }
 
     @Override
-    public ModuleID moduleID() {
-        return this.functionSymbol.moduleID();
+    public Optional<ModuleSymbol> getModule() {
+        return this.functionSymbol.getModule();
     }
 
     @Override
@@ -96,22 +104,34 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     }
 
     @Override
+    public Optional<Location> getLocation() {
+        return this.functionSymbol.getLocation();
+    }
+
+    @Override
     public String signature() {
+        if (this.signature != null) {
+            return this.signature;
+        }
+
         StringJoiner qualifierJoiner = new StringJoiner(" ");
         this.functionSymbol.qualifiers().stream().map(Qualifier::getValue).forEach(qualifierJoiner::add);
         qualifierJoiner.add("function ");
 
         StringBuilder signature = new StringBuilder(qualifierJoiner.toString());
         StringJoiner joiner = new StringJoiner(", ");
-        signature.append(this.functionSymbol.name()).append("(");
-        for (ParameterSymbol requiredParam : this.typeDescriptor().parameters()) {
+        signature.append(this.functionSymbol.getName().get()).append("(");
+        for (ParameterSymbol requiredParam : this.typeDescriptor().params().get()) {
             String ballerinaParameterSignature = requiredParam.signature();
             joiner.add(ballerinaParameterSignature);
         }
         this.typeDescriptor().restParam().ifPresent(ballerinaParameter -> joiner.add(ballerinaParameter.signature()));
         signature.append(joiner.toString()).append(")");
-        this.typeDescriptor().returnTypeDescriptor().ifPresent(typeDescriptor -> signature.append(" returns ")
-                .append(typeDescriptor.signature()));
-        return signature.toString();
+        Optional<TypeSymbol> returnTypeSymbol = this.typeDescriptor().returnTypeDescriptor();
+        if (returnTypeSymbol.isPresent() && returnTypeSymbol.get().typeKind() != TypeDescKind.NIL) {
+            signature.append(" returns ").append(returnTypeSymbol.get().signature());
+        }
+        this.signature = signature.toString();
+        return this.signature;
     }
 }

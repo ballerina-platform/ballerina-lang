@@ -38,11 +38,11 @@ public class IsolatedParamTest {
     public void testIsolatedParamSemanticNegative() {
         CompileResult result = BCompileUtil.compile("test-src/isolated-param/isolated_param_semantic_negative.bal");
         int index = 0;
-        validateError(result, index++, "'isolatedParam' annotation is not allowed here", 17, 29);
+        validateError(result, index++, "'isolatedParam' annotation is not allowed here", 17, 14);
         validateError(result, index++, "'isolatedParam' annotation is only allowed on a parameter of a function type",
-                      17, 29);
+                      17, 14);
         validateError(result, index++,
-                      "'isolatedParam' annotation is only allowed on a parameter of an 'isolated' function", 17, 29);
+                      "'isolatedParam' annotation is only allowed on a parameter of an 'isolated' function", 17, 14);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 

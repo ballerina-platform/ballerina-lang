@@ -38,8 +38,8 @@ public class XMLNSCompletionItemBuilder {
      */
     public static CompletionItem build(XMLNamespaceSymbol namespaceSymbol) {
         CompletionItem completionItem = new CompletionItem();
-        completionItem.setLabel(namespaceSymbol.name());
-        completionItem.setInsertText(namespaceSymbol.name());
+        completionItem.setLabel(namespaceSymbol.getName().orElse(""));
+        completionItem.setInsertText(namespaceSymbol.getName().orElse(""));
         completionItem.setDetail(namespaceSymbol.namespaceUri());
         completionItem.setKind(CompletionItemKind.Unit);
 

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.testerina.test.utils;
 
-import org.ballerinalang.test.context.BallerinaTestException;
+import org.testng.Assert;
 
 /**
  * Util class for test assertions.
@@ -26,11 +26,11 @@ import org.ballerinalang.test.context.BallerinaTestException;
  */
 public class AssertionUtils {
 
-    public static void assertForTestFailures(String programOutput, String errMessage) throws BallerinaTestException {
+    public static void assertForTestFailures(String programOutput, String errMessage) {
         if (programOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Test failed due to " + errMessage + " in test framework");
+            Assert.fail("Test failed due to " + errMessage + " in test framework");
         } else if (programOutput.contains("error: compilation contains errors")) {
-            throw new BallerinaTestException("Test failed due to a compilation error with following output\n" +
+            Assert.fail("Test failed due to a compilation error with following output\n" +
                     programOutput);
         }
     }

@@ -25,9 +25,7 @@ import org.ballerinalang.debugger.test.utils.DebugTestRunner;
 import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
 /**
@@ -61,6 +59,7 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
     protected static final String FUTURE_VAR = "futureVar";
     protected static final String OBJECT_VAR = "objectVar";
     protected static final String ANON_OBJECT_VAR = "anonObjectVar";
+    protected static final String CLIENT_OBJECT_VAR = "clientObjectVar";
     protected static final String TYPEDESC_VAR = "typedescVar";
     protected static final String UNION_VAR = "unionVar";
     protected static final String OPTIONAL_VAR = "optionalVar";
@@ -68,9 +67,10 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
     protected static final String ANYDATA_VAR = "anydataVar";
     protected static final String BYTE_VAR = "byteVar";
     protected static final String JSON_VAR = "jsonVar";
-    protected static final String TABLE_VAR = "tableVar";
+    protected static final String TABLE_VAR = "tableWithKeyVar";
     protected static final String STREAM_VAR = "oddNumberStream";
     protected static final String NEVER_VAR = "neverVar";
+    protected static final String SERVICE_VAR = "serviceVar";
 
     protected static final String GLOBAL_VAR_01 = "nameWithoutType";
     protected static final String GLOBAL_VAR_02 = "nameWithType";
@@ -82,28 +82,9 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
     protected static final String GLOBAL_VAR_08 = "byteValue";
     protected static final String GLOBAL_VAR_09 = "floatValue";
     protected static final String GLOBAL_VAR_10 = "jsonVar";
-    protected static final String GLOBAL_VAR_11 = "'\\ \\/\\:\\@\\[\\`\\{\\~\\u{2324}_IL";
+    protected static final String GLOBAL_VAR_11 = "'\\ \\/\\:\\@\\[\\`\\{\\~\\u{03C0}_IL";
 
     protected DebugTestRunner debugTestRunner;
-
-    protected void prepareForEvaluation() throws BallerinaTestException {
-        String testProjectName = "variable-tests";
-        String testModuleFileName = "main.bal";
-        debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
-
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 182));
-        debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
-        this.context = debugHitInfo.getRight();
-
-        // Enable to see all the assertion failures at once.
-        // debugTestRunner.setAssertionMode(DebugTestRunner.AssertionMode.SOFT_ASSERT);
-    }
-
-    @BeforeClass(alwaysRun = true)
-    protected void setup() throws BallerinaTestException {
-        prepareForEvaluation();
-    }
 
     @BeforeMethod(alwaysRun = true)
     protected void beginSoftAssertions() {
@@ -119,10 +100,18 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
         }
     }
 
-    @AfterClass(alwaysRun = true)
-    protected void cleanup() {
-        debugTestRunner.terminateDebugSession();
-        this.context = null;
+    protected void prepareForEvaluation() throws BallerinaTestException {
+        String testProjectName = "variable-tests";
+        String testModuleFileName = "main.bal";
+        debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
+
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 216));
+        debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
+        this.context = debugHitInfo.getRight();
+
+        // Enable to see all the assertion failures at once.
+        // debugTestRunner.setAssertionMode(DebugTestRunner.AssertionMode.SOFT_ASSERT);
     }
 
     // 1. literal expressions
@@ -225,4 +214,7 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
 
     // 33. XML navigation expressions
     public abstract void xmlNavigationEvaluationTest() throws BallerinaTestException;
+
+    // 34. Remote method call actions
+    public abstract void remoteCallActionEvaluationTest() throws BallerinaTestException;
 }

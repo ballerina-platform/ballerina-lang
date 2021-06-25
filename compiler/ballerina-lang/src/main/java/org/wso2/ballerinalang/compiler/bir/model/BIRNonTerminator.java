@@ -570,6 +570,29 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     }
 
     /**
+     * New xml sequence instruction.
+     *
+     * @since 2.0.0
+     */
+    public static class NewXMLSequence extends BIRNonTerminator {
+
+        public NewXMLSequence(Location location, BIROperand lhsOp) {
+            super(location, InstructionKind.NEW_XML_SEQUENCE);
+            this.lhsOp = lhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[0];
+        }
+    }
+
+    /**
      * New XML text instruction.
      *
      * @since 0.995.0
@@ -694,10 +717,10 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public PackageID pkgId;
         public List<BIRVariableDcl> params;
         public List<BIROperand> closureMaps;
-        public BType retType;
+        public BType type;
 
         public FPLoad(Location location, PackageID pkgId, Name funcName, BIROperand lhsOp,
-                      List<BIRVariableDcl> params, List<BIROperand> closureMaps, BType retType, String strandName,
+                      List<BIRVariableDcl> params, List<BIROperand> closureMaps, BType type, String strandName,
                       SchedulerPolicy schedulerPolicy) {
             super(location, InstructionKind.FP_LOAD);
             this.schedulerPolicy = schedulerPolicy;
@@ -707,7 +730,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.pkgId = pkgId;
             this.params = params;
             this.closureMaps = closureMaps;
-            this.retType = retType;
+            this.type = type;
         }
 
         @Override

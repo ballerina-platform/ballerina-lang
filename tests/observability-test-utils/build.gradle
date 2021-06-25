@@ -37,7 +37,9 @@ dependencies {
     shadow project(':ballerina-lang:annotations')
 
     implementation 'io.netty:netty-codec-http'
-    implementation 'io.opentracing:opentracing-mock'
+    implementation 'io.opentelemetry:opentelemetry-api'
+    implementation 'io.opentelemetry:opentelemetry-sdk-trace'
+    implementation 'io.opentelemetry:opentelemetry-sdk-testing'
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang:jballerina.java')
 
@@ -67,17 +69,20 @@ shadowJar {
 }
 
 task updateVersion {
-    ant.replaceregexp(
-            file: "${projectDir}/src/main/ballerina/Ballerina.toml",
-            match: "${project.name}-(.*).jar",
-            replace: "${project.name}-${project.version}.jar"
-    )
+    doLast {
+        ant.replaceregexp(
+                file: "${project.buildDir}/ballerina-src/Ballerina.toml",
+                match: "${project.name}-(.*).jar",
+                replace: "${project.name}-${project.version}.jar"
+        )
+    }
 }
+
+copyBallerinaProject.finalizedBy(updateVersion)
 
 ballerinaLangLibBuild {
     pkgName = 'testobserve'
     dependsOn compileJava
-    dependsOn updateVersion
 }
 
 test {
@@ -96,6 +101,7 @@ test {
     systemProperty 'ballerina.agent.path', configurations.testUtils.asPath
     systemProperty 'observability.test.utils.bala', "$buildDir/ballerina-src/target/testobserve.zip"
     systemProperty 'observability.test.utils.jar', tasks.shadowJar.archiveFile.get().asFile
+    systemProperty 'ballerina.agent.port.start.value', 27000
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

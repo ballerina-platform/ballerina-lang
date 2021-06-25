@@ -35,6 +35,9 @@ configurations {
     langserverLib {
         transitive false
     }
+    langserverExtLib {
+        transitive false
+    }
     datamapperLib {
         transitive false
     }
@@ -75,7 +78,7 @@ dependencies {
     // dist 'org.ow2.asm:asm:6.2.1'
     dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
     dist 'org.codehaus.woodstox:stax2-api:3.1.1'
-    dist 'org.apache.commons:commons-compress:1.18'
+    dist 'org.apache.commons:commons-compress:1.19'
     dist 'me.tongfei:progressbar:0.7.4'
     dist 'org.jline:jline:3.11.0'
     dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
@@ -97,13 +100,9 @@ dependencies {
     dist 'com.atomikos:atomikos-util:5.0.8'
     dist 'com.atomikos:transactions:5.0.8'
 
-    // Temporary workaround until moving to native Toml Parser
-    dist 'com.moandjiezana.toml:toml4j:0.7.2'
-
     dist project(':ballerina-tools-api')
     dist project(':ballerina-parser')
     dist project(':ballerina-tools-api')
-    dist project(':ballerina-cli-module')
     dist project(':central-client')
     dist project(':ballerina-cli')
     dist project(':ballerina-rt')
@@ -114,6 +113,7 @@ dependencies {
     dist project(':ballerina-bindgen')
     dist project(':maven-resolver')
     dist project(':diagram-util')
+    dist project(':syntax-api-calls-gen')
     dist project(':language-server:language-server-commons')
     dist project(':docerina')
     dist project(':observability-symbol-collector')
@@ -129,6 +129,8 @@ dependencies {
     langserverLib project(':language-server:language-server-stdio-launcher')
     langserverLib project(':language-server:language-server-cli')
     langserverLib project(':language-server:language-server-core')
+
+    langserverExtLib project(':ls-extensions:json-to-record-converter')
 
     debugAdapterLib project(path: ':debug-adapter:debug-adapter-core', configuration: 'libs')
     debugAdapterLib project(':debug-adapter:debug-adapter-cli')
@@ -330,6 +332,13 @@ def copyDebugAdapterLauncher = {
     }
 }
 
+def copyCompletionFile = {
+    path -> copySpec {
+        from('resources/command-completion')
+        into(path + 'resources/command-completion')
+    }
+}
+
 def copyDebugAdapterLibsSpec = {
     path -> copySpec {
         from configurations.debugAdapterLib
@@ -353,6 +362,13 @@ def copyLangServerLibsSpec = {
     path -> copySpec {
         from configurations.langserverLib
         into(path + 'lib/tools/lang-server/lib')
+    }
+}
+
+def copyLangServerExtLibsSpec = {
+    path -> copySpec {
+        from configurations.langserverExtLib
+        into(path + 'lib/tools/lang-server-extensions/lib')
     }
 }
 
@@ -423,11 +439,13 @@ task createZip(type: Zip) {
     with copyBalxSpec(basePath)
     with copyBinSpec(basePath)
     with copyLangServerLibsSpec(basePath)
+    with copyLangServerExtLibsSpec(basePath)
     with copyDataMapperLibsSpec(basePath)
     with copyLangServerBinSpec(basePath)
     with copyBallerinaZipSpec(basePath)
     with copyDebugAdapterLibsSpec(basePath)
     with copyDebugAdapterLauncher(basePath)
+    with copyCompletionFile(basePath)
     with apiDocsSpec(basePath)
     with copyStaticSpec(basePath)
     with copyDocerinaUi(basePath)
@@ -447,11 +465,13 @@ task updateBalHome(type: Copy) {
     with copyBalxSpec(installDir)
     with copyBinSpec(installDir)
     with copyLangServerLibsSpec(installDir)
+    with copyLangServerExtLibsSpec(installDir)
     with copyDataMapperLibsSpec(installDir)
     with copyLangServerBinSpec(installDir)
     with copyBallerinaZipSpec(installDir)
     with copyDebugAdapterLibsSpec(installDir)
     with copyDebugAdapterLauncher(installDir)
+    with copyCompletionFile(installDir)
     with apiDocsSpec(installDir)
     with copyStaticSpec(installDir)
     with copyDocerinaUi(installDir)
@@ -473,11 +493,13 @@ task createDistribution(type: Copy) {
     with copyBalxSpec("")
     with copyBinSpec("")
     with copyLangServerLibsSpec("")
+    with copyLangServerExtLibsSpec("")
     with copyDataMapperLibsSpec("")
     with copyLangServerBinSpec("")
     with copyBallerinaZipSpec("")
     with copyDebugAdapterLibsSpec("")
     with copyDebugAdapterLauncher("")
+    with copyCompletionFile("")
     with apiDocsSpec("")
     with copyStaticSpec("")
     with copyDocerinaUi("")

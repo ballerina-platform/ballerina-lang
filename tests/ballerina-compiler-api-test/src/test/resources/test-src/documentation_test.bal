@@ -65,3 +65,26 @@ function sum(int x, int y) returns int => x + y;
 
 # This is a variable
 string greet = "Hello";
+
+# Creates and returns a `Person` object given the parameters.
+#
+# + fname - First name of the person
+# + lname - Last name of the person
+# + street - Street the person is living at
+# + city - The city the person is living in
+# + countryCode - The country code for the country the person is living in
+# + return - A new Person string
+#
+# # Deprecated parameters
+# + street - deprecated for removal
+# + countryCode - deprecated for removal
+# # Deprecated
+# This function is deprecated in favour of `Person` type.
+@deprecated
+public function createPerson(string fname, string lname, @deprecated string street,
+                             string city, @deprecated string countryCode) returns string {
+    return "";
+}
+
+# This is a listener declaration
+listener udp:Listener ul = new(8080);

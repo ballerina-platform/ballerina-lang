@@ -38,19 +38,16 @@ import org.testng.annotations.Test;
  */
 public class StampInbuiltFunctionNegativeTest {
 
-    private CompileResult compileResult;
     private CompileResult recordNegativeTestCompileResult;
     private CompileResult jsonNegativeTestCompileResult;
     private CompileResult xmlNegativeTestCompileResult;
     private CompileResult mapNegativeTestCompileResult;
-    private CompileResult objectNegativeTestCompileResult;
     private CompileResult arrayNegativeTestCompileResult;
     private CompileResult tupleNegativeTestCompileResult;
     private CompileResult unionNegativeTestCompileResult;
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/expressions/stamp/negative/stamp-expr-negative-test.bal");
         recordNegativeTestCompileResult = BCompileUtil.
                 compile("test-src/expressions/stamp/negative/record-stamp-expr-negative-test.bal");
         jsonNegativeTestCompileResult = BCompileUtil.
@@ -59,8 +56,6 @@ public class StampInbuiltFunctionNegativeTest {
                 compile("test-src/expressions/stamp/negative/xml-stamp-expr-negative-test.bal");
         mapNegativeTestCompileResult = BCompileUtil.
                 compile("test-src/expressions/stamp/negative/map-stamp-expr-negative-test.bal");
-        objectNegativeTestCompileResult = BCompileUtil.
-                compile("test-src/expressions/stamp/negative/object-stamp-expr-negative-test.bal");
         arrayNegativeTestCompileResult = BCompileUtil.
                 compile("test-src/expressions/stamp/negative/array-stamp-expr-negative-test.bal");
         tupleNegativeTestCompileResult = BCompileUtil.
@@ -73,94 +68,57 @@ public class StampInbuiltFunctionNegativeTest {
 
     @Test
     public void testStampNegativeTest() {
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/expressions/stamp/negative/stamp-expr-negative-test.bal");
 
         int index = 0;
-        Assert.assertEquals(compileResult.getErrorCount(), 10);
         BAssertUtil.validateError(compileResult, index++, "too many arguments in call to 'cloneWithType()'", 50, 24);
         BAssertUtil.validateError(compileResult, index++,
                 "incompatible types: expected 'typedesc<anydata>', found 'typedesc'", 64, 52);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'anydata', found 'any'",
                 71, 33);
-        BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: expected '(json|error)', found '(anydata|error)'", 79, 30);
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'TestType'", 79, 54);
-        BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: expected '(EmployeeObject|error)', found '(anydata|error)'", 87, 40);
         BAssertUtil.validateError(compileResult, index++,
                                   "incompatible types: expected 'typedesc<anydata>', found 'typedesc<EmployeeObject>'",
                 87, 63);
         BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: expected '(map|error)', found '(anydata|error)'", 95, 31);
-        BAssertUtil.validateError(compileResult, index++,
                                   "incompatible types: expected 'typedesc<anydata>', found 'typedesc<map>'", 95, 54);
-        BAssertUtil.validateError(compileResult, index,
+        BAssertUtil.validateError(compileResult, index++,
                                   "incompatible types: expected 'anydata', found 'ExtendedEmployee'", 103, 34);
+        Assert.assertEquals(index, compileResult.getErrorCount());
     }
 
     //----------------------------- Object NegativeTest cases ------------------------------------------------------
 
     @Test
     public void testObjectNegativeTest() {
+        CompileResult objectNegativeTestCompileResult = BCompileUtil.
+                compile("test-src/expressions/stamp/negative/object-stamp-expr-negative-test.bal");
         int index = 0;
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected '(Employee|error)', found '(anydata|error)'", 85, 31);
+                "incompatible types: expected 'anydata', found 'PersonObj'", 85, 51);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected 'anydata', found 'PersonObj'", 85, 31);
+                "incompatible types: expected 'anydata', found 'PersonObj'", 92, 48);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected 'anydata', found 'PersonObj'", 85, 31);
+                "incompatible types: expected 'anydata', found 'PersonObj'", 99, 46);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected '(json|error)', found '(anydata|error)'", 92, 28);
+                "incompatible types: expected 'anydata', found 'PersonObj'", 106, 51);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected 'anydata', found 'PersonObj'", 92, 28);
+                "incompatible types: expected 'typedesc<anydata>', found 'typedesc<map>'", 106, 54);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected 'anydata', found 'PersonObj'", 92, 28);
+                "incompatible types: expected 'anydata', found 'PersonObj'", 113, 48);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected '(xml|error)', found '(anydata|error)'", 99, 26);
+                "incompatible types: expected 'typedesc<anydata>', found 'typedesc<any[]>'", 113, 51);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected 'anydata', found 'PersonObj'", 99, 26);
-        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected 'anydata', found 'PersonObj'", 99, 26);
-        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected '(map|error)', found '(anydata|error)'", 106, 31);
-        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected '(map|error)', found '(anydata|error)'", 106, 31);
-        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected 'anydata', found 'PersonObj'", 106, 31);
-        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected 'anydata', found 'PersonObj'", 106, 31);
-        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected 'typedesc<anydata>', found 'typedesc<map>'", 106, 47);
-        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected '(any[]|error)', found '(anydata|error)'", 113, 28);
-        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected '(any[]|error)', found '(anydata|error)'", 113, 28);
-        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected 'anydata', found 'PersonObj'", 113, 28);
-        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected 'anydata', found 'PersonObj'", 113, 28);
-        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected 'typedesc<anydata>', found 'typedesc<any[]>'", 113, 44);
-        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected '([int,string]|error)', found '(anydata|error)'", 120, 38);
-        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected 'anydata', found 'PersonObj'", 120, 38);
-        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected 'anydata', found 'PersonObj'", 120, 38);
+                "incompatible types: expected 'anydata', found 'PersonObj'", 120, 58);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                                   "incompatible types: expected 'anydata', found 'PersonObj'", 127, 28);
-        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected '(PersonObj|error)', found '(anydata|error)'", 128,
-                33);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                 "incompatible types: expected 'typedesc<anydata>', found 'typedesc<PersonObj>'", 128,
                 60);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected '(EmployeeObject|error)', found '(anydata|error)'", 136, 40);
-        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                                   "incompatible types: expected 'typedesc<anydata>', found 'typedesc<EmployeeObject>'",
                 136, 63);
-        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected '(EmployeeObject|error)', found '(anydata|error)'", 144, 40);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                                   "incompatible types: expected 'typedesc<anydata>', found 'typedesc<EmployeeObject>'",
                 144, 63);
@@ -168,25 +126,18 @@ public class StampInbuiltFunctionNegativeTest {
                                   "incompatible types: expected '(EmployeeObj|error)', found '(EmployeeObject|error)'",
                                   145, 12);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected '(BookObject|error)', found '(anydata|error)'", 152, 36);
-        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                                   "incompatible types: expected 'typedesc<anydata>', found 'typedesc<BookObject>'", 152,
                 59);
-        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected '(IntObject|error)', found '(anydata|error)'", 158, 35);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                                   "incompatible types: expected 'typedesc<anydata>', found 'typedesc<IntObject>'", 158,
                 51);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected '(TeacherObj|error)', found '(anydata|error)'", 166, 36);
-        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                                   "incompatible types: expected 'typedesc<anydata>', found 'typedesc<TeacherObj>'", 166,
                 58);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected '(EmployeeObj|error)', found '(anydata|error)'", 174, 37);
-        BAssertUtil.validateError(objectNegativeTestCompileResult, index,
                                   "incompatible types: expected 'typedesc<anydata>', found 'typedesc<EmployeeObj>'",
                 174, 62);
+        Assert.assertEquals(index, objectNegativeTestCompileResult.getErrorCount());
     }
 
     //----------------------------- Record NegativeTest cases ------------------------------------------------------
@@ -197,8 +148,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Employee' value cannot be converted to 'xml<lang.xml:Element" +
-                                    "|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>'");
+                            "'Employee' value cannot be converted to 'xml<(lang.xml:Element" +
+                                    "|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>'");
     }
 
     @Test
@@ -254,8 +205,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'map<json>' value cannot be converted to 'xml<lang.xml:Element|" +
-                                    "lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>'");
+                            "'map<json>' value cannot be converted to 'xml<(lang.xml:Element|" +
+                                    "lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>'");
     }
 
     @Test
@@ -322,8 +273,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'map<anydata>' value cannot be converted to 'xml<lang.xml:Element|" +
-                                    "lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>'");
+                            "'map<anydata>' value cannot be converted to 'xml<(lang.xml:Element|" +
+                                    "lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>'");
     }
 
     @Test
@@ -361,8 +312,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'anydata[]' value cannot be converted to 'xml<lang.xml:Element|" +
-                                    "lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>'");
+                            "'anydata[]' value cannot be converted to 'xml<(lang.xml:Element|" +
+                                    "lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>'");
     }
 
     //----------------------------- Tuple NegativeTest cases ------------------------------------------------------
@@ -391,8 +342,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'[string,string,string]' value cannot be converted to 'xml<lang.xml:Element" +
-                                    "|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>'");
+                            "'[string,string,string]' value cannot be converted to 'xml<(lang.xml:Element" +
+                                    "|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>'");
     }
 
     @Test
@@ -421,17 +372,15 @@ public class StampInbuiltFunctionNegativeTest {
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'int' value cannot be converted to 'float|decimal|[string,int]': ambiguous target type");
+                "'int' value cannot be converted to '(float|decimal|[string,int])': ambiguous target type");
     }
 
     @AfterClass
     public void tearDown() {
-        compileResult = null;
         recordNegativeTestCompileResult = null;
         jsonNegativeTestCompileResult = null;
         xmlNegativeTestCompileResult = null;
         mapNegativeTestCompileResult = null;
-        objectNegativeTestCompileResult = null;
         arrayNegativeTestCompileResult = null;
         tupleNegativeTestCompileResult = null;
         unionNegativeTestCompileResult = null;

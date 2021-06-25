@@ -19,6 +19,7 @@ package io.ballerina.projects.repos;
 
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.util.ProjectConstants;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,7 +34,7 @@ public class TempDirCompilationCache extends FileSystemCache {
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
     private TempDirCompilationCache(Project project, Path cacheDirPath) {
-        super(project, cacheDirPath);
+        super(project, cacheDirPath.resolve(ProjectConstants.CACHES_DIR_NAME));
     }
 
     public static TempDirCompilationCache from(Project project) {

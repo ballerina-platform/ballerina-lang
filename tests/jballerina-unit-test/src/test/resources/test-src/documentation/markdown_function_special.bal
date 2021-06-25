@@ -11,6 +11,7 @@
 # function `m:foo`
 # function `m:foo()`
 # function `m:bar.baz()`
+# function `'m:'foo()`
 function foo() { }
 
 class bar {

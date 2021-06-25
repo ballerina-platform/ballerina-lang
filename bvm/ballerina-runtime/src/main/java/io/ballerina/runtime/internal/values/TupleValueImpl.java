@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BListInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
@@ -131,7 +132,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
     }
 
-    public TupleValueImpl(TupleType type, long size, ListInitialValueEntry[] initialValues) {
+    public TupleValueImpl(TupleType type, long size, BListInitialValueEntry[] initialValues) {
         this.tupleType = type;
 
         List<Type> memTypes = this.tupleType.getTupleTypes();
@@ -480,10 +481,6 @@ public class TupleValueImpl extends AbstractArrayValue {
         throw new UnsupportedOperationException();
     }
 
-    public long[] getLongArray() {
-        throw new UnsupportedOperationException();
-    }
-
     /**
      * Get a copy of int array.
      * 
@@ -491,6 +488,21 @@ public class TupleValueImpl extends AbstractArrayValue {
      */
     @Override
     public long[] getIntArray() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean[] getBooleanArray() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public byte[] getByteArray() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public double[] getFloatArray() {
         throw new UnsupportedOperationException();
     }
 

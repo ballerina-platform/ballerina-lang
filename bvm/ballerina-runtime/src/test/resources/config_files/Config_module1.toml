@@ -1,0 +1,3 @@
+[test_module.util.foo]
+intVar = 11
+stringVar = "module string"

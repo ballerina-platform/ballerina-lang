@@ -17,8 +17,8 @@
 function testSimpleWorkerVM(string msg) returns string {
     fork {
         worker first returns string {
-            string d = <- default;
-            d -> default;
+            string d = <- function;
+            d -> function;
             "a" -> sampleWorker;
             string result = "";
             result = <- sampleWorker;

@@ -1,0 +1,4 @@
+[package]
+org = "samjs"
+name = "package_comp_plugin_with_one_java_dependency"
+version = "0.1.0"

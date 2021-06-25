@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.test;
 
+import com.sun.management.UnixOperatingSystemMXBean;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
@@ -32,46 +33,40 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.io.PrintStream;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Contains cases to test package resolution logic.
  *
  * @since 2.0.0
  */
-public class PackageResolutionTests {
+public class PackageResolutionTests extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Paths.get(
             "src/test/resources/projects_for_resolution_tests").toAbsolutePath();
     private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath();
-    private static final PrintStream out = System.out;
 
     @BeforeTest
-    public void setup() {
-        // Here package_a depends on package_b
-        // and package_b depends on package_c
-        // Therefore package_c is transitive dependency of package_a
-
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_c");
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_b");
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_e");
-
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_unstable_k_alpha");
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_unstable_k_beta");
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_unstable_k_GA");
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_l_with_unstable_dep");
+    public void setup() throws IOException {
+        // Compile and cache dependency for custom repo tests
+        cacheDependencyToLocalRepo(RESOURCE_DIRECTORY.resolve("package_c_with_pkg_private_function"));
     }
 
     @Test(description = "tests resolution with zero direct dependencies")
@@ -83,7 +78,7 @@ public class PackageResolutionTests {
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        diagnosticResult.errors().forEach(out::println);
+        diagnosticResult.errors().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
         // Check direct package dependencies
@@ -100,7 +95,7 @@ public class PackageResolutionTests {
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        diagnosticResult.errors().forEach(out::println);
+        diagnosticResult.errors().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
         // Check direct package dependencies
@@ -117,7 +112,7 @@ public class PackageResolutionTests {
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        diagnosticResult.errors().forEach(out::println);
+        diagnosticResult.errors().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
         // Check direct package dependencies
@@ -135,7 +130,7 @@ public class PackageResolutionTests {
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        diagnosticResult.errors().forEach(out::println);
+        diagnosticResult.errors().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
         // Check direct package dependencies
@@ -151,8 +146,8 @@ public class PackageResolutionTests {
         // package_missing_transitive_dep --> package_b --> package_c
         // package_missing_transitive_dep --> package_k --> package_z (this is missing)
         Path balaPath = RESOURCE_DIRECTORY.resolve("balas").resolve("missing_transitive_deps")
-                .resolve("samjs-package_k-any-1.0.0.bala");
-        BCompileUtil.copyBalaToDistRepository(balaPath, "samjs", "package_k", "1.0.0");
+                .resolve("samjs-package_kk-any-1.0.0.bala");
+        BCompileUtil.copyBalaToDistRepository(balaPath, "samjs", "package_kk", "1.0.0");
 
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_missing_transitive_dep");
         BuildProject buildProject = BuildProject.load(projectDirPath);
@@ -175,7 +170,7 @@ public class PackageResolutionTests {
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
-        diagnosticResult.errors().forEach(out::println);
+        diagnosticResult.errors().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
         String balaName = ProjectUtils.getBalaName(buildProject.currentPackage().manifest());
@@ -206,6 +201,12 @@ public class PackageResolutionTests {
         BCompileUtil.compileAndCacheBala(
                 "projects_for_resolution_tests/ultimate_package_resolution/package_cache");
 
+        OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
+        long initialOpenCount = 0;
+        if (os instanceof UnixOperatingSystemMXBean) {
+            UnixOperatingSystemMXBean unixOperatingSystemMXBean = (UnixOperatingSystemMXBean) os;
+            initialOpenCount = unixOperatingSystemMXBean.getOpenFileDescriptorCount();
+        }
         Project project = BCompileUtil.loadProject(
                 "projects_for_resolution_tests/ultimate_package_resolution/package_http");
 
@@ -213,9 +214,13 @@ public class PackageResolutionTests {
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
-        diagnosticResult.errors().forEach(out::println);
+        diagnosticResult.errors().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
+        if (os instanceof UnixOperatingSystemMXBean) {
+            UnixOperatingSystemMXBean unixOperatingSystemMXBean = (UnixOperatingSystemMXBean) os;
+            Assert.assertEquals(initialOpenCount, unixOperatingSystemMXBean.getOpenFileDescriptorCount());
+        }
 
         Package currentPkg = project.currentPackage();
         Assert.assertEquals(currentPkg.packageDependencies().size(), 3);
@@ -245,33 +250,6 @@ public class PackageResolutionTests {
         }
     }
 
-    @Test(description = "tests projects with pre-release versions")
-    public void testProjectWithPreReleaseVersion() {
-        // package_c --> {}
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_unstable_k_alpha");
-        BuildProject buildProject = BuildProject.load(projectDirPath);
-        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
-
-        // Check whether there are any diagnostics
-        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        diagnosticResult.errors().forEach(out::println);
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
-
-        // Check direct package dependencies
-        Assert.assertEquals(buildProject.currentPackage().packageDependencies().size(), 0,
-                "Unexpected number of dependencies");
-    }
-
-    @Test(description = "tests projects with pre-release versions", expectedExceptions = ProjectException.class,
-            expectedExceptionsMessageRegExp = "Two incompatible versions exist in the dependency graph: " +
-                    "samjs/package_k versions: 1.1.0-alpha, 1.1.0-beta")
-    public void testProjectWithPreReleaseVersionAsDependency() {
-        // package_c --> {}
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_m_with_unstable_dep");
-        BuildProject buildProject = BuildProject.load(projectDirPath);
-        buildProject.currentPackage().getResolution();
-    }
-
     @Test(description = "tests loading a valid bala project")
     public void testBalaProjectDependencyResolution() {
         Path balaPath = getBalaPath("samjs", "package_b", "0.1.0");
@@ -283,11 +261,56 @@ public class PackageResolutionTests {
         List<ResolvedPackageDependency> nodeInGraph = dependencyGraph.toTopologicallySortedList();
         Assert.assertEquals(nodeInGraph.size(), 2);
     }
+    // For this to be enabled, #31026 should be fixed.
+    @Test(enabled = false, dependsOnMethods = "testResolveDependencyFromUnsupportedCustomRepo")
+    public void testResolveDependencyFromCustomRepo() {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_b");
+        String dependencyContent = "[[dependency]]\n" +
+                "org = \"samjs\"\n" +
+                "name = \"package_c\"\n" +
+                "version = \"0.1.0\"\n" +
+                "repository = \"local\"";
 
-    private Path getBalaPath(String org, String pkgName, String version) {
-        String ballerinaHome = System.getProperty("ballerina.home");
-        Path balaRepoPath = Paths.get(ballerinaHome).resolve("repo").resolve("bala");
-        String balaName = org + "-" + pkgName + "-any-" + version + ".bala";
-        return balaRepoPath.resolve(org).resolve(pkgName).resolve(version).resolve(balaName);
+        // 1) load the build project
+        Environment environment = EnvironmentBuilder.getBuilder().setUserHome(USER_HOME).build();
+        ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
+        BuildProject project = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+
+        // 2) set local repository to dependency
+        project.currentPackage().dependenciesToml().orElseThrow().modify().withContent(dependencyContent).apply();
+
+        // 3) Compile and check the diagnostics
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+
+        // 4) The dependency is expected to load from distribution cache, hence zero diagnostics
+        Assert.assertEquals(diagnosticResult.errorCount(), 2);
+    }
+
+    // For this to be enabled, #31026 should be fixed.
+    @Test (enabled = false)
+    public void testResolveDependencyFromUnsupportedCustomRepo() {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_b");
+        String dependencyContent = "[[dependency]]\n" +
+                "org = \"samjs\"\n" +
+                "name = \"package_c\"\n" +
+                "version = \"0.1.0\"\n" +
+                "repository = \"stdlib.local\"";
+
+        // 2) load the build project
+        Environment environment = EnvironmentBuilder.getBuilder().setUserHome(USER_HOME).build();
+        ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
+        BuildProject project = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+
+        // 3) set local repository to dependency compile the package and check diagnostics
+        project.currentPackage().dependenciesToml().get().modify().withContent(dependencyContent).apply();
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+
+        // 4) The dependency is expected to load from distribution cache, hence zero diagnostics
+        Assert.assertEquals(diagnosticResult.errorCount(), 3);
+        List<String> diagnosticMsgs = diagnosticResult.errors().stream()
+                .map(Diagnostic::message).collect(Collectors.toList());
+        Assert.assertTrue(diagnosticMsgs.contains("cannot resolve module 'samjs/package_c.mod_c1 as mod_c1'"));
     }
 }

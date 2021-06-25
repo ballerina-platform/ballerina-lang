@@ -18,7 +18,6 @@
 package org.ballerinalang.test.context;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.terminator.Terminator;
 import org.ballerinalang.test.util.terminator.TerminatorFactory;
 import org.slf4j.Logger;
@@ -180,11 +179,9 @@ public class BMainInstance implements BMain {
         }
         addJavaAgents(envProperties);
 
-        runMain("build", new String[] { "--sourceroot", sourceRoot, packagePath },
-                envProperties, null, leechers, balServer.getServerHome());
-        runJar(sourceRoot, packagePath, ArrayUtils.addAll(flags, args), envProperties, clientArgs, leechers,
-                balServer.getServerHome());
-
+        runMain("build", new String[]{packagePath}, envProperties, null, leechers, sourceRoot);
+        runJar(Paths.get(sourceRoot, packagePath).toString(), packagePath, ArrayUtils.addAll(flags, args),
+                envProperties, clientArgs, leechers, sourceRoot);
     }
 
     private synchronized void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
@@ -215,12 +212,7 @@ public class BMainInstance implements BMain {
      */
     public void runMain(String command, String[] args, Map<String, String> envProperties, String[] clientArgs,
                         LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
-        String scriptName;
-        if (BCompileUtil.jBallerinaTestsEnabled()) {
-            scriptName = Constant.JBALLERINA_SERVER_SCRIPT_NAME;
-        } else {
-            scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
-        }
+        String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
         String[] cmdArray;
         try {
 
@@ -294,12 +286,7 @@ public class BMainInstance implements BMain {
     public Process debugMain(String command, String[] args, Map<String, String> envProperties, String[] clientArgs,
                              LogLeecher[] leechers, String commandDir, int timeout, boolean isAttachMode)
             throws BallerinaTestException {
-        String scriptName;
-        if (BCompileUtil.jBallerinaTestsEnabled()) {
-            scriptName = Constant.JBALLERINA_SERVER_SCRIPT_NAME;
-        } else {
-            scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
-        }
+        String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
         String[] cmdArray;
         String[] cmdArgs = new String[0];
         Process process = null;
@@ -622,12 +609,7 @@ public class BMainInstance implements BMain {
     public String runMainAndReadStdOut(String command, String[] args, Map<String, String> envProperties,
                                        String commandDir, boolean readErrStream) throws BallerinaTestException {
 
-        String scriptName;
-        if (BCompileUtil.jBallerinaTestsEnabled()) {
-            scriptName = Constant.JBALLERINA_SERVER_SCRIPT_NAME;
-        } else {
-            scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
-        }
+        String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
         String[] cmdArray;
         try {
 

@@ -12,7 +12,7 @@ public class userBar {
     public int age = 0;
     public string name = "hidden, private";
     public string address = "";
-    public string zipcode = "23468";
+    private string zipcode = "23468";
 
     private int ssn;
 
@@ -34,7 +34,7 @@ public class userBar {
 }
 
 public class BarObj {
-    public int age = 0;
+    private int age = 0;
     public string name = "";
 
     public function getName() returns string {

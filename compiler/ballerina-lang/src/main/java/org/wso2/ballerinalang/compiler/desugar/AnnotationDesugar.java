@@ -172,8 +172,8 @@ public class AnnotationDesugar {
             SymbolEnv classEnv = SymbolEnv.createClassEnv(classDefinition, initFunction.symbol.scope, env);
             BLangLambdaFunction lambdaFunction = defineAnnotations(classDefinition, pkgNode, classEnv, pkgID, owner);
             if (lambdaFunction != null) {
-                BType type = classDefinition.type;
-                if (Symbols.isService(type.tsymbol) || Symbols.isFlagOn(type.flags, Flags.OBJECT_CTOR)) {
+                BType type = classDefinition.getBType();
+                if (Symbols.isFlagOn(type.flags, Flags.OBJECT_CTOR)) {
                     // Add the lambda/invocation in a temporary block.
                     BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
                     BLangBlockFunctionBody initBody = (BLangBlockFunctionBody) initFunction.body;
@@ -279,9 +279,9 @@ public class AnnotationDesugar {
                 String identifier = function.attachedFunction ? function.symbol.name.value : function.name.value;
 
                 int index;
-                if (function.attachedFunction && ((function.receiver.type.flags & Flags.SERVICE) == Flags.SERVICE)) {
+                if (function.attachedFunction && Symbols.isFlagOn(function.receiver.getBType().flags, Flags.SERVICE)) {
                     addLambdaToGlobalAnnotMap(identifier, lambdaFunction, target);
-                    index = calculateIndex(initFnBody.stmts, function.receiver.type.tsymbol);
+                    index = calculateIndex(initFnBody.stmts, function.receiver.getBType().tsymbol);
                 } else {
                     addInvocationToGlobalAnnotMap(identifier, lambdaFunction, target);
                     index = initFnBody.stmts.size();
@@ -298,6 +298,9 @@ public class AnnotationDesugar {
     private void attachSchedulerPolicy(BLangFunction function) {
         for (BLangAnnotationAttachment annotation : function.annAttachments) {
             if (!annotation.annotationName.value.equals("strand")) {
+                continue;
+            }
+            if (annotation.expr == null) {
                 continue;
             }
             List<RecordLiteralNode.RecordField> fields = ((BLangRecordLiteral) annotation.expr).fields;
@@ -492,7 +495,7 @@ public class AnnotationDesugar {
         BSymbol annTypeSymbol = symResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(DEFAULTABLE_REC));
         if (annTypeSymbol instanceof BStructureTypeSymbol) {
             bStructSymbol = (BStructureTypeSymbol) annTypeSymbol;
-            literalNode.type = bStructSymbol.type;
+            literalNode.setBType(bStructSymbol.type);
         }
 
         //Add Root Descriptor
@@ -502,24 +505,24 @@ public class AnnotationDesugar {
 
         BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         keyLiteral.value = ARG_NAMES;
-        keyLiteral.type = symTable.stringType;
+        keyLiteral.setBType(symTable.stringType);
 
         BLangListConstructorExpr.BLangArrayLiteral valueLiteral = (BLangListConstructorExpr.BLangArrayLiteral)
                 TreeBuilder.createArrayLiteralExpressionNode();
-        valueLiteral.type = new BArrayType(symTable.stringType);
+        valueLiteral.setBType(new BArrayType(symTable.stringType));
         valueLiteral.pos = pos;
 
         for (BVarSymbol varSymbol : mainFunc.symbol.getParameters()) {
             BLangLiteral str = (BLangLiteral) TreeBuilder.createLiteralExpression();
             str.value = varSymbol.name.value;
-            str.type = symTable.stringType;
+            str.setBType(symTable.stringType);
             valueLiteral.exprs.add(str);
         }
 
         if (mainFunc.symbol.restParam != null) {
             BLangLiteral str = (BLangLiteral) TreeBuilder.createLiteralExpression();
             str.value = mainFunc.symbol.restParam.name.value;
-            str.type = symTable.stringType;
+            str.setBType(symTable.stringType);
             valueLiteral.exprs.add(str);
         }
         descriptorKeyValue.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
@@ -536,7 +539,7 @@ public class AnnotationDesugar {
     private BLangFunction defineFunction(Location pos, PackageID pkgID, BSymbol owner) {
         String funcName = ANNOT_FUNC + UNDERSCORE + annotFuncCount++;
         BLangFunction function = ASTBuilderUtil.createFunction(pos, funcName);
-        function.type = new BInvokableType(Collections.emptyList(), symTable.mapType, null);
+        function.setBType(new BInvokableType(Collections.emptyList(), symTable.mapType, null));
 
         BLangBuiltInRefTypeNode anyMapType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
         anyMapType.typeKind = TypeKind.MAP;
@@ -551,17 +554,17 @@ public class AnnotationDesugar {
         constrainedType.pos = pos;
 
         function.returnTypeNode = anyMapType;
-        function.returnTypeNode.type = symTable.mapType;
+        function.returnTypeNode.setBType(symTable.mapType);
 
         function.body = ASTBuilderUtil.createBlockFunctionBody(pos, new ArrayList<>());
 
         BInvokableSymbol functionSymbol = new BInvokableSymbol(SymTag.INVOKABLE, Flags.asMask(function.flagSet),
-                                                               new Name(funcName), pkgID, function.type, owner,
+                                                               new Name(funcName), pkgID, function.getBType(), owner,
                                                                function.name.pos, VIRTUAL);
         functionSymbol.bodyExist = true;
         functionSymbol.kind = SymbolKind.FUNCTION;
 
-        functionSymbol.retType = function.returnTypeNode.type;
+        functionSymbol.retType = function.returnTypeNode.getBType();
         functionSymbol.scope = new Scope(functionSymbol);
         function.symbol = functionSymbol;
         return function;
@@ -668,16 +671,16 @@ public class AnnotationDesugar {
     private BInvokableSymbol createInvokableSymbol(BLangFunction function, PackageID pkgID, BSymbol owner) {
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(function.flagSet),
                                                                        new Name(function.name.value),
-                                                                       pkgID, function.type, owner, true, function.pos,
-                                                                       VIRTUAL);
-        functionSymbol.retType = function.returnTypeNode.type;
+                                                                       pkgID, function.getBType(), owner, true,
+                                                                       function.pos, VIRTUAL);
+        functionSymbol.retType = function.returnTypeNode.getBType();
         functionSymbol.params = function.requiredParams.stream()
                 .map(param -> param.symbol)
                 .collect(Collectors.toList());
         functionSymbol.scope = new Scope(functionSymbol);
         functionSymbol.restParam = function.restParam != null ? function.restParam.symbol : null;
         functionSymbol.type = new BInvokableType(Collections.emptyList(),
-                function.restParam != null ? function.restParam.type : null,
+                function.restParam != null ? function.restParam.getBType() : null,
                 new BMapType(TypeTags.MAP, symTable.anyType, null),
                 null);
         function.symbol = functionSymbol;
@@ -768,7 +771,7 @@ public class AnnotationDesugar {
         indexAccessNode.indexExpr = ASTBuilderUtil.createLiteral(targetPos, symTable.stringType,
                 StringEscapeUtils.unescapeJava(identifier));
         indexAccessNode.expr = ASTBuilderUtil.createVariableRef(targetPos, mapVar.symbol);
-        indexAccessNode.type = ((BMapType) mapVar.type).constraint;
+        indexAccessNode.setBType(((BMapType) mapVar.getBType()).constraint);
         assignmentStmt.varRef = indexAccessNode;
     }
 
@@ -790,7 +793,7 @@ public class AnnotationDesugar {
 
     private BLangInvocation getInvocation(BLangLambdaFunction lambdaFunction) {
         BLangInvocation funcInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
-        funcInvocation.type = symTable.mapType;
+        funcInvocation.setBType(symTable.mapType);
         funcInvocation.expr = null;
         BInvokableSymbol lambdaSymbol = lambdaFunction.function.symbol;
         funcInvocation.symbol = lambdaSymbol;
@@ -822,7 +825,7 @@ public class AnnotationDesugar {
             NodeKind kind = expr.getKind();
 
             if ((kind == NodeKind.TYPE_INIT_EXPR || kind == NodeKind.OBJECT_CTOR_EXPRESSION) &&
-                    expr.type.tsymbol == symbol) {
+                    expr.getBType().tsymbol == symbol) {
                 return i;
             }
         }

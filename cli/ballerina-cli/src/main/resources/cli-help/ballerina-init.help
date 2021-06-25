@@ -1,19 +1,20 @@
 NAME
-       ballerina-init - Create a new Ballerina package inside the current directory.
+       ballerina-init - Create a new Ballerina package inside the current directory
 
 SYNOPSIS
        bal init
        bal init <package-name>
+       bal init <package-name> [-t | --template] <template-name>
 
 
 DESCRIPTION
-       Init initializes a Ballerina package inside the current directory.
+       Initialize a Ballerina package inside the current directory.
 
-       A Ballerina package is a collection of logically related Ballerina modules that
+       A Ballerina package is a collection of logically-related Ballerina modules that
        are versioned and shared as a single unit. All modules of the package share the
        same 'Ballerina.toml' and the 'target' directory.
 
-       The package directory will have the following structure.
+       The package directory will have the structure below.
             .
             ├── Ballerina.toml
             └── main.bal
@@ -21,33 +22,33 @@ DESCRIPTION
        Any directory becomes a Ballerina package if that directory has a
        'Ballerina.toml' file. It contains the organization name, package name,
        and the version. It also enables dependency management across the package.
-       The package root directory also is the default module directory.
+       The package root directory is the default module directory.
 
        The 'modules' directory contains other non-default Ballerina modules. Use
-       'bal add <module-name>' command to create modules.
+       the 'bal add <module-name>' command to create modules.
 
-       The 'target' directory is created during the build process.
-       The 'target' is the output directory that contains the build artifacts.
+       The 'target' directory is created during the build process. It is the output directory, 
+       which contains the build artifacts.
 
-       A template can also be specified when initializing a new package.
-       If a template is not specified, this command will initialize a package by
-       creating a Ballerina.toml file inside the current directory.
-
-      There are three built-in templates named:
-        1. main
-        2. service
-        3. lib
+       A template can also be specified when initializing a new package. If a template is not 
+       specified, this command will initialize a package by creating a `Ballerina.toml` file 
+       inside the current directory.
 
 OPTIONS
-     -t <template-name>, --template <template-name>
+      -t <template-name>, --template <template-name>
          Create a package using a predefined template.
+
+         There are three built-in templates named:
+                 1. `main`
+                 2. `service`
+                 3. `lib`
 
 EXAMPLES
      Initialise a package.
         $ bal init
         $ bal init <package-name>
 
-     Initialise a package with a 'main' template.
+     Initialise a package with the 'main' function.
         $ bal init --template main
         $ bal init <package-name>
 

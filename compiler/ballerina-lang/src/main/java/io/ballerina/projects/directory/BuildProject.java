@@ -22,20 +22,28 @@ import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageConfig;
+import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
-import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
+import static io.ballerina.projects.util.ProjectUtils.getDependenciesTomlContent;
 
 /**
  * {@code BuildProject} represents Ballerina project instance created from the project directory.
@@ -101,6 +109,7 @@ public class BuildProject extends Project {
         return Optional.empty();
     }
 
+    @Override
     public Optional<Path> documentPath(DocumentId documentId) {
         for (ModuleId moduleId : currentPackage().moduleIds()) {
             Module module = currentPackage().module(moduleId);
@@ -126,9 +135,10 @@ public class BuildProject extends Project {
             Path parent = Optional.of(file.toAbsolutePath().getParent()).get();
             for (ModuleId moduleId : this.currentPackage().moduleIds()) {
                 String moduleDirName;
-                if (moduleId.moduleName().contains(DOT)) {
+                // Check for the module name contains a dot and not being the default module
+                if (!this.currentPackage().getDefaultModule().moduleId().equals(moduleId)) {
                     moduleDirName = moduleId.moduleName()
-                            .split(this.currentPackage().packageName().toString() + DOT)[1];
+                            .split(this.currentPackage().packageName().toString() + "\\.")[1];
                 } else {
                     moduleDirName = Optional.of(this.sourceRoot.getFileName()).get().toString();
                 }
@@ -161,5 +171,44 @@ public class BuildProject extends Project {
             return false;
         }
         return true;
+    }
+
+    public void save() {
+        writeDependencies();
+    }
+
+    private void writeDependencies() {
+        Package currentPackage = this.currentPackage();
+        if (currentPackage != null) {
+            ResolvedPackageDependency resolvedPackageDependency =
+                    new ResolvedPackageDependency(currentPackage, PackageDependencyScope.DEFAULT);
+            Collection<ResolvedPackageDependency> pkgDependencies =
+                    currentPackage.getResolution().dependencyGraph().getDirectDependencies(resolvedPackageDependency);
+
+            String dependenciesContent = getDependenciesTomlContent(pkgDependencies,
+                                                                    currentPackage.manifest().dependencies());
+            if (!dependenciesContent.isEmpty()) {
+                // write content to Dependencies.toml file
+                createIfNotExistsAndWrite(currentPackage.project().sourceRoot().resolve(DEPENDENCIES_TOML),
+                                          dependenciesContent);
+            }
+        }
+    }
+
+    private static void createIfNotExistsAndWrite(Path filePath, String content) {
+        if (!filePath.toFile().exists()) {
+            try {
+                Files.createFile(filePath);
+            } catch (IOException e) {
+                throw new ProjectException("Failed to create 'Dependencies.toml' file to write dependencies");
+            }
+        }
+
+        try {
+            Files.write(filePath, Collections.singleton(content));
+        } catch (IOException e) {
+            throw new ProjectException("Failed to write dependencies to the 'Dependencies.toml' file");
+        }
+
     }
 }

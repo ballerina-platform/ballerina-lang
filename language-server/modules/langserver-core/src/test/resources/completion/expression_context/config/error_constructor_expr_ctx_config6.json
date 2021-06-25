@@ -1,0 +1,25 @@
+{
+  "position": {
+    "line": 7,
+    "character": 31
+  },
+  "source": "expression_context/source/error_constructor_expr_ctx_source6.bal",
+  "items": [
+    {
+      "label": "ErrorOne",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "Q",
+      "insertText": "ErrorOne",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorTwo",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "Q",
+      "insertText": "ErrorTwo",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

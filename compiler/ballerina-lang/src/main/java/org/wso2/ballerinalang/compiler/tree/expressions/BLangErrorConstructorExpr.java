@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * Implementation of error-constructor-expr.
@@ -56,5 +57,24 @@ public class BLangErrorConstructorExpr extends BLangExpression implements ErrorC
     @Override
     public List<? extends NamedArgNode> getNamedArgs() {
         return namedArgs;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        StringJoiner args = new StringJoiner(", ", "(", ")");
+        for (BLangExpression positionalArg : positionalArgs) {
+            args.add(positionalArg.toString());
+        }
+
+        for (BLangNamedArgsExpression namedArg : namedArgs) {
+            args.add(namedArg.toString());
+        }
+
+        return sb.append("error ")
+                .append(errorTypeRef != null ? errorTypeRef.typeName.toString() : "")
+                .append(args)
+                .toString();
     }
 }

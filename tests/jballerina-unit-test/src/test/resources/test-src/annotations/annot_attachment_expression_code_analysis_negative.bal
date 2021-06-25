@@ -28,21 +28,6 @@ annotation Foo1 f1 on type, class;
 class Bar1 {
 }
 
-type Foo2 record {
-    string s1;
-    string? s2;
-};
-
-annotation Foo2 f2 on type, class;
-
-@f2 {
-    s1: "str",
-    s2: null // 'null' literal is only supported for 'json'
-}
-class Bar2 {
-
-}
-
 type Foo3 record {|
     string s;
     int i;

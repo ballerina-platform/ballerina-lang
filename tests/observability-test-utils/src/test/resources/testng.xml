@@ -17,7 +17,7 @@
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 <suite name="jBallerina-Test-Suite">
-    <test name="ballerina-observability-tests" parallel="false">
+    <test name="ballerina-observability-test-utils-tests" parallel="false">
         <classes>
             <class name="org.ballerina.testobserve.ListenerEndpointTest"/>
         </classes>

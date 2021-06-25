@@ -16,20 +16,22 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.LangLibrary;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a Ballerina Type Descriptor.
@@ -42,13 +44,11 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     protected List<FunctionSymbol> langLibFunctions;
 
     private final TypeDescKind typeDescKind;
-    private final ModuleID moduleID;
     private final BType bType;
 
-    public AbstractTypeSymbol(CompilerContext context, TypeDescKind typeDescKind, ModuleID moduleID, BType bType) {
+    public AbstractTypeSymbol(CompilerContext context, TypeDescKind typeDescKind, BType bType) {
         this.context = context;
         this.typeDescKind = typeDescKind;
-        this.moduleID = moduleID;
         this.bType = bType;
     }
 
@@ -58,17 +58,17 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     }
 
     @Override
-    public ModuleID moduleID() {
-        return moduleID;
+    public Optional<String> getName() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<ModuleSymbol> getModule() {
+        return Optional.empty();
     }
 
     @Override
     public abstract String signature();
-
-    @Override
-    public String name() {
-        return "";
-    }
 
     @Override
     public SymbolKind kind() {
@@ -78,6 +78,11 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     @Override
     public Location location() {
         return null;
+    }
+
+    @Override
+    public Optional<Location> getLocation() {
+        return Optional.empty();
     }
 
     @Override
@@ -130,7 +135,23 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
         List<FunctionSymbol> filteredFunctions = new ArrayList<>();
 
         for (FunctionSymbol function : functions) {
-            ParameterSymbol firstParam = function.typeDescriptor().parameters().get(0);
+
+            List<ParameterSymbol> functionParams = function.typeDescriptor().params().get();
+
+            if (functionParams.isEmpty()) {
+                // If the function-type-descriptor doesn't have params, then, check for the rest-param
+                Optional<ParameterSymbol> restParamOptional = function.typeDescriptor().restParam();
+                if (restParamOptional.isPresent()) {
+                    BArrayType restArrayType =
+                            (BArrayType) ((AbstractTypeSymbol) restParamOptional.get().typeDescriptor()).getBType();
+                    if (types.isAssignable(internalType, restArrayType.eType)) {
+                        filteredFunctions.add(function);
+                    }
+                }
+                continue;
+            }
+
+            ParameterSymbol firstParam = functionParams.get(0);
             BType firstParamType = ((AbstractTypeSymbol) firstParam.typeDescriptor()).getBType();
 
             if (types.isAssignable(internalType, firstParamType)) {

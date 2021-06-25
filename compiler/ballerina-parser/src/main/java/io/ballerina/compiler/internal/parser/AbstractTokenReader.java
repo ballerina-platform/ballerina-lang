@@ -79,6 +79,13 @@ public abstract class AbstractTokenReader {
     public abstract void endMode();
 
     /**
+     * Get the current mode of the token reader.
+     *
+     * @return Current mode
+     */
+    public abstract ParserMode getCurrentMode();
+
+    /**
      * Get the current index of the token reader.
      *
      * @return current token index

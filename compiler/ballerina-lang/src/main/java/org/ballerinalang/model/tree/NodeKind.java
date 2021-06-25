@@ -131,6 +131,7 @@ public enum NodeKind {
     OBJECT_CTOR_EXPRESSION,
     ERROR_CONSTRUCTOR_EXPRESSION,
     DYNAMIC_PARAM_EXPR,
+    INFER_TYPEDESC_EXPR,
 
     /* Statements */
     ABORT,

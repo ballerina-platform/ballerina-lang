@@ -15,41 +15,23 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.MethodSymbol;
-import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
-import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
-import io.ballerina.compiler.api.symbols.Qualifier;
-import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
-import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
-import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
-import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
-import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.ObjectFieldCompletionItem;
-import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.eclipse.lsp4j.CompletionItem;
+import org.ballerinalang.langserver.completions.util.FieldAccessCompletionResolver;
+import org.ballerinalang.langserver.completions.util.ForeachCompletionUtil;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
+import org.ballerinalang.langserver.completions.util.TypeGuardCompletionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Generic Completion provider for field access providers.
@@ -72,204 +54,42 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
      * @param expr expression node to evaluate
      * @return {@link List} of filtered scope entries
      */
-    protected List<LSCompletionItem> getEntries(BallerinaCompletionContext ctx, ExpressionNode expr) {
-        Optional<? extends TypeSymbol> typeDesc = this.getTypeDesc(ctx, expr);
-        if (typeDesc.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        return this.getCompletionsForTypeDesc(ctx, typeDesc.get());
-    }
-
-
-    /**
-     * Whether to remove the optional fields during the record fields filtering phase.
-     *
-     * @return {@link Boolean} optional field removal status
-     */
-    protected abstract boolean removeOptionalFields();
-
-    private Optional<? extends TypeSymbol> getTypeDesc(BallerinaCompletionContext ctx, ExpressionNode expr) {
-        switch (expr.kind()) {
-            case SIMPLE_NAME_REFERENCE:
-                /*
-                Captures the following
-                (1) fieldName.<cursor>
-                (2) fieldName.t<cursor>
-                 */
-                return this.getTypeDescForNameRef(ctx, (SimpleNameReferenceNode) expr);
-            case FUNCTION_CALL:
-                /*
-                Captures the following
-                (1) functionName().<cursor>
-                (2) functionName().t<cursor>
-                 */
-                return this.getTypeDescForFunctionCall(ctx, (FunctionCallExpressionNode) expr);
-            case METHOD_CALL: {
-                /*
-                Address the following
-                (1) test.testMethod().<cursor>
-                (2) test.testMethod().t<cursor>
-                 */
-                return this.getTypeDescForMethodCall(ctx, (MethodCallExpressionNode) expr);
-            }
-            case FIELD_ACCESS: {
-                /*
-                Address the following
-                (1) test1.test2.<cursor>
-                (2) test1.test2.t<cursor>
-                 */
-                return this.getTypeDescForFieldAccess(ctx, (FieldAccessExpressionNode) expr);
-            }
-            case INDEXED_EXPRESSION: {
-                /*
-                Address the following
-                (1) test1[].<cursor>
-                (2) test1[].t<cursor>
-                 */
-                return this.getTypeDescForIndexedExpr(ctx, (IndexedExpressionNode) expr);
-            }
-
-            default:
-                return Optional.empty();
-        }
-    }
-
-    private Optional<? extends TypeSymbol> getTypeDescForFieldAccess(BallerinaCompletionContext context,
-                                                                     FieldAccessExpressionNode node) {
-        String fieldName = ((SimpleNameReferenceNode) node.fieldName()).name().text();
-        ExpressionNode expressionNode = node.expression();
-        Optional<? extends TypeSymbol> typeDescriptor = this.getTypeDesc(context, expressionNode);
-
-        if (typeDescriptor.isEmpty()) {
-            return Optional.empty();
-        }
-
-        TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor.get());
-        switch (rawType.typeKind()) {
-            case OBJECT:
-                ObjectFieldSymbol objField = ((ObjectTypeSymbol) rawType).fieldDescriptors().get(fieldName);
-                return objField != null ? Optional.of(objField.typeDescriptor()) : Optional.empty();
-            case RECORD:
-                RecordFieldSymbol recField = ((RecordTypeSymbol) rawType).fieldDescriptors().get(fieldName);
-                return recField != null ? Optional.of(recField.typeDescriptor()) : Optional.empty();
-            default:
-                return Optional.empty();
-        }
-    }
-
-    private Optional<? extends TypeSymbol> getTypeDescForNameRef(BallerinaCompletionContext context,
-                                                                 NameReferenceNode referenceNode) {
-        if (referenceNode.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            return Optional.empty();
-        }
-        String name = ((SimpleNameReferenceNode) referenceNode).name().text();
-        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        Optional<Symbol> symbolRef = visibleSymbols.stream()
-                .filter(symbol -> symbol.name().equals(name))
-                .findFirst();
-        if (symbolRef.isEmpty()) {
-            return Optional.empty();
-        }
-
-        return SymbolUtil.getTypeDescriptor(symbolRef.get());
-    }
-
-    private Optional<? extends TypeSymbol> getTypeDescForFunctionCall(BallerinaCompletionContext context,
-                                                                      FunctionCallExpressionNode expr) {
-        String fName = ((SimpleNameReferenceNode) expr.functionName()).name().text();
-        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        Optional<FunctionSymbol> symbolRef = visibleSymbols.stream()
-                .filter(symbol -> symbol.name().equals(fName) && symbol.kind() == SymbolKind.FUNCTION)
-                .map(symbol -> (FunctionSymbol) symbol)
-                .findFirst();
-        if (symbolRef.isEmpty()) {
-            return Optional.empty();
-        }
-
-        return symbolRef.get().typeDescriptor().returnTypeDescriptor();
-    }
-
-    private Optional<? extends TypeSymbol> getTypeDescForMethodCall(BallerinaCompletionContext context,
-                                                                    MethodCallExpressionNode node) {
-        String methodName = ((SimpleNameReferenceNode) node.methodName()).name().text();
-
-        Optional<? extends TypeSymbol> fieldTypeDesc = this.getTypeDesc(context, node.expression());
-
-        if (fieldTypeDesc.isEmpty()) {
-            return Optional.empty();
-        }
-        TypeSymbol rawType = CommonUtil.getRawType(fieldTypeDesc.get());
-        List<FunctionSymbol> visibleMethods = rawType.langLibMethods();
-        if (rawType.typeKind() == TypeDescKind.OBJECT) {
-            visibleMethods.addAll(((ObjectTypeSymbol) rawType).methods().values());
-        }
-        Optional<FunctionSymbol> filteredMethod = visibleMethods.stream()
-                .filter(methodSymbol -> methodSymbol.name().equals(methodName))
-                .findFirst();
-
-        if (filteredMethod.isEmpty()) {
-            return Optional.empty();
-        }
-
-        return filteredMethod.get().typeDescriptor().returnTypeDescriptor();
-    }
-
-    private Optional<? extends TypeSymbol> getTypeDescForIndexedExpr(BallerinaCompletionContext context,
-                                                                     IndexedExpressionNode node) {
-        Optional<? extends TypeSymbol> typeDesc = getTypeDesc(context, node.containerExpression());
-
-        if (typeDesc.isEmpty() || typeDesc.get().typeKind() != TypeDescKind.ARRAY) {
-            return Optional.empty();
-        }
-
-        return Optional.of(((ArrayTypeSymbol) typeDesc.get()).memberTypeDescriptor());
-    }
-
-    private List<LSCompletionItem> getCompletionsForTypeDesc(BallerinaCompletionContext context,
-                                                             TypeSymbol typeDescriptor) {
+    protected List<LSCompletionItem> getEntries(BallerinaCompletionContext ctx,
+                                                ExpressionNode expr,
+                                                boolean optionalFieldAccess) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor);
-        switch (rawType.typeKind()) {
-            case RECORD:
-                ((RecordTypeSymbol) rawType).fieldDescriptors().forEach((name, fieldDescriptor) -> {
-                    CompletionItem completionItem = new CompletionItem();
-                    completionItem.setLabel(name);
-                    completionItem.setInsertText(name);
-                    completionItem.setDetail(CommonUtil.getModifiedTypeName(context, fieldDescriptor.typeDescriptor()));
-                    completionItems.add(new RecordFieldCompletionItem(context, fieldDescriptor, completionItem));
-                });
-                break;
-            case OBJECT:
-                ObjectTypeSymbol objTypeDesc = (ObjectTypeSymbol) rawType;
-                objTypeDesc.fieldDescriptors().forEach((name, fieldDescriptor) -> {
-                    CompletionItem completionItem = new CompletionItem();
-                    completionItem.setLabel(name);
-                    completionItem.setInsertText(name);
-                    completionItem.setDetail(CommonUtil.getModifiedTypeName(context, fieldDescriptor.typeDescriptor()));
-                    completionItems.add(new ObjectFieldCompletionItem(context, fieldDescriptor, completionItem));
-                });
-                boolean isClient = SymbolUtil.isClient(objTypeDesc);
-                // If the object type desc is a client, then we avoid all the remote methods
-                List<MethodSymbol> nonRemoteMethods = objTypeDesc.methods().values().stream()
-                        .filter(methodSymbol -> !isClient || !methodSymbol.qualifiers().contains(Qualifier.REMOTE))
-                        .collect(Collectors.toList());
-                completionItems.addAll(this.getCompletionItemList(new ArrayList<>(nonRemoteMethods), context));
-                break;
-            case UNION:
-                UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) rawType;
-                List<TypeSymbol> members = unionTypeSymbol.memberTypeDescriptors();
-                if (members.size() != 2
-                        || members.stream().noneMatch(typeSymbol -> typeSymbol.typeKind() == TypeDescKind.NIL)) {
-                    break;
-                }
-                TypeSymbol evalType = members.get(0).typeKind() == TypeDescKind.NIL ? members.get(1) : members.get(0);
-                return this.getCompletionsForTypeDesc(context, evalType);
-            default:
-                break;
+        FieldAccessCompletionResolver resolver = new FieldAccessCompletionResolver(ctx);
+        List<Symbol> symbolList = resolver.getVisibleEntries(expr);
+        //Add typegurad and foreach snippets.
+        if (expr.parent().kind() == SyntaxKind.FIELD_ACCESS) {
+            Optional<TypeSymbol> typeSymbol = resolver.getTypeSymbol(expr);
+            if (typeSymbol.isPresent()) {
+                FieldAccessExpressionNode fieldAccessExpr = (FieldAccessExpressionNode) expr.parent();
+                completionItems.addAll(TypeGuardCompletionUtil.getTypeGuardDestructedItems(
+                        ctx, fieldAccessExpr, typeSymbol.get()));
+                completionItems.addAll(ForeachCompletionUtil.getForeachCompletionItemsForIterable(ctx,
+                        fieldAccessExpr, typeSymbol.get()));
+            }
         }
-        completionItems.addAll(this.getCompletionItemList(typeDescriptor.langLibMethods(), context));
-
+        completionItems.addAll(this.getCompletionItemList(symbolList, ctx));
         return completionItems;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
+        // We assign higher priority to record/object fields while assigning other completion items default priorities
+        completionItems.forEach(completionItem -> {
+            int rank;
+            switch (completionItem.getType()) {
+                case OBJECT_FIELD:
+                case RECORD_FIELD:
+                    rank = 1;
+                    break;
+                default:
+                    rank = SortingUtil.toRank(completionItem, 1);
+            }
+
+            completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
+        });
     }
 }

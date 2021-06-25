@@ -1,5 +1,6 @@
 class Iterable1 {
-    public function __iterator() returns object {public isolated function next() returns record {int value;}?;
+    *object:Iterable;
+    public function iterator() returns object {public isolated function next() returns record {|int value;|}?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
@@ -22,7 +23,8 @@ class Iterable1 {
 }
 
 class Iterable2 {
-    public function __iterator() returns object {public isolated function next() returns record {|int value;|};
+    *object:Iterable;
+    public function iterator() returns object {public isolated function next() returns record {|int value;|}?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
@@ -41,17 +43,18 @@ class Iterable2 {
 }
 
 class Iterable3 {
-    public function __iterator() returns object {public isolated function next() returns record {|int x;|}?;
+    *object:Iterable;
+    public function iterator() returns object {public isolated function next() returns record {|int value;|}?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
             int cursorIndex = 0;
             public isolated function next() returns
             record {|
-                int x;
+                int value;
             |} {
                 return {
-                    x: self.integers[self.cursorIndex - 1]
+                    value: self.integers[self.cursorIndex - 1]
                 };
 
             }
@@ -60,15 +63,14 @@ class Iterable3 {
 }
 
 class Iterable4 {
-    public function __iterator() returns object {public function foo() returns record {|int value;|}?;
+    *object:Iterable;
+    public function iterator() returns object {public isolated function next() returns record {|int value;|}?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
             int cursorIndex = 0;
-            public function foo() returns
-            record {|
-                int value;
-            |}? {
+            public isolated function next() returns record {|int value;|}?
+            {
                 self.cursorIndex += 1;
                 if (self.cursorIndex <= 7) {
                     return {
@@ -83,7 +85,8 @@ class Iterable4 {
 }
 
 class Iterable5 {
-    public function _iterator() returns object {public isolated function next() returns record {|int value;|}?;
+    *object:Iterable;
+    public function iterator() returns object {public isolated function next() returns record {|int value;|}?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
@@ -115,7 +118,8 @@ type CustomErrorData record {|
 type CustomError error<CustomErrorData>;
 
 class Iterable6 {
-    public function __iterator() returns object {public isolated function next() returns record {|int value;|}?;
+    *object:Iterable;
+    public function iterator() returns object {public isolated function next() returns record {|int value;|}?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
@@ -138,7 +142,8 @@ class Iterable6 {
 }
 
 class Iterable7 {
-    public function __iterator() returns object {public isolated function next() returns record {|int value;|}|CustomError?;
+    *object:Iterable;
+    public function iterator() returns object {public isolated function next() returns record {|int value;|}|CustomError?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
@@ -161,7 +166,8 @@ class Iterable7 {
 }
 
 class Iterable8 {
-    public function __iterator() returns object {public isolated function next() returns record {|int value;|}|error?;
+    *object:Iterable;
+    public function iterator() returns object {public isolated function next() returns record {|int value;|}|error?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
@@ -184,7 +190,8 @@ class Iterable8 {
 }
 
 class Iterable9 {
-    public function __iterator() returns object {public isolated function next() returns record {|int value;|}|CustomError?;
+    *object:Iterable;
+    public function iterator() returns object {public isolated function next() returns record {|int value;|}|CustomError?;
     } {
         return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
@@ -215,8 +222,9 @@ public function testIterableObject() {
     Iterable5 p5 = new;
     Iterable6 p6 = new;
     Iterable7 p7 = new;
-    Iterable7 p8 = new;
-    Iterable7 p9 = new;
+    Iterable8 p8 = new;
+    Iterable9 p9 = new;
+    Iterable13 p13 = new;
     foreach var item in p1 {
     }
     foreach var item in p2 {
@@ -236,5 +244,98 @@ public function testIterableObject() {
     }
     foreach var item in p9 {
         integers.push(item);
+    }
+    foreach var item in p13 {
+    }
+}
+
+class Iterable10 {
+    *object:Iterable;
+    public function iterator() returns object {public function foo() returns record {|int value;|}?;
+    } {
+        return object {
+            int[] integers = [12, 34, 56, 34, 78, 21, 90];
+            int cursorIndex = 0;
+            public function foo() returns
+            record {|
+                int value;
+            |}? {
+                self.cursorIndex += 1;
+                if (self.cursorIndex <= 7) {
+                    return {
+                        value: self.integers[self.cursorIndex - 1]
+                    };
+                } else {
+                    return ();
+                }
+            }
+        };
+    }
+}
+
+class Iterable11 {
+    *object:Iterable;
+    public function _iterator() returns object {public isolated function next() returns record {|int value;|}?;
+    } {
+        return object {
+            int[] integers = [12, 34, 56, 34, 78, 21, 90];
+            int cursorIndex = 0;
+            public isolated function next() returns
+            record {|
+                int value;
+            |}? {
+                self.cursorIndex += 1;
+                if (self.cursorIndex <= 7) {
+                    return {
+                        value: self.integers[self.cursorIndex - 1]
+                    };
+                } else {
+                    return ();
+                }
+            }
+        };
+    }
+}
+
+class Iterable12 {
+    *object:Iterable;
+    public function iterator() returns object {public isolated function next() returns record {|int x;|}?;
+    } {
+        return object {
+            int[] integers = [12, 34, 56, 34, 78, 21, 90];
+            int cursorIndex = 0;
+            public isolated function next() returns
+            record {|
+                int x;
+            |} {
+                return {
+                    x: self.integers[self.cursorIndex - 1]
+                };
+
+            }
+        };
+    }
+}
+
+class Iterable13 {
+    public function iterator() returns object {public isolated function next() returns record {|int value;|}?;
+    } {
+        return object {
+            int[] integers = [12, 34, 56, 34, 78, 21, 90];
+            int cursorIndex = 0;
+            public isolated function next() returns
+            record {|
+                int value;
+            |}? {
+                self.cursorIndex += 1;
+                if (self.cursorIndex <= 7) {
+                    return {
+                        value: self.integers[self.cursorIndex - 1]
+                    };
+                } else {
+                    return ();
+                }
+            }
+        };
     }
 }

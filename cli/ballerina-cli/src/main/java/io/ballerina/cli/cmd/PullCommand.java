@@ -21,25 +21,26 @@ package io.ballerina.cli.cmd;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.Settings;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
-import org.ballerinalang.toml.model.Settings;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.Proxy;
 import java.nio.file.Path;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.CentralUtils.readSettings;
+import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.projects.util.ProjectUtils.validateOrgName;
 import static io.ballerina.projects.util.ProjectUtils.validatePackageName;
@@ -55,9 +56,12 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
 @CommandLine.Command(name = PULL_COMMAND,
         description = "download the module source and binaries from a remote repository")
 public class PullCommand implements BLauncherCmd {
-    private PrintStream errStream;
+
     private static final String USAGE_TEXT =
             "bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}";
+
+    private PrintStream errStream;
+    private boolean exitWhenFinish;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -70,10 +74,12 @@ public class PullCommand implements BLauncherCmd {
 
     public PullCommand() {
         this.errStream = System.err;
+        this.exitWhenFinish = true;
     }
 
-    public PullCommand(PrintStream errStream) {
+    public PullCommand(PrintStream errStream, boolean exitWhenFinish) {
         this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
     }
 
     @Override
@@ -86,11 +92,13 @@ public class PullCommand implements BLauncherCmd {
 
         if (argList == null || argList.isEmpty()) {
             CommandUtil.printError(this.errStream, "no package given", "bal pull <package-name> ", false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
         if (argList.size() > 1) {
             CommandUtil.printError(this.errStream, "too many arguments", "bal pull <package-name> ", false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
@@ -107,8 +115,9 @@ public class PullCommand implements BLauncherCmd {
         // Get org name
         String[] moduleInfo = resourceName.split("/");
         if (moduleInfo.length != 2) {
-            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization ",
+            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization.",
                                    USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
         orgName = moduleInfo[0];
@@ -123,20 +132,23 @@ public class PullCommand implements BLauncherCmd {
             packageName = moduleNameAndVersion;
             version = Names.EMPTY.getValue();
         } else {
-            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization ",
+            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization.",
                                    USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
         // Validate package org, name and version
         if (!validateOrgName(orgName)) {
-            CommandUtil.printError(errStream, "invalid organization. Provide the package name with the organization ",
+            CommandUtil.printError(errStream, "invalid organization. Provide the package name with the organization.",
                                    USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
         if (!validatePackageName(packageName)) {
-            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization ",
+            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization.",
                                    USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
         if (!version.equals(Names.EMPTY.getValue())) {
@@ -145,38 +157,51 @@ public class PullCommand implements BLauncherCmd {
                 SemanticVersion.from(version);
             } catch (ProjectException e) {
                 CommandUtil.printError(errStream, "invalid package version. " + e.getMessage(), USAGE_TEXT, false);
+                CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
         }
 
         Path packagePathInBalaCache = ProjectUtils.createAndGetHomeReposPath()
-                .resolve(ProjectConstants.BALA_DIR_NAME).resolve(orgName).resolve(packageName);
+                .resolve(ProjectConstants.REPOSITORIES_DIR).resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
+                .resolve(ProjectConstants.BALA_DIR_NAME)
+                .resolve(orgName).resolve(packageName);
         // create directory path in bala cache
         try {
             createDirectories(packagePathInBalaCache);
         } catch (IOException e) {
+            CommandUtil.exitError(this.exitWhenFinish);
             throw createLauncherException(
                     "unexpected error occurred while creating package repository in bala cache: " + e.getMessage());
         }
 
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
             try {
-                Settings settings = readSettings();
-                Proxy proxy = initializeProxy(settings.getProxy());
-                CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(), proxy);
+                Settings settings;
+                try {
+                    settings = readSettings();
+                    // Ignore Settings.toml diagnostics in the pull command
+                } catch (SettingsTomlException e) {
+                    // Ignore 'Settings.toml' parsing errors and return empty Settings object
+                    settings = Settings.from();
+                }
+                CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                                                               initializeProxy(settings.getProxy()),
+                                                               getAccessTokenOfCLI(settings));
                 client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
                                    RepoUtils.getBallerinaVersion(), false);
             } catch (PackageAlreadyExistsException e) {
                 errStream.println(e.getMessage());
-                // Exit status, zero for OK, non-zero for error
-                Runtime.getRuntime().exit(0);
+                CommandUtil.exitError(this.exitWhenFinish);
             } catch (CentralClientException e) {
                 errStream.println("unexpected error occurred while pulling package:" + e.getMessage());
-                // Exit status, zero for OK, non-zero for error
-                Runtime.getRuntime().exit(1);
+                CommandUtil.exitError(this.exitWhenFinish);
             }
         }
-        Runtime.getRuntime().exit(0);
+
+        if (this.exitWhenFinish) {
+            Runtime.getRuntime().exit(0);
+        }
     }
 
     @Override
@@ -186,7 +211,7 @@ public class PullCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("download modules to the user repository \n");
+        out.append("Download modules to the user repository \n");
     }
 
     @Override

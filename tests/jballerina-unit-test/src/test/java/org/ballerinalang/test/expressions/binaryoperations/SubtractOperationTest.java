@@ -19,12 +19,14 @@ package org.ballerinalang.test.expressions.binaryoperations;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -43,14 +45,21 @@ public class SubtractOperationTest {
 
     @Test(description = "Test two int subtract expression")
     public void testIntAddExpr() {
-        BValue[] args = { new BInteger(100), new BInteger(200)};
+        BValue[] args = { new BInteger(1234567891011L), new BInteger(9876543211110L)};
 
         BValue[]  returns = BRunUtil.invoke(result, "intSubtract", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         long actual = ((BInteger) returns[0]).intValue();
-        long expected = -100;
+        long expected = -8641975320099L;
         Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test two int subtract overflow expression", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\" int range " +
+                    "overflow\"\\}.*")
+    public void testIntOverflowBySubtraction() {
+        BRunUtil.invoke(result, "overflowBySubtraction");
     }
 
     @Test(description = "Test two float subtract expression")
@@ -80,39 +89,34 @@ public class SubtractOperationTest {
         Assert.assertEquals(actualResult, expectedResult);
     }
 
-    @Test(description = "Test int float subtract expression")
-    public void testIntFloatSubtractExpr() {
-        int a = 10;
-        float b = 1.5f;
-        BValue[] args = { new BInteger(a), new BFloat(b)};
-
-        BValue[] returns = BRunUtil.invoke(result, "intFloatSubtract", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-        double actual = ((BFloat) returns[0]).floatValue();
-        double expected = a - b;
-        Assert.assertEquals(actual, expected);
+    @Test(dataProvider = "dataToTestSubtractionWithTypes", description = "Test subtraction with types")
+    public void testSubtractionWithTypes(String functionName) {
+        BRunUtil.invoke(result, functionName);
     }
 
-    @Test(description = "Test float int subtract expression")
-    public void testFloatIntSubtractExpr() {
-        float a = 10.5f;
-        int b = 1;
-        BValue[] args = { new BFloat(a), new BInteger(b)};
-
-        BValue[] returns = BRunUtil.invoke(result, "floatIntSubtract", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-        double actual = ((BFloat) returns[0]).floatValue();
-        double expected = a - b;
-        Assert.assertEquals(actual, expected);
+    @DataProvider
+    public Object[] dataToTestSubtractionWithTypes() {
+        return new Object[]{
+                "testSubtractionWithTypes",
+                "testSubtractSingleton"
+        };
     }
-
 
     @Test(description = "Test substract statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        Assert.assertEquals(resultNegative.getErrorCount(), 12);
         BAssertUtil.validateError(resultNegative, 0, "operator '-' not defined for 'int' and 'string'", 4, 9);
         BAssertUtil.validateError(resultNegative, 1, "operator '-' not defined for 'json' and 'json'", 14, 10);
+        BAssertUtil.validateError(resultNegative, 2, "operator '-' not defined for 'C' and 'string'", 28, 14);
+        BAssertUtil.validateError(resultNegative, 3, "operator '-' not defined for 'C' and '(float|int)'", 29, 14);
+        BAssertUtil.validateError(resultNegative, 4, "operator '-' not defined for 'string' and " +
+                "'(string|string:Char)'", 30, 17);
+        BAssertUtil.validateError(resultNegative, 5, "operator '-' not defined for 'float' and 'decimal'", 37, 14);
+        BAssertUtil.validateError(resultNegative, 6, "operator '-' not defined for 'float' and 'decimal'", 38, 14);
+        BAssertUtil.validateError(resultNegative, 7, "operator '-' not defined for 'float' and 'int'", 39, 14);
+        BAssertUtil.validateError(resultNegative, 8, "operator '-' not defined for 'decimal' and 'int'", 40, 14);
+        BAssertUtil.validateError(resultNegative, 9, "operator '-' not defined for 'int' and 'float'", 41, 18);
+        BAssertUtil.validateError(resultNegative, 10, "operator '-' not defined for 'C' and 'float'", 45, 14);
+        BAssertUtil.validateError(resultNegative, 11, "operator '-' not defined for 'C' and 'float'", 46, 14);
     }
 }

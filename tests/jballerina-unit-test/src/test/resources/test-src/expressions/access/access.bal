@@ -33,7 +33,7 @@ function testFieldAccessWithOptionalFieldAccess1() returns boolean {
 function testFieldAccessWithOptionalFieldAccess2() returns boolean {
     json j1 = { a: 1, b: { c: "qwer", d: 12.0 } };
     json|error j2 = j1?.b.c;
-    return j2 == "qwer";
+    return (checkpanic j2) == "qwer";
 }
 
 function testFieldAccessWithOptionalFieldAccess3() returns boolean {
@@ -147,8 +147,8 @@ function testSimpleTypeAccessOnFunctionPointer() {
     var updateVariables = function () {
         booleanVar = true;
         intVar += 1;
-        floatVar += 2;
-        decimalVar += 3;
+        floatVar += 2.0;
+        decimalVar += 3d;
         stringVar = "updated_test_string";
     };
 
@@ -172,4 +172,107 @@ function assertEquality(any|error expected, any|error actual) {
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERR_REASON,
                 message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}
+
+type R record {| int x; |};
+class O { int x = 225; }
+
+public function testAccessOnGroupedExpressions() returns error|boolean {
+    boolean result = true;
+
+    // access on checked, cast expressions
+    R a = {x: 3};
+    R|error b = a;
+    any c = a;
+    R d = (check b);
+    int e = (check b).x;
+    int f = (<R>c).x;
+    int g = castAndGetX(c);
+    result = result && e == 3;
+    result = result && f == 3;
+    result = result && g == 3;
+
+    // access on int range expressions
+    record {| int value; |}? h = (1 ..< 5).iterator().next();
+    if (!(h is ())) {
+        int val = h.value;
+        result = result && val == 1;
+    } else {
+        result = false;
+    }
+
+    // access on unary, binary, ternary expressions
+    string s = (!false).toString();
+    s = (s == "true" && !false).toString();
+    s = (s == "true" ? true : false).toString();
+    result = result && s == "true";
+
+    // access on raw template expressions
+    string name = "john";
+    int l = (`Hello ${name}!`).strings.length();
+    result = result && l == 2;
+
+    // literal, simple varref, group-expr, list-construct.
+    int i1 = 1;
+    s = (1 + i1 + ([1, 2])[0] + [2, 3, 4][1]).toString();
+    result = result && s == "6";
+
+    // unary, binary.
+    boolean[] bArr = [true, false, true];
+    s = ((bArr[0] || !bArr[1]) && bArr[2]).toString();
+    result = result && s == "true";
+
+    // bitwise shift.
+    int i2 = 64;
+    s = (1 << i2).toString();
+    result = result && s == "1";
+
+    // chain invocations, builtin functions.
+    boolean bool = true;
+    s = bool.cloneReadOnly().toString();
+    result = result && s == "true";
+
+    // checkpanic, native conversions
+    map<anydata> m = {"x":2};
+    s = (checkpanic m.cloneWithType(R)).x.toString();
+    result = result && s == "2";
+
+    // elvis
+    int|() i3 = 120;
+    s = (i3 ?: 111).toString();
+    result = result && s == "120";
+
+    // error constructor
+    s = (error("msg")).message();
+    result = result && s == "msg";
+
+    // lambda
+    function (int) returns int lambda = (x) => x + 5;
+    s = lambda(5).toString();
+    result = result && s == "10";
+
+    // let expr
+    s = (let int x = 4 in 2 * x * 2).toString();
+    result = result && s == "16";
+
+    // object constructor
+    s = new O().x.toString();
+    result = result && s == "225";
+
+    // trap
+    s = (trap trapTest()).message();
+    result = result && s == "msg";
+
+    s = (typeof (12.5f)).toString();
+    result = result && s == "typedesc float";
+    return result;
+}
+
+function castAndGetX(any a) returns int {
+    // access on cast expressions
+    return (<R>a).x;
+}
+
+function trapTest() returns error {
+    panic error("msg");
 }

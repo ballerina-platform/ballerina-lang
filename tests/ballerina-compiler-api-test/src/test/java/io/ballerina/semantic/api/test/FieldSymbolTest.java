@@ -63,7 +63,7 @@ public class FieldSymbolTest {
         assertEquals(symbol.kind(), SymbolKind.RECORD_FIELD);
 
         RecordFieldSymbol fieldSymbol = (RecordFieldSymbol) symbol;
-        assertEquals(fieldSymbol.name(), fieldName);
+        assertEquals(fieldSymbol.getName().get(), fieldName);
         assertEquals(fieldSymbol.typeDescriptor().typeKind(), typeKind);
         assertEquals(fieldSymbol.isOptional(), isOptional);
         assertEquals(fieldSymbol.hasDefaultValue(), hasDefaultValue);
@@ -85,7 +85,7 @@ public class FieldSymbolTest {
         assertEquals(symbol.kind(), SymbolKind.OBJECT_FIELD);
 
         ObjectFieldSymbol fieldSymbol = (ObjectFieldSymbol) symbol;
-        assertEquals(fieldSymbol.name(), fieldName);
+        assertEquals(fieldSymbol.getName().get(), fieldName);
         assertEquals(fieldSymbol.typeDescriptor().typeKind(), typeKind);
         assertEquals(fieldSymbol.signature(), signature);
     }
@@ -105,7 +105,7 @@ public class FieldSymbolTest {
         assertEquals(symbol.kind(), SymbolKind.CLASS_FIELD);
 
         ClassFieldSymbol fieldSymbol = (ClassFieldSymbol) symbol;
-        assertEquals(fieldSymbol.name(), fieldName);
+        assertEquals(fieldSymbol.getName().get(), fieldName);
         assertEquals(fieldSymbol.typeDescriptor().typeKind(), typeKind);
 //        assertEquals(fieldSymbol.hasDefaultValue(), hasDefaultValue);
         assertEquals(fieldSymbol.signature(), signature);

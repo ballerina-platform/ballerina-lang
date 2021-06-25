@@ -12,6 +12,7 @@ module io.ballerina.language.server.core {
     exports org.ballerinalang.langserver.exception;
     exports org.ballerinalang.langserver.extensions;
     exports org.ballerinalang.langserver.config;
+    exports org.ballerinalang.langserver.telemetry;
     requires io.ballerina.formatter.core;
     requires org.eclipse.lsp4j;
     requires io.ballerina.language.server.commons;
@@ -20,21 +21,13 @@ module io.ballerina.language.server.core {
     requires io.ballerina.lang;
     requires io.ballerina.runtime;
     requires org.apache.commons.io;
-    requires handlebars;
     requires io.ballerina.parser;
     requires io.ballerina.toml;
     requires jsr305;
     requires toml4j;
-    requires swagger.parser.v3;
     requires io.ballerina.tools.api;
-    requires swagger.models;
-    requires swagger.parser;
-    requires swagger.core;
-    requires io.swagger.v3.core;
-    requires io.swagger.v3.oas.models;
-    requires swagger.parser.v2.converter;
-    requires org.slf4j;
-    requires gson;
     requires com.google.common;
+    requires gson;
     requires io.ballerina.diagram.util;
+    requires io.ballerina.syntaxapicallsgen;
 }

@@ -13,26 +13,18 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
-import ballerina/lang.'xml as xmllib;
 
-public type Employee record {
-    string name;
-};
+import ballerina/jballerina.java;
 
-public function main(int i, float f, string s, byte b, boolean bool, json j, xml x, Employee e, string... args) {
-    xmllib:Element element = <xmllib:Element> x;
+public function main(int i, float f, string s, string... args) {
     string restArgs = "";
     foreach var str in args {
         restArgs += str + " ";
     }
-    string boolStr = "false";
-    if (bool) {
-        boolStr = "true";
-    }
-
-    io:print("integer: " + i.toHexString() + ", float: " + f.toString() + ", string: " + s + ", byte: " +
-            b.toString() + ", boolean: " + boolStr + ", JSON Name Field: " +
-            (checkpanic j.name).toString() + ", XML Element Name: " + element.getName() + ", Employee Name Field: " + e.name +
-            ", string rest args: " + restArgs);
+    print("integer: " + i.toHexString() + ", float: " + f.toString() + ", string: " + s +
+         ", string rest args: " + restArgs);
 }
+
+public function print(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;

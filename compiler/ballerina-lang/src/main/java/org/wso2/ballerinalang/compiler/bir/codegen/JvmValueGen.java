@@ -27,6 +27,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.FieldNameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.TypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JFieldBIRFunction;
@@ -96,12 +97,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameS
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ABSTRACT_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_OPTIONAL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_RUNTIME_EXCEPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAPPING_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COLLECTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
@@ -119,6 +120,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BUILDER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_CLASS_PREFIX;
@@ -143,6 +145,7 @@ class JvmValueGen {
 
     static final FieldNameHashComparator FIELD_NAME_HASH_COMPARATOR = new FieldNameHashComparator();
     static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
+    static final TypeHashComparator TYPE_HASH_COMPARATOR = new TypeHashComparator();
     static final String ENCODED_RECORD_INIT =
             IdentifierUtils.encodeFunctionIdentifier(Names.INIT_FUNCTION_SUFFIX.value);
     private final BIRNode.BIRPackage module;
@@ -202,8 +205,8 @@ class JvmValueGen {
                 }
             } else {
                 addDefaultableBooleanVarsToSignature(birFunc, jvmPackageGen.symbolTable.booleanType);
+                enrichWithDefaultableParamInits(birFunc, initMethodGen);
             }
-            enrichWithDefaultableParamInits(birFunc, initMethodGen);
         }
     }
 
@@ -228,26 +231,27 @@ class JvmValueGen {
         mv.visitLookupSwitchInsn(defaultCaseLabel, hashCodes, labels.toArray(new Label[0]));
         return labels;
     }
-
-    static void createDefaultCase(MethodVisitor mv, Label defaultCaseLabel, int nameRegIndex) {
+    static void createDefaultCase(MethodVisitor mv, Label defaultCaseLabel, int nameRegIndex, String errorMessage) {
 
         mv.visitLabel(defaultCaseLabel);
-        mv.visitTypeInsn(NEW, BLANG_RUNTIME_EXCEPTION);
+        mv.visitTypeInsn(NEW, ERROR_VALUE);
         mv.visitInsn(DUP);
 
         // Create error message
         mv.visitTypeInsn(NEW, STRING_BUILDER);
         mv.visitInsn(DUP);
-        mv.visitLdcInsn("No such field or method: ");
+        mv.visitLdcInsn(errorMessage);
         mv.visitMethodInsn(INVOKESPECIAL, STRING_BUILDER, JVM_INIT_METHOD, String.format("(L%s;)V", STRING_VALUE),
                 false);
         mv.visitVarInsn(ALOAD, nameRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "append",
                 String.format("(L%s;)L%s;", STRING_VALUE, STRING_BUILDER), false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, JVM_TO_STRING_METHOD,
-                String.format("()L%s;", STRING_VALUE), false);
-        mv.visitMethodInsn(INVOKESPECIAL, BLANG_RUNTIME_EXCEPTION, JVM_INIT_METHOD,
-                String.format("(L%s;)V", STRING_VALUE), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, JVM_TO_STRING_METHOD, String.format("()L%s;", STRING_VALUE)
+                , false);
+        mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString", String.format("(L%s;)L%s;", STRING_VALUE,
+                                                                                   B_STRING_VALUE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, JVM_INIT_METHOD, String.format("(L%s;)V", B_STRING_VALUE),
+                           false);
         mv.visitInsn(ATHROW);
     }
 
@@ -412,7 +416,7 @@ class JvmValueGen {
             i += 1;
         }
 
-        createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex);
+        createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex, "No such method: ");
         mv.visitMaxs(functions.size() + 10, functions.size() + 10);
         mv.visitEnd();
     }
@@ -451,7 +455,7 @@ class JvmValueGen {
             i += 1;
         }
 
-        createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
+        createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex, "No such field: ");
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
@@ -459,21 +463,7 @@ class JvmValueGen {
     private void createObjectSetMethod(ClassWriter cw, Map<String, BField> fields, String className,
                                        JvmCastGen jvmCastGen) {
 
-        createObjectSetMethod(cw, fields, className, "set", "checkFieldUpdate", jvmCastGen);
-    }
-
-    private void createObjectSetOnInitializationMethod(ClassWriter cw, Map<String, BField> fields, String className,
-                                                       JvmCastGen jvmCastGen) {
-
-        createObjectSetMethod(cw, fields, className, "setOnInitialization", "checkFieldUpdateOnInitialization",
-                              jvmCastGen);
-    }
-
-    private void createObjectSetMethod(ClassWriter cw, Map<String, BField> fields, String className,
-                                       String setFuncName, String checkFieldUpdateFuncName,
-                                       JvmCastGen jvmCastGen) {
-
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, setFuncName,
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
                                           String.format("(L%s;L%s;)V", B_STRING_VALUE, OBJECT), null, null);
         mv.visitCode();
         int fieldNameRegIndex = 1;
@@ -485,14 +475,47 @@ class JvmValueGen {
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
         mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, GET_VALUE_METHOD, String.format("()L%s;", STRING_VALUE),
                            true);
-        mv.visitInsn(DUP);
         fieldNameRegIndex = 3;
+
+        mv.visitInsn(DUP);
         mv.visitVarInsn(ASTORE, fieldNameRegIndex);
         mv.visitVarInsn(ALOAD, valueRegIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, className, checkFieldUpdateFuncName,
-                           String.format("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate", String.format("(L%s;L%s;)V", STRING_VALUE,
+                                                                                       OBJECT), false);
+        // sort the fields before generating switch case
+        generateCasesForObjectSetMethod(fields, className, jvmCastGen, mv, fieldNameRegIndex,
+                                        valueRegIndex, defaultCaseLabel);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void createObjectSetOnInitializationMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                                       JvmCastGen jvmCastGen) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "setOnInitialization",
+                                          String.format("(L%s;L%s;)V", B_STRING_VALUE, OBJECT), null, null);
+        mv.visitCode();
+        int fieldNameRegIndex = 1;
+        int valueRegIndex = 2;
+        Label defaultCaseLabel = new Label();
+
+        // code gen type checking for inserted value
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, GET_VALUE_METHOD, String.format("()L%s;", STRING_VALUE),
+                           true);
+        fieldNameRegIndex = 3;
+        mv.visitVarInsn(ASTORE, fieldNameRegIndex);
 
         // sort the fields before generating switch case
+        generateCasesForObjectSetMethod(fields, className, jvmCastGen, mv, fieldNameRegIndex,
+                                        valueRegIndex, defaultCaseLabel);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void generateCasesForObjectSetMethod(Map<String, BField> fields, String className, JvmCastGen jvmCastGen,
+                                                 MethodVisitor mv, int fieldNameRegIndex, int valueRegIndex,
+                                                 Label defaultCaseLabel) {
         List<BField> sortedFields = new ArrayList<>(fields.values());
         sortedFields.sort(FIELD_NAME_HASH_COMPARATOR);
 
@@ -514,9 +537,7 @@ class JvmValueGen {
             i += 1;
         }
 
-        createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex, "No such field: ");
     }
 
     private byte[] createRecordTypeDescClass(BRecordType recordType, String className,
@@ -649,7 +670,7 @@ class JvmValueGen {
         } else {
             cw.visitSource(className, null);
         }
-        JvmTypeGen jvmTypeGen =  new JvmTypeGen(stringConstantsGen);
+        JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen, module.packageID);
         JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen);
         LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className,
@@ -818,7 +839,7 @@ class JvmValueGen {
 
     private String getFieldIsPresentFlagName(String fieldName) {
 
-        return String.format("%s$isPresent", fieldName);
+        return String.format("$%s$isPresent", fieldName);
     }
 
     private boolean isOptionalRecordField(BField field) {
@@ -1002,7 +1023,7 @@ class JvmValueGen {
 
             // field name as key
             mv.visitLdcInsn(decodeIdentifier(fieldName));
-            mv.visitMethodInsn(INVOKESTATIC, JvmConstants.STRING_UTILS, "fromString",
+            mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString",
                                String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
 
             // field value as the map-entry value
@@ -1293,7 +1314,7 @@ class JvmValueGen {
 
             mv.visitVarInsn(ALOAD, keysVarIndex);
             mv.visitLdcInsn(fieldName);
-                mv.visitMethodInsn(INVOKESTATIC, JvmConstants.STRING_UTILS, "fromString",
+                mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString",
                                    String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
             mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", String.format("(L%s;)Z", OBJECT), true);
             mv.visitInsn(POP);
@@ -1338,7 +1359,7 @@ class JvmValueGen {
         String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
         module.typeDefs.parallelStream().forEach(optionalTypeDef -> {
             BType bType = optionalTypeDef.type;
-            String className = getTypeValueClassName(packageName, optionalTypeDef.name.value);
+            String className = getTypeValueClassName(packageName, optionalTypeDef.internalName.value);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(className);
             if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) bType;
@@ -1350,7 +1371,7 @@ class JvmValueGen {
                 byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef, stringConstantsGen
                         , asyncDataCollector);
                 jarEntries.put(className + ".class", bytes);
-                String typedescClass = getTypeDescClassName(packageName, optionalTypeDef.name.value);
+                String typedescClass = getTypeDescClassName(packageName, optionalTypeDef.internalName.value);
                 bytes = this.createRecordTypeDescClass(recordType, typedescClass, optionalTypeDef);
                 jarEntries.put(typedescClass + ".class", bytes);
             }
@@ -1364,7 +1385,7 @@ class JvmValueGen {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.lineRange().filePath(), null);
 
-        JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen);
+        JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen, module.packageID);
         JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen);
         LambdaGen lambdaGen =  new LambdaGen(jvmPackageGen, jvmCastGen);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{B_OBJECT});

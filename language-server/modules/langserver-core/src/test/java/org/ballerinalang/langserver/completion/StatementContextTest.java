@@ -15,10 +15,14 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.ballerinalang.langserver.completion;
 
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,7 +31,14 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class StatementContextTest extends CompletionTestNew {
+public class StatementContextTest extends CompletionTest {
+
+    @Test(dataProvider = "completion-data-provider")
+    @Override
+    public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
+        super.test(config, configPath);
+    }
+
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -40,7 +51,10 @@ public class StatementContextTest extends CompletionTestNew {
                 "if_stmt_ctx_config3.json",
                 "elseif_stmt_ctx_config3.json",
                 "if_stmt_ctx_config3.json", // Blocked By #26317
-                "match_stmt_ctx_config1.json" // Blocked by #26455
+                "match_stmt_ctx_config8.json",
+                "match_stmt_ctx_config9.json",
+                "match_stmt_ctx_config10.json",
+                "match_stmt_ctx_config11.json"
         );
     }
 

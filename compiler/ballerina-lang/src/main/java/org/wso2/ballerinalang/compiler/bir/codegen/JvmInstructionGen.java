@@ -38,9 +38,13 @@ import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -88,6 +92,7 @@ import static org.objectweb.asm.Opcodes.IF_ICMPLT;
 import static org.objectweb.asm.Opcodes.IF_ICMPNE;
 import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INEG;
+import static org.objectweb.asm.Opcodes.INSTANCEOF;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -99,17 +104,14 @@ import static org.objectweb.asm.Opcodes.ISTORE;
 import static org.objectweb.asm.Opcodes.IUSHR;
 import static org.objectweb.asm.Opcodes.IXOR;
 import static org.objectweb.asm.Opcodes.L2I;
-import static org.objectweb.asm.Opcodes.LADD;
 import static org.objectweb.asm.Opcodes.LAND;
 import static org.objectweb.asm.Opcodes.LCMP;
 import static org.objectweb.asm.Opcodes.LLOAD;
-import static org.objectweb.asm.Opcodes.LMUL;
 import static org.objectweb.asm.Opcodes.LNEG;
 import static org.objectweb.asm.Opcodes.LOR;
 import static org.objectweb.asm.Opcodes.LSHL;
 import static org.objectweb.asm.Opcodes.LSHR;
 import static org.objectweb.asm.Opcodes.LSTORE;
-import static org.objectweb.asm.Opcodes.LSUB;
 import static org.objectweb.asm.Opcodes.LUSHR;
 import static org.objectweb.asm.Opcodes.LXOR;
 import static org.objectweb.asm.Opcodes.NEW;
@@ -124,6 +126,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_INITIAL_VALUE_ENTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_LIST_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAPPING_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
@@ -137,7 +140,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JSON_UTIL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_UNSIGNED_INT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST_INITIAL_EXPRESSION_ENTRY;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_STREAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAPPING_INITIAL_KEY_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAPPING_INITIAL_SPREAD_FIELD_ENTRY;
@@ -151,7 +153,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SHORT_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
@@ -161,8 +163,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHECKER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_COMPARISON_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_FACTORY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_QNAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_SEQUENCE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
@@ -657,13 +661,25 @@ public class JvmInstructionGen {
             } else if (opcode == IFGE) {
                 this.mv.visitJumpInsn(IF_ICMPGE, label1);
             }
+        } else if (lhsOpType.tag == TypeTags.BOOLEAN && rhsOpType.tag == TypeTags.BOOLEAN) {
+            if (opcode == IFLT) {
+                this.mv.visitJumpInsn(IF_ICMPLT, label1);
+            } else if (opcode == IFGT) {
+                this.mv.visitJumpInsn(IF_ICMPGT, label1);
+            } else if (opcode == IFLE) {
+                this.mv.visitJumpInsn(IF_ICMPLE, label1);
+            } else {
+                this.mv.visitJumpInsn(IF_ICMPGE, label1);
+            }
         } else if (lhsOpType.tag == TypeTags.FLOAT && rhsOpType.tag == TypeTags.FLOAT) {
-            this.mv.visitInsn(DCMPL);
-            this.mv.visitJumpInsn(opcode, label1);
-        } else if (lhsOpType.tag == TypeTags.DECIMAL && rhsOpType.tag == TypeTags.DECIMAL) {
-            String compareFuncName = this.getDecimalCompareFuncName(opcode);
-            this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, compareFuncName,
-                    String.format("(L%s;L%s;)Z", DECIMAL_VALUE, DECIMAL_VALUE), false);
+            String compareFuncName = this.getCompareFuncName(opcode);
+            this.mv.visitMethodInsn(INVOKESTATIC, VALUE_COMPARISON_UTILS, compareFuncName, "(DD)Z", false);
+            this.storeToVar(binaryIns.lhsOp.variableDcl);
+            return;
+        } else {
+            String compareFuncName = this.getCompareFuncName(opcode);
+            this.mv.visitMethodInsn(INVOKESTATIC, VALUE_COMPARISON_UTILS, compareFuncName,
+                    String.format("(L%s;L%s;)Z", OBJECT, OBJECT), false);
             this.storeToVar(binaryIns.lhsOp.variableDcl);
             return;
         }
@@ -678,17 +694,16 @@ public class JvmInstructionGen {
         this.storeToVar(binaryIns.lhsOp.variableDcl);
     }
 
-    private String getDecimalCompareFuncName(int opcode) {
-
+    private String getCompareFuncName(int opcode) {
         switch (opcode) {
             case IFGT:
-                return "checkDecimalGreaterThan";
+                return "compareValueGreaterThan";
             case IFGE:
-                return "checkDecimalGreaterThanOrEqual";
+                return "compareValueGreaterThanOrEqual";
             case IFLT:
-                return "checkDecimalLessThan";
+                return "compareValueLessThan";
             case IFLE:
-                return "checkDecimalLessThanOrEqual";
+                return "compareValueLessThanOrEqual";
             default:
                 throw new BLangCompilerException(String.format("Opcode: '%s' is not a comparison opcode.", opcode));
         }
@@ -877,7 +892,7 @@ public class JvmInstructionGen {
         BType bType = binaryIns.lhsOp.variableDcl.type;
         this.generateBinaryRhsAndLhsLoad(binaryIns);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
-            this.mv.visitInsn(LADD);
+            this.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "addExact", "(JJ)J", false);
         } else if (bType.tag == TypeTags.BYTE) {
             this.mv.visitInsn(IADD);
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
@@ -905,7 +920,7 @@ public class JvmInstructionGen {
         BType bType = binaryIns.lhsOp.variableDcl.type;
         this.generateBinaryRhsAndLhsLoad(binaryIns);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
-            this.mv.visitInsn(LSUB);
+            this.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "subtractExact", "(JJ)J", false);
         } else if (bType.tag == TypeTags.FLOAT) {
             this.mv.visitInsn(DSUB);
         } else if (bType.tag == TypeTags.DECIMAL) {
@@ -941,7 +956,7 @@ public class JvmInstructionGen {
         BType bType = binaryIns.lhsOp.variableDcl.type;
         this.generateBinaryRhsAndLhsLoad(binaryIns);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
-            this.mv.visitInsn(LMUL);
+            this.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "multiplyExact", "(JJ)J", false);
         } else if (bType.tag == TypeTags.FLOAT) {
             this.mv.visitInsn(DMUL);
         } else if (bType.tag == TypeTags.DECIMAL) {
@@ -1322,8 +1337,14 @@ public class JvmInstructionGen {
             jvmTypeGen.loadType(this.mv, inst.type);
             this.loadVar(inst.sizeOp.variableDcl);
             loadListInitialValues(inst);
-            this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
-                    String.format("(L%s;J[L%s;)V", ARRAY_TYPE, LIST_INITIAL_VALUE_ENTRY), false);
+            BType elementType = ((BArrayType) inst.type).eType;
+            if (elementType.tag == TypeTags.RECORD || (elementType.tag == TypeTags.INTERSECTION &&
+                    ((BIntersectionType) elementType).effectiveType.tag == TypeTags.RECORD)) {
+                visitNewRecordArray(elementType);
+            } else {
+                this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
+                        String.format("(L%s;J[L%s;)V", ARRAY_TYPE, B_LIST_INITIAL_VALUE_ENTRY), false);
+            }
             this.storeToVar(inst.lhsOp.variableDcl);
         } else {
             this.mv.visitTypeInsn(NEW, TUPLE_VALUE_IMPL);
@@ -1332,9 +1353,20 @@ public class JvmInstructionGen {
             this.loadVar(inst.sizeOp.variableDcl);
             loadListInitialValues(inst);
             this.mv.visitMethodInsn(INVOKESPECIAL, TUPLE_VALUE_IMPL, JVM_INIT_METHOD,
-                    String.format("(L%s;J[L%s;)V", TUPLE_TYPE, LIST_INITIAL_VALUE_ENTRY), false);
+                    String.format("(L%s;J[L%s;)V", TUPLE_TYPE, B_LIST_INITIAL_VALUE_ENTRY), false);
             this.storeToVar(inst.lhsOp.variableDcl);
         }
+    }
+
+    private void visitNewRecordArray(BType elementType) {
+        BTypeSymbol tsymbol = elementType.tag == TypeTags.RECORD ? elementType.tsymbol :
+                ((BIntersectionType) elementType).effectiveType.tsymbol;
+        String typeOwner = JvmCodeGenUtil.getPackageName(elementType.tsymbol.pkgID) + MODULE_INIT_CLASS_NAME;
+        String typedescFieldName =
+                jvmTypeGen.getTypedescFieldName(IdentifierUtils.encodeNonFunctionIdentifier(tsymbol.name.value));
+        this.mv.visitFieldInsn(GETSTATIC, typeOwner, typedescFieldName, "L" + TYPEDESC_VALUE + ";");
+        this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD, String.format("(L%s;J[L%s;" +
+                "L%s;)V", ARRAY_TYPE, B_LIST_INITIAL_VALUE_ENTRY, TYPEDESC_VALUE), false);
     }
 
     void generateArrayStoreIns(BIRNonTerminator.FieldAccess inst) {
@@ -1365,7 +1397,6 @@ public class JvmInstructionGen {
     }
 
     void generateArrayValueLoad(BIRNonTerminator.FieldAccess inst) {
-
         this.loadVar(inst.rhsOp.variableDcl);
         this.mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
         this.loadVar(inst.keyOp.variableDcl);
@@ -1419,7 +1450,7 @@ public class JvmInstructionGen {
         this.loadVar(inst.dataOp.variableDcl);
         this.loadVar(inst.keyColOp.variableDcl);
         this.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE_IMPL, JVM_INIT_METHOD,
-                                String.format("(L%s;L%s;L%s;)V", TABLE_TYPE_IMPL, ARRAY_VALUE, ARRAY_VALUE), false);
+                                String.format("(L%s;L%s;L%s;)V", TABLE_TYPE, ARRAY_VALUE, ARRAY_VALUE), false);
 
         this.storeToVar(inst.lhsOp.variableDcl);
     }
@@ -1487,15 +1518,61 @@ public class JvmInstructionGen {
     }
 
     void generateTypeTestIns(BIRNonTerminator.TypeTest typeTestIns) {
-        // load source value
-        this.loadVar(typeTestIns.rhsOp.variableDcl);
-
-        // load targetType
-        jvmTypeGen.loadType(this.mv, typeTestIns.type);
+        var sourceValue = typeTestIns.rhsOp.variableDcl;
+        BType targetType = typeTestIns.type;
+        if (canOptimizeType(sourceValue, targetType)) {
+            handleErrorUnionType(typeTestIns);
+            return;
+        }
+        this.loadVar(sourceValue);
+        jvmTypeGen.loadType(this.mv, targetType);
 
         this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsType",
                                 String.format("(L%s;L%s;)Z", OBJECT, TYPE), false);
         this.storeToVar(typeTestIns.lhsOp.variableDcl);
+    }
+
+    private void handleErrorUnionType(BIRNonTerminator.TypeTest typeTestIns) {
+        loadVar(typeTestIns.rhsOp.variableDcl);
+        mv.visitTypeInsn(INSTANCEOF, BERROR);
+        if (typeTestIns.type.tag != TypeTags.ERROR) {
+            generateNegateBoolean();
+        }
+        storeToVar(typeTestIns.lhsOp.variableDcl);
+    }
+
+    private boolean canOptimizeType(BIRNode.BIRVariableDcl rhsVar, BType type) {
+        BType rhsType = rhsVar.type;
+        if (rhsType.tag != TypeTags.UNION) {
+            return false;
+        }
+        var unionMemberTypes = ((BUnionType) rhsType).getMemberTypes();
+        if (unionMemberTypes.size() != 2) {
+            return false;
+        }
+        BType errorType = null;
+        BType otherType = null;
+        int foundError = 0;
+        for (BType bType : unionMemberTypes) {
+            if (bType.tag == TypeTags.ERROR) {
+                errorType = bType;
+                foundError++;
+            } else {
+                otherType = bType;
+            }
+        }
+        return foundError == 1 && (type.equals(errorType) || type.equals(otherType));
+    }
+
+    private void generateNegateBoolean() {
+        Label ifLabel = new Label();
+        mv.visitJumpInsn(IFNE, ifLabel);
+        mv.visitInsn(ICONST_1);
+        Label gotoLabel = new Label();
+        mv.visitJumpInsn(GOTO, gotoLabel);
+        mv.visitLabel(ifLabel);
+        mv.visitInsn(ICONST_0);
+        mv.visitLabel(gotoLabel);
     }
 
     void generateIsLikeIns(BIRNonTerminator.IsLike isLike) {
@@ -1519,7 +1596,7 @@ public class JvmInstructionGen {
                                               objectNewIns.objectName);
         } else {
             className = getTypeValueClassName(JvmCodeGenUtil.getPackageName(currentPackage),
-                                              objectNewIns.def.name.value);
+                                              objectNewIns.def.internalName.value);
         }
 
         this.mv.visitTypeInsn(NEW, className);
@@ -1561,9 +1638,9 @@ public class JvmInstructionGen {
         asyncDataCollector.incrementLambdaIndex();
         String pkgName = JvmCodeGenUtil.getPackageName(inst.pkgId);
 
-        BType returnType = inst.lhsOp.variableDcl.type;
-        if (returnType.tag != TypeTags.INVOKABLE) {
-            throw new BLangCompilerException("Expected BInvokableType, found " + String.format("%s", returnType));
+        BType type = inst.type;
+        if (type.tag != TypeTags.INVOKABLE) {
+            throw new BLangCompilerException("Expected BInvokableType, found " + String.format("%s", type));
         }
 
         for (BIROperand operand : inst.closureMaps) {
@@ -1574,7 +1651,7 @@ public class JvmInstructionGen {
 
         JvmCodeGenUtil.visitInvokeDynamic(mv, asyncDataCollector.getEnclosingClass(), lambdaName,
                                           inst.closureMaps.size());
-        jvmTypeGen.loadType(this.mv, returnType);
+        jvmTypeGen.loadType(this.mv, type);
         if (inst.strandName != null) {
             mv.visitLdcInsn(inst.strandName);
         } else {
@@ -1684,6 +1761,12 @@ public class JvmInstructionGen {
         this.storeToVar(newXMLPI.lhsOp.variableDcl);
     }
 
+    void generateNewXMLSequenceIns(BIRNonTerminator.NewXMLSequence xmlSequenceIns) {
+        this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXmlSequence",
+                String.format("()L%s;", XML_SEQUENCE), false);
+        this.storeToVar(xmlSequenceIns.lhsOp.variableDcl);
+    }
+
     void generateXMLStoreIns(BIRNonTerminator.XMLAccess xmlStoreIns) {
 
         this.loadVar(xmlStoreIns.lhsOp.variableDcl);
@@ -1712,8 +1795,6 @@ public class JvmInstructionGen {
         this.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "getAttribute",
                                 String.format("(L%s;)L%s;", B_XML_QNAME, STRING_VALUE), false);
 
-        // store in the target reg
-        BType targetType = xmlAttrStoreIns.lhsOp.variableDcl.type;
         this.storeToVar(xmlAttrStoreIns.lhsOp.variableDcl);
     }
 
@@ -1751,8 +1832,6 @@ public class JvmInstructionGen {
                     String.format("(I)L%s;", XML_VALUE), false);
         }
 
-        // store in the target reg
-        BType targetType = xmlLoadIns.lhsOp.variableDcl.type;
         this.storeToVar(xmlLoadIns.lhsOp.variableDcl);
     }
 
@@ -1806,7 +1885,7 @@ public class JvmInstructionGen {
     void generateNewTypedescIns(BIRNonTerminator.NewTypeDesc newTypeDesc) {
         List<BIROperand> closureVars = newTypeDesc.closureVars;
         BType type = newTypeDesc.type;
-        if (type.tag == TypeTags.RECORD && closureVars.size() == 0 && type.tsymbol != null) {
+        if (type.tag == TypeTags.RECORD && closureVars.isEmpty() && type.tsymbol != null) {
             PackageID packageID = type.tsymbol.pkgID;
             String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
             String fieldName = jvmTypeGen.getTypedescFieldName(toNameString(type));
@@ -1957,6 +2036,9 @@ public class JvmInstructionGen {
                     break;
                 case NEW_STRING_XML_QNAME:
                     generateNewStringXMLQNameIns((BIRNonTerminator.NewStringXMLQName) inst);
+                    break;
+                case NEW_XML_SEQUENCE:
+                    generateNewXMLSequenceIns((BIRNonTerminator.NewXMLSequence) inst);
                     break;
                 case XML_SEQ_STORE:
                     generateXMLStoreIns((BIRNonTerminator.XMLAccess) inst);

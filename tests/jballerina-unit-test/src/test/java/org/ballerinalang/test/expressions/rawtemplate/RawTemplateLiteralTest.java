@@ -59,55 +59,57 @@ public class RawTemplateLiteralTest {
                 "'ballerina/lang.object:1.0.0:RawTemplate'", 37, 15);
 
         validateError(errors, indx++, "invalid raw template: expected 2 insertion(s), but found " +
-                "3 insertion(s)", 50, 19);
+                "3 insertion(s)", 51, 19);
         validateError(errors, indx++, "invalid raw template: expected 2 insertion(s), but found " +
-                "1 insertion(s)", 51, 19);
-        validateError(errors, indx++, "incompatible types: expected 'anydata', found 'Template'", 56, 46);
-        validateError(errors, indx++, "incompatible types: expected '(Foo|Bar)', found 'string'", 70, 16);
+                "1 insertion(s)", 52, 19);
+        validateError(errors, indx++, "incompatible types: expected 'anydata', found 'Template'", 57, 46);
+        validateError(errors, indx++, "incompatible types: expected 'FooBar', found 'string'", 70, 16);
         validateError(errors, indx++, "invalid raw template assignment: 'Template1' should be an abstract object",
-                      82, 19);
+                83, 19);
         validateError(errors, indx++, "invalid raw template assignment: 'object { public (string[] & readonly) " +
                 "strings; public [anydata...] insertions; string name; }' should only have the 'strings' and " +
-                "'insertions' fields", 94, 15);
+                "'insertions' fields", 95, 15);
         validateError(errors, indx++, "invalid raw template assignment: 'object { public (string[] & readonly) " +
                 "strings; public int[] insertions; int name; }' should only have the 'strings' and " +
-                "'insertions' fields", 102, 13);
+                "'insertions' fields", 104, 13);
 
         validateError(errors, indx++, "invalid literal for type 'object { }': raw templates can only be assigned " +
-                "to abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 105, 13);
+                "to abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 107, 13);
         validateError(errors, indx++, "invalid literal for type 'object { public (string[] & readonly) strings; }':" +
                 " raw templates can only be assigned to abstract subtypes of 'ballerina/lang.object:1.0" +
-                ".0:RawTemplate'", 109, 13);
+                ".0:RawTemplate'", 111, 13);
         validateError(errors, indx++, "invalid literal for type 'object { public int[] insertions; }': raw templates " +
-                "can only be assigned to abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 113, 13);
+                "can only be assigned to abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 115, 13);
         validateError(errors, indx++, "invalid literal for type 'object { public int[] insertions; int foo; }': raw " +
                 "templates can only be assigned to abstract subtypes of " +
-                "'ballerina/lang.object:1.0.0:RawTemplate'", 118, 13);
+                "'ballerina/lang.object:1.0.0:RawTemplate'", 120, 13);
 
         validateError(errors, indx++, "invalid raw template assignment: 'object { public (string[] & readonly) " +
                 "strings; public int[] insertions; function shouldNotBeHere () returns (); }' should be a type " +
-                "without methods", 125, 13);
+                "without methods", 127, 13);
         validateError(errors, indx++, "invalid raw template: expected 2 insertion(s), but found 3 insertion(s)",
-                      134, 17);
-        validateError(errors, indx++, "invalid raw template: expected 3 string(s), but found 4 string(s)", 134, 17);
+                      137, 17);
+        validateError(errors, indx++, "invalid raw template: expected 3 string(s), but found 4 string(s)", 137, 17);
         validateError(errors, indx++, "invalid raw template: expected 2 insertion(s), but found 1 insertion(s)",
-                      135, 17);
-        validateError(errors, indx++, "invalid raw template: expected 3 string(s), but found 2 string(s)", 135, 17);
-        validateError(errors, indx++, "incompatible types: expected 'float', found 'string'", 136, 30);
+                      138, 17);
+        validateError(errors, indx++, "invalid raw template: expected 3 string(s), but found 2 string(s)", 138, 17);
+        validateError(errors, indx++, "incompatible types: expected 'float', found 'string'", 139, 30);
 
         // Fixed length arrays
-        validateError(errors, indx++, "invalid raw template: expected 1 insertion(s), but found 2 insertion(s)", 145,
+        validateError(errors, indx++, "invalid raw template: expected 1 insertion(s), but found 2 insertion(s)", 149,
                       15);
-        validateError(errors, indx++, "invalid raw template: expected 2 string(s), but found 3 string(s)", 145, 15);
+        validateError(errors, indx++, "invalid raw template: expected 2 string(s), but found 3 string(s)", 149, 15);
         validateError(errors, indx++, "invalid raw template: expected 1 insertion(s), but found 0 insertion(s)",
-                      146, 9);
-        validateError(errors, indx++, "invalid raw template: expected 2 string(s), but found 1 string(s)", 146, 9);
+                      150, 9);
+        validateError(errors, indx++, "invalid raw template: expected 2 string(s), but found 1 string(s)", 150, 9);
+        validateError(errors, indx++, "included field 'strings' of type '(string[] & readonly)' cannot be overridden " +
+                "by a field of type 'string[]': expected a subtype of '(string[] & readonly)'", 155, 5);
         validateError(errors, indx++, "invalid literal for type 'Temp3': raw templates can only be assigned to " +
-                "abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 155, 15);
+                "abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 160, 15);
 
         validateError(errors, indx++, "ambiguous type for raw template: found multiple types compatible with " +
                 "'ballerina/lang.object:1.0.0:RawTemplate' in '(ballerina/lang.object:1.0" +
-                ".0:RawTemplate|Template1)'", 159, 35);
+                ".0:RawTemplate|Template1)'", 164, 35);
 
         assertEquals(errors.getErrorCount(), indx);
     }

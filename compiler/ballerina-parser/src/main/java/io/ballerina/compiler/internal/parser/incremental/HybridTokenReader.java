@@ -75,6 +75,11 @@ public class HybridTokenReader extends AbstractTokenReader {
     }
 
     @Override
+    public ParserMode getCurrentMode() {
+        return null;
+    }
+
+    @Override
     public int getCurrentTokenIndex() {
         return this.hybridNodeStorage.getCurrentTokenIndex();
     }

@@ -96,42 +96,75 @@
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "REMOTE_METHOD_CALL_ACTION",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_EXPRESSION_EXPECTED_ACTION_FOUND"
-                              ],
                               "children": [
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_EXPRESSION_EXPECTED_ACTION_FOUND"
+                                  ],
+                                  "trailingMinutiae": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "y"
+                                      "kind": "INVALID_NODE_MINUTIAE",
+                                      "invalidNode": {
+                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "children": [
+                                          {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "y"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "kind": "INVALID_NODE_MINUTIAE",
+                                      "invalidNode": {
+                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "children": [
+                                          {
+                                            "kind": "RIGHT_ARROW_TOKEN"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "kind": "INVALID_NODE_MINUTIAE",
+                                      "invalidNode": {
+                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "children": [
+                                          {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "z"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "kind": "INVALID_NODE_MINUTIAE",
+                                      "invalidNode": {
+                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "children": [
+                                          {
+                                            "kind": "OPEN_PAREN_TOKEN"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "kind": "INVALID_NODE_MINUTIAE",
+                                      "invalidNode": {
+                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "children": [
+                                          {
+                                            "kind": "CLOSE_PAREN_TOKEN"
+                                          }
+                                        ]
+                                      }
                                     }
                                   ]
-                                },
-                                {
-                                  "kind": "RIGHT_ARROW_TOKEN"
-                                },
-                                {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "z"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "OPEN_PAREN_TOKEN"
-                                },
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "CLOSE_PAREN_TOKEN"
                                 }
                               ]
                             }

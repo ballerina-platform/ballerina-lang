@@ -35,15 +35,15 @@ public class QueryNegativeTests {
     @Test
     public void testFromClauseWithInvalidType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 24);
+        Assert.assertEquals(compileResult.getErrorCount(), 31);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'Person', found 'Teacher'",
-                                  64, 18);
+                64, 18);
         validateError(compileResult, index++, "invalid operation: type 'Teacher' does not support field access for " +
-                              "non-required field 'lastName'", 67, 30);
+                "non-required field 'lastName'", 67, 30);
         validateError(compileResult, index++, "invalid operation: type 'Teacher' does not support field access for " +
-                              "non-required field 'age'", 68, 25);
+                "non-required field 'age'", 68, 25);
         validateError(compileResult, index++, "unknown type 'XYZ'", 83, 18);
         validateError(compileResult, index++, "undefined field 'lastName' in record 'Teacher'", 103, 20);
         validateError(compileResult, index++, "incompatible types: 'int' is not an iterable collection", 116, 32);
@@ -59,17 +59,27 @@ public class QueryNegativeTests {
                 "'(string|float)'", 222, 10);
         validateError(compileResult, index++, "incompatible types: expected 'Address', found 'map<string>'", 241, 13);
         validateError(compileResult, index++, "incompatible types: expected 'FullName[]', found 'error?'", 266, 13);
-        validateError(compileResult, index++, "incompatible types: expected 'xml', found '(xml|string)'", 283, 24);
-        validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 297, 24);
+        validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 278, 24);
         validateError(compileResult, index++, "a type compatible with mapping constructor expressions " +
-                "not found in type 'string'", 311, 24);
-        validateError(compileResult, index++, "ambiguous type '[xml, xml]'", 333, 24);
-        validateError(compileResult, index++, "ambiguous type '[string, string]'", 346, 24);
-        validateError(compileResult, index++, "redeclared symbol 'fname'", 370, 36);
-        validateError(compileResult, index++, "redeclared symbol 'age'", 383, 21);
-        validateError(compileResult, index, "redeclared symbol 'age'", 400, 44);
+                "not found in type 'string'", 292, 24);
+        validateError(compileResult, index++, "ambiguous type '[xml, xml]'", 314, 24);
+        validateError(compileResult, index++, "ambiguous type '[string, string]'", 327, 24);
+        validateError(compileResult, index++, "redeclared symbol 'fname'", 351, 36);
+        validateError(compileResult, index++, "redeclared symbol 'age'", 364, 21);
+        validateError(compileResult, index++, "redeclared symbol 'age'", 381, 44);
+        validateError(compileResult, index++, "invalid constraint type. expected subtype of 'map<any|error>' " +
+                "but found 'int'", 401, 22);
+        validateError(compileResult, index++, "invalid constraint type. expected subtype of 'map<any|error>' " +
+                "but found 'int'", 411, 22);
+        validateError(compileResult, index++, "incompatible types: 'int' is not an iterable collection",
+                416, 29);
+        validateError(compileResult, index++, "incompatible types: expected 'error?', " +
+                        "found 'stream<record {| int a; |},error>'", 421, 12);
+        validateError(compileResult, index++, "invalid record binding pattern with type 'anydata'", 426, 22);
+        validateError(compileResult, index++, "undefined symbol 'k'", 427, 25);
+        validateError(compileResult, index++, "invalid record binding pattern with type 'any'", 432, 22);
+        validateError(compileResult, index, "undefined symbol 'k'", 433, 25);
     }
-
 
     @Test
     public void testFromClauseWithInvalidAssignmentToFinalVar() {

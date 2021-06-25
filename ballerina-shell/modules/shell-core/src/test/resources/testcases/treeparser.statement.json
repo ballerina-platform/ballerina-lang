@@ -131,5 +131,19 @@
     "expected": [
       "PanicStatementNode"
     ]
+  },
+  {
+    "name": "Variable Declaration I",
+    "input": "int t = 4;",
+    "expected": [
+      "VariableDeclarationNode"
+    ]
+  },
+  {
+    "name": "Variable Declaration II",
+    "input": "string t;",
+    "expected": [
+      "VariableDeclarationNode"
+    ]
   }
 ]

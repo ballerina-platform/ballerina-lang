@@ -1,0 +1,56 @@
+{
+  "packages": [
+    {
+      "org": "samjs",
+      "name": "package_c",
+      "version": "0.1.0",
+      "dependencies": []
+    }
+  ],
+  "modules": [
+    {
+      "org": "samjs",
+      "package_name": "package_c",
+      "version": "0.1.0",
+      "module_name": "package_c.mod_c2",
+      "dependencies": []
+    },
+    {
+      "org": "samjs",
+      "package_name": "package_c",
+      "version": "0.1.0",
+      "module_name": "package_c.mod_c1",
+      "dependencies": [
+        {
+          "org": "samjs",
+          "package_name": "package_c",
+          "version": "0.1.0",
+          "module_name": "package_c.mod_c2",
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "org": "samjs",
+      "package_name": "package_c",
+      "version": "0.1.0",
+      "module_name": "package_c",
+      "dependencies": [
+        {
+          "org": "samjs",
+          "package_name": "package_c",
+          "version": "0.1.0",
+          "module_name": "package_c.mod_c1",
+          "dependencies": []
+        },
+        {
+          "org": "samjs",
+          "package_name": "package_c",
+          "version": "0.1.0",
+          "module_name": "package_c.mod_c2",
+          "dependencies": []
+        }
+      ]
+    }
+  ]
+}

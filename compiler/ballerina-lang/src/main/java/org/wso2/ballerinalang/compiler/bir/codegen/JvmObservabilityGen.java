@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
 import org.wso2.ballerinalang.compiler.bir.model.ArgumentState;
 import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRErrorEntry;
@@ -89,6 +90,7 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DISPLAY_ANNOTATION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVABLE_ANNOTATION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVE_UTILS;
@@ -106,7 +108,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_OBSE
 class JvmObservabilityGen {
     private static final String ENTRY_POINT_MAIN_METHOD_NAME = "main";
     private static final String NEW_BB_PREFIX = "observabilityDesugaredBB";
-    private static final String SERVICE_IDENTIFIER = "$$service$";
     private static final String INVOCATION_INSTRUMENTATION_TYPE = "invocation";
     private static final String FUNC_BODY_INSTRUMENTATION_TYPE = "funcBody";
     private static final Location COMPILE_TIME_CONST_POS =
@@ -117,16 +118,20 @@ class JvmObservabilityGen {
     private int lambdaIndex;
     private int desugaredBBIndex;
     private int constantIndex;
+    private int defaultServiceIndex;
 
     private final Map<Object, BIROperand> compileTimeConstants;
+    private final Map<Name, String> svcAttachPoints;
 
     JvmObservabilityGen(PackageCache packageCache, SymbolTable symbolTable) {
         this.compileTimeConstants = new HashMap<>();
+        this.svcAttachPoints = new HashMap<>();
         this.packageCache = packageCache;
         this.symbolTable = symbolTable;
         this.lambdaIndex = 0;
         this.desugaredBBIndex = 0;
         this.constantIndex = 0;
+        this.defaultServiceIndex = 0;
     }
 
     /**
@@ -144,9 +149,18 @@ class JvmObservabilityGen {
             rewriteAsyncInvocations(func, null, pkg);
             rewriteObservableFunctionInvocations(func, pkg);
             if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.value)) {
-                rewriteObservableFunctionBody(func, pkg, null, func.name.value, false, false, true, false);
+                rewriteObservableFunctionBody(func, pkg, null, func.name.value, null, false, false, true, false);
             } else if ((func.flags & Flags.WORKER) == Flags.WORKER) {   // Identifying lambdas generated for workers
-                rewriteObservableFunctionBody(func, pkg, null, func.workerName.value, false, false, false, true);
+                rewriteObservableFunctionBody(func, pkg, null, func.workerName.value, null, false, false, false, true);
+            }
+        }
+        for (BIRNode.BIRServiceDeclaration serviceDecl : pkg.serviceDecls) {
+            List<String> attachPoint = serviceDecl.attachPoint;
+            String attachPointLiteral = serviceDecl.attachPointLiteral;
+            if (attachPoint != null) {
+                svcAttachPoints.put(serviceDecl.associatedClassName, "/" + String.join("/", attachPoint));
+            } else if (attachPointLiteral != null) {
+                svcAttachPoints.put(serviceDecl.associatedClassName, attachPointLiteral);
             }
         }
         for (BIRTypeDefinition typeDef : pkg.typeDefs) {
@@ -154,6 +168,25 @@ class JvmObservabilityGen {
                 continue;
             }
             boolean isService = (typeDef.type.flags & Flags.SERVICE) == Flags.SERVICE;
+            String serviceName = null;
+            if (isService) {
+                for (BIRNode.BIRAnnotationAttachment annotationAttachment : typeDef.annotAttachments) {
+                    if (DISPLAY_ANNOTATION.equals(annotationAttachment.annotTagRef.value)) {
+                        BIRNode.BIRAnnotationRecordValue annotationRecordValue = (BIRNode.BIRAnnotationRecordValue)
+                                annotationAttachment.annotValues.get(0);
+                        Map<String, BIRNode.BIRAnnotationValue> annotationMap =
+                                annotationRecordValue.annotValueEntryMap;
+                        serviceName = ((BIRNode.BIRAnnotationLiteralValue) annotationMap.get("label")).value.toString();
+                        break;
+                    }
+                }
+                if (serviceName == null) {
+                    String basePath = this.svcAttachPoints.get(typeDef.name);
+                    serviceName = Objects.requireNonNullElseGet(basePath, () ->
+                            pkg.packageID.orgName.value + "_" + pkg.packageID.name.value + "_svc_" +
+                            defaultServiceIndex++);
+                }
+            }
             for (int i = 0; i < typeDef.attachedFuncs.size(); i++) {
                 BIRFunction func = typeDef.attachedFuncs.get(i);
                 if (isService) {
@@ -166,9 +199,11 @@ class JvmObservabilityGen {
                 rewriteObservableFunctionInvocations(func, pkg);
                 if (isService) {
                     if ((func.flags & Flags.RESOURCE) == Flags.RESOURCE) {
-                        rewriteObservableFunctionBody(func, pkg, typeDef, func.name.value, true, false, false, false);
+                        rewriteObservableFunctionBody(func, pkg, typeDef, func.name.value, serviceName,
+                                true, false, false, false);
                     } else if ((func.flags & Flags.REMOTE) == Flags.REMOTE) {
-                        rewriteObservableFunctionBody(func, pkg, typeDef, func.name.value, false, true, false, false);
+                        rewriteObservableFunctionBody(func, pkg, typeDef, func.name.value, serviceName,
+                                false, true, false, false);
                     }
                 }
             }
@@ -292,7 +327,7 @@ class JvmObservabilityGen {
             BInvokableType bInvokableType = new BInvokableType(argTypes, null,
                     returnType, null);
             BIRFunction desugaredFunc = new BIRFunction(asyncCallIns.pos, lambdaName, 0, bInvokableType,
-                    func.workerName, 0, null, VIRTUAL);
+                    func.workerName, 0, VIRTUAL);
             desugaredFunc.receiver = func.receiver;
             scopeFunctionsList.add(desugaredFunc);
 
@@ -380,8 +415,8 @@ class JvmObservabilityGen {
      * @param isWorker True if the function was a worker
      */
     private void rewriteObservableFunctionBody(BIRFunction func, BIRPackage pkg, BIRTypeDefinition attachedTypeDef,
-                                               String functionName, boolean isResource, boolean isRemote,
-                                               boolean isMainEntryPoint, boolean isWorker) {
+                                               String functionName, String serviceName, boolean isResource,
+                                               boolean isRemote, boolean isMainEntryPoint, boolean isWorker) {
         // Injecting observe start call at the start of the function body
         {
             BIRBasicBlock startBB = func.basicBlocks.get(0);    // Every non-abstract function should have function body
@@ -389,7 +424,6 @@ class JvmObservabilityGen {
             swapBasicBlockContent(startBB, newStartBB);
 
             if (isResource || isRemote) {
-                String serviceName = cleanUpServiceName(attachedTypeDef.name.value);
                 String resourcePathOrFunction = functionName;
                 String resourceAccessor = null;
                 if (isResource) {
@@ -956,20 +990,6 @@ class JvmObservabilityGen {
             }
         }
         return isCovered;
-    }
-
-    /**
-     * Remove the additional prefixes and postfixes added by the compiler.
-     * This is done to get the original name used by the developer.
-     *
-     * @param serviceName The service name to be cleaned up
-     * @return The cleaned up service name which should be equal to the name given by the developer
-     */
-    private String cleanUpServiceName(String serviceName) {
-        if (serviceName.contains(SERVICE_IDENTIFIER)) {
-            return serviceName.substring(0, serviceName.indexOf(SERVICE_IDENTIFIER));
-        }
-        return serviceName;
     }
 
     /**

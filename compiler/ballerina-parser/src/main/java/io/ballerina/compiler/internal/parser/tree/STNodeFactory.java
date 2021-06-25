@@ -643,6 +643,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression);
     }
 
+    public static STNode createInferredTypedescDefaultNode(
+            STNode ltToken,
+            STNode gtToken) {
+
+        return new STInferredTypedescDefaultNode(
+                ltToken,
+                gtToken);
+    }
+
     public static STNode createObjectTypeDescriptorNode(
             STNode objectTypeQualifiers,
             STNode objectKeyword,
@@ -822,6 +831,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createModuleVariableDeclarationNode(
             STNode metadata,
+            STNode visibilityQualifier,
             STNode qualifiers,
             STNode typedBindingPattern,
             STNode equalsToken,
@@ -830,6 +840,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STModuleVariableDeclarationNode(
                 metadata,
+                visibilityQualifier,
                 qualifiers,
                 typedBindingPattern,
                 equalsToken,
@@ -865,13 +876,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeParenToken);
     }
 
-    public static STNode createParameterizedTypeDescriptorNode(
-            STNode parameterizedType,
-            STNode typeParameter) {
+    public static STNode createMapTypeDescriptorNode(
+            STNode mapKeywordToken,
+            STNode mapTypeParamsNode) {
 
-        return new STParameterizedTypeDescriptorNode(
-                parameterizedType,
-                typeParameter);
+        return new STMapTypeDescriptorNode(
+                mapKeywordToken,
+                mapTypeParamsNode);
     }
 
     public static STNode createNilLiteralNode(
@@ -1103,26 +1114,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeParenToken);
     }
 
-    public static STNode createErrorTypeDescriptorNode(
-            STNode errorKeywordToken,
-            STNode errorTypeParamsNode) {
-
-        return new STErrorTypeDescriptorNode(
-                errorKeywordToken,
-                errorTypeParamsNode);
-    }
-
-    public static STNode createErrorTypeParamsNode(
-            STNode ltToken,
-            STNode parameter,
-            STNode gtToken) {
-
-        return new STErrorTypeParamsNode(
-                ltToken,
-                parameter,
-                gtToken);
-    }
-
     public static STNode createStreamTypeDescriptorNode(
             STNode streamKeywordToken,
             STNode streamTypeParamsNode) {
@@ -1147,15 +1138,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 gtToken);
     }
 
-    public static STNode createTypedescTypeDescriptorNode(
-            STNode typedescKeywordToken,
-            STNode typedescTypeParamsNode) {
-
-        return new STTypedescTypeDescriptorNode(
-                typedescKeywordToken,
-                typedescTypeParamsNode);
-    }
-
     public static STNode createLetExpressionNode(
             STNode letKeyword,
             STNode letVarDeclarations,
@@ -1167,15 +1149,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 letVarDeclarations,
                 inKeyword,
                 expression);
-    }
-
-    public static STNode createXmlTypeDescriptorNode(
-            STNode xmlKeywordToken,
-            STNode xmlTypeParamsNode) {
-
-        return new STXmlTypeDescriptorNode(
-                xmlKeywordToken,
-                xmlTypeParamsNode);
     }
 
     public static STNode createLetVariableDeclarationNode(
@@ -2233,17 +2206,54 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 documentElements);
     }
 
-    public static STNode createDocumentationReferenceNode(
+    public static STNode createBallerinaNameReferenceNode(
             STNode referenceType,
             STNode startBacktick,
-            STNode backtickContent,
+            STNode nameReference,
             STNode endBacktick) {
 
-        return new STDocumentationReferenceNode(
+        return new STBallerinaNameReferenceNode(
                 referenceType,
                 startBacktick,
-                backtickContent,
+                nameReference,
                 endBacktick);
+    }
+
+    public static STNode createInlineCodeReferenceNode(
+            STNode startBacktick,
+            STNode codeReference,
+            STNode endBacktick) {
+
+        return new STInlineCodeReferenceNode(
+                startBacktick,
+                codeReference,
+                endBacktick);
+    }
+
+    public static STNode createMarkdownCodeBlockNode(
+            STNode startLineHashToken,
+            STNode startBacktick,
+            STNode langAttribute,
+            STNode codeLines,
+            STNode endLineHashToken,
+            STNode endBacktick) {
+
+        return new STMarkdownCodeBlockNode(
+                startLineHashToken,
+                startBacktick,
+                langAttribute,
+                codeLines,
+                endLineHashToken,
+                endBacktick);
+    }
+
+    public static STNode createMarkdownCodeLineNode(
+            STNode hashToken,
+            STNode codeDescription) {
+
+        return new STMarkdownCodeLineNode(
+                hashToken,
+                codeDescription);
     }
 
     public static STNode createOrderByClauseNode(
@@ -2352,6 +2362,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 openParenToken,
                 arguments,
                 closeParenToken);
+    }
+
+    public static STNode createParameterizedTypeDescriptorNode(
+            SyntaxKind kind,
+            STNode keywordToken,
+            STNode typeParamNode) {
+
+        return new STParameterizedTypeDescriptorNode(
+                kind,
+                keywordToken,
+                typeParamNode);
     }
 }
 

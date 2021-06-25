@@ -44,7 +44,7 @@ public class BallerinaIntersectionTypeSymbol extends AbstractTypeSymbol implemen
 
     public BallerinaIntersectionTypeSymbol(CompilerContext context, ModuleID moduleID,
                                            BIntersectionType intersectionType) {
-        super(context, TypeDescKind.INTERSECTION, moduleID, intersectionType);
+        super(context, TypeDescKind.INTERSECTION, intersectionType);
     }
 
     @Override
@@ -71,7 +71,10 @@ public class BallerinaIntersectionTypeSymbol extends AbstractTypeSymbol implemen
         }
 
         TypesFactory typesFactory = TypesFactory.getInstance(this.context);
-        this.effectiveType = typesFactory.getTypeDescriptor(((BIntersectionType) this.getBType()).effectiveType);
+        BType effectiveType = ((BIntersectionType) this.getBType()).effectiveType;
+        this.effectiveType = typesFactory.getTypeDescriptor(effectiveType,
+                                                            effectiveType != null ? effectiveType.tsymbol : null,
+                                                            false, false);
         return this.effectiveType;
     }
 

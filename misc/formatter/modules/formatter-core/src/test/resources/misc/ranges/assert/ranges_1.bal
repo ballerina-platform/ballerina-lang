@@ -29,7 +29,7 @@ public class StringList {
     StringListNode current;
 
     public function init    (      )     {
-              StringListNode             node       =      new StringListNode(                               )
+              StringListNode             node       =      new StringListNode(                               )      ;
              }
       }
 

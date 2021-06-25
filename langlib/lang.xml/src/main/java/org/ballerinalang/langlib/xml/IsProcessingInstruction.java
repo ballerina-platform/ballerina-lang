@@ -19,22 +19,26 @@ package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlSequence;
+
+import java.util.List;
 
 /**
  * Test xml to be processing instruction.
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "isProcessingInstruction",
-//        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
-//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-//        isPublic = true
-//)
 public class IsProcessingInstruction {
 
     public static boolean isProcessingInstruction(BXml xmlValue) {
-        return xmlValue.getNodeType() == XmlNodeType.PI;
+        if (xmlValue.getNodeType() == XmlNodeType.PI) {
+            return true;
+        }
+
+        if (xmlValue.getNodeType() == XmlNodeType.SEQUENCE) {
+            List<BXml> childrenList = ((BXmlSequence) xmlValue).getChildrenList();
+            return childrenList.size() == 1 && isProcessingInstruction(childrenList.get(0));
+        }
+        return false;
     }
 }

@@ -21,21 +21,61 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "MARKDOWN_CODE_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "CODE_DESCRIPTION",
-                                  "value": " BFM also recognizes `` `f()` `` as an alternative to `` function `f` ``",
-                                  "trailingMinutiae": [
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": "BFM also recognizes "
+                                },
+                                {
+                                  "kind": "INLINE_CODE_REFERENCE",
+                                  "children": [
                                     {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
+                                      "kind": "DOUBLE_BACKTICK_TOKEN"
+                                    },
+                                    {
+                                      "kind": "CODE_CONTENT",
+                                      "value": " `f()` "
+                                    },
+                                    {
+                                      "kind": "DOUBLE_BACKTICK_TOKEN"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": " as an alternative to "
+                                },
+                                {
+                                  "kind": "INLINE_CODE_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "DOUBLE_BACKTICK_TOKEN"
+                                    },
+                                    {
+                                      "kind": "CODE_CONTENT",
+                                      "value": " function `f` "
+                                    },
+                                    {
+                                      "kind": "DOUBLE_BACKTICK_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -47,14 +87,20 @@
                           "kind": "MARKDOWN_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " In both cases, f can have any of the following forms: x(), m:x(), T.y(), m:T.y()",
+                                  "value": "In both cases, f can have any of the following forms: x(), m:x(), T.y(), m:T.y()",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -88,17 +134,19 @@
                           "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " "
-                                },
-                                {
-                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "kind": "BALLERINA_NAME_REFERENCE",
                                   "children": [
                                     {
                                       "kind": "FUNCTION_DOC_REFERENCE_TOKEN",
@@ -140,17 +188,19 @@
                           "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " "
-                                },
-                                {
-                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "kind": "BALLERINA_NAME_REFERENCE",
                                   "children": [
                                     {
                                       "kind": "FUNCTION_DOC_REFERENCE_TOKEN",
@@ -199,17 +249,19 @@
                           "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " "
-                                },
-                                {
-                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "kind": "BALLERINA_NAME_REFERENCE",
                                   "children": [
                                     {
                                       "kind": "FUNCTION_DOC_REFERENCE_TOKEN",
@@ -266,17 +318,19 @@
                           "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " "
-                                },
-                                {
-                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "kind": "BALLERINA_NAME_REFERENCE",
                                   "children": [
                                     {
                                       "kind": "FUNCTION_DOC_REFERENCE_TOKEN",
@@ -340,17 +394,19 @@
                           "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " "
-                                },
-                                {
-                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "kind": "BALLERINA_NAME_REFERENCE",
                                   "children": [
                                     {
                                       "kind": "FUNCTION_DOC_REFERENCE_TOKEN",
@@ -419,17 +475,19 @@
                           "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " "
-                                },
-                                {
-                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "kind": "BALLERINA_NAME_REFERENCE",
                                   "children": [
                                     {
                                       "kind": "FUNCTION_DOC_REFERENCE_TOKEN",

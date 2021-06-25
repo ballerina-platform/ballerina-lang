@@ -17,11 +17,15 @@
  */
 package org.ballerinalang.langlib.xml;
 
+import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.values.XmlComment;
+import io.ballerina.runtime.internal.values.XmlPi;
+import io.ballerina.runtime.internal.values.XmlSequence;
 
 /**
  * Returns the content of a text or processing instruction or comment item.
@@ -32,14 +36,26 @@ public class GetContent {
 
     public static BString getContent(Object xmlVal) {
         BXml value = (BXml) xmlVal;
-        if (IsText.isText(value)) {
-            return StringUtils.fromString(value.getTextValue());
-        } else if (IsProcessingInstruction.isProcessingInstruction(value)) {
-            return StringUtils.fromString(XMLValueUtil.getPIContent(value));
+        if (IsProcessingInstruction.isProcessingInstruction(value)) {
+            return getPIContent(value);
         } else if (IsComment.isComment(value)) {
-            return StringUtils.fromString(XMLValueUtil.getCommentContent(value));
+            return getCommentContent(value);
         }
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "getContent",
-                                                       "text|processing instruction|comment");
+                                                       "processing instruction|comment");
+    }
+
+    private static BString getCommentContent(BXml value) {
+        if (value.getNodeType() == XmlNodeType.COMMENT) {
+            return StringUtils.fromString(((XmlComment) value).getTextValue());
+        }
+        return getCommentContent(((XmlSequence) value).getItem(0));
+    }
+
+    private static BString getPIContent(BXml value) {
+        if (value.getNodeType() == XmlNodeType.PI) {
+            return StringUtils.fromString(((XmlPi) value).getData());
+        }
+        return getPIContent(((XmlSequence) value).getItem(0));
     }
 }

@@ -26,6 +26,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -129,14 +130,38 @@ public class ForeachTupleTests {
         Assert.assertEquals(returns[0].stringValue(), "0:d0 1: 2:d2 3: ");
     }
 
+    @Test(dataProvider = "dataToTestTupleWithRestDescriptorInForeach")
+    public void testTupleWithRestDescriptorInForeach(String functionName) {
+        BRunUtil.invoke(program, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestTupleWithRestDescriptorInForeach() {
+        return new Object[]{
+                "testTupleWithRestDescriptorInForeach1",
+                "testTupleWithRestDescriptorInForeach2",
+                "testTupleWithRestDescriptorInForeach3",
+                "testTupleWithRestDescriptorInForeach4",
+                "testTupleWithRestDescriptorInForeach5"
+        };
+    }
+
     @Test
     public void testNegativeTupleForeach() {
         negative = BCompileUtil.compile("test-src/statements/foreach/foreach_tuples_negative.bal");
-        Assert.assertEquals(negative.getErrorCount(), 3);
+        Assert.assertEquals(negative.getErrorCount(), 7);
         int i = 0;
         BAssertUtil.validateError(negative, i++, "incompatible types: expected '(int|string)', found 'string'", 20, 13);
         BAssertUtil.validateError(negative, i++, "incompatible types: expected '(int|string)', found 'int'", 23, 13);
-        BAssertUtil.validateError(negative, i,
+        BAssertUtil.validateError(negative, i++,
                 "incompatible types: expected '(int|string|boolean)', found '(string|int)'", 31, 13);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected '[int,int...]', " +
+                "found '[int,int,int...]'", 38, 13);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected '([int,int...]|[int,int,int...]" +
+                "|int[2])', found '[int,int,int...]'", 45, 13);
+        BAssertUtil.validateError(negative, i++, "invalid list binding pattern: attempted to infer a list type, " +
+                "but found '([int,int...]|[int,int,int...]|int)'", 52, 17);
+        BAssertUtil.validateError(negative, i, "invalid list binding pattern; member variable " +
+                "count mismatch with member type count", 58, 17);
     }
 }

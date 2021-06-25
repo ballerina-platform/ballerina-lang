@@ -35,7 +35,7 @@ public class Manager1 {
     *Employee1;
 
     public function getBonus(float ratio, int months=8) returns float {
-        return self.salary*ratio*months;
+        return self.salary*ratio*<float>months;
     }
 
     public function init(int age=20) {
@@ -90,9 +90,9 @@ public class CorronifiedEmployee {
 
     public function getBonus(float ratio, int months=12) returns float {
         if (self.workingFromHome) {
-            return self.salary * ratio * months + self.workingFromHomeAllowance;
+            return self.salary * ratio * <float>months + self.workingFromHomeAllowance;
         }
-        return self.salary * ratio * months;
+        return self.salary * ratio * <float>months;
     }
 
     public function getName(string greeting = "Contactless hello!") returns string {
@@ -108,4 +108,25 @@ public type Employee3 object {
     public int|float salary;
 
     public function getBonus(float ratio, int months=12) returns float;
+};
+
+public type Employee4 object {
+    float salary;
+};
+
+public type Employee5 object {
+    function getBonus(float ratio, int months) returns float;
+};
+
+public type Employee6 object {
+    public function getSalary() returns float;
+};
+
+public type Employee7 object {
+    *Employee6;
+    public function getEmploymentDuration() returns int;
+};
+
+public type Frame readonly & object {
+   public function toString() returns string;
 };

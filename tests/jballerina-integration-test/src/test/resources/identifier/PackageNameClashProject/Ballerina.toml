@@ -1,7 +1,4 @@
 [package]
 org = "a"
-name = "main"
+name = "b_foo"
 version = "0.1.0"
-
-[dependencies]
-"a_b/foo" = { path = "../testProject/target/bala/foo-2020r2-any-0.1.0.bala", version = "0.1.0"}

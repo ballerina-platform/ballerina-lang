@@ -90,17 +90,18 @@ public class SemanticAPITestUtils {
         Project project = BCompileUtil.loadProject(projectPath);
         Package currentPackage = project.currentPackage();
         ModuleName modName = ModuleName.from(currentPackage.packageName(), moduleName);
-        return currentPackage.module(modName).getCompilation().getSemanticModel();
+        return currentPackage.getCompilation().getSemanticModel(currentPackage.module(modName).moduleId());
     }
 
     public static SemanticModel getSemanticModelOf(Project project, String moduleName) {
         Package currentPackage = project.currentPackage();
         ModuleName modName = ModuleName.from(currentPackage.packageName(), moduleName);
-        return currentPackage.module(modName).getCompilation().getSemanticModel();
+        return currentPackage.getCompilation().getSemanticModel(currentPackage.module(modName).moduleId());
     }
 
     public static void assertList(List<? extends Symbol> actualValues, List<String> expectedValues) {
-        Map<String, Symbol> symbols = actualValues.stream().collect(Collectors.toMap(Symbol::name, s -> s));
+        Map<String, Symbol> symbols = actualValues.stream().collect(
+                Collectors.toMap(s -> s.getName().orElse(""), s -> s));
         assertList(symbols, expectedValues);
     }
 
@@ -116,8 +117,8 @@ public class SemanticAPITestUtils {
                                                        int column, ModuleID moduleID) {
         List<Symbol> allInScopeSymbols = model.visibleSymbols(srcFile, LinePosition.from(line, column));
         return allInScopeSymbols.stream()
-                .filter(s -> s.moduleID().equals(moduleID))
-                .collect(Collectors.toMap(Symbol::name, s -> s));
+                .filter(s -> s.getModule().get().id().equals(moduleID))
+                .collect(Collectors.toMap(s -> s.getName().orElse(""), s -> s));
     }
 
     public static List<String> getSymbolNames(List<String> mainList, String... args) {

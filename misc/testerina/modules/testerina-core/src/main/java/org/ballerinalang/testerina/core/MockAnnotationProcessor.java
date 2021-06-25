@@ -22,15 +22,21 @@ import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
@@ -58,11 +64,14 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String MODULE = "moduleName";
     private static final String FUNCTION = "functionName";
     private static final String MOCK_ANNOTATION_DELIMITER = "#";
+    private static final String MOCK_FN_DELIMITER = "~";
 
     private CompilerContext compilerContext;
     private DiagnosticLog diagnosticLog;
     private PackageCache packageCache;
     private Map<BPackageSymbol, SymbolEnv> packageEnvironmentMap;
+    private SymbolResolver symbolResolver;
+    private Types typeChecker;
 
     /**
      * this property is used as a work-around to initialize test suites only once for a package as Compiler
@@ -74,6 +83,8 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
         this.diagnosticLog = diagnosticLog;
         this.packageEnvironmentMap = SymbolTable.getInstance(compilerContext).pkgEnvMap;
         this.packageCache = PackageCache.getInstance(compilerContext);
+        this.symbolResolver = SymbolResolver.getInstance(compilerContext);
+        this.typeChecker = Types.getInstance(compilerContext);
     }
 
     @Override
@@ -120,6 +131,94 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                 }
             }
         }
+    }
+
+    @Override
+    public void process(FunctionNode functionNode, List<AnnotationAttachmentNode> annotations) {
+        BLangPackage parent = (BLangPackage) ((BLangFunction) functionNode).parent;
+        String packageName = getPackageName(parent);
+        annotations = annotations.stream().distinct().collect(Collectors.toList());
+
+        // Iterate through all the annotations
+        for (AnnotationAttachmentNode attachmentNode : annotations) {
+            String annotationName = attachmentNode.getAnnotationName().getValue();
+            String functionName = functionNode.getName().getValue();
+
+            if (MOCK_ANNOTATION_NAME.equals(annotationName)) {
+                String[] vals = new String[2];
+                // TODO: when default values are supported in annotation struct we can remove this
+                vals[0] = packageName;
+                vals[1] = "";
+
+                if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
+                    List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
+                            .getExpression()).getFields();
+                    attributes.forEach(field -> {
+                        String name;
+                        BLangExpression valueExpr;
+
+                        if (field.isKeyValueField()) {
+                            BLangRecordLiteral.BLangRecordKeyValueField attributeNode =
+                                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                            name = attributeNode.getKey().toString();
+                            valueExpr = attributeNode.getValue();
+                        } else {
+                            BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                                    (BLangRecordLiteral.BLangRecordVarNameField) field;
+                            name = varNameField.variableName.value;
+                            valueExpr = varNameField;
+                        }
+
+                        String value = valueExpr.toString();
+
+                        if (MODULE.equals(name)) {
+                            value = formatPackageName(value, parent);
+                            vals[0] = value;
+                        } else if (FUNCTION.equals(name)) {
+                            vals[1] = value;
+                        }
+                    });
+
+                    // Check if Function in annotation is empty
+                    if (vals[1].isEmpty()) {
+                        diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
+                                "function name cannot be empty");
+                        break;
+                    }
+
+                    // Find functionToMock in the packageID
+                    PackageID functionToMockID = getPackageID(vals[0]);
+                    if (functionToMockID == null) {
+                        diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
+                                "could not find module specified ");
+                    }
+
+                    BType functionToMockType = getFunctionType(packageEnvironmentMap, functionToMockID, vals[1]);
+                    BType mockFunctionType = getFunctionType(packageEnvironmentMap, parent.packageID,
+                            ((BLangFunction) functionNode).name.toString());
+
+                    if (functionToMockType != null && mockFunctionType != null) {
+                        if (!typeChecker.isAssignable(mockFunctionType, functionToMockType)) {
+                            diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, ((BLangFunction) functionNode).pos,
+                                    "incompatible types: expected " + functionToMockType.toString()
+                                            + " but found " + mockFunctionType.toString());
+                        }
+                    } else {
+                        diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
+                                "could not find functions in module");
+                    }
+
+                    //Creating a bLangTestablePackage to add a mock function
+                    BLangTestablePackage bLangTestablePackage =
+                            (BLangTestablePackage) ((BLangFunction) functionNode).parent;
+                    bLangTestablePackage.addMockFunction(functionToMockID + MOCK_FN_DELIMITER + vals[1],
+                            functionName);
+                }
+
+            }
+
+        }
+
     }
 
     /**
@@ -232,6 +331,28 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
     private String getPackageName(PackageNode packageNode) {
         BLangPackage bLangPackage = ((BLangPackage) packageNode);
         return bLangPackage.packageID.toString();
+    }
+
+    /**
+     * Get the function type by iterating through the packageEnvironmentMap.
+     *
+     * @param pkgEnvMap    map of BPackageSymbol and its respective SymbolEnv
+     * @param packageID    Fully qualified package ID of the respective function
+     * @param functionName Name of the function
+     * @return Function type if found, null if not found
+     */
+    private BType getFunctionType(Map<BPackageSymbol, SymbolEnv> pkgEnvMap, PackageID packageID, String functionName) {
+        // Symbol resolver, Pass the acquired package Symbol from package cache
+        for (Map.Entry<BPackageSymbol, SymbolEnv> entry : pkgEnvMap.entrySet()) {
+            // Multiple packages may be present with same name, so all entries must be checked
+            if (entry.getKey().pkgID.equals(packageID)) {
+                BSymbol symbol = symbolResolver.lookupSymbolInMainSpace(entry.getValue(), new Name(functionName));
+                if (!symbol.getType().toString().equals("other")) {
+                    return symbol.getType();
+                }
+            }
+        }
+        return null;
     }
 
 }

@@ -1,4 +1,4 @@
-import ballerina/math as x;
+import ballerina/lang.'int as x;
 
 function testRestrictedElementPrefix() returns (xml) {
     xml x = xml `<xmlns:foo>hello</xmlns:foo>`;
@@ -17,14 +17,6 @@ function xmlTemplateWithNonXML() {
 
 function defineEmptyNamespaceInline() {
     xml x = xml `<root xmlns:ns0=""/>`;
-}
-
-function testTextWithMultiTypeExpressions() {
-    int v1 = 11;
-    string v2 = "world";
-    xml v3 = xml `<foo>apple</foo>`;
-    
-    xml x = xml `hello ${v1} ${v2}. How are you ${v3} ?`;
 }
 
 function testRedeclareNamespaces() {
@@ -63,7 +55,7 @@ function testMismatchingElementTags() {
 }
 
 function dummyFunctionToUseMath() {
-    float f = x:random();
+    _ = x:abs(-123);
 }
 
 function testXmlNsInterpolation() returns xml {
@@ -72,12 +64,49 @@ function testXmlNsInterpolation() returns xml {
     return x;
 }
 
-function testXMLLiteralWithEscapeSequence() {
-    xml x1 = xml `hello &lt; &gt; &amp;`;
-    string[] strs = [];
-    foreach xml e in x1 {
-        if e is string {
-            strs.push(e);
-        }
-    }
+function testXMLSequence() {
+    xml<'xml:Text> x4 = xml `<!--comment-->text1`;
+    'xml:Text x10 = xml `<!--comment-->text1`;
+    xml<'xml:Text|'xml:Comment> x7 = xml `<root> text1<foo>100</foo><foo>200</foo></root>`;
+    xml<'xml:Text|'xml:Comment> x8 = xml `<root> text1<foo>100</foo><foo>200</foo></root><?foo?>`;
+    xml<'xml:Text>|xml<'xml:Comment> x11 = xml `<root> text1<foo>100</foo><foo>200</foo></root>`;
+    xml<'xml:Text>|xml<'xml:Comment> x12 = xml `<root> text1<foo>100</foo><foo>200</foo></root><?foo?>`;
+    'xml:Text|'xml:Comment x15 = xml `<root> text1<foo>100</foo><foo>200</foo></root>`;
+    'xml:Text|'xml:Comment x16 = xml `<root> text1<foo>100</foo><foo>200</foo></root><?foo?>`;
+    'xml:Text|'xml:Comment x17 = xml `<!--comment-->text1`;
+    xml<'xml:Text>|'xml:Comment x18 = xml `<!--comment-->text1`;
+    'xml:Element x20 = xml `<foo>100</foo><foo>200</foo>`;
+    'xml:Comment|'xml:Element x21 = xml `<foo>foo</foo><bar/><!--comment-->`;
+    'xml:Comment|'xml:Element x22 = xml `<foo>foo</foo><bar/>`;
+
+    'xml:ProcessingInstruction x23 = xml `<?foo?><?faa?>`;
+    'xml:Element x24 = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
+    'xml:Comment x25 = xml `<!--comment1--><!--comment2-->`;
+
+    string val1 = "text1";
+    xml<'xml:ProcessingInstruction> x26 = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
+    xml<'xml:ProcessingInstruction> x27 = xml `text1 ${val1}`;
+    xml<'xml:ProcessingInstruction> x28 = xml `<!--comment1--><!--comment2-->`;
+
+    xml<'xml:Element> x29 = xml `text1 ${val1}`;
+    xml<'xml:Element> x30 = xml `<?foo?><?faa?>`;
+    xml<'xml:Element> x31 = xml `<!--comment1--><!--comment2-->`;
+
+    xml<'xml:Comment> x32 = xml `<?foo?><?faa?>`;
+    xml<'xml:Comment> x33 = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
+    xml<'xml:Comment> x34 = xml `text1 ${val1}`;
+
+    xml<'xml:Text> x35 = xml `<!--comment1--><!--comment2-->`;
+    xml<'xml:Text> x36 = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
+    xml<'xml:Text> x37 = xml `<?foo?><?faa?>`;
+}
+
+function testUndefinedVariable() {
+    xml c = xml `text1 text2 ${b}`;
+}
+
+function testIncompatibleTypesInTemplates() {
+    map<string> b = {};
+    error err = error("xml error");
+    xml c = xml `text1 text2 ${b} ${err}`;
 }

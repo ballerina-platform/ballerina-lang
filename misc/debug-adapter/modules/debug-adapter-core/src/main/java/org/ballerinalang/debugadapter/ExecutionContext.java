@@ -33,15 +33,18 @@ public class ExecutionContext {
 
     private IDebugProtocolClient client;
     private final JBallerinaDebugServer adapter;
-    private VirtualMachineProxyImpl debuggee;
+    private VirtualMachineProxyImpl debuggeeVM;
+    private DebugMode debugMode;
     private Project sourceProject;
+    private String sourceProjectRoot;
+    private final DebugProjectCache projectCache;
     private Process launchedProcess;
+    private DebugInstruction lastInstruction;
+    private boolean terminateRequestReceived;
 
     ExecutionContext(JBallerinaDebugServer adapter) {
         this.adapter = adapter;
-        this.client = null;
-        this.debuggee = null;
-        this.launchedProcess = null;
+        this.projectCache = new DebugProjectCache();
     }
 
     public Optional<Process> getLaunchedProcess() {
@@ -64,12 +67,57 @@ public class ExecutionContext {
         return adapter;
     }
 
-    public VirtualMachineProxyImpl getDebuggee() {
-        return debuggee;
+    public VirtualMachineProxyImpl getDebuggeeVM() {
+        return debuggeeVM;
     }
 
-    public void setDebuggee(VirtualMachineProxyImpl debuggee) {
-        this.debuggee = debuggee;
+    public void setDebuggeeVM(VirtualMachineProxyImpl debuggeeVM) {
+        this.debuggeeVM = debuggeeVM;
+    }
+
+    public EventRequestManager getEventManager() {
+        if (debuggeeVM == null) {
+            return null;
+        }
+        return debuggeeVM.eventRequestManager();
+    }
+
+    public BufferedReader getInputStream() {
+        if (launchedProcess == null) {
+            return null;
+        }
+        return new BufferedReader(new InputStreamReader(launchedProcess.getInputStream(), StandardCharsets.UTF_8));
+    }
+
+    public BufferedReader getErrorStream() {
+        if (launchedProcess == null) {
+            return null;
+        }
+        return new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream(), StandardCharsets.UTF_8));
+    }
+
+    public DebugInstruction getLastInstruction() {
+        return lastInstruction;
+    }
+
+    public void setLastInstruction(DebugInstruction lastInstruction) {
+        this.lastInstruction = lastInstruction;
+    }
+
+    public DebugMode getDebugMode() {
+        return debugMode;
+    }
+
+    public void setDebugMode(DebugMode debugMode) {
+        this.debugMode = debugMode;
+    }
+
+    public boolean isTerminateRequestReceived() {
+        return terminateRequestReceived;
+    }
+
+    public void setTerminateRequestReceived(boolean terminationRequestReceived) {
+        this.terminateRequestReceived = terminationRequestReceived;
     }
 
     public Project getSourceProject() {
@@ -78,17 +126,31 @@ public class ExecutionContext {
 
     public void setSourceProject(Project sourceProject) {
         this.sourceProject = sourceProject;
+        this.setSourceProjectRoot(sourceProject.sourceRoot().toAbsolutePath().toString());
+        updateProjectCache(sourceProject);
     }
 
-    public EventRequestManager getEventManager() {
-        return debuggee.eventRequestManager();
+    public DebugProjectCache getProjectCache() {
+        return projectCache;
     }
 
-    public BufferedReader getInputStream() {
-        return new BufferedReader(new InputStreamReader(launchedProcess.getInputStream(), StandardCharsets.UTF_8));
+    public void updateProjectCache(Project project) {
+        this.projectCache.addProject(project);
     }
 
-    public BufferedReader getErrorStream() {
-        return new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream(), StandardCharsets.UTF_8));
+    public String getSourceProjectRoot() {
+        return sourceProjectRoot;
+    }
+
+    public void setSourceProjectRoot(String sourceProjectRoot) {
+        this.sourceProjectRoot = sourceProjectRoot;
+    }
+
+    /**
+     * Currently supported debug configuration modes.
+     */
+    public enum DebugMode {
+        LAUNCH,
+        ATTACH
     }
 }

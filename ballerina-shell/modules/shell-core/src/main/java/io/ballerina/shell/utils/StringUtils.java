@@ -19,6 +19,12 @@
 package io.ballerina.shell.utils;
 
 import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextDocument;
+
+import java.util.StringJoiner;
 
 /**
  * Utility functions required by invokers.
@@ -29,6 +35,9 @@ import io.ballerina.runtime.api.utils.IdentifierUtils;
 public class StringUtils {
     private static final int MAX_VAR_STRING_LENGTH = 78;
     private static final String QUOTE = "'";
+    private static final String SPACE = " ";
+    private static final String CARET = "^";
+    private static final String DASH = "-";
 
     /**
      * Creates an quoted identifier to use for variable names.
@@ -61,6 +70,65 @@ public class StringUtils {
     }
 
     /**
+     * Highlight and show the error position.
+     * The highlighted text would follow format,
+     * <pre>
+     * incompatible types: expected 'string', found 'int'
+     *     int i = "Hello";
+     *             ^-----^
+     * </pre>
+     * However if the error is multiline, it would not highlight the error.
+     *
+     * @param textDocument Text document to extract source code.
+     * @param diagnostic   Diagnostic to show.
+     * @return The string with position highlighted.
+     */
+    public static String highlightDiagnostic(TextDocument textDocument,
+                                             io.ballerina.tools.diagnostics.Diagnostic diagnostic) {
+        LineRange lineRange = diagnostic.location().lineRange();
+        LinePosition startLine = lineRange.startLine();
+        LinePosition endLine = lineRange.endLine();
+
+        if (startLine.line() != endLine.line()) {
+            // Error spans for several lines, will not highlight error
+            StringJoiner errorMessage = new StringJoiner("\n\t");
+            errorMessage.add(diagnostic.message());
+            for (int i = startLine.line(); i <= endLine.line(); i++) {
+                errorMessage.add(textDocument.line(i).text().strip());
+            }
+            return errorMessage.toString();
+        }
+
+        // Error is same line, can highlight using ^-----^
+        // Error will expand as ^, ^^, ^-^, ^--^
+        int position = startLine.offset();
+        int length = Math.max(endLine.offset() - position, 1);
+        String caretUnderline = length == 1
+                ? CARET : CARET + DASH.repeat(length - 2) + CARET;
+
+        // Get the source code
+        String sourceLine = textDocument.line(startLine.line()).text();
+
+        // Count leading spaces
+        int leadingSpaces = sourceLine.length() - sourceLine.stripLeading().length();
+        String strippedSourceLine = sourceLine.substring(leadingSpaces);
+
+        // Result should be padded with a tab
+        return String.format("error: %s%n\t%s%n\t%s%s", diagnostic.message(), strippedSourceLine,
+                SPACE.repeat(position - leadingSpaces), caretUnderline);
+    }
+
+    /**
+     * Replace the unicode patterns in identifiers into respective unicode characters.
+     *
+     * @param identifier identifier string
+     * @return modified identifier with unicode character
+     */
+    public static String unescapeUnicodeCodepoints(String identifier) {
+        return IdentifierUtils.unescapeUnicodeCodepoints(identifier);
+    }
+
+    /**
      * Escapes the <code>String</code> with the escaping rules of Java language
      * string literals, so it's safe to insert the value into a string literal.
      * The resulting string will not be quoted.
@@ -69,7 +137,7 @@ public class StringUtils {
      * @return encoded string.
      */
     public static String encodeIdentifier(String string) {
-        return IdentifierUtils.encodeNonFunctionIdentifier(string);
+        return string.replace("\\", "\\\\");
     }
 
     /**
@@ -80,5 +148,28 @@ public class StringUtils {
      */
     public static String getExpressionStringValue(Object object) {
         return io.ballerina.runtime.api.utils.StringUtils.getExpressionStringValue(object, null);
+    }
+
+    /**
+     * Converts {@link Throwable} to a more descriptive format.
+     *
+     * @param error Error object to convert.
+     * @return Converted string.
+     */
+    public static String getErrorStringValue(Throwable error) {
+        if (error instanceof BError) {
+            return ((BError) error).getErrorMessage() + " " + ((BError) error).getDetails();
+        }
+        return error.getMessage();
+    }
+
+    /**
+     * Convert unicode character to ballerina unicode format.
+     *
+     * @param character Unicode character to convert.
+     * @return Reformatted unicode string.
+     */
+    public static String convertUnicode(char character) {
+        return "\\u{" + Integer.toHexString((int) character) + "}";
     }
 }

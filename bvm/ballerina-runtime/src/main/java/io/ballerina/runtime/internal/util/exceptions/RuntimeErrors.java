@@ -18,10 +18,13 @@
 
 package io.ballerina.runtime.internal.util.exceptions;
 
+import io.ballerina.tools.diagnostics.DiagnosticCode;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+
 /**
  * Error codes and Error keys to represent the runtime errors.
  */
-public enum RuntimeErrors {
+public enum RuntimeErrors implements DiagnosticCode {
 
     CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE("casting.any.to.wrong.value.type", "RUNTIME_0001"),
     CASTING_ANY_TYPE_WITHOUT_INIT("casting.any.without.init", "RUNTIME_0002"),
@@ -77,7 +80,33 @@ public enum RuntimeErrors {
     XML_SEQUENCE_INDEX_OUT_OF_RANGE("xml.index.out.of.range", "RUNTIME_0050"),
     RECORD_INVALID_READONLY_FIELD_UPDATE("record.invalid.readonly.field.update", "RUNTIME_0051"),
     INVALID_READONLY_VALUE_UPDATE("invalid.update.on.readonly.value", "RUNTIME_0052"),
-    OBJECT_INVALID_FINAL_FIELD_UPDATE("object.invalid.final.field.update", "RUNTIME_0053");
+    OBJECT_INVALID_FINAL_FIELD_UPDATE("object.invalid.final.field.update", "RUNTIME_0053"),
+    UNSUPPORTED_COMPARISON_OPERATION("unsupported.comparison.operation", "RUNTIME_0054"),
+    UNORDERED_TYPES_IN_COMPARISON("unordered.types.in.comparison", "RUNTIME_0055"),
+    CONFIG_TYPE_NOT_SUPPORTED("config.type.not.supported", "RUNTIME_0056"),
+    CONFIG_INCOMPATIBLE_TYPE("config.incompatible.type", "RUNTIME_0057"),
+    CONFIG_INVALID_BYTE_RANGE("config.invalid.byte.range", "RUNTIME_0058"),
+    CONFIG_VALUE_NOT_PROVIDED("config.value.not.provided", "RUNTIME_0059"),
+    CONFIG_TOML_INVALID_FILE("config.toml.invalid.file", "RUNTIME_0060"),
+    CONFIG_UNION_VALUE_AMBIGUOUS_TARGET("config.union.value.ambiguous.target", "RUNTIME_0061"),
+    CONFIG_TOML_INVALID_ADDTIONAL_RECORD_FIELD("config.toml.invalid.additional.record.field", "RUNTIME_0062"),
+    CONFIG_TOML_FEILD_NOT_SUPPORTED("config.toml.field.not.supported", "RUNTIME_0063"),
+    CONFIG_TOML_REQUIRED_FILED_NOT_PROVIDED("config.toml.required.field.not.provided", "RUNTIME_0064"),
+    CONFIG_TOML_TABLE_KEY_NOT_PROVIDED("config.toml.table.key.not.provided", "RUNTIME_0065"),
+    CONFIG_TOML_INVALID_MODULE_STRUCTURE("config.toml.invalid.module.structure", "RUNTIME_0066"),
+    CONFIG_TOML_DEFAULT_FILED_NOT_SUPPORTED("config.toml.default.field.not.supported", "RUNTIME_0067"),
+    CONFIG_TOML_EMPTY_FILE("config.toml.empty.file", "RUNTIME_0068"),
+    CONFIG_TOML_EMPTY_CONTENT("config.toml.empty.content", "RUNTIME_0069"),
+    CONFIG_TOML_FILE_NOT_FOUND("config.toml.file.not.found", "RUNTIME_0070"),
+    CONFIG_TOML_TYPE_NOT_SUPPORTED("config.toml.type.not.supported", "RUNTIME_0071"),
+    CONFIG_TOML_READ_FAILED("config.toml.read.failed", "RUNTIME_0074"),
+    CONFIG_TOML_PARSE_FAILED("config.toml.parse.failed", "RUNTIME_0075"),
+    CONFIG_TOML_MODULE_AMBIGUITY("config.toml.module.ambiguity", "RUNTIME_0076"),
+    CONFIG_TOML_UNUSED_VALUE("config.toml.unused.value", "RUNTIME_0077"),
+    CONFIG_CLI_TYPE_NOT_SUPPORTED("config.cli.type.not.supported", "RUNTIME_0078"),
+    CONFIG_CLI_VARIABLE_AMBIGUITY("config.cli.variable.ambiguity", "RUNTIME_0079"),
+    CONFIG_CLI_ARGS_AMBIGUITY("config.cli.args.ambiguity", "RUNTIME_0080"),
+    CONFIG_CLI_UNUSED_CLI_ARGS("config.cli.unused.args", "RUNTIME_0081");
 
     private String errorMsgKey;
     private String errorCode;
@@ -87,19 +116,19 @@ public enum RuntimeErrors {
         this.errorCode = errorCode;
     }
 
-    public String getErrorMsgKey() {
-        return errorMsgKey;
+
+    @Override
+    public DiagnosticSeverity severity() {
+        return DiagnosticSeverity.ERROR;
     }
 
-    public void setErrorMsgKey(String errorMsgKey) {
-        this.errorMsgKey = errorMsgKey;
-    }
-
-    public String getErrorCode() {
+    @Override
+    public String diagnosticId() {
         return errorCode;
     }
 
-    public void setErrorCode(String errorCode) {
-        this.errorCode = errorCode;
+    @Override
+    public String messageKey() {
+        return errorMsgKey;
     }
 }

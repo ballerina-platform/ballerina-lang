@@ -151,14 +151,14 @@ public class BIREmitter {
 
     private String emitTypeDef(BIRNode.BIRTypeDefinition tDef) {
         // Adding the type to global type map
-        TypeEmitter.B_TYPES.put(tDef.name.value, tDef.type);
+        TypeEmitter.B_TYPES.put(tDef.internalName.value, tDef.type);
 
         StringBuilder tDefStr = new StringBuilder();
         tDefStr.append(emitFlags(tDef.flags));
         if (!tDefStr.toString().equals("")) {
             tDefStr.append(emitSpaces(1));
         }
-        tDefStr.append(emitName(tDef.name));
+        tDefStr.append(emitName(tDef.internalName));
         tDefStr.append(emitSpaces(1));
         tDefStr.append(emitType(tDef.type, 0));
         List<BIRNode.BIRFunction> attachedFuncs = tDef.attachedFuncs;

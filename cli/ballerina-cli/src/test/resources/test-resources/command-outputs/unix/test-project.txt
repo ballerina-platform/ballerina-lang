@@ -1,6 +1,2 @@
-
 Compiling source
 	foo/winery:0.1.0
-
-Running Tests
-	winery

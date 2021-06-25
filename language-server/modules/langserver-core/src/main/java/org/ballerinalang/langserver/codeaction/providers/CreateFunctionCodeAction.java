@@ -16,7 +16,8 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.StartActionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -25,17 +26,17 @@ import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
-import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 /**
@@ -45,46 +46,84 @@ import java.util.regex.Matcher;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
-    private static final String UNDEFINED_FUNCTION = "undefined function";
 
-    @Override
-    public boolean isEnabled(LanguageServerContext serverContext) {
-        //TODO: Need to get return type of the function invocation blocked due to #27211
-        return false;
-    }
+    public static final String NAME = "Create Function";
+
+    private static final String UNDEFINED_FUNCTION = "undefined function";
 
     /**
      * {@inheritDoc}
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         if (!(diagnostic.message().startsWith(UNDEFINED_FUNCTION))) {
             return Collections.emptyList();
         }
 
+        if (positionDetails.matchedNode() == null) {
+            return Collections.emptyList();
+        }
+
+        Optional<FunctionCallExpressionNode> callExpr = 
+                checkAndGetFunctionCallExpressionNode(positionDetails.matchedNode());
+        if (callExpr.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         String diagnosticMessage = diagnostic.message();
-        Position position = CommonUtil.toRange(diagnostic.location().lineRange()).getStart();
+        Range range = CommonUtil.toRange(diagnostic.location().lineRange());
         String uri = context.fileUri();
-        CommandArgument posArg = CommandArgument.from(CommandConstants.ARG_KEY_NODE_POS, position);
+        CommandArgument posArg = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE, range);
         CommandArgument uriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, uri);
 
         List<Object> args = Arrays.asList(posArg, uriArg);
         Matcher matcher = CommandConstants.UNDEFINED_FUNCTION_PATTERN.matcher(diagnosticMessage);
         String functionName = (matcher.find() && matcher.groupCount() > 0) ? matcher.group(1) + "(...)" : "";
-        Node cursorNode = context.positionDetails().matchedNode();
-        if (cursorNode != null && cursorNode.kind() == SyntaxKind.FUNCTION_CALL) {
-            FunctionCallExpressionNode callExpr = (FunctionCallExpressionNode) cursorNode;
-            boolean isWithinFile = callExpr.functionName().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE;
-            if (isWithinFile) {
-                String commandTitle = String.format(CommandConstants.CREATE_FUNCTION_TITLE, functionName);
-                CodeAction action = new CodeAction(commandTitle);
-                action.setKind(CodeActionKind.QuickFix);
-                action.setCommand(new Command(commandTitle, CreateFunctionExecutor.COMMAND, args));
-                action.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList((diagnostic))));
-                return Collections.singletonList(action);
+
+        boolean isWithinFile = callExpr.get().functionName().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE;
+        if (isWithinFile) {
+            String commandTitle = String.format(CommandConstants.CREATE_FUNCTION_TITLE, functionName);
+            CodeAction action = new CodeAction(commandTitle);
+            action.setKind(CodeActionKind.QuickFix);
+            action.setCommand(new Command(commandTitle, CreateFunctionExecutor.COMMAND, args));
+            action.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList((diagnostic))));
+            return Collections.singletonList(action);
+        }
+
+        return Collections.emptyList();
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
+    /**
+     * Get the function call expression node if the provided node is a function call.
+     *
+     * @param node Node to be checked if it's a function call
+     * @return Optional function call expression node
+     */
+    public static Optional<FunctionCallExpressionNode> checkAndGetFunctionCallExpressionNode(NonTerminalNode node) {
+        FunctionCallExpressionNode functionCallExpressionNode = null;
+        if (node.kind() == SyntaxKind.FUNCTION_CALL) {
+            functionCallExpressionNode = (FunctionCallExpressionNode) node;
+        }
+
+        if (functionCallExpressionNode != null) {
+            return Optional.of(functionCallExpressionNode);
+        }
+
+        // Else, a function call can be within a start action
+        if (node.kind() == SyntaxKind.START_ACTION) {
+            StartActionNode startActionNode = (StartActionNode) node;
+            if (startActionNode.expression().kind() == SyntaxKind.FUNCTION_CALL) {
+                functionCallExpressionNode = (FunctionCallExpressionNode) startActionNode.expression();
             }
         }
-        return new ArrayList<>();
+
+        return Optional.ofNullable(functionCallExpressionNode);
     }
 }

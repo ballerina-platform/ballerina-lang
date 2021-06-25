@@ -26,7 +26,14 @@ type Type any|error;
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type ErrorType error|never;
+type ErrorType error;
+
+# A type parameter that is a subtype of `error?`.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
+# This represents the result type of an iterator.
+@typeParam
+type CompletionType error?;
 
 # A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration
@@ -38,11 +45,12 @@ type Type1 any|error;
 #
 # + stm - the stream
 # + func - a predicate to apply to each member to test whether it should be selected
-# + return - new stream only containing members of `stm` for which `func` evaluates to true
-public isolated function filter(stream<Type,ErrorType> stm, @isolatedParam function(Type val) returns boolean func)
-   returns stream<Type,ErrorType>  {
+# + return - new stream only containing members of parameter `stm` for which function `func` evaluates to true
+public isolated function filter(stream<Type,CompletionType> stm, @isolatedParam function(Type val) returns boolean func)
+        returns stream<Type,CompletionType>  {
     FilterSupport itrObj = new(stm, func);
-    return <stream<Type,ErrorType>>internal:construct(internal:getElementType(typeof stm), itrObj);
+    return <stream<Type,CompletionType>>internal:construct(internal:getElementType(typeof stm),
+        internal:getCompletionType(typeof stm), itrObj);
 }
 
 # Returns the next element in the stream wrapped in a record or () if the stream ends.
@@ -50,20 +58,19 @@ public isolated function filter(stream<Type,ErrorType> stm, @isolatedParam funct
 # + strm - The stream
 # + return - If the stream has elements, return the element wrapped in a record with single field called `value`,
 #            otherwise returns ()
-public isolated function next(stream<Type, ErrorType> strm) returns record {| Type value; |}|ErrorType? {
+public isolated function next(stream<Type, CompletionType> strm) returns record {| Type value; |}|CompletionType {
     object {
-        public isolated function next() returns record {|Type value;|}|ErrorType?;
+        public isolated function next() returns record {|Type value;|}|CompletionType;
     } iteratorObj = <object {
-                            public isolated function next() returns record {|Type value;|}|ErrorType?;
+                            public isolated function next() returns record {|Type value;|}|CompletionType;
                      }>internal:getIteratorObj(strm);
     var val = iteratorObj.next();
     if (val is ()) {
         return ();
-    } else if (val is ErrorType) {
+    } else if (val is error) {
         return val;
     } else {
-        var td = internal:getElementType(typeof strm);
-        return internal:setNarrowType(td, {value : val.value});
+        return internal:setNarrowType(internal:getElementType(typeof strm), {value : val.value});
     }
 }
 
@@ -71,30 +78,31 @@ public isolated function next(stream<Type, ErrorType> strm) returns record {| Ty
 #
 # + stm - the stream
 # + func - a function to apply to each member
-# + return - new stream containing result of applying `func` to each member of `stm` in order
-public isolated function 'map(stream<Type,ErrorType> stm, @isolatedParam function(Type val) returns Type1 func)
-        returns stream<Type1,ErrorType> {
+# + return - new stream containing result of applying function `func` to each member of parameter `stm` in order
+public isolated function 'map(stream<Type,CompletionType> stm, @isolatedParam function(Type val) returns Type1 func)
+        returns stream<Type1,CompletionType> {
     MapSupport iteratorObj = new(stm, func);
-    return <stream<Type,ErrorType>>internal:construct(internal:getReturnType(func), iteratorObj);
+    return internal:construct(internal:getReturnType(func), internal:getCompletionType(typeof stm), iteratorObj);
 }
 
 // Refer to issue https://github.com/ballerina-platform/ballerina-lang/issues/21527
 # Combines the members of a stream using a combining function.
+#
 # The combining function takes the combined value so far and a member of the stream,
 # and returns a new combined value.
 #
 # + stm - the stream
 # + func - combining function
-# + initial - initial value for the first argument of combining function
-# + return - result of combining the members of `stm` using the combining function
-public isolated function reduce(stream<Type,ErrorType> stm,
+# + initial - initial value for the first argument of combining function `func`
+# + return - result of combining the members of parameter `stm` using function `func`
+public isolated function reduce(stream<Type,ErrorType?> stm,
         @isolatedParam function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1|ErrorType {
     any | error reducedValue = initial;
     while (true) {
         var nextVal = next(stm);
         if (nextVal is ()) {
             return reducedValue;
-        } else if (nextVal is ErrorType) {
+        } else if (nextVal is error) {
             return nextVal;
         } else {
             var value = nextVal?.value;
@@ -104,18 +112,19 @@ public isolated function reduce(stream<Type,ErrorType> stm,
 }
 
 # Applies a function to each member of a stream.
-# The Combining function is applied to each member of stream in order.
+#
+# The function `func` is applied to each member of parameter `stm` stream in order.
 #
 # + stm - the stream
 # + func - a function to apply to each member
-# + return - An error if iterating the stream encounters an error
-public isolated function forEach(stream<Type,ErrorType> stm,
-        @isolatedParam function(Type val) returns () func) returns ErrorType? {
+# + return - () if the close completed successfully, otherwise an error
+public isolated function forEach(stream<Type,CompletionType> stm,
+        @isolatedParam function(Type val) returns () func) returns CompletionType {
     var nextVal = next(stm);
     while(true) {
         if (nextVal is ()) {
             return;
-        } else if (nextVal is ErrorType) {
+        } else if (nextVal is error) {
             return nextVal;
         } else {
             var value = nextVal.value;
@@ -128,25 +137,27 @@ public isolated function forEach(stream<Type,ErrorType> stm,
 # Returns an iterator over a stream.
 #
 # + stm - the stream
-# + return - a new iterator object that will iterate over the members of `stm`.
-public isolated function iterator(stream<Type,ErrorType> stm) returns object {
+# + return - a new iterator object that will iterate over the members of parameter `stm`.
+public isolated function iterator(stream<Type,CompletionType> stm) returns object {
     public isolated function next() returns record {|
         Type value;
-    |}|ErrorType?;
+    |}|CompletionType;
 }{
     return internal:getIteratorObj(stm);
 }
 
 # Closes a stream.
+#
 # This releases any system resources being used by the stream.
+# Closing a stream that has already been closed has no efffect and returns `()`.
 #
 # + stm - the stream to close
 # + return - () if the close completed successfully, otherwise an error
-public isolated function close(stream<Type,ErrorType> stm) returns ErrorType? {
+public isolated function close(stream<Type,CompletionType> stm) returns CompletionType? {
     var itrObj = internal:getIteratorObj(stm);
     if (itrObj is object {
-        public isolated function next() returns record {|Type value;|}|ErrorType?;
-        public isolated function close() returns ErrorType?;
+        public isolated function next() returns record {|Type value;|}|CompletionType;
+        public isolated function close() returns CompletionType?;
     }) {
         return itrObj.close();
     }

@@ -13,3 +13,7 @@ public class School {
         self.students.push(p);
     }
 }
+
+function getPath() returns string {
+    return module2:directoryPath + "module2";
+}

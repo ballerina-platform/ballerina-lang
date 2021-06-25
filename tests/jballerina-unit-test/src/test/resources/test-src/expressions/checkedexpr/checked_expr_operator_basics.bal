@@ -13,20 +13,42 @@ function testSafeAssignmentBasics1 () returns (boolean | error) {
     return statusSuccess;
 }
 
-function testSafeAssignmentBasics2 () returns (boolean | error) {
-      boolean statusFailure = check openFileFailure("/home/sameera/bar.txt");
-      return statusFailure;
+function testSafeAssignmentBasics2 () {
+    var f = function () returns error|boolean {
+        boolean statusFailure = check openFileFailure("/home/sameera/bar.txt");
+        return statusFailure;
+    };
+    var e = f();
+    validateError(e);
 }
 
+function validateError(any|error e) {
+    if (e is error) {
+        string expMessage = "file not found error: /home/sameera/bar.txt";
+        if (e.message() == expMessage) {
+            return;
+        }
+        panic error(string `Expected error message: ${expMessage}, found: ${e.message()}`);
+    }
+    panic error("Expected error, found boolean");
+}
 
 function testSafeAssignmentBasics3 () returns (error?) {
-    boolean statusFailure = check openFileFailure("/home/sameera/bar.txt");
-    return ();
+    var f = function () returns error? {
+        boolean statusFailure = check openFileFailure("/home/sameera/bar.txt");
+        return ();
+    };
+    var e = f();
+    validateError(e);
 }
 
-function testSafeAssignmentBasics4 () returns (boolean | error) {
-    boolean statusFailure = check openFileFailure("/home/sameera/bar.txt");
-    return statusFailure;
+function testSafeAssignmentBasics4 () {
+    var f = function () returns (boolean|error) {
+        boolean statusFailure = check openFileFailure("/home/sameera/bar.txt");
+        return statusFailure;
+    };
+    var e = f();
+    validateError(e);
 }
 
 function testSafeAssignOpInAssignmentStatement1 () returns (boolean | error) {
@@ -36,11 +58,15 @@ function testSafeAssignOpInAssignmentStatement1 () returns (boolean | error) {
     return b;
 }
 
-function testSafeAssignOpInAssignmentStatement2 () returns (boolean|error) {
-    boolean b = false;
-    int a = 0;
-    b = check openFileFailure("/home/sameera/foo.txt");
-    return b;
+function testSafeAssignOpInAssignmentStatement2 () {
+    var f = function () returns (boolean|error) {
+        boolean b = false;
+        int a = 0;
+        b = check openFileFailure("/home/sameera/bar.txt");
+        return b;
+    };
+    var e = f();
+    validateError(e);
 }
 
 function testSafeAssignOpInAssignmentStatement3 () returns (boolean|error) {
@@ -61,10 +87,14 @@ function testSafeAssignOpInAssignmentStatement4 () returns (boolean|error) {
 }
 
 function testSafeAssignOpInAssignmentStatement5 () returns error? {
-    boolean statusFailure;
-    int a = 10;
-    statusFailure = check openFileFailure("/home/sameera/bar.txt");
-    return ();
+    var f = function () returns error? {
+        boolean statusFailure;
+        int a = 10;
+        statusFailure = check openFileFailure("/home/sameera/bar.txt");
+        return ();
+    };
+    var e = f();
+    validateError(e);
 }
 
 function testSafeAssignOpInAssignmentStatement6 () returns (boolean | error) {
@@ -232,18 +262,6 @@ function testCheckedErrorsWithReadOnlyInUnion() {
     assertEquality(1234, checkpanic y);
 }
 
-function returnNil() returns error? {
-    return ();
-}
-
-function callExprWithCheck() returns error? {
-    check returnNil();
-}
-
-function testCallExprWithCheck() {
-   assertFalse(callExprWithCheck() is error);
-}
-
 type Err distinct error;
 
 function ternaryCheck(boolean b) returns string|Err {
@@ -273,6 +291,10 @@ const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
+}
+
+function assertFalse(anydata actual) {
+    assertEquality(false, actual);
 }
 
 function assertEquality(anydata expected, anydata actual) {

@@ -26,6 +26,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -79,40 +80,6 @@ public class DivisionOperationTest {
         Assert.assertEquals(actual, expectedResult, DELTA);
     }
 
-    @Test(description = "Test integer division by float")
-    public void testIntDivideByFloat() {
-        int a = Integer.MAX_VALUE;
-        double b = 1.23456789d;
-
-        double expectedResult = a / b;
-
-        BValue[] args = { new BInteger(a), new BFloat(b) };
-        BValue[] returns = BRunUtil.invoke(result, "intDivideByFloat", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class, "Return type of the division is invalid");
-
-        double actualResult = ((BFloat) returns[0]).floatValue();
-        Assert.assertEquals(actualResult, expectedResult, DELTA, "Result of the division operation is incorrect");
-    }
-
-    @Test(description = "Test float number division by integer")
-    public void testFloatDivideByInt() {
-        double a = Float.MAX_VALUE;
-        int b = 123456789;
-
-        double expectedResult = a / b;
-
-        BValue[] args = { new BFloat(a), new BInteger(b) };
-        BValue[] returns = BRunUtil.invoke(result, "floatDivideByInt", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class, "Return type of the division is invalid");
-
-        double actualResult = ((BFloat) returns[0]).floatValue();
-        Assert.assertEquals(actualResult, expectedResult, DELTA, "Result of the division operation is incorrect");
-    }
-
     @Test(description = "Test float by zero")
     public void testFloatDivideByZeroExpr() {
         BValue[] args = { new BFloat(300.0f), new BFloat(0) };
@@ -123,29 +90,22 @@ public class DivisionOperationTest {
                 "Result of the division operation is incorrect");
     }
 
-    @Test(description = "Test devide statement with errors")
+    @Test(description = "Test divide statement with errors")
     public void testDivideStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        Assert.assertEquals(resultNegative.getErrorCount(), 12);
         BAssertUtil.validateError(resultNegative, 0, "operator '/' not defined for 'json' and 'json'", 8, 10);
         BAssertUtil.validateError(resultNegative, 1, "operator '/' not defined for 'string' and 'float'", 14, 11);
-    }
-
-    @Test
-    public void testIntDivisionFloat() {
-        BValue[] args = {new BInteger(110), new BFloat(22L)};
-        BValue[] returns = BRunUtil.invoke(result, "intDivideByFloat", args);
-        Assert.assertTrue(returns[0] instanceof BFloat);
-        final String expected = "5.0";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
-
-    @Test
-    public void testFloatDivisionInt() {
-        BValue[] args = {new BFloat(110f), new BInteger(22)};
-        BValue[] returns = BRunUtil.invoke(result, "floatDivideByInt", args);
-        Assert.assertTrue(returns[0] instanceof BFloat);
-        final String expected = "5.0";
-        Assert.assertEquals(returns[0].stringValue(), expected);
+        BAssertUtil.validateError(resultNegative, 2, "operator '/' not defined for 'C' and 'string'", 28, 14);
+        BAssertUtil.validateError(resultNegative, 3, "operator '/' not defined for 'C' and '(float|int)'", 29, 14);
+        BAssertUtil.validateError(resultNegative, 4, "operator '/' not defined for 'string' and " +
+                "'(string|string:Char)'", 30, 17);
+        BAssertUtil.validateError(resultNegative, 5, "operator '/' not defined for 'float' and 'decimal'", 37, 14);
+        BAssertUtil.validateError(resultNegative, 6, "operator '/' not defined for 'float' and 'decimal'", 38, 14);
+        BAssertUtil.validateError(resultNegative, 7, "operator '/' not defined for 'float' and 'int'", 39, 14);
+        BAssertUtil.validateError(resultNegative, 8, "operator '/' not defined for 'decimal' and 'int'", 40, 14);
+        BAssertUtil.validateError(resultNegative, 9, "operator '/' not defined for 'int' and 'float'", 41, 18);
+        BAssertUtil.validateError(resultNegative, 10, "operator '/' not defined for 'C' and 'float'", 45, 14);
+        BAssertUtil.validateError(resultNegative, 11, "operator '/' not defined for 'C' and 'float'", 46, 14);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -153,5 +113,18 @@ public class DivisionOperationTest {
                     "overflow\"\\}.*")
     public void testIntOverflowByDivision() {
         BRunUtil.invoke(result, "overflowByDivision");
+    }
+
+    @Test(dataProvider = "dataToTestDivisionWithTypes", description = "Test division with types")
+    public void testDivisionWithTypes(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestDivisionWithTypes() {
+        return new Object[]{
+                "testDivisionWithTypes",
+                "testDivisionSingleton"
+        };
     }
 }

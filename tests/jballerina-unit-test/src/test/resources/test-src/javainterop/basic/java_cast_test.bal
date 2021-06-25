@@ -1,10 +1,5 @@
 import ballerina/jballerina.java;
-
-type String1Typedesc typedesc<String1>;
-type String2Typedesc typedesc<String2>;
-type String3Typedesc typedesc<String3>;
-type String4Typedesc typedesc<String4>;
-type ArrayList1Typedesc typedesc<ArrayList1>;
+import ballerina/lang.value;
 
 // Correct use case.
 public function testJavaCastFunction() returns string|error {
@@ -12,15 +7,15 @@ public function testJavaCastFunction() returns string|error {
     String1 strValue = newString1("cast this object");
     _ = arrayList.add(strValue);
     Object1 result = arrayList.get(0);
-    String1 castedValue = <String1>check java:cast(result, String1Typedesc);
+    String1 castedValue = check java:cast(result);
     return castedValue.toString();
 }
 
 // Incorrect Java class cast.
 public function testIncorrectJavaCast() returns string|error {
     String1 strValue = newString1("cast this object");
-    ArrayList1 castedValue = <ArrayList1>check java:cast(strValue, ArrayList1Typedesc);
-    return castedValue.toString();
+    ArrayList1 castedValue = check java:cast(strValue);
+    return value:toString(castedValue);
 }
 
 // Typedesc is an object without a handle argument for initialization.
@@ -29,7 +24,7 @@ public function testJavaCastForInvalidTypedesc3() returns string|error {
     String1 strValue = newString1("cast this object");
     _ = arrayList.add(strValue);
     Object1 result = arrayList.get(0);
-    String4 castedValue = <String4>check java:cast(result, String4Typedesc);
+    String4 castedValue = check java:cast(result);
     return castedValue.toString();
 }
 
@@ -39,7 +34,7 @@ public function testJavaCastForInvalidClass1() returns string|error {
     String3 strValue = newString3("cast this object");
     _ = arrayList.add(strValue);
     Object1 result = arrayList.get(0);
-    String3 castedValue = <String3>check java:cast(result, String3Typedesc);
+    String3 castedValue = check java:cast(result);
     return castedValue.toString();
 }
 
@@ -49,7 +44,7 @@ public function testJavaCastForInvalidClass2() returns string|error {
     String1 strValue = newString1("cast this object");
     _ = arrayList.add(strValue);
     Object3 result = arrayList.get(0);
-    String1 castedValue = <String1>check java:cast(result, String1Typedesc);
+    String1 castedValue = check java:cast(result);
     return castedValue.toString();
 }
 
@@ -60,7 +55,7 @@ public function testJavaCastFunctionNulljObj() returns string|error {
     _ = arrayList.add(strValue);
     Object1 result = arrayList.get(0);
     result.jObj = java:createNull();
-    String1 castedValue = <String1>check java:cast(result, String1Typedesc);
+    String1 castedValue = check java:cast(result);
     return castedValue.toString();
 }
 
@@ -70,7 +65,7 @@ public function testJavaCastMissingAnnotation1() returns string|error {
     String2 strValue = newString2("cast this object");
     _ = arrayList.add(strValue);
     Object1 result = arrayList.get(0);
-    String2 castedValue = <String2>check java:cast(result, String2Typedesc);
+    String2 castedValue = check java:cast(result);
     return castedValue.toString();
 }
 
@@ -80,7 +75,7 @@ public function testJavaCastMissingAnnotation2() returns string|error {
     String1 strValue = newString1("cast this object");
     _ = arrayList.add(strValue);
     Object2 result = arrayList.get(0);
-    String1 castedValue = <String1>check java:cast(result, String1Typedesc);
+    String1 castedValue = check java:cast(result);
     return castedValue.toString();
 }
 
@@ -97,7 +92,7 @@ public class String1 {
     }
 
     public function toString() returns string {
-        return java:jObjToString(self.jObj);
+        return java:toString(self.jObj) ?: "null";
     }
 }
 
@@ -146,7 +141,7 @@ public class String2 {
     }
 
     public function toString() returns string {
-        return java:jObjToString(self.jObj);
+        return java:toString(self.jObj) ?: "null";
     }
 }
 
@@ -195,7 +190,7 @@ public class String3 {
     }
 
     public function toString() returns string {
-        return java:jObjToString(self.jObj);
+        return java:toString(self.jObj) ?: "null";
     }
 }
 
@@ -247,7 +242,7 @@ public class String4 {
     }
 
     public function toString() returns string {
-        return java:jObjToString(self.jObj);
+        return java:toString(self.jObj) ?: "null";
     }
 }
 

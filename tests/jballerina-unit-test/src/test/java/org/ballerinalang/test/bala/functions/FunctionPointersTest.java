@@ -17,15 +17,14 @@
 */
 package org.ballerinalang.test.bala.functions;
 
-//import org.ballerinalang.core.model.values.BValue;
-//import org.ballerinalang.test.bala.BalaCreator;
-//import org.ballerinalang.test.BCompileUtil;
-//import org.ballerinalang.test.BRunUtil;
-//import org.ballerinalang.test.CompileResult;
-//import org.testng.Assert;
-//import org.testng.annotations.AfterClass;
-//import org.testng.annotations.BeforeClass;
-//import org.testng.annotations.Test;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
  * Test cases for Function pointers and lambda in BALA.
@@ -34,75 +33,88 @@ package org.ballerinalang.test.bala.functions;
  */
 public class FunctionPointersTest {
 
-//    CompileResult result;
-//
-//    @BeforeClass
-//    public void setup() {
-//        //        BCompileUtil.compile("test-src/bala/test_projects/test_project", "testorg", "foo");
-//        result = BCompileUtil.compile("test-src/bala/test_bala/functions/test_global_function_pointers.bal");
-//    }
-//
-//    @Test
-//    public void testGlobalFP() {
-//        BValue[] returns;
-//        // testing function pointer.
-//        returns = BRunUtil.invoke(result, "test1");
-//        Assert.assertNotNull(returns);
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertNotNull(returns[0]);
-//        Assert.assertEquals(returns[0].stringValue(), "test1");
-//    }
-//
-//    @Test
-//    public void testGlobalFPAsLambda() {
-//        BValue[] returns;
-//        // lambda.
-//        returns = BRunUtil.invoke(result, "test2");
-//        Assert.assertNotNull(returns);
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertNotNull(returns[0]);
-//        Assert.assertEquals(returns[0].stringValue(), "test2true");
-//    }
-//
-//    @Test
-//    public void testGlobalFPAssignment() {
-//        BValue[] returns;
-//        // assign function pointer and invoke.
-//        returns = BRunUtil.invoke(result, "test3");
-//        Assert.assertNotNull(returns);
-//        Assert.assertEquals(returns.length, 3);
-//        Assert.assertNotNull(returns[0]);
-//        Assert.assertEquals(returns[0].stringValue(), "test3");
-//        Assert.assertNotNull(returns[1]);
-//        Assert.assertEquals(returns[1].stringValue(), "test3");
-//        Assert.assertNotNull(returns[2]);
-//        Assert.assertEquals(returns[2].stringValue(), "3test");
-//    }
-//
-//    @Test
-//    public void testGlobalFPWithLocalFP() {
-//        BValue[] returns;
-//        // Check global and local variable.
-//        returns = BRunUtil.invoke(result, "test5");
-//        Assert.assertNotNull(returns);
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertNotNull(returns[0]);
-//        Assert.assertEquals(returns[0].stringValue(), "falsetest5");
-//    }
-//
-//    @Test
-//    public void testGlobalFPByAssigningLocalFP() {
-//        BValue[] returns;
-//        // assign local ref to global and invoke.
-//        returns = BRunUtil.invoke(result, "test6");
-//        Assert.assertNotNull(returns);
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertNotNull(returns[0]);
-//        Assert.assertEquals(returns[0].stringValue(), "truetest6");
-//    }
-//
-//    @AfterClass
-//    public void tearDown() {
-//        BalaCreator.clearPackageFromRepository("test-src/bala/test_projects/test_project", "testorg", "foo");
-//    }
+    CompileResult result;
+
+    @BeforeClass
+    public void setup() {
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project");
+        result = BCompileUtil.compile("test-src/bala/test_bala/functions/test_global_function_pointers.bal");
+    }
+
+    @Test
+    public void testAnyFunctionTypeNegative() {
+        CompileResult negativeCompileResult =
+                BCompileUtil.compile("test-src/bala/test_bala/functions/test_global_function_pointers_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'function', found 'string'", 20, 12);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'isolated function', found 'function () returns " +
+                        "(function (string,int) returns (string))'", 24, 30);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'function (int) returns (string)', found 'function'", 28, 41);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "cannot call function pointer of type 'function'", 30, 22);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
+    }
+
+    @Test
+    public void testGlobalFP() {
+        // testing function pointer.
+        BValue[] returns = BRunUtil.invoke(result, "test1");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "test1");
+    }
+
+    @Test
+    public void testGlobalFPAsLambda() {
+        // lambda.
+        BValue[] returns = BRunUtil.invoke(result, "test2");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "test2true");
+    }
+
+    @Test
+    public void testGlobalFPAssignment() {
+        // assign function pointer and invoke.
+        BValue[] returns = BRunUtil.invoke(result, "test3");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "test3");
+        Assert.assertNotNull(returns[1]);
+        Assert.assertEquals(returns[1].stringValue(), "test3");
+        Assert.assertNotNull(returns[2]);
+        Assert.assertEquals(returns[2].stringValue(), "3test");
+    }
+
+    @Test
+    public void testGlobalFPWithLocalFP() {
+        // Check global and local variable.
+        BValue[] returns = BRunUtil.invoke(result, "test5");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "falsetest5");
+    }
+
+    @Test
+    public void testGlobalFPByAssigningLocalFP() {
+        // assign local ref to global and invoke.
+        BValue[] returns = BRunUtil.invoke(result, "test6");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "truetest6");
+    }
+
+    @Test
+    public void testAnyFunction() {
+        // test any function type descriptor.
+        BRunUtil.invoke(result, "test7");
+    }
 }

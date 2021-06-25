@@ -1,4 +1,3 @@
-import ballerina/lang.'int;
 // Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
@@ -15,9 +14,11 @@ import ballerina/lang.'int;
 // specific language governing permissions and limitations
 // under the License.
 
-type '\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_Student record {
+import ballerina/lang.'int;
+
+type '\ \/\:\@\[\`\{\~\u{03C0}_123_ƮέŞŢ_Student record {
     string '1st_name;
-    int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{2324};
+    int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{03C0};
     Grades grades;
 };
 
@@ -41,10 +42,10 @@ type Employee record {
 
 type EmployeeTable table<Employee> key(id);
 
-class 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ {
+class 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ {
     public string '1st_name = "John";
-    public int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{2324} = 0;
-    public 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ? parent = ();
+    public int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{03C0} = 0;
+    public 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ? parent = ();
     string email = "default@abc.com";
     string address = "No 20, Palm grove";
 
@@ -69,8 +70,8 @@ public class Location {
 
 public type AnonPerson object {
     public string '1st_name;
-    public int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{2324};
-    public 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ? parent;
+    public int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{03C0};
+    public 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ? parent;
     string email;
     string address;
 };
@@ -93,13 +94,22 @@ const map<string> nameMap = {"name":"John"};
 const nilWithoutType = ();
 const () nilWithType = ();
 
+// enums
+enum Color {
+    RED,
+    BLUE = "Blue"
+}
+
 // global variables
 var stringValue = "Ballerina";
 var decimalValue = 100.0d;
 var byteValue = <byte>2;
 var floatValue = 2.0;
 json jsonVar = {name:"John", age:20};
-var '\ \/\:\@\[\`\{\~\u{2324}_IL = "IL with global var";
+var '\ \/\:\@\[\`\{\~\u{03C0}_IL = "IL with global var";
+
+// configurable variables
+configurable int port = ?;
 
 public function main() {
     //------------------------ basic, simple type variables ------------------------//
@@ -125,12 +135,18 @@ public function main() {
     //------------------------ basic, structured type variables ------------------------//
 
     any[] arrayVar = [1, 20, -10.0, "foo"];
+    boolean[] booleanArrayVar = [false, true];
+    int[] intArrayVar = [1, 2, 3];
+    float[] floatArrayVar = [1.5, -2.0, 3.0];
+    decimal[] decimalArrayVar = [3, 34.3, -45];
+    string[] stringArrayVar = ["foo", "bar"];
+    byte[] byteArrayVar = base64 `aa ab cc ad af df 1a d2 f3 a4`;
     [int, string] tupleVar = [20, "foo"];
     map<string> mapVar = {line1: "No. 20", line2: "Palm Grove", city: "Colombo 03", country: "Sri Lanka"};
 
-    '\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_Student recordVar = {
+    '\ \/\:\@\[\`\{\~\u{03C0}_123_ƮέŞŢ_Student recordVar = {
         '1st_name: "John Doe",
-        'Ȧɢέ_\ \/\:\@\[\`\{\~⌤: 20,
+        'Ȧɢέ_\ \/\:\@\[\`\{\~π: 20,
         grades: {
             maths: 80,
             physics: 75,
@@ -140,7 +156,13 @@ public function main() {
 
     record {|string city; string country;|} anonRecord = {city: "London", country: "UK"};
 
-    EmployeeTable tableVar = table [
+    EmployeeTable tableWithKeyVar = table [
+      {id: 1, name: "John", salary: 300.50},
+      {id: 2, name: "Bella", salary: 500.50},
+      {id: 3, name: "Peter", salary: 750.0}
+    ];
+
+    table<Employee> tableWithoutKeyVar = table [
       {id: 1, name: "John", salary: 300.50},
       {id: 2, name: "Bella", salary: 500.50},
       {id: 3, name: "Peter", salary: 750.0}
@@ -156,11 +178,13 @@ public function main() {
     };
 
     future<int> futureVar = start sum(40, 50);
-    _ = wait futureVar;
+    _ = checkpanic wait futureVar;
 
-    'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ objectVar = new;
+    'Person_\\\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ objectVar = new;
 
-    AnonPerson anonObjectVar = new 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ();
+    AnonPerson anonObjectVar = new 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ();
+
+    Student clientObjectVar = new Student();
 
     typedesc<int> typedescVar = int;
     stream<int, error> oddNumberStream = new stream<int, error>(new OddNumberGenerator());
@@ -176,9 +200,67 @@ public function main() {
     xml<never> neverVar = <xml<never>> 'xml:concat();
 
     // quoted identifiers
-    string '\ \/\:\@\[\`\{\~\u{2324}_var = "IL with special characters in var";
+    string '\ \/\:\@\[\`\{\~\u{03C0}_var = "IL with special characters in var";
     string 'üňĩćőđę_var = "IL with unicode characters in var";
-    json 'ĠĿŐΒȂɭ_\ \/\:\@\[\`\{\~\u{2324}_json = {};
+    json 'ĠĿŐΒȂɭ_\ \/\:\@\[\`\{\~\u{03C0}_json = {};
+    
+    // service object
+    service object {} serviceVar = service object {
+        final int i = 5;
+        resource function get getResource() {
+            int k = self.i;
+        }
+    };
+
+    // variable visibility in 'if' statement
+    if (true) {
+        intVar = 1;
+    }
+
+    // variable visibility in 'else' statement
+    if (false) {
+        intVar = 2;
+    } else {
+        intVar = 3;
+    }
+
+    // variable visibility in 'else-if' statement
+    if (false) {
+        intVar = 4;
+    } else if (true) {
+        intVar = 5;
+    } else {
+        intVar = 6;
+    }
+
+    // variable visibility in 'while' loop
+    while (true) {
+        if (intVar >= 1) {
+            intVar = 7;
+            break;
+        }
+    }
+
+    // variable visibility in 'foreach' loop
+    foreach string str in nameMap {
+        intVar = intVar + 1;
+    }
+
+    // variable visibility in 'match' statement
+    foreach var str in nameMap {
+        match str {
+            "John" => {
+                intVar = 8;
+            }
+        }
+    }
+
+    // variable visibility inside foreach loop + lambda function
+    mapVar.forEach(function(string item) {
+                       intVar += intVar;
+                   });
+
+    intVar = addition(2, 3);
 }
 
 function printSalaryDetails(int baseSalary, int annualIncrement = 20, float bonusRate = 0.02) returns string {
@@ -198,4 +280,8 @@ function printDetails(string name, int age = 18, string... modules) returns stri
         moduleString = "Module(s): " + modules[0];
     }
     return  string `[${name}, ${age}, ${moduleString}]`;
+}
+
+function addition(int a, int b) returns int {
+    return a + b;
 }

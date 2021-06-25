@@ -1,0 +1,43 @@
+{
+  "position": {
+    "line": 4,
+    "character": 8
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source25.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name",
+      "kind": "Field",
+      "detail": "(record {| readonly record {| string first; string last; anydata...; |} & readonly name; int salary; anydata...; |}).name",
+      "sortText": "G",
+      "insertText": "name: {\n\tfirst: \"${1}\",\n\tlast: \"${2}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "salary",
+      "kind": "Field",
+      "detail": "(record {| readonly record {| string first; string last; anydata...; |} & readonly name; int salary; anydata...; |}).salary",
+      "sortText": "G",
+      "insertText": "salary: ${2:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill record {| readonly record {| string first; string last; anydata...; |} & readonly name; int salary; anydata...; |} Required Fields",
+      "kind": "Property",
+      "detail": "record {| readonly record {| string first; string last; anydata...; |} & readonly name; int salary; anydata...; |}",
+      "sortText": "Q",
+      "filterText": "fill",
+      "insertText": "name: {first: \"\", last: \"\"},\nsalary: 0",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -41,7 +41,7 @@ public class BaseTestCase {
     public static BalServer balServer;
     Path tempProjectDirectory;
     protected static Path singleFileTestsPath;
-    static Path projectBasedTestsPath;
+    protected static Path projectBasedTestsPath;
     String[] coverageArgs = new String[]{"--code-coverage", "--includes=*"};
 
     @BeforeSuite(alwaysRun = true)

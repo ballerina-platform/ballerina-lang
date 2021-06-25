@@ -30,44 +30,44 @@ import org.testng.annotations.Test;
  */
 public class ForeachNegativeTests {
 
-    @Test(enabled = false)
+    @Test
     public void testForeachSemanticsNegative() {
         CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-semantics-negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 18);
+        Assert.assertEquals(compile.getErrorCount(), 17);
         int index = 0;
         BAssertUtil.validateError(compile, index++,
-                "invalid tuple binding pattern: attempted to infer a tuple type, but found 'string'",
+                "invalid list binding pattern: attempted to infer a list type, but found 'string'",
                 39, 17);
         BAssertUtil.validateError(compile, index++,
-                "invalid tuple binding pattern: attempted to infer a tuple type, but found 'string'",
+                "invalid list binding pattern: attempted to infer a list type, but found 'string'",
                 48, 17);
         BAssertUtil.validateError(compile, index++, "redeclared symbol 'i'", 48, 18);
         BAssertUtil.validateError(compile, index++, "redeclared symbol 's'", 48, 21);
         BAssertUtil.validateError(compile, index++,
-                "invalid tuple binding pattern: attempted to infer a tuple type, but found 'string'",
+                "invalid list binding pattern: attempted to infer a list type, but found 'string'",
                 55, 17);
         BAssertUtil.validateError(compile, index++, "undefined symbol 'i'", 58, 13);
         BAssertUtil.validateError(compile, index++, "incompatible types: 'int' is not an iterable collection", 63,
                 22);
         BAssertUtil.validateError(compile, index++,
-                "invalid tuple binding pattern: attempted to infer a tuple type, but found 'string'",
+                "invalid list binding pattern: attempted to infer a list type, but found 'string'",
                 76, 17);
         BAssertUtil.validateError(compile, index++,
-                "invalid tuple binding pattern: attempted to infer a tuple type, but found 'string'",
+                "invalid list binding pattern: attempted to infer a list type, but found 'string'",
                 84, 17);
         BAssertUtil.validateError(compile, index++,
-                "invalid tuple binding pattern: attempted to infer a tuple type, but found 'json'",
+                "invalid list binding pattern: attempted to infer a list type, but found 'json'",
                 93, 17);
         BAssertUtil.validateError(compile, index++,
-                "invalid tuple binding pattern: attempted to infer a tuple type, but found 'string'",
+                "invalid list binding pattern: attempted to infer a list type, but found 'string'",
                 119, 17);
-        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'v'", 129, 9);
-        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'reason'", 148, 9);
-        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'fatal'", 149, 9);
-        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'message'", 150, 9);
-        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'v'", 171, 13);
-        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'v'", 185, 13);
-        BAssertUtil.validateError(compile, index, "cannot assign a value to final 'status'", 200, 9);
+        BAssertUtil.validateError(compile, index++, "undefined function 'Error'", 141, 18);
+        BAssertUtil.validateError(compile, index++, "undefined function 'Error'", 142, 18);
+        BAssertUtil.validateError(compile, index++, "undefined function 'Error'", 143, 18);
+        BAssertUtil.validateError(compile, index++,
+                "incompatible types: '(json|error)' cannot be cast to 'json'", 166, 21);
+        BAssertUtil.validateError(compile, index++, "invalid record binding pattern with type 'anydata'", 206, 17);
+        BAssertUtil.validateError(compile, index, "invalid record binding pattern with type 'any'", 213, 17);
     }
 
     @Test
@@ -83,7 +83,7 @@ public class ForeachNegativeTests {
     @Test
     public void testForeachVarTypeNegative() {
         CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-var-type-negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 6);
+        Assert.assertEquals(compile.getErrorCount(), 7);
         int index = 0;
         BAssertUtil.validateError(compile, index++,
                 "incompatible types: expected 'anydata', found 'json'", 34, 13);
@@ -94,8 +94,9 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, index++,
                 "incompatible types: expected 'xml', found '(string|float|int|boolean)'", 56, 17);
         BAssertUtil.validateError(compile, index++, "incompatible types: expected 'json', found 'xml'", 63, 13);
-        BAssertUtil.validateError(compile, index, "incompatible types: expected 'anydata', " +
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected 'anydata', " +
                 "found '(boolean|float|xml)'", 70, 14);
-
+        BAssertUtil.validateError(compile, index, "incompatible types: expected 'string:Char', " +
+                "found 'int'", 77, 13);
     }
 }

@@ -23,26 +23,31 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ChildNodeEntry;
+import io.ballerina.compiler.syntax.tree.Minutiae;
+import io.ballerina.compiler.syntax.tree.MinutiaeList;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.ClassUtils;
@@ -64,10 +69,12 @@ import java.util.stream.Collectors;
 public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
     private SemanticModel semanticModel;
     private List<JsonObject> visibleEpsForEachBlock;
+    private List<JsonObject> visibleEpsForModule;
 
     public SyntaxTreeMapGenerator(SemanticModel semanticModel) {
         this.semanticModel = semanticModel;
         this.visibleEpsForEachBlock = new ArrayList<>();
+        this.visibleEpsForModule = new ArrayList<>();
     }
 
     @Override
@@ -87,6 +94,13 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         }
         nodeJson.addProperty("source", node.toSourceCode());
         nodeJson.addProperty("kind", prettifyKind(node.kind().toString()));
+        // TODO: Generalize the diagnostic implementation.
+        Iterable<Diagnostic> syntaxDiagnostics = node.diagnostics();
+        if (syntaxDiagnostics != null) {
+            nodeJson.add("syntaxDiagnostics", SyntaxTreeDiagnosticsUtil.getDiagnostics(syntaxDiagnostics));
+        }
+        nodeJson.add("leadingMinutiae", evaluateMinutiae(node.leadingMinutiae()));
+        nodeJson.add("trailingMinutiae", evaluateMinutiae(node.trailingMinutiae()));
 
         if (node.lineRange() != null) {
             LineRange lineRange = node.lineRange();
@@ -111,13 +125,29 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                                 .contains(Qualifier.CLIENT);
                         if (isEndpoint) {
                             symbolJson.addProperty("isEndpoint", true);
-                            JsonObject ep = visibleEP(node, typeSymbol.get());
+                            JsonObject ep = visibleEP(node, typeSymbol.get(), false);
                             if (ep.size() > 0) {
                                 this.visibleEpsForEachBlock.add(ep);
                             }
                         }
                     }
                     symbolJson.add("typeSymbol", generateTypeJson(typeSymbol.get()));
+
+                    if (typeSymbol.get().getModule().isPresent()) { // todo: check if this is the correct way to access
+                        JsonObject typeDataJson = (JsonObject) generateTypeJson(typeSymbol.get().getModule().get());
+                        ((JsonObject) symbolJson.get("typeSymbol")).add("moduleID", typeDataJson.get("id"));
+                    } else if (typeSymbol.get() instanceof UnionTypeSymbol) {
+                        JsonArray memberArray = new JsonArray();
+                        ((UnionTypeSymbol) typeSymbol.get()).memberTypeDescriptors().forEach(member -> {
+                            try {
+                                JsonObject memberJson = (JsonObject) generateTypeJson(member);
+                                memberArray.add(memberJson);
+                            } catch (JSONGenerationException e) {
+                                // Ignore
+                            }
+                        });
+                        ((JsonObject) symbolJson.get("typeSymbol")).add("members", memberArray);
+                    }
                 }
             } catch (Exception | AssertionError e) {
                 // TODO: Remove the AssertionError catcher when fix the symbolVisitor to be extended from BaseVisitor.
@@ -138,20 +168,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 
                 List<Diagnostic> diagnostics = this.semanticModel.diagnostics(lineRange);
                 if (diagnostics != null) {
-                    JsonArray diagnosticsArray = new JsonArray();
-                    for (Diagnostic diagnostic : diagnostics) {
-                        JsonObject diagnosticJson = new JsonObject();
-                        diagnosticJson.addProperty("message", diagnostic.message());
-                        DiagnosticInfo diagnosticInfo = diagnostic.diagnosticInfo();
-                        if (diagnosticInfo != null) {
-                            JsonObject diagnosticInfoJson = new JsonObject();
-                            diagnosticInfoJson.addProperty("code", diagnosticInfo.code());
-                            diagnosticInfoJson.addProperty("severity", diagnosticInfo.severity().name());
-                            diagnosticJson.add("diagnosticInfo", diagnosticInfoJson);
-                        }
-                        diagnosticsArray.add(diagnosticJson);
-                    }
-                    symbolJson.add("diagnostics", diagnosticsArray);
+                    symbolJson.add("diagnostics", SyntaxTreeDiagnosticsUtil.getDiagnostics(diagnostics));
                 }
 
                 nodeJson.add("typeData", symbolJson);
@@ -160,11 +177,22 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 // Ignore as semantic API calls cannot break the ST JSON creation.
             }
 
+            if (node.kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION) {
+                RemoteMethodCallActionNode remoteMethodCallActionNode = (RemoteMethodCallActionNode) node;
+                Optional<Symbol> expressionSymbol = this.semanticModel.symbol(remoteMethodCallActionNode.expression());
+                if (expressionSymbol.isPresent() && expressionSymbol.get() instanceof VariableSymbol) {
+                    VariableSymbol variableSymbol = (VariableSymbol) expressionSymbol.get();
+                    markVisibleEp(variableSymbol, symbolJson, remoteMethodCallActionNode.expression(), true);
+                }
+            }
+
             nodeJson.add("typeData", symbolJson);
-            if (node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK && this.visibleEpsForEachBlock.size() > 0
+            if (node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK
+                    && (this.visibleEpsForEachBlock.size() > 0 || this.visibleEpsForModule.size() > 0)
                     && nodeJson.get("typeData") != null) {
                 JsonArray eps = new JsonArray();
                 this.visibleEpsForEachBlock.forEach(eps::add);
+                this.visibleEpsForModule.forEach(eps::add);
                 nodeJson.add("VisibleEndpoints", eps);
                 this.visibleEpsForEachBlock = new ArrayList<>();
             }
@@ -181,7 +209,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                     .contains(Qualifier.CLIENT);
             if (isEndpoint) {
                 symbolJson.addProperty("isEndpoint", true);
-                JsonObject ep = visibleEP(node, rawType);
+                JsonObject ep = visibleEP(node, rawType, false);
                 if (ep.size() > 0) {
                     this.visibleEpsForEachBlock.add(ep);
                 }
@@ -189,39 +217,111 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         }
     }
 
-    private JsonObject visibleEP(Node node, TypeSymbol typeSymbol) {
+    private void markVisibleEp(VariableSymbol variableSymbol, JsonObject symbolJson, Node node,
+                               boolean isRemoteAction) {
+        TypeSymbol rawType = getRawType(variableSymbol.typeDescriptor());
+        if (rawType.typeKind() == TypeDescKind.OBJECT) {
+            ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
+            boolean isEndpoint = objectTypeSymbol.qualifiers()
+                    .contains(Qualifier.CLIENT);
+            if (isEndpoint) {
+                symbolJson.addProperty("isEndpoint", true);
+                JsonObject ep = visibleEP(node, rawType, isRemoteAction);
+                if (ep.size() > 0) {
+                    this.visibleEpsForEachBlock.add(ep);
+                }
+            }
+        }
+    }
+
+    private JsonObject visibleEP(Node node, TypeSymbol typeSymbol, boolean isRemoteAction) {
         JsonObject symbolMetaInfo = new JsonObject();
+        ModuleID moduleID = typeSymbol.getModule().isPresent() ? typeSymbol.getModule().get().id() : null;
+        String orgName = moduleID != null ? moduleID.orgName() : "";
+        String moduleName = moduleID != null ? moduleID.moduleName() : "";
+
         if (node.kind() == SyntaxKind.REQUIRED_PARAM) {
             RequiredParameterNode requiredParameterNode = (RequiredParameterNode) node;
             Optional<Token> paramName = requiredParameterNode.paramName();
             symbolMetaInfo.addProperty("name", paramName.isPresent() ? paramName.get().text() : "");
-            symbolMetaInfo.addProperty("isCaller", typeSymbol.name().equals("Caller"));
-            symbolMetaInfo.addProperty("typeName", typeSymbol.name());
-            symbolMetaInfo.addProperty("orgName", typeSymbol.moduleID().orgName());
-            symbolMetaInfo.addProperty("moduleName", typeSymbol.moduleID().moduleName());
+            symbolMetaInfo.addProperty("isCaller", "Caller".equals(typeSymbol.getName().orElse(null)));
+            symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
+            symbolMetaInfo.addProperty("orgName", orgName);
+            symbolMetaInfo.addProperty("moduleName", moduleName);
+            symbolMetaInfo.addProperty("isModuleVar", false);
         } else if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             VariableDeclarationNode variableDeclarationNode = (VariableDeclarationNode) node;
             CaptureBindingPatternNode captureBindingPatternNode =
                     (CaptureBindingPatternNode) variableDeclarationNode.typedBindingPattern().bindingPattern();
             symbolMetaInfo.addProperty("name", captureBindingPatternNode.variableName().text());
-            symbolMetaInfo.addProperty("isCaller", typeSymbol.name().equals("Caller"));
-            symbolMetaInfo.addProperty("typeName", typeSymbol.name());
-            symbolMetaInfo.addProperty("orgName", typeSymbol.moduleID().orgName());
-            symbolMetaInfo.addProperty("moduleName", typeSymbol.moduleID().moduleName());
+            symbolMetaInfo.addProperty("isCaller", "Caller".equals(typeSymbol.getName().orElse(null)));
+            symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
+            symbolMetaInfo.addProperty("orgName", orgName);
+            symbolMetaInfo.addProperty("moduleName", moduleName);
+            symbolMetaInfo.addProperty("isModuleVar", false);
         } else if (node.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
             AssignmentStatementNode assignmentStatementNode = (AssignmentStatementNode) node;
             if (assignmentStatementNode.varRef() instanceof SimpleNameReferenceNode) {
                 SimpleNameReferenceNode simpleNameReferenceNode =
                         (SimpleNameReferenceNode) assignmentStatementNode.varRef();
                 symbolMetaInfo.addProperty("name", simpleNameReferenceNode.name().text());
-                symbolMetaInfo.addProperty("isCaller", typeSymbol.name().equals("Caller"));
-                symbolMetaInfo.addProperty("typeName", typeSymbol.name());
-                symbolMetaInfo.addProperty("orgName", typeSymbol.moduleID().orgName());
-                symbolMetaInfo.addProperty("moduleName", typeSymbol.moduleID().moduleName());
+                symbolMetaInfo.addProperty("isCaller", "Caller".equals(typeSymbol.getName()
+                        .orElse(null)));
+                symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
+                symbolMetaInfo.addProperty("orgName", orgName);
+                symbolMetaInfo.addProperty("moduleName", moduleName);
+                symbolMetaInfo.addProperty("isModuleVar", false);
+            }
+        } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
+            JsonObject metaInfoForModuleVar = new JsonObject();
+            ModuleVariableDeclarationNode variableDeclarationNode = (ModuleVariableDeclarationNode) node;
+            CaptureBindingPatternNode captureBindingPatternNode =
+                    (CaptureBindingPatternNode) variableDeclarationNode.typedBindingPattern().bindingPattern();
+            metaInfoForModuleVar.addProperty("name", captureBindingPatternNode.variableName().text());
+            metaInfoForModuleVar.addProperty("isCaller", "Caller".equals(typeSymbol.getName()
+                    .orElse(null)));
+            metaInfoForModuleVar.addProperty("typeName", typeSymbol.getName().orElse(""));
+            metaInfoForModuleVar.addProperty("orgName", orgName);
+            metaInfoForModuleVar.addProperty("moduleName", moduleName);
+            metaInfoForModuleVar.addProperty("isModuleVar", true);
+            metaInfoForModuleVar.addProperty("isExternal", true);
+
+            this.visibleEpsForModule.add(metaInfoForModuleVar);
+        } else if (node.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE && isRemoteAction) {
+            String name = ((SimpleNameReferenceNode) node).name().text();
+            JsonObject metaInfoForModuleVar = new JsonObject();
+            metaInfoForModuleVar.addProperty("name", name);
+            boolean isAvailable = isAvailableAsEndpoint(name);
+
+            if (!isAvailable) {
+                metaInfoForModuleVar.addProperty("isCaller", "Caller".equals(typeSymbol.getName()
+                        .orElse(null)));
+                metaInfoForModuleVar.addProperty("typeName", typeSymbol.getName().orElse(""));
+                metaInfoForModuleVar.addProperty("orgName", orgName);
+                metaInfoForModuleVar.addProperty("moduleName", moduleName);
+                metaInfoForModuleVar.addProperty("isExternal", true);
+
+                this.visibleEpsForModule.add(metaInfoForModuleVar);
             }
         }
 
         return symbolMetaInfo;
+    }
+
+    private boolean isAvailableAsEndpoint(String name) {
+        for (JsonObject ep : this.visibleEpsForEachBlock) {
+            if (ep.get("name").getAsString().equals(name)) {
+                return true;
+            }
+        }
+
+        for (JsonObject ep : this.visibleEpsForModule) {
+            if (ep.get("name").getAsString().equals(name)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private TypeSymbol getRawType(TypeSymbol typeDescriptor) {
@@ -279,6 +379,14 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 //                        listPropJson.add((Boolean) listPropItem);
 //                    }
 //                }
+            } else if (prop instanceof Optional &&
+                    ((Optional<?>) prop).isPresent() && ((Optional) prop).get() instanceof ModuleSymbol) {
+                ModuleID ballerinaModuleID = ((ModuleSymbol) ((Optional) prop).get()).id();
+                JsonObject moduleIdJson = new JsonObject();
+                moduleIdJson.addProperty("orgName", ballerinaModuleID.orgName());
+                moduleIdJson.addProperty("moduleName", ballerinaModuleID.moduleName());
+                moduleIdJson.addProperty("version", ballerinaModuleID.version());
+                nodeJson.add("moduleID", moduleIdJson);
             } else if (prop instanceof ModuleID) {
                 ModuleID ballerinaModuleID = (ModuleID) prop;
                 JsonObject moduleIdJson = new JsonObject();
@@ -306,6 +414,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         if (node instanceof Token) {
             nodeInfo.addProperty("isToken", true);
             nodeInfo.addProperty("value", ((Token) node).text());
+            nodeInfo.addProperty("isMissing", node.isMissing());
             if (node.lineRange() != null) {
                 LineRange lineRange = node.lineRange();
                 LinePosition startLine = lineRange.startLine();
@@ -323,6 +432,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 nodeInfo.add(memberEntry.getKey(), memberEntry.getValue());
             });
         }
+        nodeInfo.add("leadingMinutiae", evaluateMinutiae(node.leadingMinutiae()));
+        nodeInfo.add("trailingMinutiae", evaluateMinutiae(node.trailingMinutiae()));
         return nodeInfo;
     }
 
@@ -331,5 +442,18 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 .map(String::toLowerCase)
                 .map(StringUtils::capitalize)
                 .collect(Collectors.joining());
+    }
+
+    private JsonArray evaluateMinutiae(MinutiaeList minutiaeList) {
+        JsonArray nodeMinutiae = new JsonArray();
+        for (Minutiae minutiae : minutiaeList) {
+            JsonObject minutiaeJson = new JsonObject();
+            minutiaeJson.addProperty("kind", minutiae.kind().toString());
+            minutiaeJson.addProperty("minutiae", minutiae.text());
+            minutiaeJson.addProperty("isInvalid", minutiae.isInvalidNodeMinutiae());
+            nodeMinutiae.add(minutiaeJson);
+        }
+
+        return nodeMinutiae;
     }
 }

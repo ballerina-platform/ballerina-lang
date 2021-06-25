@@ -83,3 +83,39 @@ function testExprs()  {
     RSA rsa = "RSA";
     string s = RSA;
 }
+
+@v1 {
+    val: 2
+}
+[int, string] [intVar, stringVar] = [1, "myString"];
+
+public function func(@v2 { val: "v63 value required" } int id,
+                     @v2 { val: "v63 value defaultable" } string s = "hello",
+                     @v2 { val: "v63 value rest" } float... others) returns @v3 float {
+    return 1.0;
+}
+
+const annotation map<int> v1 on source var;
+annotation Annot v2 on parameter;
+public annotation v3 on return;
+const annotation map<string> v4 on source annotation;
+
+@v4 {
+    str: "v4 value"
+}
+const annotation map<string> v5 on source annotation;
+
+type Annot record {
+    string val;
+};
+
+function testIgnoreSym() {
+    _ = 3.14;
+}
+
+public type TEST_TYPE int[CONST1];
+public const CONST1 = 12;
+
+function func1(string a, int b) returns function (int,function (int, int) r)  {
+
+}

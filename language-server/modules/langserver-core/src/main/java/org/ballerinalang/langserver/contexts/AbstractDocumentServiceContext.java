@@ -18,9 +18,12 @@
 package org.ballerinalang.langserver.contexts;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.tools.text.LinePosition;
@@ -33,7 +36,9 @@ import org.eclipse.lsp4j.Position;
 
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -58,8 +63,8 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
 
     private List<ImportDeclarationNode> currentDocImports;
 
-    private Module currentModule;
-    
+    private Map<ImportDeclarationNode, ModuleSymbol> currentDocImportsMap;
+
     private final LanguageServerContext languageServerContext;
 
     AbstractDocumentServiceContext(LSOperation operation,
@@ -137,14 +142,49 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
 
         return this.currentDocImports;
     }
+    @Override
+    public Map<ImportDeclarationNode, ModuleSymbol> currentDocImportsMap() {
+        Optional<SemanticModel> semanticModel = this.workspace().semanticModel(this.filePath());
+        if (semanticModel.isEmpty()) {
+            throw new RuntimeException("Semantic Model Cannot be Empty");
+        }
+        if (this.currentDocImportsMap == null) {
+            this.currentDocImportsMap = new LinkedHashMap<>();
+            Optional<Document> document = this.workspace().document(this.filePath);
+            if (document.isEmpty()) {
+                throw new RuntimeException("Cannot find a valid document");
+            }
+            ModulePartNode modulePartNode = document.get().syntaxTree().rootNode();
+            for (ImportDeclarationNode importDeclaration : modulePartNode.imports()) {
+                Optional<Symbol> symbol = semanticModel.get().symbol(importDeclaration);
+                if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.MODULE) {
+                    continue;
+                }
+                currentDocImportsMap.put(importDeclaration, (ModuleSymbol) symbol.get());
+            }
+        }
+
+        return this.currentDocImportsMap;
+    }
+
+    @Override
+    public Optional<Document> currentDocument() {
+        return this.workspace().document(this.filePath());
+    }
 
     @Override
     public Optional<Module> currentModule() {
-        if (this.currentModule == null) {
-            this.currentModule = this.workspaceManager.module(this.filePath).orElse(null);
-        }
+        return this.workspaceManager.module(this.filePath);
+    }
 
-        return Optional.ofNullable(this.currentModule);
+    @Override
+    public Optional<SemanticModel> currentSemanticModel() {
+        return this.workspaceManager.semanticModel(this.filePath);
+    }
+
+    @Override
+    public Optional<SyntaxTree> currentSyntaxTree() {
+        return this.workspaceManager.syntaxTree(this.filePath);
     }
 
     @Override
@@ -167,7 +207,7 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
         /**
          * Context Builder constructor.
          *
-         * @param lsOperation LS Operation for the particular invocation
+         * @param lsOperation   LS Operation for the particular invocation
          * @param serverContext Language server context
          */
         public AbstractContextBuilder(LSOperation lsOperation, LanguageServerContext serverContext) {

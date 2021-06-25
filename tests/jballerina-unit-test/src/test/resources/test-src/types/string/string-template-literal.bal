@@ -188,3 +188,39 @@ function complexStringTemplateExpr() returns (string) {
     string s1 = "Ballerina";
     return string `Hello \n$\\$$\{Dummy\tText\${"`"}\\test ${s1} endText\\{{{{{innerStartText ${4 + 3} }}!!!`;
 }
+
+public type Foo int|float|decimal|string|boolean;
+
+function stringTemplateExprWithUnionType1() returns string {
+    Foo foo = 4;
+    return string`${foo}`;
+}
+
+function stringTemplateExprWithUnionType2() returns string {
+    Foo foo = 4.5;
+    return string`${foo}`;
+}
+
+function stringTemplateExprWithUnionType3() returns string {
+    Foo foo = "chirans";
+    return string`${foo}`;
+}
+
+function stringTemplateExprWithUnionType4() returns string {
+    Foo foo = true;
+    return string`${foo}`;
+}
+
+function testStringTemplateExprWithUnionType() {
+    assertEquality("4", stringTemplateExprWithUnionType1());
+    assertEquality("4.5", stringTemplateExprWithUnionType2());
+    assertEquality("chirans", stringTemplateExprWithUnionType3());
+    assertEquality("true", stringTemplateExprWithUnionType4());
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+}

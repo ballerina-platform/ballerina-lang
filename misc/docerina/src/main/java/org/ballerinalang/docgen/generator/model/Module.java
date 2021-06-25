@@ -17,23 +17,17 @@ package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Represents a Ballerina Module.
  */
-public class Module {
+public class Module extends ModuleMetaData {
+
     @Expose
-    public String id = "";
-    @Expose
-    public String summary;
-    @Expose
-    public String description;
-    @Expose
-    public String orgName;
-    @Expose
-    public String version;
+    public List<ModuleMetaData> relatedModules = new ArrayList<>();
 
     // constructs
     @Expose
@@ -41,7 +35,7 @@ public class Module {
     @Expose
     public List<BClass> classes = new ArrayList<>();
     @Expose
-    public List<BAbstractObject> abstractObjects = new ArrayList<>();
+    public List<BObjectType> objectTypes = new ArrayList<>();
     @Expose
     public List<Client> clients = new ArrayList<>();
     @Expose
@@ -58,5 +52,8 @@ public class Module {
     public List<BType> types = new ArrayList<>();
     @Expose
     public List<Enum> enums = new ArrayList<>();
+    @Expose
+    public List<DefaultableVariable> variables = new ArrayList<>();
 
+    public List<Path> resources = new ArrayList<>();
 }

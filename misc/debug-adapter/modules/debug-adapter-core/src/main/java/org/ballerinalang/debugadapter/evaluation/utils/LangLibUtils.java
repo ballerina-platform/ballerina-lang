@@ -16,23 +16,30 @@
 
 package org.ballerinalang.debugadapter.evaluation.utils;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.engine.GeneratedStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.engine.FunctionNodeFinder;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
-import static org.ballerinalang.debugadapter.evaluation.engine.FunctionInvocationExpressionEvaluator.modifyName;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getGeneratedMethod;
 import static org.ballerinalang.debugadapter.variable.BVariableType.ARRAY;
 import static org.ballerinalang.debugadapter.variable.BVariableType.INT;
@@ -52,31 +59,35 @@ public class LangLibUtils {
     private LangLibUtils() {
     }
 
-    public static GeneratedStaticMethod loadLangLibMethod(SuspendedContext context, BExpressionValue result,
-                                                          String langLibCls, String methodName)
-            throws EvaluationException {
+    public static Optional<Package> getLangLibPackage(SuspendedContext context, String langLibName) {
+        Project project = context.getProject();
+        PackageCache pkgCache = project.projectEnvironmentContext().environment().getService(PackageCache.class);
+        List<Package> packages = pkgCache.getPackages(PackageOrg.from(LANG_LIB_ORG),
+                PackageName.from(LANG_LIB_PACKAGE_PREFIX + langLibName));
 
-        GeneratedStaticMethod generatedMethod = null;
-        try {
-            generatedMethod = getGeneratedMethod(context, langLibCls, methodName);
-        } catch (EvaluationException ignored) {
+        if (packages.isEmpty()) {
+            return Optional.empty();
         }
-
-        if (generatedMethod == null) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.LANG_LIB_METHOD_NOT_FOUND.getString(),
-                    methodName, result.getType().getString()));
-        }
-
-        return generatedMethod;
+        return Optional.of(packages.get(0));
     }
 
-    public static String getQualifiedLangLibClassName(ModuleSymbol moduleSymbol, String langLibName)
+    public static GeneratedStaticMethod loadLangLibMethod(SuspendedContext context, BExpressionValue result,
+                                                          String langLibCls, String method) throws EvaluationException {
+        try {
+            return getGeneratedMethod(context, langLibCls, method);
+        } catch (EvaluationException e) {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.LANG_LIB_METHOD_NOT_FOUND.getString(),
+                    method, result.getType().getString()));
+        }
+    }
+
+    public static String getQualifiedLangLibClassName(Package langLibPackage, String langLibName)
             throws EvaluationException {
         try {
             return new StringJoiner(".")
                     .add(LANG_LIB_ORG)
                     .add(encodeModuleName(LANG_LIB_PACKAGE_PREFIX + langLibName))
-                    .add(moduleSymbol.moduleID().version().replaceAll("\\.", "_"))
+                    .add(langLibPackage.packageVersion().toString().replaceAll("\\.", "_"))
                     .add(langLibName)
                     .toString();
         } catch (Exception ignored) {
@@ -91,20 +102,23 @@ public class LangLibUtils {
 
         return semanticContext.visibleSymbols(context.getDocument(), position)
                 .stream()
-                .filter(symbol -> symbol.kind() == MODULE
-                        && symbol.moduleID().orgName().equals(LANG_LIB_ORG)
-                        && symbol.moduleID().moduleName().startsWith(LANG_LIB_PACKAGE_PREFIX)
-                        && symbol.moduleID().moduleName().endsWith(langLibName))
+                .filter(symbol -> {
+                    if (symbol.kind() != MODULE) {
+                        return false;
+                    }
+
+                    ModuleID moduleID = ((ModuleSymbol) symbol).id();
+                    return moduleID.orgName().equals(LANG_LIB_ORG)
+                            && moduleID.moduleName().startsWith(LANG_LIB_PACKAGE_PREFIX)
+                            && moduleID.moduleName().endsWith(langLibName);
+                })
                 .findFirst()
                 .map(symbol -> (ModuleSymbol) symbol);
     }
 
-    public static Optional<FunctionSymbol> getLangLibFunctionDefinition(SuspendedContext context,
-                                                                        ModuleSymbol langLibDef, String functionName) {
-        return langLibDef.functions()
-                .stream()
-                .filter(functionSymbol -> modifyName(functionSymbol.name()).equals(functionName))
-                .findFirst();
+    public static Optional<FunctionDefinitionNode> getLangLibFunctionDefinition(Package langLib, String functionName) {
+        FunctionNodeFinder functionFinder = new FunctionNodeFinder(functionName);
+        return functionFinder.searchInModule(langLib.getDefaultModule());
     }
 
     public static String getAssociatedLangLibName(BVariableType bVarType) {

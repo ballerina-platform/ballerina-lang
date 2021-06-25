@@ -1,0 +1,873 @@
+[engineer]
+name="waruna"
+
+[[engineerTable]]
+name="hinduja"
+id=100
+
+[[engineerTable]]
+name="riyafa"
+id=105
+
+[student]
+name="riyafa"
+
+[[studentTable]]
+name="manu"
+id=100
+
+[[studentTable]]
+name="riyafa"
+id=105
+
+[employee]
+name="manu"
+id=101
+
+[employee1]
+name="riyafa"
+id=999
+
+[[employeeTable]]
+name="hinduja"
+id=102
+
+[[employeeTable]]
+name="manu"
+id=100
+
+[[employeeTable1]]
+name="waruna"
+id=2
+
+[[employeeTable1]]
+name="manu"
+id=7
+
+[officer]
+name="gabilan"
+id=101
+
+[[officerTable]]
+name="hinduja"
+id=102
+
+[[officerTable]]
+name="manu"
+id=100
+
+[[officerTable1]]
+name="waruna"
+id=4
+
+[[officerTable1]]
+name="gabilan"
+id=5
+
+
+[manager]
+name="hinduja"
+id=107
+
+[[managerTable]]
+name="gabilan"
+id=101
+
+[[managerTable]]
+name="riyafa"
+id=102
+
+[teacher]
+name="gabilan"
+id=888
+
+[[teacherTable]]
+name="manu"
+id=77
+
+[[teacherTable]]
+name="riyafa"
+id=88
+
+[farmer]
+name="waruna"
+id=999
+
+[[farmerTable]]
+name="waruna"
+id=444
+
+[[farmerTable]]
+name="hinduja"
+id=888
+
+[person]
+name = "waruna"
+id = 10
+address.city="San Francisco"
+address.country.name="USA"
+
+[person2]
+name = "manu"
+id = 11
+address.city="Nugegoda"
+
+[person3]
+name = "riyafa"
+id = 12
+
+[[personArray]]
+name = "manu"
+id = 11
+address.city="New York"
+address.country.name="USA"
+
+[[personArray]]
+name = "hinduja"
+id = 12
+address.city="London"
+address.country.name="UK"
+
+[[personArray1]]
+name = "waruna"
+id = 700
+address.city="Abu Dhabi"
+address.country.name="UAE"
+
+[[personArray1]]
+name = "manu"
+id = 701
+address.city="Mumbai"
+address.country.name="India"
+
+[[personArray2]]
+name = "gabilan"
+id = 900
+address.city="Abu Dhabi"
+address.country.name="UAE"
+
+[[personArray2]]
+name = "hinduja"
+id = 901
+address.city="Mumbai"
+address.country.name="India"
+
+[[personTable]]
+name = "riyafa"
+id = 13
+address.city="Canberra"
+address.country.name="Australia"
+
+[[personTable]]
+name = "gabilan"
+id = 14
+address.city="Paris"
+address.country.name="France"
+
+[configStructuredTypes.mod2.doctor]
+name="waruna"
+
+[[configStructuredTypes.mod2.doctorTable]]
+name="hinduja"
+id=100
+
+[[configStructuredTypes.mod2.doctorTable]]
+name="riyafa"
+id=105
+
+[configStructuredTypes.mod2.student]
+name="riyafa"
+
+[[configStructuredTypes.mod2.studentTable]]
+name="manu"
+id=100
+
+[[configStructuredTypes.mod2.studentTable]]
+name="riyafa"
+id=105
+
+[configStructuredTypes.mod2.employee]
+name="manu"
+id=101
+
+[configStructuredTypes.mod2.employee1]
+name="waruna"
+id=404
+
+[[configStructuredTypes.mod2.employeeTable]]
+name="hinduja"
+id=102
+
+[[configStructuredTypes.mod2.employeeTable]]
+name="manu"
+id=100
+
+[[configStructuredTypes.mod2.employeeTable1]]
+name="gabilan"
+id=2
+
+[[configStructuredTypes.mod2.employeeTable1]]
+name="riyafa"
+id=3
+
+[configStructuredTypes.mod2.officer]
+name="gabilan"
+id=101
+
+[[configStructuredTypes.mod2.officerTable]]
+name="hinduja"
+id=102
+
+[[configStructuredTypes.mod2.officerTable]]
+name="manu"
+id=100
+
+[[configStructuredTypes.mod2.officerTable1]]
+name="hinduja"
+id=7
+
+[[configStructuredTypes.mod2.officerTable1]]
+name="waruna"
+id=8
+
+[configStructuredTypes.mod2.manager]
+name="hinduja"
+id=107
+
+[[configStructuredTypes.mod2.managerTable]]
+name="gabilan"
+id=101
+
+[[configStructuredTypes.mod2.managerTable]]
+name="riyafa"
+id=102
+
+[configStructuredTypes.mod2.teacher]
+name="hinduja"
+id=11
+
+[[configStructuredTypes.mod2.teacherTable]]
+name="gabilan"
+id=66
+
+[[configStructuredTypes.mod2.teacherTable]]
+name="riyafa"
+id=77
+
+[configStructuredTypes.mod2.farmer]
+name="manu"
+id=22
+
+[[configStructuredTypes.mod2.farmerTable]]
+name="riyafa"
+id=555
+
+[[configStructuredTypes.mod2.farmerTable]]
+name="hinduja"
+id=666
+
+[configStructuredTypes.mod2.person]
+name = "hinduja"
+id = 100
+address.city="Kandy"
+address.country.name="Sri Lanka"
+
+[[configStructuredTypes.mod2.personArray]]
+name = "waruna"
+id = 111
+address.city="Abu Dhabi"
+address.country.name="UAE"
+
+[[configStructuredTypes.mod2.personArray]]
+name = "manu"
+id = 122
+address.city="Mumbai"
+address.country.name="India"
+
+[[configStructuredTypes.mod2.personArray1]]
+name = "manu"
+id = 800
+address.city="New York"
+address.country.name="USA"
+
+[[configStructuredTypes.mod2.personArray1]]
+name = "hinduja"
+id = 801
+address.city="London"
+address.country.name="UK"
+
+[[configStructuredTypes.mod2.personArray2]]
+name = "riyafa"
+id = 1000
+address.city="New York"
+address.country.name="USA"
+
+[[configStructuredTypes.mod2.personArray2]]
+name = "waruna"
+id = 1001
+address.city="London"
+address.country.name="UK"
+
+[[configStructuredTypes.mod2.personTable]]
+name = "gabilan"
+id = 133
+address.city="Berlin"
+address.country.name="Germany"
+
+[[configStructuredTypes.mod2.personTable]]
+name = "riyafa"
+id = 144
+address.city="Madrid"
+address.country.name="Spain"
+
+[lecturer]
+name="hinduja"
+department1.name="IT"
+department2.name="Finance"
+department3.name="HR"
+
+[lawyer]
+name="riyafa"
+address1.city="Colombo"
+address2.city="Kandy"
+address3.city="Galle"
+
+[[lecturerTable]]
+name="manu"
+department1.name="IT"
+department2.name="Sales"
+department3.name="HR"
+
+[[lecturerTable]]
+name="waruna"
+department1.name="IT"
+department3.name="HR"
+
+[[lawyerTable]]
+name="gabilan"
+address1.city="Colombo"
+address2.city="Kandy"
+address3.city="Galle"
+
+[[lawyerTable]]
+name="riyafa"
+address1.city="Matara"
+address3.city="Gampaha"
+
+[lecturer2]
+name="hinduja"
+department1.name="IT"
+department2.name="Finance"
+department3.name="HR"
+
+[lawyer2]
+name="riyafa"
+place1.city="Colombo"
+place2.city="Kandy"
+place3.city="Galle"
+
+[[lecturerTable2]]
+name="manu"
+department1.name="IT"
+department2.name="Sales"
+department3.name="HR"
+
+[[lecturerTable2]]
+name="waruna"
+department1.name="IT"
+department3.name="HR"
+
+[[lawyerTable2]]
+name="gabilan"
+place1.city="Colombo"
+place2.city="Kandy"
+place3.city="Galle"
+
+[[lawyerTable2]]
+name="riyafa"
+place1.city="Matara"
+place3.city="Jaffna"
+
+
+[user]
+name = "Hinduja"
+occupation = "Software Engineer"
+city = "Colombo"
+
+[numbers]
+one = 1
+two = 2
+three = 3
+four = 4
+
+[fractions]
+quarter = 0.25
+half = 0.5
+three_quarter = 0.75
+
+[bits]
+on = true
+off = false
+
+[numberSet]
+set1 = [1,11,111]
+set2 = [2,22,222]
+set3 = [3,33,333]
+
+[stringSet]
+set1 = [["a","aa"],["b","bb"]]
+set2 = [["c","cc"],["d","dd"]]
+set3 = [["e","ee"],["f","ff"]]
+
+[engineerMap]
+engineer1.id = 11
+engineer1.name = "Anne"
+engineer2.id = 22
+engineer2.name = "Bob"
+engineer3.id = 33
+engineer3.name = "Charles"
+
+[lecturerMap]
+lecturer1.name = "Richard Feynman"
+lecturer1.department1.name = "Physics"
+lecturer1.department3.name = "Science"
+lecturer2.name = "Michael Sandel"
+lecturer2.department1.name = "Justice"
+lecturer2.department2.name = "Ethics"
+lecturer2.department3.name = "Law"
+
+[readonlyEngineerMap]
+engineer1.id = 11
+engineer1.name = "Anne"
+engineer2.id = 22
+engineer2.name = "Bob"
+engineer3.id = 33
+engineer3.name = "Charles"
+
+[readonlyLecturerMap]
+lecturer1.name = "Richard Feynman"
+lecturer1.department1.name = "Physics"
+lecturer1.department3.name = "Science"
+lecturer2.name = "Michael Sandel"
+lecturer2.department1.name = "Justice"
+lecturer2.department2.name = "Ethics"
+lecturer2.department3.name = "Law"
+
+[subjects]
+Maths.name = "Mathematics"
+Maths.grade = "grade 8"
+Maths.instructor = "Jane Doe"
+Science.name = "Science & Technology"
+Science.grade = "grade 9"
+Science.instructor = "John Doe"
+English.name = "English Language"
+English.grade = "grade 11"
+English.instructor = "Jane Doe"
+
+[[departments.department1]]
+name = "Civil Engineering"
+
+[[departments.department2]]
+name = "Computer Science"
+
+[[departments.department3]]
+name = "Electronical Engineering"
+
+[[intMapArr]]
+int1 = 34
+int2 = 78
+
+[[intMapArr]]
+int3 = 17
+int4 = 92
+
+[[stringMapArr]]
+arr1 = ["hhh", "ggg"]
+arr2 = ["aaa", "bbb"]
+
+[[stringMapArr]]
+arr1 = ["lll", "mmm"]
+arr2 = ["nnn", "ooo"]
+
+[[engineerMapArr]]
+p1.id = 55
+p1.name = "Jack"
+p2.id = 88
+p2.name = "Jill"
+
+[[engineerMapArr]]
+p1.id = 66
+p1.name = "John"
+p2.id = 77
+p2.name = "Jim"
+
+[[stringMapTable]]
+name = "Tom"
+occupation = "Software Engineer"
+city = "Colombo"
+
+[[stringMapTable]]
+name = "Harry"
+occupation = "Student"
+city = "Kandy"
+
+[[readonlyTable]]
+name = "James"
+occupation = "Software Engineer"
+city = "Colombo"
+
+[[readonlyTable]]
+name = "Trevor"
+occupation = "Student"
+city = "Kandy"
+
+[[stringMapArrTable]]
+names = ["Tom", "Jerry"]
+subjects = ["Maths", "Science", "Arts"]
+
+[[stringMapArrTable]]
+cities = ["Colombo", "Galle"]
+fruits = ["Apple", "Grapes"]
+
+[[engineerMapTable]]
+p1.id = 10
+p1.name = "Anna"
+p2.id = 20
+p2.name = "Elsa"
+
+[[engineerMapTable]]
+p1.id = 30
+p1.name = "Diana"
+p2.id = 40
+p2.name = "Belle"
+
+[[readonlyEngineerMapTable]]
+p1.id = 10
+p1.name = "Anna"
+p2.id = 20
+p2.name = "Elsa"
+
+[[readonlyEngineerMapTable]]
+p1.id = 30
+p1.name = "Diana"
+p2.id = 40
+p2.name = "Belle"
+
+[intMap]
+ten = 10
+eleven = 11
+twelve = 12
+
+[studentMap]
+student1.id = 11
+student1.name = "Anne"
+student2.id = 22
+student2.name = "Bob"
+student3.id = 33
+student3.name = "Charles"
+
+[readonlyStudentMap]
+student1.id = 11
+student1.name = "Anne"
+student2.id = 22
+student2.name = "Bob"
+student3.id = 33
+student3.name = "Charles"
+
+[[studentMapTable]]
+p1.id = 10
+p1.name = "Anna"
+p2.id = 20
+p2.name = "Elsa"
+
+[[studentMapTable]]
+p1.id = 30
+p1.name = "Diana"
+p2.id = 40
+p2.name = "Belle"
+
+[[readonlyStudentMapTable]]
+p1.id = 10
+p1.name = "Anna"
+p2.id = 20
+p2.name = "Elsa"
+
+[[readonlyStudentMapTable]]
+p1.id = 30
+p1.name = "Diana"
+p2.id = 40
+p2.name = "Belle"
+
+[libIntMap]
+fourteen = 14
+fifteen = 15
+sixteen = 16
+
+[managerMap]
+m1.name="hinduja"
+m1.id=111
+m2.name="waruna"
+m2.id=222
+
+[readonlyManagerMap]
+m1.name="manu"
+m1.id=333
+m2.name="riyafa"
+m2.id=444
+
+[[managerMapTable]]
+m1.id = 55
+m1.name = "Jack"
+m2.id = 88
+m2.name = "Jill"
+
+[[managerMapTable]]
+m1.id = 66
+m1.name = "John"
+m2.id = 77
+m2.name = "Jim"
+
+[[readonlyManagerMapTable]]
+m1.id = 55
+m1.name = "Jack"
+m2.id = 88
+m2.name = "Jill"
+
+[[readonlyManagerMapTable]]
+m1.id = 66
+m1.name = "John"
+m2.id = 77
+m2.name = "Jim"
+
+[configStructuredTypes.mod2.user]
+name = "Hinduja"
+occupation = "Software Engineer"
+city = "Colombo"
+
+[configStructuredTypes.mod2.numbers]
+one = 1
+two = 2
+three = 3
+four = 4
+
+[configStructuredTypes.mod2.fractions]
+quarter = 0.25
+half = 0.5
+three_quarter = 0.75
+
+[configStructuredTypes.mod2.bits]
+on = true
+off = false
+
+[configStructuredTypes.mod2.numberSet]
+set1 = [1,11,111]
+set2 = [2,22,222]
+set3 = [3,33,333]
+
+[configStructuredTypes.mod2.stringSet]
+set1 = [["a","aa"],["b","bb"]]
+set2 = [["c","cc"],["d","dd"]]
+set3 = [["e","ee"],["f","ff"]]
+
+[configStructuredTypes.mod2.doctorMap]
+doctor1.id = 11
+doctor1.name = "Anne"
+doctor2.id = 22
+doctor2.name = "Bob"
+doctor3.id = 33
+doctor3.name = "Charles"
+
+[configStructuredTypes.mod2.readonlyDoctorMap]
+doctor1.id = 11
+doctor1.name = "Anne"
+doctor2.id = 22
+doctor2.name = "Bob"
+doctor3.id = 33
+doctor3.name = "Charles"
+
+[configStructuredTypes.mod2.subjects]
+Maths.name = "Mathematics"
+Maths.grade = "grade 8"
+Maths.instructor = "Jane Doe"
+Science.name = "Science & Technology"
+Science.grade = "grade 9"
+Science.instructor = "John Doe"
+English.name = "English Language"
+English.grade = "grade 11"
+English.instructor = "Jane Doe"
+
+[[configStructuredTypes.mod2.departments.department1]]
+name = "Civil Engineering"
+
+[[configStructuredTypes.mod2.departments.department2]]
+name = "Computer Science"
+
+[[configStructuredTypes.mod2.departments.department3]]
+name = "Electronical Engineering"
+
+[[configStructuredTypes.mod2.intMapArr]]
+int1 = 34
+int2 = 78
+
+[[configStructuredTypes.mod2.intMapArr]]
+int3 = 17
+int4 = 92
+
+[[configStructuredTypes.mod2.stringMapArr]]
+arr1 = ["hhh", "ggg"]
+arr2 = ["aaa", "bbb"]
+
+[[configStructuredTypes.mod2.stringMapArr]]
+arr1 = ["lll", "mmm"]
+arr2 = ["nnn", "ooo"]
+
+[[configStructuredTypes.mod2.doctorMapArr]]
+p1.id = 55
+p1.name = "Jack"
+p2.id = 88
+p2.name = "Jill"
+
+[[configStructuredTypes.mod2.doctorMapArr]]
+p1.id = 66
+p1.name = "John"
+p2.id = 77
+p2.name = "Jim"
+
+
+[[configStructuredTypes.mod2.stringMapTable]]
+name = "Tom"
+occupation = "Software Engineer"
+city = "Colombo"
+
+[[configStructuredTypes.mod2.stringMapTable]]
+name = "Harry"
+occupation = "Student"
+city = "Kandy"
+
+[[configStructuredTypes.mod2.readonlyTable]]
+name = "James"
+occupation = "Software Engineer"
+city = "Colombo"
+
+[[configStructuredTypes.mod2.readonlyTable]]
+name = "Trevor"
+occupation = "Student"
+city = "Kandy"
+
+[[configStructuredTypes.mod2.stringMapArrTable]]
+names = ["Tom", "Jerry"]
+subjects = ["Maths", "Science", "Arts"]
+
+[[configStructuredTypes.mod2.stringMapArrTable]]
+cities = ["Colombo", "Galle"]
+fruits = ["Apple", "Grapes"]
+
+[[configStructuredTypes.mod2.doctorMapTable]]
+p1.id = 10
+p1.name = "Anna"
+p2.id = 20
+p2.name = "Elsa"
+
+[[configStructuredTypes.mod2.doctorMapTable]]
+p1.id = 30
+p1.name = "Diana"
+p2.id = 40
+p2.name = "Belle"
+
+[[configStructuredTypes.mod2.readonlyDoctorMapTable]]
+p1.id = 10
+p1.name = "Anna"
+p2.id = 20
+p2.name = "Elsa"
+
+[[configStructuredTypes.mod2.readonlyDoctorMapTable]]
+p1.id = 30
+p1.name = "Diana"
+p2.id = 40
+p2.name = "Belle"
+
+[configStructuredTypes.mod2.intMap]
+ten = 10
+eleven = 11
+twelve = 12
+
+[configStructuredTypes.mod2.studentMap]
+student1.id = 11
+student1.name = "Anne"
+student2.id = 22
+student2.name = "Bob"
+student3.id = 33
+student3.name = "Charles"
+
+[configStructuredTypes.mod2.readonlyStudentMap]
+student1.id = 11
+student1.name = "Anne"
+student2.id = 22
+student2.name = "Bob"
+student3.id = 33
+student3.name = "Charles"
+
+[[configStructuredTypes.mod2.studentMapTable]]
+p1.id = 10
+p1.name = "Anna"
+p2.id = 20
+p2.name = "Elsa"
+
+[[configStructuredTypes.mod2.studentMapTable]]
+p1.id = 30
+p1.name = "Diana"
+p2.id = 40
+p2.name = "Belle"
+
+[[configStructuredTypes.mod2.readonlyStudentMapTable]]
+p1.id = 10
+p1.name = "Anna"
+p2.id = 20
+p2.name = "Elsa"
+
+[[configStructuredTypes.mod2.readonlyStudentMapTable]]
+p1.id = 30
+p1.name = "Diana"
+p2.id = 40
+p2.name = "Belle"
+
+[configStructuredTypes.mod2.libIntMap]
+fourteen = 14
+fifteen = 15
+sixteen = 16
+
+[configStructuredTypes.mod2.managerMap]
+m1.name="hinduja"
+m1.id=111
+m2.name="waruna"
+m2.id=222
+
+[configStructuredTypes.mod2.readonlyManagerMap]
+m1.name="manu"
+m1.id=333
+m2.name="riyafa"
+m2.id=444
+
+[[configStructuredTypes.mod2.managerMapTable]]
+m1.id = 55
+m1.name = "Jack"
+m2.id = 88
+m2.name = "Jill"
+
+[[configStructuredTypes.mod2.managerMapTable]]
+m1.id = 66
+m1.name = "John"
+m2.id = 77
+m2.name = "Jim"
+
+[[configStructuredTypes.mod2.readonlyManagerMapTable]]
+m1.id = 55
+m1.name = "Jack"
+m2.id = 88
+m2.name = "Jill"
+
+[[configStructuredTypes.mod2.readonlyManagerMapTable]]
+m1.id = 66
+m1.name = "John"
+m2.id = 77
+m2.name = "Jim"

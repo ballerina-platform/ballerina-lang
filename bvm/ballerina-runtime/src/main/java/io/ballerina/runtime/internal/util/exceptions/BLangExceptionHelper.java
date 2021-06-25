@@ -35,19 +35,23 @@ public class BLangExceptionHelper {
 
     public static BError getRuntimeException(RuntimeErrors runtimeErrors, Object... params) {
         BString errorMsg = StringUtils
-                .fromString(MessageFormat.format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params));
+                .fromString(MessageFormat.format(messageBundle.getString(runtimeErrors.messageKey()), params));
         return ErrorCreator.createError(errorMsg);
     }
 
     public static BError getRuntimeException(BString reason, RuntimeErrors runtimeErrors, Object... params) {
         BString errorDetail = StringUtils
-                .fromString(MessageFormat.format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params));
+                .fromString(MessageFormat.format(messageBundle.getString(runtimeErrors.messageKey()), params));
         return ErrorCreator.createError(reason, errorDetail);
     }
 
     public static BString getErrorMessage(RuntimeErrors runtimeErrors, Object... params) {
         return StringUtils.fromString(MessageFormat
-                                              .format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params));
+                                              .format(messageBundle.getString(runtimeErrors.messageKey()), params));
+    }
+
+    public static String getErrorMessage(String messageFormat, Object... params) {
+        return MessageFormat.format(messageBundle.getString(messageFormat), params);
     }
 
     /**

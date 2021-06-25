@@ -37,7 +37,8 @@ public class ClassLoadContext {
     private final Collection<String> moduleDclns;
     private final String lastVarDcln;
     private final Collection<VariableContext> varDclns;
-    private final StatementContext lastStmt;
+    private final Collection<String> newVarNames;
+    private final Collection<StatementContext> lastStmts;
 
     /**
      * Creates a context for class load invoker.
@@ -51,19 +52,23 @@ public class ClassLoadContext {
      * @param lastVarDcln Last variable declaration if the last snippet was a var dcln.
      *                    If not, this should be null.
      * @param varDclns    Variable declarations to initialize with values.
-     * @param lastStmt    Last expression if last value was a statement or an expression.
+     * @param newVarNames New variables that were defined.
+     *                    This should not have variables that are already in varDclns.
+     * @param lastStmts   List of last expressions if last values were statements or expressions.
      */
     public ClassLoadContext(String contextId,
                             Collection<String> imports,
                             Collection<String> moduleDclns,
                             Collection<VariableContext> varDclns,
+                            Collection<String> newVarNames,
                             String lastVarDcln,
-                            StatementContext lastStmt) {
-        this.lastStmt = Objects.requireNonNullElse(lastStmt, new StatementContext());
+                            Collection<StatementContext> lastStmts) {
+        this.lastStmts = Objects.requireNonNullElse(lastStmts, List.of());
         this.lastVarDcln = Objects.requireNonNullElse(lastVarDcln, "");
         this.contextId = Objects.requireNonNull(contextId);
         this.imports = Objects.requireNonNull(imports);
         this.varDclns = Objects.requireNonNull(varDclns);
+        this.newVarNames = Objects.requireNonNullElse(newVarNames, List.of());
         this.moduleDclns = Objects.requireNonNull(moduleDclns);
     }
 
@@ -73,6 +78,8 @@ public class ClassLoadContext {
      * @param contextId   Id of the context to use in memory.
      * @param imports     Import declarations.
      * @param moduleDclns Module level declaration.
+     * @param newVarNames New variables that were defined.
+     *                    This should not have variables that are already in varDclns.
      * @param lastVarDcln Last variable declaration if the last snippet was a var dcln.
      *                    If not, this should be null.
      * @param varDclns    VariableContext declarations to initialize with values.
@@ -81,8 +88,9 @@ public class ClassLoadContext {
                             Collection<String> imports,
                             Collection<String> moduleDclns,
                             Collection<VariableContext> varDclns,
+                            Collection<String> newVarNames,
                             String lastVarDcln) {
-        this(contextId, imports, moduleDclns, varDclns, lastVarDcln, null);
+        this(contextId, imports, moduleDclns, varDclns, newVarNames, lastVarDcln, null);
     }
 
     /**
@@ -92,7 +100,7 @@ public class ClassLoadContext {
      * @param imports   Import declarations.
      */
     public ClassLoadContext(String contextId, Collection<String> imports) {
-        this(contextId, imports, List.of(), List.of(), null);
+        this(contextId, imports, List.of(), List.of(), null, null);
     }
 
     public Collection<String> imports() {
@@ -103,12 +111,16 @@ public class ClassLoadContext {
         return moduleDclns;
     }
 
+    public Collection<String> newVarNames() {
+        return newVarNames;
+    }
+
     public String lastVarDcln() {
         return lastVarDcln;
     }
 
-    public StatementContext lastStmt() {
-        return lastStmt;
+    public Collection<StatementContext> lastStmts() {
+        return lastStmts;
     }
 
     public Collection<VariableContext> varDclns() {
@@ -125,5 +137,9 @@ public class ClassLoadContext {
 
     public String memoryRef() {
         return InvokerMemory.class.getCanonicalName();
+    }
+
+    public boolean noExpressions() {
+        return lastStmts.stream().allMatch(StatementContext::statement);
     }
 }

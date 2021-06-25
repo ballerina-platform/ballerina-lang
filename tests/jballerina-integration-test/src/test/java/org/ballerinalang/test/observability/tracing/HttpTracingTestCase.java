@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.observability.tracing;
 
-import org.ballerina.testobserve.tracing.extension.BMockSpan;
+import org.ballerinalang.observe.mockextension.BMockSpan;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
@@ -32,6 +32,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.test.observability.tracing.TracingBaseTestCase.ZERO_SPAN_ID;
+
 /**
  * Test cases for out of the box tracing.
  */
@@ -40,7 +42,7 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
 
     @Test
     public void testChainedResourceFunctions() throws Exception {
-        HttpResponse httpResponse = HttpClientRequest.doGet("http://localhost:9091/test-service/resource-1");
+        HttpResponse httpResponse = HttpClientRequest.doGet("http://localhost:19091/test-service/resource-1");
         Assert.assertEquals(httpResponse.getResponseCode(), 200);
         Assert.assertEquals(httpResponse.getData(), "Hello, World! from resource one");
         Thread.sleep(1000);
@@ -59,16 +61,17 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
                         .collect(Collectors.toSet()),
                 new HashSet<>(Arrays.asList(span1Position, span2Position, span3Position, span4Position, span5Position,
                         span6Position)));
-        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
+        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId().equals(ZERO_SPAN_ID))
+                .count(), 1);
 
         Optional<BMockSpan> span1 = spans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), span1Position))
                 .findFirst();
         Assert.assertTrue(span1.isPresent());
-        long traceId = span1.get().getTraceId();
+        String traceId = span1.get().getTraceId();
         span1.ifPresent(span -> {
-            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
-                    && mockSpan.getSpanId() == span.getParentId()));
+            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId().equals(traceId)
+                    && mockSpan.getSpanId().equals(span.getParentId())));
             Assert.assertEquals(span.getOperationName(), "resourceOne");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
@@ -97,7 +100,7 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
                     new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.1"),
                     new AbstractMap.SimpleEntry<>("src.position", span2Position),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
-                    new AbstractMap.SimpleEntry<>("http.base_url", "http://localhost:9091/test-service"),
+                    new AbstractMap.SimpleEntry<>("http.base_url", "http://localhost:19091/test-service"),
                     new AbstractMap.SimpleEntry<>("http.url", "/resource-2"),
                     new AbstractMap.SimpleEntry<>("http.method", "GET"),
                     new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
@@ -125,7 +128,7 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
                     new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
                     new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-2"),
                     new AbstractMap.SimpleEntry<>("http.method", "GET"),
-                    new AbstractMap.SimpleEntry<>("peer.address", "localhost:9091"),
+                    new AbstractMap.SimpleEntry<>("peer.address", "localhost:19091"),
                     new AbstractMap.SimpleEntry<>("service", "testServiceOne"),
                     new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
                     new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/http/HttpClient"),
@@ -202,7 +205,7 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
 
     @Test
     public void testHTTPContextPropagation() throws Exception {
-        HttpResponse httpResponse = HttpClientRequest.doGet("http://localhost:9092/test-service/resource-1");
+        HttpResponse httpResponse = HttpClientRequest.doGet("http://localhost:19092/test-service/resource-1");
         Assert.assertEquals(httpResponse.getResponseCode(), 200);
         Assert.assertEquals(httpResponse.getData(), "Hello, World! from resource one");
         Thread.sleep(1000);
@@ -220,7 +223,8 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),
                 new HashSet<>(Arrays.asList(span1Position, span2Position, span3Position, span6Position)));
-        Assert.assertEquals(testServiceSpans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
+        Assert.assertEquals(testServiceSpans.stream().filter(bMockSpan -> bMockSpan.getParentId().equals(ZERO_SPAN_ID))
+                .count(), 1);
 
         List<BMockSpan> echoBackendSpans = this.getEchoBackendFinishedSpans();
         Assert.assertEquals(echoBackendSpans.size(), 2);
@@ -228,16 +232,17 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),
                 new HashSet<>(Arrays.asList(span4Position, span5Position)));
-        Assert.assertEquals(echoBackendSpans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 0);
+        Assert.assertEquals(echoBackendSpans.stream().filter(bMockSpan -> bMockSpan.getParentId().equals(ZERO_SPAN_ID))
+                .count(), 0);
 
         Optional<BMockSpan> span1 = testServiceSpans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), span1Position))
                 .findFirst();
         Assert.assertTrue(span1.isPresent());
-        long traceId = span1.get().getTraceId();
+        String traceId = span1.get().getTraceId();
         span1.ifPresent(span -> {
-            Assert.assertTrue(testServiceSpans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
-                    && mockSpan.getSpanId() == span.getParentId()));
+            Assert.assertTrue(testServiceSpans.stream().noneMatch(mockSpan -> mockSpan.getTraceId().equals(traceId)
+                    && mockSpan.getSpanId().equals(span.getParentId())));
             Assert.assertEquals(span.getOperationName(), "resourceOne");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),

@@ -1,0 +1,31 @@
+{
+  "source": {
+    "file": "testSource.bal"
+  },
+  "position": {
+    "line": 3,
+    "character": 9
+  },
+  "prepareRename": {
+    "valid": true
+  },
+  "result": {
+    "changes": {
+      "testSource.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 8
+            },
+            "end": {
+              "line": 3,
+              "character": 9
+            }
+          },
+          "newText": "x"
+        }
+      ]
+    }
+  }
+}

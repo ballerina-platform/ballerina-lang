@@ -41,11 +41,22 @@ class PositionUtil {
         int cursorLine = cursorPos.line();
         int cursorColumn = cursorPos.offset();
 
-        return (startLine < cursorLine && endLine > cursorLine)
-                || (startLine < cursorLine && endLine == cursorLine && endColumn > cursorColumn)
-                || (startLine == cursorLine && endLine > cursorLine)
-                || (startLine == endLine && startLine == cursorLine
-                && startColumn <= cursorColumn && endColumn > cursorColumn);
+        // Eliminates the cases where the cursor falls outside of a block
+        // 1) The line the cursor is at is outside of either the starting line or the ending line of the block
+        // 2) If the cursor is at the same line as the starting line, see if the starting column is ahead of the
+        // cursor's column.
+        // 3) If the cursor is at the same line as the ending line, see if the ending column is before the cursor's
+        // column. If the cursor's column is the same as the ending column, it is still considered as outside of the
+        // block.
+        if ((cursorLine < startLine || cursorLine > endLine)
+                || cursorLine == startLine && cursorColumn < startColumn
+                || cursorLine == endLine && cursorColumn >= endColumn) {
+            return false;
+        }
+
+        // 4) The above scenarios are the only cases where the cursor can be outside the block. Any other location is
+        // within the block.
+        return true;
     }
 
     static boolean withinRange(LineRange specifiedRange, Location nodePosition) {
@@ -80,5 +91,20 @@ class PositionUtil {
         }
 
         return specifiedEndColumn <= nodeEndColumn;
+    }
+
+    //  todo to be removed once https://github.com/ballerina-platform/ballerina-lang/discussions/28983 is sorted
+    static boolean withinRightInclusive(LinePosition cursorPos, Location nodePosition) {
+        int startLine = nodePosition.lineRange().startLine().line();
+        int startColumn = nodePosition.lineRange().startLine().offset();
+        int endLine = nodePosition.lineRange().endLine().line();
+
+        int cursorLine = cursorPos.line();
+        int cursorColumn = cursorPos.offset();
+        return (startLine < cursorLine && endLine > cursorLine)
+                || (startLine < cursorLine && endLine == cursorLine)
+                || ((startLine == cursorLine && endLine > cursorLine)
+                || (startLine == endLine && startLine == cursorLine)
+                && startColumn <= cursorColumn);
     }
 }

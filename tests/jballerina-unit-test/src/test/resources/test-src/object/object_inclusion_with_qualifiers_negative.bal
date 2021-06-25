@@ -142,3 +142,70 @@ type InvalidObjectTypeDescriptorWithInvalidReadOnlyIntersectionInclusion object 
 
     public function toInt() returns int;
 };
+
+public type Type object {
+    public int[] vals;
+    string name;
+    int age;
+
+    function foo(float ratio, int months) returns float;
+};
+
+public class Class {
+    *Type;
+    int[] vals = [];
+    public string name = "";
+    private int age = 23;
+    public float x;
+    boolean y;
+
+    public function foo(float ratio, int months) returns float {
+        return 1000.00 * ratio * <float>months;
+    }
+}
+
+type Obj0 distinct object {
+    int a;
+    public float b;
+    string c;
+};
+
+type Obj1 distinct object {
+    *Obj0;
+    public int a;
+    float b;
+};
+
+type Obj2 distinct object {
+    *Class;
+    float x;
+    public boolean y;
+};
+
+public class Class2 {
+    int l;
+    float m;
+    public boolean n;
+
+    public function foo(float ratio, int months) returns float => 3000.00 * ratio * <float>months;
+}
+
+public class Class3 {
+    *Class2;
+    private int l = 23;
+    public float m;
+    boolean n;
+
+    private function foo(float ratio, int months) returns float {
+        return 1000.00 * ratio * <float>months;
+    }
+}
+
+isolated client class Class4 {
+    private int q = 1;
+}
+
+isolated client class Class5 {
+    *Class4;
+    final int q = 1;
+}

@@ -1,0 +1,29 @@
+{
+  "line": 7,
+  "character": 10,
+  "expected": [
+    {
+      "title": "Update documentation",
+      "kind": "quickfix",
+      "command": {
+        "title": "Update documentation",
+        "command": "UPDATE_DOC",
+        "arguments": [
+          {
+            "key": "node.range",
+            "value": {
+              "start": {
+                "line": 0,
+                "character": 0
+              },
+              "end": {
+                "line": 8,
+                "character": 2
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

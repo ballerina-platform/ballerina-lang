@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -88,11 +89,12 @@ class BIRTestUtils {
 
     static void validateBIRSpec(String testSource) {
         BCompileUtil.BIRCompileResult compileResult = BCompileUtil.generateBIR(testSource);
+        Assert.assertNotNull(compileResult, "Compilation may contain errors!");
+
         BIRNode.BIRPackage expectedBIRModule = compileResult.getExpectedBIR();
         byte[] actualBIRbinary = compileResult.getActualBIR();
         Bir kaitaiBir = new Bir(new ByteBufferKaitaiStream(actualBIRbinary));
 
-        Assert.assertNotNull(kaitaiBir, "Compilation may contain errors!");
 
         ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = kaitaiBir.constantPool().constantPoolEntries();
         Bir.Module actualBIRModule = kaitaiBir.module();
@@ -108,6 +110,9 @@ class BIRTestUtils {
 
         // assert functions
         assertFunctions(expectedBIRModule, actualBIRModule, constantPoolEntries);
+
+        // assert service decls
+        assertServiceDecls(expectedBIRModule, actualBIRModule, constantPoolEntries);
     }
 
     private static void assertFunctions(BIRNode.BIRPackage expectedBIR, Bir.Module birModule,
@@ -126,6 +131,14 @@ class BIRTestUtils {
 
             // assert markdown document
             assertMarkdownDocument(actualFunction.doc(), expectedFunction.markdownDocAttachment, constantPoolEntries);
+
+            // assert annotation attachments
+            assertAnnotationAttachments(actualFunction.annotationAttachmentsContent(),
+                                        expectedFunction.annotAttachments, constantPoolEntries);
+
+            // assert return type annotation attachments
+            assertAnnotationAttachments(actualFunction.returnTypeAnnotations(), expectedFunction.returnTypeAnnots,
+                                        constantPoolEntries);
 
             // assert required param count
             Assert.assertEquals(actualFunction.requiredParamCount(), expectedFunction.requiredParams.size());
@@ -238,19 +251,36 @@ class BIRTestUtils {
         assertMarkdownEntry(constantPoolEntries, actualDocContent.descriptionCpIndex(), expectedDocument.description);
 
         assertMarkdownEntry(constantPoolEntries, actualDocContent.returnValueDescriptionCpIndex(),
-                expectedDocument.returnValueDescription);
+                            expectedDocument.returnValueDescription);
 
         List<MarkdownDocAttachment.Parameter> expectedParameters = expectedDocument.parameters;
         Assert.assertEquals(actualDocContent.parametersCount(), expectedParameters.size());
         ArrayList<Bir.MarkdownParameter> actualParameters = actualDocContent.parameters();
-        for (int i = 0; i < actualParameters.size(); i++) {
-            Bir.MarkdownParameter actualParameter = actualParameters.get(i);
-            MarkdownDocAttachment.Parameter expectedParameter = expectedParameters.get(i);
+
+        assertMarkdownParams(constantPoolEntries, actualParameters, expectedParameters);
+
+        assertMarkdownEntry(constantPoolEntries, actualDocContent.deprecatedDocsCpIndex(),
+                            expectedDocument.deprecatedDocumentation);
+
+        List<MarkdownDocAttachment.Parameter> expDeprecatedParams = expectedDocument.deprecatedParams;
+        ArrayList<Bir.MarkdownParameter> actualDeprecatedParams = actualDocContent.deprecatedParams();
+        Assert.assertEquals(actualDocContent.deprecatedParamsCount(), expDeprecatedParams.size());
+        Assert.assertEquals(actualDeprecatedParams.size(), actualDocContent.deprecatedParamsCount());
+
+        assertMarkdownParams(constantPoolEntries, actualDeprecatedParams, expDeprecatedParams);
+    }
+
+    private static void assertMarkdownParams(ArrayList<Bir.ConstantPoolEntry> constantPoolEntries,
+                                             ArrayList<Bir.MarkdownParameter> actualParams,
+                                             List<MarkdownDocAttachment.Parameter> expParams) {
+        for (int i = 0; i < actualParams.size(); i++) {
+            Bir.MarkdownParameter actualParameter = actualParams.get(i);
+            MarkdownDocAttachment.Parameter expectedParameter = expParams.get(i);
 
             assertMarkdownEntry(constantPoolEntries, actualParameter.nameCpIndex(), expectedParameter.name);
 
             assertMarkdownEntry(constantPoolEntries, actualParameter.descriptionCpIndex(),
-                    expectedParameter.description);
+                                expectedParameter.description);
         }
     }
 
@@ -424,7 +454,7 @@ class BIRTestUtils {
 
             // assert name
             assertConstantPoolEntry(constantPoolEntries.get(actualTypeDefinition.nameCpIndex()),
-                    expectedTypeDefinition.name.value);
+                    expectedTypeDefinition.internalName.value);
 
             // assert flags
             assertFlags(actualTypeDefinition.flags(), expectedTypeDefinition.flags);
@@ -440,7 +470,68 @@ class BIRTestUtils {
 
             // assert markdown document
             assertMarkdownDocument(actualTypeDefinition.doc(), expectedTypeDefinition.markdownDocAttachment,
-                    constantPoolEntries);
+                                   constantPoolEntries);
+        }
+    }
+
+    private static void assertServiceDecls(BIRNode.BIRPackage expectedBIR, Bir.Module birModule,
+                                           ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
+        List<BIRNode.BIRServiceDeclaration> expServiceDecls = expectedBIR.serviceDecls;
+        ArrayList<Bir.ServiceDeclaration> actualServiceDecls = birModule.serviceDeclarations();
+
+        Assert.assertEquals(actualServiceDecls.size(), expServiceDecls.size());
+
+        for (int i = 0; i < expServiceDecls.size(); i++) {
+            BIRNode.BIRServiceDeclaration expServiceDecl = expServiceDecls.get(i);
+            Bir.ServiceDeclaration actualServiceDecl = actualServiceDecls.get(i);
+
+            // assert name
+            assertConstantPoolEntry(constantPoolEntries.get(actualServiceDecl.nameCpIndex()),
+                                    expServiceDecl.generatedName.value);
+
+            // assert associated class name
+            assertConstantPoolEntry(constantPoolEntries.get(actualServiceDecl.associatedClassNameCpIndex()),
+                                    expServiceDecl.associatedClassName.value);
+
+            // assert flags
+            assertFlags(actualServiceDecl.flags(), expServiceDecl.flags);
+
+            // assert type
+            if (expServiceDecl.type != null) {
+                assertConstantPoolEntry(constantPoolEntries.get(actualServiceDecl.typeCpIndex()),
+                                        expServiceDecl.type);
+            }
+
+            // assert position
+            if (expServiceDecl.pos != null) {
+                assertPosition(actualServiceDecl.position(), expServiceDecl.pos);
+            }
+
+            // assert attach points
+            if (expServiceDecl.attachPoint != null) {
+                Assert.assertEquals(actualServiceDecl.attachPoints().size(), expServiceDecl.attachPoint.size());
+
+                List<String> attachPoint = expServiceDecl.attachPoint;
+                for (int j = 0, attachPointSize = attachPoint.size(); j < attachPointSize; j++) {
+                    assertConstantPoolEntry(constantPoolEntries.get(actualServiceDecl.attachPoints().get(j)),
+                                            attachPoint.get(j));
+                }
+            }
+
+            // assert attach point literal
+            if (expServiceDecl.attachPointLiteral != null) {
+                assertConstantPoolEntry(constantPoolEntries.get(actualServiceDecl.attachPointLiteral()),
+                                        expServiceDecl.attachPointLiteral);
+            }
+
+            // assert listener types
+            Assert.assertEquals(actualServiceDecl.listenerTypes().size(), expServiceDecl.listenerTypes.size());
+
+            Iterator<BType> iterator = expServiceDecl.listenerTypes.iterator();
+            for (int j = 0; j < expServiceDecl.listenerTypes.size(); j++) {
+                assertConstantPoolEntry(constantPoolEntries.get(actualServiceDecl.listenerTypes().get(j).typeCpIndex()),
+                                        iterator.next());
+            }
         }
     }
 
@@ -552,19 +643,19 @@ class BIRTestUtils {
 
     private static void assertDistinctTypeIds(BTypeIdSet expTypeIdSet, Bir.TypeId actualTypeIdSet,
                                               Bir.ConstantPoolSet constantPoolSet) {
-        Assert.assertEquals(actualTypeIdSet.primaryTypeIdCount(), expTypeIdSet.primary.size());
-        Assert.assertEquals(actualTypeIdSet.secondaryTypeIdCount(), expTypeIdSet.secondary.size());
+        Assert.assertEquals(actualTypeIdSet.primaryTypeIdCount(), expTypeIdSet.getPrimary().size());
+        Assert.assertEquals(actualTypeIdSet.secondaryTypeIdCount(), expTypeIdSet.getSecondary().size());
 
         ArrayList<Bir.TypeIdSet> primaryTypeId = actualTypeIdSet.primaryTypeId();
         for (int i = 0; i < primaryTypeId.size(); i++) {
             Bir.TypeIdSet typeId = primaryTypeId.get(i);
-            Assert.assertTrue(containsTypeId(typeId, expTypeIdSet.primary, constantPoolSet));
+            Assert.assertTrue(containsTypeId(typeId, expTypeIdSet.getPrimary(), constantPoolSet));
         }
 
         ArrayList<Bir.TypeIdSet> secondaryTypeId = actualTypeIdSet.secondaryTypeId();
         for (int i = 0; i < secondaryTypeId.size(); i++) {
             Bir.TypeIdSet typeId = secondaryTypeId.get(i);
-            Assert.assertTrue(containsTypeId(typeId, expTypeIdSet.secondary, constantPoolSet));
+            Assert.assertTrue(containsTypeId(typeId, expTypeIdSet.getSecondary(), constantPoolSet));
         }
     }
 
@@ -624,6 +715,22 @@ class BIRTestUtils {
                 break;
             default:
                 Assert.fail(String.format("Unknown constant value type: %s", typeTag.name()));
+        }
+    }
+
+    private static void assertAnnotationAttachments(Bir.AnnotationAttachmentsContent actualAnnots,
+                                                    List<BIRNode.BIRAnnotationAttachment> expAnnots,
+                                                    ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
+        Assert.assertEquals(actualAnnots.attachmentsCount(), expAnnots.size());
+
+        for (int i = 0; i < expAnnots.size(); i++) {
+            Bir.AnnotationAttachment actualAnnot = actualAnnots.annotationAttachments().get(i);
+            BIRNode.BIRAnnotationAttachment expAnnot = expAnnots.get(i);
+            Bir.ConstantPoolEntry annotTag = constantPoolEntries.get(actualAnnot.tagReferenceCpIndex());
+
+            assertConstantPoolEntry(annotTag, expAnnot.annotTagRef.value);
+
+            Assert.assertEquals(actualAnnot.attachValuesCount(), expAnnot.annotValues.size());
         }
     }
 

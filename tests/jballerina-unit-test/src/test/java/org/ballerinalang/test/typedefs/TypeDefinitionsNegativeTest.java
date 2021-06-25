@@ -39,7 +39,6 @@ public class TypeDefinitionsNegativeTest {
     @Test
     public void testSemanticsNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/typedefs/type-definitions-semantics-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 21);
 
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "unknown type 'A'", 1, 9);
@@ -64,6 +63,13 @@ public class TypeDefinitionsNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "unknown type 'D'", 15, 47);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'E'", 15, 51);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'F'", 15, 68);
-        BAssertUtil.validateError(compileResult, index, "unknown type 'G'", 15, 85);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'G'", 15, 85);
+
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'Person'", 17, 22);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'Person'", 18, 18);
+        BAssertUtil.validateError(compileResult, index++, "unsupported intersection 'int & string'", 20, 30);
+        BAssertUtil.validateError(compileResult, index++, "type definitions are allowed only at module level", 24, 1);
+
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }

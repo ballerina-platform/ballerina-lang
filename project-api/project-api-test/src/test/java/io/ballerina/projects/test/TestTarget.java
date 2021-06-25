@@ -63,6 +63,6 @@ public class TestTarget {
         Assert.assertEquals(jarCachePath.toString(),
                 projectPath.resolve("target").resolve("cache").resolve("jar_cache").toString());
         Assert.assertEquals(executablePath.toString(),
-                projectPath.resolve("target").resolve("bin").resolve("myproject-0.1.0.jar").toString());
+                projectPath.resolve("target").resolve("bin").resolve("myproject.jar").toString());
     }
 }

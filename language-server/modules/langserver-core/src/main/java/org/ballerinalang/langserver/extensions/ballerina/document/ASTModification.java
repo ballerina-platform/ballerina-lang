@@ -31,18 +31,21 @@ public class ASTModification {
     private int endLine;
     private int endColumn;
     private String type;
+    private boolean isImport;
     private JsonObject config;
 
     public ASTModification() {
     }
 
-    public ASTModification(int startLine, int startColumn, int endLine, int endColumn, String type, JsonObject config) {
+    public ASTModification(int startLine, int startColumn, int endLine, int endColumn, boolean isImport, String type,
+                           JsonObject config) {
         this.startLine = startLine;
         this.startColumn = startColumn;
         this.endLine = endLine;
         this.endColumn = endColumn;
         this.type = type;
         this.config = config;
+        this.isImport = isImport;
     }
 
     public int getStartLine() {
@@ -91,5 +94,13 @@ public class ASTModification {
 
     public void setConfig(JsonObject config) {
         this.config = config;
+    }
+
+    public boolean isImport() {
+        return isImport;
+    }
+
+    public void setImport(boolean anImport) {
+        isImport = anImport;
     }
 }

@@ -16,7 +16,7 @@
       "children": [
         {
           "kind": "IDENTIFIER_TOKEN",
-          "value": "ballerina"
+          "value": "foobar"
         },
         {
           "kind": "SLASH_TOKEN"

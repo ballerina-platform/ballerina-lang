@@ -104,11 +104,11 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "DEFAULT_KEYWORD",
+                          "kind": "FUNCTION_KEYWORD",
                           "isMissing": true,
                           "hasDiagnostics": true,
                           "diagnostics": [
-                            "ERROR_MISSING_DEFAULT_KEYWORD"
+                            "ERROR_MISSING_FUNCTION_KEYWORD"
                           ]
                         }
                       ]

@@ -1,0 +1,4 @@
+rootOrg.test_module.intVar = 98
+rootOrg.test_module.stringVar = "xyz"
+myOrg.test_module.intVar = 76
+myOrg.test_module.stringVar = "lmn"

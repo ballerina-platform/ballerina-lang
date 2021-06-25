@@ -1,0 +1,28 @@
+{
+  "line": 15,
+  "character": 31,
+  "expected": [
+    {
+      "title": "Create function 'getTestRecord(...)'",
+      "command": {
+        "title": "Create function 'getTestRecord(...)'",
+        "command": "CREATE_FUNC",
+        "arguments": [
+          {
+            "key": "node.range",
+            "value": {
+              "start": {
+                "line": 15,
+                "character": 31
+              },
+              "end": {
+                "line": 15,
+                "character": 47
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

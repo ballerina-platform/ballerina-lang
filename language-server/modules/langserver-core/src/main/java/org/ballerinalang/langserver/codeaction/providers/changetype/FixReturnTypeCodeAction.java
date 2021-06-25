@@ -15,22 +15,22 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.changetype;
 
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.projects.Module;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -40,9 +40,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
-
-import static org.ballerinalang.langserver.common.utils.CommonKeys.PKG_DELIMITER_KEYWORD;
 
 /**
  * Code Action for incompatible return types.
@@ -52,94 +49,88 @@ import static org.ballerinalang.langserver.common.utils.CommonKeys.PKG_DELIMITER
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
 
+    public static final String NAME = "Fix Return Type";
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, CodeActionContext context) {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
+                                                    CodeActionContext context) {
         if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
             return Collections.emptyList();
         }
 
-        if (context.positionDetails().matchedNode().kind() != SyntaxKind.RETURN_STATEMENT) {
+        ReturnStatementNode returnStatementNode = getReturnStatement(positionDetails.matchedNode());
+        if (returnStatementNode == null) {
             return Collections.emptyList();
         }
-        Matcher matcher = CommandConstants.INCOMPATIBLE_TYPE_PATTERN.matcher(diagnostic.message());
-        if (matcher.find() && matcher.groupCount() > 1) {
-            String foundType = matcher.group(2);
-            FunctionDefinitionNode funcDef = getFunctionNode(context);
-            if (!RuntimeConstants.MAIN_FUNCTION_NAME.equals(funcDef.functionName().text())) {
-                // Process full-qualified BType name  eg. ballerina/http:Client and if required; add
-                // auto-import
-                matcher = CommandConstants.FQ_TYPE_PATTERN.matcher(foundType);
-                List<TextEdit> edits = new ArrayList<>();
-                String editText = extractTypeName(matcher, context, foundType, edits);
 
-                // Process function node
-                Position start;
-                Position end;
-                if (funcDef.functionSignature().returnTypeDesc().isEmpty()) {
-                    // eg. function test() {...}
-                    Position funcBodyStart = CommonUtil.toPosition(funcDef.functionBody().lineRange().startLine());
-                    start = funcBodyStart;
-                    end = funcBodyStart;
-                    editText = " returns (" + editText + ")";
-                } else {
-                    // eg. function test() returns () {...}
-                    ReturnTypeDescriptorNode returnTypeDesc = funcDef.functionSignature().returnTypeDesc().get();
-                    LinePosition retStart = returnTypeDesc.type().lineRange().startLine();
-                    LinePosition retEnd = returnTypeDesc.type().lineRange().endLine();
-                    start = new Position(retStart.line(),
-                            retStart.offset());
-                    end = new Position(retEnd.line(), retEnd.offset());
-                }
-                edits.add(new TextEdit(new Range(start, end), editText));
-
-                // Add code action
-                String commandTitle = CommandConstants.CHANGE_RETURN_TYPE_TITLE + foundType + "'";
-                return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
-            }
+        Optional<TypeSymbol> foundTypeSymbol = positionDetails.diagnosticProperty(
+                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
+        if (foundTypeSymbol.isEmpty()) {
+            return Collections.emptyList();
         }
-        return Collections.emptyList();
-    }
 
-    private FunctionDefinitionNode getFunctionNode(CodeActionContext context) {
-        Node parent = context.positionDetails().matchedNode();
-        while (parent.kind() != SyntaxKind.FUNCTION_DEFINITION) {
-            parent = parent.parent();
+        Optional<FunctionDefinitionNode> funcDef = CodeActionUtil.getEnclosedFunction(positionDetails.matchedNode());
+        if (funcDef.isEmpty() || RuntimeConstants.MAIN_FUNCTION_NAME.equals(funcDef.get().functionName().text())) {
+            return Collections.emptyList();
         }
-        return (FunctionDefinitionNode) parent;
-    }
 
-    private static String extractTypeName(Matcher matcher, CodeActionContext context, String foundType,
-                                          List<TextEdit> edits) {
-        Optional<SyntaxTree> syntaxTree = context.workspace().syntaxTree(context.filePath());
-        if (matcher.find() && matcher.groupCount() > 2 && syntaxTree.isPresent()) {
-            String orgName = matcher.group(1);
-            String moduleName = matcher.group(2);
-            String typeName = matcher.group(3);
-            String pkgId = orgName + "/" + moduleName;
+        // Where to insert the edit: Depends on if a return statement alredy available or not
+        Position start;
+        Position end;
+        if (funcDef.get().functionSignature().returnTypeDesc().isEmpty()) {
+            // eg. function test() {...}
+            Position funcBodyStart = CommonUtil.toPosition(funcDef.get().functionSignature().lineRange().endLine());
+            start = funcBodyStart;
+            end = funcBodyStart;
+        } else {
+            // eg. function test() returns () {...}
+            ReturnTypeDescriptorNode returnTypeDesc = funcDef.get().functionSignature().returnTypeDesc().get();
+            LinePosition retStart = returnTypeDesc.type().lineRange().startLine();
+            LinePosition retEnd = returnTypeDesc.type().lineRange().endLine();
+            start = new Position(retStart.line(), retStart.offset());
+            end = new Position(retEnd.line(), retEnd.offset());
+        }
 
-            Module module = context.workspace().module(context.filePath()).orElseThrow();
-            String currentOrg = module.packageInstance().descriptor().org().value();
-            String currentModule = module.descriptor().name().packageName().value();
+        List<CodeAction> codeActions = new ArrayList<>();
+        List<TextEdit> importEdits = new ArrayList<>();
+        // Get all possible return types including ambiguous scenarios
+        List<String> types = CodeActionUtil.getPossibleTypes(foundTypeSymbol.get(), importEdits, context);
 
-            if (currentOrg.equals(pkgId) && currentModule.equals(moduleName)) {
-                // TODO: Check the validity of this check since currentPkgId.toString() returns version as well.
-                foundType = typeName;
+        types.forEach(type -> {
+            List<TextEdit> edits = new ArrayList<>();
+
+            String editText;
+            // Process function node
+            if (funcDef.get().functionSignature().returnTypeDesc().isEmpty()) {
+                editText = " returns " + type;
             } else {
-                boolean pkgAlreadyImported = ((ModulePartNode) syntaxTree.get().rootNode()).imports().stream()
-                        .anyMatch(importPkg -> {
-                            CodeActionModuleId importModel = CodeActionModuleId.from(importPkg);
-                            return importModel.orgName().equals(orgName)
-                                    && importModel.moduleName().equals(moduleName);
-                        });
-                if (!pkgAlreadyImported) {
-                    edits.addAll(CommonUtil.getAutoImportTextEdits(orgName, moduleName, context));
-                }
-                foundType = moduleName + PKG_DELIMITER_KEYWORD + typeName;
+                editText = type;
             }
+            edits.add(new TextEdit(new Range(start, end), editText));
+            edits.addAll(importEdits);
+
+            // Add code action
+            String commandTitle = String.format(CommandConstants.CHANGE_RETURN_TYPE_TITLE, type);
+            codeActions.add(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
+        });
+
+        return codeActions;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
+    private ReturnStatementNode getReturnStatement(NonTerminalNode node) {
+        while (node != null && node.kind() != SyntaxKind.RETURN_STATEMENT) {
+            node = node.parent();
         }
-        return foundType;
+
+        return node != null ? (ReturnStatementNode) node : null;
     }
 }

@@ -6,7 +6,10 @@ plugins {
     id "com.github.johnrengelman.shadow" version "5.0.0"
     id 'maven-publish'
     id 'net.researchgate.release' version '2.6.0'
+    id 'jacoco'
 }
+
+apply from: "$rootDir/gradle/repositories.gradle"
 
 allprojects {
     group = project.group
@@ -28,19 +31,14 @@ subprojects {
                 artifactId project.name
                 version = project.version
             }
-            CodeCov(MavenPublication) {
-                groupId project.group
-                artifactId project.name + "-jacoco"
-                version = project.version
-            }
         }
         repositories {
             maven {
                 name = "GitHubPackages"
                 url = uri("https://maven.pkg.github.com/ballerina-platform/ballerina-lang")
                 credentials {
-                    username System.getenv("packageUser")
-                    password System.getenv("packagePAT")
+                    username System.getenv("publishUser")
+                    password System.getenv("publishPAT")
                 }
             }
         }
@@ -51,14 +49,13 @@ subprojects {
         failOnSnapshotDependencies = false
         failOnCommitNeeded = false
         tagTemplate = 'v${version}'
+        buildTasks = ['build']
         git {
             // To release from any branch
             requireBranch = null
         }
     }
 
-    afterReleaseBuild.dependsOn publishToMavenLocal
-    afterReleaseBuild.dependsOn publish
 }
 
 buildScan {
@@ -71,3 +68,63 @@ dependencies {
         //implementation 'org.springframework:spring-web:5.0.2.RELEASE'
     }
 }
+
+def classFilesArray = []
+def execFilesArray = []
+
+task copyExecFilesAndJavaClassFiles {
+    subprojects.forEach { subproject -> 
+        def execFile = new File("${subproject.buildDir}/jacoco/jacoco.exec")
+        if (execFile.exists()) {
+            execFilesArray.push(execFile)
+            fileTree("${subproject.buildDir}/classes").matching {
+                exclude '**/test/*'
+                exclude '**/module-info.class'
+                include '**/*.class'
+            }.each { file -> classFilesArray.push(file) }
+        }
+    }
+}
+
+task copyBallerinaClassFiles {
+    subprojects.forEach { subproject -> 
+    def ballerinaSourceDirectory = new File("${subproject.buildDir}/ballerina-src")
+        if (ballerinaSourceDirectory.exists() && subproject.projectDir.getParentFile().getName() == "langlib") {
+            fileTree("${subproject.buildDir}/ballerina-src/target").include("**/*.zip").forEach { zip ->
+                def jarFiles = zipTree(zip).matching { include '**/*.jar' } 
+                jarFiles.forEach { jar ->
+                    zipTree(jar).matching {
+                        exclude '**/tests/*'
+                        exclude '**/$_init.class'
+                        exclude '**/$value$Caller.class'
+                        exclude '**/$value$Detail.class'
+                        exclude '**/$value$DetailType.class'
+                        exclude '**/$value$EmptyIterator.class'
+                        exclude '**/$value$$anonType$_6.class'
+                        exclude '**/$value$$anonType$_*.class'
+                        exclude '**/$value$_Frame.class'
+                        include '**/*.class'
+                    }.each { file -> classFilesArray.push(file) }
+                }
+            }
+        }
+    }
+}
+
+task createCodeCoverageReport(type: JacocoReport) {
+    executionData files(execFilesArray)
+    additionalClassDirs files(classFilesArray)
+    reports {
+        xml.enabled = true
+        html.enabled = true
+        xml.destination = new File("${rootDir}/.jacoco/reports/jacoco/report.xml")
+        html.destination = new File("${rootDir}/.jacoco/reports/jacoco/report.html")
+    }
+    onlyIf = {
+        true
+    }
+}
+
+copyBallerinaClassFiles.dependsOn copyExecFilesAndJavaClassFiles 
+createCodeCoverageReport.dependsOn copyBallerinaClassFiles 
+

@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,10 +61,23 @@ public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<
             (1) function test() returns <cursor>
             (2) function test() returns i<cursor>
             */
-            completionItems.addAll(this.getModuleCompletionItems(context));
-            completionItems.addAll(this.getTypeItems(context));
+            completionItems.addAll(this.getTypeDescContextItems(context));
         }
-
+        this.sort(context, node, completionItems);
         return completionItems;
+    }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, ReturnTypeDescriptorNode node) {
+        return !node.returnsKeyword().isMissing();
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, ReturnTypeDescriptorNode node,
+                     List<LSCompletionItem> completionItems) {
+        completionItems.forEach(completionItem -> {
+            String sortText = SortingUtil.genSortTextForTypeDescContext(context, completionItem);
+            completionItem.getCompletionItem().setSortText(sortText);
+        });
     }
 }

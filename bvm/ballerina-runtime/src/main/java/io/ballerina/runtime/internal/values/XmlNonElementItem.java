@@ -129,6 +129,11 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
     }
 
     @Override
+    public BXml descendants() {
+        return new XmlSequence();
+    }
+
+    @Override
     public XmlValue getItem(int index) {
         if (index == 0) {
             return this;

@@ -31,6 +31,7 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 
 import java.io.ByteArrayOutputStream;
@@ -45,6 +46,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
+import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
 
 /**
  * Class providing utility methods to generate bala from package.
@@ -69,6 +73,7 @@ public class BuildLangLib {
                 skipBootstrap = true;
             }
             System.setProperty(ProjectConstants.BALLERINA_HOME, distCache.toString());
+            System.setProperty("LANG_REPO_BUILD", "true");
             out.println("Building langlib ...");
             out.println("Project Dir: " + projectDir);
 
@@ -97,9 +102,15 @@ public class BuildLangLib {
             // Create bala cache directory
             Path balaPath = balaDirPath.resolve(pkgDesc.org().toString())
                     .resolve(pkgDesc.name().value())
-                    .resolve(pkgDesc.version().toString());
+                    .resolve(pkgDesc.version().toString())
+                    .resolve("any");
             Files.createDirectories(balaPath);
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
+
+            Path balaFilePath = Files.list(balaPath).findAny().orElseThrow();
+            ProjectUtils.extractBala(balaFilePath, balaPath);
+            Files.delete(balaFilePath);
+
 
             // Create zip file
             Path zipFilePath = targetPath.resolve(pkgDesc.name().value() + ".zip");
@@ -121,7 +132,8 @@ public class BuildLangLib {
 
             // Copy generated jar to the target dir
             Path cacheDirPath = pkgTargetPath.resolve("cache");
-            String jarFileName = pkgDesc.name().value() + ".jar";
+            String jarFileName = getThinJarFileName(pkgDesc.org(), pkgDesc.name().value(), pkgDesc.version())
+                    + BLANG_COMPILED_JAR_EXT;
             Path generatedJarFilePath = cacheDirPath.resolve(pkgDesc.org().toString())
                     .resolve(pkgDesc.name().value())
                     .resolve(pkgDesc.version().toString())
@@ -133,7 +145,7 @@ public class BuildLangLib {
             //Generate docs
             out.println("Generating docs...");
             BallerinaDocGenerator.generateAPIDocs(project, targetPath.resolve(ProjectConstants.TARGET_API_DOC_DIRECTORY)
-                    .toString());
+                    .toString(), true);
 
         } catch (Exception e) {
             out.println("Unknown error building : " + projectDir.toString());
@@ -151,7 +163,8 @@ public class BuildLangLib {
     private static ProjectEnvironmentBuilder createProjectEnvBuilder(Path targetPath) {
         ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         environmentBuilder.addCompilationCacheFactory(project -> new CompilationCache(project) {
-            private final FileSystemCache fsCache = new FileSystemCache(project, targetPath);
+            private final FileSystemCache fsCache =
+                    new FileSystemCache(project, targetPath.resolve(ProjectConstants.CACHES_DIR_NAME));
 
             @Override
             public byte[] getBir(ModuleName moduleName) {

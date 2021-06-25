@@ -17,6 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.tree;
 
+import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.internal.ModuleContextDataHolder;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -35,7 +37,6 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.wso2.ballerinalang.compiler.diagnostic.DiagnosticComparator;
-import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -60,7 +61,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangImportPackage> imports;
     public List<BLangXMLNS> xmlnsList;
     public List<BLangConstant> constants;
-    public List<BLangSimpleVariable> globalVars;
+    public List<BLangVariable> globalVars;
     public List<BLangService> services;
     public List<BLangFunction> functions;
     public List<BLangTypeDefinition> typeDefinitions;
@@ -81,12 +82,13 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public BPackageSymbol symbol;
     public Set<Flag> flagSet;
     public byte[] jarBinaryContent;
+    public ProjectKind projectKind = null;
 
     private int errorCount;
     private int warnCount;
     private TreeSet<Diagnostic> diagnostics;
 
-    public RepoHierarchy repos;
+    public ModuleContextDataHolder moduleContextDataHolder;
 
     public BLangPackage() {
         this.compUnits = new ArrayList<>();
@@ -134,7 +136,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public List<BLangSimpleVariable> getGlobalVariables() {
+    public List<BLangVariable> getGlobalVariables() {
         return globalVars;
     }
 

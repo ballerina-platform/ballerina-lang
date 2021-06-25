@@ -83,6 +83,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
@@ -154,7 +155,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -353,7 +353,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
         boolean isFuture = varDefNode.getVariable().expr != null
-                && varDefNode.getVariable().expr.type instanceof BFutureType;
+                && varDefNode.getVariable().expr.getBType() instanceof BFutureType;
         if (isFuture) {
             return;
         }
@@ -472,15 +472,6 @@ public class EnvironmentResolver extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch matchNode) {
-        if (PositionUtil.withinBlock(this.linePosition, matchNode.getPosition())) {
-            this.scope = this.symbolEnv;
-            matchNode.patternClauses.forEach(patternClause -> acceptNode(patternClause, this.symbolEnv));
-            this.acceptNode(matchNode.onFailClause, symbolEnv);
-        }
-    }
-
-    @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
         if (!PositionUtil.withinBlock(this.linePosition, annAttachmentNode.getPosition())) {
             return;
@@ -514,16 +505,6 @@ public class EnvironmentResolver extends BLangNodeVisitor {
         List<RecordLiteralNode.RecordField> fields = recordLiteral.fields;
         this.scope = recordLiteralEnv;
         fields.forEach(keyValue -> this.acceptNode((BLangNode) keyValue, recordLiteralEnv));
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause patternClause) {
-        this.acceptNode(patternClause.body, this.symbolEnv);
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause patternClause) {
-        this.acceptNode(patternClause.body, this.symbolEnv);
     }
 
     @Override
@@ -561,7 +542,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryAction queryAction) {
-        if (!PositionUtil.withinBlock(this.linePosition, queryAction.getPosition())) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, queryAction.getPosition())) {
             return;
         }
         for (BLangNode clause : queryAction.queryClauseList) {
@@ -611,37 +592,41 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFromClause fromClause) {
-        if (PositionUtil.withinBlock(this.linePosition, fromClause.getPosition())) {
-            this.scope = fromClause.env;
-            this.acceptNode((BLangNode) fromClause.variableDefinitionNode, fromClause.env);
-            this.acceptNode(fromClause.collection, fromClause.env);
+        if (!PositionUtil.withinRightInclusive(this.linePosition, fromClause.getPosition())) {
+            return;
         }
+        this.scope = fromClause.env;
+        this.acceptNode((BLangNode) fromClause.variableDefinitionNode, fromClause.env);
+        this.acceptNode(fromClause.collection, fromClause.env);
     }
 
     @Override
     public void visit(BLangLetClause letClause) {
-        if (PositionUtil.withinBlock(this.linePosition, letClause.getPosition())) {
-            this.scope = letClause.env;
-            for (BLangLetVariable letVar : letClause.letVarDeclarations) {
-                this.acceptNode((BLangNode) letVar.definitionNode, letClause.env);
-            }
+        if (!PositionUtil.withinRightInclusive(this.linePosition, letClause.getPosition())) {
+            return;
+        }
+        this.scope = letClause.env;
+        for (BLangLetVariable letVar : letClause.letVarDeclarations) {
+            this.acceptNode((BLangNode) letVar.definitionNode, letClause.env);
         }
     }
 
     @Override
     public void visit(BLangSelectClause selectClause) {
-        if (PositionUtil.withinBlock(this.linePosition, selectClause.getPosition())) {
-            this.scope = selectClause.env;
-            this.acceptNode(selectClause.expression, selectClause.env);
+        if (!PositionUtil.withinRightInclusive(this.linePosition, selectClause.getPosition())) {
+            return;
         }
+        this.scope = selectClause.env;
+        this.acceptNode(selectClause.expression, selectClause.env);
     }
 
     @Override
     public void visit(BLangWhereClause whereClause) {
-        if (PositionUtil.withinBlock(this.linePosition, whereClause.getPosition())) {
-            this.scope = whereClause.env;
-            this.acceptNode(whereClause.expression, whereClause.env);
+        if (!PositionUtil.withinRightInclusive(this.linePosition, whereClause.getPosition())) {
+            return;
         }
+        this.scope = whereClause.env;
+        this.acceptNode(whereClause.expression, whereClause.env);
     }
 
     @Override
@@ -870,6 +855,9 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, queryExpr.getPosition())) {
+            return;
+        }
         for (BLangNode clause : queryExpr.queryClauseList) {
             this.acceptNode(clause, symbolEnv);
         }
@@ -1160,7 +1148,10 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchStatement matchStatementNode) {
-
+        if (PositionUtil.withinBlock(this.linePosition, matchStatementNode.getPosition())) {
+            matchStatementNode.getMatchClauses()
+                    .forEach(bLangMatchClause -> this.acceptNode(bLangMatchClause, this.symbolEnv));
+        }
     }
 
     @Override
@@ -1215,12 +1206,8 @@ public class EnvironmentResolver extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-    }
-
-    @Override
     public void visit(BLangJoinClause joinClause) {
-        if (!PositionUtil.withinBlock(this.linePosition, joinClause.getPosition())) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, joinClause.getPosition())) {
             return;
         }
         this.scope = joinClause.env;
@@ -1230,18 +1217,19 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnClause onClause) {
-        if (PositionUtil.withinBlock(this.linePosition, onClause.getPosition())) {
-            if (onClause.equalsKeywordPos == null ||
-                    onClause.equalsKeywordPos.lineRange().startLine().offset() > this.linePosition.offset()) {
-                this.scope = onClause.lhsEnv;
-                this.acceptNode(onClause.lhsExpr, onClause.lhsEnv);
+        if (!PositionUtil.withinRightInclusive(this.linePosition, onClause.getPosition())) {
+            return;
+        }
+        if (onClause.equalsKeywordPos == null ||
+                onClause.equalsKeywordPos.lineRange().startLine().offset() > this.linePosition.offset()) {
+            this.scope = onClause.lhsEnv;
+            this.acceptNode(onClause.lhsExpr, onClause.lhsEnv);
 
-            }
-            if (onClause.equalsKeywordPos != null && onClause.equalsKeywordPos
-                    .lineRange().endLine().offset() < this.linePosition.offset()) {
-                this.scope = onClause.rhsEnv;
-                this.acceptNode(onClause.rhsExpr, onClause.rhsEnv);
-            }
+        }
+        if (onClause.equalsKeywordPos != null && onClause.equalsKeywordPos
+                .lineRange().endLine().offset() < this.linePosition.offset()) {
+            this.scope = onClause.rhsEnv;
+            this.acceptNode(onClause.rhsExpr, onClause.rhsEnv);
         }
     }
 
@@ -1251,11 +1239,12 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOrderByClause orderByClause) {
-        if (PositionUtil.withinBlock(this.linePosition, orderByClause.getPosition())) {
-            this.scope = orderByClause.env;
-            for (OrderKeyNode key: orderByClause.orderByKeyList) {
-                this.acceptNode((BLangNode) key.getOrderKey(), orderByClause.env);
-            }
+        if (!PositionUtil.withinRightInclusive(this.linePosition, orderByClause.getPosition())) {
+            return;
+        }
+        this.scope = orderByClause.env;
+        for (OrderKeyNode key : orderByClause.orderByKeyList) {
+            this.acceptNode((BLangNode) key.getOrderKey(), orderByClause.env);
         }
     }
 
@@ -1274,6 +1263,11 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchClause matchClause) {
+        if (PositionUtil.withinBlock(this.linePosition, matchClause.getPosition())) {
+            SymbolEnv blockEnv = SymbolEnv.createBlockEnv(matchClause.blockStmt, this.symbolEnv);
+            this.scope = blockEnv;
+            this.acceptNode(matchClause.blockStmt, blockEnv);
+        }
     }
 
     @Override
@@ -1302,6 +1296,10 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectConstructorExpression bLangObjectConstructorExpression) {
+    }
+
+    @Override
+    public void visit(BLangInferredTypedescDefaultNode inferTypedescExpr) {
     }
 
     @Override

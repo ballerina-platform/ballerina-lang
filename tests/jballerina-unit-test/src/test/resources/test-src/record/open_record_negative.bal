@@ -58,3 +58,13 @@ function testAnydataOrErrorRestFieldRHSAccess() {
     Person p = {};
     anydata|error name = p?.firstName;
 }
+
+type Teacher record {
+    int toJson = 44;
+};
+
+function testLangFuncOnRecord() returns json{
+    Teacher p = {};
+    json toJsonResult = p.toValue();
+    return toJsonResult;
+}

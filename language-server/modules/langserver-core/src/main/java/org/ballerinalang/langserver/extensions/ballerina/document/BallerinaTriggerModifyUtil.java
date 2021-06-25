@@ -138,7 +138,7 @@ public class BallerinaTriggerModifyUtil {
         // Update file
         Document updatedDoc = document.get().modify().withContent(content).apply();
         // Update project instance
-        return updatedDoc.module().getCompilation().getSemanticModel();
+        return updatedDoc.module().packageInstance().getCompilation().getSemanticModel(updatedDoc.module().moduleId());
     }
 
     private static List<FunctionDefinitionNode> getResourceFunctions(ServiceDeclarationNode serviceDeclarationNode) {

@@ -22,6 +22,7 @@ import io.ballerina.shell.cli.BShellConfiguration;
 import io.ballerina.shell.cli.ReplShellApplication;
 import picocli.CommandLine;
 
+import java.io.File;
 import java.io.PrintStream;
 
 import static io.ballerina.cli.cmd.Constants.SHELL_COMMAND;
@@ -41,11 +42,14 @@ public class ShellCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"-d", "--debug"}, description = "Whether to enable debug mode from start.")
     private boolean isDebug = false;
 
-    @CommandLine.Option(names = {"-f", "--force-dumb"}, description = "Whether to force use of dumb terminal.")
+    @CommandLine.Option(names = {"--force-dumb"}, description = "Whether to force use of dumb terminal.")
     private boolean forceDumb = false;
 
     @CommandLine.Option(names = {"-t", "--time-out"}, description = "Timeout to use for tree parsing.")
     private long timeOut = 100;
+
+    @CommandLine.Option(names = {"-f", "--file"}, description = "Open file and load initial declarations.")
+    private File file;
 
     public ShellCommand() {
         errStream = System.err;
@@ -65,11 +69,16 @@ public class ShellCommand implements BLauncherCmd {
             return;
         }
         try {
-            BShellConfiguration configuration = new BShellConfiguration.Builder()
-                    .setDebug(isDebug).setDumb(forceDumb).setTreeParsingTimeoutMs(timeOut).build();
+            BShellConfiguration.Builder builder = new BShellConfiguration
+                    .Builder().setDebug(isDebug).setDumb(forceDumb)
+                    .setTreeParsingTimeoutMs(timeOut);
+            if (file != null) {
+                builder.setStartFile(file.getAbsolutePath());
+            }
+            BShellConfiguration configuration = builder.build();
             ReplShellApplication.execute(configuration);
         } catch (Exception e) {
-            errStream.println("Something went wrong while executing REPL: " + e.toString());
+            errStream.println("something went wrong while executing REPL: " + e.toString());
         }
     }
 
@@ -80,12 +89,12 @@ public class ShellCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("run ballerina interactive REPL");
+        out.append("Run ballerina interactive REPL");
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal shell [-d|--debug] [-f|--force-dumb] [-t|--time-out  <time-out-ms>]\n");
+        out.append("  bal shell [-d|--debug] [--force-dumb] [-f|--file] [-t|--time-out <time-out-ms>]\n");
     }
 
     @Override

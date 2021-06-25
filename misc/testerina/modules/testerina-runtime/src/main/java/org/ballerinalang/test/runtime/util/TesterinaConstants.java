@@ -49,6 +49,7 @@ public class TesterinaConstants {
     public static final String RESULTS_JSON_FILE = "test_results.json";
     public static final String RERUN_TEST_JSON_FILE = "rerun_test.json";
     public static final String RESULTS_HTML_FILE = "index.html";
+    public static final String REPORT_XML_FILE = "coverage-report.xml";
     public static final String TOOLS_DIR_NAME = "tools";
     public static final String REPORT_DIR_NAME = "report";
     public static final String REPORT_ZIP_NAME = REPORT_DIR_NAME + ".zip";
@@ -66,4 +67,5 @@ public class TesterinaConstants {
     public static final String BLANG_SRC_FILE_EXT = "bal";
     public static final String BLANG_SRC_FILE_SUFFIX = "." + BLANG_SRC_FILE_EXT;
 
+    public static final String JACOCO_XML_FORMAT = "xml";
 }

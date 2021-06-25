@@ -19,13 +19,13 @@ import ballerina/http;
 @http:ServiceConfig {
     basePath:"/test-service"
 }
-service testServiceOne on new http:Listener(9091) {
+service testServiceOne on new http:Listener(19091) {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/resource-1"
     }
     resource function resourceOne(http:Caller caller, http:Request clientRequest) {
-        http:Client httpEndpoint = new("http://localhost:9091/test-service", {
+        http:Client httpEndpoint = new("http://localhost:19091/test-service", {
             cache: {
                 enabled: false
             }

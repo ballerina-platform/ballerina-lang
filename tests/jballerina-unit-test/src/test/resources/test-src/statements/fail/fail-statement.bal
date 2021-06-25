@@ -1,6 +1,6 @@
+type Error error<record {| |}>;
 
 public function testFailStmt() returns error {
-
-    error err = error("Custom error thrown explicitly.");
+    Error err = error("Custom error thrown explicitly.");
     fail err;
 }

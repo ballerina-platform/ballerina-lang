@@ -65,6 +65,12 @@
         </OR>
     </Match>
     <Match>
+        <Class name="org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil" />
+        <OR>
+            <Bug pattern="BC_UNCONFIRMED_CAST" />
+        </OR>
+    </Match>
+    <Match>
         <Class name="org.ballerinalang.langserver.signature.SignatureHelpUtil" />
         <OR>
             <Bug pattern="BC_UNCONFIRMED_CAST" />
@@ -78,6 +84,12 @@
     </Match>
     <Match>
         <Class name="org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder" />
+        <OR>
+            <Bug pattern="BC_UNCONFIRMED_CAST" />
+        </OR>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.codeaction.providers.CreateFunctionCodeAction" />
         <OR>
             <Bug pattern="BC_UNCONFIRMED_CAST" />
         </OR>
@@ -147,5 +159,11 @@
     </Match>
     <Match>
         <Class name="org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.completions.util.Snippet" />
+        <OR>
+            <Bug pattern="BC_UNCONFIRMED_CAST" />
+        </OR>
     </Match>
 </FindBugsFilter>

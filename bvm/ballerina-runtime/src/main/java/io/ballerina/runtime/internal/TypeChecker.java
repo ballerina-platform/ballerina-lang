@@ -34,7 +34,6 @@ import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
-import io.ballerina.runtime.internal.types.BAnydataType;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BField;
@@ -206,7 +205,7 @@ public class TypeChecker {
     }
 
     public static DecimalValue anyToDecimal(Object sourceVal) {
-        return TypeConverter.anyToDecimal(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
+        return TypeConverter.anyToDecimalCast(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
                                                                                           TYPE_DECIMAL));
     }
 
@@ -419,61 +418,6 @@ public class TypeChecker {
     }
 
     /**
-     * Check if left hand side decimal value is less than the right hand side decimal value.
-     *
-     * @param lhsValue The value on the left hand side
-     * @param rhsValue The value of the right hand side
-     * @return True if left hand value is less than right hand side value, else false.
-     */
-    public static boolean checkDecimalLessThan(DecimalValue lhsValue, DecimalValue rhsValue) {
-        return !checkDecimalEqual(lhsValue, rhsValue) && checkDecimalGreaterThanOrEqual(rhsValue, lhsValue);
-    }
-
-    /**
-     * Check if left hand side decimal value is less than or equal the right hand side decimal value.
-     *
-     * @param lhsValue The value on the left hand side
-     * @param rhsValue The value of the right hand side
-     * @return True if left hand value is less than or equal right hand side value, else false.
-     */
-    public static boolean checkDecimalLessThanOrEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
-        return checkDecimalEqual(lhsValue, rhsValue) || checkDecimalGreaterThan(rhsValue, lhsValue);
-    }
-
-    /**
-     * Check if left hand side decimal value is greater than the right hand side decimal value.
-     *
-     * @param lhsValue The value on the left hand side
-     * @param rhsValue The value of the right hand side
-     * @return True if left hand value is greater than right hand side value, else false.
-     */
-    public static boolean checkDecimalGreaterThan(DecimalValue lhsValue, DecimalValue rhsValue) {
-        switch (lhsValue.valueKind) {
-            case POSITIVE_INFINITY:
-                return isDecimalRealNumber(rhsValue) || rhsValue.valueKind == DecimalValueKind.NEGATIVE_INFINITY;
-            case ZERO:
-            case OTHER:
-                return rhsValue.valueKind == DecimalValueKind.NEGATIVE_INFINITY || (isDecimalRealNumber(rhsValue) &&
-                        lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) > 0);
-            default:
-                return false;
-        }
-    }
-
-    /**
-     * Check if left hand side decimal value is greater than or equal the right hand side decimal value.
-     *
-     * @param lhsValue The value on the left hand side
-     * @param rhsValue The value of the right hand side
-     * @return True if left hand value is greater than or equal right hand side value, else false.
-     */
-    public static boolean checkDecimalGreaterThanOrEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
-        return checkDecimalGreaterThan(lhsValue, rhsValue) ||
-               (isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue) &&
-                lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0);
-    }
-
-    /**
      * Checks if the given decimal number is a real number.
      *
      * @param decimalValue The decimal value being checked
@@ -509,7 +453,7 @@ public class TypeChecker {
             return isEqual(lhsValue, rhsValue);
         }
 
-        if (lhsType.getTag() == TypeTags.XML_TAG && rhsType.getTag() == TypeTags.XML_TAG) {
+        if (TypeTags.isXMLTypeTag(lhsType.getTag()) && TypeTags.isXMLTypeTag(rhsType.getTag())) {
             return isXMLValueRefEqual((XmlValue) lhsValue, (XmlValue) rhsValue);
         }
 
@@ -547,7 +491,7 @@ public class TypeChecker {
         }
         // lhs hasNext = false & rhs hasNext = false -> empty sequences, hence ref equal
         // lhs hasNext = true & rhs hasNext = true would never reach here
-        // only one hasNext method returns true means requences are of different sizes, hence not ref equal
+        // only one hasNext method returns true means sequences are of different sizes, hence not ref equal
         return lhsIter.hasNext() == rhsIter.hasNext();
     }
 
@@ -612,6 +556,10 @@ public class TypeChecker {
             return true;
         }
 
+        if (checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(sourceType)) {
+            return true;
+        }
+
         if (targetType.isReadOnly() && !sourceType.isReadOnly()) {
             return false;
         }
@@ -664,6 +612,7 @@ public class TypeChecker {
             case TypeTags.CHAR_STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.NULL_TAG:
+            case TypeTags.STRING_TAG:
                 if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
                     return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
                 }
@@ -676,14 +625,6 @@ public class TypeChecker {
                     return ((BXmlType) sourceType).constraint.getTag() == TypeTags.NEVER_TAG;
                 }
                 return sourceTypeTag == targetTypeTag;
-            case TypeTags.STRING_TAG:
-                if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
-                    return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
-                }
-                if (sourceTypeTag == TypeTags.XML_TAG) {
-                    return ((BXmlType) sourceType).constraint.getTag() == TypeTags.NEVER_TAG;
-                }
-                return sourceTypeTag == targetTypeTag || sourceTypeTag == TypeTags.XML_TEXT_TAG;
             case TypeTags.INT_TAG:
                 if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
                     return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
@@ -1341,7 +1282,17 @@ public class TypeChecker {
         }
 
         if (targetType.sealed) {
-            return targetFieldNames.containsAll(sourceFields.keySet());
+            for (String sourceFieldName : sourceFields.keySet()) {
+                if (targetFieldNames.contains(sourceFieldName)) {
+                    continue;
+                }
+
+                if (!checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(
+                        sourceFields.get(sourceFieldName).getFieldType())) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         for (Map.Entry<String, Field> targetFieldEntry : sourceFields.entrySet()) {
@@ -1792,6 +1743,10 @@ public class TypeChecker {
             return false;
         }
 
+        if (SymbolFlags.isFlagOn(targetType.getFlags(), SymbolFlags.ANY_FUNCTION)) {
+            return true;
+        }
+
         if (source.paramTypes.length != targetType.paramTypes.length) {
             return false;
         }
@@ -1936,6 +1891,8 @@ public class TypeChecker {
                     }
                 }
                 return readonlyIntersectionExists;
+            case TypeTags.INTERSECTION_TAG:
+                return isSelectivelyImmutableType(((BIntersectionType) type).getEffectiveType(), unresolvedTypes);
         }
         return false;
     }
@@ -1955,8 +1912,8 @@ public class TypeChecker {
 
     private static boolean isMutable(Object value, Type sourceType) {
         // All the value types are immutable
-        if (value == null || sourceType.getTag() < TypeTags.JSON_TAG || TypeTags.isIntegerTypeTag(sourceType.getTag())
-                || sourceType.getTag() == TypeTags.FINITE_TYPE_TAG || TypeTags.isStringTypeTag(sourceType.getTag())) {
+        if (value == null || sourceType.getTag() < TypeTags.JSON_TAG ||
+                sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
             return false;
         }
 
@@ -1974,6 +1931,54 @@ public class TypeChecker {
         return expType == actualType;
     }
 
+    private static boolean checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(Type type) {
+        Set<String> visitedTypeSet = new HashSet<>();
+        return checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(type, visitedTypeSet);
+    }
+
+    private static boolean checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(Type type,
+                                                                                   Set<String> visitedTypeSet) {
+        switch (type.getTag()) {
+            case TypeTags.NEVER_TAG:
+                return true;
+            case TypeTags.RECORD_TYPE_TAG:
+                BRecordType recordType = (BRecordType) type;
+                visitedTypeSet.add(recordType.getName());
+                for (Field field : recordType.getFields().values()) {
+                    // skip check for fields with self referencing type and not required fields.
+                    if ((SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.REQUIRED) ||
+                            !SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL)) &&
+                            !visitedTypeSet.contains(field.getFieldType()) &&
+                            checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(field.getFieldType(),
+                                    visitedTypeSet)) {
+                        return true;
+                    }
+                }
+                return false;
+            case TypeTags.TUPLE_TAG:
+                BTupleType tupleType = (BTupleType) type;
+                visitedTypeSet.add(tupleType.getName());
+                List<Type> tupleTypes = tupleType.getTupleTypes();
+                for (Type mem : tupleTypes) {
+                    if (!visitedTypeSet.add(mem.getName())) {
+                        continue;
+                    }
+                    if (checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(mem, visitedTypeSet)) {
+                        return true;
+                    }
+                }
+                return false;
+            case TypeTags.ARRAY_TAG:
+                BArrayType arrayType = (BArrayType) type;
+                visitedTypeSet.add(arrayType.getName());
+                Type elemType = arrayType.getElementType();
+                visitedTypeSet.add(elemType.getName());
+                return arrayType.getState() != ArrayState.OPEN &&
+                        checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(elemType, visitedTypeSet);
+            default:
+                return false;
+        }
+    }
 
     /**
      * Check whether a given value confirms to a given type. First it checks if the type of the value, and
@@ -2062,6 +2067,9 @@ public class TypeChecker {
             case TypeTags.RECORD_TYPE_TAG:
                 return checkIsLikeRecordType(sourceValue, (BRecordType) targetType, unresolvedValues,
                         allowNumericConversion);
+            case TypeTags.TABLE_TAG:
+                return checkIsLikeTableType(sourceValue, (BTableType) targetType, unresolvedValues,
+                                             allowNumericConversion);
             case TypeTags.JSON_TAG:
                 return checkIsLikeJSONType(sourceValue, sourceType, (BJsonType) targetType, unresolvedValues,
                                            allowNumericConversion);
@@ -2351,33 +2359,37 @@ public class TypeChecker {
         if (source.getType().getTag() == TypeTags.ARRAY_TAG) {
             Type sourceElementType = ((BArrayType) source.getType()).getElementType();
             if (isValueType(sourceElementType)) {
-                boolean isType = checkIsType(sourceElementType, targetTypeElementType, new ArrayList<>());
 
-                if (isType || !allowNumericConversion || !isNumericType(sourceElementType)) {
-                    return isType;
-                }
-
-                if (isNumericType(targetTypeElementType)) {
+                if (checkIsType(sourceElementType, targetTypeElementType, new ArrayList<>())) {
                     return true;
                 }
 
-                if (targetTypeElementType.getTag() != TypeTags.UNION_TAG) {
-                    return false;
+                if (allowNumericConversion && isNumericType(sourceElementType)) {
+                    if (isNumericType(targetTypeElementType)) {
+                        return true;
+                    }
+
+                    if (targetTypeElementType.getTag() != TypeTags.UNION_TAG) {
+                        return false;
+                    }
+
+                    List<Type> targetNumericTypes = new ArrayList<>();
+                    for (Type memType : ((BUnionType) targetTypeElementType).getMemberTypes()) {
+                        if (isNumericType(memType) && !targetNumericTypes.contains(memType)) {
+                            targetNumericTypes.add(memType);
+                        }
+                    }
+                    return targetNumericTypes.size() == 1;
                 }
 
-                List<Type> targetNumericTypes = new ArrayList<>();
-                for (Type memType : ((BUnionType) targetTypeElementType).getMemberTypes()) {
-                    if (isNumericType(memType) && !targetNumericTypes.contains(memType)) {
-                        targetNumericTypes.add(memType);
-                    }
+                if (isNumericType(targetTypeElementType) && targetTypeElementType.getTag() != TypeTags.BYTE_TAG) {
+                    return false;
                 }
-                return targetNumericTypes.size() == 1;
             }
         }
 
-        Object[] arrayValues = source.getValues();
-        for (int i = 0; i < ((ArrayValue) sourceValue).size(); i++) {
-            if (!checkIsLikeType(arrayValues[i], targetTypeElementType, unresolvedValues, allowNumericConversion)) {
+        for (int i = 0; i < source.size(); i++) {
+            if (!checkIsLikeType(source.get(i), targetTypeElementType, unresolvedValues, allowNumericConversion)) {
                 return false;
             }
         }
@@ -2497,6 +2509,35 @@ public class TypeChecker {
         return true;
     }
 
+    private static boolean checkIsLikeTableType(Object sourceValue, BTableType targetType,
+                                                List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
+        if (!(sourceValue instanceof TableValueImpl)) {
+            return false;
+        }
+        TableValueImpl tableValue = (TableValueImpl) sourceValue;
+        BTableType sourceType = (BTableType) tableValue.getType();
+        if (targetType.getKeyType() != null && sourceType.getFieldNames() == null) {
+            return false;
+        }
+
+        if (sourceType.getKeyType() != null && !checkIsType(tableValue.getKeyType(), targetType.getKeyType())) {
+            return false;
+        }
+
+        TypeValuePair typeValuePair = new TypeValuePair(sourceValue, targetType);
+        if (unresolvedValues.contains(typeValuePair)) {
+            return true;
+        }
+
+        Object[] objects = tableValue.values().toArray();
+        for (Object object : objects) {
+            if (!checkIsLikeType(object, targetType.getConstrainedType(), allowNumericConversion)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private static boolean checkFiniteTypeAssignable(Object sourceValue, Type sourceType, BFiniteType targetType) {
         for (Object valueSpaceItem : targetType.valueSpace) {
             // TODO: 8/13/19 Maryam fix for conversion
@@ -2546,8 +2587,12 @@ public class TypeChecker {
         unresolvedTypes.add(pair);
         BErrorType bErrorType = (BErrorType) sourceType;
 
+        if (!checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes)) {
+            return false;
+        }
+
         if (targetType.typeIdSet == null) {
-            return checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
+            return true;
         }
 
         BTypeIdSet sourceTypeIdSet = bErrorType.typeIdSet;
@@ -2565,9 +2610,13 @@ public class TypeChecker {
             return false;
         }
 
+        if (!checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues,
+                allowNumericConversion)) {
+            return false;
+        }
+
         if (targetType.typeIdSet == null) {
-            return checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues,
-                    allowNumericConversion);
+            return true;
         }
 
         BTypeIdSet sourceIdSet = ((BErrorType) sourceType).typeIdSet;
@@ -2579,7 +2628,7 @@ public class TypeChecker {
     }
 
     private static boolean isSimpleBasicType(Type type) {
-        return type.getTag() < TypeTags.JSON_TAG || TypeTags.isIntegerTypeTag(type.getTag());
+        return type.getTag() < TypeTags.JSON_TAG;
     }
 
     private static boolean isHandleType(Type type) {
@@ -2613,25 +2662,15 @@ public class TypeChecker {
             case TypeTags.BOOLEAN_TAG:
                 return lhsValue.equals(rhsValue);
             case TypeTags.INT_TAG:
-                if (rhsValTypeTag <= TypeTags.FLOAT_TAG) {
-                    return lhsValue.equals(((Number) rhsValue).longValue());
+                if (rhsValTypeTag != TypeTags.BYTE_TAG && rhsValTypeTag != TypeTags.INT_TAG) {
+                    return false;
                 }
-
-                if (rhsValTypeTag == TypeTags.DECIMAL_TAG) {
-                    return DecimalValue.valueOf((long) lhsValue).equals(rhsValue);
-                }
-
-                return false;
+                return lhsValue.equals(((Number) rhsValue).longValue());
             case TypeTags.BYTE_TAG:
-                if (rhsValTypeTag <= TypeTags.FLOAT_TAG) {
-                    return ((Number) lhsValue).byteValue() == ((Number) rhsValue).byteValue();
+                if (rhsValTypeTag != TypeTags.BYTE_TAG && rhsValTypeTag != TypeTags.INT_TAG) {
+                    return false;
                 }
-
-                if (rhsValTypeTag == TypeTags.DECIMAL_TAG) {
-                    return DecimalValue.valueOf((int) lhsValue).equals(rhsValue);
-                }
-
-                return false;
+                return ((Number) lhsValue).byteValue() == ((Number) rhsValue).byteValue();
             case TypeTags.XML_TAG:
             case TypeTags.XML_ELEMENT_TAG:
             case TypeTags.XML_COMMENT_TAG:
@@ -2746,19 +2785,24 @@ public class TypeChecker {
             return false;
         }
 
-        if (((BTableType) lhsTable.getType()).getFieldNames() != null &&
-                ((BTableType) lhsTable.getType()).getFieldNames().length > 0) {
-            for (Map.Entry<BAnydataType, Object> lhsTableEntry :
-                    (Iterable<Map.Entry<BAnydataType, Object>>) lhsTable.entrySet()) {
-                if (!isEqual(lhsTableEntry.getValue(), rhsTable.get(lhsTableEntry.getKey()), checkedValues)) {
+        boolean isLhsKeyedTable = ((BTableType) lhsTable.getType()).getFieldNames() != null &&
+                ((BTableType) lhsTable.getType()).getFieldNames().length > 0;
+        boolean isRhsKeyedTable = ((BTableType) rhsTable.getType()).getFieldNames() != null &&
+                ((BTableType) rhsTable.getType()).getFieldNames().length > 0;
+
+        Object[] lhsTableValues = lhsTable.values().toArray();
+        Object[] rhsTableValues = rhsTable.values().toArray();
+
+        if (isLhsKeyedTable == isRhsKeyedTable) {
+            for (int i = 0; i < lhsTableValues.length; i++) {
+                if (!isEqual(lhsTableValues[i], rhsTableValues[i], checkedValues)) {
                     return false;
                 }
             }
-
             return true;
         }
 
-        return lhsTable.entrySet().equals(rhsTable.entrySet());
+        return false;
     }
 
 
@@ -2869,7 +2913,8 @@ public class TypeChecker {
         if (type == null) {
             return true;
         }
-        if (type.getTag() < TypeTags.RECORD_TYPE_TAG || TypeTags.isIntegerTypeTag(type.getTag())) {
+        if (type.getTag() < TypeTags.RECORD_TYPE_TAG &&
+                !(type.getTag() == TypeTags.CHAR_STRING_TAG || type.getTag() == TypeTags.NEVER_TAG)) {
             return true;
         }
         switch (type.getTag()) {

@@ -47,7 +47,8 @@ public class RunCommandTest extends BaseCommandTest {
         // set valid source root
         RunCommand runCommand = new RunCommand(validBalFilePath, printStream, false);
         // name of the file as argument
-        new CommandLine(runCommand).parse(validBalFilePath.toString(), tempFile.toString());
+        new CommandLine(runCommand).setEndOfOptionsDelimiter("").setUnmatchedOptionsArePositionalParams(true)
+                .parse(validBalFilePath.toString(), "--", tempFile.toString());
 
         Assert.assertFalse(tempFile.toFile().exists());
         runCommand.execute();
@@ -96,13 +97,51 @@ public class RunCommandTest extends BaseCommandTest {
         // set valid source root
         RunCommand runCommand = new RunCommand(projectPath, printStream, false);
         // name of the file as argument
-        new CommandLine(runCommand).parse(projectPath.toString(), tempFile.toString());
+        new CommandLine(runCommand).setEndOfOptionsDelimiter("").setUnmatchedOptionsArePositionalParams(true)
+                .parse(projectPath.toString(), "--", tempFile.toString());
 
         Assert.assertFalse(tempFile.toFile().exists());
         runCommand.execute();
         Assert.assertTrue(tempFile.toFile().exists());
 
         Files.delete(tempFile);
+    }
+
+    @Test(description = "Run a valid ballerina project from the project directory")
+    public void testRunValidBalProjectFromProjectDir() throws IOException {
+        Path projectPath = this.testResources.resolve("validRunProject");
+        Path tempFile = projectPath.resolve("temp.txt");
+
+        System.setProperty("user.dir", this.testResources.resolve("validRunProject").toString());
+        // set valid source root
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        // name of the file as argument
+        new CommandLine(runCommand).setEndOfOptionsDelimiter("").setUnmatchedOptionsArePositionalParams(true)
+                .parse("--", tempFile.toString());
+
+        Assert.assertFalse(tempFile.toFile().exists());
+        runCommand.execute();
+        Assert.assertTrue(tempFile.toFile().exists());
+
+        Files.delete(tempFile);
+    }
+
+    @Test(description = "Run a valid ballerina project with invalid argument")
+    public void testRunCommandWithInvalidArg() {
+        Path projectPath = this.testResources.resolve("validRunProject");
+        Path tempFile = projectPath.resolve("temp.txt");
+
+        System.setProperty("user.dir", this.testResources.resolve("validRunProject").toString());
+        // set valid source root
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        // name of the file as argument
+        new CommandLine(runCommand).setEndOfOptionsDelimiter("").setUnmatchedOptionsArePositionalParams(true)
+                .parse(projectPath.toString(), tempFile.toString());
+        try {
+            runCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getDetailedMessages().get(0).contains("unmatched command argument found"));
+        }
     }
 
     @Test(description = "Run a valid ballerina file that has an import having platform libs")

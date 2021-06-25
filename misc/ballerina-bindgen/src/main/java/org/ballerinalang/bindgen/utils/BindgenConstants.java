@@ -27,28 +27,18 @@ public class BindgenConstants {
     private BindgenConstants() {
     }
 
-    public static final String ACCESS_FIELD = "access";
-    public static final String ACCESS_FIELD_INTEROP_TYPE = "@java:FieldGet";
     public static final String BAL_EXTENSION = ".bal";
-    public static final String BBGEN_CLASS_TEMPLATE_NAME = "bridge_class";
-    public static final String CONSTANTS_TEMPLATE_NAME = "constants";
-    public static final String ERROR_TEMPLATE_NAME = "exception";
     public static final String COMPONENT_IDENTIFIER = "bindgen";
-    public static final String CONSTRUCTOR_INTEROP_TYPE = "@java:Constructor";
-    public static final String METHOD_INTEROP_TYPE = "@java:Method";
-    public static final String MUTATE_FIELD = "mutate";
-    public static final String MUTATE_FIELD_INTEROP_TYPE = "@java:FieldSet";
-    public static final String DEFAULT_TEMPLATE_DIR = "/templates";
+    static final String DEFAULT_TEMPLATE_DIR = "templates";
     public static final String USER_DIR = "user.dir";
-    public static final String CONSTANTS_FILE_NAME = "Constants.bal";
     public static final String ARRAY_BRACKETS = "[]";
     public static final String MODULES_DIR = "modules";
+    static final String NAME = "name";
+    static final String CLASS = "'class";
+    static final String PARAM_TYPES = "paramTypes";
     static final String TARGET_DIR = "target";
     static final String MVN_REPO = "platform-libs";
     static final String FILE_SEPARATOR = "file.separator";
-    static final String MUSTACHE_FILE_EXTENSION = ".mustache";
-    static final String TEMPLATES_DIR_PATH_KEY = "templates.dir.path";
-    static final String BALLERINA_TOML = "Ballerina.toml";
     static final String FLOAT = "float";
     static final String INT = "int";
     static final String BOOLEAN = "boolean";
@@ -66,6 +56,7 @@ public class BindgenConstants {
     static final String HANDLE = "handle";
     public static final String BALLERINA_STRING = "string";
     public static final String BALLERINA_STRING_ARRAY = "string[]";
+    public static final String EXCEPTION_CLASS_PREFIX = "J";
     public static final String[] BALLERINA_RESERVED_WORDS = {"import", "as", "public", "private", "external", "final",
             "service", "resource", "function", "object", "record", "annotation", "parameter", "transformer",
             "worker", "listener", "remote", "xmlns", "returns", "version", "channel", "abstract", "client", "const",

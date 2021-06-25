@@ -15,26 +15,22 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
-import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
-import org.apache.commons.lang3.tuple.Pair;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.codeaction.providers.changetype.TypeCastCodeAction;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
@@ -42,9 +38,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static org.ballerinalang.langserver.codeaction.CodeActionUtil.getAddCheckTextEdits;
 
 /**
  * Code Action for error type handle.
@@ -52,94 +45,54 @@ import static org.ballerinalang.langserver.codeaction.CodeActionUtil.getAddCheck
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class AddCheckCodeAction extends TypeGuardCodeAction {
+public class AddCheckCodeAction extends TypeCastCodeAction {
+
+    public static final String NAME = "Add Check";
+
     public AddCheckCodeAction() {
         super();
         this.codeActionNodeTypes = Arrays.asList(CodeActionNodeType.LOCAL_VARIABLE,
-                                                 CodeActionNodeType.ASSIGNMENT);
+                CodeActionNodeType.ASSIGNMENT);
     }
 
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
-        Node matchedNode = context.positionDetails().matchedNode();
-        boolean isAssignment = matchedNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT;
-        boolean isVarDeclr = matchedNode.kind() == SyntaxKind.LOCAL_VAR_DECL;
-        // Skip, if not a var declaration or assignment
-        if (!isVarDeclr && !isAssignment) {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+                                                    CodeActionContext context) {
+        if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
             return Collections.emptyList();
         }
 
-        // Get LHS union type-symbol and type-desc-node of the variable
-        Optional<Pair<UnionTypeSymbol, TypeDescriptorNode>> varTypeSymbolAndTypeDescNodePair =
-                getVarTypeSymbolAndTypeNode(matchedNode, context);
-        if (varTypeSymbolAndTypeDescNodePair.isEmpty()) {
-            return Collections.emptyList();
-        }
-        UnionTypeSymbol varTypeSymbol = varTypeSymbolAndTypeDescNodePair.get().getLeft();
-        TypeDescriptorNode varTypeDescNode = varTypeSymbolAndTypeDescNodePair.get().getRight();
-
-        // Get RHS expression
-        Optional<ExpressionNode> rhsExpression = getRHSExpression(matchedNode);
-        if (rhsExpression.isEmpty()) {
+        Node matchedNode = getMatchedNode(positionDetails.matchedNode());
+        if (matchedNode == null) {
             return Collections.emptyList();
         }
 
-        // Skip, if RHS doesn't contains error union member type
-        if (!containsErrorMemberType(context, rhsExpression.get())) {
+        Optional<TypeSymbol> foundType = positionDetails.diagnosticProperty(
+                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
+        if (foundType.isEmpty()) {
             return Collections.emptyList();
         }
 
-        // Generate RHS `check` text-edit
-        Position pos = CommonUtil.toPosition(rhsExpression.get().lineRange().startLine());
-        List<TextEdit> edits = new ArrayList<>(getAddCheckTextEdits(pos, context));
+        if (foundType.get().typeKind() != TypeDescKind.UNION ||
+                !CodeActionUtil.hasErrorMemberType((UnionTypeSymbol) foundType.get())) {
+            return Collections.emptyList();
+        }
 
-        // Generate `error` member type removal text-edit
-        edits.addAll(getErrorTypeRemovalTextEdits(varTypeDescNode, varTypeSymbol, context));
+        Optional<ExpressionNode> expressionNode = getExpression(matchedNode);
+        if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.CHECK_EXPRESSION) {
+            return Collections.emptyList();
+        }
 
-        CodeAction codeAction = AbstractCodeActionProvider.createQuickFixCodeAction(CommandConstants.ADD_CHECK_TITLE,
-                                                                                    edits, context.fileUri());
-        return Collections.singletonList(codeAction);
-    }
-
-    private List<TextEdit> getErrorTypeRemovalTextEdits(TypeDescriptorNode varTypeDescNode,
-                                                        UnionTypeSymbol varTypeSymbol,
-                                                        CodeActionContext context) {
         List<TextEdit> edits = new ArrayList<>();
-        Range range = CommonUtil.toRange(varTypeDescNode.lineRange());
-        String typeWithoutError = varTypeSymbol.memberTypeDescriptors().stream()
-                .filter(member -> member.typeKind() != TypeDescKind.ERROR)
-                .map(typeDesc -> CodeActionUtil.getPossibleType(typeDesc, edits, context).orElseThrow())
-                .collect(Collectors.joining("|"));
-        edits.add(new TextEdit(range, typeWithoutError));
-        return edits;
+        edits.addAll(CodeActionUtil.getAddCheckTextEdits(
+                CommonUtil.toRange(diagnostic.location().lineRange()).getStart(),
+                positionDetails.matchedNode(), context));
+        return Collections.singletonList(AbstractCodeActionProvider.createQuickFixCodeAction(
+                CommandConstants.ADD_CHECK_TITLE, edits, context.fileUri()));
     }
 
-    private Optional<ExpressionNode> getRHSExpression(Node matchedNode) {
-        switch (matchedNode.kind()) {
-            case ASSIGNMENT_STATEMENT:
-                AssignmentStatementNode assignmentStmtNode = (AssignmentStatementNode) matchedNode;
-                ExpressionNode expression = assignmentStmtNode.expression();
-                return Optional.of(expression);
-            case LOCAL_VAR_DECL:
-                // Skip, if initializer is not found
-                VariableDeclarationNode varDeclrNode = (VariableDeclarationNode) matchedNode;
-                if (varDeclrNode.initializer().isEmpty()) {
-                    return Optional.empty();
-                }
-                return Optional.of(varDeclrNode.initializer().get());
-            default:
-                return Optional.empty();
-        }
-    }
-
-    private boolean containsErrorMemberType(CodeActionContext context, ExpressionNode expressionNode) {
-        SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-        Optional<TypeSymbol> typeSymbol = semanticModel.type(expressionNode.lineRange());
-        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() != TypeDescKind.UNION) {
-            return false;
-        }
-        UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) typeSymbol.get();
-        return unionTypeDesc.memberTypeDescriptors().stream()
-                .anyMatch(member -> member.typeKind() == TypeDescKind.ERROR);
+    @Override
+    public String getName() {
+        return NAME;
     }
 }

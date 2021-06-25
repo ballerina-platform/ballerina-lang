@@ -19,7 +19,7 @@ type Annot record {
     int bar?;
 };
 
-public const annotation Annot v1 on source type, class, service, annotation, var, const, worker;
+public const annotation Annot v1 on source type, class, service, annotation, var, const, worker, return;
 
 @v1 {
     foo: strValue,
@@ -28,3 +28,5 @@ public const annotation Annot v1 on source type, class, service, annotation, var
 public type T1 record {
     string name;
 };
+
+function greet() returns @v1 { foo: "func" } string => "Hello";

@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -59,5 +60,22 @@ public class NamedWorkerDeclarationNodeContext extends AbstractCompletionProvide
         TextRange nameRange = node.workerName().textRange();
         TextRange bodyStart = node.workerBody().openBraceToken().textRange();
         return nameRange.endOffset() < textPosition && textPosition < bodyStart.startOffset();
+    }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, NamedWorkerDeclarationNode node) {
+        /*
+        Added the check to validate the following and to route to the fork statement body.
+        eg: 
+        fork {
+            worker w1 {   
+            }
+            w<cursor>
+        }
+         */
+        int cursor = context.getCursorPositionInTree();
+        Token closeBraceToken = node.workerBody().closeBraceToken();
+        
+        return cursor < closeBraceToken.textRange().endOffset();
     }
 }

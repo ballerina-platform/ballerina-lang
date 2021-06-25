@@ -21,23 +21,25 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:jballerina.java')
     implementation project(':ballerina-lang:annotations')
-    implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-observability')
-    implementation 'io.opentracing:opentracing-api'
-    implementation 'io.opentracing:opentracing-noop'
+    implementation 'io.opentelemetry:opentelemetry-api'
 
     distributionBala project(path: ':ballerina-observability', configuration: 'distributionBala')
 }
 
 task updateVersion {
-    ant.replaceregexp(
-            file: "${projectDir}/src/main/ballerina/Ballerina.toml",
-            match: "${project.name}-(.*).jar",
-            replace: "${project.name}-${project.version}.jar"
-    )
+    doLast {
+        ant.replaceregexp(
+                file: "${project.buildDir}/ballerina-src/Ballerina.toml",
+                match: "${project.name}-(.*).jar",
+                replace: "${project.name}-${project.version}.jar"
+        )
+    }
 }
+
+copyBallerinaProject.finalizedBy(updateVersion)
 
 ballerinaLangLibBuild {
     skipBootstrap = 'true'

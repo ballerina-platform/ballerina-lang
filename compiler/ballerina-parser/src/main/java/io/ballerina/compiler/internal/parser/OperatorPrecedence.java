@@ -19,7 +19,7 @@ package io.ballerina.compiler.internal.parser;
 
 /**
  * Operator precedence levels.
- * 
+ *
  * @since 1.2.0
  */
 public enum OperatorPrecedence {
@@ -45,14 +45,15 @@ public enum OperatorPrecedence {
     QUERY(17),              //  from x, select x, where x
 
     //  Actions cannot reside inside expressions, hence they have the lowest precedence.
-    REMOTE_CALL_ACTION(18), //  (x -> y()), 
+    REMOTE_CALL_ACTION(18), //  (x -> y()),
     ACTION(19),             //  (start x), ...
-    DEFAULT(20),             //  (start x), ...
+    TRAP(20),               //  (trap x)
+    DEFAULT(21),            //  (start x), ...
     ;
 
-    private int level = 0;
+    private final int level;
 
-    private OperatorPrecedence(int level) {
+    OperatorPrecedence(int level) {
         this.level = level;
     }
 

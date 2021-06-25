@@ -62,55 +62,54 @@ public class ForeachIterableObjectTest {
 
     @Test
     public void testNestedIterableObject() {
-        BValue[] returns = BRunUtil.invoke(program, "testNestedIterableObject");
+        BRunUtil.invoke(program, "testNestedIterableObject");
+    }
 
-        BValueArray arr = (BValueArray) returns[0];
-        Assert.assertEquals(arr.size(), 14);
-        int i = 0;
-        Assert.assertEquals(arr.getInt(i++), 12);
-        Assert.assertEquals(arr.getInt(i++), 34);
-        Assert.assertEquals(arr.getInt(i++), 56);
-        Assert.assertEquals(arr.getInt(i++), 34);
-        Assert.assertEquals(arr.getInt(i++), 78);
-        Assert.assertEquals(arr.getInt(i++), 21);
-        Assert.assertEquals(arr.getInt(i++), 90);
-        Assert.assertEquals(arr.getInt(i++), 12);
-        Assert.assertEquals(arr.getInt(i++), 34);
-        Assert.assertEquals(arr.getInt(i++), 56);
-        Assert.assertEquals(arr.getInt(i++), 34);
-        Assert.assertEquals(arr.getInt(i++), 78);
-        Assert.assertEquals(arr.getInt(i++), 21);
-        Assert.assertEquals(arr.getInt(i), 90);
+    @Test
+    public void testIterableSubtype() {
+        BRunUtil.invoke(program, "testIterableSubtype");
+    }
 
+    @Test
+    public void testIterableObjectReturnedByRangeExpression() {
+        BRunUtil.invoke(program, "testIterableObjectReturnedByRangeExpression");
+    }
+
+    @Test
+    public void testIterableDistinctObjectReturnedByRangeExpression() {
+        BRunUtil.invoke(program, "testIterableDistinctObjectReturnedByRangeExpression");
+    }
+
+    @Test
+    public void testIterableIterator() {
+        BRunUtil.invoke(program, "testIterableIterator");
     }
 
     @Test
     public void testIterableObjectErrors() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 9);
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'object { public function next " +
-                "() returns (record {| int value; |}?); }', found 'object { int[] integers; int cursorIndex; public " +
-                "function next () returns ((record {| int value; |}|CustomError)?); }'", 120, 16);
-        BAssertUtil.validateError(negativeResult, i++, "iterable objects must have a __iterator function with " +
-                "signature,  public function __iterator() returns (object { public function next () returns (record " +
-                "{| T value; |}?); });", 220, 25);
-        BAssertUtil.validateError(negativeResult, i++, "iterable objects must have a __iterator function with " +
-                "signature,  public function __iterator() returns (object { public function next () returns (record " +
-                "{| T value; |}?); });", 222, 25);
-        BAssertUtil.validateError(negativeResult, i++, "iterable objects must have a __iterator function with " +
-                "signature,  public function __iterator() returns (object { public function next () returns (record " +
-                "{| T value; |}?); });", 224, 25);
-        BAssertUtil.validateError(negativeResult, i++, "iterable objects must have a __iterator function with " +
-                "signature,  public function __iterator() returns (object { public function next () returns (record " +
-                "{| T value; |}?); });", 226, 25);
-        BAssertUtil.validateError(negativeResult, i++, "iterable objects must have a __iterator function with " +
-                "signature,  public function __iterator() returns (object { public function next () returns (record " +
-                "{| T value; |}?); });", 228, 25);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|CustomError)" +
-                "'", 232, 25);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|CustomError)" +
-                "'", 234, 25);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|CustomError)" +
-                "'", 237, 25);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'object { public isolated " +
+                "function next () returns (record {| int value; |}?); }', found 'object { int[] integers; int " +
+                "cursorIndex; public isolated function next () returns ((record {| int value; |}|CustomError)?); }'",
+                124, 16);
+        BAssertUtil.validateError(negativeResult, i++, "invalid completion type '(int|CustomError)' in foreach " +
+                        "statement: next method completion type cannot contain type 'CustomError'", 240, 25);
+        BAssertUtil.validateError(negativeResult, i++, "invalid completion type '(int|error)' in foreach statement: " +
+                "next method completion type cannot contain type 'error'", 242, 25);
+        BAssertUtil.validateError(negativeResult, i++, "invalid completion type '(int|CustomError)' in foreach " +
+                "statement: next method completion type cannot contain type 'CustomError'", 245, 25);
+        BAssertUtil.validateError(negativeResult, i++, "invalid iterable type 'Iterable13': an iterable object must " +
+                "be a subtype of 'ballerina/lang.object:1.0.0:Iterable'", 248, 25);
+        BAssertUtil.validateError(negativeResult, i++, "mismatched function signatures: expected 'public function" +
+                " iterator() returns object { public function next () returns ((" +
+                "record {| (any|error) value; |}|error)?); }', found 'public function iterator() returns " +
+                "object { public function foo () returns (record {| int value; |}?); }'", 254, 5);
+        BAssertUtil.validateError(negativeResult, i++, "no implementation found for the method 'iterator' of class" +
+                " 'Iterable11'", 276, 1);
+        BAssertUtil.validateError(negativeResult, i++, "mismatched function signatures: expected 'public function" +
+                " iterator() returns object { public function next () returns ((" +
+                "record {| (any|error) value; |}|error)?); }', found 'public function iterator() returns " +
+                "object { public isolated function next () returns (record {| int x; |}?); }'", 302, 5);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 }

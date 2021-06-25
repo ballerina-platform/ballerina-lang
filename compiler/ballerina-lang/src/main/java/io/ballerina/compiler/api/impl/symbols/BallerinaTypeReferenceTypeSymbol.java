@@ -17,16 +17,24 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a TypeReference type descriptor.
@@ -39,18 +47,24 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     private final String definitionName;
     private TypeSymbol typeDescriptorImpl;
     private Location location;
+    private String signature;
+    private ModuleSymbol module;
+    private Symbol definition;
+    private boolean moduleEvaluated;
+    private BTypeSymbol tSymbol;
 
     public BallerinaTypeReferenceTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType,
-                                            String definitionName) {
-        super(context, TypeDescKind.TYPE_REFERENCE, moduleID, bType);
-        this.definitionName = definitionName;
+                                            BTypeSymbol tSymbol) {
+        super(context, TypeDescKind.TYPE_REFERENCE, bType);
+        this.definitionName = tSymbol != null ? tSymbol.getName().getValue() : null;
+        this.tSymbol = tSymbol;
     }
 
     @Override
     public TypeSymbol typeDescriptor() {
         if (this.typeDescriptorImpl == null) {
             TypesFactory typesFactory = TypesFactory.getInstance(this.context);
-            this.typeDescriptorImpl = typesFactory.getTypeDescriptor(this.getBType(), true);
+            this.typeDescriptorImpl = typesFactory.getTypeDescriptor(this.getBType(), this.tSymbol, true);
         }
 
         return this.typeDescriptorImpl;
@@ -67,6 +81,46 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     }
 
     @Override
+    public Symbol definition() {
+        if (this.definition != null) {
+            return this.definition;
+        }
+
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        this.definition = symbolFactory.getBCompiledSymbol(this.getBType().tsymbol, this.name());
+        return this.definition;
+    }
+
+    @Override
+    public Optional<String> getName() {
+        return Optional.of(this.definitionName);
+    }
+
+    @Override
+    public Optional<ModuleSymbol> getModule() {
+        if (this.module != null || this.moduleEvaluated) {
+            return Optional.ofNullable(this.module);
+        }
+
+        this.moduleEvaluated = true;
+        BSymbol symbol = this.getBType().tsymbol.owner;
+        while (symbol != null) {
+            if (symbol instanceof BPackageSymbol) {
+                break;
+            }
+            symbol = symbol.owner;
+        }
+
+        if (symbol == null) {
+            return Optional.empty();
+        }
+
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        this.module = symbolFactory.createModuleSymbol((BPackageSymbol) symbol, symbol.name.value);
+        return Optional.of(this.module);
+    }
+
+    @Override
     public Location location() {
         if (location == null) {
             BType type = this.getBType();
@@ -80,15 +134,35 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     }
 
     @Override
-    public String signature() {
-        if (this.moduleID() == null || (this.moduleID().moduleName().equals("lang.annotations") &&
-                this.moduleID().orgName().equals("ballerina"))) {
-            return this.definitionName;
+    public Optional<Location> getLocation() {
+        if (this.location != null) {
+            return Optional.of(this.location);
         }
-        return !this.isAnonOrg(this.moduleID()) ? this.moduleID().orgName() + Names.ORG_NAME_SEPARATOR +
-                this.moduleID().moduleName() + Names.VERSION_SEPARATOR + this.moduleID().version() + ":" +
-                this.definitionName
-                : this.definitionName;
+
+        BType type = this.getBType();
+        this.location = type.tsymbol.pos;
+        return Optional.of(this.location);
+    }
+
+    @Override
+    public String signature() {
+        if (this.signature != null) {
+            return this.signature;
+        }
+
+        ModuleID moduleID = this.getModule().get().id();
+        if (moduleID == null ||
+                (moduleID.moduleName().equals("lang.annotations") && moduleID.orgName().equals("ballerina")) ||
+                this.getBType().tag == TypeTags.PARAMETERIZED_TYPE) {
+            this.signature = this.definitionName;
+        } else {
+            this.signature = !this.isAnonOrg(moduleID) ? moduleID.orgName() + Names.ORG_NAME_SEPARATOR +
+                    moduleID.moduleName() + Names.VERSION_SEPARATOR + moduleID.version() + ":" +
+                    this.definitionName
+                    : this.definitionName;
+        }
+
+        return this.signature;
     }
 
     private boolean isAnonOrg(ModuleID moduleID) {

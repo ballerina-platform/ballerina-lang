@@ -35,5 +35,17 @@ public interface BStream extends BValue {
      */
     Type getConstraintType();
 
+    /**
+     * Returns the completion {@code BType} of the stream.
+     *
+     * @return completion type
+     */
+    Type getCompletionType();
+
+    /**
+     * Returns the underlying iterator of the stream.
+     *
+     * @return iterator object
+     */
     BObject getIteratorObj();
 }

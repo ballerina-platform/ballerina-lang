@@ -53,7 +53,7 @@ public class BallerinaToml {
     }
 
     public TomlTableNode tomlAstNode() {
-        return tomlDocument().tomlAstNode();
+        return tomlDocument().toml().rootNode();
     }
 
     public TomlDocument tomlDocument() {

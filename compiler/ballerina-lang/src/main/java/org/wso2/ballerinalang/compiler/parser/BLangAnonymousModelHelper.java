@@ -41,16 +41,27 @@ public class BLangAnonymousModelHelper {
     private Map<PackageID, Integer> anonForkCount;
     private Map<PackageID, Integer> errorTypeIdCount;
     private Map<PackageID, Integer> rawTemplateTypeCount;
+    private Map<PackageID, Integer> tupleVarCount;
+    private Map<PackageID, Integer> recordVarCount;
+    private Map<PackageID, Integer> errorVarCount;
+    private Map<PackageID, Integer> intersectionRecordCount;
+    private Map<PackageID, Integer> intersectionErrorCount;
 
-    private static final String ANON_TYPE = "$anonType$";
+    public static final String ANON_PREFIX = "$anon";
+    private static final String ANON_TYPE = ANON_PREFIX + "Type$";
     public static final String LAMBDA = "$lambda$";
     private static final String SERVICE = "$$service$";
-    private static final String ANON_SERVICE = "$anonService$";
-    private static final String BUILTIN_ANON_TYPE = "$anonType$builtin$";
+    private static final String ANON_SERVICE = ANON_PREFIX + "Service$";
+    private static final String BUILTIN_ANON_TYPE = ANON_PREFIX + "Type$builtin$";
     private static final String BUILTIN_LAMBDA = "$lambda$builtin$";
     private static final String FORK = "$fork$";
-    private static final String ANON_TYPE_ID = "$anonTypeid$";
+    private static final String ANON_TYPE_ID = ANON_PREFIX + "Typeid$";
     private static final String RAW_TEMPLATE_TYPE = "$rawTemplate$";
+    private static final String ANON_INTERSECTION_RECORD = ANON_PREFIX + "IntersectionRecordType$";
+    private static final String ANON_INTERSECTION_ERROR_TYPE = ANON_PREFIX + "IntersectionErrorType$";
+    private static final String TUPLE_VAR = "$tupleVar$";
+    private static final String RECORD_VAR = "$recordVar$";
+    private static final String ERROR_VAR = "$errorVar$";
 
     private static final CompilerContext.Key<BLangAnonymousModelHelper> ANONYMOUS_MODEL_HELPER_KEY =
             new CompilerContext.Key<>();
@@ -63,6 +74,11 @@ public class BLangAnonymousModelHelper {
         anonForkCount = new HashMap<>();
         errorTypeIdCount = new HashMap<>();
         rawTemplateTypeCount = new HashMap<>();
+        tupleVarCount = new HashMap<>();
+        recordVarCount = new HashMap<>();
+        errorVarCount = new HashMap<>();
+        intersectionRecordCount = new HashMap<>();
+        intersectionErrorCount = new HashMap<>();
     }
 
     public static BLangAnonymousModelHelper getInstance(CompilerContext context) {
@@ -118,7 +134,37 @@ public class BLangAnonymousModelHelper {
         return RAW_TEMPLATE_TYPE + rawTemplateTypeName.value + "$" + UNDERSCORE + nextValue;
     }
 
+    public String getNextTupleVarKey(PackageID packageID) {
+        Integer nextValue = tupleVarCount.getOrDefault(packageID, 0);
+        tupleVarCount.put(packageID, nextValue + 1);
+        return TUPLE_VAR + UNDERSCORE + nextValue;
+    }
+
+    public String getNextRecordVarKey(PackageID packageID) {
+        Integer nextValue = recordVarCount.getOrDefault(packageID, 0);
+        recordVarCount.put(packageID, nextValue + 1);
+        return RECORD_VAR + UNDERSCORE + nextValue;
+    }
+
+    public String getNextErrorVarKey(PackageID packageID) {
+        Integer nextValue = errorVarCount.getOrDefault(packageID, 0);
+        errorVarCount.put(packageID, nextValue + 1);
+        return ERROR_VAR + UNDERSCORE + nextValue;
+    }
+
     public boolean isAnonymousType(BSymbol symbol) {
         return symbol.name.value.startsWith(ANON_TYPE);
+    }
+
+    public String getNextAnonymousIntersectionErrorDetailTypeName(PackageID packageID) {
+        Integer nextValue = intersectionRecordCount.getOrDefault(packageID, 0);
+        intersectionRecordCount.put(packageID, nextValue + 1);
+        return ANON_INTERSECTION_RECORD + UNDERSCORE + nextValue;
+    }
+
+    public String getNextAnonymousIntersectionErrorTypeName(PackageID packageID) {
+        Integer nextValue = intersectionErrorCount.getOrDefault(packageID, 0);
+        intersectionErrorCount.put(packageID, nextValue + 1);
+        return ANON_INTERSECTION_ERROR_TYPE + UNDERSCORE + nextValue;
     }
 }

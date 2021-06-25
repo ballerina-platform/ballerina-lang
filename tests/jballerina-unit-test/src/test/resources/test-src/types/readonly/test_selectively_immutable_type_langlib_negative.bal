@@ -84,5 +84,4 @@ function testInvalidImmutableXmlUpdateViaLangLibMethod() {
 
     a.setName("bar");
     'xml:setChildren(a, b);
-    _ = b.strip();
 }

@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 public class BallerinaNeverTypeSymbol extends AbstractTypeSymbol implements NeverTypeSymbol {
 
     public BallerinaNeverTypeSymbol(CompilerContext context, ModuleID moduleID, BNeverType neverType) {
-        super(context, TypeDescKind.NEVER, moduleID, neverType);
+        super(context, TypeDescKind.NEVER, neverType);
     }
 
     @Override

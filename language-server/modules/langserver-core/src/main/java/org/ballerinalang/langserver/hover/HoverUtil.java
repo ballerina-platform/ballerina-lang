@@ -15,21 +15,30 @@
  */
 package org.ballerinalang.langserver.hover;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.Documentable;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.Qualifiable;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -57,8 +66,8 @@ public class HoverUtil {
      * @return {@link Hover} Hover content
      */
     public static Hover getHover(HoverContext context) {
-        Optional<Document> srcFile = context.workspace().document(context.filePath());
-        Optional<SemanticModel> semanticModel = context.workspace().semanticModel(context.filePath());
+        Optional<Document> srcFile = context.currentDocument();
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
         if (semanticModel.isEmpty() || srcFile.isEmpty()) {
             return HoverUtil.getDefaultHoverObject();
         }
@@ -70,26 +79,36 @@ public class HoverUtil {
             return HoverUtil.getDefaultHoverObject();
         }
 
-        switch (symbolAtCursor.get().kind()) {
+        return getHoverForSymbol(symbolAtCursor.get(), context);
+    }
+
+    private static Hover getHoverForSymbol(Symbol symbol, HoverContext context) {
+        switch (symbol.kind()) {
             case FUNCTION:
-                return getFunctionHoverMarkupContent((FunctionSymbol) symbolAtCursor.get(), context);
+                return getFunctionHoverMarkupContent((FunctionSymbol) symbol, context);
             case METHOD:
-                return getFunctionHoverMarkupContent((MethodSymbol) symbolAtCursor.get(), context);
+                return getFunctionHoverMarkupContent((MethodSymbol) symbol, context);
+            case RESOURCE_METHOD:
+                return getFunctionHoverMarkupContent((ResourceMethodSymbol) symbol, context);
             case TYPE_DEFINITION:
-                return getTypeDefHoverMarkupContent((TypeDefinitionSymbol) symbolAtCursor.get(), context);
+                return getTypeDefHoverMarkupContent((TypeDefinitionSymbol) symbol, context);
             case CLASS:
-                return getClassHoverMarkupContent((ClassSymbol) symbolAtCursor.get(), context);
+                return getClassHoverMarkupContent((ClassSymbol) symbol, context);
+            case OBJECT_FIELD:
+            case RECORD_FIELD:
             case CONSTANT:
             case ANNOTATION:
             case ENUM:
+            case ENUM_MEMBER:
+            case CLASS_FIELD:
             case VARIABLE:
-                return getDescriptionOnlyHoverObject(symbolAtCursor.get());
+                return getDescriptionOnlyHoverObject(symbol);
             case TYPE:
-                if (((TypeSymbol) symbolAtCursor.get()).typeKind() == TypeDescKind.TYPE_REFERENCE) {
-                    return getTypeRefHoverMarkupContent((TypeReferenceTypeSymbol) symbolAtCursor.get(),
-                            semanticModel.get(), srcFile.get(), context);
+                if (symbol instanceof TypeReferenceTypeSymbol) {
+                    return getHoverForSymbol(((TypeReferenceTypeSymbol) symbol).definition(), context);
+                } else {
+                    return HoverUtil.getDefaultHoverObject();
                 }
-                return getDefaultHoverObject();
             default:
                 return HoverUtil.getDefaultHoverObject();
         }
@@ -102,37 +121,50 @@ public class HoverUtil {
             hoverContent.add(documentation.description().get());
         }
 
-        Map<String, String> paramsMap = documentation.parameterMap();
-        if (!paramsMap.isEmpty()) {
-            List<String> params = new ArrayList<>();
-            params.add(header(3, ContextConstants.FIELD_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
+        Optional<Package> currentPackage = context.workspace()
+                .project(context.filePath()).map(Project::currentPackage);
+        Optional<Module> currentModule = context.currentModule();
 
-            params.addAll(classSymbol.fieldDescriptors().entrySet().stream()
-                    .map(fieldEntry -> {
-                        String desc = paramsMap.get(fieldEntry.getKey());
-                        String modifiedTypeName =
-                                CommonUtil.getModifiedTypeName(context, fieldEntry.getValue().typeDescriptor());
-                        return quotedString(modifiedTypeName) + " " + italicString(boldString(fieldEntry.getKey()))
-                                + " : " + desc;
-                    }).collect(Collectors.toList()));
+        if (currentModule.isPresent() && currentPackage.isPresent()) {
+            Map<String, String> paramsMap = documentation.parameterMap();
+            if (!paramsMap.isEmpty()) {
+                List<String> params = new ArrayList<>();
+                params.add(header(3, ContextConstants.FIELD_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
 
-            hoverContent.add(String.join(CommonUtil.MD_LINE_SEPARATOR, params));
-        }
-
-        List<String> methods = new ArrayList<>();
-        classSymbol.methods().forEach((name, method) -> {
-            StringBuilder methodInfo = new StringBuilder();
-            Optional<Documentation> methodDoc = method.documentation();
-            methodInfo.append(quotedString(CommonUtil.getModifiedTypeName(context, method.typeDescriptor())));
-            if (methodDoc.isPresent() && methodDoc.get().description().isPresent()) {
-                methodInfo.append(CommonUtil.MD_LINE_SEPARATOR).append(methodDoc.get().description().get());
+                params.addAll(classSymbol.fieldDescriptors().entrySet().stream()
+                        .filter(fieldEntry -> withValidAccessModifiers(
+                                fieldEntry.getValue(), currentPackage.get(), currentModule.get().moduleId(), context))
+                        .map(fieldEntry -> {
+                            String desc = paramsMap.get(fieldEntry.getKey());
+                            String modifiedTypeName =
+                                    CommonUtil.getModifiedTypeName(context, fieldEntry.getValue().typeDescriptor());
+                            return quotedString(modifiedTypeName) + " " + italicString(boldString(fieldEntry.getKey()))
+                                    + " : " + desc;
+                        }).collect(Collectors.toList()));
+                if (params.size() > 1) {
+                    hoverContent.add(String.join(CommonUtil.MD_LINE_SEPARATOR, params));
+                }
             }
-            methods.add(bulletItem(methodInfo.toString()));
-        });
 
-        if (!methods.isEmpty()) {
-            methods.add(0, header(3, ContextConstants.METHOD_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
-            hoverContent.add(String.join(CommonUtil.MD_LINE_SEPARATOR, methods));
+            List<String> methods = new ArrayList<>();
+            classSymbol.methods().entrySet().stream()
+                    .filter(methodSymbol -> withValidAccessModifiers(methodSymbol.getValue(),
+                            currentPackage.get(), currentModule.get().moduleId(), context))
+                    .collect(Collectors.toList()).forEach(methodEntry -> {
+                StringBuilder methodInfo = new StringBuilder();
+                Optional<Documentation> methodDoc = methodEntry.getValue().documentation();
+                methodInfo.append(quotedString(CommonUtil.getModifiedTypeName(context,
+                        methodEntry.getValue().typeDescriptor())));
+                if (methodDoc.isPresent() && methodDoc.get().description().isPresent()) {
+                    methodInfo.append(CommonUtil.MD_LINE_SEPARATOR).append(methodDoc.get().description().get());
+                }
+                methods.add(bulletItem(methodInfo.toString()));
+            });
+
+            if (!methods.isEmpty()) {
+                methods.add(0, header(3, ContextConstants.METHOD_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
+                hoverContent.add(String.join(CommonUtil.MD_LINE_SEPARATOR, methods));
+            }
         }
 
         Hover hover = new Hover();
@@ -207,26 +239,6 @@ public class HoverUtil {
         return hover;
     }
 
-    private static Hover getTypeRefHoverMarkupContent(TypeReferenceTypeSymbol typeSymbol, SemanticModel model,
-                                                      Document srcFile, HoverContext context) {
-        Optional<Symbol> associatedDef = model.symbol(srcFile, typeSymbol.location().lineRange().startLine());
-
-        if (associatedDef.isEmpty()) {
-            return getDefaultHoverObject();
-        }
-
-        switch (associatedDef.get().kind()) {
-            case TYPE_DEFINITION:
-                return getTypeDefHoverMarkupContent((TypeDefinitionSymbol) associatedDef.get(), context);
-            case ENUM:
-                return getDescriptionOnlyHoverObject(associatedDef.get());
-            case CLASS:
-                return getClassHoverMarkupContent((ClassSymbol) associatedDef.get(), context);
-        }
-
-        return getDefaultHoverObject();
-    }
-
     /**
      * Get the default hover object.
      *
@@ -296,12 +308,12 @@ public class HoverUtil {
             List<String> params = new ArrayList<>();
             params.add(header(3, ContextConstants.PARAM_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
 
-            params.addAll(symbol.typeDescriptor().parameters().stream()
+            params.addAll(symbol.typeDescriptor().params().get().stream()
                     .map(param -> {
-                        if (param.name().isEmpty()) {
+                        if (param.getName().isEmpty()) {
                             return quotedString(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor()));
                         }
-                        String paramName = param.name().get();
+                        String paramName = param.getName().get();
                         String desc = paramsMap.get(paramName);
                         return quotedString(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor())) + " "
                                 + italicString(boldString(paramName)) + " : " + desc;
@@ -311,9 +323,9 @@ public class HoverUtil {
             if (restParam.isPresent()) {
                 String modifiedTypeName = CommonUtil.getModifiedTypeName(ctx, restParam.get().typeDescriptor());
                 StringBuilder restParamBuilder = new StringBuilder(quotedString(modifiedTypeName + "..."));
-                if (restParam.get().name().isPresent()) {
-                    restParamBuilder.append(" ").append(italicString(boldString(restParam.get().name().get())))
-                            .append(" : ").append(paramsMap.get(restParam.get().name().get()));
+                if (restParam.get().getName().isPresent()) {
+                    restParamBuilder.append(" ").append(italicString(boldString(restParam.get().getName().get())))
+                            .append(" : ").append(paramsMap.get(restParam.get().getName().get()));
                 }
                 params.add(restParamBuilder.toString());
             }
@@ -321,9 +333,10 @@ public class HoverUtil {
             hoverContent.add(String.join(CommonUtil.MD_LINE_SEPARATOR, params));
         }
         if (documentation.get().returnDescription().isPresent()) {
+            TypeSymbol returnTypeDesc = symbol.typeDescriptor().returnTypeDescriptor().orElseThrow();
+            String returnTypeName = quotedString(CommonUtil.getModifiedTypeName(ctx, returnTypeDesc));
             String returnDoc = header(3, ContextConstants.RETURN_TITLE) + CommonUtil.MD_LINE_SEPARATOR +
-                    CommonUtil.getModifiedTypeName(ctx, symbol.typeDescriptor().returnTypeDescriptor().orElseThrow())
-                    + documentation.get().returnDescription().get();
+                    returnTypeName + " : " + documentation.get().returnDescription().get();
             hoverContent.add(returnDoc);
         }
 
@@ -359,5 +372,44 @@ public class HoverUtil {
 
     private static String header(int level, String header) {
         return String.join("", Collections.nCopies(level, "#")) + " " + header;
+    }
+
+    /**
+     * Check if a given symbol has valid access modifiers to be visible with in the give context.
+     *
+     * @param symbol         Symbol.
+     * @param currentPackage Current Package.
+     * @param currentModule  Current Module.
+     * @return {@link Boolean} Whether the symbol is visible in the current context.
+     */
+    private static Boolean withValidAccessModifiers(Symbol symbol, Package currentPackage,
+                                                    ModuleId currentModule, HoverContext context) {
+        Optional<Project> project = context.workspace().project(context.filePath());
+        Optional<ModuleSymbol> typeSymbolModule = symbol.getModule();
+
+        if (project.isEmpty() || typeSymbolModule.isEmpty()) {
+            return false;
+        }
+
+        boolean isResource = false;
+        boolean isPrivate = false;
+        boolean isPublic = false;
+        boolean isRemote = false;
+
+        if (symbol instanceof Qualifiable) {
+            Qualifiable qSymbol = (Qualifiable) symbol;
+            isPrivate = qSymbol.qualifiers().contains(Qualifier.PRIVATE);
+            isPublic = qSymbol.qualifiers().contains(Qualifier.PUBLIC);
+            isResource = qSymbol.qualifiers().contains(Qualifier.RESOURCE);
+            isRemote = qSymbol.qualifiers().contains(Qualifier.REMOTE);
+        }
+
+        if (isResource || isRemote || isPublic) {
+            return true;
+        }
+
+        ModuleID objModuleId = typeSymbolModule.get().id();
+        return (!isPrivate && objModuleId.moduleName().equals(currentModule.moduleName())
+                && objModuleId.orgName().equals(currentPackage.packageOrg().value()));
     }
 }

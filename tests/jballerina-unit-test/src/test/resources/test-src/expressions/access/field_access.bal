@@ -181,7 +181,7 @@ function testLaxUnionFieldAccessPositive() returns boolean {
     map<map<json>> m = { a: { b: i }, c: { d: "string value" } };
     map<map<json>>|json mj = m;
     json|error jv = mj.a.b;
-    return jv == i;
+    return isEqual(jv, i);
 }
 
 function testLaxUnionFieldAccessNegative1() returns boolean {
@@ -272,7 +272,7 @@ function testFieldAccessOnInvocation() returns boolean {
 
 function testJsonFieldAccessOnInvocation() returns boolean {
     json|error v = getJson().x.y;
-    return v == 1;
+    return isEqual(v, 1);
 }
 
 function getJson() returns json {
@@ -282,4 +282,12 @@ function getJson() returns json {
 function testFieldAccessOnMapConstruct() returns boolean {
     string name = ({name: "Sanjiva", employer: (), id: 1}).name;
     return "Sanjiva" == name;
+}
+
+isolated function isEqual(anydata|error val1, anydata|error val2) returns boolean {
+    if (val1 is anydata && val2 is anydata) {
+        return (val1 == val2);
+    } else {
+        return (val1 === val2);
+    }
 }

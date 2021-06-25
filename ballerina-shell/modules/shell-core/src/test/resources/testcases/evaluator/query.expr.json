@@ -9,22 +9,22 @@
   },
   {
     "description": "Query expression evaluation.",
-    "code": "Report[] reportList = from var student in studentList where student.gpa >= 2.0 let string degreeName = \"Bachelor of Medicine\", int graduationYear = calGraduationYear(student.intakeYear) order by student.firstName descending limit 2 select { name: student.firstName + \" \" + student.lastName, degree: degreeName, graduationYear: graduationYear }; reportList",
+    "code": "from var student in studentList where student.gpa >= 2.0 let string degreeName = \"Bachelor of Medicine\", int graduationYear = calGraduationYear(student.intakeYear) order by student.firstName descending limit 2 select { name: student.firstName + \" \" + student.lastName, degree: degreeName, graduationYear: graduationYear }",
     "expr": "[{\"name\":\"Michelle Guthrie\",\"degree\":\"Bachelor of Medicine\",\"graduationYear\":2007},{\"name\":\"Martin Sadler\",\"degree\":\"Bachelor of Medicine\",\"graduationYear\":1995}]"
   },
   {
     "description": "Query stream evaluation.",
-    "code": "stream<Report>? reportListStream = stream from var student in studentList where student.gpa >= 2.0 let string degreeName = \"Bachelor of Medicine\", int graduationYear = calGraduationYear(student.intakeYear) order by student.firstName descending limit 2 select { name: student.firstName + \" \" + student.lastName, degree: degreeName, graduationYear: graduationYear }; reportListStream",
-    "expr": "stream <stream<Report>>"
+    "code": "stream<any>? reportListStream = (); reportListStream = stream from var student in studentList where student.gpa >= 2.0 let string degreeName = \"Bachelor of Medicine\", int graduationYear = calGraduationYear(student.intakeYear) order by student.firstName descending limit 2 select { name: student.firstName + \" \" + student.lastName, degree: degreeName, graduationYear: graduationYear }; reportListStream",
+    "expr": "stream <stream<map>>"
   },
   {
     "description": "String from query evaluation.",
-    "code": "string students = from var student in studentList where student.gpa >= 2.0 select student.firstName + \" \" + student.lastName + \"\\n\"; students",
+    "code": "string students = \"\"; students = from var student in studentList where student.gpa >= 2.0 select student.firstName + \" \" + student.lastName + \"\\n\"; students",
     "expr": "\"Martin Sadler\nMichelle Guthrie\n\""
   },
   {
     "description": "Query action evaluation.",
-    "code": "FullName[] nameList = []; error? result = from var student in studentList do { FullName fullName = { firstName: student.firstName, lastName: student.lastName }; nameList.push(fullName); }; nameList",
+    "code": "FullName[] nameList = []; error? result = (); result = from var student in studentList do { FullName fullName = { firstName: student.firstName, lastName: student.lastName }; nameList.push(fullName); }; nameList",
     "expr": "[{\"firstName\":\"Martin\",\"lastName\":\"Sadler\"},{\"firstName\":\"Ranjan\",\"lastName\":\"Fonseka\"},{\"firstName\":\"Michelle\",\"lastName\":\"Guthrie\"}]"
   }
 ]

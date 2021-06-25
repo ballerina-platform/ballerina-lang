@@ -17,7 +17,10 @@
  */
 package org.ballerinalang.langserver.commons;
 
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
+
+import java.util.Optional;
 
 /**
  * Represents the Signature help operation context.
@@ -32,4 +35,19 @@ public interface SignatureContext extends PositionedOperationContext {
      * @return {@link SignatureHelpCapabilities}
      */
     SignatureHelpCapabilities capabilities();
+
+
+    /**
+     * Set the node at cursor.
+     *
+     * @param node {@link NonTerminalNode} at the cursor position
+     */
+    void setNodeAtCursor(NonTerminalNode node);
+
+    /**
+     * Get the node at the signature request triggered cursor position.
+     *
+     * @return {@link Optional}
+     */
+    Optional<NonTerminalNode> getNodeAtCursor();
 }

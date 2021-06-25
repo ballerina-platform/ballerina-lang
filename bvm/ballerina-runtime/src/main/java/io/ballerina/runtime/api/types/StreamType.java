@@ -26,4 +26,7 @@ package io.ballerina.runtime.api.types;
 public interface StreamType extends Type {
 
     Type getConstrainedType();
+
+    Type getCompletionType();
+
 }

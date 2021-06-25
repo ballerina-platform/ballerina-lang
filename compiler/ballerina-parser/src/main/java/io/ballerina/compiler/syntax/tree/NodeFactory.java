@@ -423,7 +423,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static LockStatementNode createLockStatementNode(
             Token lockKeyword,
-            StatementNode blockStatement,
+            BlockStatementNode blockStatement,
             OnFailClauseNode onFailClause) {
         Objects.requireNonNull(lockKeyword, "lockKeyword must not be null");
         Objects.requireNonNull(blockStatement, "blockStatement must not be null");
@@ -458,7 +458,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             TypedBindingPatternNode typedBindingPattern,
             Token inKeyword,
             Node actionOrExpressionNode,
-            StatementNode blockStatement,
+            BlockStatementNode blockStatement,
             OnFailClauseNode onFailClause) {
         Objects.requireNonNull(forEachKeyword, "forEachKeyword must not be null");
         Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
@@ -841,6 +841,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stRestArgumentNode.createUnlinkedFacade();
     }
 
+    public static InferredTypedescDefaultNode createInferredTypedescDefaultNode(
+            Token ltToken,
+            Token gtToken) {
+        Objects.requireNonNull(ltToken, "ltToken must not be null");
+        Objects.requireNonNull(gtToken, "gtToken must not be null");
+
+        STNode stInferredTypedescDefaultNode = STNodeFactory.createInferredTypedescDefaultNode(
+                ltToken.internalNode(),
+                gtToken.internalNode());
+        return stInferredTypedescDefaultNode.createUnlinkedFacade();
+    }
+
     public static ObjectTypeDescriptorNode createObjectTypeDescriptorNode(
             NodeList<Token> objectTypeQualifiers,
             Token objectKeyword,
@@ -1076,6 +1088,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ModuleVariableDeclarationNode createModuleVariableDeclarationNode(
             MetadataNode metadata,
+            Token visibilityQualifier,
             NodeList<Token> qualifiers,
             TypedBindingPatternNode typedBindingPattern,
             Token equalsToken,
@@ -1087,6 +1100,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
         STNode stModuleVariableDeclarationNode = STNodeFactory.createModuleVariableDeclarationNode(
                 getOptionalSTNode(metadata),
+                getOptionalSTNode(visibilityQualifier),
                 qualifiers.underlyingListNode().internalNode(),
                 typedBindingPattern.internalNode(),
                 getOptionalSTNode(equalsToken),
@@ -1134,16 +1148,16 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stRemoteMethodCallActionNode.createUnlinkedFacade();
     }
 
-    public static ParameterizedTypeDescriptorNode createParameterizedTypeDescriptorNode(
-            Token parameterizedType,
-            TypeParameterNode typeParameter) {
-        Objects.requireNonNull(parameterizedType, "parameterizedType must not be null");
-        Objects.requireNonNull(typeParameter, "typeParameter must not be null");
+    public static MapTypeDescriptorNode createMapTypeDescriptorNode(
+            Token mapKeywordToken,
+            TypeParameterNode mapTypeParamsNode) {
+        Objects.requireNonNull(mapKeywordToken, "mapKeywordToken must not be null");
+        Objects.requireNonNull(mapTypeParamsNode, "mapTypeParamsNode must not be null");
 
-        STNode stParameterizedTypeDescriptorNode = STNodeFactory.createParameterizedTypeDescriptorNode(
-                parameterizedType.internalNode(),
-                typeParameter.internalNode());
-        return stParameterizedTypeDescriptorNode.createUnlinkedFacade();
+        STNode stMapTypeDescriptorNode = STNodeFactory.createMapTypeDescriptorNode(
+                mapKeywordToken.internalNode(),
+                mapTypeParamsNode.internalNode());
+        return stMapTypeDescriptorNode.createUnlinkedFacade();
     }
 
     public static NilLiteralNode createNilLiteralNode(
@@ -1443,32 +1457,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stKeySpecifierNode.createUnlinkedFacade();
     }
 
-    public static ErrorTypeDescriptorNode createErrorTypeDescriptorNode(
-            Token errorKeywordToken,
-            ErrorTypeParamsNode errorTypeParamsNode) {
-        Objects.requireNonNull(errorKeywordToken, "errorKeywordToken must not be null");
-
-        STNode stErrorTypeDescriptorNode = STNodeFactory.createErrorTypeDescriptorNode(
-                errorKeywordToken.internalNode(),
-                getOptionalSTNode(errorTypeParamsNode));
-        return stErrorTypeDescriptorNode.createUnlinkedFacade();
-    }
-
-    public static ErrorTypeParamsNode createErrorTypeParamsNode(
-            Token ltToken,
-            Node parameter,
-            Token gtToken) {
-        Objects.requireNonNull(ltToken, "ltToken must not be null");
-        Objects.requireNonNull(parameter, "parameter must not be null");
-        Objects.requireNonNull(gtToken, "gtToken must not be null");
-
-        STNode stErrorTypeParamsNode = STNodeFactory.createErrorTypeParamsNode(
-                ltToken.internalNode(),
-                parameter.internalNode(),
-                gtToken.internalNode());
-        return stErrorTypeParamsNode.createUnlinkedFacade();
-    }
-
     public static StreamTypeDescriptorNode createStreamTypeDescriptorNode(
             Token streamKeywordToken,
             Node streamTypeParamsNode) {
@@ -1499,17 +1487,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stStreamTypeParamsNode.createUnlinkedFacade();
     }
 
-    public static TypedescTypeDescriptorNode createTypedescTypeDescriptorNode(
-            Token typedescKeywordToken,
-            TypeParameterNode typedescTypeParamsNode) {
-        Objects.requireNonNull(typedescKeywordToken, "typedescKeywordToken must not be null");
-
-        STNode stTypedescTypeDescriptorNode = STNodeFactory.createTypedescTypeDescriptorNode(
-                typedescKeywordToken.internalNode(),
-                getOptionalSTNode(typedescTypeParamsNode));
-        return stTypedescTypeDescriptorNode.createUnlinkedFacade();
-    }
-
     public static LetExpressionNode createLetExpressionNode(
             Token letKeyword,
             SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations,
@@ -1526,17 +1503,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 inKeyword.internalNode(),
                 expression.internalNode());
         return stLetExpressionNode.createUnlinkedFacade();
-    }
-
-    public static XmlTypeDescriptorNode createXmlTypeDescriptorNode(
-            Token xmlKeywordToken,
-            TypeParameterNode xmlTypeParamsNode) {
-        Objects.requireNonNull(xmlKeywordToken, "xmlKeywordToken must not be null");
-
-        STNode stXmlTypeDescriptorNode = STNodeFactory.createXmlTypeDescriptorNode(
-                xmlKeywordToken.internalNode(),
-                getOptionalSTNode(xmlTypeParamsNode));
-        return stXmlTypeDescriptorNode.createUnlinkedFacade();
     }
 
     public static LetVariableDeclarationNode createLetVariableDeclarationNode(
@@ -1806,12 +1772,11 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             FunctionSignatureNode functionSignature) {
         Objects.requireNonNull(qualifierList, "qualifierList must not be null");
         Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
-        Objects.requireNonNull(functionSignature, "functionSignature must not be null");
 
         STNode stFunctionTypeDescriptorNode = STNodeFactory.createFunctionTypeDescriptorNode(
                 qualifierList.underlyingListNode().internalNode(),
                 functionKeyword.internalNode(),
-                functionSignature.internalNode());
+                getOptionalSTNode(functionSignature));
         return stFunctionTypeDescriptorNode.createUnlinkedFacade();
     }
 
@@ -2948,21 +2913,71 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stMarkdownParameterDocumentationLineNode.createUnlinkedFacade();
     }
 
-    public static DocumentationReferenceNode createDocumentationReferenceNode(
+    public static BallerinaNameReferenceNode createBallerinaNameReferenceNode(
             Token referenceType,
             Token startBacktick,
-            Node backtickContent,
+            Node nameReference,
             Token endBacktick) {
         Objects.requireNonNull(startBacktick, "startBacktick must not be null");
-        Objects.requireNonNull(backtickContent, "backtickContent must not be null");
+        Objects.requireNonNull(nameReference, "nameReference must not be null");
         Objects.requireNonNull(endBacktick, "endBacktick must not be null");
 
-        STNode stDocumentationReferenceNode = STNodeFactory.createDocumentationReferenceNode(
+        STNode stBallerinaNameReferenceNode = STNodeFactory.createBallerinaNameReferenceNode(
                 getOptionalSTNode(referenceType),
                 startBacktick.internalNode(),
-                backtickContent.internalNode(),
+                nameReference.internalNode(),
                 endBacktick.internalNode());
-        return stDocumentationReferenceNode.createUnlinkedFacade();
+        return stBallerinaNameReferenceNode.createUnlinkedFacade();
+    }
+
+    public static InlineCodeReferenceNode createInlineCodeReferenceNode(
+            Token startBacktick,
+            Token codeReference,
+            Token endBacktick) {
+        Objects.requireNonNull(startBacktick, "startBacktick must not be null");
+        Objects.requireNonNull(codeReference, "codeReference must not be null");
+        Objects.requireNonNull(endBacktick, "endBacktick must not be null");
+
+        STNode stInlineCodeReferenceNode = STNodeFactory.createInlineCodeReferenceNode(
+                startBacktick.internalNode(),
+                codeReference.internalNode(),
+                endBacktick.internalNode());
+        return stInlineCodeReferenceNode.createUnlinkedFacade();
+    }
+
+    public static MarkdownCodeBlockNode createMarkdownCodeBlockNode(
+            Token startLineHashToken,
+            Token startBacktick,
+            Token langAttribute,
+            NodeList<MarkdownCodeLineNode> codeLines,
+            Token endLineHashToken,
+            Token endBacktick) {
+        Objects.requireNonNull(startLineHashToken, "startLineHashToken must not be null");
+        Objects.requireNonNull(startBacktick, "startBacktick must not be null");
+        Objects.requireNonNull(codeLines, "codeLines must not be null");
+        Objects.requireNonNull(endLineHashToken, "endLineHashToken must not be null");
+        Objects.requireNonNull(endBacktick, "endBacktick must not be null");
+
+        STNode stMarkdownCodeBlockNode = STNodeFactory.createMarkdownCodeBlockNode(
+                startLineHashToken.internalNode(),
+                startBacktick.internalNode(),
+                getOptionalSTNode(langAttribute),
+                codeLines.underlyingListNode().internalNode(),
+                endLineHashToken.internalNode(),
+                endBacktick.internalNode());
+        return stMarkdownCodeBlockNode.createUnlinkedFacade();
+    }
+
+    public static MarkdownCodeLineNode createMarkdownCodeLineNode(
+            Token hashToken,
+            Token codeDescription) {
+        Objects.requireNonNull(hashToken, "hashToken must not be null");
+        Objects.requireNonNull(codeDescription, "codeDescription must not be null");
+
+        STNode stMarkdownCodeLineNode = STNodeFactory.createMarkdownCodeLineNode(
+                hashToken.internalNode(),
+                codeDescription.internalNode());
+        return stMarkdownCodeLineNode.createUnlinkedFacade();
     }
 
     public static OrderByClauseNode createOrderByClauseNode(
@@ -3106,6 +3121,19 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 arguments.underlyingListNode().internalNode(),
                 closeParenToken.internalNode());
         return stErrorConstructorExpressionNode.createUnlinkedFacade();
+    }
+
+    public static ParameterizedTypeDescriptorNode createParameterizedTypeDescriptorNode(
+            SyntaxKind kind,
+            Token keywordToken,
+            TypeParameterNode typeParamNode) {
+        Objects.requireNonNull(keywordToken, "keywordToken must not be null");
+
+        STNode stParameterizedTypeDescriptorNode = STNodeFactory.createParameterizedTypeDescriptorNode(
+                kind,
+                keywordToken.internalNode(),
+                getOptionalSTNode(typeParamNode));
+        return stParameterizedTypeDescriptorNode.createUnlinkedFacade();
     }
 }
 

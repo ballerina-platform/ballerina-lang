@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 public class BallerinaJSONTypeSymbol extends AbstractTypeSymbol implements JSONTypeSymbol {
 
     public BallerinaJSONTypeSymbol(CompilerContext context, ModuleID moduleID, BJSONType jsonType) {
-        super(context, TypeDescKind.JSON, moduleID, jsonType);
+        super(context, TypeDescKind.JSON, jsonType);
     }
 
     @Override

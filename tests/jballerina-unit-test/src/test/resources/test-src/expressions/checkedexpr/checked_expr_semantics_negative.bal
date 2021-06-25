@@ -48,3 +48,17 @@ function readLineProper() returns string | MyError | CustomError {
 function testCheckedExprSemanticErrors5() {
     string line = check readLineProper();
 }
+
+function testCheckedExprSemanticErrors6() returns error? {
+    string|error line = readLineSuccess();
+    check line;
+}
+
+function callExprWithCheck() returns error? {
+    check readLineError2();
+}
+
+function readLineError2() returns error {
+    error e = error("io error");
+    return e;
+}

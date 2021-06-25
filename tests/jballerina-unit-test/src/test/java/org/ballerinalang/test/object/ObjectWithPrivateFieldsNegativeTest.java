@@ -33,8 +33,6 @@ public class ObjectWithPrivateFieldsNegativeTest {
     @Test(description = "Test runtime object equivalence  field access")
     public void testRuntimeObjEqNegative() {
 
-//        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject",
-//                "object-private-fields-01-negative");
         CompileResult compileResult = BCompileUtil.compile("test-src/object/RuntimeObjEgNegativeProject");
         BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeObjEqNegative");
 
@@ -45,8 +43,6 @@ public class ObjectWithPrivateFieldsNegativeTest {
     @Test(description = "Test private field access")
     public void testPrivateFieldAccess() {
 
-//        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject",
-//                "object-private-fields-02-negative");
         CompileResult compileResult = BCompileUtil.compile("test-src/object/PrivateFieldsAccessProject");
 
         BAssertUtil.validateError(compileResult, 0, "attempt to refer to non-accessible symbol 'ssn'", 7, 18);
@@ -56,14 +52,12 @@ public class ObjectWithPrivateFieldsNegativeTest {
 
     @Test(description = "Test private object access in public functions")
     public void testPrivateObjAccess1() {
-//        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "private-field1");
         CompileResult compileResult = BCompileUtil.compile("test-src/object/PrivateObjAccess1Project");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 6);
+        Assert.assertEquals(compileResult.getErrorCount(), 5);
         String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
         int i = 0;
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ParentFoo.init'", 4, 24);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo.init'", 4, 32);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo.init'", 4, 32);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson.init'", 12, 43);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson.init'", 16, 47);
@@ -72,7 +66,6 @@ public class ObjectWithPrivateFieldsNegativeTest {
 
     @Test(description = "Test private object access in public functions")
     public void testPrivateObjAccess1SemanticsNegative() {
-//        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "private-field1.sn");
         CompileResult compileResult
                 = BCompileUtil.compile("test-src/object/PrivateObjAccess1SemanticsNegativeProject");
         Assert.assertEquals(compileResult.getErrorCount(), 8);
@@ -92,7 +85,6 @@ public class ObjectWithPrivateFieldsNegativeTest {
 
     @Test(description = "Test private object access in public functions")
     public void testPrivateObjAccess2() {
-//        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "private-field2");
         CompileResult compileResult = BCompileUtil.compile("test-src/object/PrivateObjAccess2Project");
 
         Assert.assertEquals(compileResult.getErrorCount(), 2);
@@ -105,7 +97,6 @@ public class ObjectWithPrivateFieldsNegativeTest {
 
     @Test(description = "Test private object access in public functions")
     public void testPrivateObjAccess2SemanticsNegative() {
-//        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "private-field2.sn");
         CompileResult compileResult
                 = BCompileUtil.compile("test-src/object/PrivateObjAccess2SemanticsNegativeProject");
 

@@ -151,7 +151,6 @@ public class PredefinedTypes {
 
     public static final AnyType TYPE_ANY = new BAnyType(TypeConstants.ANY_TNAME, EMPTY_MODULE, false);
     public static final AnyType TYPE_READONLY_ANY = new BAnyType(TypeConstants.READONLY_ANY_TNAME, EMPTY_MODULE, true);
-    public static final StreamType TYPE_STREAM = new BStreamType(TypeConstants.STREAM_TNAME, TYPE_ANY, EMPTY_MODULE);
     public static final TypedescType TYPE_TYPEDESC = new BTypedescType(TypeConstants.TYPEDESC_TNAME, EMPTY_MODULE);
     public static final MapType TYPE_MAP = new BMapType(TypeConstants.MAP_TNAME, TYPE_ANY, EMPTY_MODULE);
     public static final FutureType TYPE_FUTURE = new BFutureType(TypeConstants.FUTURE_TNAME, EMPTY_MODULE);
@@ -162,6 +161,8 @@ public class PredefinedTypes {
     public static final IteratorType TYPE_ITERATOR = new BIteratorType(TypeConstants.ITERATOR_TNAME, EMPTY_MODULE);
     public static final ServiceType TYPE_ANY_SERVICE = new BServiceType(TypeConstants.SERVICE, EMPTY_MODULE, 0);
     public static final HandleType TYPE_HANDLE = new BHandleType(TypeConstants.HANDLE_TNAME, EMPTY_MODULE);
+    public static final StreamType TYPE_STREAM = new BStreamType(TypeConstants.STREAM_TNAME, TYPE_ANY, TYPE_NULL,
+            EMPTY_MODULE);
 
     public static final JsonType TYPE_JSON;
     public static final JsonType TYPE_READONLY_JSON;
@@ -173,8 +174,11 @@ public class PredefinedTypes {
     public static final ErrorType TYPE_ERROR;
     public static final BUnionType TYPE_CLONEABLE;
 
+    public static final BUnionType TYPE_JSON_DECIMAL;
+    public static final BUnionType TYPE_JSON_FLOAT;
+
     public static final RecordType STRING_ITR_NEXT_RETURN_TYPE =
-            IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_STRING);
+            IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_STRING_CHAR);
 
     public static final RecordType XML_ITR_NEXT_RETURN_ELEMENT_TYPE =
             IteratorUtils.createIteratorNextReturnType(TYPE_ELEMENT);
@@ -246,5 +250,37 @@ public class PredefinedTypes {
         TYPE_ERROR_DETAIL = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_DETAIL);
         TYPE_ERROR = new BErrorType(TypeConstants.ERROR, EMPTY_MODULE, TYPE_DETAIL);
         ANY_AND_READONLY_OR_ERROR_TYPE = new BUnionType(Arrays.asList(ANY_AND_READONLY_TYPE, TYPE_ERROR));
+    }
+
+    // public type JsonDecimal ()|boolean|string|decimal|JsonDecimal[]|map<JsonDecimal>;
+    static {
+        ArrayList<Type> members = new ArrayList<>();
+        members.add(TYPE_NULL);
+        members.add(TYPE_BOOLEAN);
+        members.add(TYPE_STRING);
+        members.add(TYPE_DECIMAL);
+        var valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
+        BUnionType jsonDecimal = new BUnionType(TypeConstants.JSON_DECIMAL_TNAME, valueModule, members);
+        jsonDecimal.isCyclic = true;
+        MapType internalJsonDecimalMap = new BMapType(TypeConstants.MAP_TNAME, jsonDecimal, valueModule);
+        ArrayType internalJsonDecimalArray = new BArrayType(jsonDecimal);
+        jsonDecimal.addMembers(internalJsonDecimalArray, internalJsonDecimalMap);
+        TYPE_JSON_DECIMAL = jsonDecimal;
+    }
+
+    // public type JsonFloat ()|boolean|string|float|JsonFloat[]|map<JsonFloat>;
+    static {
+        ArrayList<Type> members = new ArrayList<>();
+        members.add(TYPE_NULL);
+        members.add(TYPE_BOOLEAN);
+        members.add(TYPE_STRING);
+        members.add(TYPE_FLOAT);
+        var valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
+        BUnionType jsonFloat = new BUnionType(TypeConstants.JSON_FLOAT_TNAME, valueModule, members);
+        jsonFloat.isCyclic = true;
+        MapType internalJsonFloatMap = new BMapType(TypeConstants.MAP_TNAME, jsonFloat, valueModule);
+        ArrayType internalJsonFloatArray = new BArrayType(jsonFloat);
+        jsonFloat.addMembers(internalJsonFloatArray, internalJsonFloatMap);
+        TYPE_JSON_FLOAT = jsonFloat;
     }
 }

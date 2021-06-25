@@ -14,11 +14,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.nativeimpl.jvm.tests;
 
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class is used for Java interoperability tests.
@@ -38,6 +42,17 @@ public class AsyncInterop {
         }).start();
 
         return -1;
+    }
+
+    public static void completeFutureMoreThanOnce(Environment env) {
+        Future future = env.markAsync();
+        final AtomicInteger count = new AtomicInteger();
+        new Thread(() -> {
+            while (count.incrementAndGet() < 100) {
+
+                future.complete(null);
+            }
+        }).start();
     }
 
     private static void sleep() {

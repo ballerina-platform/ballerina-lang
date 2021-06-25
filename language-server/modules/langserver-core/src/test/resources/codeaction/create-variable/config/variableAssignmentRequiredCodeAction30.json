@@ -16,7 +16,7 @@
                             "character": 4
                         }
                     },
-                    "newText": "stream<Foo, ApplicationErrorData> streamResult = "
+                    "newText": "stream<Foo> streamResult = "
                 }
             ]
         }

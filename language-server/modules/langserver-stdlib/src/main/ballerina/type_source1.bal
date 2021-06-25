@@ -33,3 +33,7 @@ public class TestClass1 {
 public type TestObject1 object {
     
 };
+
+public type ErrorOne error<record { int code; }>;
+
+public type ErrorTwo error<record { string[] alternatives; }>;

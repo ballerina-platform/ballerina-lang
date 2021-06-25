@@ -1,6 +1,6 @@
 import ballerina/jballerina.java;
 
-function workerReturnTest() returns int{
+function workerReturnTest() returns int {
     @strand{thread:"any"}
     worker wx returns int {
 	    int x = 50;
@@ -8,38 +8,6 @@ function workerReturnTest() returns int{
     }
     int res = wait wx;
     return res + 1;
-}
-
-int updateMultiple = 0;
-function waitOnSameFutureByMultiple() returns int {
-    @strand{thread:"any"}
-    worker w1 returns int {
-        return 9;
-    }
-
-    waitOnSameFutureWorkers(w1);
-    sleep(1000);
-    return updateMultiple;
-
-}
-
-function waitOnSameFutureWorkers(future<int> aa) {
-
-    @strand{thread:"any"}
-    worker w1 {
-        int result = wait aa;
-        lock {
-        updateMultiple = updateMultiple + result;
-        }
-    }
-    @strand{thread:"any"}
-    worker w2 {
-        int result = wait aa;
-        lock {
-        updateMultiple = updateMultiple + result;
-        }
-    }
-
 }
 
 public function workerSendToWorker() returns int {
@@ -65,7 +33,7 @@ function workerSendToDefault() returns int{
     @strand{thread:"any"}
     worker w1 {
         int x = 50;
-        x -> default;
+        x -> function;
     }
     int y = <- w1;
     return y + 1;
@@ -74,7 +42,7 @@ function workerSendToDefault() returns int{
 function workerSendFromDefault() returns int{
     @strand{thread:"any"}
     worker w1 returns int {
-        int y = <- default;
+        int y = <- function;
         return y;
     }
     int x = 50;
@@ -83,7 +51,7 @@ function workerSendFromDefault() returns int{
     return res + 1;
 }
 
-public function receiveWithTrap() returns error|int {
+public function receiveWithTrap() {
    @strand{thread:"any"}
    worker w1 {
      int i = 2;
@@ -102,30 +70,34 @@ public function receiveWithTrap() returns error|int {
 
    error|int ret = wait w2;
 
-   return ret;
+   validateError(ret, "err");
 }
 
-public function syncSendReceiveWithTrap() returns int|error {
-    @strand{thread:"any"}
-    worker w1 {
-        int i = 2;
-        if true {
-            panic error("sync send err", message = "err msg");
+public function syncSendReceiveWithTrap() {
+    var f = function () returns int|error {
+        @strand{thread:"any"}
+        worker w1 {
+            int i = 2;
+            if true {
+                panic error("sync send err", message = "err msg");
+            }
+            i ->> w2;
+       }
+
+        @strand{thread:"any"}
+        worker w2 returns error|int {
+            int|error  j = trap <- w1;
+            return j;
         }
-        i ->> w2;
-   }
 
-    @strand{thread:"any"}
-    worker w2 returns error|int {
-        int|error  j = trap <- w1;
-        return j;
-    }
+       int|error ret = wait w2;
+       return ret;
+    };
 
-   int|error ret = wait w2;
-   return ret;
+    validateError(f(), "sync send err");
 }
 
-public function receiveWithCheck() returns error|int {
+public function receiveWithCheck() {
     @strand{thread:"any"}
     worker w1 returns boolean|error{
       int i = 2;
@@ -143,10 +115,11 @@ public function receiveWithCheck() returns error|int {
       return;
     }
 
-    return wait w2;
+    var r = wait w2;
+    validateError(r, "err");
 }
 
-public function syncSendReceiveWithCheck() returns int|error {
+public function syncSendReceiveWithCheck() {
     @strand{thread:"any"}
     worker w1 returns boolean|error {
         int i = 2;
@@ -162,7 +135,8 @@ public function syncSendReceiveWithCheck() returns int|error {
         int j = check <- w1;
     }
 
-    return wait w2;
+    var r = wait w2;
+    validateError(r, "sync send err");
 }
 
 public function receiveWithCheckpanic() {
@@ -213,10 +187,10 @@ public function sendToDefaultWithPanicBeforeSendInWorker() returns int {
             error err = error("error: err from panic");
             panic err;
         }
-        i -> default;
+        i -> function;
     }
-    wait w1;
     int res = <- w1;
+    wait w1;
     return res;
 }
 
@@ -224,14 +198,14 @@ public function sendToDefaultWithPanicBeforeSendInDefault() returns int {
     @strand{thread:"any"}
     worker w1 {
         int i = 2;
-        i -> default;
+        i ->> function;
     }
-    wait w1;
     if(true) {
         error err = error("error: err from panic");
         panic err;
     }
     int res = <- w1;
+    wait w1;
     return res;
 }
 
@@ -239,14 +213,16 @@ public function sendToDefaultWithPanicAfterSendInWorker() returns int {
     @strand{thread:"any"}
     worker w1 {
         int i = 2;
-        i -> default;
+        error err = error("error: err from panic");
+        i -> function;
         if(true) {
-            error err = error("error: err from panic");
             panic err;
         }
+        i -> function;
     }
-    wait w1;
+
     int res = <- w1;
+    res = <- w1;
     return res;
 }
 
@@ -254,7 +230,7 @@ public function sendToDefaultWithPanicAfterSendInDefault() returns int {
     @strand{thread:"any"}
     worker w1 {
         int i = 2;
-        i -> default;
+        i -> function;
     }
     int res = <- w1;
     if(true) {
@@ -268,7 +244,7 @@ public function receiveFromDefaultWithPanicAfterSendInDefault() {
     @strand{thread:"any"}
     worker w1 {
         int i = 2;
-        i = <- default;
+        i = <- function;
     }
     int sq = 16;
     sq -> w1;
@@ -282,7 +258,7 @@ public function receiveFromDefaultWithPanicBeforeSendInDefault() {
     @strand{thread:"any"}
     worker w1 {
         int i = 2;
-        i = <- default;
+        i = <- function;
     }
     if(true) {
         error err = error("error: err from panic");
@@ -300,7 +276,7 @@ public function receiveFromDefaultWithPanicBeforeReceiveInWorker() {
             error err = error("error: err from panic");
             panic err;
         }
-        i = <- default;
+        i = <- function;
     }
     int sq = 16;
     sq -> w1;
@@ -311,7 +287,7 @@ public function receiveFromDefaultWithPanicAfterReceiveInWorker() {
     @strand{thread:"any"}
     worker w1 {
         int i = 2;
-        i = <- default;
+        i = <- function;
         if(true) {
             error err = error("error: err from panic");
             panic err;
@@ -322,7 +298,7 @@ public function receiveFromDefaultWithPanicAfterReceiveInWorker() {
     wait w1;
 }
 
-public function receiveWithCheckAndTrap() returns error|int {
+public function receiveWithCheckAndTrap() {
    @strand{thread:"any"}
    worker w1 {
        int i = 2;
@@ -339,53 +315,64 @@ public function receiveWithCheckAndTrap() returns error|int {
        return j;
    }
 
-   return wait w2;
+   var r = wait w2;
+   validateError(r, "error: err from panic");
 }
 
-public function receiveWithCheckForDefault() returns boolean|error {
-    @strand{thread:"any"}
-    worker w1 returns boolean|error {
-        int i = 2;
-        if(true){
-            error err = error("err from panic");
-            return err;
+public function receiveWithCheckForDefault() {
+    var f = function () returns boolean|error {
+        @strand{thread:"any"}
+        worker w1 returns boolean|error {
+            int i = 2;
+            if(true){
+                error err = error("err from panic");
+                return err;
+            }
+            i -> function;
+            return false;
         }
-        i -> default;
-        return false;
-    }
 
-    error|int j = check <- w1;
-    return wait w1;
-}
-public function receiveWithTrapForDefault() returns error|int {
-   @strand{thread:"any"}
-   worker w1 returns int {
-       int i = 2;
-       if(true) {
-           error err = error("error: err from panic");
-           panic err;
-       }
-       i -> default;
-       return i;
-   }
-
-   error|int  j = trap <- w1;
-   return j;
+        error|int j = check <- w1;
+        return wait w1;
+    };
+   validateError(f(), "err from panic");
 }
 
-public function receiveDefaultWithCheckAndTrap() returns error|int {
-   @strand{thread:"any"}
-   worker w1 {
-       int i = 2;
-       if(true) {
-           error err = error("error: err from panic");
-           panic err;
-       }
-       i -> default;
-   }
+public function receiveWithTrapForDefault() {
+    var f = function () returns error|int {
+        @strand{thread:"any"}
+        worker w1 returns int {
+           int i = 2;
+           if(true) {
+               error err = error("error: err from panic");
+               panic err;
+           }
+           i -> function;
+           return i;
+        }
 
-   error|int j = check trap <- w1;
-   return j;
+        error|int  j = trap <- w1;
+        return j;
+    };
+    validateError(f(), "error: err from panic");
+}
+
+public function receiveDefaultWithCheckAndTrap() {
+    var f = function () returns error|int? {
+       @strand{thread:"any"}
+       worker w1 {
+           int i = 2;
+           if(true) {
+               error err = error("error: err from panic");
+               panic err;
+           }
+           i -> function;
+       }
+
+       error|int j = check trap <- w1;
+       return j;
+    };
+    validateError(trap f(), "error: err from panic");
 }
 
 int rs = 0;
@@ -429,7 +416,7 @@ function workerTestWithLambda() returns int {
 function invokeTestFunc(int c) {
     @strand{thread:"any"}
     worker w1 returns int {
-        int a = <- default;
+        int a = <- function;
         return a;
     }
     int b = 9;
@@ -464,7 +451,7 @@ public function testComplexType() returns Rec {
 }
 
 // First cancel the future and then wait
-public function workerWithFutureTest1() returns int {
+public function workerWithFutureTest1() returns int|error {
     future<int> f1 = @strand{thread:"any"} start add2(5, 5);
     @strand{thread:"any"}
     worker w1 {
@@ -473,10 +460,10 @@ public function workerWithFutureTest1() returns int {
     }
 
     @strand{thread:"any"}
-    worker w2 returns int {
+    worker w2 returns int|error {
       // Delay the execution of worker w2
       sleep(1000);
-      int i = wait f1;
+      int|error i = wait f1;
       return i;
     }
 
@@ -484,7 +471,7 @@ public function workerWithFutureTest1() returns int {
 }
 
 // First wait on the future and then cancel
-public function workerWithFutureTest2() returns int {
+public function workerWithFutureTest2() returns int|error {
     future<int> f1 = @strand{thread:"any"} start add(6, 6);
     @strand{thread:"any"}
     worker w1 {
@@ -495,8 +482,8 @@ public function workerWithFutureTest2() returns int {
     }
 
     @strand{thread:"any"}
-    worker w2 returns int {
-      int i = wait f1;
+    worker w2 returns int|error {
+      int|error i = wait f1;
       return i;
     }
     return wait w2;
@@ -515,7 +502,7 @@ public function workerWithFutureTest3() returns int {
     worker w2 returns int {
       // Delay the execution of worker w1
       sleep(1000);
-      int i = wait f1;
+      int i = checkpanic wait f1;
       return i;
     }
     return wait w2;
@@ -549,7 +536,7 @@ function singleAdd(int num) returns int{
 function innerWorkerPanicTest() {
    @strand{thread:"any"}
    worker w1 {
-       int k = <- default;
+       int k = <- function;
    }
 
    panicFunc();
@@ -564,7 +551,7 @@ function panicFunc() {
            error e = error("worker w5 panic");
            panic e;
        }
-       10 -> default;
+       10 -> function;
     }
     int k = <- w5;
 }
@@ -639,6 +626,38 @@ function testStartFunction() {
     int i = 4;
 }
 
+function () returns int sumFunction =
+        function () returns int {
+            worker w1 {
+                1 -> w2;
+            }
+
+            worker w2 returns int {
+                int j = <- w1;
+                return j;
+            }
+
+            int k = wait w2;
+            return k;
+        };
+
+function testLambdaWithWorkerMessagePassing() {
+    int k = sumFunction();
+    if (k != 1) {
+        panic error("Assertion error: expected 1, found: " + k.toString());
+    }
+}
+
 public function sleep(int millis) = @java:Method {
-    'class: "org.ballerinalang.test.utils.interop.Sleep"
+    'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
+
+function validateError(any|error value, string message) {
+    if (value is error) {
+        if (value.message() == message) {
+            return;
+        }
+        panic error("Expected error message: " + message + ", found: " + value.message());
+    }
+    panic error("Expected error, found: " + (typeof value).toString());
+}

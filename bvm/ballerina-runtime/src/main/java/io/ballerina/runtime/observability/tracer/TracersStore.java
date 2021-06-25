@@ -15,12 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package io.ballerina.runtime.observability.tracer;
 
 import io.ballerina.runtime.observability.tracer.spi.TracerProvider;
-import io.opentracing.Tracer;
-import io.opentracing.noop.NoopTracerFactory;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.propagation.ContextPropagators;
 
 import java.io.PrintStream;
 import java.util.HashMap;
@@ -35,6 +34,7 @@ public class TracersStore {
     private Map<String, Tracer> store;
     private static final PrintStream consoleError = System.err;
     private static final TracersStore instance = new TracersStore();
+    private ContextPropagators propagators;
 
     public static TracersStore getInstance() {
         return instance;
@@ -45,6 +45,9 @@ public class TracersStore {
 
     public void setTracerGenerator(TracerProvider tracerProvider) {
         this.tracerProvider = tracerProvider;
+        if (tracerProvider != null) {
+            propagators = tracerProvider.getPropagators();
+        }
         store = new HashMap<>();
     }
 
@@ -55,25 +58,32 @@ public class TracersStore {
      * @return trace implementations i.e: zipkin, jaeger
      */
     public Tracer getTracer(String serviceName) {
-        Tracer openTracer;
+        Tracer tracer;
         if (store.containsKey(serviceName)) {
-            openTracer = store.get(serviceName);
+            tracer = store.get(serviceName);
         } else {
             if (tracerProvider != null) {
                 try {
-                    openTracer = tracerProvider.getTracer(serviceName);
+                    tracer = tracerProvider.getTracer(serviceName);
                 } catch (Throwable e) {
-                    openTracer = NoopTracerFactory.create();
+                    tracer = io.opentelemetry.api.trace.TracerProvider.noop().get("");
                     consoleError.println("error: tracing disabled as getting tracer for " + serviceName + " service. "
                             + e.getMessage());
                 }
-                store.put(serviceName, openTracer);
+                store.put(serviceName, tracer);
             } else {
-                openTracer = NoopTracerFactory.create();
+                tracer = io.opentelemetry.api.trace.TracerProvider.noop().get("");
                 consoleError.println("error: tracing disabled as tracer provider had not been initialized");
             }
         }
-        return openTracer;
+        return tracer;
+    }
+
+    public ContextPropagators getPropagators() {
+        if (propagators != null) {
+            return propagators;
+        }
+        return ContextPropagators.noop();
     }
 
     /**

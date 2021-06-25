@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvi
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -32,9 +33,8 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static org.ballerinalang.langserver.codeaction.CodeActionUtil.getAddCheckTextEdits;
 
 /**
  * Code Action for error type handle.
@@ -43,6 +43,9 @@ import static org.ballerinalang.langserver.codeaction.CodeActionUtil.getAddCheck
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
+
+    public static final String NAME = "Error Handle Outside";
+
     /**
      * {@inheritDoc}
      */
@@ -55,39 +58,53 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, CodeActionContext context) {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
+                                                    CodeActionContext context) {
         String uri = context.fileUri();
         if (!(diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return Collections.emptyList();
         }
-        TypeSymbol typeSymbol = context.positionDetails().matchedExprType();
-        if (typeSymbol == null || typeSymbol.typeKind() != TypeDescKind.UNION) {
+        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(
+                DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX);
+        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() != TypeDescKind.UNION) {
             return Collections.emptyList();
         }
-        UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) typeSymbol;
-
+        UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) typeSymbol.get();
         boolean hasErrorMemberType = unionTypeDesc.memberTypeDescriptors().stream()
                 .anyMatch(member -> member.typeKind() == TypeDescKind.ERROR);
-        if (!hasErrorMemberType) {
+        long nonErrorNonNilMemberCount = unionTypeDesc.memberTypeDescriptors().stream()
+                .filter(member -> member.typeKind() != TypeDescKind.ERROR && member.typeKind() != TypeDescKind.NIL)
+                .count();
+        if (!hasErrorMemberType || nonErrorNonNilMemberCount == 0) {
             return Collections.emptyList();
         }
-
         List<TextEdit> edits = new ArrayList<>();
-        edits.addAll(getModifiedCreateVarTextEdits(diagnostic, context, unionTypeDesc));
-        edits.addAll(getAddCheckTextEdits(CommonUtil.toRange(diagnostic.location().lineRange()).getStart(), context));
+        edits.addAll(getModifiedCreateVarTextEdits(diagnostic, unionTypeDesc, positionDetails,
+                typeSymbol.get(), context));
+        edits.addAll(CodeActionUtil.getAddCheckTextEdits(
+                CommonUtil.toRange(diagnostic.location().lineRange()).getStart(),
+                positionDetails.matchedNode(), context));
 
-        String commandTitle = String.format(CommandConstants.CREATE_VAR_ADD_CHECK_TITLE,
-                                            context.positionDetails().matchedSymbol().name());
+        String commandTitle = CommandConstants.CREATE_VAR_ADD_CHECK_TITLE;
         return Collections.singletonList(AbstractCodeActionProvider.createQuickFixCodeAction(commandTitle, edits, uri));
     }
 
-    private List<TextEdit> getModifiedCreateVarTextEdits(Diagnostic diagnostic, CodeActionContext context,
-                                                         UnionTypeSymbol unionTypeDesc) {
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
+    private List<TextEdit> getModifiedCreateVarTextEdits(Diagnostic diagnostic,
+                                                         UnionTypeSymbol unionTypeDesc,
+                                                         DiagBasedPositionDetails positionDetails,
+                                                         TypeSymbol typeSymbol,
+                                                         CodeActionContext context) {
         List<TextEdit> edits = new ArrayList<>();
 
         // Add create variable edits
         Range range = CommonUtil.toRange(diagnostic.location().lineRange());
-        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, context);
+        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, typeSymbol, context);
 
         // Change and add type text edit
         String typeWithError = createVarTextEdits.types.get(0);
@@ -99,7 +116,8 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         TextEdit textEdit = createVarTextEdits.edits.get(0);
         textEdit.setNewText(typeWithoutError + textEdit.getNewText().substring(typeWithError.length()));
         edits.add(textEdit);
-        edits.addAll(createVarTextEdits.imports);
+        // Add all the import text edits excluding duplicates
+        createVarTextEdits.imports.stream().filter(edit -> !edits.contains(edit)).forEach(edits::add);
         return edits;
     }
 }

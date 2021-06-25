@@ -19,14 +19,14 @@ import ballerina/jballerina.java;
 # Represent the iterator type returned when `iterator` method is invoked.
 class TableIterator {
 
-    private table<Type> t;
+    private table<MapType> t;
     private KeyType[] keys;
     private int size;
 
-    public isolated function init(table<Type> t) {
+    public isolated function init(table<MapType> t) {
        self.t = t;
         self.size = length(t);
-       if (t is table<Type> key<KeyType>) {
+       if (t is table<MapType> key<KeyType>) {
            self.keys = keys(t);
        } else {
            self.keys = [];
@@ -35,11 +35,11 @@ class TableIterator {
 
     # Return the next member in table iterator, nil if end of iterator is reached.
     # + return - iterator result
-    public isolated function next() returns record {| Type value; |}? {
+    public isolated function next() returns record {| MapType value; |}? {
        return externNext(self);
     }
 }
-isolated function externNext(TableIterator iterator) returns record {| Type value; |}? = @java:Method {
+isolated function externNext(TableIterator iterator) returns record {| MapType value; |}? = @java:Method {
     'class: "org.ballerinalang.langlib.table.Next",
     name: "next"
 } external;

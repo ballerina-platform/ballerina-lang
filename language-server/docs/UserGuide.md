@@ -107,10 +107,12 @@ Within the annotation attachment's body annotation fields and expression suggest
 <a name="IterableOperationsSuggestion" />
 
 #### Iterable Operations Suggestion
-For the variables which are allowed to use iterable operations suggestions for iterable operations templates will be provided and you can choose a pre defined template among them.
+For the variables which are allowed to use iterable operations, suggestions for iterable operations templates will be provided and you can choose a pre defined or dynamic template among them.
 - Arrays
 - Maps
-- Json
+- String
+- Stream
+- Record
 - Table
 - XML
 

@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/lang.'xml as xmllib;
+import ballerina/lang.value;
 
 final string FREEZE_ERROR_OCCURRED = "error occurred on freeze: ";
 final string FREEZE_SUCCESSFUL = "freeze successful";
@@ -236,7 +237,7 @@ function testFrozenXmlSetChildren() {
     xml x1 = xml `<book>The Lost World</book>`;
     xml x2 = xml `<author>Doyle</author>`;
 
-    xmllib:Element x3 = <xmllib:Element> x1.cloneReadOnly();
+    xmllib:Element x3 = <xmllib:Element & readonly> x1.cloneReadOnly();
     x3.setChildren(x2);
 }
 
@@ -244,7 +245,7 @@ function testFrozenXmlSetChildrenDeep() {
     xml x1 = xml `<book><name>The Lost World</name><authors></authors></book>`;
     xml x2 = xml `<author>Doyle</author>`;
 
-    xmllib:Element x3 = <xmllib:Element> x1.cloneReadOnly();
+    xmllib:Element x3 = <xmllib:Element & readonly> x1.cloneReadOnly();
     xml author = x3.getChildren().strip()[1];
     xmllib:Element authorEm = <xmllib:Element> author;
     authorEm.setChildren(x2);
@@ -382,7 +383,8 @@ function testFrozenTableAddition() {
             { id: 3, name: "Jim" }
         ];
     Employee1 e = { id: 5, name: "Anne" };
-    empTable.add(e);
+    table<Employee1> key(id) empTable2  = empTable.cloneReadOnly();
+    empTable2.add(e);
 }
 
 function testFrozenTableRemoval() {
@@ -391,7 +393,8 @@ function testFrozenTableRemoval() {
             { id: 2, name: "John" },
             { id: 3, name: "Jim" }
         ];
-    var rm = empTable.remove(2);
+    table<Employee1> key(id) empTable2 = empTable.cloneReadOnly();
+    _ = empTable2.remove(2);
 }
 
 function testSimpleUnionFreeze() returns boolean {
@@ -460,8 +463,10 @@ function testStructureWithErrorValueFreeze() returns boolean {
     error e = error(errReason);
     map<anydata|error> m = { err: e };
 
-    anydata res = m.cloneReadOnly();
-    return res is map<anydata|error> && res["err"] === e && res.isReadOnly();
+    value:Cloneable res = m.cloneReadOnly();
+    //todo check `res is readonly` once #23691 get fixed
+    //return res is readonly && res["err"] === e;
+    return res is map<value:Cloneable> && res["err"] === e;
 }
 
 function testFrozenValueUpdatePanicWithCheckTrap() returns boolean|error {

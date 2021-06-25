@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
  *
  * @since 0.966.0
  */
+@Deprecated
 public class BLangMatch extends BLangStatement implements MatchNode {
 
     public BLangMatch() {

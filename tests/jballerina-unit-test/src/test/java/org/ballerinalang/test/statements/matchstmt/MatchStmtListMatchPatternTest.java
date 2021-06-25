@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
  *
  * @since 2.0.0
  */
-@Test(groups = {"disableOnOldParser"})
 public class MatchStmtListMatchPatternTest {
 
     private CompileResult result, resultNegative, resultSemanticsNegative, restMatchPatternResult;
@@ -164,6 +163,46 @@ public class MatchStmtListMatchPatternTest {
     }
 
     @Test
+    public void testListMatchPattern24() {
+        BRunUtil.invoke(result, "testListMatchPattern24");
+    }
+
+    @Test
+    public void testListMatchPattern25() {
+        BRunUtil.invoke(result, "testListMatchPattern25");
+    }
+
+    @Test
+    public void testListMatchPattern26() {
+        BRunUtil.invoke(result, "testListMatchPattern26");
+    }
+
+    @Test
+    public void testListMatchPattern27() {
+        BRunUtil.invoke(result, "testListMatchPattern27");
+    }
+
+    @Test
+    public void testListMatchPatternWithWildCard() {
+        BRunUtil.invoke(result, "testListMatchPatternWithWildCard");
+    }
+
+    @Test
+    public void testListMatchPatternWithArrayAndAnydataIntersection() {
+        BRunUtil.invoke(result, "testListMatchPatternWithArrayAndAnydataIntersection");
+    }
+
+    @Test
+    public void testListMatchPattern29() {
+        BRunUtil.invoke(result, "testListMatchPattern29");
+    }
+
+    @Test
+    public void testListMatchPattern30() {
+        BRunUtil.invoke(result, "testListMatchPattern30");
+    }
+
+    @Test
     public void testRestMatchPattern1() {
         BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest1");
     }
@@ -188,41 +227,60 @@ public class MatchStmtListMatchPatternTest {
         BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest5");
     }
 
+    @Test
+    public void testListMatchPatternWithRestPatternWithArrayAndAnydataIntersection() {
+        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRestPatternWithArrayAndAnydataIntersection");
+    }
+
+    @Test
+    public void testListMatchPatternWithClosedArray() {
+        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithClosedArray");
+    }
+
+    @Test
+    public void testListMatchPatternWithRestPattern11() {
+        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRestPattern11");
+    }
+
     @Test(description = "invalid match patterns")
     public void testListMatchPatternNegative() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 6);
+        Assert.assertEquals(resultNegative.getWarnCount(), 25);
         int i = -1;
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 23, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 23, 9);
         BAssertUtil.validateError(resultNegative, ++i, "all match patterns should contain the same set of variables",
                 32, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 32, 17);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 40, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 43, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 53, 13);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 32, 17);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 40, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 43, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 53, 13);
         BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 58, 5);
         BAssertUtil.validateError(resultNegative, ++i, "all match patterns should contain the same set of variables",
                 64, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 69, 5);
         BAssertUtil.validateError(resultNegative, ++i, "all match patterns should contain the same set of variables",
                 71, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 71, 39);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 71, 39);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 71, 39);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 71, 39);
         BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 78, 5);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 86, 22);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 90, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 92, 18);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 94, 18);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 98, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 102, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 110, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 117, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 124, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 131, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 141, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 152, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 164, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 184, 9);
-
-        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 86, 22);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 90, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 92, 18);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 94, 18);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 98, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 102, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 110, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 117, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 124, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 131, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 141, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 152, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 164, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 184, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 191, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 197, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 199, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 201, 9);
     }
 
     @Test(description = "test negative semantics")
@@ -234,6 +292,18 @@ public class MatchStmtListMatchPatternTest {
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "same variable cannot repeat in a match pattern", 21,
                 17);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "redeclared symbol 'a'", 21, 22);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'string[]', found " +
+                "'int[]'", 28, 26);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int[][]', found '" +
+                "(int|error)[][]'", 29, 27);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int', found 'json'",
+                37, 21);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'boolean[]', found " +
+                        "'json[]'", 37, 24);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int', found 'json'",
+                40, 21);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'boolean', found 'json'",
+                40, 25);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 

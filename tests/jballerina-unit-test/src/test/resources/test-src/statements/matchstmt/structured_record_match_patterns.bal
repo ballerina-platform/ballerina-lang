@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 type Foo record {
     string s;
     int i;
@@ -59,7 +57,7 @@ function testStructuredMatchPatternsBasic3() returns string {
 
     match bar {
         var {b, f} => {
-            return "Matched Values : " + io:sprintf("%s", b) + ", " + io:sprintf("%s", f);
+            return "Matched Values : " + b.toString() + ", " + f.toString();
         }
     }
 
@@ -72,10 +70,10 @@ function testStructuredMatchPatternsBasic4() returns string {
 
     match bar {
         var {a} => {
-            return "Matched Values : " + io:sprintf("%s", a);
+            return "Matched Values : " + a.toString();
         }
         var y => {
-            return "Matched Values : " + io:sprintf("%s", y);
+            return "Matched Values : " + y.toString();
         }
     }
 }
@@ -120,14 +118,14 @@ function testStructuredMatchPatternsBasics5() returns string[] {
 function basicMatch(ClosedFoo1 | ClosedFoo2 | ClosedFoo3 | ClosedFoo4 a) returns string {
     match a {
         var {var1, var2, var3} => {
-            return "Matched with three vars : " + io:sprintf("%s", var1) + ", " +
-            io:sprintf("%s", var2) + ", " + io:sprintf("%s", var3);
+            return "Matched with three vars : " + var1.toString() + ", " +
+            var2.toString() + ", " + var3.toString();
         }
         var {var1, var2} => {
-            return "Matched with two vars : " + io:sprintf("%s", var1) + ", " + io:sprintf("%s", var2);
+            return "Matched with two vars : " + var1.toString() + ", " + var2.toString();
         }
         var {var1} => {
-            return "Matched with single var : " + io:sprintf("%s", var1);
+            return "Matched with single var : " + var1.toString();
         }
     }
 
@@ -160,15 +158,14 @@ function testStructuredMatchPatternComplex1() returns string[] {
 function complexMatch(ClosedBar1 | ClosedBar2 | string a) returns string {
     match a {
         var {var1, var2: {var1: v1, var2}} => {
-            return "Matched with three vars : " + io:sprintf("%s", var1) + ", " + io:sprintf("%s", v1) +
-            ", " + io:sprintf("%s", var2);
+            return "Matched with three vars : " + var1.toString() + ", " + v1.toString() +
+            ", " + var2.toString();
         }
         var {var1, var2} => {
-            return "Matched with two vars : " + io:sprintf("%s", var1) + ", " +
-            io:sprintf("%s", var2);
+            return "Matched with two vars : " + var1.toString() + ", " + var2.toString();
         }
         var s => {
-            return "Matched with single var : " + io:sprintf("%s", s);
+            return "Matched with single var : " + s.toString();
         }
     }
 }
@@ -187,16 +184,16 @@ function testRuntimeCheck() returns string[] {
 function matchRuntimeCheck(Foo foo) returns string {
     match foo {
         var {s, i, f, t: [i2, b]} => {
-            return "Matched with five vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i) +
-            ", " + io:sprintf("%s", f) + ", " + io:sprintf("%s", i2) + ", " + io:sprintf("%s", b);
+            return "Matched with five vars : " + s.toString() + ", " + i.toString() +
+            ", " + f.toString() + ", " + i2.toString() + ", " + b.toString();
         }
         var {s, i, f, t} => {
-            return "Matched with four vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i) +
-            ", " + io:sprintf("%s", f) + ", " + io:sprintf("%s", t);
+            return "Matched with four vars : " + s.toString() + ", " + i.toString() +
+            ", " + f.toString() + ", " + t.toString();
         }
         var {s, i, f} => {
-            return "Matched with three vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i) +
-            ", " + io:sprintf("%s", f);
+            return "Matched with three vars : " + s.toString() + ", " + i.toString() +
+            ", " + f.toString();
         }
     }
     return "Default";
@@ -205,16 +202,16 @@ function matchRuntimeCheck(Foo foo) returns string {
 function matchRuntimeCheckWithAny(any foo) returns string {
     match foo {
         var {s, i, f, t: [i2, b]} => {
-            return "Matched with five vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i) +
-            ", " + io:sprintf("%s", f) + ", " + io:sprintf("%s", i2) + ", " + io:sprintf("%s", b);
+            return "Matched with five vars : " + toString(s) + ", " + toString(i) +
+            ", " + toString(f) + ", " + toString(i2) + ", " + toString(b);
         }
         var {s, i, f, t} => {
-            return "Matched with four vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i) +
-            ", " + io:sprintf("%s", f) + ", " + io:sprintf("%s", t);
+            return "Matched with four vars : " + toString(s) + ", " + toString(i) +
+            ", " + toString(f) + ", " + toString(t);
         }
         var {s, i, f} => {
-            return "Matched with three vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i) +
-            ", " + io:sprintf("%s", f);
+            return "Matched with three vars : " + toString(s) + ", " + toString(i) +
+            ", " + toString(f);
         }
     }
     return "Default";
@@ -238,19 +235,19 @@ function testStructuredMatchPatternWithTypeGuard1() returns string[] {
 function typeGuard1([string, int] | ClosedBar1 | ClosedBar2 | [int, boolean] | int | float x) returns string {
     match x {
         var [s, i] if s is string => {
-            return "Matched with string : " + s + " added text with " + io:sprintf("%s", i);
+            return "Matched with string : " + s + " added text with " + i.toString();
         }
         var {var1, var2} if var2 is int => {
-            return "Matched with record int : " + io:sprintf("%s", var1) + " with " + io:sprintf("%s", var2 + 12);
+            return "Matched with record int : " + var1.toString() + " with " + (var2 + 12).toString();
         }
         var {var1, var2} if var2 is ClosedBar1 => {
-            return "Matched with record with ClosedBar1 : " + io:sprintf("%s", var1) + " with " + io:sprintf("%s", var2.var1);
+            return "Matched with record with ClosedBar1 : " + var1.toString() + " with " + var2.var1.toString();
         }
         var [s, i] if i is boolean => {
-            return "Matched with boolean : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i);
+            return "Matched with boolean : " + s.toString() + ", " + i.toString();
         }
         var y => {
-            return "Matched with default type - float : " + io:sprintf("%s", y);
+            return "Matched with default type - float : " + y.toString();
         }
     }
 }
@@ -273,16 +270,16 @@ function typeGuard2(any matchExpr) returns string {
             return "Matched with string";
         }
         var {var1, var2} if (var1 is int && var2 is int) => {
-            return "Matched with int and int : " + io:sprintf("%s", var1);
+            return "Matched with int and int : " + var1.toString();
         }
         var {var1, var2} if (var1 is string && var2 is int) => {
-            return "Matched with string and int : " + io:sprintf("%s", var1);
+            return "Matched with string and int : " + var1.toString();
         }
         var {var1, var2} if (var1 is int && var2 is ClosedBar1) => {
-            return "Matched with int and ClosedBar1 : " + io:sprintf("%s", var1);
+            return "Matched with int and ClosedBar1 : " + var1.toString();
         }
         var {var1, var2} if (var1 is string && var2 is ClosedBar1) => {
-            return "Matched with string and ClosedBar1 : " + io:sprintf("%s", var2.var1);
+            return "Matched with string and ClosedBar1 : " + var2.var1.toString();
         }
         var x => {
             return "Matched with Default";
@@ -312,16 +309,16 @@ function testStructuredMatchPatternWithTypeGuard3() returns string[] {
 function typeGuard3(any matchExpr) returns string {
     match matchExpr {
         var {var1, var2: [x, y]} if (x is float && y is boolean) => {
-            return "Matched with foo : " + io:sprintf("%s", x + 6.1);
+            return "Matched with foo : " + (x + 6.1).toString();
         }
         var {var1, var2: [x, {var1: y}]} if (x is float && y is [string, string]) => {
-            return "Matched with nothing : " + io:sprintf("%s", x + 5);
+            return "Matched with nothing : " + (x + 5f).toString();
         }
         var {var1, var2: [x, {var1: y, var2: z}]} if (y is [int, string] && z is [float, boolean]) => {
-            return "Matched with bar : " + io:sprintf("%s", y[0] + 5);
+            return "Matched with bar : " + (y[0] + 5).toString();
         }
         var y => {
-            return "Matched with default : " + io:sprintf("%s", y);
+            return "Matched with default : " + y.toString();
         }
     }
 }
@@ -349,13 +346,13 @@ function testStructuredMatchPatternWithTypeGuard4() returns string[] {
 function typeGuard4(RestParam | ClosedRec matchExpr) returns string {
     match matchExpr {
         var {var1} if var1 is string => {
-            return "Matched with string : " + io:sprintf("%s", var1);
+            return "Matched with string : " + var1.toString();
         }
         var {var1, ...rest} => {
-            return "Matched with restparam : " + io:sprintf("%s", rest);
+            return "Matched with restparam : " + rest.toString();
         }
         var y => {
-            return "Matched with default : " + io:sprintf("%s", y);
+            return "Matched with default : " + y.toString();
         }
     }
 }
@@ -405,13 +402,13 @@ function testStructuredMatchPatternWithEmptyRecord() returns string[] {
 function foo8(any x) returns string {
     match x {
         var {a, b, c} => {
-            return io:sprintf("Matched with a: %s, b: %s, c: %s", a, b, c);
+            return "Matched with a: " + toString(a) + ", b: " + toString(b) + ", c: " + toString(c);
         }
         var {a, b} => {
-            return io:sprintf("Matched with a: %s, b: %s", a, b);
+            return "Matched with a: " + toString(a) + ", b: " + toString(b);
         }
         var {a} => {
-            return io:sprintf("Matched with a: %s", a);
+            return "Matched with a: " + toString(a);
         }
         var {} => {
             return "Matched with empty record";
@@ -420,4 +417,8 @@ function foo8(any x) returns string {
             return "Matched with default";
         }
     }
+}
+
+function toString(any|error val) returns string {
+    return val is any ? val.toString() : val.toString();
 }

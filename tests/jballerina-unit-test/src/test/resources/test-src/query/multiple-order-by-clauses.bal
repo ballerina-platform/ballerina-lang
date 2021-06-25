@@ -255,7 +255,7 @@ function testQueryActionWithMultipleOrderByClauses() returns boolean {
     Customer[] customerList = [c1, c2, c3, c4, c5];
     Person[] personList = [p1, p2, p3];
 
-    var op =
+    error? op =
         from var customer in customerList
         join var person in personList
         on customer.name equals person.lastName

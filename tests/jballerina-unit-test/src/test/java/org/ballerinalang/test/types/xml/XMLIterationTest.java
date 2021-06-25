@@ -16,12 +16,8 @@
  */
 package org.ballerinalang.test.types.xml;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BRefType;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.model.values.BXML;
-import org.ballerinalang.core.model.values.BXMLItem;
 import org.ballerinalang.core.model.values.BXMLSequence;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
@@ -30,8 +26,6 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import java.util.StringJoiner;
 
 /**
  * Test cases for XML iteration.
@@ -44,7 +38,6 @@ public class XMLIterationTest {
 
     String[][] authors = new String[][]{{"Giada De Laurentiis"}, {"J. K. Rowling"},
             {"James McGovern", "Per Bothner", "Kurt Cagle", "James Linn", "Vaidyanathan Nagarajan"}, {"Erik T. Ray"}};
-    String[] titles = new String[]{"Everyday Italian", "Harry Potter", "XQuery Kick Start", "Learning XML"};
 
     @BeforeClass
     public void setup() {
@@ -54,10 +47,10 @@ public class XMLIterationTest {
 
     @Test
     public void testNegative() {
-        Assert.assertEquals(negative.getErrorCount(), 17);
+        Assert.assertEquals(negative.getErrorCount(), 20);
         int index = 0;
         BAssertUtil.validateError(negative, index++,
-                                  "invalid tuple binding pattern: attempted to infer a tuple type, but found 'xml'",
+                                  "invalid list binding pattern: attempted to infer a list type, but found 'xml'",
                                   13, 17);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
                 "'function ((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)) returns ()'," +
@@ -93,6 +86,9 @@ public class XMLIterationTest {
                         "found 'record {| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
                 55, 63);
         BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected '(xml:Element|xml:Text)', found 'xml'",
+                59, 34);
+        BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found '(xml:Element|xml:Text)'",
                 63, 13);
         BAssertUtil.validateError(negative, index++,
@@ -109,36 +105,25 @@ public class XMLIterationTest {
                         "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
                 72, 68);
         BAssertUtil.validateError(negative, index++,
+                "xml langlib functions does not support union types as their arguments",
+                72, 68);
+        BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', found 'record " +
                         "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
+                73, 68);
+        BAssertUtil.validateError(negative, index++,
+                "xml langlib functions does not support union types as their arguments",
                 73, 68);
     }
 
     @Test
     public void testXMLForeach() {
-        BValue[] returns = BRunUtil.invoke(result, "foreachTest");
-
-        Assert.assertNotNull(returns);
-
-        for (int i = 0; i < returns.length; i++) {
-            BValueArray tuple = (BValueArray) returns[i];
-            Assert.assertEquals(((BInteger) tuple.getRefValue(0)).intValue(), i);
-            Assert.assertEquals(tuple.getRefValue(1).stringValue(), titles[i]);
-        }
+        BRunUtil.invoke(result, "foreachTest");
     }
 
     @Test
     public void testXMLForeachOp() {
-        String[] titles = new String[]{"Everyday Italian", "Harry Potter", "XQuery Kick Start", "Learning XML"};
-        BValue[] returns = BRunUtil.invoke(result, "foreachOpTest");
-
-        Assert.assertNotNull(returns);
-
-        for (int i = 0; i < returns.length; i++) {
-            BValueArray tuple = (BValueArray) returns[i];
-            Assert.assertEquals(((BInteger) tuple.getRefValue(0)).intValue(), i);
-            Assert.assertEquals(tuple.getRefValue(1).stringValue(), titles[i]);
-        }
+        BRunUtil.invoke(result, "foreachOpTest");
     }
 
     @Test
@@ -148,49 +133,17 @@ public class XMLIterationTest {
         BRunUtil.invoke(result, "testXmlCommentSequenceIteration");
         BRunUtil.invoke(result, "testXmlPISequenceIteration");
         BRunUtil.invoke(result, "testXmlUnionSequenceIteration");
+        BRunUtil.invoke(result, "testXmlSequenceIteration");
     }
 
     @Test
     public void testXMLMapOp() {
-        BValue[] returns = BRunUtil.invoke(result, "mapOpTest");
-
-        Assert.assertNotNull(returns);
-
-        for (int i = 0; i < returns.length; i++) {
-            BValueArray retAuthors = ((BXMLSequence) returns[i]).value();
-            long size = retAuthors.size();
-
-            for (int j = 0; j < size; j++) {
-                String actual = ((BXML<?>) retAuthors.getRefValue(j)).getTextValue().stringValue();
-                Assert.assertEquals(actual, concat(authors[j]));
-            }
-        }
-    }
-
-    private String concat(Object [] array) {
-        StringJoiner j = new StringJoiner("");
-        for (Object elem : array) {
-            j.add(elem.toString());
-        }
-        return j.toString();
+        BRunUtil.invoke(result, "mapOpTest");
     }
 
     @Test
     public void testXMLFilterOp() {
         BValue[] returns = BRunUtil.invoke(result, "filterOpTest");
-
-        Assert.assertNotNull(returns);
-        BRefType<?>[] values = ((BXMLSequence) returns[0]).value().getValues();
-
-        Assert.assertEquals(((BXMLItem) values[0]).children().getItem(1).getTextValue().stringValue(), titles[0]);
-        Assert.assertEquals(((BXMLItem) values[0]).children().getItem(3).getTextValue().stringValue(), authors[0][0]);
-        Assert.assertEquals(((BXMLItem) values[0]).children().getItem(5).getTextValue().intValue(), 2005);
-        Assert.assertEquals(((BXMLItem) values[0]).children().getItem(7).getTextValue().floatValue(), 30.00);
-
-        Assert.assertEquals(((BXMLItem) values[1]).children().getItem(1).getTextValue().stringValue(), titles[1]);
-        Assert.assertEquals(((BXMLItem) values[1]).children().getItem(3).getTextValue().stringValue(), authors[1][0]);
-        Assert.assertEquals(((BXMLItem) values[1]).children().getItem(5).getTextValue().intValue(), 2005);
-        Assert.assertEquals(((BXMLItem) values[1]).children().getItem(7).getTextValue().floatValue(), 29.99);
     }
 
     @Test

@@ -20,8 +20,6 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.values.BLink;
-import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.types.BTupleType;
@@ -31,7 +29,6 @@ import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -65,140 +62,6 @@ public abstract class AbstractArrayValue implements ArrayValue {
     protected int size = 0;
     protected Type iteratorNextReturnType;
 
-    // ----------------------- get methods ----------------------------------------------------
-
-    /**
-     * Get value in the given array index.
-     * 
-     * @param index array index
-     * @return array value
-     */
-    @Override
-    public abstract Object get(long index);
-
-    /**
-     * Get ref value in the given index.
-     * 
-     * @param index array index
-     * @return array value
-     */
-    @Override
-    public abstract Object getRefValue(long index);
-
-    /**
-     * Get int value in the given index.
-     * 
-     * @param index array index
-     * @return array element
-     */
-    @Override
-    public abstract long getInt(long index);
-
-    /**
-     * Get boolean value in the given index.
-     * 
-     * @param index array index
-     * @return array element
-     */
-    @Override
-    public abstract boolean getBoolean(long index);
-
-    /**
-     * Get byte value in the given index.
-     * 
-     * @param index array index
-     * @return array element
-     */
-    @Override
-    public abstract byte getByte(long index);
-
-    /**
-     * Get float value in the given index.
-     * 
-     * @param index array index
-     * @return array element
-     */
-    @Override
-    public abstract double getFloat(long index);
-
-    /**
-     * Get string value in the given index.
-     * 
-     * @param index array index
-     * @return array element
-     */
-    @Override
-    @Deprecated
-    public abstract String getString(long index);
-
-    // ---------------------------- add methods --------------------------------------------------
-
-    /**
-     * Add ref value to the given array index.
-     * 
-     * @param index array index
-     * @param value value to be added
-     */
-    @Override
-    public abstract void add(long index, Object value);
-
-    /**
-     * Add int value to the given array index.
-     * 
-     * @param index array index
-     * @param value value to be added
-     */
-    @Override
-    public abstract void add(long index, long value);
-
-    /**
-     * Add boolean value to the given array index.
-     * 
-     * @param index array index
-     * @param value value to be added
-     */
-    @Override
-    public abstract void add(long index, boolean value);
-
-    /**
-     * Add byte value to the given array index.
-     * 
-     * @param index array index
-     * @param value value to be added
-     */
-    @Override
-    public abstract void add(long index, byte value);
-
-    /**
-     * Add double value to the given array index.
-     * 
-     * @param index array index
-     * @param value value to be added
-     */
-    @Override
-    public abstract void add(long index, double value);
-
-    /**
-     * Add string value to the given array index.
-     * 
-     * @param index array index
-     * @param value value to be added
-     */
-    @Override
-    @Deprecated
-    public abstract void add(long index, String value);
-
-    /**
-     * Add BString value to the given array index.
-     *
-     * @param index array index
-     * @param value value to be added
-     */
-    @Override
-    public abstract void add(long index, BString value);
-
-    // -------------------------------------------------------------------------------------------------------------
-
     /**
      * Append value to the existing array.
      * 
@@ -209,14 +72,9 @@ public abstract class AbstractArrayValue implements ArrayValue {
         add(size, value);
     }
 
-    /**
-     * Reverse the array in-place.
-     *
-     * @return reversed array
-     */
     @Override
     public Object reverse() {
-        return reverse();
+        throw new UnsupportedOperationException("reverse for tuple types is not supported directly.");
     }
 
     /**
@@ -229,9 +87,6 @@ public abstract class AbstractArrayValue implements ArrayValue {
         return shift(0);
     }
 
-    @Override
-    public abstract Object shift(long index);
-
     /**
      * Adds values to the start of an array.
      *
@@ -243,15 +98,6 @@ public abstract class AbstractArrayValue implements ArrayValue {
     }
 
     @Override
-    public abstract String stringValue(BLink parent);
-
-    @Override
-    public abstract String expressionStringValue(BLink parent);
-
-    @Override
-    public abstract Type getType();
-
-    @Override
     public int size() {
         return size;
     }
@@ -259,9 +105,6 @@ public abstract class AbstractArrayValue implements ArrayValue {
     public boolean isEmpty() {
         return size == 0;
     }
-
-    @Override
-    public abstract Object copy(Map<Object, Object> refs);
 
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
@@ -278,9 +121,6 @@ public abstract class AbstractArrayValue implements ArrayValue {
     }
 
     @Override
-    public abstract void serialize(OutputStream outputStream);
-
-    @Override
     public String getJSONString() {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         JsonGenerator gen = new JsonGenerator(byteOut);
@@ -290,14 +130,8 @@ public abstract class AbstractArrayValue implements ArrayValue {
         } catch (IOException e) {
             throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
         }
-        return new String(byteOut.toByteArray());
+        return byteOut.toString();
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract void freezeDirect();
 
     /**
      * {@inheritDoc}

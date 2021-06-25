@@ -68,14 +68,15 @@ public class EnumTest {
     @Test
     public void testNegative() {
         int i = 0;
-        validateError(negativeTest, i++, "incompatible types: expected 'string', found 'int'", 29, 16);
-        validateError(negativeTest, i++, "incompatible types: expected 'string', found 'float'", 30, 13);
-        validateError(negativeTest, i++, "incompatible types: expected 'int', found 'string'", 34, 18);
-        validateError(negativeTest, i++, "incompatible types: expected 'float', found 'string'", 35, 16);
-        validateError(negativeTest, i++, "incompatible types: expected '(SQUARE|CIRCLE)', found 'string'", 39, 15);
-        validateError(negativeTest, i++, "incompatible types: expected '(Ed Shereen|LANA|EMINEM)', found 'string'",
-                40, 16);
-        validateError(negativeTest, i++, "incompatible types: expected 'Ed Shereen', found 'string'", 41, 12);
+        validateError(negativeTest, i++, "missing identifier", 19, 1);
+        validateError(negativeTest, i++, "missing identifier", 23, 1);
+        validateError(negativeTest, i++, "incompatible types: expected 'string', found 'int'", 37, 16);
+        validateError(negativeTest, i++, "incompatible types: expected 'string', found 'float'", 38, 13);
+        validateError(negativeTest, i++, "incompatible types: expected 'int', found 'string'", 42, 18);
+        validateError(negativeTest, i++, "incompatible types: expected 'float', found 'string'", 43, 16);
+        validateError(negativeTest, i++, "incompatible types: expected 'Shape', found 'string'", 47, 15);
+        validateError(negativeTest, i++, "incompatible types: expected 'Artist', found 'string'", 48, 16);
+        validateError(negativeTest, i++, "incompatible types: expected 'Ed Shereen', found 'string'", 49, 12);
         assertEquals(negativeTest.getErrorCount(), i);
     }
 

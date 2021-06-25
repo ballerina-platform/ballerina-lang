@@ -47,16 +47,28 @@ public class UnionTypeDescriptorNodeContext extends AbstractCompletionProvider<U
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
-        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode refNode = ((QualifiedNameReferenceNode) nodeAtCursor);
             List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, refNode);
             completionItems.addAll(this.getCompletionItemList(typesInModule, context));
         } else {
-            completionItems.addAll(this.getModuleCompletionItems(context));
-            completionItems.addAll(this.getTypeItems(context));
+            completionItems.addAll(this.getTypeDescContextItems(context));
         }
         this.sort(context, node, completionItems);
 
         return completionItems;
+    }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, UnionTypeDescriptorNode node) {
+        /*
+          Validation added for
+          function foo() {
+             i<cursor>
+             int value5 = 12;
+          }
+          This will recover as <code>i MISSING[|] int value5 = 12;</code>
+         */
+        return !node.pipeToken().isMissing();
     }
 }

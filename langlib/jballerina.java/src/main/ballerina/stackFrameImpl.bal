@@ -20,16 +20,14 @@
 # + moduleName - Module name
 # + fileName - File name
 # + lineNumber - Line number
-// todo use readonly qualifier once #27501 fixed
-# public readonly class StackFrameImpl
-public class StackFrameImpl {
+public readonly class StackFrameImpl {
 
     public string callableName;
     public string moduleName;
     public string fileName;
     public int lineNumber;
 
-    # Returns a string representing for the `StackFrame`
+    # Returns a string representing for the `StackFrame`.
     #
     # + return - A stack frame as string
     public function toString() returns string {

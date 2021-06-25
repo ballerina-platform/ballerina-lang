@@ -32,7 +32,6 @@ import static org.testng.Assert.assertEquals;
  *
  * @since 2.0.0
  */
-@Test(groups = { "brokenOnOldParser" })
 public class SelectivelyImmutableTypeBalaTest {
 
     private CompileResult result;
@@ -63,16 +62,15 @@ public class SelectivelyImmutableTypeBalaTest {
         validateError(result, index++, "incompatible types: expected '(testorg/selectively_immutable:1.0.0:Details & " +
                 "readonly)', found 'testorg/selectively_immutable:1.0.0:Details'", 31, 18);
         validateError(result, index++,
-                "incompatible types: expected 'testorg/selectively_immutable:1.0.0:(" +
-                        "testorg/selectively_immutable:1.0.0:Student & readonly)', " +
+                "incompatible types: expected 'testorg/selectively_immutable:1.0.0:ReadOnlyStudent', " +
                               "found 'testorg/selectively_immutable:1.0.0:Student'", 43, 29);
-        validateError(result, index++, "incompatible types: expected '(A|B|(any & readonly))', found 'Obj'", 57, 26);
+        validateError(result, index++, "incompatible types: expected '(ABAny & readonly)', found 'Obj'", 57, 26);
 
         // Updates.
-        validateError(result, index++, "cannot update 'readonly' value of type 'testorg/selectively_immutable:1.0.0:" +
-                "(testorg/selectively_immutable:1.0.0:Student & readonly)'", 62, 5);
-        validateError(result, index++, "cannot update 'readonly' value of type 'testorg/selectively_immutable:1.0.0:" +
-                "(testorg/selectively_immutable:1.0.0:Student & readonly)'", 66, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type 'testorg/selectively_immutable:1.0" +
+                ".0:ReadOnlyStudent'", 62, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type 'testorg/selectively_immutable:1.0" +
+                ".0:ReadOnlyStudent'", 66, 5);
         validateError(result, index++, "cannot update 'readonly' value of type '(testorg/selectively_immutable:1.0" +
                 ".0:Details & readonly)'", 76, 5);
         validateError(result, index++, "cannot update 'readonly' value of type '(testorg/selectively_immutable:1.0" +

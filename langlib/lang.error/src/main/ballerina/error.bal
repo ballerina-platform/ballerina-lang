@@ -15,14 +15,14 @@
 // under the License.
 
 import ballerina/jballerina.java;
-import ballerina/lang.'value as value;
 
-# The type of value to which `clone` and `cloneReadOnly` can be applied.
-type __Cloneable1 readonly|xml|__Cloneable1[]|map<__Cloneable1>|table<map<__Cloneable1>>;
+# Type for value that can be cloned.
+# This is the same as in lang.value, but is copied here to avoid a dependency.
+type Cloneable readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>;
 
 # The type to which error detail records must belong.
 public type Detail record {|
-   __Cloneable1...;
+   Cloneable...;
 |};
 
 # A type parameter that is a subtype of error `Detail` record type.
@@ -50,6 +50,7 @@ public isolated function cause(error e) returns error? = @java:Method {
 } external;
 
 # Returns the error's detail record.
+#
 # The returned value will be immutable.
 # + e - the error value
 # + return - error detail value
@@ -57,18 +58,8 @@ public isolated function detail(error<DetailType> e) returns DetailType = @java:
     'class: "org.ballerinalang.langlib.error.Detail",
     name: "detail"
 } external;
-//public function detail(error<DetailType> e) returns readonly & DetailType = external;
 
-# Returns an object representing the stack trace of the error.
-#
-# + e - the error value
-# + return - a new object representing the stack trace of the error value
-public isolated function stackTrace(error e) returns CallStack = @java:Method {
-    'class: "org.ballerinalang.langlib.error.StackTrace",
-    name: "stackTrace"
-} external;
-
-# Representation of `CallStackElement`
+# Representation of `CallStackElement`.
 #
 # + callableName - Callable name
 # + moduleName - Module name
@@ -81,20 +72,30 @@ public type CallStackElement record {|
     int lineNumber;
 |};
 
-# Represent error call stack.
+# Represents an error call stack.
 #
 # + callStack - call stack
 public class CallStack {
     public CallStackElement[] callStack = [];
 }
 
-# Converts an error to a string.
+# Returns an object representing the stack trace of the error.
 #
-# + e - the error to be converted to a string
-# + return - a string resulting from the conversion
+# + e - the error value
+# + return - a new object representing the stack trace of the error value
+public isolated function stackTrace(error e) returns CallStack = @java:Method {
+    'class: "org.ballerinalang.langlib.error.StackTrace",
+    name: "stackTrace"
+} external;
+
+
+# Converts an error to a string.
 #
 # The details of the conversion are specified by the ToString abstract operation
 # defined in the Ballerina Language Specification, using the direct style.
+#
+# + e - the error to be converted to a string
+# + return - a string resulting from the conversion
 public isolated function toString(error e) returns string = @java:Method {
     'class: "org.ballerinalang.langlib.error.ToString",
     name: "toString",
@@ -102,11 +103,12 @@ public isolated function toString(error e) returns string = @java:Method {
 } external;
 
 # Converts an error to a string that describes the value in Ballerina syntax.
-# + e - the error to be converted to a string
-# + return - a string resulting from the conversion
 #
 # The details of the conversion are specified by the ToString abstract operation
 # defined in the Ballerina Language Specification, using the expression style.
+#
+# + e - the error to be converted to a string
+# + return - a string resulting from the conversion
 public isolated function toBalString(error e) returns string = @java:Method {
   'class: "org.ballerinalang.langlib.error.ToBalString",
   name: "toBalString"

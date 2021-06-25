@@ -22,7 +22,7 @@ function accessGlobalVar() returns int | error {
 }
 
 function changeGlobalVar(int addVal) returns float {
-    glbVarFloatChange = 77 + <float> addVal;
+    glbVarFloatChange = 77.0 + <float> addVal;
     float value = glbVarFloatChange;
     return value;
 }

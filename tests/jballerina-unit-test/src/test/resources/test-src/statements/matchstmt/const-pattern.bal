@@ -508,6 +508,123 @@ public function testConstPattern16() {
     assertEquals("!Mouse", constPattern16("Dog"));
 }
 
+function constPattern17(any x) returns int {
+    match x {
+        () => {
+            return 1;
+        }
+        true => {
+            return 2;
+        }
+        -1 => {
+            return 3;
+        }
+        _ => {
+            return 4;
+        }
+    }
+}
+
+public function testConstPattern17() {
+    assertEquals(1, constPattern17(()));
+    assertEquals(2, constPattern17(true));
+    assertEquals(3, constPattern17(-1));
+    assertEquals(4, constPattern17(5));
+}
+
+function testConstPattern18() {
+    string result = "";
+    any|error a = 12;
+    match a {
+        1 | 2 => {
+            result = "1|2";
+        }
+        3 | 4 => {
+            result = "3|4";
+        }
+        _ => {
+            result = "Default";
+        }
+    }
+    assertEquals("Default", result);
+
+    string|error b = "John";
+    match b {
+        "Kate" | "Anne" => {
+            result = "1|2";
+        }
+        "James" => {
+            result = "3|4";
+        }
+        _ => {
+            result = "Default";
+        }
+    }
+    assertEquals("Default", result);
+
+    any|error c = error("SimpleError");
+    result = "Not matched";
+    match c {
+        "Kate" | "Anne" => {
+            result = "1|2";
+        }
+        "James" => {
+            result = "3|4";
+        }
+        _ => {
+            result = "Default";
+        }
+    }
+    assertEquals("Not matched", result);
+
+    string|boolean|int|error d = "Ballerina";
+    result = "";
+    match d {
+        12 => {
+            result = "int value 1";
+        }
+        "Hello" => {
+            result = "string value 1";
+        }
+        _ => {
+            match d {
+                34 => {
+                    result = "int value 2";
+                }
+                _ => {
+                    result = "Default";
+                }
+            }
+        }
+    }
+    assertEquals("Default", result);
+}
+
+function constPatternWithNegativeLiteral(any x) returns string {
+    match x {
+        -1 => {
+            return "-1";
+        }
+        -12.3 => {
+            return "-12.3";
+        }
+        1 => {
+            return "1";
+        }
+        _ => {
+            return "other";
+        }
+    }
+}
+
+function testConstPatternWithNegativeLiteral() {
+    assertEquals("-1", constPatternWithNegativeLiteral(-1));
+    assertEquals("-12.3", constPatternWithNegativeLiteral(-12.3f));
+    assertEquals("1", constPatternWithNegativeLiteral(1));
+    assertEquals("other", constPatternWithNegativeLiteral(0));
+    assertEquals("other", constPatternWithNegativeLiteral(-123.4));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

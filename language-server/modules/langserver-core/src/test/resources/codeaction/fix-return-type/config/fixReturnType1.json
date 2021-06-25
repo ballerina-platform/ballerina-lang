@@ -9,14 +9,14 @@
                     "range": {
                         "start": {
                             "line": 0,
-                            "character": 38
+                            "character": 37
                         },
                         "end": {
                             "line": 0,
-                            "character": 38
+                            "character": 37
                         }
                     },
-                    "newText": " returns (int)"
+                    "newText": " returns int"
                 }
             ]
         }

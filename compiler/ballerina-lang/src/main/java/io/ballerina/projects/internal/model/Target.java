@@ -20,7 +20,6 @@ package io.ballerina.projects.internal.model;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import org.apache.commons.io.FileUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
@@ -45,8 +44,6 @@ public class Target {
     private Path docPath;
 
     public Target(Path sourceRoot) throws IOException {
-        ProjectUtils.checkWritePermission(sourceRoot);
-
         this.targetPath = sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
         this.cache = this.targetPath.resolve(ProjectConstants.CACHES_DIR_NAME);
         this.balaCachePath = this.targetPath.resolve(ProjectConstants.TARGET_BALA_DIR_NAME);
@@ -56,7 +53,29 @@ public class Target {
         this.binPath = this.targetPath.resolve(ProjectConstants.BIN_DIR_NAME);
         this.reportPath = this.targetPath.resolve(ProjectConstants.REPORT_DIR_NAME);
         this.docPath = this.targetPath.resolve(ProjectConstants.TARGET_API_DOC_DIRECTORY);
-        Files.createDirectories(this.targetPath);
+
+        if (Files.exists(this.targetPath)) {
+            ProjectUtils.checkWritePermission(this.targetPath);
+        } else {
+            Files.createDirectories(this.targetPath);
+        }
+
+        if (Files.exists(this.cache)) {
+            ProjectUtils.checkWritePermission(this.cache);
+        }
+        if (Files.exists(this.binPath)) {
+            ProjectUtils.checkWritePermission(this.binPath);
+        }
+        if (Files.exists(this.balaCachePath)) {
+            ProjectUtils.checkWritePermission(this.balaCachePath);
+        }
+        if (Files.exists(this.docPath)) {
+            ProjectUtils.checkWritePermission(this.docPath);
+        }
+
+        if (Files.exists(this.reportPath)) {
+            ProjectUtils.checkWritePermission(this.reportPath);
+        }
     }
 
     /**
@@ -163,11 +182,15 @@ public class Target {
      */
     public void setOutputPath(Path outputPath) throws IOException {
         if (Files.exists(outputPath)) {
+            ProjectUtils.checkWritePermission(outputPath);
             Files.delete(outputPath);
         }
         // create parent directories
         Path parent = outputPath.getParent();
         if (parent != null) {
+            if (Files.exists(parent)) {
+                ProjectUtils.checkWritePermission(parent);
+            }
             Files.createDirectories(parent);
         }
         this.outputPath = outputPath;
@@ -178,11 +201,11 @@ public class Target {
      */
     public void clean() throws IOException {
         // Remove from cache
-        FileUtils.deleteDirectory(this.cache.toFile());
+        ProjectUtils.deleteDirectory(this.cache);
         // Remove any generated bala
-        FileUtils.deleteDirectory(this.balaCachePath.toFile());
-        FileUtils.deleteDirectory(this.binPath.toFile());
-        FileUtils.deleteDirectory(this.docPath.toFile());
-        FileUtils.deleteDirectory(this.reportPath.toFile());
+        ProjectUtils.deleteDirectory(this.balaCachePath);
+        ProjectUtils.deleteDirectory(this.binPath);
+        ProjectUtils.deleteDirectory(this.docPath);
+        ProjectUtils.deleteDirectory(this.reportPath);
     }
 }

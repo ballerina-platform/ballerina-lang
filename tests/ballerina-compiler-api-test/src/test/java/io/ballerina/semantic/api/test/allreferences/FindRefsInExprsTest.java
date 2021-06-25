@@ -35,72 +35,111 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
     public Object[][] getLookupPositions() {
         return new Object[][]{
                 // Simple var refs, binary exprs
-                {22, 12, List.of(location(22, 12, 13),
-                                 location(23, 21, 22),
-                                 location(29, 37, 38),
-                                 location(32, 25, 26))
+                {22, 12, location(22, 12, 13),
+                        List.of(location(22, 12, 13),
+                                location(23, 21, 22),
+                                location(29, 37, 38),
+                                location(32, 25, 26))
                 },
-                {23, 25, List.of(location(19, 8, 9),
-                                 location(23, 25, 26),
-                                 location(29, 29, 30),
-                                 location(35, 21, 22))
+                {23, 25, location(19, 8, 9),
+                        List.of(location(19, 8, 9),
+                                location(23, 25, 26),
+                                location(29, 29, 30),
+                                location(35, 21, 22))
                 },
-                {16, 4, List.of(location(16, 4, 5),
+                {16, 4, location(16, 4, 5),
+                        List.of(location(16, 4, 5),
                                 location(19, 17, 18)),
                 },
-                {29, 20, List.of(location(29, 20, 21))},
-                {29, 19, EMPTY_LIST},
+                {29, 20, location(29, 20, 21), List.of(location(29, 20, 21))},
+                {29, 19, null, EMPTY_LIST},
 
                 // function and action invocations
-                {41, 4, List.of(location(41, 4, 7),
+                {41, 4, location(52, 9, 12),
+                        List.of(location(41, 4, 7),
                                 location(44, 8, 11),
                                 location(49, 22, 25),
                                 location(49, 32, 35),
                                 location(52, 9, 12))
                 },
-                {58, 19, List.of(location(55, 9, 12),
-                                 location(58, 19, 22),
-                                 location(61, 19, 22))
+                {58, 19, location(55, 9, 12),
+                        List.of(location(55, 9, 12),
+                                location(58, 19, 22),
+                                location(61, 19, 22))
                 },
-                {58, 8, List.of(location(58, 8, 10),
+                {58, 8, location(58, 8, 10),
+                        List.of(location(58, 8, 10),
                                 location(59, 17, 19),
                                 location(62, 23, 25))
                 },
                 // Template literals
-                {76, 8, List.of(location(76, 8, 9),
+                {76, 8, location(76, 8, 9),
+                        List.of(location(76, 8, 9),
                                 location(77, 25, 26),
                                 location(77, 29, 30),
                                 location(78, 64, 65),
                                 location(79, 25, 26))
                 },
                 // List and map constructors
-                {82, 44, List.of(location(82, 44, 45),
-                                 location(83, 20, 21),
-                                 location(83, 23, 24),
-                                 location(84, 25, 26))
+                {82, 44, location(82, 44, 45),
+                        List.of(location(82, 44, 45),
+                                location(83, 20, 21),
+                                location(83, 23, 24),
+                                location(84, 25, 26))
                 },
                 // Access exprs
-                {88, 14, List.of(location(88, 14, 18),
-                                 location(89, 18, 22))
+                {88, 14, location(88, 14, 18),
+                        List.of(location(88, 14, 18),
+                                location(89, 18, 22))
                 },
-                {89, 23, List.of(location(66, 11, 15),
-                                 location(70, 13, 17),
-                                 location(89, 23, 27))
+                {89, 23, location(66, 11, 15),
+                        List.of(location(66, 11, 15),
+                                location(70, 13, 17),
+                                location(89, 23, 27))
                 },
-                {92, 15, List.of(location(92, 15, 19),
-                                 location(95, 18, 22))
+                {92, 15, location(92, 15, 19),
+                        List.of(location(92, 15, 19),
+                                location(95, 18, 22))
                 },
-                {93, 12, List.of(location(93, 12, 15),
-                                 location(96, 23, 26))
+                {93, 12, location(93, 12, 15),
+                        List.of(location(93, 12, 15),
+                                location(96, 23, 26))
                 },
-                {94, 7, List.of(location(94, 7, 13),
+                {94, 7, location(94, 7, 13),
+                        List.of(location(94, 7, 13),
                                 location(95, 11, 17),
                                 location(96, 15, 21),
                                 location(98, 19, 25))
                 },
-                {98, 26, List.of(location(92, 15, 19),
-                                 location(95, 18, 22))
+                {98, 26, location(92, 15, 19),
+                        List.of(location(92, 15, 19),
+                                location(95, 18, 22))
                 },
+                // Query exprs
+                {114, 22, location(114, 21, 23),
+                        List.of(location(114, 21, 23),
+                                location(115, 14, 16),
+                                location(116, 22, 24))
+                },
+                {114, 33, location(112, 14, 22),
+                        List.of(location(112, 14, 22),
+                                location(114, 27, 35))
+                },
+                {115, 20, location(102, 11, 15),
+                        List.of(location(102, 11, 15),
+                                location(115, 17, 21),
+                                location(116, 25, 29))
+                },
+                {116, 28, location(102, 11, 15),
+                        List.of(location(102, 11, 15),
+                                location(115, 17, 21),
+                                location(116, 25, 29))
+                },
+                // XML Navigation
+                {121, 15, location(120, 8, 11),
+                        List.of(location(120, 8, 11),
+                                location(121, 14, 17))
+                }
         };
     }
 

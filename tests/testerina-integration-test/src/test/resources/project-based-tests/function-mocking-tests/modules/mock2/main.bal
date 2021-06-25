@@ -18,3 +18,7 @@
 public function intAdd2(int a, int b) returns (int) {
     return a + b;
 }
+
+public function intSubtract7(int a, int b, int c) returns (int) {
+    return a - b - c;
+}

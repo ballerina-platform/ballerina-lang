@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 json gJ = null;
 
 function testNullAssignment() returns json {
@@ -25,7 +23,7 @@ function testNullAssignment() returns json {
 
 function testNullInField() returns string? {
     json j = {name:"John", age:25, location:null};
-    string? l = j.location == null ? () : <string> checkpanic j.location;
+    string? l = j.location === null ? () : <string> checkpanic j.location;
     return l;
 }
 
@@ -36,7 +34,7 @@ function testNullStringRepresentation() returns string|error {
 
 function testNullStringRepresentation2() returns string {
     json j = null;
-    return io:sprintf("%s", j);
+    return j.toJsonString();
 }
 
 function testNullStringRepresentation3() returns string|error {
@@ -46,7 +44,12 @@ function testNullStringRepresentation3() returns string|error {
 
 function testNullStringRepresentation4() returns string {
     json j = {name:"John Doe", age:25, location:null};
-    return io:sprintf("%s", j.toString());
+    return j.toString();
+}
+
+function testNullStringRepresentation5() returns string {
+    json j = null;
+    return j.toBalString();
 }
 
 function testNullReturn() returns json {
@@ -76,7 +79,7 @@ function testNullWithTypeGuard() returns boolean {
     json|xml val = j;
 
     if (val is json) {
-        if (val.location == null) {
+        if (val.location === null) {
             return true;
         }
     }
@@ -103,6 +106,6 @@ function testNullInArray() returns json {
 
 function testNullInNestedTernaryExpr() returns json {
     json j1 = {name:"John", age:25, location:null};
-    json j2 = (j1.location == null ? "then" : "else") == "" ? null : null;
+    json j2 = (j1.location === null ? "then" : "else") == "" ? null : null;
     return j2;
 }

@@ -147,11 +147,7 @@ public class BArrayType extends BType implements ArrayType {
             sb.append(arrayElement.getSizeString());
             tempElementType = arrayElement.elementType;
         }
-        if (tempElementType.getTag() == TypeTags.UNION_TAG) {
-            sb.insert(0, "(" + tempElementType.toString() + ")");
-        } else {
-            sb.insert(0, tempElementType.toString());
-        }
+        sb.insert(0, tempElementType.toString());
         return !readonly ? sb.toString() : sb.append(" & readonly").toString();
     }
 
@@ -177,7 +173,7 @@ public class BArrayType extends BType implements ArrayType {
 
     @Override
     public boolean isAnydata() {
-        return this.elementType.isPureType();
+        return this.elementType.isAnydata();
     }
 
     @Override

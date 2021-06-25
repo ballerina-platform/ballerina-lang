@@ -19,8 +19,10 @@ package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.ChannelDetails;
 import io.ballerina.runtime.internal.values.ErrorValue;
@@ -29,6 +31,7 @@ import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.transactions.TransactionLocalContext;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -40,6 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.CURRENT_TRANSACTION_CONTEXT_PROPERTY;
 import static io.ballerina.runtime.internal.scheduling.State.BLOCK_AND_YIELD;
 import static io.ballerina.runtime.internal.scheduling.State.BLOCK_ON_AND_YIELD;
 import static io.ballerina.runtime.internal.scheduling.State.RUNNABLE;
@@ -101,6 +105,12 @@ public class Strand {
         //TODO: improve by using a copy on write map #26710
         if (properties != null) {
             this.globalProps = properties;
+            Object currentContext = globalProps.get(CURRENT_TRANSACTION_CONTEXT_PROPERTY);
+            if (currentContext != null) {
+                TransactionLocalContext branchedContext =
+                        createTrxContextBranch((TransactionLocalContext) currentContext, name);
+                setCurrentTransactionContext(branchedContext);
+            }
         } else if (parent != null) {
             this.globalProps = new HashMap<>(parent.globalProps);
         } else {
@@ -180,6 +190,7 @@ public class Strand {
             this.trxContexts.push(this.currentTrxContext);
         }
         this.currentTrxContext = ctx;
+        globalProps.putIfAbsent(CURRENT_TRANSACTION_CONTEXT_PROPERTY, this.currentTrxContext);
     }
 
     public ErrorValue handleFlush(ChannelDetails[] channels) throws Throwable {
@@ -203,8 +214,8 @@ public class Strand {
                 this.flushDetail.flushChannels = channels;
             }
 
-            for (int i = 0; i < channels.length; i++) {
-                ErrorValue error = getWorkerDataChannel(channels[i]).flushChannel(this);
+            for (ChannelDetails channel : channels) {
+                ErrorValue error = getWorkerDataChannel(channel).flushChannel(this);
                 if (error != null) {
                     cleanUpFlush(channels);
                     return error;
@@ -231,7 +242,8 @@ public class Strand {
         }
     }
 
-    public void handleWaitMultiple(Map<String, FutureValue> keyValues, MapValue target) throws Throwable {
+    public void handleWaitMultiple(Map<String, FutureValue> keyValues, MapValue<BString, Object> target)
+            throws Throwable {
         WaitContext ctx = new WaitMultipleContext(this.schedulerItem);
         ctx.waitCount.set(keyValues.size());
         ctx.lock();
@@ -248,14 +260,21 @@ public class Strand {
                     ctx.unLock();
                     throw future.panic;
                 }
+                if (future.hasWaited() && target.getNativeData(entry.getKey()) == null) {
+                    target.put(StringUtils.fromString(entry.getKey()), createWaitOnSameFutureError());
+                } else {
+                    future.setWaited(true);
+                    target.addNativeData(entry.getKey(), true);
+                    target.put(StringUtils.fromString(entry.getKey()), future.result);
+                }
                 ctx.waitCount.decrementAndGet();
-                target.put(StringUtils.fromString(entry.getKey()), future.result);
             } else {
                 this.setState(BLOCK_ON_AND_YIELD);
                 entry.getValue().strand.waitingContexts.add(ctx);
             }
             future.strand.unlock();
         }
+
         if (!this.isBlocked()) {
             ctx.waitCount.set(0);
             ctx.completed = true;
@@ -272,6 +291,7 @@ public class Strand {
         ctx.lock();
         ctx.waitCount.set(futures.size());
         Object error = null;
+        int waitedCount = 0;
         for (FutureValue future : futures) {
             // need to lock the future's strand since we cannot have a parallel state change
             try {
@@ -282,15 +302,21 @@ public class Strand {
                         ctx.unLock();
                         throw future.panic;
                     }
-
-                    if (TypeChecker.checkIsType(future.result, PredefinedTypes.TYPE_ERROR)) {
+                    if (future.hasWaited()) {
+                        waitedCount++;
+                    }
+                    boolean isErrorResult = TypeChecker.checkIsType(future.result, PredefinedTypes.TYPE_ERROR);
+                    if (isErrorResult) {
                         ctx.waitCount.decrementAndGet();
                         // if error, should wait for other futures as well
                         error = future.result;
-                        continue;
                     }
-                    waitResult = new WaitResult(true, future.result);
-                    break;
+                    if (!(future.hasWaited() || isErrorResult)) {
+                        waitResult = new WaitResult(true, future.result);
+                        future.setWaited(true);
+                        break;
+                    }
+                    future.setWaited(true);
                 } else {
                     future.strand.waitingContexts.add(ctx);
                 }
@@ -298,8 +324,9 @@ public class Strand {
                 future.strand.unlock();
             }
         }
-
-        if (waitResult.done) {
+        if (waitedCount == futures.size()) {
+            waitResult = new WaitResult(true, createWaitOnSameFutureError());
+        } else if (waitResult.done) {
             ctx.completed = true;
         } else if (ctx.waitCount.get() == 0) {
             ctx.completed = true;
@@ -314,10 +341,12 @@ public class Strand {
         return waitResult;
     }
 
+    private BError createWaitOnSameFutureError() {
+        return ErrorCreator.createError(StringUtils.fromString("multiple waits on the same future is not allowed"));
+    }
+
     public void updateChannelDetails(ChannelDetails[] channels) {
-        for (ChannelDetails channel: channels) {
-            this.channelDetails.add(channel);
-        }
+        Collections.addAll(this.channelDetails, channels);
     }
 
     private WorkerDataChannel getWorkerDataChannel(ChannelDetails channel) {

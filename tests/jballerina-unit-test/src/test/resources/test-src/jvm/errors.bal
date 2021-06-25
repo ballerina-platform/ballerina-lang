@@ -16,24 +16,67 @@
 
 import ballerina/lang.'error as lang;
 
-function testPanic(int y) returns int|error {
+function testPanic(int y) {
     int|error x = foo(y);
-    return x;
+    validateError(y, x);
 }
 
-function testTrap(int y) returns int|error {
+function testTrap(int y) {
     int|error x = trap foo(y);
-    return x;
+    if (x is error) {
+        string msg = x.message();
+        if (msg == "reason foo 1") {
+            return;
+        }
+        panic error("Expected error message: reason foo 1, found: " + msg);
+    }
+    panic error("Expected an error found: " + (typeof x).toString());
 }
 
-function testNestedCallsWithSingleTrap(int y) returns int|error {
+function testNestedCallsWithSingleTrap(int y) {
     int|error x = trap bar(foo(bar(y)));
-    return x;
+    if x is error {
+        if (y == 0) {
+            if (x.message() == "reason bar 0") {
+                return;
+            }
+            panic error("Expected error message: reason bar 0, found: " + x.message());
+        }
+
+        if (y == 1) {
+            if (x.message() == "reason foo 1") {
+                return;
+            }
+            panic error("Expected error message: reason foo 1: found: "+ x.message());
+        }
+    }
+    panic error("Assertion error");
 }
 
-function testNestedCallsWithAllTraps(int y) returns int|error {
+function testNestedCallsWithAllTraps(int y) {
     int|error x = trap bar(trap foo(trap bar(trap <int>y)));
-    return x;
+
+    validateError(y, x);
+}
+
+function validateError(int y, int|error x) {
+    if (x is error) {
+        var expMessage = "reason foo " + y.toString();
+        if (!(x.message() == expMessage)) {
+            panic error("Expected:" + expMessage + ", found: " + x.message());
+        }
+        var detailMessage = x.detail()["message"];
+        if (detailMessage is string) {
+            if y == 0 && detailMessage != "foo" {
+                panic error("Expected: foo, found: " + detailMessage);
+            }
+            if y != 0 && detailMessage != "int value" {
+                panic error("Expected: int value, found: " + detailMessage);
+            }
+        }
+        return;
+    }
+    panic error("Expected an error found: " + (typeof x).toString());
 }
 
 function testNestedCallsWithSomeTraps(int y) returns int|error {
@@ -43,16 +86,16 @@ function testNestedCallsWithSomeTraps(int y) returns int|error {
 
 public function foo(int|error x) returns int|error {
     if (x is error) {
-        panic error("reason foo 1", message = "foo");
+        panic error("reason foo 0", message = "foo");
     } else {
-        panic error("reason foo 2", message = "int value");
+        panic error("reason foo 1", message = "int value");
     }
 }
 
 public function bar(int|error x) returns int|error {
     if (x is int) {
         if (x == 0) {
-            panic error("reason bar 1", message = "bar");
+            panic error("reason bar 0", message = "bar");
         }
         return x;
     }

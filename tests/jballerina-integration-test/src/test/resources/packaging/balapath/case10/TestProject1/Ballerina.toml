@@ -1,6 +1,3 @@
 [project]
 org-name= "waruna"
 version= "0.1.0"
-
-[dependencies]
-"ballerina/bar" = { path = "./bar-2020r2-any-0.1.0.bala"}

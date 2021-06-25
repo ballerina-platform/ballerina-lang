@@ -241,4 +241,120 @@ public class TestUnknownTypeProject {
         Assert.assertEquals(moduleIds.iterator().next(), currentPackage.getDefaultModule().moduleId());
 
     }
+
+    @Test (description = "tests loading a valid bala project by a default module file")
+    public void testLoadBalaProjectByDefaultModuleFile() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("extracted-bala-project/package_c/0.1.0/any")
+                .resolve("modules/package_c/main.bal");
+        Project project = null;
+        try {
+            project = ProjectLoader.loadProject(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        Assert.assertSame(project.kind(), ProjectKind.BALA_PROJECT);
+        // 2) Load the package
+        Package currentPackage = project.currentPackage();
+        // 3) Load the default module
+        Module defaultModule = currentPackage.getDefaultModule();
+        Assert.assertEquals(defaultModule.documentIds().size(), 1);
+
+        Collection<ModuleId> moduleIds = currentPackage.moduleIds();
+        Assert.assertEquals(moduleIds.size(), 3);
+
+    }
+
+    @Test (description = "tests loading a valid bala project by a non-default module file")
+    public void testLoadBalaProjectByNonDefaultModuleFile() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("extracted-bala-project/package_c/0.1.0/any")
+                .resolve("modules/package_c.mod_c1/mod1.bal");
+        Project project = null;
+        try {
+            project = ProjectLoader.loadProject(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        Assert.assertSame(project.kind(), ProjectKind.BALA_PROJECT);
+        // 2) Load the package
+        Package currentPackage = project.currentPackage();
+        // 3) Load the default module
+        Module defaultModule = currentPackage.getDefaultModule();
+        Assert.assertEquals(defaultModule.documentIds().size(), 1);
+
+        Collection<ModuleId> moduleIds = currentPackage.moduleIds();
+        Assert.assertEquals(moduleIds.size(), 3);
+
+    }
+
+    @Test (description = "tests loading a valid bala project by the project root directory")
+    public void testLoadBalaProjectByBalaRoot() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("extracted-bala-project/package_c/0.1.0/any");
+        Project project = null;
+        try {
+            project = ProjectLoader.loadProject(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        Assert.assertSame(project.kind(), ProjectKind.BALA_PROJECT);
+        // 2) Load the package
+        Package currentPackage = project.currentPackage();
+        // 3) Load the default module
+        Module defaultModule = currentPackage.getDefaultModule();
+        Assert.assertEquals(defaultModule.documentIds().size(), 1);
+
+        Collection<ModuleId> moduleIds = currentPackage.moduleIds();
+        Assert.assertEquals(moduleIds.size(), 3);
+    }
+
+    @Test (description = "tests loading a valid bala project by the modules root directory")
+    public void testLoadBalaProjectByBalaModulesRoot() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("extracted-bala-project/package_c/0.1.0/any/modules/package_c");
+        Project project = null;
+        try {
+            project = ProjectLoader.loadProject(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        Assert.assertSame(project.kind(), ProjectKind.BALA_PROJECT);
+        // 2) Load the package
+        Package currentPackage = project.currentPackage();
+        // 3) Load the default module
+        Module defaultModule = currentPackage.getDefaultModule();
+        Assert.assertEquals(defaultModule.documentIds().size(), 1);
+
+        Collection<ModuleId> moduleIds = currentPackage.moduleIds();
+        Assert.assertEquals(moduleIds.size(), 3);
+    }
+
+    @Test (description = "tests loading a valid bala project by non-bal file")
+    public void testLoadBalaProjectByNonBalFile() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("extracted-bala-project/package_c/0.1.0/any/package.json");
+        Project project = null;
+        try {
+            project = ProjectLoader.loadProject(projectPath);
+            Assert.fail("project loading with a non-bal file is expected to fail");
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().contains("provided path is not a valid Ballerina source file"));
+        }
+    }
+
+    @Test (description = "tests loading a valid bala project by non-bal file")
+    public void testLoadBalaFile() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("balaloader").resolve("foo-winery-any-0.1.0.bala");
+        Project project = null;
+        try {
+            project = ProjectLoader.loadProject(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        Assert.assertSame(project.kind(), ProjectKind.BALA_PROJECT);
+        // 2) Load the package
+        Package currentPackage = project.currentPackage();
+        // 3) Load the default module
+        Module defaultModule = currentPackage.getDefaultModule();
+        Assert.assertEquals(defaultModule.documentIds().size(), 2);
+
+        Collection<ModuleId> moduleIds = currentPackage.moduleIds();
+        Assert.assertEquals(moduleIds.size(), 3);
+    }
 }

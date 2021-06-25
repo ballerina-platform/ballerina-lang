@@ -65,10 +65,12 @@ function stampUnionToJSON() returns json|error {
     return jsonValue;
 }
 
+type XmlType xml;
+
 function stampUnionToXML() returns xml|error  {
     int|float|xml unionVar = xml `<book>The Lost World</book>`;
 
-    xml|error  xmlValue = unionVar.cloneWithType(xml);
+    xml|error  xmlValue = unionVar.cloneWithType(XmlType);
     return xmlValue;
 }
 

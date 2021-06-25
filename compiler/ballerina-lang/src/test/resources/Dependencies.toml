@@ -1,0 +1,14 @@
+# Dependencies are searched in local repository and then Ballerina Central.
+# <module-name> is fully qualified module name with org name.
+# The <module-name> in the table specifier must be fully qualified.
+
+[[dependency]]
+org = "wso2"
+name = "twitter"
+version = "2.3.4"
+
+[[dependency]]
+org = "wso2"
+name = "github"
+version = "1.2.3"
+path = "path/to/github.balo"

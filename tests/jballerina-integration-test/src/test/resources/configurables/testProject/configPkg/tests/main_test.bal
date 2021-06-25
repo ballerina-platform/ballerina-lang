@@ -20,6 +20,7 @@ configurable int testInt = ?;
 configurable float testFloat = 66.8;
 configurable string testString = "test";
 configurable boolean testBoolean = ?;
+configurable int[][] & readonly array = ?;
 
 @test:Config {}
  function testAverage() {
@@ -46,3 +47,8 @@ configurable boolean testBoolean = ?;
     test:assertEquals(testString, "configurable variable test");
     test:assertEquals(testBoolean, true);
  }
+
+ @test:Config {}
+  function testMultiDimentionalArray() {
+      test:assertEquals(array, [[11],[22,33]]);
+  }

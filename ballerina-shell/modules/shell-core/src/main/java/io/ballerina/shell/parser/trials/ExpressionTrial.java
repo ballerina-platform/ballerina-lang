@@ -35,7 +35,7 @@ public class ExpressionTrial extends StatementTrial {
 
     @Override
     public Node parse(String source) throws ParserTrialFailedException {
-        // TODO: [Bug in Parser] a >>= 4 gets accepted as a >> 4
+        // TODO: [Bug in Parser] a >>= 4 gets accepted as a >> 4 (#28317)
         String statementCode = String.format("return %s", source);
         Node statement = super.parseSource(statementCode);
 

@@ -80,6 +80,16 @@ public class FieldAccessMutateTest {
         Assert.assertEquals(JavaFieldAccessMutate.aShort, 345);
     }
 
+    @Test(description = "Test static boolean field mutate")
+    public void testStaticBooleanFieldMutate() {
+        BRunUtil.invoke(result, "testStaticBooleanFieldMutate");
+    }
+
+    @Test(description = "Test ballerina finite to java boolean cast")
+    public void testBFiniteToJBooleanCast() {
+        BRunUtil.invoke(result, "testBFiniteToJBooleanCast");
+    }
+
     @Test(description = "Test instance field access")
     public void testInstanceFieldAccess() {
         BValue[] args = new BValue[1];

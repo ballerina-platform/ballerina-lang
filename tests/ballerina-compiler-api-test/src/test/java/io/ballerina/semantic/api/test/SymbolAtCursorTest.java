@@ -18,7 +18,12 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.DiagnosticState;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
@@ -28,6 +33,10 @@ import org.testng.annotations.Test;
 
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.COMPILATION_ERROR;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static org.testng.Assert.assertEquals;
@@ -48,7 +57,7 @@ public class SymbolAtCursorTest {
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
+        symbol.ifPresent(value -> assertEquals(value.getName().get(), expSymbolName));
 
         if (symbol.isEmpty()) {
             assertNull(expSymbolName);
@@ -95,6 +104,15 @@ public class SymbolAtCursorTest {
                 {76, 25, "RSA"},
                 {82, 8, "rsa"},
                 {83, 15, "RSA"},
+                {86, 2, "v1"},
+                {91, 23, "v2"},
+                {92, 23, "v2"},
+                {93, 23, "v2"},
+                {93, 78, "v3"},
+                {102, 2, "v4"},
+                {112, 4, null},
+                {115, 29, "CONST1"},
+                {118, 74, "r"},
         };
     }
 
@@ -105,7 +123,7 @@ public class SymbolAtCursorTest {
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
+        symbol.ifPresent(value -> assertEquals(value.getName().get(), expSymbolName));
 
         if (symbol.isEmpty()) {
             assertNull(expSymbolName);
@@ -132,7 +150,7 @@ public class SymbolAtCursorTest {
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
+        symbol.ifPresent(value -> assertEquals(value.getName().get(), expSymbolName));
 
         if (symbol.isEmpty()) {
             assertNull(expSymbolName);
@@ -159,7 +177,7 @@ public class SymbolAtCursorTest {
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertTrue(true, "Unexpected symbol: " + value.name()));
+        symbol.ifPresent(value -> assertTrue(true, "Unexpected symbol: " + value.getName().get()));
     }
 
     @DataProvider(name = "MissingConstructPosProvider")
@@ -168,6 +186,109 @@ public class SymbolAtCursorTest {
                 {20, 3},
                 {21, 25},
                 {23, 3},
+        };
+    }
+
+    @Test(dataProvider = "QuotedIdentifierProvider")
+    public void testQuotedIdentifiers(int line, int column, String expSymbolName) {
+        Project project = BCompileUtil.loadProject("test-src/symbol_at_cursor_quoted_identifiers_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
+        symbol.ifPresent(value -> assertEquals(value.getName().get(), expSymbolName));
+
+        if (symbol.isEmpty()) {
+            assertNull(expSymbolName);
+        }
+    }
+
+    @DataProvider(name = "QuotedIdentifierProvider")
+    public Object[][]  getQuotedIdentifierPositions() {
+        return new Object[][]{
+                {18, 5, "'record"},
+                {19, 8, "'float"},
+                {22, 23, "'from"},
+                {23, 28, "'from"},
+                {26, 9, "'function"},
+                {30, 11, "'function"},
+                {31, 7, "'if"},
+                {32, 11, "'if"},
+                {33, 7, "nonReservedVar"},
+                {39, 4, "'any"},
+                {40, 13, "'any"},
+                {43, 11, "w1"},
+                {45, 19, "'worker"},
+                {52, 11, "'worker"},
+                {58, 18, "'string"},
+                {60, 10, "floatNum"},
+                {62, 25, "'foreach"},
+                {63, 13, "'string"},
+                {64, 20, "'int"},
+                {68, 48, "'string"},
+                {70, 13, "'from"},
+                {77, 27, "Example"},
+                {79, 11, "'check"},
+                {84, 7, "'int"},
+                {85, 8, "'from"},
+                {85, 19, "'from"},
+                {87, 4, "Example"},
+                {87, 13, "'new"},
+                {88, 4, "'new"},
+                {88, 9, "'anydata"}
+        };
+    }
+
+    @Test(dataProvider = "VarPosProvider")
+    public void testVarsWithFunctionType(int line, int col, String name) {
+        Project project = BCompileUtil.loadProject("test-src/regression-tests/field_with_function_type.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), SymbolKind.FUNCTION);
+        assertEquals(symbol.get().getName().get(), name);
+        assertEquals(((FunctionSymbol) symbol.get()).typeDescriptor().typeKind(), TypeDescKind.FUNCTION);
+    }
+
+    @DataProvider(name = "VarPosProvider")
+    public Object[][] getVarPos() {
+        return new Object[][]{
+                {19, 10, "union"},
+                {23, 10, "op"},
+                {27, 10, "op"}
+        };
+    }
+
+    @Test(dataProvider = "SymWithDiagnosticStatePosProvider")
+    public void testVarSymbolsWithDiagnosticState(int line, int col, TypeDescKind typeKind, DiagnosticState state) {
+        Project project = BCompileUtil.loadProject("test-src/var_symbols_with_error_type_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), VARIABLE);
+        assertEquals(((VariableSymbol) symbol.get()).typeDescriptor().typeKind(), typeKind);
+        assertEquals(((VariableSymbol) symbol.get()).diagnosticState(), state);
+    }
+
+    @DataProvider(name = "SymWithDiagnosticStatePosProvider")
+    public Object[][] getSymWithDiagnosticStatePos() {
+        return new Object[][]{
+                {17, 8, INT, DiagnosticState.VALID},
+                {20, 10, COMPILATION_ERROR, DiagnosticState.REDECLARED},
+                {23, 8, COMPILATION_ERROR, DiagnosticState.UNKNOWN_TYPE},
+                {24, 8, COMPILATION_ERROR, DiagnosticState.UNKNOWN_TYPE},
+                {25, 8, COMPILATION_ERROR, DiagnosticState.UNKNOWN_TYPE},
+                {26, 11, TYPE_REFERENCE, DiagnosticState.VALID},
+                {27, 8, COMPILATION_ERROR, DiagnosticState.UNKNOWN_TYPE},
+                {30, 8, COMPILATION_ERROR, DiagnosticState.UNKNOWN_TYPE},
+                {33, 8, COMPILATION_ERROR, DiagnosticState.UNKNOWN_TYPE},
+                {35, 8, INT, DiagnosticState.VALID},
         };
     }
 }

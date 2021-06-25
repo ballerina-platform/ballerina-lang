@@ -52,7 +52,7 @@ public class ParserTestFormatter extends FormatterTest {
     @Override
     public List<String> skipList() {
         return Arrays.asList(
-                // the following tests need to be skipped since these contain intended extra minutiaes
+                // the following tests need to be skipped since these contain intended extra/no minutiae
                 "minutiae_test_01.bal",
                 "minutiae_test_02.bal",
                 "minutiae_test_03.bal",
@@ -62,27 +62,22 @@ public class ParserTestFormatter extends FormatterTest {
                 "doc_source_15.bal",
                 "doc_source_06.bal",
                 "module_var_decl_source_16.bal",
+                "doc_source_24.bal",
 
                 // the following tests need to be enabled in the future
-                "ambiguity_source_11.bal", // parser issue for indexed expressions #26420
                 "annotations_source_04.bal", // could be considered an invalid scenario
-                "match_stmt_source_08.bal", // parser issue for binding patterns & match block #26421
-                "match_stmt_source_05.bal", // parser issue for binding patterns & match block #26421
-                "match_stmt_source_14.bal", // match block
-                "match_stmt_source_01.bal", // match block
                 "receive_action_source_01.bal", // issue #26376
-                "match_stmt_source_10.bal", // issue #26376
-                "match_stmt_source_12.bal", // issue #26376
-                "error_binding_pattern_source_02.bal", // issue #26376
                 "doc_source_21.bal", // issue #28172
+                "module_var_decl_source_18.bal", // issue #31307
 
                 "service_decl_source_02.bal", "service_decl_source_05.bal", "service_decl_source_17.bal",
+                "service_decl_source_20.bal",
 
                 // parser tests with syntax errors that cannot be handled by the formatter
                 "worker_decl_source_03.bal", "worker_decl_source_05.bal", "invalid_identifier_source_01.bal",
                 "ambiguity_source_23.bal", "ambiguity_source_09.bal", "ambiguity_source_18.bal",
                 "ambiguity_source_30.bal", "ambiguity_source_24.bal", "ambiguity_source_26.bal",
-                "ambiguity_source_16.bal", "ambiguity_source_03.bal",
+                "ambiguity_source_16.bal", "ambiguity_source_03.bal", "ambiguity_source_29.bal",
                 "ambiguity_source_28.bal", "ambiguity_source_04.bal", "ambiguity_source_10.bal",
                 "ambiguity_source_13.bal", "typed_binding_patterns_source_18.bal",
                 "typed_binding_patterns_source_08.bal", "typed_binding_patterns_source_09.bal",
@@ -106,7 +101,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "func_def_source_06.bal", "func_def_source_12.bal", "func_def_source_16.bal", "func_def_source_03.bal",
                 "func_def_source_17.bal", "func_def_source_15.bal", "func_def_source_14.bal",
                 "func_params_source_06.bal", "func_def_source_19.bal", "func_def_source_24.bal",
-                "func_def_source_18.bal", "func_params_source_07.bal",
+                "func_def_source_18.bal", "func_params_source_07.bal", "func_def_source_07.bal",
                 "func_params_source_04.bal", "func_def_source_23.bal", "func_def_source_22.bal",
                 "func_params_source_03.bal", "func_def_source_20.bal", "func_def_source_09.bal",
                 "func_def_source_21.bal", "func_params_source_02.bal",
@@ -140,6 +135,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "assignment_stmt_source_11.bal", "assignment_stmt_source_10.bal", "assignment_stmt_source_14.bal",
                 "match_stmt_source_09.bal", "match_stmt_source_13.bal", "match_stmt_source_04.bal",
                 "match_stmt_source_15.bal", "match_stmt_source_03.bal", "match_stmt_source_16.bal",
+                "match_stmt_source_06.bal", "match_stmt_source_07.bal", "match_stmt_source_11.bal",
                 "object_constructor_source_09.bal", "object-constructor-with-methods.bal",
                 "object_constructor_source_05.bal", "object_constructor_source_04.bal",
                 "object_constructor_source_06.bal", "object_constructor_source_07.bal",
@@ -152,16 +148,19 @@ public class ParserTestFormatter extends FormatterTest {
                 "xml_template_source_27.bal", "xml_template_source_24.bal",
                 "explicit-new-with-object-keyword-with-one-arg-negative02.bal",
                 "explicit-new-with-object-keyword-with-multiple-args-negative02.bal",
+                "explicit-new-with-object-keyword-with-multiple-args.bal", "new_expr_source_03.bal",
                 "explicit-new-with-object-keyword-with-one-arg-negative01.bal",
                 "explicit-new-with-object-keyword-with-multiple-args-negative01.bal", "trap_action_source_02.bal",
                 "query_action_source_03.bal", "query_action_source_06.bal", "remote_method_call_source_10.bal",
                 "send_action_source_03.bal", "send_action_source_04.bal", "start_action_source_02.bal",
                 "flush_action_source_02.bal", "ambiguity_source_06.bal", "typed_binding_patterns_source_22.bal",
                 "resiliency_source_03.bal", "module_var_decl_source_10.bal", "error_binding_pattern_source_03.bal",
-                "match_stmt_source_06.bal", "match_stmt_source_07.bal", "match_stmt_source_11.bal",
                 "receive_action_source_02.bal", "receive_action_source_03.bal", "module_var_decl_source_15.bal",
                 "annot_decl_source_02.bal", "do_stmt_source_08.bal", "func_params_source_11.bal",
-                "predeclared-module-prefix_02.bal", "object_type_def_source_44.bal");
+                "predeclared-module-prefix_02.bal", "object_type_def_source_44.bal", "record_type_def_source_27.bal",
+                "func_type_source_09.bal", "func_type_source_13.bal", "func_type_source_14.bal",
+                "func_type_source_15.bal", "func_type_source_16.bal", "import_decl_source_24.bal",
+                "member_access_expr_source_11.bal");
     }
 
     @DataProvider(name = "test-file-provider")

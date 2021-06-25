@@ -48,6 +48,11 @@ function testStartsWithFunctionInString() returns boolean {
     return 'string:startsWith(str, "Hello");
 }
 
+function testTrxInfoRecordTypeUse() returns boolean {
+    transaction:Info info;
+    return true;
+}
+
 function testPredeclaredModules() {
     decimal d1 = 22.0;
     decimal d2 = 5.7;
@@ -63,16 +68,18 @@ function testPredeclaredModules() {
     assertEquality(true, 'boolean:fromString(s1));
     assertEquality(s2, testSubString());
     assertEquality(true, testStartsWithFunctionInString());
+    assertEquality(true, testTrxInfoRecordTypeUse());
 }
 
 function testPredeclaredModules2() {
     decimal d1 = 10.5;
+    decimal d2 = 10.0;
     assertEquality(15, testMax(10, 15));
     assertEquality(10, testMin(10, 15));
     assertEquality(20, testMax1(15, 20));
     assertEquality(15, testMin1(15, 20));
     assertEquality(d1, testSum1(5, 5.5));
-    assertEquality(10, testOneArgMax(10));
+    assertEquality(d2, testOneArgMax(10));
     assertEquality(d1, testSum2(5, 5.5));
     assertEquality(false, testStartsWith());
     assertEquality("Hello from Ballerina",testStringConcat());

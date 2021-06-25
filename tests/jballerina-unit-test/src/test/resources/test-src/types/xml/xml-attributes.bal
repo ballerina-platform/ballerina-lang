@@ -1,4 +1,4 @@
-import ballerina/io;
+import ballerina/jballerina.java;
 import ballerina/lang.'xml;
 
 xmlns "http://sample.com/wso2/a1" as ns0;
@@ -222,5 +222,23 @@ function mapOperationsOnXmlAttribute() returns [int?, string[]?, boolean] {
 function testPrintAttribMap() {
     xml x1 = xml `<Person name="Foo" />`;
     var attrMap = let var x2 = <'xml:Element> x1 in x2.getAttributes();
-    io:print(attrMap);
+    print(attrMap);
 }
+
+function testCharacterReferencesInXmlAttributeValue() {
+    string u9 = "\u{9}";
+    string uA = "\u{A}";
+    string uD = "\u{D}";
+
+    var x = xml`<p att="x&amp;y|${u9}|${uA}|${uD}|&lt;&gt;"/>`; // last segment: space followed by a tab character
+    string att = checkpanic x.att;
+    string expected = string `x&y|${u9}|${uA}|${uD}|<>`;
+    if (att == expected) {
+        return;
+    }
+    panic error("Assertion error, expected `" + expected + "`, found `" + att + "`");
+}
+
+public function print(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;

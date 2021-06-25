@@ -103,16 +103,6 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
         super(tokenReader);
     }
 
-    @Override
-    protected boolean isProductionWithAlternatives(ParserRuleContext currentCtx) {
-        switch (currentCtx) {
-            case TOP_LEVEL_NODE:
-                return true;
-            default:
-                return false;
-        }
-    }
-
     /**
      * Search for a solution.
      * Terminals are directly matched and Non-terminals which have alternative productions are seekInAlternativesPaths()

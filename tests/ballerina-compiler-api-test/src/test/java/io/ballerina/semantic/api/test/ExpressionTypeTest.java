@@ -42,6 +42,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INTERSECTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.JSON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
@@ -51,7 +52,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -88,22 +89,21 @@ public class ExpressionTypeTest {
 
     @Test
     public void testByteLiteral() {
-        TypeSymbol type = getExprType(19, 13, 19, 42);
+        TypeSymbol type = getExprType(19, 15, 19, 42);
         assertEquals(type.typeKind(), ARRAY);
         assertEquals(((ArrayTypeSymbol) type).memberTypeDescriptor().typeKind(), BYTE);
     }
 
-    @Test(dataProvider = "TemplateExprProvider")
-    public void testTemplateExprs(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
-        assertType(sLine, sCol, eLine, eCol, kind);
+    @Test
+    public void testStringTemplateExpr() {
+        assertType(23, 15, 23, 36, STRING);
     }
 
-    @DataProvider(name = "TemplateExprProvider")
-    public Object[][] getTemplateExprPos() {
-        return new Object[][]{
-                {23, 15, 23, 36, STRING},
-                {24, 12, 24, 45, XML},
-        };
+    @Test
+    public void testXMLTemplateExpr() {
+        TypeSymbol type = getExprType(24, 12, 24, 45);
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), XML_ELEMENT);
     }
 
     @Test
@@ -154,7 +154,7 @@ public class ExpressionTypeTest {
         TypeSymbol type = getExprType(34, 20, 34, 34);
         assertEquals(type.typeKind(), MAP);
 
-        TypeSymbol constraint = ((MapTypeSymbol) type).typeParameter().get();
+        TypeSymbol constraint = ((MapTypeSymbol) type).typeParam();
         assertEquals(constraint.typeKind(), STRING);
 
         assertType(34, 28, 34, 33, STRING);
@@ -188,7 +188,7 @@ public class ExpressionTypeTest {
         TypeSymbol type = getExprType(42, 13, 42, 40);
         assertEquals(type.typeKind(), MAP);
 
-        TypeSymbol constraint = ((MapTypeSymbol) type).typeParameter().get();
+        TypeSymbol constraint = ((MapTypeSymbol) type).typeParam();
         assertEquals(constraint.typeKind(), JSON);
 
         // Disabled ones due to #26628
@@ -223,7 +223,7 @@ public class ExpressionTypeTest {
     public void testObjecTypeInit(int sLine, int sCol, int eLine, int eCol) {
         TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
         assertEquals(type.typeKind(), TYPE_REFERENCE);
-        assertEquals(((TypeReferenceTypeSymbol) type).name(), "PersonObj");
+        assertEquals(((TypeReferenceTypeSymbol) type).getName().get(), "PersonObj");
         assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), OBJECT);
     }
 
@@ -317,8 +317,53 @@ public class ExpressionTypeTest {
                 {109, 4, 109, 10, UNION},
                 {109, 4, 109, 9, UNION},
                 {112, 15, 112, 27, STRING},
-                {112, 15, 112, 26, STRING}
+                {112, 15, 112, 26, STRING},
+                {127, 4, 127, 35, STRING},
+                {127, 4, 127, 34, STRING},
+                {129, 12, 129, 37, INT},
+                {130, 4, 130, 36, BOOLEAN}
         };
+    }
+
+    @Test
+    public void testExpressionsOfIntersectionTypes() {
+        assertType(135, 4, 135, 21, INTERSECTION);
+        assertType(135, 4, 135, 22, INTERSECTION);
+        assertType(137, 4, 137, 24, INTERSECTION);
+        assertType(137, 4, 137, 23, INTERSECTION);
+        assertType(139, 4, 139, 26, UNION);
+        TypeSymbol t1 = getExprType(139, 4, 139, 27);
+        assertEquals(t1.typeKind(), UNION);
+        assertEquals(t1.signature(), "(Foo & readonly)|int|(string[] & readonly)");
+        assertType(141, 4, 141, 26, UNION);
+        TypeSymbol t2 = getExprType(141, 4, 141, 27);
+        assertEquals(t2.typeKind(), UNION);
+        assertEquals(t2.signature(), "(int[] & readonly)?");
+        assertType(143, 4, 143, 26, UNION);
+        TypeSymbol t3 = getExprType(143, 4, 143, 27);
+        assertEquals(t3.typeKind(), UNION);
+        assertEquals(t3.signature(), "(int[] & readonly)?");
+    }
+
+    @Test
+    public void testTypeWithinServiceDecl() {
+        assertType(118, 15, 118, 16, RECORD);
+    }
+
+    @Test
+    public void testTypeWithinDoAndOnFailClause() {
+        TypeSymbol exprType = getExprType(164, 16, 164, 23);
+        assertEquals(exprType.typeKind(), TYPE_REFERENCE);
+        assertEquals(exprType.getName().get(), "Foo");
+
+        exprType = getExprType(166, 12, 166, 42);
+        assertEquals(exprType.typeKind(), STRING);
+    }
+
+    @Test
+    public void testFuncCallForDependentlyTypedSignatures() {
+        TypeSymbol exprType = getExprType(172, 12, 172, 35);
+        assertEquals(exprType.typeKind(), INT);
     }
 
     private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {

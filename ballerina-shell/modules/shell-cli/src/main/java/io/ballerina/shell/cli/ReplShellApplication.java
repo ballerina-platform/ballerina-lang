@@ -20,13 +20,14 @@ package io.ballerina.shell.cli;
 
 
 import io.ballerina.shell.cli.jline.DumbJlineTerminalAdapter;
+import io.ballerina.shell.cli.jline.JlineBallerinaParser;
 import io.ballerina.shell.cli.jline.JlineSimpleCompleter;
 import io.ballerina.shell.cli.jline.JlineTerminalAdapter;
 import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.Parser;
 import org.jline.reader.impl.DefaultHighlighter;
-import org.jline.reader.impl.DefaultParser;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
@@ -67,12 +68,7 @@ public class ReplShellApplication {
             Completer completer = new JlineSimpleCompleter();
             DefaultHighlighter highlighter = new DefaultHighlighter();
 
-            DefaultParser parser = new DefaultParser();
-            parser.setEofOnUnclosedBracket(DefaultParser.Bracket.CURLY,
-                    DefaultParser.Bracket.ROUND, DefaultParser.Bracket.SQUARE);
-            parser.setQuoteChars(new char[]{'"'});
-            parser.setEscapeChars(new char[]{});
-
+            Parser parser = new JlineBallerinaParser();
             LineReader lineReader = LineReaderBuilder.builder()
                     .variable(LineReader.SECONDARY_PROMPT_PATTERN, "%P > ")
                     .appName(PropertiesLoader.getProperty(APP_NAME))

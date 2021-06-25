@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langserver.extensions.connector;
 
-import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.extensions.LSExtensionTestUtil;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorResponse;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorServiceImpl;
@@ -60,13 +59,17 @@ public class ConnectorTest {
 
     @Test(description = "Test getting HTTP connectors.")
     public void getHTTPConnector() {
+        String org = "ballerina";
+        String module = "http";
+        String version = "1.0.0";
+        String name = "Client";
+        String displayName = "http:Client";
         BallerinaConnectorResponse connectorsResponse = LSExtensionTestUtil
-                .getConnector("ballerina", "http", "1.0.0", "Client",
-                        "http:Client", true, this.serviceEndpoint);
-        Assert.assertEquals(((JsonObject) ((JsonObject) connectorsResponse.getAst()).get("records")).entrySet().size(),
-                16);
-        Assert.assertEquals(((JsonObject) ((JsonObject) connectorsResponse.getAst()).get("name")).
-                get("value").getAsString(), "Client");
+                .getConnector(org, module, version, name,
+                        displayName, true, this.serviceEndpoint);
+        Assert.assertNotNull(connectorsResponse);
+        Assert.assertEquals(org, connectorsResponse.getOrg());
+        Assert.assertEquals(module, connectorsResponse.getModule());
     }
 
 //    @Test(description = "Test getting twitter connectors.")

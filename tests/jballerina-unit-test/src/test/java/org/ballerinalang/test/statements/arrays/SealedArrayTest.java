@@ -198,7 +198,7 @@ public class SealedArrayTest {
         BAssertUtil.validateError(resultNegative, 0, "variable 'sealedArray1' is not initialized", 19, 5);
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test
     public void testNegativeAutoFillSealedArray() {
         BAssertUtil.validateError(listExprNegative, 0,
                                   "invalid usage of list constructor: type 'Person[5]' does not have a filler value",
@@ -231,40 +231,38 @@ public class SealedArrayTest {
                                           "filler value",
                                   109, 22);
         BAssertUtil.validateError(listExprNegative, 9,
-                                  "invalid usage of list constructor: type '(HELLO|2)[2]' does not have a filler " +
-                                          "value",
-                                  118, 34);
+                                  "invalid usage of list constructor: type 'unionWithConst[2]' does not have a filler" +
+                                          " value", 118, 34);
         BAssertUtil.validateError(listExprNegative, 10, "incompatible types: expected '(int|NoFillerObject[2])', " +
                 "found '[]'", 122, 31);
         BAssertUtil.validateError(listExprNegative, 11, "incompatible types: expected '" +
                 "(NoFillerObject[3]|NoFillerObject[2])', found '[]'", 124, 45);
         BAssertUtil.validateError(listExprNegative, 12,
-                                  "invalid usage of list constructor: type '(0|1.0f)[2]' does not have a filler value",
-                                  139, 43);
+                                  "invalid usage of list constructor: type 'unionWithIntFloatConsts[2]' does not have" +
+                                          " a filler value", 139, 43);
         BAssertUtil.validateError(listExprNegative, 13,
-                                  "invalid usage of list constructor: type '(1|2)[2]' does not have a filler value",
-                                  146, 31);
+                                  "invalid usage of list constructor: type 'INT_ONE_TWO[2]' does not have a filler " +
+                                          "value", 146, 31);
         BAssertUtil.validateError(listExprNegative, 14,
-                                  "invalid usage of list constructor: type '(map<(foo|bar)>|map<string>)[2]' does not" +
-                                          " have a filler value",
-                                  155, 38);
+                                  "invalid usage of list constructor: type '(map<FooBar>|map<string>)[2]' does not" +
+                                          " have a filler value", 155, 38);
         BAssertUtil.validateError(listExprNegative, 15,
-                                  "invalid usage of list constructor: type '(int|2)[2]' does not have a filler value",
-                                  162, 35);
+                                  "invalid usage of list constructor: type 'LiteralConstAndIntType[2]' does not have " +
+                                          "a filler value", 162, 35);
         Assert.assertEquals(listExprNegative.getErrorCount(), 16);
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test
     public void testSemanticsNegativeSealedArrays() {
         Assert.assertEquals(semanticsNegative.getErrorCount(), 22);
         int i = 0;
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 19, 30);
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 25, 33);
-        BAssertUtil.validateError(semanticsNegative, i++, "size mismatch in sealed array. expected '4', but found '5'",
+        BAssertUtil.validateError(semanticsNegative, i++, "size mismatch in closed array. expected '4', but found '5'",
                 30, 31);
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 36, 18);
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 37, 18);
-        BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of sealed type: array not initialized",
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of closed type: array not initialized",
                 38, 5);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int[3]', found 'int[]'",
                 45, 17);
@@ -274,25 +272,25 @@ public class SealedArrayTest {
                 "'boolean[3]'", 51, 47);
         BAssertUtil.validateError(semanticsNegative, i++, "ambiguous type '(int|int[]|int[4])'", 62, 30);
         BAssertUtil.validateError(semanticsNegative, i++, "ambiguous type '(int|int[]|int[4]|int[5])'", 64, 40);
-        BAssertUtil.validateError(semanticsNegative, i++, "size mismatch in sealed array. expected '4', but found '5'",
+        BAssertUtil.validateError(semanticsNegative, i++, "size mismatch in closed array. expected '4', but found '5'",
                 78, 18);
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '4'", 81, 8);
-        BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of sealed type: can not infer array size", 83,
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of closed type: can not infer array size", 83,
                 18);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'json[3]', found 'json[]'", 85,
                 18);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found 'S1|S2'",
                 104, 20);
-        BAssertUtil.validateError(semanticsNegative, i++, "invalid list index expression: value space '3|4|5' " +
-                "out of range", 105, 20);
-        BAssertUtil.validateError(semanticsNegative, i++, "invalid list index expression: value space '3|4|5' " +
-                "out of range", 106, 23);
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: value space '3|4|5'" +
+                " out of range", 105, 20);
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: value space '3|4|5'" +
+                " out of range", 106, 23);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found " +
                 "'0|1|2|S1'", 107, 20);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found " +
-                        "'(0|1|2|S1|S3)'", 108, 20);
-        BAssertUtil.validateError(semanticsNegative, i++, "invalid list index expression: value space " +
-                "'(3|4|5|7)' out of range", 109, 23);
+                        "'FiniteFour'", 108, 20);
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: value space " +
+                "'FiniteFive' out of range", 109, 23);
         BAssertUtil.validateError(semanticsNegative, i, "incompatible types: expected 'int[*]', found " +
                         "'int[]'", 114, 22);
     }

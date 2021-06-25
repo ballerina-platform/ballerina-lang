@@ -95,7 +95,7 @@ public class MapAccessExprTest {
         CompileResult incorrectCompileResult = BCompileUtil.compile("test-src/types/map/nested-map-access.bal");
         Assert.assertEquals(incorrectCompileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(incorrectCompileResult, 0, "invalid operation: type 'any' does not support " +
-                "indexing", 4, 12);
+                "member access", 4, 12);
     }
 
     @Test(description = "Test array access expression as the index of a map")

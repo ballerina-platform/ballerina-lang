@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'value;
+import ballerina/test;
 // ========================== Basics ==========================
 
 
@@ -259,6 +260,7 @@ function testComplexTernary_1() returns string {
 
 function testComplexTernary_2() returns string {
     int|string|float|boolean|xml x = "string";
+    if(x is boolean) {return "boolean";}
     if (x is int|string|float|boolean) {
         return x is int ? "int" : (x is float ? "float" : (x is boolean ? "boolean" : x));
     } else {
@@ -419,14 +421,14 @@ function testTypeGuardsWithError() returns string {
     }
 }
 
-// function testTypeGuardsWithErrorInmatch() returns string {
-//     error e = error("some error");
-//     any|error x = e;
-//     match x {
-//         var p if p is error => {return string `${p.message()}`;}
-//         var p => {return "Internal server error";}
-//     }
-// }
+function testTypeGuardsWithErrorInmatch() returns string {
+    error e = error("some error");
+    any|error x = e;
+    match x {
+        var p if p is error => {return string `${p.message()}`;}
+        var p => {return "Internal server error";}
+    }
+}
 
 function testTypeNarrowingWithClosures() returns string {
     int|string x = 8;
@@ -435,7 +437,7 @@ function testTypeNarrowingWithClosures() returns string {
     } else {
         var y = function() returns int {
                     if (x is int) {
-                        return x;
+                        return <int>x;
                     } else {
                         return -1;
                     }
@@ -760,6 +762,30 @@ function testTypeNarrowingForIntersectingDirectUnion_1() returns boolean {
     return false;
 }
 
+type CyclicComplexUnion int|CyclicComplexUnion[]|object {};
+type CyclicFloatUnion float|CyclicComplexUnion[]|object {};
+
+function testTypeNarrowingForIntersectingCyclicUnion() returns boolean {
+    CyclicComplexUnion s = 1;
+    anydata ma = <anydata> s;
+    float|CyclicComplexUnion m = <CyclicComplexUnion>ma;
+    if (m is CyclicComplexUnion|string) {
+        CyclicComplexUnion f2 = m;
+        return f2 === s;
+    }
+    return false;
+}
+
+function testTypeNarrowingForIntersectingCyclicUnionNegative() returns boolean {
+    CyclicComplexUnion s = 1;
+    anydata ma = <anydata> s;
+    float|CyclicComplexUnion m = <CyclicComplexUnion>ma;
+    if (m is CyclicFloatUnion|string) {
+        return false;
+    }
+    return true;
+}
+
 function testTypeNarrowingForIntersectingDirectUnion_2() returns boolean {
     xml x = xml `Hello World`;
     string|xml st = x;
@@ -891,7 +917,8 @@ function errorGuardHelper(any|error a1, any|error a2) returns boolean {
         error e4 = a2;
 
         map<value:Cloneable> m = <map<value:Cloneable>> e4.detail();
-        return e3.message() == reason && e4.message() == reason && m == detail;
+        return e3.message() == reason && e4.message() === reason
+            && m["code"] === detail["code"] && m["detail"] === detail["detail"];
     }
     return false;
 }
@@ -923,11 +950,30 @@ function testTypeGuardForCustomErrorPositive() returns [boolean, boolean] {
 
         Details m1 = e5.detail();
         Details m2 = e6.detail();
-        isSpecificError = e5.message() == ERR_REASON && e6.message() == ERR_REASON_TWO && m1 == d && m2 == d;
+        isSpecificError = e5.message() == ERR_REASON && e6.message() == ERR_REASON_TWO && m1.message == m2.message;
     }
 
     boolean isGenericError = a1 is error && a2 is error;
     return [isSpecificError, isGenericError];
+}
+function testCustomErrorType() {
+    Details d = { message: "detail message" };
+    MyError|MyErrorTwo e = error MyError(ERR_REASON, message = d.message);
+    if (e is MyErrorTwo) {
+        test:assertFail();
+    }
+    if (e is MyError) {
+    } else {
+        test:assertFail();
+    }
+    MyErrorTwo|MyError e1 = error MyError(ERR_REASON, message = d.message);
+    if (e1 is MyErrorTwo) {
+        test:assertFail();
+    }
+    if (e1 is MyError) {
+    } else {
+        test:assertFail();
+    }
 }
 
 function testTypeGuardForCustomErrorNegative() returns boolean {
@@ -1001,32 +1047,33 @@ function recordReturningFunc(int? i) returns record {string s; int? i;} {
     return {s: "hello", i: i, "f": 1.0};
 }
 
-// function testTypeGuardForErrorDestructuringAssignmentPositive() returns boolean {
-//     var error(s, message = message, code = code) = errorReturningFunc(1);
-//     if (code is int) {
-//         int intVal = code;
-//         error(s, message = message, code = code) = errorReturningFunc(());
-//         return code is ();
-//     }
-// 
-//     return false;
-// }
+function testTypeGuardForErrorDestructuringAssignmentPositive() returns boolean {
+    var error(s, message = message, code = code) = errorReturningFunc(1);
+    if (code is int) {
+        int intVal = code;
+        error(s, message = message, code = code) = errorReturningFunc(());
+        return code is ();
+    }
 
-// function testTypeGuardForErrorDestructuringAssignmentNegative() returns boolean {
-//     error<Detail> error(s, message = message, code = code) = errorReturningFunc(1);
-//     if (code is int) {
-//         int intVal = code;
-//         error(s, message = message, code = code) = errorReturningFunc(3);
-//         return code is ();
-//     }
-// 
-//     return true;
-// }
+    return false;
+}
+
+function testTypeGuardForErrorDestructuringAssignmentNegative() returns boolean {
+    error<Detail> error(s, message = message, code = code) = errorReturningFunc(1);
+    if (code is int) {
+        int intVal = code;
+        error(s, message = message, code = code) = errorReturningFunc(3);
+        return code is ();
+    }
+
+    return true;
+}
 
 type Detail record {
     string message?;
     error cause?;
     int? code;
+    float f?;
 };
 
 type ErrorD error<Detail>;
@@ -1159,11 +1206,378 @@ function testTypeDescTypeTest1() returns boolean {
     return false;
 }
 
+type XmlType xml;
+
 function testTypeDescTypeTest2() returns boolean {
-    string result = testType(xml);
+    string result = testType(XmlType);
     if (result == "null") {
         return true;
     }
 
     return false;
+}
+
+function testTypeNarrowingForIntersectingUnionWithRecords() returns boolean {
+    AnydataOrObjectOpenRecord|int val = 11;
+    if val is OpenRecordWithObjectField {
+        return false;
+    } else if <int> val != 11 {
+        return false;
+    }
+
+    AnydataOrObjectOpenRecord|int val2 = {};
+    if val2 is OpenRecordWithObjectField {
+        return false;
+    } else if val2 is int {
+        return false;
+    }
+
+    AnydataOrObjectOpenRecord|int val3 = <OpenRecordWithObjectField> {code: new (10)};
+    if val3 is OpenRecordWithObjectField {
+        Class cl = val3.code;
+        if cl.val != 10 {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    OpenRecordWithObjectField val4 = {code: new (20)};
+    if val4 is ClosedRecordWithObjectAndIntFields {
+        return false;
+    }
+
+    OpenRecordWithObjectField val5 = <ClosedRecordWithObjectAndIntFields> {code: new (30), index: 0};
+    if val5 is ClosedRecordWithObjectAndIntFields {
+        if val5.code.val != 30 || val5.index != 0 {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    OpenRecordWithIntField val6 = {i: 1, "s": "hello"};
+    if val6 is record {| int i; string s; |} {
+        return false;
+    } else if val6.i != 1 || val6["s"] != "hello" {
+       return false;
+    }
+
+    record {| int i; string s; |} v = {i: 2, s: "world"};
+    OpenRecordWithIntField val7 = v;
+    if val7 is record {| int i; string s; |} {
+        if val7.i != 2 || val7.s != "world" {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    ClosedRecordWithIntField val8 = {i: 10};
+    if val8 is record {| byte i; |} {
+        return false;
+    }
+
+    int|ClosedRecordWithIntField val9 = <record {| byte i; |}> {i: 10};
+    if val9 is record {| byte i; |} {
+        if val9.i != 10 {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    byte b = 10;
+    if val9 is record {} {
+        if val9["i"] != b {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    if val9 is record {| int...; |} {
+        if val9["i"] != b {
+            return false;
+        }
+    } else {
+        return false;
+    }
+    return true;
+}
+
+type AnydataOrObjectOpenRecord record {|
+    anydata|object {}...;
+|};
+
+type OpenRecordWithObjectField record {
+    readonly Class code = new (0);
+};
+
+readonly class Class {
+    int val;
+
+    isolated function init(int val) {
+        self.val = val;
+    }
+}
+
+type ClosedRecordWithObjectAndIntFields record {|
+    readonly Class code;
+    int index;
+|};
+
+type OpenRecordWithIntField record {
+    int i;
+};
+
+type ClosedRecordWithIntField record {|
+    int i;
+|};
+
+type ClosedRec record {|
+    int i?;
+    boolean b;
+|};
+
+public function testRecordIntersectionWithClosedRecordAndRecordWithOptionalField() {
+    record {| boolean b; |} x = {b: true};
+    record {| byte i?; boolean b?; |} y = x;
+
+    assertEquality(true, y is ClosedRec);
+
+    if y is ClosedRec {
+        record {| byte i?; boolean b; |} rec = y;
+        assertEquality(true, rec.b);
+        assertEquality((), rec?.i);
+
+        record {| byte i?; boolean...; |} rec2 = y;
+        assertEquality(true, rec2["b"]);
+        assertEquality((), rec2?.i);
+    }
+}
+
+type ClosedRecTwo record {|
+    int i;
+    string s?;
+|};
+
+type ClosedRecThree record {|
+    int i?;
+    boolean b = true;
+|};
+
+function testRecordIntersectionWithClosedRecordAndRecordWithOptionalField2() {
+    record {| int i; |} x = {i: 1};
+    record {| int i; boolean b?; |} y = x;
+
+    assertEquality(true, y is ClosedRecTwo);
+
+    if y is ClosedRecTwo {
+        record {| int i; |} z = y;
+        assertEquality(1, z.i);
+    }
+
+    ClosedRec cr1 = {i: 1, b: true};
+    assertEquality(false, cr1 is record {| byte i?; boolean b?; |});
+    assertEquality(false, cr1 is record {| byte i; boolean b?; |});
+
+    record {| byte i?; boolean b = false; |} rec2 = {i: 100};
+    ClosedRec cr2 = rec2;
+    assertEquality(true, cr2 is record {| byte i?; boolean b?; |});
+    assertEquality(false, cr2 is record {| byte i; boolean b?; |});
+
+    if cr2 is record {| byte i?; boolean b?; |} {
+        record {| byte i?; boolean b; |} rec = cr2;
+        assertEquality(100, rec?.i);
+        assertEquality(false, rec.b);
+    }
+
+    ClosedRec cr3 = <record {| byte i; boolean b; |}> {i: 45, b: true};
+    assertEquality(true, cr3 is record {| byte i?; boolean b?; |});
+    assertEquality(true, cr3 is record {| byte i; boolean b?; |});
+
+    if cr3 is record {| byte i; boolean b?; |} {
+        record {| byte i; boolean b; |} rec = cr3;
+        assertEquality(45, rec?.i);
+        assertEquality(true, rec.b);
+    }
+
+    ClosedRecThree cr4 = {i: 1, b: true};
+    assertEquality(false, cr4 is record {| byte i?; boolean b?; |});
+    assertEquality(false, cr4 is record {| byte i; boolean b?; |});
+
+    record {| byte i?; boolean b = false; |} rec3 = {i: 100};
+    ClosedRecThree cr5 = rec3;
+    assertEquality(true, cr5 is record {| byte i?; boolean b?; |});
+    assertEquality(false, cr5 is record {| byte i; boolean b?; |});
+
+    if cr5 is record {| byte i?; boolean b?; |} {
+        record {| byte i?; boolean b; |} rec = cr5;
+        assertEquality(100, rec?.i);
+        assertEquality(false, rec.b);
+    }
+
+    ClosedRecThree cr6 = <record {| byte i; boolean b = false; |}> {i: 45, b: true};
+    assertEquality(true, cr6 is record {| byte i?; boolean b?; |});
+    assertEquality(true, cr6 is record {| byte i; boolean b?; |});
+
+    if cr6 is record {| byte i; boolean b?; |} {
+        record {| byte i; boolean b; |} rec = cr6;
+        assertEquality(45, rec?.i);
+        assertEquality(true, rec.b);
+    }
+}
+
+type RecordWithDefaultValue record {|
+    int i = 10;
+    boolean b?;
+|};
+
+type RecordWithNoDefaultValue record {|
+    byte i;
+    boolean|string b?;
+|};
+
+function testRecordIntersectionWithDefaultValues() {
+    RecordWithDefaultValue e = {};
+    assertEquality(false, e is RecordWithNoDefaultValue);
+
+    record {| byte i = 101; |} rec = {};
+    RecordWithDefaultValue f = rec;
+    assertEquality(true, f is RecordWithNoDefaultValue);
+
+    if f is RecordWithNoDefaultValue {
+        record {| byte i; boolean b?; |} rec2 = f;
+        assertEquality(101, rec2?.i);
+        assertEquality((), rec2?.b);
+    }
+
+    record {| byte i = 101; boolean b; |} rec3 = {b: true};
+    RecordWithDefaultValue g = rec3;
+    assertEquality(true, g is RecordWithNoDefaultValue);
+
+    if g is RecordWithNoDefaultValue {
+        record {| byte i; boolean b?; |} rec2 = g;
+        assertEquality(101, rec2?.i);
+        assertEquality(true, rec2?.b);
+    }
+}
+
+function testClosedRecordAndMapIntersection() {
+    record {| byte i; |} x = {i: 123};
+    map<int|string> m = x;
+
+    assertEquality(true, m is record {| int i; float f?; |});
+
+    if m is record {| int i; float f?; |} {
+        record {| int i; |} rec = m;
+        assertEquality(123, rec.i);
+    }
+}
+
+type RecordWithNonReadOnlyField record {|
+    int i;
+    string s?;
+|};
+
+type RecordWithReadOnlyFieldAndOptionalNonReadOnlyField record {|
+    readonly int i;
+    boolean b?;
+|};
+
+type RecordWithReadOnlyFieldAndNonReadOnlyField record {|
+    readonly int i;
+    string|boolean s;
+|};
+
+function testIntersectionReadOnlyness() {
+    record {| int i; |} & readonly r1 = {i: 1};
+    RecordWithNonReadOnlyField r2 = r1;
+
+    assertEquality(true, r2 is RecordWithReadOnlyFieldAndOptionalNonReadOnlyField);
+    assertEquality(false, r2 is RecordWithReadOnlyFieldAndNonReadOnlyField);
+
+    if r2 is RecordWithReadOnlyFieldAndOptionalNonReadOnlyField {
+        readonly x = r2;
+        record {| readonly int i; |} y = r2;
+        assertEquality(1, y.i);
+    }
+
+    record {| readonly int i; string s; |} r3 = {i: 123, s: "hello"};
+    RecordWithNonReadOnlyField r4 = r3;
+
+    assertEquality(true, r4 is RecordWithReadOnlyFieldAndNonReadOnlyField);
+    if r2 is RecordWithReadOnlyFieldAndNonReadOnlyField {
+        record {| readonly int i; string s; |} x = r2;
+        assertEquality(123, x.i);
+        assertEquality("hello", x.s);
+    }
+}
+
+function testMapIntersection() {
+    map<int|string> m = {a: 1, b: 2};
+    assertEquality(false, m is map<int|boolean>);
+
+    map<int> m2 = {a: 1, b: 2};
+    map<int|string> m3 = m2;
+    assertEquality(true, m3 is map<int|boolean>);
+
+    if m3 is map<int|boolean> {
+        map<int> m4 = m3;
+        assertEquality(2, m4.length());
+        assertEquality(1, m4["a"]);
+        assertEquality(2, m4["b"]);
+        assertEquality((), m4["c"]);
+    }
+}
+
+function jsonIntersection(json j) returns int {
+    if j is map<int|stream<int>> {
+        map<int> m = j;
+        return m.length();
+    }
+
+    if j is (int|stream<int>|boolean)[] {
+        (int|boolean)[] a = j;
+        return a.length();
+    }
+
+    return -1;
+}
+
+function testJsonIntersection() {
+    assertEquality(-1, jsonIntersection({a: 1, b: 2}));
+    assertEquality(2, jsonIntersection(<map<byte>> {a: 1, b: 2}));
+    assertEquality(-1, jsonIntersection(1));
+    assertEquality(-1, jsonIntersection([1, 2, 3]));
+    assertEquality(4, jsonIntersection(<int[]> [1, 2, 3, 4]));
+}
+
+public type Qux record {|
+    record {|
+        string s;
+    |} baz?;
+|};
+
+function intersectionWithIntersectionType(Qux? & readonly bar) returns string {
+    if bar is Qux {
+        record {| string s; |}? y = bar?.baz;
+        return y?.s ?: "Qux without baz";
+    }
+    return "nil";
+}
+
+function testIntersectionWithIntersectionType() {
+    assertEquality("nil", intersectionWithIntersectionType(()));
+    assertEquality("Qux without baz", intersectionWithIntersectionType({}));
+    assertEquality("hello world", intersectionWithIntersectionType({baz: {s: "hello world"}}));
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

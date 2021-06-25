@@ -55,7 +55,6 @@ dependencies {
     implementation 'javax.transaction:javax.transaction-api'
 //    implementation 'io.ballerina.messaging:broker-common'
 //    implementation 'io.ballerina.messaging:broker-core'
-    implementation 'io.opentracing:opentracing-api'
     implementation ('org.awaitility:awaitility') {
         exclude group: 'org.hamcrest', module: 'hamcrest-library'
         exclude group: 'org.hamcrest', module: 'hamcrest-core'
@@ -69,7 +68,6 @@ description = 'Ballerina - Core'
 
 configurations {
     implementation {
-        exclude group: 'org.apache.servicemix.bundles', module: 'org.apache.servicemix.bundles.commons-beanutils'
         exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
         exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-log4j2'
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'

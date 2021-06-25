@@ -111,3 +111,14 @@ function testInvalidNonIsolatedObjectConstructorForIsolatedObject() {
         };
     };
 }
+
+public isolated class IsolatedClassWithBoundMethodAccess {
+    public isolated function bar() {
+        lock {
+            isolated function () fn = self.baz;
+        }
+    }
+
+    function baz() {
+    }
+}

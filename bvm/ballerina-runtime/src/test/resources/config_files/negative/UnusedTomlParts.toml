@@ -1,0 +1,25 @@
+intVar = 111
+stringVar = "aaa"
+undefinedVar1 = "1"
+
+[recordVar]
+name = "hinduja"
+
+[test_module.util.foo]
+intVar = 222
+stringVar = "bbb"
+undefinedVar2 = "2"
+
+[myOrg.mod]
+intVar = 333
+stringVar = "ccc"
+undefinedVar3 = "3"
+
+[undefined_Module]
+undefinedVar4 = "4"
+
+[[undefined_Table]]
+undefinedVar5 = "5"
+
+[[tableVar]]
+name = "hinduja"

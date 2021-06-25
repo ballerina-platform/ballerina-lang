@@ -1,6 +1,6 @@
-import ballerina/io;
-import ballerina/http;
-import ballerina/log;
+import foobar/bar;
+import foobar/baz;
+import foobar/qux;
 import sammj/adder;
 
 public function main(string[] args) returns error? {

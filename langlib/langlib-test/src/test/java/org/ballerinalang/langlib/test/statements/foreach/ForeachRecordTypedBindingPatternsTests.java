@@ -87,4 +87,9 @@ public class ForeachRecordTypedBindingPatternsTests {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "");
     }
+
+    @Test
+    public void testForeachWithClosedRecordWithNoFields() {
+        BRunUtil.invoke(program, "testForeachWithClosedRecordWithNoFields");
+    }
 }

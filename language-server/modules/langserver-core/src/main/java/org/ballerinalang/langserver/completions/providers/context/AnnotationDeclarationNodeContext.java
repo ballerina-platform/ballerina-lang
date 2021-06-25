@@ -21,10 +21,13 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.AnnotationAttachPointNode;
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -37,6 +40,7 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -56,14 +60,15 @@ public class AnnotationDeclarationNodeContext extends AbstractCompletionProvider
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, AnnotationDeclarationNode node) {
+        // TODO: Handle the cases blocked by #30556
         List<LSCompletionItem> completionItemList = new ArrayList<>();
         if (this.onTypeDescriptorContext(context, node)) {
             Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION
                     && this.isValidTypeDescForAnnotations((TypeDefinitionSymbol) symbol);
-            if (this.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
                 List<Symbol> filteredSymbols = QNameReferenceUtil.getModuleContent(context, qNameRef, predicate);
-                
+
                 completionItemList.addAll(this.getCompletionItemList(filteredSymbols, context));
             } else {
                 List<Symbol> filteredSymbols = context.visibleSymbols(context.getCursorPosition()).stream()
@@ -71,11 +76,13 @@ public class AnnotationDeclarationNodeContext extends AbstractCompletionProvider
                         .collect(Collectors.toList());
                 completionItemList.addAll(this.getCompletionItemList(filteredSymbols, context));
                 completionItemList.addAll(this.getModuleCompletionItems(context));
+                completionItemList.add(new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()));
+                completionItemList.add(new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD_TYPE_DESC.get()));
             }
         } else if (this.onSuggestOnKeyword(context, node)) {
             completionItemList.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
         } else if (this.onSuggestAttachmentPoints(context, node)) {
-            completionItemList.addAll(this.getAnnotationAttachmentPoints(context));
+            completionItemList.addAll(this.getAnnotationAttachmentPoints(context, node));
         }
 
         this.sort(context, node, completionItemList);
@@ -99,7 +106,7 @@ public class AnnotationDeclarationNodeContext extends AbstractCompletionProvider
         SeparatedNodeList<Node> attachPoints = node.attachPoints();
         int cursor = context.getCursorPositionInTree();
 
-        return !annotationTag.isMissing() && attachPoints.isEmpty()
+        return !annotationTag.isMissing() && attachPoints.isEmpty() && node.onKeyword().isEmpty()
                 && annotationTag.textRange().endOffset() + 1 <= cursor;
     }
 
@@ -119,15 +126,147 @@ public class AnnotationDeclarationNodeContext extends AbstractCompletionProvider
         return rawType.typeKind() == TypeDescKind.MAP || rawType.typeKind() == TypeDescKind.RECORD;
     }
 
-    private List<LSCompletionItem> getAnnotationAttachmentPoints(BallerinaCompletionContext context) {
-        List<Snippet> snippets = Arrays.asList(Snippet.KW_SOURCE, Snippet.KW_TYPE, Snippet.KW_CLASS,
-                Snippet.KW_OBJ_FUNCTION, Snippet.KW_SERVICE_REMOTE_FUNCTION, Snippet.KW_PARAMETER, Snippet.KW_RETURN,
-                Snippet.KW_SERVICE, Snippet.KW_OBJECT_FIELD, Snippet.KW_RECORD_FIELD, Snippet.KW_SOURCE_ANNOTATION,
-                Snippet.KW_SOURCE_EXTERNAL, Snippet.KW_SOURCE_VAR, Snippet.KW_SOURCE_CONST, Snippet.KW_SOURCE_LISTENER,
-                Snippet.KW_SOURCE_WORKER);
+    private List<LSCompletionItem> getAnnotationAttachmentPoints(BallerinaCompletionContext context,
+                                                                 AnnotationDeclarationNode node) {
+        AttachmentPointContext attachmentPointContext = getAttachmentPointContext(context, node);
+        List<Snippet> itemSnippets = new ArrayList<>();
+        switch (attachmentPointContext) {
+            case ANY:
+                itemSnippets.addAll(anyAttachmentPoints());
+                break;
+            case SOURCE:
+                // both dual and source only attachment points are suggested
+                itemSnippets.addAll(dualAttachmentPoints());
+                itemSnippets.addAll(sourceOnlyAttachmentPoints());
+                break;
+            case OBJECT:
+                itemSnippets.addAll(Arrays.asList(Snippet.KW_FUNCTION, Snippet.KW_FIELD));
+                break;
+            case RECORD:
+                itemSnippets.addAll(Collections.singletonList(Snippet.KW_FIELD));
+                break;
+            case REMOTE:
+                itemSnippets.addAll(Collections.singletonList(Snippet.KW_FUNCTION));
+                break;
+            case SERVICE:
+                itemSnippets.addAll(Arrays.asList(Snippet.KW_REMOTE, Snippet.KW_REMOTE_FUNCTION));
+                break;
+            default:
+                break;
+        }
 
-        return snippets.stream()
+        return itemSnippets.stream()
                 .map(snippet -> new SnippetCompletionItem(context, snippet.get()))
                 .collect(Collectors.toList());
+    }
+
+    private List<Snippet> anyAttachmentPoints() {
+        return Arrays.asList(Snippet.KW_SOURCE, Snippet.KW_TYPE, Snippet.KW_CLASS, Snippet.KW_FUNCTION,
+                Snippet.KW_OBJ_FUNCTION, Snippet.KW_SERVICE_REMOTE_FUNCTION, Snippet.KW_PARAMETER,
+                Snippet.KW_RETURN, Snippet.KW_SERVICE, Snippet.KW_OBJECT, Snippet.KW_RECORD, Snippet.KW_OBJECT_FIELD,
+                Snippet.KW_RECORD_FIELD, Snippet.KW_FIELD, Snippet.KW_SOURCE_ANNOTATION, Snippet.KW_SOURCE_EXTERNAL,
+                Snippet.KW_SOURCE_VAR, Snippet.KW_SOURCE_CONST, Snippet.KW_SOURCE_LISTENER, Snippet.KW_SOURCE_WORKER);
+    }
+
+    private List<Snippet> dualAttachmentPoints() {
+        return Arrays.asList(Snippet.KW_TYPE, Snippet.KW_CLASS, Snippet.KW_OBJ_FUNCTION,
+                Snippet.KW_SERVICE_REMOTE_FUNCTION, Snippet.KW_PARAMETER, Snippet.KW_RETURN, Snippet.KW_SERVICE,
+                Snippet.KW_OBJECT_FIELD, Snippet.KW_RECORD_FIELD, Snippet.KW_FIELD, Snippet.KW_FUNCTION);
+    }
+
+    private List<Snippet> sourceOnlyAttachmentPoints() {
+        return Arrays.asList(Snippet.KW_ANNOTATION, Snippet.KW_EXTERNAL, Snippet.KW_VAR,
+                Snippet.KW_CONST, Snippet.KW_LISTENER, Snippet.KW_WORKER);
+    }
+
+    private AttachmentPointContext getAttachmentPointContext(BallerinaCompletionContext context,
+                                                             AnnotationDeclarationNode node) {
+        SeparatedNodeList<Node> attachmentPoints = node.attachPoints();
+        Optional<AnnotationAttachPointNode> attachmentPointAtCursor =
+                this.attachmentPointAtCursor(context, attachmentPoints);
+
+        if (attachmentPointAtCursor.isEmpty()) {
+            return AttachmentPointContext.ANY;
+        }
+
+        NodeList<Token> identifiers = attachmentPointAtCursor.get().identifiers();
+        int cursor = context.getCursorPositionInTree();
+        Optional<Token> immediatePreviousToken = Optional.empty();
+        for (int i = identifiers.size() - 1; i >= 0; i--) {
+            Token token = identifiers.get(i);
+            if (token.isMissing()) {
+                continue;
+            }
+            if (cursor > token.textRange().endOffset()) {
+                immediatePreviousToken = Optional.of(token);
+                break;
+            }
+        }
+
+        Optional<Token> sourceKeyword = attachmentPointAtCursor.get().sourceKeyword();
+
+        if (sourceKeyword.isPresent() && sourceKeyword.get().textRange().endOffset() < cursor
+                && (immediatePreviousToken.isEmpty()
+                || immediatePreviousToken.get().textRange().endOffset() > cursor)) {
+            return AttachmentPointContext.SOURCE;
+        }
+
+        if (immediatePreviousToken.isEmpty()) {
+            return AttachmentPointContext.ANY;
+        }
+
+        SyntaxKind immediatePreviousTokenKind = immediatePreviousToken.get().kind();
+
+        if (immediatePreviousTokenKind == SyntaxKind.OBJECT_KEYWORD) {
+            return AttachmentPointContext.OBJECT;
+        }
+
+        if (immediatePreviousTokenKind == SyntaxKind.SERVICE_KEYWORD) {
+            return AttachmentPointContext.SERVICE;
+        }
+
+        if (immediatePreviousTokenKind == SyntaxKind.REMOTE_KEYWORD) {
+            return AttachmentPointContext.REMOTE;
+        }
+
+        if (immediatePreviousTokenKind == SyntaxKind.RECORD_KEYWORD) {
+            return AttachmentPointContext.RECORD;
+        }
+
+        return AttachmentPointContext.NONE;
+    }
+
+    private Optional<AnnotationAttachPointNode> attachmentPointAtCursor(BallerinaCompletionContext context,
+                                                                        SeparatedNodeList<Node> nodes) {
+        if (nodes.isEmpty()) {
+            return Optional.empty();
+        }
+        int cursor = context.getCursorPositionInTree();
+        int separatorIndex = -1;
+        for (int i = nodes.separatorSize(); i > 0; i--) {
+            Token separator = nodes.getSeparator(i - 1);
+            if (separator.textRange().endOffset() <= cursor) {
+                separatorIndex = i - 1;
+                break;
+            }
+        }
+
+        int nodeIndex = separatorIndex + 1;
+        if (nodeIndex > nodes.size() || nodes.get(nodeIndex).isMissing()) {
+            return Optional.empty();
+        }
+
+        return Optional.of((AnnotationAttachPointNode) nodes.get(nodeIndex));
+    }
+
+    private enum AttachmentPointContext {
+        ANY,
+        SOURCE,
+        DUAL,
+        OBJECT,
+        SERVICE,
+        REMOTE,
+        RECORD,
+        NONE
     }
 }

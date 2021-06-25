@@ -1,7 +1,6 @@
-import ballerina/lang.'error;
 import ballerina/lang.'value;
 
-function errorConstructReasonTest() returns [error, error, error, string, any, string] {
+function errorConstructReasonTest() {
     error er1 = error("error1");
 
     string s = "error2";
@@ -10,10 +9,18 @@ function errorConstructReasonTest() returns [error, error, error, string, any, s
     map<string> m = { k1: "error3" };
     error er3 = error(m.get("k1"));
 
-    return [er1, er2, er3, er1.message(), er2.message(), er3.message()];
+    validateErrorMessage(er1, "error1");
+    validateErrorMessage(er2, "error2");
+    validateErrorMessage(er3, "error3");
 }
 
-function errorConstructDetailTest() returns [error, error, error, any, any, any] {
+function validateErrorMessage(error e, string expMessage) {
+    if (e.message() != expMessage) {
+        panic error(string `Expected error message: ${expMessage}, found: ${e.message()}`);
+    }
+}
+
+function errorConstructDetailTest() {
     error er1 = error("error1", message = "msg1");
 
     string s = "error2";
@@ -25,8 +32,27 @@ function errorConstructDetailTest() returns [error, error, error, any, any, any]
     map<string> details = { message: "msg3" };
     error er3 = error(reason.get("k1"), message = details.get("message"));
 
-    return [er1, er2, er3, er1.detail(), er2.detail(), er3.detail()];
+    validateErrorDetail(er1, "message", "msg1");
+    validateErrorDetail(er2, "message", "msg2");
+    validateErrorDetail(er3, "message", "msg3");
 }
+
+function validateErrorDetail(error e, string key, string value) {
+    var detail = e.detail();
+    var v = detail[key];
+    if (v is string && v == value) {
+        return;
+    }
+
+    string vStr = "readonly";
+    if (v is any) {
+        vStr = v.toString();
+    } else if (v is error) {
+        vStr = v.toString();
+    }
+    panic error(string `Expected error detail with key: ${key} and value: ${value}, found value: ${vStr}`);
+}
+
 
 function errorPanicTest(int i) returns string {
     string val = errorPanicCallee(i);
@@ -41,9 +67,26 @@ function errorPanicCallee(int i) returns string {
     return "done";
 }
 
-function errorTrapTest(int i) returns string|error {
+function errorTrapTest(int i) {
     string|error val = trap errorPanicCallee(i);
-    return val;
+
+    if (i > 10) {
+        if (val is error) {
+            if (val.message() == "largeNumber") {
+                return;
+            }
+            panic error(string `Expected error message: largeNumber, found: ${val.message()}`);
+        }
+        panic error(string `Expected error, found ${(typeof val).toString()}`);
+    } else {
+        if (val is string) {
+            if (val == "done") {
+                return;
+            }
+            panic error(string `Expected done, found: ${val}`);
+        }
+        panic error(string `Expected string, found ${(typeof val).toString()}`);
+    }
 }
 
 type TrxErrorData record {|
@@ -169,14 +212,20 @@ const ERROR_REASON_TWO = "reason two";
 type UserDefErrorOne error;
 type UserDefErrorTwo error<TrxErrorData>;
 
-function testErrorConstrWithConstForUserDefinedReasonType() returns error {
+function testErrorConstrWithConstForUserDefinedReasonType() {
     UserDefErrorOne e = error(ERROR_REASON_ONE);
-    return e;
+
+    if (e.message() != "reason one") {
+        panic error("Expected error message: reason one, found: " + e.message());
+    }
 }
 
-function testErrorConstrWithLiteralForUserDefinedReasonType() returns error {
+function testErrorConstrWithLiteralForUserDefinedReasonType() {
     UserDefErrorOne e = error("reason one");
-    return e;
+
+    if (e.message() != "reason one") {
+        panic error("Expected error message: reason one, found: " + e.message());
+    }
 }
 
 function testErrorConstrWithConstForConstReason() returns error {
@@ -208,7 +257,7 @@ function testUnspecifiedErrorDetailFrozenness() returns boolean {
     return err is error && err.message() == "{ballerina/lang.map}InvalidUpdate";
 }
 
-function addValueToMap(map<anydata|readonly> m, string key, anydata|readonly value) {
+function addValueToMap(map<value:Cloneable> m, string key, anydata|readonly value) {
     m[key] = value;
 }
 
@@ -269,8 +318,20 @@ public function testUnionLhsWithIndirectErrorRhs() returns error {
     return x;
 }
 
-public function testOptionalErrorReturn() returns error? {
-    return error("this is broken", message = "too bad");
+public function testOptionalErrorReturn() {
+    var f = function () returns error? {
+        return error("this is broken", message = "too bad");
+    };
+
+    var e = f();
+    if (e is error && e.message() == "this is broken") {
+        var val = e.detail()["message"];
+        if (val is string && val == "too bad") {
+            return;
+        }
+        panic error("Error detail mismatch");
+    }
+    panic error("Expected error, found " + (typeof e).toString());
 }
 
 public function testStackTraceInNative() {
@@ -324,11 +385,16 @@ function takeError(error e) returns string {
     return e.message();
 }
 
-function testErrorTrapVarReuse() returns [error?, error?] {
+function testErrorTrapVarReuse() {
     var result = trap panicNow();
     var temp = result;
     result = trap dontPanic();
-    return [temp, result];
+
+    if (temp is error && result is ()) {
+        return;
+    }
+    panic error("Assertion error, expected error and nil, found: " +
+        string `${(typeof temp).toString()} and ${(typeof result).toString()}`);
 }
 
 function panicNow() {
@@ -346,30 +412,11 @@ function bar2(){
     bar();
 }
 
-function testStackOverFlow() returns ['error:CallStackElement[], string]? {
+function testStackOverFlow() returns [error:CallStackElement[], string]? {
     error? e = trap bar();
     if (e is error){
         return [e.stackTrace().callStack, e.message()];
     }
-}
-
-function testErrorTypeDescriptionInferring() {
-    TrxError e = error TrxError("IAmAInferedErr");
-    error<*> err = e;
-    TrxError errSecondRef = err;
-    assertEquality(errSecondRef.detail().toString(), e.detail().toString());
-}
-
-function testDefaultErrorTypeDescriptionInferring() {
-    error e = error("IAmAInferedDefaultErr");
-    error<*> err = e;
-    assertEquality(err.detail().toString(), e.detail().toString());
-}
-
-function testUnionErrorTypeDescriptionInferring() {
-    error|TrxError e = error("IAmAInferedUnionErr");
-    error<*> err = e;
-    assertEquality(err.detail().toString(), e.detail().toString());
 }
 
 type SampleErrorData record {
@@ -389,6 +436,32 @@ function testErrorBindingPattern() {
     assertEquality(b, false);
 }
 
+function testLocalErrorTypeWithinLambda() {
+    var f = function () returns error {
+        error<record {| int i; |}> e = error("hi", i = 33);
+        return e;
+    };
+    error err = f();
+    assertEquality(err.detail()["i"], 33);
+}
+
+function testLocalErrorTypeWithClosure() {
+    final int k = 2;
+    error<record {| int i = k; |}> e = error("hi");
+    assertEquality(e.detail()["i"], k);
+}
+
+// Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/30659
+//function testLocalErrorTypeWithClosureInALambda() {
+//    final int k = 2;
+//    var f = function () returns error {
+//        error<record {| int i = k; |}> e = error("hi");
+//        return e;
+//    };
+//    error err = f();
+//    assertEquality(err.detail()["i"], k);
+//}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error actual, any|error expected) {
@@ -403,5 +476,5 @@ function assertEquality(any|error actual, any|error expected) {
     string expectedValAsString = expected is error ? expected.toString() : expected.toString();
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+                message = "expected : '" + expectedValAsString + "', found : '" + actualValAsString + "'");
 }

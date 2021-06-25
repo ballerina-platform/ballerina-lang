@@ -17,14 +17,19 @@
  */
 package org.ballerinalang.langserver.commons;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -33,10 +38,10 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public interface DocumentServiceContext {
-    
+
     /**
-     * Get the symbols visible at a given cursor position. Visible symbols will be set on demand to the context once
-     * and saved in a given context.
+     * Get the symbols visible at a given cursor position. Visible symbols will be set on demand to the context once and
+     * saved in a given context.
      *
      * @param position cursor position
      * @return {@link List}
@@ -73,21 +78,51 @@ public interface DocumentServiceContext {
 
     /**
      * Get the imports in the current document.
+     * This API is deprecated. Instead, use {@link #currentDocImportsMap}
      *
      * @return {@link List} of import nodes
      */
+    @Deprecated(forRemoval = true)
     List<ImportDeclarationNode> currentDocImports();
 
     /**
+     * Get the imports in the current document.
+     *
+     * @return {@link Map} of import nodes
+     */
+    Map<ImportDeclarationNode, ModuleSymbol> currentDocImportsMap();
+
+    /**
+     * Get the current document where the given file URI resides.
+     *
+     * @return {@link Document}
+     */
+    Optional<Document> currentDocument();
+
+    /**
      * Get the current module where the given file URI resides.
-     * 
+     *
      * @return {@link Module}
      */
     Optional<Module> currentModule();
 
     /**
+     * Get the current semantic model where the given file URI resides.
+     *
+     * @return {@link SemanticModel}
+     */
+    Optional<SemanticModel> currentSemanticModel();
+
+    /**
+     * Get the current syntax tree where the given file URI resides.
+     *
+     * @return {@link SyntaxTree}
+     */
+    Optional<SyntaxTree> currentSyntaxTree();
+
+    /**
      * Get the language server context.
-     * 
+     *
      * @return {@link LanguageServerContext}
      */
     LanguageServerContext languageServercontext();

@@ -18,10 +18,10 @@ import ballerina/lang.'xml;
 import ballerina/jballerina.java;
 
 function createPipeline(
-        Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, ErrorType>|_Iterable collection,
-        typedesc<Type> resType)
+        Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection,
+        typedesc<Type> constraintTd, typedesc<CompletionType> completionTd)
             returns _StreamPipeline {
-    return new _StreamPipeline(collection, resType);
+    return new _StreamPipeline(collection, constraintTd, completionTd);
 }
 
 function createInputFunction(function(_Frame _frame) returns _Frame|error? inputFunc)
@@ -29,7 +29,7 @@ function createInputFunction(function(_Frame _frame) returns _Frame|error? input
     return new _InputFunction(inputFunc);
 }
 
-function createNestedFromFunction(function(_Frame _frame) returns any|error? collectionFunc)
+function createNestedFromFunction(function(_Frame _frame) returns _Frame|error? collectionFunc)
         returns _StreamFunction {
     return new _NestedFromFunction(collectionFunc);
 }
@@ -80,11 +80,11 @@ function addStreamFunction(@tainted _StreamPipeline pipeline, @tainted _StreamFu
     pipeline.addStreamFunction(streamFunction);
 }
 
-function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<Type, ErrorType> {
+function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<Type, CompletionType> {
     return pipeline.getStream();
 }
 
-function toArray(stream<Type, ErrorType> strm, Type[] arr) returns Type[]|error {
+function toArray(stream<Type, CompletionType> strm, Type[] arr) returns Type[]|error {
     record {| Type value; |}|error? v = strm.next();
     while (v is record {| Type value; |}) {
         arr.push(v.value);
@@ -97,9 +97,9 @@ function toArray(stream<Type, ErrorType> strm, Type[] arr) returns Type[]|error 
     return arr;
 }
 
-function toXML(stream<Type, ErrorType> strm) returns xml {
+function toXML(stream<Type, CompletionType> strm) returns xml|error {
     xml result = 'xml:concat();
-    record {| Type value; |}|ErrorType? v = strm.next();
+    record {| Type value; |}|CompletionType v = strm.next();
     while (v is record {| Type value; |}) {
         Type value = v.value;
         if (value is xml) {
@@ -107,12 +107,15 @@ function toXML(stream<Type, ErrorType> strm) returns xml {
         }
         v = strm.next();
     }
+    if (v is error) {
+        return v;
+    }
     return result;
 }
 
-function toString(stream<Type, ErrorType> strm) returns string {
+function toString(stream<Type, CompletionType> strm) returns string|error {
     string result = "";
-    record {| Type value; |}|ErrorType? v = strm.next();
+    record {| Type value; |}|CompletionType v = strm.next();
     while (v is record {| Type value; |}) {
         Type value = v.value;
         if (value is string) {
@@ -120,11 +123,14 @@ function toString(stream<Type, ErrorType> strm) returns string {
         }
         v = strm.next();
     }
+    if (v is error) {
+        return v;
+    }
     return result;
 }
 
-function addToTable(stream<Type, ErrorType> strm, table<map<Type>> tbl, error? err) returns table<map<Type>>|error {
-    record {| Type value; |}|ErrorType? v = strm.next();
+function addToTable(stream<Type, CompletionType> strm, table<map<Type>> tbl, error? err) returns table<map<Type>>|error {
+    record {| Type value; |}|CompletionType v = strm.next();
     while (v is record {| Type value; |}) {
         error? e = trap tbl.add(<map<Type>> checkpanic v.value);
         if (e is error) {
@@ -141,7 +147,7 @@ function addToTable(stream<Type, ErrorType> strm, table<map<Type>> tbl, error? e
     return tbl;
 }
 
-function consumeStream(stream<Type, ErrorType> strm) returns error? {
+function consumeStream(stream<Type, CompletionType> strm) returns error? {
     any|error? v = strm.next();
     while (!(v is () || v is error)) {
         v = strm.next();

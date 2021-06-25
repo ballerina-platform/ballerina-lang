@@ -162,4 +162,9 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
         test("let int a = ?. b in c;", "access-expr/optional_field_access_expr_assert_07.json");
         test("from int a in b where ?. select ?. ;", "access-expr/optional_field_access_expr_assert_08.json");
     }
+
+    @Test
+    public void testMemberAccessRecovery() {
+        testFile("access-expr/member_access_expr_source_11.bal", "access-expr/member_access_expr_assert_11.json");
+    }
 }

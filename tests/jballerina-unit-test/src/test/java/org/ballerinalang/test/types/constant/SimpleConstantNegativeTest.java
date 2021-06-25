@@ -32,7 +32,7 @@ public class SimpleConstantNegativeTest {
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/" +
                 "simple-literal-constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 58);
+        Assert.assertEquals(compileResult.getErrorCount(), 64);
 
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'int'",
@@ -51,8 +51,9 @@ public class SimpleConstantNegativeTest {
                 9, 14);
         BAssertUtil.validateError(compileResult, index++, "underscore is not allowed here",
                 10, 7);
-        BAssertUtil.validateError(compileResult, index++, "constant cannot be defined with type 'invalidType'," +
-                " expected a simple basic types or a map of a simple basic type", 12, 7);
+        BAssertUtil.validateError(compileResult, index++, "cannot declare a constant with type 'invalidType', " +
+                        "expected a subtype of 'anydata' that is not 'never'",
+                12, 7);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'invalidType'",
                 12, 7);
         BAssertUtil.validateError(compileResult, index++, "cannot update constant value", 26, 5);
@@ -68,7 +69,7 @@ public class SimpleConstantNegativeTest {
                 64, 21);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'int'",
                 73, 12);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '(E|F)', found '(D|E)'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'G', found 'H'",
                 91, 11);
         BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[UVW, UVW]'", 98, 1);
         BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[IJK, IJK]'", 103, 1);
@@ -129,9 +130,22 @@ public class SimpleConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "expression is not a constant expression", 255, 33);
         BAssertUtil.validateError(compileResult, index++, "expression is not a constant expression", 256, 33);
         BAssertUtil.validateError(compileResult, index++, "cannot update constant value", 268, 5);
-        BAssertUtil.validateError(compileResult, index++, "constant cannot be defined with type 'Foo', expected a " +
-                "simple basic types or a map of a simple basic type", 278, 7);
-        BAssertUtil.validateError(compileResult, index, "constant cannot be defined with type 'json', expected a " +
-                "simple basic types or a map of a simple basic type", 280, 7);
+        BAssertUtil.validateError(compileResult, index++, "constant declaration not yet supported for type 'Foo'",
+                278, 7);
+        BAssertUtil.validateError(compileResult, index++, "constant declaration not yet supported for type 'json'",
+                280, 7);
+        BAssertUtil.validateError(compileResult, index++, "constant declaration not yet supported for " +
+                "type 'int:Signed32'", 282, 14);
+        BAssertUtil.validateError(compileResult, index++, "constant declaration not yet supported for " +
+                "type 'int:Unsigned16'", 284, 14);
+        BAssertUtil.validateError(compileResult, index++, "constant declaration not yet supported for " +
+                "type 'string:Char'", 286, 14);
+        BAssertUtil.validateError(compileResult, index++, "cannot declare a constant with type 'Bar', " +
+                        "expected a subtype of 'anydata' that is not 'never'",
+                294, 7);
+        BAssertUtil.validateError(compileResult, index++, "expression is not a constant expression",
+                294, 17);
+        BAssertUtil.validateError(compileResult, index, "constant declarations are allowed only at module level",
+                298, 1);
     }
 }

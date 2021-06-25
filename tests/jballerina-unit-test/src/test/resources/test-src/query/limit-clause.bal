@@ -159,7 +159,7 @@ function testLimitClauseWithQueryAction() returns int {
     int[] intList = [1, 2, 3, 4, 5];
     int count = 0;
 
-    var x =  from var value in intList
+    error? x =  from var value in intList
             limit 3
             do {
                 count += value;
@@ -177,7 +177,7 @@ function testLimitClauseWithQueryAction2() returns FullName[] {
     Person[] personList = [p1, p2, p3];
     FullName[] nameList = [];
 
-    var x =  from var person in personList
+    error? x =  from var person in personList
             let int twiceAge  = (person.age * 2)
             limit 1
             do {
@@ -198,7 +198,7 @@ function testLimitClauseWithQueryAction3() returns FullName[] {
     Person[] personList = [p1, p2];
     FullName[] nameList = [];
 
-    var x =  from var person in personList
+    error? x =  from var person in personList
             limit 3
             do {
                 FullName fullName = {firstName: person.firstName, lastName: person.lastName};
@@ -216,7 +216,7 @@ function testLimitClauseWithQueryAction4() returns FullName[] {
     Person[] personList = [p1, p2];
     FullName[] nameList = [];
 
-    var x =  from var person in personList
+    error? x =  from var person in personList
             limit 2
             do {
                 FullName fullName = {firstName: person.firstName, lastName: person.lastName};

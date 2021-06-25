@@ -23,6 +23,9 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.testng.Assert.assertEquals;
+
 /**
  * Test cases for user defined object types in ballerina.
  */
@@ -49,5 +52,28 @@ public class ObjectIncludeOverrideBalaTest {
     @Test
     public void testObjectWithOverriddenFieldsAndMethods() {
         BRunUtil.invoke(result, "testObjectWithOverriddenFieldsAndMethods");
+    }
+
+    @Test
+    public void testIsolationNegative() {
+        CompileResult negativeRes =
+                BCompileUtil.compile("test-src/bala/test_bala/object/test_object_type_inclusion_negative.bal");
+        int index = 0;
+
+        validateError(negativeRes, index++, "mismatched visibility qualifiers for field 'salary' " +
+                        "with object type inclusion", 23, 5);
+        validateError(negativeRes, index++, "mismatched function signatures: expected 'public function " +
+                "getBonus(float ratio, int months) returns float', found 'function getBonus(float ratio, " +
+                "int months) returns float'", 25, 5);
+        validateError(negativeRes, index++, "mismatched visibility qualifiers for field 'salary' " +
+                "with object type inclusion", 34, 5);
+        validateError(negativeRes, index++, "mismatched function signatures: expected 'public function " +
+                "getBonus(float ratio, int months) returns float', found 'private function " +
+                "getBonus(float ratio, int months) returns float'", 36, 5);
+        validateError(negativeRes, index++, "incompatible type reference 'foo:Employee4': " +
+                "a referenced object cannot have non-public fields or methods", 42, 6);
+        validateError(negativeRes, index++, "incompatible type reference 'foo:Employee5': " +
+                "a referenced object cannot have non-public fields or methods", 48, 6);
+        assertEquals(negativeRes.getErrorCount(), index);
     }
 }

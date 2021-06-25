@@ -1,4 +1,0 @@
-
-type myTestObject c object {
-    
-};

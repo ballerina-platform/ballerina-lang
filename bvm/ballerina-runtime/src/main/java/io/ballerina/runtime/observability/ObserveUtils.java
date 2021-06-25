@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package io.ballerina.runtime.observability;
 
 import io.ballerina.runtime.api.Environment;
@@ -24,13 +23,13 @@ import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.configurable.ConfigurableMap;
+import io.ballerina.runtime.internal.configurable.ConfigMap;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.observability.tracer.BSpan;
+import io.opentelemetry.api.common.Attributes;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -38,9 +37,12 @@ import java.util.function.Supplier;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CHECKPOINT_EVENT_NAME;
+import static io.ballerina.runtime.observability.ObservabilityConstants.DEFAULT_SERVICE_NAME;
 import static io.ballerina.runtime.observability.ObservabilityConstants.KEY_OBSERVER_CONTEXT;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_MODULE;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_POSITION;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_NAME;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_RESOURCE_ACCESSOR;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_SERVICE_NAME;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_CLIENT_REMOTE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_MAIN_FUNCTION;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_SERVICE_REMOTE;
@@ -53,8 +55,6 @@ import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_RESOURCE_ACCESSOR;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_RESOURCE_PATH;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_TRUE_VALUE;
-import static io.ballerina.runtime.observability.ObservabilityConstants.UNKNOWN_SERVICE;
-import static io.ballerina.runtime.observability.tracer.TraceConstants.KEY_SPAN;
 
 /**
  * Util class used for observability.
@@ -83,18 +83,18 @@ public class ObserveUtils {
 
         metricsEnabled = readConfig(metricsEnabledKey, enabledKey, false);
         metricsProvider = readConfig(metricsProviderKey, null, StringUtils.fromString("default"));
-        metricsReporter = readConfig(metricsReporterKey, providerKey, StringUtils.fromString("prometheus"));
+        metricsReporter = readConfig(metricsReporterKey, providerKey, StringUtils.fromString("choreo"));
         tracingEnabled = readConfig(tracingEnabledKey, enabledKey, false);
-        tracingProvider = readConfig(tracingProviderKey, providerKey, StringUtils.fromString("jaeger"));
+        tracingProvider = readConfig(tracingProviderKey, providerKey, StringUtils.fromString("choreo"));
         enabled = metricsEnabled || tracingEnabled;
     }
 
     private static <T> T readConfig(VariableKey specificKey, VariableKey inheritedKey, T defaultValue) {
         T value;
-        if (ConfigurableMap.containsKey(specificKey)) {
-            value = (T) ConfigurableMap.get(specificKey);
-        } else if (inheritedKey != null && ConfigurableMap.containsKey(inheritedKey)) {
-            value = (T) ConfigurableMap.get(inheritedKey);
+        if (ConfigMap.containsKey(specificKey)) {
+            value = (T) ConfigMap.get(specificKey);
+        } else if (inheritedKey != null && ConfigMap.containsKey(inheritedKey)) {
+            value = (T) ConfigMap.get(inheritedKey);
         } else {
             value = defaultValue;
         }
@@ -164,12 +164,18 @@ public class ObserveUtils {
             setObserverContextToCurrentFrame(env, newObserverContext);
 
             newObserverContext.setEntrypointFunctionModule(observerContext.getEntrypointFunctionModule());
-            newObserverContext.setEntrypointFunctionPosition(observerContext.getEntrypointFunctionPosition());
+            newObserverContext.setEntrypointServiceName(observerContext.getEntrypointServiceName());
+            newObserverContext.setEntrypointFunctionName(observerContext.getEntrypointFunctionName());
+            newObserverContext.setEntrypointResourceAccessor(observerContext.getEntrypointResourceAccessor());
             newObserverContext.setParent(observerContext);
             observerContext = newObserverContext;
         } else {    // If created now or the listener created to add more tags
             observerContext.setEntrypointFunctionModule(module.getValue());
-            observerContext.setEntrypointFunctionPosition(position.getValue());
+            observerContext.setEntrypointServiceName(serviceName.getValue());
+            observerContext.setEntrypointFunctionName(resourcePathOrFunction.getValue());
+            if (isResource) {
+                observerContext.setEntrypointResourceAccessor(resourceAccessor.getValue());
+            }
         }
         observerContext.setServiceName(serviceName.getValue());
 
@@ -198,9 +204,17 @@ public class ObserveUtils {
             observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE,
                     observerContext.getEntrypointFunctionModule());
         }
-        if (observerContext.getEntrypointFunctionPosition() != null) {
-            observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_POSITION,
-                    observerContext.getEntrypointFunctionPosition());
+        if (observerContext.getEntrypointServiceName() != null) {
+            observerContext.addTag(TAG_KEY_ENTRYPOINT_SERVICE_NAME,
+                    observerContext.getEntrypointServiceName());
+        }
+        if (observerContext.getEntrypointFunctionName() != null) {
+            observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_NAME,
+                    observerContext.getEntrypointFunctionName());
+        }
+        if (observerContext.getEntrypointResourceAccessor() != null) {
+            observerContext.addTag(TAG_KEY_ENTRYPOINT_RESOURCE_ACCESSOR,
+                    observerContext.getEntrypointResourceAccessor());
         }
 
         observerContext.setServer();
@@ -213,8 +227,8 @@ public class ObserveUtils {
     /**
      * Add record checkpoint data to active Trace Span.
      *
-     * @param env The Ballerina Environment
-     * @param pkg The package the instrumented code belongs to
+     * @param env      The Ballerina Environment
+     * @param pkg      The package the instrumented code belongs to
      * @param position The source code position the instrumented code defined in
      */
     public static void recordCheckpoint(Environment env, BString pkg, BString position) {
@@ -226,19 +240,17 @@ public class ObserveUtils {
         if (observerContext == null) {
             return;
         }
-        BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
+        BSpan span = observerContext.getSpan();
         if (span == null) {
             return;
         }
 
-        // Adding Position and Module ID to the Jaeger Span
-        Map<String, String> eventAttributes = new HashMap<>(2);
-        eventAttributes.put(TAG_KEY_SRC_MODULE, pkg.getValue());
-        eventAttributes.put(TAG_KEY_SRC_POSITION, position.getValue());
-
-        HashMap<String, Object> event = new HashMap<>(1);
-        event.put(CHECKPOINT_EVENT_NAME, eventAttributes);
-        span.addEvent(event);
+        // Adding Position and Module ID to the Span
+        Attributes eventAttributes = Attributes.builder()
+                .put(TAG_KEY_SRC_MODULE, pkg.getValue())
+                .put(TAG_KEY_SRC_POSITION, position.getValue())
+                .build();
+        span.addEvent(CHECKPOINT_EVENT_NAME, eventAttributes);
     }
 
     /**
@@ -255,12 +267,23 @@ public class ObserveUtils {
             return;
         }
 
+        if (!observerContext.isManuallyClosed()) {
+            stopObservationWithContext(observerContext);
+        }
+        setObserverContextToCurrentFrame(env, observerContext.getParent());
+    }
+
+    /**
+     * Notify observers to stop observations and set finished to observer context.
+     *
+     * @param observerContext Observer context
+     */
+    public static void stopObservationWithContext(ObserverContext observerContext) {
         if (observerContext.isServer()) {
             observers.forEach(observer -> observer.stopServerObservation(observerContext));
         } else {
             observers.forEach(observer -> observer.stopClientObservation(observerContext));
         }
-        setObserverContextToCurrentFrame(env, observerContext.getParent());
         observerContext.setFinished();
     }
 
@@ -308,12 +331,14 @@ public class ObserveUtils {
         if (prevObserverCtx != null) {
             newObContext.setServiceName(prevObserverCtx.getServiceName());
             newObContext.setEntrypointFunctionModule(prevObserverCtx.getEntrypointFunctionModule());
-            newObContext.setEntrypointFunctionPosition(prevObserverCtx.getEntrypointFunctionPosition());
+            newObContext.setEntrypointServiceName(prevObserverCtx.getEntrypointServiceName());
+            newObContext.setEntrypointFunctionName(prevObserverCtx.getEntrypointFunctionName());
+            newObContext.setEntrypointResourceAccessor(prevObserverCtx.getEntrypointResourceAccessor());
             newObContext.setParent(prevObserverCtx);
         } else {
-            newObContext.setServiceName(UNKNOWN_SERVICE);
+            newObContext.setServiceName(DEFAULT_SERVICE_NAME);
             newObContext.setEntrypointFunctionModule(module.getValue());
-            newObContext.setEntrypointFunctionPosition(position.getValue());
+            newObContext.setEntrypointFunctionName(functionName.getValue());
         }
 
         if (isMainEntryPoint) {
@@ -342,8 +367,14 @@ public class ObserveUtils {
         if (newObContext.getEntrypointFunctionModule() != null) {
             newObContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE, newObContext.getEntrypointFunctionModule());
         }
-        if (newObContext.getEntrypointFunctionPosition() != null) {
-            newObContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_POSITION, newObContext.getEntrypointFunctionPosition());
+        if (newObContext.getEntrypointServiceName() != null) {
+            newObContext.addTag(TAG_KEY_ENTRYPOINT_SERVICE_NAME, newObContext.getEntrypointServiceName());
+        }
+        if (newObContext.getEntrypointFunctionName() != null) {
+            newObContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_NAME, newObContext.getEntrypointFunctionName());
+        }
+        if (newObContext.getEntrypointResourceAccessor() != null) {
+            newObContext.addTag(TAG_KEY_ENTRYPOINT_RESOURCE_ACCESSOR, newObContext.getEntrypointResourceAccessor());
         }
 
         newObContext.setStarted();
@@ -359,9 +390,9 @@ public class ObserveUtils {
      * @return property map
      */
     public static Map<String, String> getContextProperties(ObserverContext observerContext) {
-        BSpan bSpan = (BSpan) observerContext.getProperty(KEY_SPAN);
+        BSpan bSpan = observerContext.getSpan();
         if (bSpan != null) {
-            return bSpan.getTraceContext();
+            return bSpan.extractContextAsHttpHeaders();
         }
         return Collections.emptyMap();
     }

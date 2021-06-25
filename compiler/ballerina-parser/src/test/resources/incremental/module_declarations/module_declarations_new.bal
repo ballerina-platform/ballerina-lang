@@ -1,4 +1,4 @@
-import ballerina/io;
+import foobar/bar;
 
 type Foo record {
     int a;

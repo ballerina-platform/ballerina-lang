@@ -58,6 +58,21 @@ type DistinctIntersectionError distinct ErrorOne & ErrorFive;
 
 type IntersectionOfDistinctErrors distinct DistinctErrorOne & DistinctErrorThree;
 
+type MyDetail record {|
+    string s;
+|};
+
+type Other record {|
+    string s;
+|};
+
+type MyError error<MyDetail> & error<Other>;
+
+type MyDError distinct error<MyDetail>;
+type MyOError distinct error<Other>;
+
+type MyDistinctError MyDError & MyOError;
+
 type RecordWithIntersectionReference record {
     IntersectionErrorThree err;
 };
@@ -82,19 +97,17 @@ function testIntersectionForAnonymousDetail() {
 }
 
 function testIntersectionForDetailRecordAndDetailMap() {
-    var err = error IntersectionErrorFour("message", x = "x", z = "z");
+    var err = error IntersectionErrorFour("message", x = "x");
     assertEquality(err.detail().x, "x");
-    assertEquality(err.detail()["z"], "z");
 }
 
 function testDistinctIntersectionType() {
     var err = getDistinctError();
     assertEquality(err.detail().x, "x");
-    assertEquality(err.detail()["z"], "z");
 }
 
 function getDistinctError() returns DistinctIntersectionError {
-    var err = error DistinctIntersectionError("message", x = "x", z = "z");
+    var err = error DistinctIntersectionError("message", x = "x");
     return err;
 }
 
@@ -120,12 +133,92 @@ public function testIntersectionAsFieldInAnonymousRecord() {
     assertEquality(errRec.err, err);
 }
 
+type IntersectionOfInlineErrorOne DistinctErrorOne & error<map<string>>;
+type IntersectionOfInlineErrorTwo DistinctErrorOne & error<Detail>;
+type IntersectionOfInlineErrorThree DistinctErrorOne & error<DetailFour>;
+
+type IntersectionOfDistinctAndInlineErrorOne distinct DistinctErrorOne & error<map<string>>;
+type IntersectionOfDistinctAndInlineErrorTwo distinct DistinctErrorOne & error<Detail>;
+type IntersectionOfDistinctAndInlineErrorThree distinct DistinctErrorOne & error<DetailFour>;
+
+public function testIntersectionOfErrorWithInlineError() {
+    IntersectionOfInlineErrorOne eOne = error IntersectionOfInlineErrorOne("eOne", x = "ex");
+    assertEquality(eOne.message(), "eOne");
+    assertEquality(eOne.detail().x, "ex");
+
+    IntersectionOfInlineErrorTwo eTwo = error IntersectionOfInlineErrorTwo("eTwo", x = "ex");
+    assertEquality(eTwo.message(), "eTwo");
+    assertEquality(eTwo.detail().x, "ex");
+
+    IntersectionOfInlineErrorThree eThree = error IntersectionOfInlineErrorThree("eThree", x = "ex");
+    assertEquality(eThree.message(), "eThree");
+    assertEquality(eThree.detail().x, "ex");
+
+    IntersectionOfInlineErrorOne eOneDash = eThree;
+    assertEquality(eOneDash.message(), "eThree");
+
+    var dErrorOne = error IntersectionOfDistinctAndInlineErrorOne("eOne", x = "ex");
+    assertEquality(dErrorOne.message(), "eOne");
+    assertEquality(dErrorOne.detail().x, "ex");
+
+    DistinctErrorOne dOneDash = dErrorOne;
+    assertEquality(dOneDash.message(), "eOne");
+    assertEquality(dOneDash.detail().x, "ex");
+
+    DistinctErrorOne dErrorTwo = error IntersectionOfDistinctAndInlineErrorTwo("eTwo", x = "ex");
+    assertEquality(dErrorTwo.message(), "eTwo");
+    assertEquality(dErrorTwo.detail().x, "ex");
+
+    DistinctErrorOne dErrorThree = error IntersectionOfDistinctAndInlineErrorThree("eThree", x = "ex");
+    assertEquality(dErrorThree.message(), "eThree");
+    assertEquality(dErrorThree.detail().x, "ex");
+}
+
 function getAnonymousRecord(IntersectionErrorThree err) returns record {IntersectionErrorThree err;} {
     record {IntersectionErrorThree err;} errRec = {err};
     return errRec;
 }
 
-const ASSERTION_ERROR_REASON = "AssertionError";
+type JsonParseDetail record {
+    string s;
+};
+
+type JsonParseError error<JsonParseDetail> & distinct error;
+
+function testAnonDistinctError() {
+    error e = error JsonParseError("msg", s = "the ling info");
+    if !(e is JsonParseError) {
+        panic error("Assertion error");
+    }
+}
+
+function testIntersectionOfSameSetOfErrorShapes() {
+    MyDistinctError d = error("d", s = "s");
+
+    MyDError de = d;
+    assertEquality(de.message(), "d");
+    assertEquality(de.detail().s, "s");
+
+    MyOError oe = d;
+    assertEquality(oe.message(), "d");
+    assertEquality(oe.detail().s, "s");
+
+    MyError m = error("m", s = "s");
+    assertEquality(m.message(), "m");
+    assertEquality(m.detail().s, "s");
+}
+
+type FreeError distinct error;
+
+type E1 distinct FreeError;
+
+type E2 FreeError & error<Detail>;
+
+public function testDistinctErrorWithSameTypeIdsButDifferentTypes() {
+    E1 x = error E1("");
+    // E1 and E2 have matching type-ids.
+    assertEquality(x is E2, false);
+}
 
 function assertEquality(any|error actual, any|error expected) {
     if expected is anydata && actual is anydata && expected == actual {
@@ -138,6 +231,6 @@ function assertEquality(any|error actual, any|error expected) {
 
     string expectedValAsString = expected is error ? expected.toString() : expected.toString();
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
-    panic error(ASSERTION_ERROR_REASON,
+    panic error("AssertionError",
                 message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

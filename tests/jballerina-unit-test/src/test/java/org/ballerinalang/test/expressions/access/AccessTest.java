@@ -53,7 +53,7 @@ public class AccessTest {
         validateError(negativeResult, i++, "invalid operation: type 'AlphaTwo' does not support field access for " +
                 "non-required field 'betas'", 40, 18);
         validateError(negativeResult, i++, "incompatible types: expected 'string', found 'string?'", 53, 17);
-        validateError(negativeResult, i, "invalid operation: type 'Delta?' does not support indexing", 70, 17);
+        validateError(negativeResult, i, "invalid operation: type 'Delta?' does not support member access", 70, 17);
     }
 
     @Test(dataProvider = "fieldAndOptionalFieldAccessFunctions")
@@ -107,4 +107,11 @@ public class AccessTest {
     public void testSimpleTypeAccessOnFunctionPointer() {
         BRunUtil.invoke(result, "testSimpleTypeAccessOnFunctionPointer");
     }
+
+    @Test
+    public void testAccessOnGroupedExpressions() {
+        BValue[] returns = BRunUtil.invoke(result, "testAccessOnGroupedExpressions");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
 }

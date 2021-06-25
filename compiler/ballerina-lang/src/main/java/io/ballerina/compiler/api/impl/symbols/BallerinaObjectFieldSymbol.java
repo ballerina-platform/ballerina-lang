@@ -49,15 +49,14 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
     protected final BField bField;
     protected List<Qualifier> qualifiers;
     private final Documentation docAttachment;
-    private final CompilerContext context;
     private TypeSymbol typeDescriptor;
     private List<AnnotationSymbol> annots;
     private String signature;
     private boolean deprecated;
+    private String escapedName;
 
     public BallerinaObjectFieldSymbol(CompilerContext context, BField bField, SymbolKind kind) {
-        super(bField.name.value, bField.symbol.pkgID, kind, bField.symbol);
-        this.context = context;
+        super(bField.name.value, kind, bField.symbol, context);
         this.bField = bField;
         this.docAttachment = new BallerinaDocumentation(bField.symbol.markdownDocumentation);
         this.deprecated = Symbols.isFlagOn(bField.symbol.flags, Flags.DEPRECATED);
@@ -68,8 +67,12 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
     }
 
     @Override
-    public String name() {
-        return this.bField.getName().getValue();
+    public Optional<String> getName() {
+        if (this.escapedName != null) {
+            return Optional.of(this.escapedName);
+        }
+        this.escapedName = escapeReservedKeyword(this.bField.getName().getValue());
+        return Optional.ofNullable(this.escapedName);
     }
 
     @Override
@@ -135,7 +138,7 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
             joiner.add(qualifier.getValue());
         }
 
-        this.signature = joiner.add(this.typeDescriptor().signature()).add(this.name()).toString();
+        this.signature = joiner.add(this.typeDescriptor().signature()).add(this.getName().get()).toString();
         return this.signature;
     }
 }

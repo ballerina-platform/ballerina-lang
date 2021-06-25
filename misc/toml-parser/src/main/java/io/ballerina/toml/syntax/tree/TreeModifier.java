@@ -48,8 +48,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             TableNode tableNode) {
         Token openBracket =
                 modifyToken(tableNode.openBracket());
-        SeparatedNodeList<ValueNode> identifier =
-                modifySeparatedNodeList(tableNode.identifier());
+        KeyNode identifier =
+                modifyNode(tableNode.identifier());
         Token closeBracket =
                 modifyToken(tableNode.closeBracket());
         NodeList<KeyValueNode> fields =
@@ -68,8 +68,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(tableArrayNode.firstOpenBracket());
         Token secondOpenBracket =
                 modifyToken(tableArrayNode.secondOpenBracket());
-        SeparatedNodeList<ValueNode> identifier =
-                modifySeparatedNodeList(tableArrayNode.identifier());
+        KeyNode identifier =
+                modifyNode(tableArrayNode.identifier());
         Token firstCloseBracket =
                 modifyToken(tableArrayNode.firstCloseBracket());
         Token secondCloseBracket =
@@ -88,8 +88,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public KeyValueNode transform(
             KeyValueNode keyValueNode) {
-        SeparatedNodeList<ValueNode> identifier =
-                modifySeparatedNodeList(keyValueNode.identifier());
+        KeyNode identifier =
+                modifyNode(keyValueNode.identifier());
         Token assign =
                 modifyToken(keyValueNode.assign());
         ValueNode value =
@@ -105,13 +105,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ArrayNode arrayNode) {
         Token openBracket =
                 modifyToken(arrayNode.openBracket());
-        SeparatedNodeList<ValueNode> values =
-                modifySeparatedNodeList(arrayNode.values());
+        SeparatedNodeList<ValueNode> value =
+                modifySeparatedNodeList(arrayNode.value());
         Token closeBracket =
                 modifyToken(arrayNode.closeBracket());
         return arrayNode.modify(
                 openBracket,
-                values,
+                value,
                 closeBracket);
     }
 
@@ -173,6 +173,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         IdentifierToken value =
                 modifyNode(identifierLiteralNode.value());
         return identifierLiteralNode.modify(
+                value);
+    }
+
+    @Override
+    public KeyNode transform(
+            KeyNode keyNode) {
+        SeparatedNodeList<ValueNode> value =
+                modifySeparatedNodeList(keyNode.value());
+        return keyNode.modify(
                 value);
     }
 

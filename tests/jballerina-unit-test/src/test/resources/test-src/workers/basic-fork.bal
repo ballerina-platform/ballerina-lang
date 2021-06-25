@@ -1,4 +1,4 @@
-import ballerina/io;
+import ballerina/jballerina.java;
 
 function sendToFork(){
   fork {
@@ -10,7 +10,7 @@ function sendToFork(){
       @strand{thread:"any"}
       worker w2{
         int j = <- w1;
-        io:print(j + 1);
+        print(j + 1);
       }
   }
   wait w2;
@@ -27,10 +27,14 @@ function forkInWorker() {
             @strand{thread:"any"}
             worker w2 {
                 int j = <- w1;
-                io:print(j + 1);
+                print(j + 1);
             }
         }
         wait w2;
     }
     wait wx;
 }
+
+public function print(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;

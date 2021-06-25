@@ -17,7 +17,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
-import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
@@ -29,11 +28,10 @@ import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.providers.context.util.ClassDefinitionNodeContextUtil;
-import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.CompletionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +50,8 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ObjectFieldNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ObjectFieldNode node)
+            throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (this.onExpressionContext(context, node)) {
@@ -63,49 +62,17 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
             List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, qNameRef);
             completionItems.addAll(this.getCompletionItemList(typesInModule, context));
         } else {
-            completionItems.addAll(this.getClassBodyCompletions(context, node));
+            /*
+            If the cursor is at the following position, we route to the parent since it is a common and ideal place.
+            Eg:
+            (1). object {
+                    i<cursor>
+                }
+             Return from here, since the sorting will be handled by the parent.
+             */
+            return CompletionUtil.route(context, node.parent());
         }
         this.sort(context, node, completionItems);
-        
-        return completionItems;
-    }
-
-    private List<LSCompletionItem> getClassBodyCompletions(BallerinaCompletionContext context, ObjectFieldNode node) {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        
-        if (this.onResourceMethodDef(context, node)) {
-            /*
-            Covers the following when the cursor is within a service body
-            (1) ... resource <cursor>
-            (1) ... resource f<cursor>
-             */
-            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION.get()));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
-            
-            return completionItems;
-        }
-
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PRIVATE.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PUBLIC.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_REMOTE.get()));
-        if (node.parent().kind() == SyntaxKind.CLASS_DEFINITION
-                || node.parent().kind() == SyntaxKind.SERVICE_DECLARATION
-                || node.parent().kind() == SyntaxKind.OBJECT_CONSTRUCTOR) {
-            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_FUNCTION.get()));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
-        } else {
-            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_METHOD_DECL.get()));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION_SIGNATURE.get()));
-        }
-        if (ClassDefinitionNodeContextUtil.onSuggestResourceSnippet(node.parent())) {
-            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.get()));
-        }
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
-        completionItems.addAll(this.getTypeItems(context));
-        completionItems.addAll(this.getModuleCompletionItems(context));
 
         return completionItems;
     }
@@ -134,21 +101,6 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         Optional<Token> equalsToken = node.equalsToken();
 
         return equalsToken.isPresent() && equalsToken.get().textRange().endOffset() <= cursor;
-    }
-    
-    private boolean onResourceMethodDef(BallerinaCompletionContext context, ObjectFieldNode node) {
-        int cursor = context.getCursorPositionInTree();
-        for (Minutiae minutiae : node.leadingMinutiae()) {
-            int endOffset = minutiae.textRange().endOffset();
-            if (minutiae.text().equals(SyntaxKind.RESOURCE_KEYWORD.stringValue()) && cursor >= endOffset + 1) {
-                return true;
-            }
-            if (cursor < minutiae.textRange().startOffset()) {
-                return false;
-            }
-        }
-        
-        return false;
     }
 
     @Override

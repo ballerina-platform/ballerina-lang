@@ -29,7 +29,9 @@ public class ProjectConstants {
 
     public static final String BALLERINA_TOML = "Ballerina.toml";
     public static final String DEPENDENCIES_TOML = "Dependencies.toml";
-    public static final String KUBERNETES_TOML = "Kubernetes.toml";
+    public static final String COMPILER_PLUGIN_TOML = "CompilerPlugin.toml";
+    public static final String SETTINGS_TOML = "Settings.toml";
+    public static final String CLOUD_TOML = "Cloud.toml";
     public static final String CONFIGURATION_TOML = "Config.toml";
     public static final String SETTINGS_FILE_NAME = "Settings.toml";
     public static final String GITIGNORE_FILE_NAME = ".gitignore";
@@ -37,6 +39,7 @@ public class ProjectConstants {
     public static final String PACKAGE_MD_FILE_NAME = "Package.md";
     public static final String PACKAGE_JSON = "package.json";
     public static final String BALA_JSON = "bala.json";
+    public static final String COMPILER_PLUGIN_JSON = "compiler-plugin.json";
     public static final String DEPENDENCY_GRAPH_JSON = "dependency-graph.json";
 
     public static final String SOURCE_DIR_NAME = "src";
@@ -56,6 +59,7 @@ public class ProjectConstants {
     // Bala specific constants
     public static final String MODULES_ROOT = "modules";
     public static final String LIB_DIR = "lib";
+    public static final String COMPILER_PLUGIN_DIR = "compiler-plugin";
 
     public static final String BALA_DIR_NAME = "bala";
     public static final String BALA_CACHE_DIR_NAME = "bala_cache";
@@ -83,6 +87,7 @@ public class ProjectConstants {
     public static final String DOT = ".";
     public static final String DEFAULT_VERSION = "0.0.0";
     public static final String INTERNAL_VERSION = "0.1.0";
+    public static final String MODULE_NAME_SEPARATOR = DOT;
 
     // Constants related to file system repo
     public static final String REPO_BALA_DIR_NAME = TARGET_BALA_DIR_NAME;
@@ -104,4 +109,7 @@ public class ProjectConstants {
 
     public static final String BALLERINA_OFFLINE_FLAG = "ballerina.offline.flag";
     public static final String BALA_DOCS_DIR = "docs";
+    public static final String REPOSITORIES_DIR = "repositories";
+    public static final String LOCAL_REPOSITORY_NAME = "local";
+    public static final String CENTRAL_REPOSITORY_CACHE_NAME = "central.ballerina.io";
 }

@@ -19,20 +19,22 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.Settings;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.model.PackageSearchResult;
-import org.ballerinalang.toml.model.Settings;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
-import java.net.Proxy;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.SEARCH_COMMAND;
 import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.cli.utils.PrintUtils.printPackages;
+import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
@@ -46,6 +48,7 @@ public class SearchCommand implements BLauncherCmd {
 
     private PrintStream outStream;
     private PrintStream errStream;
+    private boolean exitWhenFinish;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -59,11 +62,13 @@ public class SearchCommand implements BLauncherCmd {
     public SearchCommand() {
         this.outStream = System.out;
         this.errStream = System.err;
+        this.exitWhenFinish = true;
     }
 
-    public SearchCommand(PrintStream outStream, PrintStream errStream) {
+    public SearchCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
         this.outStream = outStream;
         this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
     }
 
     @Override
@@ -81,18 +86,23 @@ public class SearchCommand implements BLauncherCmd {
         if (argList == null || argList.isEmpty()) {
             CommandUtil.printError(this.errStream, "no keyword given", "bal search [<org>|<package>|<text>] ",
                                    false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
         if (argList.size() > 1) {
             CommandUtil.printError(this.errStream, "too many arguments", "bal search [<org>|<package>|<text>] ",
                                    false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
         String searchArgs = argList.get(0);
         searchInCentral(searchArgs);
-        Runtime.getRuntime().exit(0);
+
+        if (this.exitWhenFinish) {
+            Runtime.getRuntime().exit(0);
+        }
     }
 
     @Override
@@ -121,10 +131,20 @@ public class SearchCommand implements BLauncherCmd {
      */
     private void searchInCentral(String query) {
         try {
-            Settings settings = readSettings();
-            Proxy proxy = initializeProxy(settings.getProxy());
-            CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(), proxy);
-            PackageSearchResult packageSearchResult = client.searchPackage(query);
+            Settings settings;
+            try {
+                settings = readSettings();
+                // Ignore Settings.toml diagnostics in the search command
+            } catch (SettingsTomlException e) {
+                // Ignore 'Settings.toml' parsing errors and return empty Settings object
+                settings = Settings.from();
+            }
+            CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                                                           initializeProxy(settings.getProxy()),
+                                                           getAccessTokenOfCLI(settings));
+            PackageSearchResult packageSearchResult = client.searchPackage(query,
+                                                                           JvmTarget.JAVA_11.code(),
+                                                                           RepoUtils.getBallerinaVersion());
 
             if (packageSearchResult.getCount() > 0) {
                 printPackages(packageSearchResult.getPackages(), RepoUtils.getTerminalWidth());
@@ -139,6 +159,7 @@ public class SearchCommand implements BLauncherCmd {
                     errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));
                 }
                 CommandUtil.printError(this.errStream, errorMessage, null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
             }
         }
     }

@@ -132,3 +132,79 @@ class dummy {
     }
 
 }
+
+client class Client {
+    remote function foo() {
+    }
+
+    function bar() {
+    }
+}
+
+function testRemoteMethodCallAction() {
+    Client cl = new;
+    cl.foo();
+    cl->bar();
+}
+
+client class DoubleMethod {
+    remote function a() returns int {
+        return 0;
+    }
+
+    function a() returns int {
+        return 2;
+    }
+}
+
+client class DoubleMethodOtherOrder {
+    function a() returns int {
+        return 2;
+    }
+
+    remote function a() returns int {
+        return 0;
+    }
+}
+
+client class DoubleRemoteMethod {
+    remote function a() {
+
+    }
+
+    remote function a() {
+
+    }
+}
+
+function clientFunc() {
+    var x = client object {
+        remote function a() returns int {
+            return 0;
+        }
+
+        function a() returns int {
+            return 2;
+        }
+    };
+
+    var y = client object {
+        function a() returns int {
+            return 2;
+        }
+
+        remote function a() returns int {
+            return 0;
+        }
+    };
+
+    var z = client object {
+        remote function a() {
+
+        }
+
+        remote function a() {
+
+        }
+    };
+}

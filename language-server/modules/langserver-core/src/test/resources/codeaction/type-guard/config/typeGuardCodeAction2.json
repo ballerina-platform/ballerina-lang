@@ -16,7 +16,7 @@
                             "character": 13
                         }
                     },
-                    "newText": "\n    if (bar is error) {\n\n    }"
+                    "newText": "\n    if bar is error {\n\n    }"
                 },
                 {
                     "range": {

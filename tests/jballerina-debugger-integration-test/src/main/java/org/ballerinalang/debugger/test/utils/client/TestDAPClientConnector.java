@@ -164,9 +164,10 @@ public class TestDAPClientConnector {
         }
     }
 
-    public void launchServer(DebugUtils.DebuggeeExecutionKind launchKind) throws BallerinaTestException {
+    public void launchServer(DebugUtils.DebuggeeExecutionKind launchKind, Map<String, Object> args)
+            throws BallerinaTestException {
         try {
-            Map<String, Object> requestArgs = new HashMap<>();
+            Map<String, Object> requestArgs = new HashMap<>(args);
             requestArgs.put(CONFIG_SOURCE, entryFilePath);
             requestArgs.put(CONFIG_DEBUGEE_HOST, host);
             requestArgs.put(CONFIG_DEBUGEE_PORT, Integer.toString(port));
@@ -222,11 +223,11 @@ public class TestDAPClientConnector {
         if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
             processArgs.add("cmd.exe");
             processArgs.add("/c");
-            processArgs.add(balHome + File.separator + "bin" + File.separator + Constant.JBALLERINA_SERVER_SCRIPT_NAME +
+            processArgs.add(balHome + File.separator + "bin" + File.separator + Constant.BALLERINA_SERVER_SCRIPT_NAME +
                     ".bat");
         } else {
             processArgs.add("bash");
-            processArgs.add(balHome + File.separator + "bin" + File.separator + Constant.JBALLERINA_SERVER_SCRIPT_NAME);
+            processArgs.add(balHome + File.separator + "bin" + File.separator + Constant.BALLERINA_SERVER_SCRIPT_NAME);
         }
 
         processArgs.add(DebugUtils.JBAL_DEBUG_CMD_NAME);

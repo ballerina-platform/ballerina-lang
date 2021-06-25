@@ -71,7 +71,7 @@ public class SymbolByWorkerTest extends SymbolByNodeTest {
     private void assertSymbol(Node node, SemanticModel model, String name) {
         Optional<Symbol> symbol = model.symbol(node);
         assertEquals(symbol.get().kind(), SymbolKind.WORKER);
-        assertEquals(symbol.get().name(), name);
+        assertEquals(symbol.get().getName().get(), name);
         incrementAssertCount();
     }
 }

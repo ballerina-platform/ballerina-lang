@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
@@ -28,9 +29,11 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
 /**
@@ -41,10 +44,12 @@ import java.util.regex.Pattern;
 public class BUnionType extends BType implements UnionType {
 
     public boolean isCyclic = false;
-    public static final char PIPE = '|';
+    public static final String  PIPE = "|";
     private List<Type> memberTypes;
+    private List<Type> originalMemberTypes;
     private Boolean nullable;
     private String cachedToString;
+    private long flags = 0;
     private int typeFlags;
     private boolean readonly;
     protected IntersectionType immutableType;
@@ -53,55 +58,24 @@ public class BUnionType extends BType implements UnionType {
 
     private static final String INT_CLONEABLE = "__Cloneable";
     private static final String CLONEABLE = "Cloneable";
-    private static final Pattern pCloneable = Pattern.compile(INT_CLONEABLE + "([12])?");
-
-    /**
-     * Create a {@code BUnionType} which represents the union type.
-     */
-    @Deprecated
-    public BUnionType() {
-        super(null, null, Object.class);
-        this.readonly = false;
-    }
-
-    /**
-     * Create a {@code BUnionType} which represents the union type.
-     *
-     * @param memberTypes of the union type
-     * @param typeFlags flags associated with the type
-     */
-    public BUnionType(List<Type> memberTypes, int typeFlags) {
-        this(memberTypes, typeFlags, false, false);
-    }
+    private static final Pattern pCloneable = Pattern.compile(INT_CLONEABLE);
 
     public BUnionType(List<Type> memberTypes, int typeFlags, boolean readonly,  boolean isCyclic) {
-        super(null, null, Object.class);
-        this.typeFlags = typeFlags;
-        this.readonly = readonly;
-        setMemberTypes(memberTypes);
-        this.isCyclic = isCyclic;
+        this(memberTypes, memberTypes, typeFlags, isCyclic, (readonly ? SymbolFlags.READONLY : 0));
     }
 
-    public BUnionType(List<Type> memberTypes, int typeFlags, boolean readonly,  boolean isCyclic,
-                      Set<Type> unresolvedTypes) {
+    private BUnionType(List<Type> memberTypes, List<Type> originalMemberTypes, int typeFlags, boolean isCyclic,
+                       long flags) {
         super(null, null, Object.class);
         this.typeFlags = typeFlags;
-        this.readonly = readonly;
-        setMemberTypes(memberTypes);
+        this.readonly = isReadOnlyFlagOn(flags);
+        this.flags = flags;
+        setMemberTypes(memberTypes, originalMemberTypes);
         this.isCyclic = isCyclic;
     }
 
     public BUnionType(List<Type> memberTypes) {
         this(memberTypes, false);
-    }
-
-    public BUnionType(List<Type> memberTypes, String typeName, int typeFlags, boolean readonly, boolean isCyclic) {
-        super(typeName, null, Object.class);
-        this.typeFlags = typeFlags;
-        this.readonly = readonly;
-        this.isCyclic = isCyclic;
-        setMemberTypes(memberTypes);
-        this.typeName = typeName;
     }
 
     public BUnionType(String typeName, Module pkg, List<Type> memberTypes) {
@@ -114,49 +88,34 @@ public class BUnionType extends BType implements UnionType {
         this(memberTypes, 0, readonly, false);
     }
 
-    public BUnionType(List<Type> memberTypes, boolean readonly, boolean isCyclic, Set<Type> unresolvedTypes) {
-        this(memberTypes, 0, readonly, isCyclic, unresolvedTypes);
-    }
-
-    public BUnionType(String typeName, Module pkg, boolean readonly, Class<? extends Object> valueClass) {
-        super(typeName, pkg, valueClass);
-        this.readonly = readonly;
-    }
-
-    public BUnionType(Type[] memberTypes, int typeFlags, boolean readonly, boolean isCyclic) {
-        this(Arrays.asList(memberTypes), typeFlags, readonly, isCyclic);
-    }
-
-    public BUnionType(Type[] memberTypes, int typeFlags) {
-        this(memberTypes, typeFlags, false, false);
-    }
-
-    /**
-     * Constructor used when defining union type defs where cyclic reference is possible.
-     *
-     * @param typeFlags flags associated with the type
-     * @param readonly boolean represents if the type is readonly
-     * @param isCyclic boolean represents if the type is cyclic
-     */
-    public BUnionType(int typeFlags, boolean readonly, boolean isCyclic) {
+    public BUnionType(List<Type> memberTypes, boolean readonly, boolean isCyclic) {
         super(null, null, Object.class);
-        this.typeFlags = typeFlags;
+        this.typeFlags = 0;
         this.readonly = readonly;
-        this.memberTypes = new ArrayList<>(2);
+        setMemberTypes(memberTypes);
         this.isCyclic = isCyclic;
     }
 
-    /**
-     * Constructor used when defining union type defs where cyclic reference is possible.
-     *
-     * @param unionType flags associated with the type
-     */
-    public BUnionType(BUnionType unionType) {
-        super(unionType.typeName, unionType.pkg, unionType.valueClass);
-        this.typeFlags = unionType.typeFlags;
-        this.readonly = unionType.readonly;
-        this.memberTypes = new ArrayList<>(unionType.memberTypes.size());
-        this.mergeUnionType(unionType);
+    public BUnionType(Type[] memberTypes, Type[] originalMemberTypes, int typeFlags) {
+        this(memberTypes, originalMemberTypes, typeFlags, false, 0);
+    }
+
+    public BUnionType(Type[] memberTypes, Type[] originalMemberTypes, int typeFlags, boolean isCyclic, long flags) {
+        this(Arrays.asList(memberTypes), Arrays.asList(originalMemberTypes), typeFlags, isCyclic, flags);
+    }
+
+    public BUnionType(String name, Module pkg, int typeFlags, boolean isCyclic, long flags) {
+        super(name, pkg, Object.class);
+        this.typeFlags = typeFlags;
+        this.readonly = isReadOnlyFlagOn(flags);
+        this.memberTypes = new ArrayList<>(0);
+        this.isCyclic = isCyclic;
+        this.flags = flags;
+    }
+
+    protected BUnionType(String typeName, Module pkg, boolean readonly, Class<? extends Object> valueClass) {
+        super(typeName, pkg, valueClass);
+        this.readonly = readonly;
     }
 
     /**
@@ -165,32 +124,24 @@ public class BUnionType extends BType implements UnionType {
      * @param unionType flags associated with the type
      * @param typeName typename associated with the type
      */
-    public BUnionType(BUnionType unionType, String typeName) {
+    protected BUnionType(BUnionType unionType, String typeName) {
         super(typeName, unionType.pkg, unionType.valueClass);
         this.readonly = unionType.readonly;
         this.typeFlags = unionType.typeFlags;
         this.memberTypes = new ArrayList<>(unionType.memberTypes.size());
+        this.originalMemberTypes = new ArrayList<>(unionType.memberTypes.size());
         this.mergeUnionType(unionType);
     }
 
-    /**
-     * Constructor used when defining union type defs where cyclic reference is possible.
-     *
-     * @param name typename
-     * @param typeFlags flags associated with the type
-     * @param readonly boolean represents if the type is readonly
-     * @param isCyclic boolean represents if the type is cyclic
-     */
-    public BUnionType(String name, int typeFlags, boolean readonly, boolean isCyclic) {
-        super(name, null, Object.class);
+    public BUnionType(Type[] memberTypes, Type[] originalMemberTypes, String name, Module pkg, int typeFlags,
+                      boolean isCyclic, long flags) {
+        super(name, pkg, Object.class);
         this.typeFlags = typeFlags;
-        this.readonly = readonly;
-        this.memberTypes = null;
+        this.readonly = isReadOnlyFlagOn(flags);
         this.isCyclic = isCyclic;
-    }
-
-    public BUnionType(Type[] memberTypes, String name, int typeFlags, boolean readonly, boolean isCyclic) {
-        this(Arrays.asList(memberTypes), name, typeFlags, readonly, isCyclic);
+        this.flags = flags;
+        setMemberTypes(Arrays.asList(memberTypes), Arrays.asList(originalMemberTypes));
+        this.typeName = name;
     }
 
     public void setMemberTypes(Type[] members) {
@@ -201,7 +152,19 @@ public class BUnionType extends BType implements UnionType {
         setFlagsBasedOnMembers();
     }
 
-    public void setMemberTypes(List<Type> members) {
+    public void setOriginalMemberTypes(Type[] originalMemberTypes) {
+        this.originalMemberTypes = Arrays.asList(originalMemberTypes);
+    }
+
+    private void setOriginalMemberTypes(List<Type> originalMemberTypes) {
+        this.originalMemberTypes = originalMemberTypes;
+    }
+
+    private void setMemberTypes(List<Type> members) {
+        setMemberTypes(members, members);
+    }
+
+    private void setMemberTypes(List<Type> members, List<Type> originalMembers) {
         if (members == null) {
             return;
         }
@@ -213,20 +176,8 @@ public class BUnionType extends BType implements UnionType {
         this.memberTypes = readonly ? getReadOnlyTypes(members, new HashSet<>(members.size())) : members;
         this.resolvingReadonly = false;
         setFlagsBasedOnMembers();
-    }
 
-    public void setMemberTypes(List<Type> members, Set<Type> unresolvedTypes) {
-        if (members == null) {
-            return;
-        }
-        if (members.isEmpty()) {
-            this.memberTypes = members;
-            return;
-        }
-        this.resolvingReadonly = true;
-        this.memberTypes = readonly ? getReadOnlyTypes(members, unresolvedTypes) : members;
-        this.resolvingReadonly = false;
-        setFlagsBasedOnMembers();
+        setOriginalMemberTypes(originalMembers);
     }
 
     public void setCyclic(boolean isCyclic) {
@@ -264,11 +215,13 @@ public class BUnionType extends BType implements UnionType {
     private void addMember(Type type) {
         this.memberTypes.add(type);
         setFlagsBasedOnMembers();
+        this.originalMemberTypes.add(type);
     }
 
     public void addMembers(Type... types) {
         this.memberTypes.addAll(Arrays.asList(types));
         setFlagsBasedOnMembers();
+        this.originalMemberTypes.addAll(Arrays.asList(types));
     }
 
     private void setFlagsBasedOnMembers() {
@@ -300,6 +253,11 @@ public class BUnionType extends BType implements UnionType {
 
     public List<Type> getMemberTypes() {
         return memberTypes;
+    }
+
+    @Override
+    public List<Type> getOriginalMemberTypes() {
+        return this.originalMemberTypes;
     }
 
     public boolean isNullable() {
@@ -351,26 +309,21 @@ public class BUnionType extends BType implements UnionType {
             // show name when visited repeatedly
             if (this.typeName != null) {
                 if (pCloneable.matcher(this.typeName).matches()) {
-                    return CLONEABLE;
+                    return getQualifiedName(CLONEABLE);
                 }
-                return this.typeName;
+                return getQualifiedName(this.typeName);
             } else {
                 return "...";
             }
         }
+
+        if (this.typeName != null && !this.typeName.isEmpty()) {
+            return getQualifiedName(this.typeName);
+        }
+
         resolving = true;
         if (cachedToString == null) {
-            StringBuilder sb = new StringBuilder();
-            int size = memberTypes != null ? memberTypes.size() : 0;
-            int i = 0;
-            while (i < size) {
-                sb.append(memberTypes.get(i).toString());
-                if (++i < size) {
-                    sb.append(PIPE);
-                }
-            }
-            cachedToString = sb.toString();
-
+            cachedToString = computeStringRepresentation();
         }
         resolving = false;
         return cachedToString;
@@ -412,11 +365,6 @@ public class BUnionType extends BType implements UnionType {
     }
 
     @Override
-    public String getName() {
-        return toString();
-    }
-
-    @Override
     public int hashCode() {
 
         return Objects.hash(super.hashCode(), memberTypes);
@@ -434,6 +382,10 @@ public class BUnionType extends BType implements UnionType {
 
     public int getTypeFlags() {
         return this.typeFlags;
+    }
+
+    public long getFlags() {
+        return this.flags;
     }
 
     @Override
@@ -501,5 +453,61 @@ public class BUnionType extends BType implements UnionType {
             this.addMember(member);
         }
         setFlagsBasedOnMembers();
+    }
+
+    private String computeStringRepresentation() {
+        LinkedHashSet<Type> uniqueTypes = new LinkedHashSet<>();
+        for (Type type : this.originalMemberTypes) {
+            if (type.getTag() != TypeTags.UNION_TAG) {
+                uniqueTypes.add(type);
+                continue;
+            }
+
+            BUnionType unionMemType = (BUnionType) type;
+            String typeName = unionMemType.typeName;
+            if (typeName != null && !typeName.isEmpty()) {
+                uniqueTypes.add(type);
+                continue;
+            }
+
+            uniqueTypes.addAll(unionMemType.originalMemberTypes);
+        }
+
+        StringJoiner joiner = new StringJoiner(PIPE);
+
+        boolean hasNilableMember = false;
+        // This logic is added to prevent duplicate recursive calls to toString
+        long numberOfNotNilTypes = 0L;
+        for (Type type : uniqueTypes) {
+            int tag = type.getTag();
+            if (tag == TypeTags.NULL_TAG) {
+                continue;
+            }
+            String memToString = type.toString();
+
+            if (tag == TypeTags.UNION_TAG && memToString.startsWith("(") && memToString.endsWith(")")) {
+                joiner.add(memToString.substring(1, memToString.length() - 1));
+            } else {
+                joiner.add(memToString);
+            }
+            numberOfNotNilTypes++;
+
+            if (!hasNilableMember && type.isNilable()) {
+                hasNilableMember = true;
+            }
+        }
+
+        String typeStr = numberOfNotNilTypes > 1 ? "(" + joiner.toString() + ")" : joiner.toString();
+        boolean hasNilType = uniqueTypes.size() > numberOfNotNilTypes;
+        return (hasNilType && !hasNilableMember) ? (typeStr + "?") : typeStr;
+    }
+
+    private String getQualifiedName(String name) {
+        return (pkg == null || pkg.getName() == null || pkg.getName().equals(".")) ? name :
+                pkg.toString() + ":" + name;
+    }
+
+    private boolean isReadOnlyFlagOn(long flags) {
+        return SymbolFlags.isFlagOn(flags, SymbolFlags.READONLY);
     }
 }

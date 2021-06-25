@@ -140,6 +140,38 @@ type Qux record {|
     boolean...;
 |};
 
+type Student record {
+    string name;
+};
+
+type Grades record {|
+    int physics;
+    never name?;
+    int...;
+|};
+
+type Address record {
+    string street;
+    never country?;
+};
+
+function testSpreadFieldWithRecordTypeHavingNeverField() {
+    Grades grades = { physics: 75 };
+    Address address= { street: "Main Street" };
+
+    Student john = { name: "John Doe", ...grades };
+    assertEquality("John Doe", john.name);
+    assertEquality(75, john["physics"]);
+
+    map<anydata> someMap = { name: "John Doe", ...grades };
+    assertEquality("John Doe", someMap["name"]);
+    assertEquality(75, someMap["physics"]);
+
+    map<anydata> location = { country: "SL", ...address};
+    assertEquality("SL", location["country"]);
+    assertEquality("Main Street", location["street"]);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

@@ -3,8 +3,6 @@ org= "jo"
 name="tests"
 version= "0.1.0"
 
-[dependencies]
-
 [[platform.java11.dependency]]
 groupId = "org.yaml"
 artifactId = "snakeyaml"

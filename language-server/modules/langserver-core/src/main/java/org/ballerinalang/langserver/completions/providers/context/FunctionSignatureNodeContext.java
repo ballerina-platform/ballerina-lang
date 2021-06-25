@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import java.util.List;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class FunctionSignatureNodeContext extends AbstractCompletionProvider<FunctionSignatureNode> {
+
     public FunctionSignatureNodeContext() {
         super(FunctionSignatureNode.class);
     }
@@ -51,10 +53,12 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (withinReturnTypeDescContext(context, node)) {
-            if (node.returnTypeDesc().isEmpty()) {
+            var returnTypeDesc = node.returnTypeDesc();
+            if (returnTypeDesc.isEmpty() || returnTypeDesc.get().returnsKeyword().isMissing()) {
                 /*
                 Covers the following cases.
                 (1) function test() <cursor>
+                (2) var lambda = function() r<cursor>
                 */
                 completionItems.add(new SnippetCompletionItem(context, Snippet.KW_RETURNS.get()));
             } else {
@@ -62,7 +66,7 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
                 Covers the following cases.
                 (1) function test() returns <cursor>
                 */
-                completionItems.addAll(CompletionUtil.route(context, node.returnTypeDesc().get()));
+                completionItems.addAll(CompletionUtil.route(context, returnTypeDesc.get()));
             }
         } else if (this.withinParameterContext(context, node)) {
             NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
@@ -87,12 +91,11 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
                 (1) function(<cursor>)
                 (2) function(T<cursor>)
                  */
-                completionItems.addAll(this.getTypeItems(context));
-                completionItems.addAll(this.getModuleCompletionItems(context));
+                completionItems.addAll(this.getTypeDescContextItems(context));
             }
         }
         this.sort(context, node, completionItems);
-        
+
         return completionItems;
     }
 
@@ -117,5 +120,16 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
         // If the signature belongs to the function type descriptor, we skip this resolver
         return !node.openParenToken().isMissing() && !node.closeParenToken().isMissing()
                 && node.parent().kind() != SyntaxKind.FUNCTION_TYPE_DESC;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, FunctionSignatureNode node,
+                     List<LSCompletionItem> completionItems) {
+        if (withinParameterContext(context, node)) {
+            completionItems.forEach(completionItem -> {
+                String sortText = SortingUtil.genSortTextForTypeDescContext(context, completionItem);
+                completionItem.getCompletionItem().setSortText(sortText);
+            });
+        }
     }
 }

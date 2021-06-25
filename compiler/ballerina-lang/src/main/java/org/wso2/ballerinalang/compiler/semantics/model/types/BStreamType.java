@@ -32,12 +32,12 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 public class BStreamType extends BBuiltInRefType implements StreamType {
 
     public BType constraint;
-    public BType error;
+    public BType completionType;
 
-    public BStreamType(int tag, BType constraint, BType error, BTypeSymbol tsymbol) {
+    public BStreamType(int tag, BType constraint, BType completionType, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
         this.constraint = constraint;
-        this.error = error != null ? error : new BNeverType();
+        this.completionType = completionType != null ? completionType : new BNilType();
     }
 
     @Override
@@ -46,8 +46,8 @@ public class BStreamType extends BBuiltInRefType implements StreamType {
     }
 
     @Override
-    public Type getError() {
-        return error;
+    public Type getCompletionType() {
+        return completionType;
     }
 
     @Override
@@ -61,7 +61,8 @@ public class BStreamType extends BBuiltInRefType implements StreamType {
             return super.toString();
         }
 
-        return super.toString() + "<" + constraint + ((error.tag == TypeTags.NEVER) ? ">" : "," + error + ">");
+        return super.toString() + "<" + constraint + ((completionType.tag == TypeTags.NIL)
+                ? ">" : "," + completionType + ">");
     }
 
     @Override
