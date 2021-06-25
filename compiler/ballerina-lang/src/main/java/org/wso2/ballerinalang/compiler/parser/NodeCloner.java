@@ -2312,12 +2312,4 @@ public class NodeCloner extends BLangNodeVisitor {
 
         source.cloneRef = clone;
     }
-
-    public int getCloneAttempt() {
-        return this.currentCloneAttempt;
-    }
-
-    public void setCloneAttempt(int attempt) {
-        this.currentCloneAttempt = attempt;
-    }
 }
