@@ -41,7 +41,6 @@ public class BuiltinLoadingTest {
         BAssertUtil.validateError(result, i++, "redeclared symbol 'never'", 9, 6);
         BAssertUtil.validateError(result, i++, "redeclared symbol 'readonly'", 10, 6);
         BAssertUtil.validateError(result, i++, "redeclared symbol 'xml'", 11, 6);
-        BAssertUtil.validateError(result, i++, "redeclared symbol 'Foo'", 18, 6);
 
         Assert.assertEquals(result.getErrorCount(), i);
     }

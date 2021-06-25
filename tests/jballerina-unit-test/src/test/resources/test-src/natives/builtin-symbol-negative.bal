@@ -9,10 +9,3 @@ type 'int int;
 type 'never never;
 type 'readonly readonly;
 type 'xml xml;
-
-public enum Foo {
-    foo,
-    bar
-}
-
-type Foo int;
