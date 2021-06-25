@@ -4058,7 +4058,7 @@ public class Types {
             return originalType;
         }
         List<BType> tupleTypes = new ArrayList<>();
-        for (int i = 0; i < originalTupleTypes.size(); i++) {
+        for (int i = 0; i < typesToRemove.size(); i++) {
             tupleTypes.add(getRemainingMatchExprType(originalTupleTypes.get(i), typesToRemove.get(i)));
         }
         if (typeToRemove.restType == null) {
