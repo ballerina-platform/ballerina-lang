@@ -140,14 +140,9 @@ public abstract class AbstractCommandExecutionTest {
     private JsonObject getCommandResponse(List<Object> args, String command) {
         List argsList = argsToJson(args);
         ExecuteCommandParams params = new ExecuteCommandParams(command, argsList);
-        String response = cleanupText(TestUtil.getExecuteCommandResponse(params, this.serviceEndpoint));
+        String response = TestUtil.getExecuteCommandResponse(params, this.serviceEndpoint).replace("\\r\\n", "\\n");
         JsonObject responseJson = parser.parse(response).getAsJsonObject();
         responseJson.remove("id");
         return responseJson;
     }
-
-    private static String cleanupText(String text) {
-        return text.replace(System.lineSeparator(), "\n");
-    }
-
 }
