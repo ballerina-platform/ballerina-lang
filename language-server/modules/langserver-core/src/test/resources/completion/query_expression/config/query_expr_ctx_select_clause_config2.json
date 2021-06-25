@@ -14,11 +14,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "runtime",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -32,30 +32,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -83,11 +60,11 @@
       ]
     },
     {
-      "label": "ballerina/jballerina.java",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "java",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -101,7 +78,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jballerina.java;\n"
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -421,27 +421,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "personList",
-      "kind": "Variable",
-      "detail": "Person[]",
-      "sortText": "B",
-      "insertText": "personList",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "person",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "B",
-      "insertText": "person",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Person",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "Person",
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "from",
+      "insertText": "from ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -453,20 +438,25 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
+      "label": "Person",
       "kind": "Struct",
       "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
       "sortText": "L",
-      "insertText": "StrandData",
+      "insertText": "Person",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "personList",
+      "kind": "Variable",
+      "detail": "Person[]",
+      "sortText": "B",
+      "insertText": "personList",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "testOnConflictClauseWithNonTableTypes()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -479,27 +469,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "onConflictError",
+      "label": "person",
       "kind": "Variable",
-      "detail": "error",
+      "detail": "Person",
       "sortText": "B",
-      "insertText": "onConflictError",
+      "insertText": "person",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "newAge",
+      "label": "p3",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "Person",
       "sortText": "B",
-      "insertText": "newAge",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Customer",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "Customer",
+      "insertText": "p3",
       "insertTextFormat": "Snippet"
     },
     {
@@ -527,11 +509,38 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "p3",
+      "label": "Customer",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "Customer",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "L",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "newAge",
       "kind": "Variable",
-      "detail": "Person",
+      "detail": "int",
       "sortText": "B",
-      "insertText": "p3",
+      "insertText": "newAge",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "onConflictError",
+      "kind": "Variable",
+      "detail": "error",
+      "sortText": "B",
+      "insertText": "onConflictError",
       "insertTextFormat": "Snippet"
     },
     {

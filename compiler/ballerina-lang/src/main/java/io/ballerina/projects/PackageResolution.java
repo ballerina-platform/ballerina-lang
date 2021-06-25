@@ -413,7 +413,7 @@ public class PackageResolution {
             }
 
             PackageOrg packageOrg = importModuleRequest.packageOrg();
-            List<PackageName> possiblePkgNames = ProjectUtils.getPossiblePackageNames(importModuleRequest.moduleName());
+            List<PackageName> possiblePkgNames = ProjectUtils.getPossiblePackageNames(importModuleRequest);
             for (PackageName possiblePkgName : possiblePkgNames) {
                 if (packageOrg.equals(rootPackageContext.packageOrg()) &&
                         possiblePkgName.equals(rootPackageContext.packageName())) {

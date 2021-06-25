@@ -114,6 +114,15 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "if",
       "kind": "Snippet",
       "detail": "Statement",
@@ -653,29 +662,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lsproject.module2",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "module2",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import lsproject.module2;\n"
-        }
-      ]
-    },
-    {
       "label": "lsproject.hierarchy.module4",
       "kind": "Module",
       "detail": "Module",
@@ -699,9 +685,32 @@
       ]
     },
     {
+      "label": "lsproject.module2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import lsproject.module2;\n"
+        }
+      ]
+    },
+    {
       "label": "testImports()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -714,24 +723,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunction()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerinals/lsproject.module3:0.1.0_  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "testFunction",
-      "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "testFunction4()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -741,6 +735,21 @@
       "sortText": "C",
       "filterText": "testFunction4",
       "insertText": "testFunction4()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testFunction()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerinals/lsproject.module3:0.1.0_  \n  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "testFunction",
+      "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
     },
     {

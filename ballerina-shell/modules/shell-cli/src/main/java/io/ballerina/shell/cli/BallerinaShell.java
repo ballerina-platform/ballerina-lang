@@ -222,8 +222,9 @@ public class BallerinaShell {
         this.terminal.error(text);
     }
 
-    public void toggleDebug() {
+    public boolean toggleDebug() {
         this.configuration.toggleDebug();
+        return this.configuration.isDebug();
     }
 
     public void reset() {

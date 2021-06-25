@@ -114,6 +114,15 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "if",
       "kind": "Snippet",
       "detail": "Statement",
@@ -231,14 +240,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "L",
-      "insertText": "StrandData",
+      "label": "TestClass",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "K",
+      "insertText": "TestClass",
       "insertTextFormat": "Snippet"
     },
     {
@@ -250,11 +256,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestClass",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "K",
-      "insertText": "TestClass",
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "L",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -654,7 +663,7 @@
     {
       "label": "self.testFunction()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",

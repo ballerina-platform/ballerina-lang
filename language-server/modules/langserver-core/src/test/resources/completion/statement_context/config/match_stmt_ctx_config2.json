@@ -50,11 +50,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "runtime",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -68,30 +68,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -119,11 +96,11 @@
       ]
     },
     {
-      "label": "ballerina/jballerina.java",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "java",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -137,7 +114,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jballerina.java;\n"
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -457,6 +457,50 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "bar(string|int|boolean i)",
+      "kind": "Function",
+      "detail": "string|int|boolean",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string|int|boolean` i  \n  \n**Return** `string|int|boolean`   \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "bar",
+      "insertText": "bar(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "var5",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "B",
+      "insertText": "var5",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "p",
       "kind": "Variable",
       "detail": "$CompilationError$",
@@ -476,19 +520,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "var4",
+      "label": "i",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "string|int|boolean",
       "sortText": "B",
-      "insertText": "var4",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "var2",
-      "kind": "Variable",
-      "detail": "[string, int, boolean]",
-      "sortText": "B",
-      "insertText": "var2",
+      "insertText": "i",
       "insertTextFormat": "Snippet"
     },
     {
@@ -500,46 +536,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "var5",
+      "label": "var2",
       "kind": "Variable",
-      "detail": "string",
+      "detail": "[string, int, boolean]",
       "sortText": "B",
-      "insertText": "var5",
+      "insertText": "var2",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "bar(string|int|boolean i)(string|int|boolean)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string|int|boolean` i  \n  \n**Return** `string|int|boolean`   \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "bar",
-      "insertText": "bar(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "i",
+      "label": "var4",
       "kind": "Variable",
-      "detail": "string|int|boolean",
+      "detail": "int",
       "sortText": "B",
-      "insertText": "i",
+      "insertText": "var4",
       "insertTextFormat": "Snippet"
     },
     {

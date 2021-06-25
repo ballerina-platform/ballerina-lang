@@ -42,11 +42,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "runtime",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -60,53 +60,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/module1;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -134,11 +88,11 @@
       ]
     },
     {
-      "label": "ballerina/jballerina.java",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "java",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -152,7 +106,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jballerina.java;\n"
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -176,6 +153,29 @@
             }
           },
           "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
         }
       ]
     },
@@ -472,26 +472,27 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "total",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "D",
-      "insertText": "total",
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "from",
+      "insertText": "from ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "main()",
+      "label": "process4()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "MyType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `MyType`   \n  \n"
         }
       },
-      "sortText": "E",
-      "filterText": "main",
-      "insertText": "main()",
+      "sortText": "AC",
+      "filterText": "process4",
+      "insertText": "process4()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -503,9 +504,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "myFunc(MyType a)(int)",
+      "label": "myFunc(MyType a)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -522,9 +523,33 @@
       }
     },
     {
-      "label": "addFunction(int num1, int num2)(int)",
+      "label": "myInt1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "D",
+      "insertText": "myInt1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myInt2",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "D",
+      "insertText": "myInt2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "var1",
+      "kind": "Variable",
+      "detail": "MyType",
+      "sortText": "AB",
+      "insertText": "var1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "addFunction(int num1, int num2)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -549,50 +574,18 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "process4()(MyType)",
+      "label": "main()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `MyType`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "AC",
-      "filterText": "process4",
-      "insertText": "process4()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myString",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "D",
-      "insertText": "myString",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "var1",
-      "kind": "Variable",
-      "detail": "MyType",
-      "sortText": "AB",
-      "insertText": "var1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myInt1",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "D",
-      "insertText": "myInt1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myInt2",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "D",
-      "insertText": "myInt2",
+      "sortText": "E",
+      "filterText": "main",
+      "insertText": "main()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -604,6 +597,22 @@
       },
       "sortText": "N",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "total",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "D",
+      "insertText": "total",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myString",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "D",
+      "insertText": "myString",
       "insertTextFormat": "Snippet"
     },
     {
