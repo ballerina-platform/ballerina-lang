@@ -15,11 +15,14 @@
 // under the License.
 package org.ballerinalang.test.statements.matchstmt;
 
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -30,7 +33,7 @@ import org.testng.annotations.Test;
 @Test
 public class MatchStmtTypeNarrowingTest {
 
-    private CompileResult result;
+    private CompileResult result, resultNegative;
 
     @BeforeClass
     public void setUp() {
@@ -62,8 +65,51 @@ public class MatchStmtTypeNarrowingTest {
         BRunUtil.invoke(result, "testNarrowTypeInListBindingPattern3");
     }
 
+    @Test(dataProvider = "dataToTestMatchClauseWithTypeGuard", description = "Test match clause with type guard")
+    public void testMatchClauseWithTypeGuard(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestMatchClauseWithTypeGuard() {
+        return new Object[]{
+                "testMatchClauseWithTypeGuard1",
+                "testMatchClauseWithTypeGuard2",
+                "testMatchClauseWithTypeGuard3",
+                "testMatchClauseWithTypeGuard4",
+                "testMatchClauseWithTypeGuard5",
+                "testMatchClauseWithTypeGuard6",
+                "testMatchClauseWithTypeGuard7",
+                "testMatchClauseWithTypeGuard8",
+                "testMatchClauseWithTypeGuard9",
+                "testMatchClauseWithTypeGuard10",
+                "testMatchClauseWithTypeGuard11",
+                "testMatchClauseWithTypeGuard12"
+        };
+    }
+
+    @Test(description = "Test match clause with type guard negative scenarios")
+    public void testMatchClauseWithTypeGuardNegative() {
+        resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/match_stmt_type_narrow_negative.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 0);
+        Assert.assertEquals(resultNegative.getWarnCount(), 10);
+        int i = -1;
+        String unreachablePattern = "unreachable pattern";
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 24, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 37, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 47, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 57, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 70, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 80, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 90, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 97, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 112, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 119, 9);
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
+        resultNegative = null;
     }
 }
