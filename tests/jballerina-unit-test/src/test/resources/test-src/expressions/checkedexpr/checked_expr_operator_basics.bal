@@ -287,6 +287,26 @@ function testCheckWithTernaryOperator() {
     }
 }
 
+function emitError(int i) returns int|Err|error {
+    match i {
+        1 => { return 1; }
+        2 => { return error Err("Err"); }
+        _ => { return error("Any error"); }
+    }
+}
+
+function performErrornousAction(int i) returns error? {
+    int m = check emitError(i);
+}
+
+function testCheckWithMixOfDefaultErrorAndDistinctErrors() {
+    var result = performErrornousAction(1);
+    assertTrue(result is ());
+
+    result = performErrornousAction(2);
+    assertTrue(result is Err && result.message() == "Err");
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(anydata actual) {
