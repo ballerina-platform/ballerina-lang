@@ -874,6 +874,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             unionTypeNode.memberTypeNodes.add(createTypeNode(unionElement));
         }
 
+        bLangFiniteTypeNode.setPosition(unionTypeNode.pos);
         if (!finiteTypeElements.isEmpty()) {
             unionTypeNode.memberTypeNodes.add(deSugarTypeAsUserDefType(bLangFiniteTypeNode));
         }
