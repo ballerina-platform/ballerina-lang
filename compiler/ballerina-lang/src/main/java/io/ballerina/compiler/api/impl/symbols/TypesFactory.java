@@ -155,10 +155,11 @@ public class TypesFactory {
      * @return {@link TypeSymbol} generated
      */
     public TypeSymbol getTypeDescriptor(BType bType, BTypeSymbol tSymbol, boolean rawTypeOnly) {
-        return getTypeDescriptor(bType, tSymbol, rawTypeOnly, true);
+        return getTypeDescriptor(bType, tSymbol, rawTypeOnly, true, false);
     }
 
-    TypeSymbol getTypeDescriptor(BType bType, BTypeSymbol tSymbol, boolean rawTypeOnly, boolean getOriginalType) {
+    TypeSymbol getTypeDescriptor(BType bType, BTypeSymbol tSymbol, boolean rawTypeOnly, boolean getOriginalType,
+                                 boolean typeRefFromIntersectType) {
         if (bType == null || bType.tag == NONE) {
             return null;
         }
@@ -174,7 +175,8 @@ public class TypesFactory {
         ModuleID moduleID = tSymbol == null ? null : new BallerinaModuleID(tSymbol.pkgID);
 
         if (isTypeReference(bType, tSymbol, rawTypeOnly)) {
-            return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID, bType, tSymbol);
+            return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID, bType, tSymbol,
+                    typeRefFromIntersectType);
         }
 
         if (this.typeCache.containsKey(bType)) {
