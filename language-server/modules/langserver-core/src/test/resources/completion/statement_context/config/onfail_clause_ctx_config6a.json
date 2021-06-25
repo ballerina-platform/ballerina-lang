@@ -114,6 +114,15 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "if",
       "kind": "Snippet",
       "detail": "Statement",
@@ -639,17 +648,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "animals",
-      "kind": "Variable",
-      "detail": "string[]",
-      "sortText": "B",
-      "insertText": "animals",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "testFunction($CompilationError$ varToMatch)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -664,6 +665,14 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "animals",
+      "kind": "Variable",
+      "detail": "string[]",
+      "sortText": "B",
+      "insertText": "animals",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "varToMatch",

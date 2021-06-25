@@ -14,11 +14,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "runtime",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -32,30 +32,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -83,11 +60,11 @@
       ]
     },
     {
-      "label": "ballerina/jballerina.java",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "java",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -101,7 +78,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jballerina.java;\n"
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -403,18 +403,41 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunction()",
+      "label": "W1",
+      "kind": "Variable",
+      "detail": "worker",
+      "sortText": "A",
+      "insertText": "W1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getStringResult()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
         }
       },
       "sortText": "E",
-      "filterText": "testFunction",
-      "insertText": "testFunction()",
+      "filterText": "getStringResult",
+      "insertText": "getStringResult()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getStringResult2()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "getStringResult2",
+      "insertText": "getStringResult2()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -434,41 +457,18 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "W1",
-      "kind": "Variable",
-      "detail": "worker",
-      "sortText": "A",
-      "insertText": "W1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getStringResult2()(string)",
+      "label": "testFunction()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n"
         }
       },
       "sortText": "E",
-      "filterText": "getStringResult2",
-      "insertText": "getStringResult2()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getStringResult()(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "getStringResult",
-      "insertText": "getStringResult()",
+      "filterText": "testFunction",
+      "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
     }
   ]

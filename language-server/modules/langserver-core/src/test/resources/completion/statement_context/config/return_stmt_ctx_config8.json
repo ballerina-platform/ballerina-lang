@@ -114,6 +114,15 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "if",
       "kind": "Snippet",
       "detail": "Statement",
@@ -636,9 +645,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "age()(int)",
+      "label": "age()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
