@@ -67,8 +67,13 @@ public abstract class AbstractRenameTest {
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
         JsonObject expected = resultJson.getAsJsonObject("result");
         JsonObject actual = parser.parse(actualStr).getAsJsonObject().getAsJsonObject("result");
-        RenameTestUtil.alterExpectedUri(expected, this.sourceRoot);
-        RenameTestUtil.alterActualUri(actual);
+        if (actual == null) {
+            actual = new JsonObject();
+        } else {
+
+            RenameTestUtil.alterExpectedUri(expected, this.sourceRoot);
+            RenameTestUtil.alterActualUri(actual);
+        }
         Assert.assertEquals(actual, expected);
     }
 
