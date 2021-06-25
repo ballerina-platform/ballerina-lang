@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 const ERR_REASON = "error reason";
 const TYPE_CAST_ERROR = "{ballerina}TypeCastError";
 
@@ -378,7 +380,28 @@ function testFutureCastPositive() returns boolean {
 function testFutureCastNegative() {
     future<int> s1 = start testFutureFunc();
     any a = s1;
-    future<int[]> s2 = <future<int[]>> a;
+    future<int[]>|error s2 = trap <future<int[]>> a;
+
+    test:assertEquals(true, s2 is error);
+    error err = <error> s2;
+    test:assertEquals("{ballerina}TypeCastError", err.message());
+    test:assertEquals("incompatible types: 'future<int>' cannot be cast to 'future<int[]>'", <string> checkpanic err.detail()["message"]);
+}
+
+function testFutureOfFutureValueCastNegative() {
+    future<future<int>> s = start foo();
+    any a = s;
+    future<future<int[]>>|error res = trap <future<future<int[]>>> a;
+
+    test:assertEquals(true, res is error);
+    error err = <error> res;
+    test:assertEquals("{ballerina}TypeCastError", err.message());
+    test:assertEquals("incompatible types: 'future<future<int>>' cannot be cast to 'future<future<int[]>>'", <string> checkpanic err.detail()["message"]);
+}
+
+function foo() returns future<int> {
+    future<int> f = start testFutureFunc();
+    return f;
 }
 
 function testObjectCastPositive() returns boolean {

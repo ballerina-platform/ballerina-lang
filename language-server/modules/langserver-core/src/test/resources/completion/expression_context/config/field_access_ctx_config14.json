@@ -38,13 +38,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getModel()(string)",
+      "label": "getModel()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `string`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
         }
       },
       "sortText": "D",
