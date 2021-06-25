@@ -1306,7 +1306,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
                 // Recursive types (A -> B -> C -> B) are valid provided they go through a type constructor
                 if (unresolvedTypeNodeKind != NodeKind.OBJECT_TYPE && isTypeConstructorAvailable(unresolvedTypeNodeKind)
-                && !sameTypeNode) {
+                    && !sameTypeNode) {
                     return;
                 }
             }
