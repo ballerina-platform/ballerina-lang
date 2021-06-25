@@ -74,6 +74,10 @@ public class BJSONValueTest {
                 "incompatible types: expected 'map<json>', found 'AnotherPerson'", 22, 19);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected 'map<json>', found 'PersonWithTypedesc'", 23, 25);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected '(int[]|error)', found 'json'", 29, 21);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected '(int|error)', found '(json|Error)'", 33, 19);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -545,6 +549,11 @@ public class BJSONValueTest {
         Assert.assertEquals(returns[0].stringValue(), "[true, true, false, true]");
         Assert.assertTrue(returns[1] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+    }
+
+    @Test
+    public void testJsonLaxErrorLifting() {
+        BRunUtil.invoke(compileResult, "testJsonLaxErrorLifting");
     }
 
     @AfterClass

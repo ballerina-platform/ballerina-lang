@@ -42,11 +42,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "runtime",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -60,53 +60,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/module1;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -134,11 +88,11 @@
       ]
     },
     {
-      "label": "ballerina/jballerina.java",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "java",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -152,7 +106,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jballerina.java;\n"
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -176,6 +153,29 @@
             }
           },
           "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
         }
       ]
     },
@@ -481,25 +481,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "p",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "p",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "var5",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "B",
-      "insertText": "var5",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "bar(string|int|boolean i)(string|int|boolean)",
+      "label": "bar(string|int|boolean i)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string|int|boolean",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -516,6 +500,14 @@
       }
     },
     {
+      "label": "var5",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "B",
+      "insertText": "var5",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
@@ -524,35 +516,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "i",
+      "label": "p",
       "kind": "Variable",
-      "detail": "string|int|boolean",
+      "detail": "$CompilationError$",
       "sortText": "B",
-      "insertText": "i",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "var4",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "var4",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "var2",
-      "kind": "Variable",
-      "detail": "[string, int, boolean]",
-      "sortText": "B",
-      "insertText": "var2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "var1",
-      "kind": "Variable",
-      "detail": "string|int|boolean",
-      "sortText": "B",
-      "insertText": "var1",
+      "insertText": "p",
       "insertTextFormat": "Snippet"
     },
     {
@@ -564,6 +532,38 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "i",
+      "kind": "Variable",
+      "detail": "string|int|boolean",
+      "sortText": "B",
+      "insertText": "i",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "var1",
+      "kind": "Variable",
+      "detail": "string|int|boolean",
+      "sortText": "B",
+      "insertText": "var1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "var2",
+      "kind": "Variable",
+      "detail": "[string, int, boolean]",
+      "sortText": "B",
+      "insertText": "var2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "var4",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "var4",
       "insertTextFormat": "Snippet"
     },
     {

@@ -412,11 +412,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "runtime",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -430,30 +430,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value3",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value as value3 ;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -481,11 +458,11 @@
       ]
     },
     {
-      "label": "ballerina/jballerina.java",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "java",
+      "insertText": "value3",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -499,7 +476,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jballerina.java;\n"
+          "newText": "import ballerina/lang.value as value3 ;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -639,17 +639,24 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "value4",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "value4",
+      "label": "testFunction()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "testFunction",
+      "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lambda(int a, int b)(int)",
+      "label": "lambda(int a, int b)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -666,38 +673,20 @@
       }
     },
     {
-      "label": "testFunction()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "testFunction",
-      "insertText": "testFunction()",
+      "label": "b",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "b",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "doTask(int a, int c)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` c"
-        }
-      },
-      "sortText": "C",
-      "filterText": "doTask",
-      "insertText": "doTask(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "label": "a",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "a",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "value1",
@@ -716,20 +705,31 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "b",
+      "label": "value4",
       "kind": "Variable",
       "detail": "int",
       "sortText": "B",
-      "insertText": "b",
+      "insertText": "value4",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "a",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "a",
-      "insertTextFormat": "Snippet"
+      "label": "doTask(int a, int c)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` c"
+        }
+      },
+      "sortText": "C",
+      "filterText": "doTask",
+      "insertText": "doTask(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "worker",

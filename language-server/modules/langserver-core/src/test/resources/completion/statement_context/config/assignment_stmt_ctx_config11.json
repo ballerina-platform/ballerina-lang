@@ -42,11 +42,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "runtime",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -60,53 +60,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/module1;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -134,11 +88,11 @@
       ]
     },
     {
-      "label": "ballerina/jballerina.java",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "java",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -152,7 +106,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jballerina.java;\n"
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -176,6 +153,29 @@
             }
           },
           "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
         }
       ]
     },
@@ -481,75 +481,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "myStr",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "D",
-      "insertText": "myStr",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myType",
-      "kind": "Variable",
-      "detail": "MyType",
-      "sortText": "AB",
-      "insertText": "myType",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getInt()(int)",
+      "label": "getString(string myStr)",
       "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "getInt",
-      "insertText": "getInt()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "hello",
-      "kind": "Variable",
       "detail": "string",
-      "sortText": "D",
-      "insertText": "hello",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "paramStr",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "D",
-      "insertText": "paramStr",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myFunction(function () returns string func, string paramStr, MyType myType)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `function () returns string` func  \n- `string` paramStr  \n- `MyType` myType"
-        }
-      },
-      "sortText": "E",
-      "filterText": "myFunction",
-      "insertText": "myFunction(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "getString(string myStr)(string)",
-      "kind": "Function",
-      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -564,14 +498,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "O",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "mytype",
@@ -590,6 +516,45 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "getInt()",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "getInt",
+      "insertText": "getInt()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myInt",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "D",
+      "insertText": "myInt",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "O",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "paramStr",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "D",
+      "insertText": "paramStr",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -601,9 +566,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "func()(string)",
+      "label": "func()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -616,11 +581,46 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "myInt",
+      "label": "hello",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "string",
       "sortText": "D",
-      "insertText": "myInt",
+      "insertText": "hello",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myStr",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "D",
+      "insertText": "myStr",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myFunction(function () returns string func, string paramStr, MyType myType)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `function () returns string` func  \n- `string` paramStr  \n- `MyType` myType"
+        }
+      },
+      "sortText": "E",
+      "filterText": "myFunction",
+      "insertText": "myFunction(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "myType",
+      "kind": "Variable",
+      "detail": "MyType",
+      "sortText": "AB",
+      "insertText": "myType",
       "insertTextFormat": "Snippet"
     },
     {

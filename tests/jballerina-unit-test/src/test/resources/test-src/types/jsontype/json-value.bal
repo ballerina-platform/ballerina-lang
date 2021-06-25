@@ -432,3 +432,88 @@ function testMapJsonToJsonArray() {
     json[] j = [2];
     map<json>[] p = <map<json>[]> j;
 }
+
+function testJsonLaxErrorLifting() {
+    error? e1 = testSimpleVarRefJsonErrorLiftingInLaxTyping();
+    assertTrue(e1 is ());
+    error? e2 = testJsonMapErrorLifingInLaxTyping();
+    assertTrue(e2 is ());
+    error? e3 = testJsonReturnTypeErrorLifting();
+    assertTrue(e3 is ());
+    error? e4 = testLaxAccessForRuntimeErrors1();
+    assertTrue(e4 is error);
+    assertEquals(<string> checkpanic (<error> e4).detail()["message"],
+        "incompatible types: 'string' cannot be cast to 'int'");
+    error? e5 = testLaxAccessForRuntimeErrors2();
+    assertTrue(e5 is error);
+    assertEquals(<string> checkpanic (<error> e5).detail()["message"],
+        "incompatible types: 'int' cannot be cast to 'string'");
+
+}
+
+public function testSimpleVarRefJsonErrorLiftingInLaxTyping() returns error? {
+    json j = 1;
+    int i = check j;
+    assertEquals(1, i);
+}
+
+public function testLaxAccessForRuntimeErrors1() returns error? {
+    json j = "1";
+    int i = check j;
+}
+
+public function testJsonMapErrorLifingInLaxTyping() returns error? {
+    json j = {
+        x: {
+            y: {
+                z: "value"
+            }
+        }
+    };
+
+    string val =  check j.x.y.z;
+    assertEquals("value", val);
+}
+
+public function testLaxAccessForRuntimeErrors2() returns error? {
+    json j = {
+        x: {
+            y: {
+                z: 1
+            }
+        }
+    };
+
+    string val =  check j.x.y.z;
+}
+
+public function testJsonReturnTypeErrorLifting() returns error? {
+     int i = check foo();
+     assertEquals(1, i);
+}
+
+function foo() returns json {
+    json j = 1;
+    return j;
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(boolean actual) {
+    assertEquals(true, actual);
+}
+
+function assertFalse(boolean actual) {
+    assertEquals(false, actual);
+}
+
+function assertEquals(anydata expected, anydata actual) {
+    if (expected == actual) {
+        return;
+    }
+    typedesc<anydata> expT = typeof expected;
+    typedesc<anydata> actT = typeof actual;
+    string msg = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+    panic error(ASSERTION_ERROR_REASON, message = msg);
+}
