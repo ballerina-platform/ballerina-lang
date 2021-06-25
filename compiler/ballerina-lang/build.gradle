@@ -28,6 +28,11 @@ dependencies {
     implementation 'org.apache.commons:commons-compress:1.19'
     implementation 'io.netty:netty-buffer'
     implementation 'org.ow2.asm:asm'
+<<<<<<< HEAD
+=======
+//    implementation 'org.ow2.asm:asm-util'
+//    implementation 'org.ow2.asm:asm-tree'
+>>>>>>> 75f23b398d8817d4b24e50c9e533441d86b0f789
     implementation 'commons-io:commons-io'
     implementation 'com.github.zafarkhaja:java-semver'
     testCompile 'org.testng:testng'

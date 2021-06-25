@@ -894,7 +894,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 BLangRecordLiteral clonedExpr = recordLiteral;
                 if (this.nonErrorLoggingCheck) {
                     clonedExpr.cloneAttempt++;
-                    clonedExpr = nodeCloner.clone(recordLiteral);
+                    clonedExpr = nodeCloner.cloneNode(recordLiteral);
                 }
                 BType recordType = checkExpr(clonedExpr, env, ((BTableType) applicableExpType).constraint);
                 if (recordType == symTable.semanticError) {
@@ -948,7 +948,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 BLangTableConstructorExpr clonedTableExpr = tableConstructorExpr;
                 if (this.nonErrorLoggingCheck) {
                     tableConstructorExpr.cloneAttempt++;
-                    clonedTableExpr = nodeCloner.clone(tableConstructorExpr);
+                    clonedTableExpr = nodeCloner.cloneNode(tableConstructorExpr);
                 }
 
                 BType resultType = checkExpr(clonedTableExpr, env, memType);
@@ -968,7 +968,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 BLangTableConstructorExpr exprToLog = tableConstructorExpr;
                 if (this.nonErrorLoggingCheck) {
                     tableConstructorExpr.cloneAttempt++;
-                    exprToLog = nodeCloner.clone(tableConstructorExpr);
+                    exprToLog = nodeCloner.cloneNode(tableConstructorExpr);
                 }
 
                 dlog.error(tableConstructorExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType,
@@ -1403,7 +1403,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 BLangListConstructorExpr exprToLog = listConstructor;
                 if (this.nonErrorLoggingCheck) {
                     listConstructor.cloneAttempt++;
-                    exprToLog = nodeCloner.clone(listConstructor);
+                    exprToLog = nodeCloner.cloneNode(listConstructor);
                 }
 
                 BType inferredTupleType = getInferredTupleType(exprToLog, symTable.noType);
@@ -1463,7 +1463,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangListConstructorExpr exprToLog = listConstructor;
         if (this.nonErrorLoggingCheck) {
             listConstructor.cloneAttempt++;
-            exprToLog = nodeCloner.clone(listConstructor);
+            exprToLog = nodeCloner.cloneNode(listConstructor);
         }
 
         if (bType == symTable.semanticError) {
@@ -1601,7 +1601,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (this.nonErrorLoggingCheck) {
             expr.cloneAttempt++;
-            exprToCheck = nodeCloner.clone(expr);
+            exprToCheck = nodeCloner.cloneNode(expr);
         }
 
         return checkExpr(exprToCheck, this.env, eType) == symTable.semanticError;
@@ -4014,7 +4014,13 @@ public class TypeChecker extends BLangNodeVisitor {
         checkDecimalCompatibilityForBinaryArithmeticOverLiteralValues(binaryExpr);
 
         SymbolEnv rhsExprEnv;
-        BType lhsType = checkExpr(binaryExpr.lhsExpr, env);
+        BType lhsType;
+        if (binaryExpr.expectedType.tag == TypeTags.FLOAT || binaryExpr.expectedType.tag == TypeTags.DECIMAL) {
+            lhsType = checkAndGetType(binaryExpr.lhsExpr, env, binaryExpr);
+        } else {
+            lhsType = checkExpr(binaryExpr.lhsExpr, env);
+        }
+
         if (binaryExpr.opKind == OperatorKind.AND) {
             rhsExprEnv = typeNarrower.evaluateTruth(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env, true);
         } else if (binaryExpr.opKind == OperatorKind.OR) {
@@ -4022,7 +4028,14 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             rhsExprEnv = env;
         }
-        BType rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
+
+        BType rhsType;
+
+        if (binaryExpr.expectedType.tag == TypeTags.FLOAT || binaryExpr.expectedType.tag == TypeTags.DECIMAL) {
+            rhsType = checkAndGetType(binaryExpr.rhsExpr, rhsExprEnv, binaryExpr);
+        } else {
+            rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
+        }
 
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
@@ -4078,6 +4091,28 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(binaryExpr, actualType, expType);
+    }
+
+    private BType checkAndGetType(BLangExpression expr, SymbolEnv env, BLangBinaryExpr binaryExpr) {
+        boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
+        this.nonErrorLoggingCheck = true;
+        int prevErrorCount = this.dlog.errorCount();
+        this.dlog.resetErrorCount();
+        this.dlog.mute();
+
+        expr.cloneAttempt++;
+        BType exprCompatibleType = checkExpr(nodeCloner.cloneNode(expr), env, binaryExpr.expectedType);
+        this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+        int errorCount = this.dlog.errorCount();
+        this.dlog.setErrorCount(prevErrorCount);
+        if (!prevNonErrorLoggingCheck) {
+            this.dlog.unmute();
+        }
+        if (errorCount == 0 && exprCompatibleType != symTable.semanticError) {
+            return checkExpr(expr, env, binaryExpr.expectedType);
+        } else {
+            return checkExpr(expr, env);
+        }
     }
 
     private SymbolEnv getEnvBeforeInputNode(SymbolEnv env, BLangNode node) {
@@ -4268,12 +4303,11 @@ public class TypeChecker extends BLangNodeVisitor {
         this.dlog.resetErrorCount();
         this.dlog.mute();
 
-        expr.cloneAttempt++;
-        BType exprCompatibleType = checkExpr(nodeCloner.clone(expr), env, targetType);
-
+        BType exprCompatibleType = checkExpr(nodeCloner.cloneNode(expr), env, targetType);
         this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
         int errorCount = this.dlog.errorCount();
         this.dlog.setErrorCount(prevErrorCount);
+
         if (!prevNonErrorLoggingCheck) {
             this.dlog.unmute();
         }
@@ -5378,7 +5412,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.dlog.mute();
 
         checkedExpr.expr.cloneAttempt++;
-        BLangExpression clone = nodeCloner.clone(checkedExpr.expr);
+        BLangExpression clone = nodeCloner.cloneNode(checkedExpr.expr);
         BType rhsType;
         if (checkExprCandidateType == symTable.semanticError) {
             rhsType = checkExpr(clone, env);
@@ -5680,7 +5714,7 @@ public class TypeChecker extends BLangNodeVisitor {
         for (BLangNamedArgsExpression namedArgsExpression : errorConstructorExpr.namedArgs) {
             BType target = getErrorCtorNamedArgTargetType(namedArgsExpression, expectedType);
 
-            BLangNamedArgsExpression clone = nodeCloner.clone(namedArgsExpression);
+            BLangNamedArgsExpression clone = nodeCloner.cloneNode(namedArgsExpression);
             BType type = checkExpr(clone, env, target);
             if (type == symTable.semanticError) {
                 checkExpr(namedArgsExpression, env);
@@ -6455,8 +6489,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BLangExpression exprToCheck = valueExpr;
         if (this.nonErrorLoggingCheck) {
-            valueExpr.cloneAttempt++;
-            exprToCheck = nodeCloner.clone(valueExpr);
+            exprToCheck = nodeCloner.cloneNode(valueExpr);
         } else {
             ((BLangNode) field).setBType(fieldType);
         }

@@ -120,10 +120,12 @@ function getNameOfElement() returns string {
     return element.getName();
 }
 
-function testSetElementName() returns xml {
-    'xml:Element element = xml `<elem attr="attr1">content</elem>`;
-    element.setName("el2");
-    return element;
+function testSetElementName() returns [xml, xml] {
+    'xml:Element element1 = xml `<elem attr="attr1">content</elem>`;
+    'xml:Element element2 = xml `<e/>`;
+    element1.setName("el2");
+    element2.setName("{http://www.ballerina-schema.io/schema}Elem");
+    return [element1, element2];
 }
 
 function testGetChildren() returns xml {

@@ -30,6 +30,11 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
     implementation 'org.testng:testng'
+<<<<<<< HEAD
+=======
+//    implementation 'org.apache.ws.commons.axiom:axiom-impl'
+//    implementation 'org.apache.ws.commons.axiom:axiom-dom'
+>>>>>>> 75f23b398d8817d4b24e50c9e533441d86b0f789
     implementation 'org.apache.ws.commons.axiom:axiom-c14n'
 }
 
