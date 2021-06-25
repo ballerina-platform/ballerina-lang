@@ -187,7 +187,6 @@ function testIndirectRecursion() {
 type G [int, string, G...];
 type H [int, H[], string, H...];
 type T [int, (int|T)...];
-type V int|[V...];
 
 public function testCyclicRestType() {
     G a = [1, "text"];
@@ -202,10 +201,6 @@ public function testCyclicRestType() {
     T x = [0];
     x[1] = 1;
     assert(x[1] is int|T, true);
-
-    V e = [1, 2, 3];
-    json j = e;
-    assert(e is V[], true);
 }
 
 type I [int, string, I[], map<I>, table<map<I>>, record { I a?; float x?;}, I...];
