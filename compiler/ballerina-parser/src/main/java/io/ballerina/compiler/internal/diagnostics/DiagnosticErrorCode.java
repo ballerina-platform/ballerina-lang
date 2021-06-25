@@ -330,6 +330,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION("BCE671", "error.invalid.expression.expected.a.call.expression"),
     ERROR_TYPE_DESC_AFTER_REST_DESCRIPTOR("BCE672", "error.type.desc.after.rest.descriptor"),
     ERROR_CONFIGURABLE_VAR_IMPLICITLY_FINAL("BCE673", "error.configurable.var.implicitly.final"),
+    ERROR_LOCAL_CONST_DECL_NOT_ALLOWED("BCE674", "error.local.const.decl.not.allowed"),
     ;
 
     String diagnosticId;

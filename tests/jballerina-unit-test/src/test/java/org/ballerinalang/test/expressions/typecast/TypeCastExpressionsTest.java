@@ -139,13 +139,6 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: \\{ballerina}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'future' cannot be cast to 'future'\"}.*")
-    public void testFutureCastNegative() {
-        BRunUtil.invoke(result, "testFutureCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: 'EmployeeObject' cannot be cast to 'LeadObject'.*")
     public void testObjectCastNegative() {
         BRunUtil.invoke(result, "testObjectCastNegative");
@@ -346,6 +339,14 @@ public class TypeCastExpressionsTest {
     }
 
     @DataProvider
+    public Object[][] futureCastNegativeTests() {
+        return new Object[][] {
+                {"testFutureCastNegative"},
+                {"testFutureOfFutureValueCastNegative"}
+        };
+    }
+
+    @DataProvider
     public Object[][] stringAsStringTests() {
         String[] asStringTestFunctions = new String[]{"testStringAsString", "testStringInUnionAsString"};
         String[] stringValues = new String[]{"a", "", "Hello, from Ballerina!"};
@@ -383,6 +384,11 @@ public class TypeCastExpressionsTest {
     @Test(dataProvider = "positiveTests")
     public void testJsonMappingToRecordPositive(String functionName) {
         BRunUtil.invoke(result, functionName);
+    }
+
+    @Test(dataProvider = "futureCastNegativeTests")
+    public void testFutureCastNegative(String function) {
+        BRunUtil.invoke(result, function);
     }
 
     @AfterClass

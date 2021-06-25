@@ -1053,6 +1053,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Return; Statement Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getReturnSCStatementSnippet() {
+        return new SnippetBlock(ItemResolverConstants.RETURN_SC, ItemResolverConstants.RETURN_SC, "return;",
+                ItemResolverConstants.STATEMENT_TYPE, Kind.STATEMENT);
+    }
+
+    /**
      * Get Service Definition Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

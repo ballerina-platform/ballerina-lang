@@ -32,7 +32,7 @@ public class SimpleConstantNegativeTest {
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/" +
                 "simple-literal-constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 63);
+        Assert.assertEquals(compileResult.getErrorCount(), 64);
 
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'int'",
@@ -143,7 +143,9 @@ public class SimpleConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "cannot declare a constant with type 'Bar', " +
                         "expected a subtype of 'anydata' that is not 'never'",
                 294, 7);
-        BAssertUtil.validateError(compileResult, index, "expression is not a constant expression",
+        BAssertUtil.validateError(compileResult, index++, "expression is not a constant expression",
                 294, 17);
+        BAssertUtil.validateError(compileResult, index, "constant declarations are allowed only at module level",
+                298, 1);
     }
 }
