@@ -769,7 +769,8 @@ public class ReferenceFinder extends BaseVisitor {
             return;
         }
 
-        if (!varRefExpr.pkgAlias.value.isEmpty() && addIfSameSymbol(varRefExpr.symbol.owner, varRefExpr.pkgAlias.pos)) {
+        if (varRefExpr.pkgAlias != null && !varRefExpr.pkgAlias.value.isEmpty() &&
+                addIfSameSymbol(varRefExpr.symbol.owner, varRefExpr.pkgAlias.pos)) {
             return;
         }
 
