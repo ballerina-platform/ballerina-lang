@@ -1274,6 +1274,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TABLE_TYPE:
             case ERROR_TYPE:
             case FUNCTION_TYPE:
+            case STREAM_TYPE:    
                 return true;
             default:
                 return false;
