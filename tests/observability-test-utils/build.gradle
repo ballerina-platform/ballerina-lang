@@ -37,11 +37,6 @@ dependencies {
     shadow project(':ballerina-lang:annotations')
 
     implementation 'io.netty:netty-codec-http'
-<<<<<<< HEAD
-=======
-//    implementation 'io.opentelemetry:opentelemetry-api'
-//    implementation 'io.opentelemetry:opentelemetry-sdk-trace'
->>>>>>> 75f23b398d8817d4b24e50c9e533441d86b0f789
     implementation 'io.opentelemetry:opentelemetry-sdk-testing'
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang:jballerina.java')
