@@ -50,11 +50,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "runtime",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -68,30 +68,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value3",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value as value3 ;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -119,11 +96,11 @@
       ]
     },
     {
-      "label": "ballerina/jballerina.java",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "java",
+      "insertText": "value3",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -137,7 +114,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jballerina.java;\n"
+          "newText": "import ballerina/lang.value as value3 ;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -457,9 +457,18 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testFunction()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -472,6 +481,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "testVar",
+      "kind": "Variable",
+      "detail": "typedesc<int>|error",
+      "sortText": "B",
+      "insertText": "testVar",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "value2",
       "kind": "Variable",
       "detail": "int",
@@ -480,18 +497,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "functionWithReturn()(Record1)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \nThis is a test function\n  \n  \n  \n**Return** `Record1`   \n- Return Value Description  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "functionWithReturn",
-      "insertText": "functionWithReturn()",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -506,27 +516,26 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "functionWithReturn()",
+      "kind": "Function",
+      "detail": "Record1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \nThis is a test function\n  \n  \n  \n**Return** `Record1`   \n- Return Value Description  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "functionWithReturn",
+      "insertText": "functionWithReturn()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Record1",
       "kind": "Struct",
       "detail": "Record",
       "sortText": "L",
       "insertText": "Record1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testVar",
-      "kind": "Variable",
-      "detail": "typedesc<int>|error",
-      "sortText": "B",
-      "insertText": "testVar",
       "insertTextFormat": "Snippet"
     },
     {

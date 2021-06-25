@@ -284,6 +284,32 @@ public class TestCentralApiClient extends CentralAPIClient {
 
         this.getPackage("bar", WINERY, "v2", ANY_PLATFORM, TEST_BAL_VERSION);
     }
+
+    @Test(description = "Test get package with bad gateway", expectedExceptions = CentralClientException.class,
+            expectedExceptionsMessageRegExp = "package pushing is temporarily disabled. please try again later.")
+    public void testGetPackageWithBadGateway() throws IOException, CentralClientException {
+        String resString = "{message: \"package pushing is temporarily disabled. please try again later.\"}";
+
+        Request mockRequest = new Request.Builder()
+                .get()
+                .url("https://localhost:9090/registry/packages/bar/" + WINERY + "/v2")
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_UNAVAILABLE)
+                .message("")
+                .body(ResponseBody.create(
+                        MediaType.get(APPLICATION_JSON),
+                        resString
+                ))
+                .build();
+
+        when(this.remoteCall.execute()).thenReturn(mockResponse);
+        when(this.client.newCall(any())).thenReturn(this.remoteCall);
+
+        this.getPackage("bar", WINERY, "v2", ANY_PLATFORM, TEST_BAL_VERSION);
+    }
     
     @Test(description = "Test get package versions")
     public void testGetPackageVersions() throws IOException, CentralClientException {

@@ -6,9 +6,9 @@
   "source": "statement_context/source/start_action_ctx_source7.bal",
   "items": [
     {
-      "label": "getStringResult()(string)",
+      "label": "getStringResult()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -23,7 +23,7 @@
     {
       "label": "testFunction()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
