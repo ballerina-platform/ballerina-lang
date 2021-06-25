@@ -87,8 +87,8 @@ function testUnionWithErrorReturnByteArray(handle receiver) {
     test:assertEquals(handleOrError is error, false);
 }
 
-function testUnionWithErrorReturnStringArray(handle receiver) {
-    any|error anyOrError = unionWithErrorReturnStringArray(receiver);
+function testAnyOrErrorReturnStringArray(handle receiver) {
+    any|error anyOrError = anyOrErrorReturnStringArray(receiver);
     test:assertEquals(anyOrError is any, true);
     test:assertEquals(anyOrError is error, false);
 }
@@ -199,7 +199,7 @@ public function unionWithErrorReturnByteArray(handle receiver) returns handle|er
     'class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
 } external;
 
-public function unionWithErrorReturnStringArray(handle receiver) returns any|error = @java:Method{
+public function anyOrErrorReturnStringArray(handle receiver) returns any|error = @java:Method{
     'class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
 } external;
 

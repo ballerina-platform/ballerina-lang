@@ -279,7 +279,7 @@ public class InstanceMethodTest {
     public Object[][] unionWithErrorTestFunctions() {
         return new Object[][] {
                 { "testUnionWithErrorReturnByteArray" },
-                { "testUnionWithErrorReturnByteArray" }
+                { "testAnyOrErrorReturnStringArray" }
         };
     }
 

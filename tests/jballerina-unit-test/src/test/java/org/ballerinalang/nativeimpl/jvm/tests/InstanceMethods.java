@@ -159,7 +159,7 @@ public class InstanceMethods {
         return byteArray;
     }
 
-    public String[] unionWithErrorReturnStringArray() throws InterruptedException {
+    public String[] anyOrErrorReturnStringArray() throws InterruptedException {
         String[] strArray = {"makes", "integration", "easy"};
         if (false) {
             throw new InterruptedException();
