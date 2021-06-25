@@ -455,16 +455,18 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            WorkspaceEdit workspaceEdit = new WorkspaceEdit();
-
             try {
                 RenameContext context = ContextBuilder.buildRenameContext(params.getTextDocument().getUri(),
                         this.workspaceManager,
                         this.serverContext,
                         params.getPosition());
 
-                Map<String, List<TextEdit>> changes = RenameUtil.rename(context, params.getNewName());
-                workspaceEdit.setChanges(changes);
+                boolean honorsChangeAnnotations = this.clientCapabilities.getTextDocCapabilities()
+                        .getRename().getHonorsChangeAnnotations() != null ?
+                        this.clientCapabilities.getTextDocCapabilities().getRename().getHonorsChangeAnnotations()
+                        : false;
+
+                return RenameUtil.rename(context, params.getNewName(), honorsChangeAnnotations);
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Rename", e);
             } catch (Throwable e) {
@@ -472,8 +474,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 this.clientLogger.logError(LSContextOperation.TXT_RENAME, msg, e, params.getTextDocument(),
                         params.getPosition());
             }
-
-            return workspaceEdit;
+            return new WorkspaceEdit();
         });
     }
 

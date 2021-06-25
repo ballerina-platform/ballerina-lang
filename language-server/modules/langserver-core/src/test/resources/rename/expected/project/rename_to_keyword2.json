@@ -1,0 +1,121 @@
+{
+  "source": {
+    "file": "mod_alias.bal"
+  },
+  "position": {
+    "line": 0,
+    "character": 28
+  },
+  "prepareRename": {
+    "valid": true
+  },
+  "result": {
+    "changes": {},
+    "documentChanges": [
+      {
+        "textDocument": {
+          "version": null,
+          "uri": "mod_alias.bal"
+        },
+        "edits": [
+          {
+            "annotationId": "quoted",
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 26
+              },
+              "end": {
+                "line": 0,
+                "character": 30
+              }
+            },
+            "newText": "string"
+          },
+          {
+            "annotationId": "unquoted",
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 26
+              },
+              "end": {
+                "line": 0,
+                "character": 30
+              }
+            },
+            "newText": "string"
+          },
+          {
+            "annotationId": "quoted",
+            "range": {
+              "start": {
+                "line": 3,
+                "character": 4
+              },
+              "end": {
+                "line": 3,
+                "character": 8
+              }
+            },
+            "newText": "string"
+          },
+          {
+            "annotationId": "unquoted",
+            "range": {
+              "start": {
+                "line": 3,
+                "character": 4
+              },
+              "end": {
+                "line": 3,
+                "character": 8
+              }
+            },
+            "newText": "string"
+          },
+          {
+            "annotationId": "quoted",
+            "range": {
+              "start": {
+                "line": 3,
+                "character": 27
+              },
+              "end": {
+                "line": 3,
+                "character": 31
+              }
+            },
+            "newText": "string"
+          },
+          {
+            "annotationId": "unquoted",
+            "range": {
+              "start": {
+                "line": 3,
+                "character": 27
+              },
+              "end": {
+                "line": 3,
+                "character": 31
+              }
+            },
+            "newText": "string"
+          }
+        ]
+      }
+    ],
+    "changeAnnotations": {
+      "quoted": {
+        "label": "Quoted Rename",
+        "needsConfirmation": true,
+        "description": "Rename to keyword with a quote"
+      },
+      "unquoted": {
+        "label": "Un-quoted Rename",
+        "needsConfirmation": true,
+        "description": "Rename to keyword without a quote"
+      }
+    }
+  }
+}

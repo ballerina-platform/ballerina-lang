@@ -50,6 +50,19 @@
             }
           },
           "newText": "mod1"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 14,
+              "character": 19
+            },
+            "end": {
+              "line": 14,
+              "character": 26
+            }
+          },
+          "newText": "mod1"
         }
       ]
     }

@@ -39,9 +39,16 @@ import org.ballerinalang.langserver.commons.RenameContext;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.util.TokensUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
+import org.eclipse.lsp4j.AnnotatedTextEdit;
+import org.eclipse.lsp4j.ChangeAnnotation;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.ResourceOperation;
+import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
+import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -98,17 +105,13 @@ public class RenameUtil {
 
         return Optional.of(CommonUtil.toRange(tokenAtCursor.lineRange()));
     }
-    
-    /**
-     * Process a rename request and returns the text edits required to be made to complete the rename.
-     *
-     * @param context Context
-     * @param newName Assigned identifier after renaming
-     * @return Text edits for that rename operation
-     */
-    public static Map<String, List<TextEdit>> rename(RenameContext context, String newName) {
-        fillTokenInfoAtCursor(context);
 
+    private static Map<String, List<TextEdit>> getChanges(
+            RenameContext context,
+            String newName,
+            Boolean honorsChangeAnnotations) {
+
+        fillTokenInfoAtCursor(context);
         if (!CommonUtil.isValidIdentifier(newName)) {
             throw new UserErrorException("Invalid identifier provided");
         }
@@ -125,23 +128,66 @@ public class RenameUtil {
         if (onImportDeclarationNode(context, nodeAtCursor)) {
             return Collections.emptyMap();
         }
+
         if (QNameReferenceUtil.onModulePrefix(context, nodeAtCursor)) {
-            return handleQNameReferenceRename(context, document.get(), nodeAtCursor, newName);
+            return handleQNameReferenceRename(context, document.get(), nodeAtCursor, newName, honorsChangeAnnotations);
         }
         if (onImportPrefixNode(context, nodeAtCursor)) {
-            return handleImportPrefixRename(context, document.get(), nodeAtCursor, newName);
+            return handleImportPrefixRename(context, document.get(), nodeAtCursor, newName, honorsChangeAnnotations);
         }
 
         Map<Module, List<Location>> locationMap = ReferencesUtil.getReferences(context);
-
         Map<String, List<TextEdit>> changes = new HashMap<>();
-        locationMap.forEach((module, locations) ->
-                locations.forEach(location -> {
-                    String uri = ReferencesUtil.getUriFromLocation(module, location);
-                    List<TextEdit> textEdits = changes.computeIfAbsent(uri, k -> new ArrayList<>());
+
+        for (Map.Entry<Module, List<Location>> entry : locationMap.entrySet()) {
+            Module module = entry.getKey();
+            List<Location> locations = entry.getValue();
+            for (Location location : locations) {
+                String uri = ReferencesUtil.getUriFromLocation(module, location);
+                List<TextEdit> textEdits = changes.computeIfAbsent(uri, k -> new ArrayList<>());
+                if (honorsChangeAnnotations && CommonUtil.isKeyword(newName)) {
+                    String escapedNewName = CommonUtil.escapeReservedKeyword(newName);
+                    textEdits.add(new AnnotatedTextEdit(ReferencesUtil.getRange(location),
+                            escapedNewName, RenameChangeAnnotation.QUOTED_KEYWORD.getID()));
+                    textEdits.add(new AnnotatedTextEdit(ReferencesUtil.getRange(location),
+                            newName, RenameChangeAnnotation.UNQUOTED_KEYWORD.getID()));
+                } else {
                     textEdits.add(new TextEdit(ReferencesUtil.getRange(location), newName));
-                }));
+                }
+            }
+        }
         return changes;
+    }
+
+    /**
+     * @param context                 Context
+     * @param newName                 Assigned identifier after renaming
+     * @param honorsChangeAnnotations Client support for Change Annotations.
+     * @return {@link WorkspaceEdit} Workspace edit of changes.
+     */
+    public static WorkspaceEdit rename(RenameContext context, String newName, boolean honorsChangeAnnotations) {
+        Map<String, ChangeAnnotation> changeAnnotationMap = new HashMap<>();
+        WorkspaceEdit workspaceEdit = new WorkspaceEdit();
+        Map<String, List<TextEdit>> changes = getChanges(context, newName, honorsChangeAnnotations);
+
+        if (honorsChangeAnnotations && CommonUtil.isKeyword(newName)) {
+            changeAnnotationMap.put(RenameChangeAnnotation.QUOTED_KEYWORD.getID(),
+                    RenameChangeAnnotation.QUOTED_KEYWORD.getChangeAnnotation());
+            changeAnnotationMap.put(RenameChangeAnnotation.UNQUOTED_KEYWORD.getID(),
+                    RenameChangeAnnotation.UNQUOTED_KEYWORD.getChangeAnnotation());
+            List<Either<TextDocumentEdit, ResourceOperation>> docEdits = new ArrayList<>();
+            changes.entrySet().forEach(entry -> {
+                TextDocumentEdit edit = new TextDocumentEdit();
+                edit.setTextDocument(new VersionedTextDocumentIdentifier(entry.getKey(), null));
+                edit.setEdits(entry.getValue());
+                docEdits.add(Either.forLeft(edit));
+            });
+            workspaceEdit.setDocumentChanges(docEdits);
+            workspaceEdit.setChangeAnnotations(changeAnnotationMap);
+        } else {
+            workspaceEdit.setChanges(changes);
+        }
+        return workspaceEdit;
     }
 
     private static boolean onImportPrefixNode(ReferencesContext context, NonTerminalNode node) {
@@ -183,7 +229,8 @@ public class RenameUtil {
     private static Map<String, List<TextEdit>> handleQNameReferenceRename(ReferencesContext context,
                                                                           Document document,
                                                                           NonTerminalNode nodeAtCursor,
-                                                                          String newName) {
+                                                                          String newName,
+                                                                          boolean honorsChangeAnnotations) {
         QualifiedNameReferenceNode qNameRefNode = (QualifiedNameReferenceNode) nodeAtCursor;
         String moduleOrAlias = qNameRefNode.modulePrefix().text();
 
@@ -204,13 +251,15 @@ public class RenameUtil {
             return Collections.emptyMap();
         }
 
-        return handleImportDeclarationRename(context, document, importDeclarationNode.get(), newName);
+        return handleImportDeclarationRename(context, document, importDeclarationNode.get(),
+                newName, honorsChangeAnnotations);
     }
 
     private static Map<String, List<TextEdit>> handleImportDeclarationRename(ReferencesContext context,
                                                                              Document document,
                                                                              ImportDeclarationNode importDeclaration,
-                                                                             String newName) {
+                                                                             String newName,
+                                                                             boolean honorsChangeAnnotations) {
         Map<Module, List<Location>> locationMap = ReferencesUtil.getReferences(context);
         Map<String, List<TextEdit>> changes = new HashMap<>();
 
@@ -234,22 +283,40 @@ public class RenameUtil {
                             LinePosition endPos = moduleNames.get(moduleNames.size() - 1).lineRange().endLine();
                             Range range = new Range(CommonUtil.toPosition(endPos), CommonUtil.toPosition(endPos));
                             List<TextEdit> textEdits = changes.computeIfAbsent(fileUri, k -> new ArrayList<>());
-                            textEdits.add(new TextEdit(range, " as " + newName));
+                            if (honorsChangeAnnotations && CommonUtil.isKeyword(newName)) {
+                                String escapedNewName = CommonUtil.escapeReservedKeyword(newName);
+                                textEdits.add(new AnnotatedTextEdit(ReferencesUtil.getRange(location),
+                                        "as " + escapedNewName, RenameChangeAnnotation.QUOTED_KEYWORD.getID()));
+                                textEdits.add(new AnnotatedTextEdit(ReferencesUtil.getRange(location),
+                                        "as " + newName, RenameChangeAnnotation.UNQUOTED_KEYWORD.getID()));
+                            } else {
+                                textEdits.add(new TextEdit(range, " as " + newName));
+                            }
                         } else {
                             List<TextEdit> textEdits = changes.computeIfAbsent(fileUri, k -> new ArrayList<>());
-                            textEdits.add(new TextEdit(ReferencesUtil.getRange(location), newName));
+                            if (honorsChangeAnnotations && CommonUtil.isKeyword(newName)) {
+                                String escapedNewName = CommonUtil.escapeReservedKeyword(newName);
+                                textEdits.add(new AnnotatedTextEdit(ReferencesUtil.getRange(location),
+                                        escapedNewName, RenameChangeAnnotation.QUOTED_KEYWORD.getID()));
+                                textEdits.add(new AnnotatedTextEdit(ReferencesUtil.getRange(location),
+                                        newName, RenameChangeAnnotation.UNQUOTED_KEYWORD.getID()));
+                            } else {
+                                textEdits.add(new TextEdit(ReferencesUtil.getRange(location), newName));
+                            }
                         }
                     });
                 });
         return changes;
     }
 
-    private static Map<String, List<TextEdit>> handleImportPrefixRename(ReferencesContext context,
-                                                                        Document document,
-                                                                        NonTerminalNode nodeAtCursor,
-                                                                        String newName) {
-        Map<Module, List<Location>> locationMap = ReferencesUtil.getReferences(context);
+    private static Map<String, List<TextEdit>> handleImportPrefixRename(
+            ReferencesContext context,
+            Document document,
+            NonTerminalNode nodeAtCursor,
+            String newName,
+            boolean honorsChangeAnnotations) {
 
+        Map<Module, List<Location>> locationMap = ReferencesUtil.getReferences(context);
         Map<String, List<TextEdit>> changes = new HashMap<>();
         // Filter location map for refs in same doc
         locationMap.entrySet().stream()
@@ -263,9 +330,16 @@ public class RenameUtil {
                         if (!context.fileUri().equals(fileUri)) {
                             return;
                         }
-
                         List<TextEdit> textEdits = changes.computeIfAbsent(fileUri, k -> new ArrayList<>());
-                        textEdits.add(new TextEdit(ReferencesUtil.getRange(location), newName));
+                        if (honorsChangeAnnotations && CommonUtil.isKeyword(newName)) {
+                            String escapedNewName = CommonUtil.escapeModuleName(newName);
+                            textEdits.add(new AnnotatedTextEdit(ReferencesUtil.getRange(location),
+                                    escapedNewName, RenameChangeAnnotation.QUOTED_KEYWORD.getID()));
+                            textEdits.add(new AnnotatedTextEdit(ReferencesUtil.getRange(location),
+                                    newName, RenameChangeAnnotation.UNQUOTED_KEYWORD.getID()));
+                        } else {
+                            textEdits.add(new TextEdit(ReferencesUtil.getRange(location), newName));
+                        }
                     });
                 });
         return changes;
@@ -281,5 +355,30 @@ public class RenameUtil {
         Position position = context.getCursorPosition();
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
         context.setCursorPositionInTree(txtPos);
+    }
+
+    private enum RenameChangeAnnotation {
+        QUOTED_KEYWORD("Quoted Rename", "Rename to keyword with a quote", true, "quoted"),
+        UNQUOTED_KEYWORD("Un-quoted Rename", "Rename to keyword without a quote", true, "unquoted");
+
+        private ChangeAnnotation changeAnnotation;
+        private String id;
+
+        RenameChangeAnnotation(String label, String description, Boolean needsConfirmation, String id) {
+            ChangeAnnotation changeAnnotation = new ChangeAnnotation();
+            changeAnnotation.setLabel(label);
+            changeAnnotation.setDescription(description);
+            changeAnnotation.setNeedsConfirmation(needsConfirmation);
+            this.changeAnnotation = changeAnnotation;
+            this.id = id;
+        }
+
+        public String getID() {
+            return this.id;
+        }
+
+        public ChangeAnnotation getChangeAnnotation() {
+            return this.changeAnnotation;
+        }
     }
 }

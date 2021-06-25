@@ -15,8 +15,10 @@
  */
 package org.ballerinalang.langserver.rename;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,25 +33,67 @@ import java.util.Map;
 public class RenameTestUtil {
 
     public static void alterExpectedUri(JsonObject expected, Path sourceRoot) throws IOException {
-        JsonObject newChanges = new JsonObject();
-        for (Map.Entry<String, JsonElement> jEntry : expected.getAsJsonObject("changes").entrySet()) {
-            String[] uriComponents = jEntry.getKey().replace("\"", "").split("/");
-            Path expectedPath = Paths.get(sourceRoot.toUri());
-            for (String uriComponent : uriComponents) {
-                expectedPath = expectedPath.resolve(uriComponent);
+        if (expected.getAsJsonObject("changes").size() > 0) {
+            JsonObject newChanges = new JsonObject();
+            for (Map.Entry<String, JsonElement> jEntry : expected.getAsJsonObject("changes").entrySet()) {
+                String[] uriComponents = jEntry.getKey().replace("\"", "").split("/");
+                Path expectedPath = Paths.get(sourceRoot.toUri());
+                for (String uriComponent : uriComponents) {
+                    expectedPath = expectedPath.resolve(uriComponent);
+                }
+                newChanges.add(expectedPath.toFile().getCanonicalPath(), jEntry.getValue());
             }
-            newChanges.add(expectedPath.toFile().getCanonicalPath(), jEntry.getValue());
+            expected.add("changes", newChanges);
         }
-        expected.add("changes", newChanges);
+        if (expected.getAsJsonArray("documentChanges") != null) {
+            JsonArray newArray = new JsonArray();
+            for (JsonElement entry : expected.getAsJsonArray("documentChanges")) {
+                JsonObject object = new JsonObject();
+                String[] uriComponents = entry.getAsJsonObject().getAsJsonObject("textDocument").get("uri")
+                        .getAsString().replace("\"", "").split("/");
+                Path expectedPath = Paths.get(sourceRoot.toUri());
+                for (String uriComponent : uriComponents) {
+                    expectedPath = expectedPath.resolve(uriComponent);
+                }
+                JsonObject textDocument = new JsonObject();
+                textDocument.add("version", entry.getAsJsonObject().getAsJsonObject("textDocument").get("version"));
+                textDocument.addProperty("uri", expectedPath.toString());
+
+                object.add("textDocument", textDocument);
+                object.add("edits", entry.getAsJsonObject().getAsJsonArray("edits"));
+                newArray.add(object);
+            }
+            expected.add("documentChanges", newArray);
+        }
     }
 
     public static void alterActualUri(JsonObject actual) throws IOException {
         JsonObject newChanges = new JsonObject();
-        for (Map.Entry<String, JsonElement> jEntry : actual.getAsJsonObject("changes").entrySet()) {
-            String uri = jEntry.getKey().replace("\"", "");
-            String canonicalPath = new File(URI.create(uri)).getCanonicalPath();
-            newChanges.add(canonicalPath, jEntry.getValue());
+        if (actual.getAsJsonObject("changes").size() != 0) {
+            for (Map.Entry<String, JsonElement> jEntry : actual.getAsJsonObject("changes").entrySet()) {
+                String uri = jEntry.getKey().replace("\"", "");
+                String canonicalPath = new File(URI.create(uri)).getCanonicalPath();
+                newChanges.add(canonicalPath, jEntry.getValue());
+            }
+            actual.add("changes", newChanges);
         }
-        actual.add("changes", newChanges);
+        if (actual.getAsJsonArray("documentChanges") != null) {
+            JsonArray newArray = new JsonArray();
+            for (JsonElement entry : actual.getAsJsonArray("documentChanges")) {
+                JsonObject object = new JsonObject();
+                String uri = entry.getAsJsonObject().getAsJsonObject("textDocument").get("uri")
+                        .getAsString().replace("\"", "");
+                String canonicalPath = new File(URI.create(uri)).getCanonicalPath();
+
+                JsonObject textDocument = new JsonObject();
+                textDocument.add("version", entry.getAsJsonObject().getAsJsonObject("textDocument").get("version"));
+                textDocument.addProperty("uri", canonicalPath);
+
+                object.add("textDocument", textDocument);
+                object.add("edits", entry.getAsJsonObject().getAsJsonArray("edits"));
+                newArray.add(object);
+            }
+            actual.add("documentChanges", newArray);
+        }
     }
 }
