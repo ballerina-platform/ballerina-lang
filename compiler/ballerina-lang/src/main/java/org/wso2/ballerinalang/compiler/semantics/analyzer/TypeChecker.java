@@ -5303,7 +5303,7 @@ public class TypeChecker extends BLangNodeVisitor {
             this.dlog.mute();
 
             checkedExpr.expr.cloneAttempt++;
-            BLangExpression clone = nodeCloner.clone(checkedExpr.expr);
+            BLangExpression clone = nodeCloner.cloneNode(checkedExpr.expr);
             BType exprType = checkExpr(clone, env, expType);
 
             if (exprType == symTable.semanticError) {
