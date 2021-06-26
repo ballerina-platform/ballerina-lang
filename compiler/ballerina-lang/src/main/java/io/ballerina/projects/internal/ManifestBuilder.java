@@ -412,6 +412,8 @@ public class ManifestBuilder {
         boolean codeCoverage =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.CODE_COVERAGE.toString());
         final TopLevelNode topLevelNode = tableNode.entries().get(CompilerOptionName.CLOUD.toString());
+        boolean dumpBuildTime =
+                getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.DUMP_BUILD_TIME.toString());
         String cloud = "";
         if (topLevelNode != null) {
             cloud = getStringFromTomlTableNode(topLevelNode);
@@ -427,6 +429,7 @@ public class ManifestBuilder {
                 .codeCoverage(codeCoverage)
                 .cloud(cloud)
                 .listConflictedClasses(listConflictedClasses)
+                .dumpBuildTime(dumpBuildTime)
                 .build();
     }
 
