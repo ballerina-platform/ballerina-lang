@@ -23,6 +23,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -240,6 +241,22 @@ public class MatchStmtListMatchPatternTest {
     @Test
     public void testListMatchPatternWithRestPattern11() {
         BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRestPattern11");
+    }
+
+    @Test(dataProvider = "dataToTestListMatchPatternWithRestPattern", description = "Test list match pattern with " +
+            "rest match pattern")
+    public void testListMatchPatternWithRestPattern(String functionName) {
+        BRunUtil.invoke(restMatchPatternResult, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestListMatchPatternWithRestPattern() {
+        return new Object[]{
+                "testListMatchPatternWithRestPattern12",
+                "testListMatchPatternWithRestPattern13",
+                "testListMatchPatternWithRestPattern14",
+                "testListMatchPatternWithRestPattern15"
+        };
     }
 
     @Test(description = "invalid match patterns")

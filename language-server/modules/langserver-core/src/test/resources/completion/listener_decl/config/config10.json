@@ -8,7 +8,7 @@
     {
       "label": "Listener(int port)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
