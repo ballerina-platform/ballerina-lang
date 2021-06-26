@@ -17,42 +17,38 @@
 import ballerina/lang.runtime as runtime;
 import ballerina/jballerina.java;
 
-function getCallStackTest() {
+function getCallStackTest() returns runtime:StackFrame[] {
+    return runtime:getStackTrace();
+}
+
+function getCallStacktoStringTest() {
     runtime:StackFrame[] stackFrames = runtime:getStackTrace();
     assertEquality(stackFrames.length(), 3);
-    assertEquality(stackFrames[0].toString(), "callableName: externGetStackTrace moduleName: ballerina.lang.runtime.0_0_1 fileName: runtime.bal lineNumber: 95");
-    assertEquality(stackFrames[1].toString(), "callableName: getStackTrace moduleName: ballerina.lang.runtime.0_0_1 fileName: runtime.bal lineNumber: 85");
-    assertEquality(stackFrames[2].toString(), "callableName: getCallStackTest  fileName: runtimelib_test.bal lineNumber: 21");
+    assertEquality("callableName: externGetStackTrace moduleName: ballerina.lang.runtime.0_0_1 fileName: runtime.bal lineNumber: 95", stackFrames[0].toString());
+    assertEquality("callableName: getStackTrace moduleName: ballerina.lang.runtime.0_0_1 fileName: runtime.bal lineNumber: 85", stackFrames[1].toString());
+    assertEquality("callableName: getCallStacktoStringTest  fileName: runtimelib_test.bal lineNumber: 25", stackFrames[2].toString());
 
     java:StackFrameImpl stackFrame1 = <java:StackFrameImpl> stackFrames[1];
     string callableName = stackFrame1.callableName;
     string? moduleName = stackFrame1.moduleName;
     string fileName = stackFrame1.fileName;
     int lineNumber = stackFrame1.lineNumber;
-    assertEquality(callableName, "getStackTrace");
-    assertEquality(moduleName, "ballerina.lang.runtime.0_0_1");
-    assertEquality(fileName, "runtime.bal");
-    assertEquality(lineNumber, 85);
+
+    assertEquality("getStackTrace", callableName);
+    assertEquality("ballerina.lang.runtime.0_0_1", moduleName);
+    assertEquality("runtime.bal", fileName);
+    assertEquality(85, lineNumber);
 
     java:StackFrameImpl stackFrame2 = <java:StackFrameImpl> stackFrames[2];
     callableName = stackFrame2.callableName;
     moduleName = stackFrame2.moduleName;
     fileName = stackFrame2.fileName;
     lineNumber = stackFrame2.lineNumber;
-    assertEquality(callableName, "getCallStackTest");
-    assertEquality(moduleName, ());
-    assertEquality(fileName, "runtimelib_test.bal");
-    assertEquality(lineNumber, 21);
-}
 
-function getCallStacktoStringTest() returns string[] {
-    runtime:StackFrame[] stackFrames = runtime:getStackTrace();
-    string[] output = [];
-    foreach runtime:StackFrame stackFrame in stackFrames {
-        output.push(stackFrame.toString());
-    }
-    return output;
-
+    assertEquality("getCallStacktoStringTest", callableName);
+    assertEquality((), moduleName);
+    assertEquality("runtimelib_test.bal", fileName);
+    assertEquality(25, lineNumber);
 }
 
 function assertEquality(any|error expected, any|error actual) {
