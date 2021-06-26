@@ -33,7 +33,7 @@ public type DynamicListener object {
 # + lineNumber - Line number
 type CallStackElement record {|
     string callableName;
-    string moduleName;
+    string moduleName?;
     string fileName;
     int lineNumber;
 |};
@@ -84,13 +84,8 @@ public isolated function getStackTrace() returns StackFrame[] {
     int i = 0;
     CallStackElement[] callStackElements = externGetStackTrace();
     lang_array:forEach(callStackElements, function (CallStackElement callStackElement) {
-        if (callStackElement["moduleName"] is string) {
-            stackFrame[i] = new java:StackFrameImpl(callStackElement.callableName, callStackElement.moduleName,
-            callStackElement.fileName, callStackElement.lineNumber);
-        } else {
-            stackFrame[i] = new java:StackFrameImplForSingleBalFile(callStackElement.callableName,
-            callStackElement.fileName, callStackElement.lineNumber);
-        }
+            stackFrame[i] = new java:StackFrameImpl(callStackElement.callableName,
+            callStackElement.fileName, callStackElement.lineNumber, callStackElement?.moduleName);
         i += 1;
     });
     return stackFrame;

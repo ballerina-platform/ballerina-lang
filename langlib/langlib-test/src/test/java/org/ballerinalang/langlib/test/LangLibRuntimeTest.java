@@ -41,13 +41,7 @@ public class LangLibRuntimeTest {
 
     @Test
     public void testGetStackTrace() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "getCallStackTest");
-        assertEquals(returns[0].stringValue(), "{callableName:\"externGetStackTrace\"," +
-                " moduleName:\"ballerina.lang.runtime.0_0_1\", fileName:\"runtime.bal\", lineNumber:100}");
-        assertEquals(returns[1].stringValue(), "{callableName:\"getStackTrace\", " +
-                "moduleName:\"ballerina.lang.runtime.0_0_1\", fileName:\"runtime.bal\", lineNumber:85}");
-        assertEquals(returns[2].stringValue(), "{callableName:\"getCallStackTest\", " +
-                "fileName:\"runtimelib_test.bal\", lineNumber:20}");
+        BRunUtil.invoke(compileResult, "getCallStackTest");
     }
 
     @Test
