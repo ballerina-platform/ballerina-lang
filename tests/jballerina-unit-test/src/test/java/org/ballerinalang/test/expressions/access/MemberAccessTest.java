@@ -117,13 +117,14 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "list index out of range: index: '5'", 187, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 195, 14);
         validateError(negativeResult, i++, "undefined field 'age' in 'Employee'", 196, 14);
-        validateError(negativeResult, i++, "missing key expr in member access expr", 201, 26);
-        validateError(negativeResult, i++, "invalid expression statement", 202, 5);
-        validateError(negativeResult, i++, "missing key expr in member access expr", 202, 14);
-        validateError(negativeResult, i++, "missing semicolon token", 203, 1);
+        validateError(negativeResult, i++, "missing key expr in member access expr", 207, 9);
+        validateError(negativeResult, i++, "missing key expr in member access expr", 208, 23);
+        validateError(negativeResult, i++, "invalid expression statement", 209, 5);
+        validateError(negativeResult, i++, "missing key expr in member access expr", 209, 14);
+        validateError(negativeResult, i++, "missing semicolon token", 210, 1);
         validateError(negativeResult, i++, "invalid operation: type '((Grault|int[]) & readonly)?' does " +
-                "not support member access", 222, 14);
-        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int?'", 225, 17);
+                "not support member access", 229, 14);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int?'", 232, 17);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
