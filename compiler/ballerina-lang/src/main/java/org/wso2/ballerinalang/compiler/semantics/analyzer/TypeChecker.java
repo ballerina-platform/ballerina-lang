@@ -5306,16 +5306,16 @@ public class TypeChecker extends BLangNodeVisitor {
             BLangExpression clone = nodeCloner.cloneNode(checkedExpr.expr);
             BType exprType = checkExpr(clone, env, expType);
 
-            if (exprType == symTable.semanticError) {
-                checkExprCandidateType = BUnionType.create(null, expType, symTable.errorType);
-            } else {
-                checkExprCandidateType = ifNoErrorComponentAddDefaultError(expType);
-            }
-
             this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
             this.dlog.setErrorCount(prevErrorCount);
             if (!prevNonErrorLoggingCheck) {
                 this.dlog.unmute();
+            }
+
+            if (exprType == symTable.semanticError) {
+                checkExprCandidateType = BUnionType.create(null, expType, symTable.errorType);
+            } else {
+                checkExprCandidateType = addDefaultErrorIfNoErrorComponentFound(expType);
             }
         }
 
@@ -5452,15 +5452,11 @@ public class TypeChecker extends BLangNodeVisitor {
         return rhsType;
     }
 
-    private BType ifNoErrorComponentAddDefaultError(BType type) {
-        List<BType> errorTypes = new ArrayList<>();
+    private BType addDefaultErrorIfNoErrorComponentFound(BType type) {
         for (BType t : types.getAllTypes(type)) {
             if (types.isAssignable(t, symTable.errorType)) {
-                errorTypes.add(t);
+                return type;
             }
-        }
-        if (!errorTypes.isEmpty()) {
-            return type;
         }
         return BUnionType.create(null, type, symTable.errorType);
     }
