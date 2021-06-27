@@ -276,10 +276,10 @@ public class InstanceMethodTest {
     }
 
     @DataProvider(name = "unionWithErrorTestFunctions")
-    public Object[][] unionWithErrorTestFunctions() {
-        return new Object[][] {
-                { "testUnionWithErrorReturnByteArray" },
-                { "testAnyOrErrorReturnStringArray" }
+    public Object[] unionWithErrorTestFunctions() {
+        return new String[] {
+             "testUnionWithErrorReturnByteArray",
+             "testAnyOrErrorReturnStringArray"
         };
     }
 
