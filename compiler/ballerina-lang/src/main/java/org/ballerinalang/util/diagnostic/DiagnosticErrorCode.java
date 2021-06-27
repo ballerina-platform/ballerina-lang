@@ -714,7 +714,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNIMPLEMENTED_REFERENCED_METHOD_IN_SERVICE_DECL("BCE4005",
             "unimplemented.referenced.method.in.service.declaration"),
     UNIMPLEMENTED_REFERENCED_METHOD_IN_OBJECT_CTOR("BCE4006", "unimplemented.referenced.method.in.object.constructor"),
-    UNSUPPORTED_REMOTE_METHOD_NAME_IN_SCOPE("BCE4007", "unsupported.remote.method.name.in.scope")
+    UNSUPPORTED_REMOTE_METHOD_NAME_IN_SCOPE("BCE4007", "unsupported.remote.method.name.in.scope"),
+    WILD_CARD_BINDING_ONLY_SUPPORTS_TYPE_ANY("BCE4008", "wild.card.binding.only.supports.type.any")
     ;
 
     private String diagnosticId;

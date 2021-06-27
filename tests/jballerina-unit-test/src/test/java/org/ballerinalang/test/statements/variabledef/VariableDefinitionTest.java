@@ -154,12 +154,7 @@ public class VariableDefinitionTest {
 
     @Test(description = "Test defining var with wild card")
     public void wildCardLocalVariables() {
-        BValue[] returns = BRunUtil.invoke(result, "wildCardLocalVariables", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        String s = returns[0].stringValue();
-        Assert.assertEquals(s, "foo invoked");
+        BRunUtil.invoke(result, "wildCardLocalVariables", new BValue[0]);
     }
 
     @Test(description = "Test variable definition negative test cases with errors")

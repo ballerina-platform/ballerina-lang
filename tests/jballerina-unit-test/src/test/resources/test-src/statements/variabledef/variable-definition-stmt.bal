@@ -47,15 +47,33 @@ function updateVarValue (int v1, boolean v3, string v4, float v5) returns [int, 
 }
 
 string str = "";
-function wildCardLocalVariables() returns string {
+float _ = 3.14;
+var _ = 10 * 30;
+int x = let var _ = 10 in 10 * 20;
+
+function wildCardLocalVariables() {
     float _ = 3.14;
     var _ = 10 * 30;
-    int x = let var _ = 10 in 10 * 20;
+    int xx = let var _ = 10 in 10 * 20;
     string _ = foo();
-    return str;
+    assertEquality("foo invoked", str);
 }
 
 function foo() returns string {
     str += "foo invoked";
     return str;
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

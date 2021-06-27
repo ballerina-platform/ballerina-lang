@@ -814,7 +814,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         validateWorkerAnnAttachments(varNode.expr);
 
-        handleWildCardBindingVariable(varNode, symTable.anyType);
+        handleWildCardBindingVariable(varNode);
 
         BType lhsType = varNode.symbol.type;
         varNode.setBType(lhsType);
@@ -1292,7 +1292,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 simpleVariable.setBType(rhsType);
 
-                handleWildCardBindingVariable(simpleVariable, rhsType);
+                handleWildCardBindingVariable(simpleVariable);
 
                 int ownerSymTag = env.scope.owner.tag;
                 if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE || (ownerSymTag & SymTag.LET) == SymTag.LET) {
@@ -1398,19 +1398,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void handleWildCardBindingVariable(BLangSimpleVariable simpleVariable, BType rhsType) {
-        if (simpleVariable.name.value.equals(Names.IGNORE.value)) {
-            BType expectedType = simpleVariable.getBType();
-            BType actualType = rhsType;
-            if (expectedType != null) {
-                actualType = expectedType;
-            }
-            expectedType = symTable.anyType;
-            types.checkType(simpleVariable.pos, actualType, expectedType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
-            // Fake symbol to prevent runtime failures down the line.
-            simpleVariable.symbol = new BVarSymbol(0, Names.IGNORE, env.enclPkg.packageID,
-                    actualType, env.scope.owner, simpleVariable.pos, VIRTUAL);
+    private void handleWildCardBindingVariable(BLangSimpleVariable variable) {
+        if (!variable.name.value.equals(Names.IGNORE.value)) {
+            return;
         }
+        BLangExpression bindingExp = variable.expr;
+        BType bindingValueType = bindingExp != null && bindingExp.getBType() != null
+                ? bindingExp.getBType() : variable.getBType();
+        if (!types.isAssignable(bindingValueType, symTable.anyType)) {
+            dlog.error(variable.pos, DiagnosticErrorCode.WILD_CARD_BINDING_ONLY_SUPPORTS_TYPE_ANY);
+        }
+        // Fake symbol to prevent runtime failures down the line.
+        variable.symbol = new BVarSymbol(0, Names.IGNORE, env.enclPkg.packageID,
+                variable.getBType(), env.scope.owner, variable.pos, VIRTUAL);
     }
 
     void handleDeclaredVarInForeach(BLangVariable variable, BType rhsType, SymbolEnv blockEnv) {

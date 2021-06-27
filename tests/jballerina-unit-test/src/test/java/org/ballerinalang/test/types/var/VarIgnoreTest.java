@@ -49,11 +49,19 @@ public class VarIgnoreTest {
     @Test(description = "Test var ignore negative cases.")
     public void testVarIgnoreNegative() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-ignore-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 4);
-        BAssertUtil.validateError(res, 0, "incompatible types: expected 'any', found 'error'", 1, 1);
-        BAssertUtil.validateError(res, 1, "incompatible types: expected 'string', found 'int'", 4, 16);
-        BAssertUtil.validateError(res, 2, "incompatible types: expected 'any', found 'error'", 6, 5);
-        BAssertUtil.validateError(res, 3, "incompatible types: expected 'any', found 'error'", 7, 5);
+        int i = 0;
+        BAssertUtil.validateError(res, i++, "a wildcard binding pattern can be used only "
+                + "with a value that belong to type 'any'", 1, 1);
+        BAssertUtil.validateError(res, i++, "incompatible types: expected 'error', found 'string'", 2, 11);
+        BAssertUtil.validateError(res, i++, "a wildcard binding pattern can be used only "
+                + "with a value that belong to type 'any'", 3, 1);
+        BAssertUtil.validateError(res, i++, "incompatible types: expected 'string', found 'int'", 7, 16);
+        BAssertUtil.validateError(res, i++, "a wildcard binding pattern can be used only "
+                + "with a value that belong to type 'any'", 9, 5);
+        BAssertUtil.validateError(res, i++, "a wildcard binding pattern can be used only "
+                + "with a value that belong to type 'any'", 10, 5);
+        BAssertUtil.validateError(res, i++, "incompatible types: expected 'error', found 'string'", 11, 15);
+        Assert.assertEquals(res.getErrorCount(), i);
     }
 
     @AfterClass
