@@ -2154,7 +2154,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             Token missingIdentifier = NodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN,
                     NodeFactory.createEmptyMinutiaeList(), NodeFactory.createEmptyMinutiaeList());
             Node expression = NodeFactory.createSimpleNameReferenceNode(missingIdentifier);
-            indexBasedAccess.indexExpr = (BLangExpression) createActionOrExpression(expression);
+            indexBasedAccess.indexExpr = createExpression(expression);
         } else if (keys.size() == 1) {
             indexBasedAccess.indexExpr = createExpression(indexedExpressionNode.keyExpression().get(0));
         } else {
