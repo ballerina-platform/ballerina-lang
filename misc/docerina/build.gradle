@@ -45,7 +45,6 @@ dependencies {
     implementation 'commons-io:commons-io'
     implementation 'com.google.code.gson:gson:2.7'
     implementation 'commons-io:commons-io'
-    implementation 'com.google.code.gson:gson:2.7'
 
     distBal project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')
 
