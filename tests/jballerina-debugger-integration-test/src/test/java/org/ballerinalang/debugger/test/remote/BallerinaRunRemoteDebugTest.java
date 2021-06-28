@@ -69,8 +69,8 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test
-    public void testSuspendOnBallerinaJarRun() throws BallerinaTestException {
+    @Test(description = "Tests executable JAR debugging support with [--debug <PORT>] option.")
+    public void testSuspendOnBallerinaJarRun1() throws BallerinaTestException {
         String executablePath = Paths.get("target", "bin", testProjectName.replaceAll("-", "_") + ".jar")
             .toFile().getPath();
         LogLeecher clientLeecher = new LogLeecher(executablePath);
@@ -83,6 +83,23 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
         clientLeecher = new LogLeecher(msg);
         balClient.debugMain("run", new String[]{"--debug", String.valueOf(port), executablePath}, null,
             new String[]{}, new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath, 10);
+        clientLeecher.waitForText(20000);
+    }
+
+    @Test(description = "Tests executable JAR debugging support with [--debug=<PORT>] option.")
+    public void testSuspendOnBallerinaJarRun2() throws BallerinaTestException {
+        String executablePath = Paths.get("target", "bin", testProjectName.replaceAll("-", "_") + ".jar")
+                .toFile().getPath();
+        LogLeecher clientLeecher = new LogLeecher(executablePath);
+        balClient.runMain("build", new String[]{}, null, new String[]{},
+                new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath);
+        clientLeecher.waitForText(20000);
+
+        int port = findFreePort();
+        String msg = REMOTE_DEBUG_LISTENING + port;
+        clientLeecher = new LogLeecher(msg);
+        balClient.debugMain("run", new String[]{"--debug=" + port, executablePath}, null,
+                new String[]{}, new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath, 10);
         clientLeecher.waitForText(20000);
     }
 
