@@ -42,10 +42,17 @@ task extractDistribution(type: Copy) {
 
 }
 
+task testUtilsJar(type: Jar) {
+    from sourceSets.test.runtimeClasspath
+    include "org/ballerinalang/testerina/utils/**"
+    archiveName "interops.jar"
+}
+
 // Integration tests for testerina
 test {
     mustRunAfter ':jballerina-integration-test:test'
     dependsOn extractDistribution
+    dependsOn testUtilsJar
     systemProperty 'enableTesterinaTests', 'true'
 
     maxParallelForks = 1

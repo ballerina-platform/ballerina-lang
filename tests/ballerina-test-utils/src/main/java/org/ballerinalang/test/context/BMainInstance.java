@@ -627,7 +627,7 @@ public class BMainInstance implements BMain {
             Map<String, String> env = processBuilder.environment();
             env.putAll(envProperties);
 
-            Process process = processBuilder.inheritIO().start();
+            Process process = processBuilder.start();
 
             // Give a small timeout so that the output is given.
             Thread.sleep(5000);
