@@ -156,6 +156,7 @@ function testMatchClauseWithTypeGuard3() {
 
 type A 3|4;
 type B 1|2;
+type BB 3;
 
 function testMatchClauseWithTypeGuard4() {
     int value = 2;
@@ -167,6 +168,16 @@ function testMatchClauseWithTypeGuard4() {
         }
         var a if a is B => {
             matched = "One or Two";
+        }
+    }
+    assertEquals("One or Two", matched);
+
+    match value {
+        var a if a is B => {
+            matched = "One or Two";
+        }
+        var a if a is BB => {
+            matched = "Three";
         }
     }
     assertEquals("One or Two", matched);
@@ -182,6 +193,16 @@ function testMatchClauseWithTypeGuard5() {
         }
         var a if a is int|string => {
             matched = "Int or String";
+        }
+    }
+    assertEquals("Int or String", matched);
+
+    match value {
+        var a if a is int|string => {
+            matched = "Int or String";
+        }
+        var a if a is boolean|int|float => {
+            matched = "Boolean or Int or Float";
         }
     }
     assertEquals("Int or String", matched);
@@ -285,6 +306,27 @@ function testMatchClauseWithTypeGuard9() {
         }
     }
     assertEquals("Pattern2", matched);
+
+    matched = "Not Matched";
+    match t1 {
+        var [a, b, c] if c is [1, 2] => {
+            matched = "Pattern1";
+        }
+        [var a, var b, var c] if c is [10, 20, 30] => {
+            matched = "Pattern2";
+        }
+    }
+    assertEquals("Not Matched", matched);
+
+    match t1 {
+        var [a, b, c] if c is [1, 2, 3] => {
+            matched = "Pattern1";
+        }
+        [var a, var b, var c] if c is [10, 20, 30] => {
+            matched = "Pattern2";
+        }
+    }
+    assertEquals("Not Matched", matched);
 }
 
 function testMatchClauseWithTypeGuard10() {
