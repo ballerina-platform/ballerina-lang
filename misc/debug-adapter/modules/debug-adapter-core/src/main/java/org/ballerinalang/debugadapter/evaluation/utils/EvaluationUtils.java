@@ -64,8 +64,7 @@ public class EvaluationUtils {
 
     // Ballerina runtime helper classes
     private static final String RUNTIME_HELPER_PREFIX = "io.ballerina.runtime.";
-    public static final String B_DEBUGGER_HELPER_UTILS_CLASS = RUNTIME_HELPER_PREFIX + "internal.debugger." +
-            "DebuggerRuntime";
+    public static final String B_DEBUGGER_HELPER_UTILS_CLASS = "org.ballerinalang.debugadapter.runtime.DebuggerRuntime";
     public static final String B_TYPE_CHECKER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeChecker";
     public static final String B_TYPE_CREATOR_CLASS = RUNTIME_HELPER_PREFIX + "api.creators.TypeCreator";
     public static final String B_TYPE_CONVERTER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeConverter";

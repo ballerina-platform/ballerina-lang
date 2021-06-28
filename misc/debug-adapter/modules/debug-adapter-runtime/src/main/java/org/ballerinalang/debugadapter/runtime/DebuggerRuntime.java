@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.runtime.internal.debugger;
+package org.ballerinalang.debugadapter.runtime;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.Callback;
