@@ -197,3 +197,61 @@ function testQueryExpressionIteratingOverXMLInFromInQueryAction() returns float 
               };
     return total;
 }
+
+function testTypeTestInWhereClause() {
+    int?[] v = [1, 2, (), 3];
+    int total = 0;
+    error? result = from var i in v
+                    where i is int
+                    do {
+                        total += <int>i;
+                    };
+    assertEquality((), result);
+    assertEquality(6, total);
+
+    float[] u = [10.5, 20.5, 30.5];
+    float x = 0;
+    result = from var i in v
+             from float j in u
+             where i is int
+             do {
+                 x += <float>i * j;
+             };
+    assertEquality((), result);
+    assertEquality(369.0, x);
+
+    (string|int)[] w = [10, 20, "A", 40, "B"];
+    total = 0;
+    result = from var i in v
+             from int j in (from var k in w where k is int select k)
+             where i is int && j > 10
+             do {
+                 total += <int>i * j;
+             };
+    assertEquality((), result);
+    assertEquality(360, total);
+
+    total = 0;
+    result = from var i in v
+             where i is int
+             where i is 1|2|3
+             do {
+                 total += <int>i;
+             };
+    assertEquality((), result);
+    assertEquality(6, total);
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}

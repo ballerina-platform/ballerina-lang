@@ -284,3 +284,34 @@ function testMultipleJoinClausesWithInnerQueries5() returns boolean {
 
     return total == 149.93;
 }
+
+function testTypeTestInWhereClause() {
+    int?[] v = [1, 2, (), 3];
+    (string|int)[] w = [10, 20, "A", 40, "B"];
+    int[] result = from var i in v
+                   from int j in (from var k in w where k is int select k)
+                   where i is int && j > 10
+                   where i is 1|2|3
+                   select <int>i * j;
+    assertEquality(6, result.length());
+    assertEquality(20, result[0]);
+    assertEquality(40, result[1]);
+    assertEquality(40, result[2]);
+    assertEquality(80, result[3]);
+    assertEquality(60, result[4]);
+    assertEquality(120, result[5]);
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}
