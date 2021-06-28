@@ -1005,7 +1005,7 @@ public class Types {
                     }
                     return isAssignable(source, target.constraint, unresolvedTypes);
                 }
-                return isAssignable(source.constraint, target.constraint, unresolvedTypes);
+                return isAssignable(source.constraint, target, unresolvedTypes);
             }
             return true;
         }
