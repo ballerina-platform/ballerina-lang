@@ -69,6 +69,7 @@ public class GlobalVariableRefAnalyzer {
     private final List<List<NodeInfo>> cycles;
     private final List<NodeInfo> dependencyOrder;
     private int curNodeId;
+    private boolean cyclicErrorFound;
 
     public static GlobalVariableRefAnalyzer getInstance(CompilerContext context) {
         GlobalVariableRefAnalyzer refAnalyzer = context.get(REF_ANALYZER_KEY);
@@ -256,8 +257,8 @@ public class GlobalVariableRefAnalyzer {
         }
         sorted.addAll(dependencies);
 
-        if (cycles.stream().anyMatch(cycle -> cycle.size() > 1)) {
-            // Cyclic error found no need to sort.
+        // Cyclic error found no need to sort.
+        if (cyclicErrorFound) {
             return;
         }
 
@@ -293,6 +294,7 @@ public class GlobalVariableRefAnalyzer {
         this.dependencyOrder.clear();
         this.curNodeId = 0;
         this.globalVariablesDependsOn = new HashMap<>();
+        this.cyclicErrorFound = false;
     }
 
     private void pruneDependencyRelations() {
@@ -488,6 +490,7 @@ public class GlobalVariableRefAnalyzer {
 
             if (doesContainAGlobalVar(symbolsOfCycle)) {
                 emitErrorMessage(symbolsOfCycle);
+                this.cyclicErrorFound = true;
             }
         }
     }
