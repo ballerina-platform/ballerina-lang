@@ -32,7 +32,7 @@ public class SimpleConstantNegativeTest {
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/" +
                 "simple-literal-constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 64);
+        Assert.assertEquals(compileResult.getErrorCount(), 66);
 
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'int'",
@@ -47,10 +47,10 @@ public class SimpleConstantNegativeTest {
                 5, 29);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'",
                 6, 27);
-        BAssertUtil.validateError(compileResult, index++, "underscore is not allowed here",
-                9, 14);
-        BAssertUtil.validateError(compileResult, index++, "underscore is not allowed here",
-                10, 7);
+        BAssertUtil.validateError(compileResult, index++, "missing identifier", 9, 14);
+        BAssertUtil.validateError(compileResult, index++, "invalid token '_'", 9, 16);
+        BAssertUtil.validateError(compileResult, index++, "missing identifier", 10, 7);
+        BAssertUtil.validateError(compileResult, index++, "invalid token '_'", 10, 9);
         BAssertUtil.validateError(compileResult, index++, "cannot declare a constant with type 'invalidType', " +
                         "expected a subtype of 'anydata' that is not 'never'",
                 12, 7);

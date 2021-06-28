@@ -229,6 +229,7 @@ public enum ParserRuleContext {
     TYPED_BINDING_PATTERN("typed-binding-pattern"),
     BINDING_PATTERN("binding-pattern"),
     CAPTURE_BINDING_PATTERN("capture-binding-pattern"),
+    WILDCARD_BINDING_PATTERN("wildcard-binding-pattern"),
     REST_BINDING_PATTERN("rest-binding-pattern"),
     LIST_BINDING_PATTERN("list-binding-pattern"),
     LIST_BINDING_PATTERNS_START("list-binding-patterns-start"),

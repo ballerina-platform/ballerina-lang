@@ -75,8 +75,12 @@ public class RecordDefNegativeTest {
     public void recordDestructureTest() {
         CompileResult compileResult = BCompileUtil.
                 compile("test-src/record/negative/record-destructure-negative.bal");
-        BAssertUtil.validateError(compileResult, 0,
-                "invalid record binding pattern; unknown field '_' in record type 'Person'",
+        int indx = 0;
+        BAssertUtil.validateError(compileResult, indx++,
+                "invalid record binding pattern; unknown field '$missingNode$_0' in record type 'Person'",
                 27, 5);
+        BAssertUtil.validateError(compileResult, indx++, "missing identifier", 27, 31);
+        BAssertUtil.validateError(compileResult, indx++, "invalid token '_'", 27, 32);
+        assertEquals(compileResult.getErrorCount(), indx);
     }
 }

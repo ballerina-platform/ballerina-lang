@@ -323,8 +323,10 @@ public class RecordVariableDefinitionTest {
                 "incompatible types: expected 'string', found 'anydata'", 152, 13);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 152, 31);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "underscore is not allowed here", 157, 19);
+        BAssertUtil.validateError(resultNegative, ++i, "missing identifier", 157, 20);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid token '_'", 157, 21);
+        BAssertUtil.validateError(resultNegative, ++i, "missing identifier", 157, 30);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid token '_'", 157, 31);
         BAssertUtil.validateError(resultNegative, ++i,
                 "no new variables on left side", 158, 19);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'XY', " +

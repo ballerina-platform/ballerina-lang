@@ -861,8 +861,7 @@
                                           "kind": "WILDCARD_BINDING_PATTERN",
                                           "children": [
                                             {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "_"
+                                              "kind": "UNDERSCORE_KEYWORD"
                                             }
                                           ]
                                         }
@@ -1115,11 +1114,10 @@
                                       ]
                                     },
                                     {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "kind": "WILDCARD_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "_"
+                                          "kind": "UNDERSCORE_KEYWORD"
                                         }
                                       ]
                                     },
@@ -1393,11 +1391,10 @@
                                       ]
                                     },
                                     {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "kind": "WILDCARD_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "_"
+                                          "kind": "UNDERSCORE_KEYWORD"
                                         }
                                       ]
                                     },
@@ -1689,11 +1686,10 @@
                                       ]
                                     },
                                     {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "kind": "WILDCARD_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "_"
+                                          "kind": "UNDERSCORE_KEYWORD"
                                         }
                                       ]
                                     },

@@ -352,8 +352,7 @@
                                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                                         "children": [
                                                           {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "_"
+                                                            "kind": "UNDERSCORE_KEYWORD"
                                                           }
                                                         ]
                                                       }
@@ -717,8 +716,7 @@
                                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                                         "children": [
                                                           {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "_"
+                                                            "kind": "UNDERSCORE_KEYWORD"
                                                           }
                                                         ]
                                                       }

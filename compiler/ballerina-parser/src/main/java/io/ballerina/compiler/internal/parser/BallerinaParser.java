@@ -708,8 +708,6 @@ public class BallerinaParser extends AbstractParser {
      * Parse import prefix declaration.
      * <p>
      * <code>import-prefix-decl := as import-prefix
-     * <br/>
-     * import-prefix := a identifier | _
      * </code>
      *
      * @return Parsed node
@@ -750,12 +748,18 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse import prefix.
+     * <p>
+     * <code>
+     * import-prefix := module-prefix | _
+     * <br/>
+     * module-prefix := identifier | predeclared-prefix
+     * </code>
      *
      * @return Parsed node
      */
     private STNode parseImportPrefix() {
         STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+        if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN || nextToken.kind == SyntaxKind.UNDERSCORE_KEYWORD) {
             return consume();
         } else if (isPredeclaredPrefix(nextToken.kind)) {
             STToken preDeclaredPrefix = consume();
@@ -1189,7 +1193,7 @@ public class BallerinaParser extends AbstractParser {
                 }
                 startContext(ParserRuleContext.VAR_DECL_STMT);
                 STNode funcTypeName = STNodeFactory.createSimpleNameReferenceNode(name);
-                STNode bindingPattern = createCaptureOrWildcardBP(((STSimpleNameReferenceNode) funcTypeName).name);
+                STNode bindingPattern = createCaptureBindingPattern(((STSimpleNameReferenceNode) funcTypeName).name);
                 STNode typedBindingPattern = STNodeFactory.createTypedBindingPatternNode(typeDesc, bindingPattern);
                 return parseVarDeclRhs(metadata, visibilityQualifier, extractQualifiersList, typedBindingPattern, true);
             default:
@@ -1235,6 +1239,7 @@ public class BallerinaParser extends AbstractParser {
     private boolean isBindingPatternsStartToken(SyntaxKind tokenKind) {
         switch (tokenKind) {
             case IDENTIFIER_TOKEN:
+            case UNDERSCORE_KEYWORD:
             case OPEN_BRACKET_TOKEN:
             case OPEN_BRACE_TOKEN:
             case ERROR_KEYWORD:
@@ -4121,6 +4126,10 @@ public class BallerinaParser extends AbstractParser {
         }
         
         switch (nextToken.kind) {
+            case UNDERSCORE_KEYWORD:
+                startContext(ParserRuleContext.ASSIGNMENT_STMT);
+                STNode wildcardBP = createWildcardBindingPattern(consume());
+                return parseAssignmentStmtRhs(wildcardBP);
             case CLOSE_BRACE_TOKEN:
             case EOF_TOKEN:
                 STNode publicQualifier = STNodeFactory.createEmptyNode();
@@ -4721,6 +4730,7 @@ public class BallerinaParser extends AbstractParser {
             case LIST_BINDING_PATTERN:
             case MAPPING_BINDING_PATTERN:
             case ERROR_BINDING_PATTERN:
+            case WILDCARD_BINDING_PATTERN:
                 return true;
             case FIELD_ACCESS:
                 return isValidLVMemberExpr(((STFieldAccessExpressionNode) expression).expression);
@@ -12962,6 +12972,7 @@ public class BallerinaParser extends AbstractParser {
     private boolean isStatementStartingToken(SyntaxKind nodeKind) {
         switch (nodeKind) {
             case FINAL_KEYWORD:
+            case UNDERSCORE_KEYWORD:
 
                 // Statements starts other than var-decl
             case IF_KEYWORD:
@@ -13817,6 +13828,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseMappingMatchPattern();
             case ERROR_KEYWORD:
                 return parseErrorMatchPattern();
+            case UNDERSCORE_KEYWORD:
+                return createWildcardBindingPattern(consume());
             default:
                 recover(nextToken, ParserRuleContext.MATCH_PATTERN_START);
                 return parseMatchPattern();
@@ -14247,6 +14260,7 @@ public class BallerinaParser extends AbstractParser {
             case BOOLEAN_LITERAL:
             case TYPED_BINDING_PATTERN:
             case UNARY_EXPRESSION:
+            case WILDCARD_BINDING_PATTERN:
                 return true;
             default:
                 return false;
@@ -14341,8 +14355,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseMatchPattern();
             case VAR_KEYWORD:
                 STNode varType = createBuiltinSimpleNameReference(consume());
-                STNode variableName = createCaptureOrWildcardBP(parseVariableName());
+                STNode variableName = createCaptureBindingPattern(parseVariableName());
                 return STNodeFactory.createTypedBindingPatternNode(varType, variableName);
+            case UNDERSCORE_KEYWORD:
+                return createWildcardBindingPattern(consume());
             case CLOSE_PAREN_TOKEN:
                 return null;
             default:
@@ -15144,6 +15160,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseMappingBindingPattern();
             case ERROR_KEYWORD:
                 return parseErrorBindingPattern();
+            case UNDERSCORE_KEYWORD:
+                return createWildcardBindingPattern(consume());
             default:
                 recover(peek(), ParserRuleContext.BINDING_PATTERN);
                 return parseBindingPattern();
@@ -15165,20 +15183,18 @@ public class BallerinaParser extends AbstractParser {
             STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
                     ParserRuleContext.BINDING_PATTERN_STARTING_IDENTIFIER);
             identifier = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(identifier, argNameOrBindingPattern);
-            return createCaptureOrWildcardBP(identifier);
+            return createCaptureBindingPattern(identifier);
         }
 
-        return createCaptureOrWildcardBP(((STSimpleNameReferenceNode) argNameOrBindingPattern).name);
+        return createCaptureBindingPattern(((STSimpleNameReferenceNode) argNameOrBindingPattern).name);
     }
 
-    private STNode createCaptureOrWildcardBP(STNode varName) {
-        STNode bindingPattern;
-        if (isWildcardBP(varName)) {
-            bindingPattern = getWildcardBindingPattern(varName);
-        } else {
-            bindingPattern = STNodeFactory.createCaptureBindingPatternNode(varName);
-        }
-        return bindingPattern;
+    private STNode createCaptureBindingPattern(STNode varName) {
+        return STNodeFactory.createCaptureBindingPatternNode(varName);
+    }
+
+    private STNode createWildcardBindingPattern(STNode underscoreKeyword) {
+        return STNodeFactory.createWildcardBindingPatternNode(underscoreKeyword);
     }
 
     /**
@@ -15279,6 +15295,7 @@ public class BallerinaParser extends AbstractParser {
             case IDENTIFIER_TOKEN:
             case OPEN_BRACE_TOKEN:
             case ERROR_KEYWORD:
+            case UNDERSCORE_KEYWORD:
                 return parseBindingPattern();
             default:
                 recover(peek(), ParserRuleContext.LIST_BINDING_PATTERN_MEMBER);
@@ -15714,6 +15731,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
             case OPEN_BRACE_TOKEN:
             case ERROR_KEYWORD:
+            case UNDERSCORE_KEYWORD:
                 return parseBindingPattern();
             case CLOSE_PAREN_TOKEN:
                 if (isFirstArg) {
@@ -15738,7 +15756,7 @@ public class BallerinaParser extends AbstractParser {
             case COMMA_TOKEN:
             case CLOSE_PAREN_TOKEN:
             default:
-                return createCaptureOrWildcardBP(argNameOrSimpleBindingPattern);
+                return createCaptureBindingPattern(argNameOrSimpleBindingPattern);
         }
     }
 
@@ -15787,6 +15805,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case IDENTIFIER_TOKEN: // Capture/error binding pattern: T x, error T(..)
+            case UNDERSCORE_KEYWORD: // Wildcard binding pattern: T _
             case OPEN_BRACE_TOKEN: // Map binding pattern: T { }
             case ERROR_KEYWORD: // Error binding pattern: error T(..)
                 STNode bindingPattern = parseBindingPattern();
@@ -15926,6 +15945,8 @@ public class BallerinaParser extends AbstractParser {
             case ELLIPSIS_TOKEN: // rest binding pattern
             case OPEN_BRACKET_TOKEN: // list-binding-pattern
                 return parseStatementStartBracketedListMember();
+            case UNDERSCORE_KEYWORD:
+                return createWildcardBindingPattern(consume());
             case IDENTIFIER_TOKEN:
                 if (isTypedBindingPattern) {
                     return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
@@ -15945,10 +15966,6 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode expr = parseExpression();
-        if (isWildcardBP(expr)) {
-            return getWildcardBindingPattern(expr);
-        }
-
         // we don't know which one
         return expr;
     }
@@ -16493,13 +16510,12 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
                 reportInvalidQualifierList(qualifiers);
                 return parseMemberBracketedList(false);
+            case UNDERSCORE_KEYWORD:
+                reportInvalidQualifierList(qualifiers);
+                return createWildcardBindingPattern(consume());
             case IDENTIFIER_TOKEN:
                 reportInvalidQualifierList(qualifiers);
                 STNode identifier = parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
-                if (isWildcardBP(identifier)) {
-                    STNode varName = ((STSimpleNameReferenceNode) identifier).name;
-                    return getWildcardBindingPattern(varName);
-                }
 
                 nextToken = peek();
                 if (nextToken.kind == SyntaxKind.ELLIPSIS_TOKEN) {
@@ -17013,35 +17029,6 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private boolean isWildcardBP(STNode node) {
-        switch (node.kind) {
-            case SIMPLE_NAME_REFERENCE:
-                STToken nameToken = (STToken) ((STSimpleNameReferenceNode) node).name;
-                return isUnderscoreToken(nameToken);
-            case IDENTIFIER_TOKEN:
-                return isUnderscoreToken((STToken) node);
-            default:
-                return false;
-
-        }
-    }
-
-    private boolean isUnderscoreToken(STToken token) {
-        return "_".equals(token.text());
-    }
-
-    private STNode getWildcardBindingPattern(STNode identifier) {
-        switch (identifier.kind) {
-            case SIMPLE_NAME_REFERENCE:
-                STNode varName = ((STSimpleNameReferenceNode) identifier).name;
-                return STNodeFactory.createWildcardBindingPatternNode(varName);
-            case IDENTIFIER_TOKEN:
-                return STNodeFactory.createWildcardBindingPatternNode(identifier);
-            default:
-                throw new IllegalStateException();
-        }
-    }
-
     // --------------------------------- Statements starts with open-brace ---------------------------------
 
     /*
@@ -17317,6 +17304,7 @@ public class BallerinaParser extends AbstractParser {
                         return getMappingField(identifier, colon, bindingPatternOrExpr);
                     case IDENTIFIER_TOKEN: // { foo:bar
                         return parseQualifiedIdentifierRhsInStmtStartBrace(identifier, colon);
+                    case UNDERSCORE_KEYWORD: // { foo:_ TODO: fix
                     default:
                         STNode expr = parseExpression();
                         return getMappingField(identifier, colon, expr);
@@ -17350,10 +17338,6 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseQualifiedIdentifierRhsInStmtStartBrace(STNode identifier, STNode colon) {
         STNode secondIdentifier = parseIdentifier(ParserRuleContext.VARIABLE_REF);
         STNode secondNameRef = STNodeFactory.createSimpleNameReferenceNode(secondIdentifier);
-        if (isWildcardBP(secondIdentifier)) {
-            // { foo:_
-            return getWildcardBindingPattern(secondIdentifier);
-        }
 
         // Reach here for something like: "{foo:bar". This could be anything.
         STNode qualifiedNameRef = STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, secondIdentifier);
@@ -17557,6 +17541,10 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACE_TOKEN: // { foo:{
                 expr = parseMappingBindingPatterOrMappingConstructor();
                 break;
+            case UNDERSCORE_KEYWORD: // { foo:_
+                key = STNodeFactory.createSimpleNameReferenceNode(key);
+                STNode wildcardBP = createWildcardBindingPattern(consume());
+                return STNodeFactory.createFieldBindingPatternFullNode(key, colon, wildcardBP);
             default:
                 expr = parseExpression();
                 break;
@@ -17687,10 +17675,9 @@ public class BallerinaParser extends AbstractParser {
                 return parseListBindingPatternOrListConstructor();
             case IDENTIFIER_TOKEN:
                 STNode identifier = parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
-                if (isWildcardBP(identifier)) {
-                    return getWildcardBindingPattern(identifier);
-                }
                 return parseExpressionRhs(DEFAULT_OP_PRECEDENCE, identifier, false, false);
+            case UNDERSCORE_KEYWORD:
+                return createWildcardBindingPattern(consume());
             case OPEN_BRACE_TOKEN:
                 return parseMappingBindingPatterOrMappingConstructor();
             case ELLIPSIS_TOKEN:
@@ -18047,12 +18034,12 @@ public class BallerinaParser extends AbstractParser {
         switch (ambiguousNode.kind) {
             case SIMPLE_NAME_REFERENCE:
                 STNode varName = ((STSimpleNameReferenceNode) ambiguousNode).name;
-                return createCaptureOrWildcardBP(varName);
+                return createCaptureBindingPattern(varName);
             case QUALIFIED_NAME_REFERENCE:
                 STQualifiedNameReferenceNode qualifiedName = (STQualifiedNameReferenceNode) ambiguousNode;
                 STNode fieldName = STNodeFactory.createSimpleNameReferenceNode(qualifiedName.modulePrefix);
                 return STNodeFactory.createFieldBindingPatternFullNode(fieldName, qualifiedName.colon,
-                        createCaptureOrWildcardBP(qualifiedName.identifier));
+                        createCaptureBindingPattern(qualifiedName.identifier));
             case BRACKETED_LIST:
             case LIST_BP_OR_LIST_CONSTRUCTOR:
                 STAmbiguousCollectionNode innerList = (STAmbiguousCollectionNode) ambiguousNode;

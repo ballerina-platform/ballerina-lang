@@ -463,8 +463,12 @@
                                       ]
                                     },
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "_"
+                                      "kind": "WILDCARD_BINDING_PATTERN",
+                                      "children": [
+                                        {
+                                          "kind": "UNDERSCORE_KEYWORD"
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
@@ -1339,8 +1343,12 @@
                                   "kind": "LIST",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "_"
+                                      "kind": "WILDCARD_BINDING_PATTERN",
+                                      "children": [
+                                        {
+                                          "kind": "UNDERSCORE_KEYWORD"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "COMMA_TOKEN",

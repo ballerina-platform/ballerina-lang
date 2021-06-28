@@ -625,7 +625,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ImportDeclarationNode importDeclaration) {
         ImportOrgNameNode orgNameNode = importDeclaration.orgName().orElse(null);
         Optional<ImportPrefixNode> prefixNode = importDeclaration.prefix();
-        Token prefix = prefixNode.isPresent() ? prefixNode.get().prefix() : null;
 
         Token orgName = null;
         if (orgNameNode != null) {
@@ -642,10 +641,22 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
         importDcl.pos = position;
         importDcl.pkgNameComps = pkgNameComps;
-        importDcl.orgName = this.createIdentifier(getPosition(orgNameNode), orgName);
-        importDcl.version = this.createIdentifier(null, version);
-        importDcl.alias = (prefix != null) ? this.createIdentifier(getPosition(prefix), prefix)
-                : pkgNameComps.get(pkgNameComps.size() - 1);
+        importDcl.orgName = createIdentifier(getPosition(orgNameNode), orgName);
+        importDcl.version = createIdentifier(null, version);
+        
+        if (prefixNode.isEmpty()) {
+            importDcl.alias = pkgNameComps.get(pkgNameComps.size() - 1);
+            return importDcl;
+        }
+
+        ImportPrefixNode importPrefixNode = prefixNode.get();
+        Token prefix = importPrefixNode.prefix();
+        Location prefixPos = getPosition(prefix);
+        if (prefix.kind() == SyntaxKind.UNDERSCORE_KEYWORD) {
+            importDcl.alias = createIdentifier(prefixPos, prefix.text());
+        } else {
+            importDcl.alias = createIdentifier(prefixPos, prefix);
+        }
 
         return importDcl;
     }
@@ -2434,8 +2445,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangSimpleVarRef ignoreVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
         BLangIdentifier ignore = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         ignore.value = Names.IGNORE.value;
-        ignoreVarRef.variableName = ignore;
         ignore.pos = getPosition(wildcardBindingPatternNode);
+        ignoreVarRef.variableName = ignore;
+        ignoreVarRef.pos = ignore.pos;
         return ignoreVarRef;
     }
 
@@ -4142,16 +4154,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         Location matchPatternPos = matchPattern.location();
         SyntaxKind kind = matchPattern.kind();
 
-        if (kind == SyntaxKind.SIMPLE_NAME_REFERENCE &&
-                ((SimpleNameReferenceNode) matchPattern).name().text().equals("_")) {
-            // wildcard match
-            BLangWildCardMatchPattern bLangWildCardMatchPattern =
-                    (BLangWildCardMatchPattern) TreeBuilder.createWildCardMatchPattern();
-            bLangWildCardMatchPattern.pos = matchPatternPos;
-            return bLangWildCardMatchPattern;
-        }
-
-        if (kind == SyntaxKind.IDENTIFIER_TOKEN && ((IdentifierToken) matchPattern).text().equals("_")) {
+        if (kind == SyntaxKind.WILDCARD_BINDING_PATTERN) { // wildcard match
             BLangWildCardMatchPattern bLangWildCardMatchPattern =
                     (BLangWildCardMatchPattern) TreeBuilder.createWildCardMatchPattern();
             bLangWildCardMatchPattern.pos = matchPatternPos;

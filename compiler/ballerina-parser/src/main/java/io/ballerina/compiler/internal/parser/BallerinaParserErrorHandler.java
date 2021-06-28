@@ -457,9 +457,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] NIL_OR_PARENTHESISED_TYPE_DESC_RHS =
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.TYPE_DESCRIPTOR };
 
-    private static final ParserRuleContext[] BINDING_PATTERN =
-            { ParserRuleContext.BINDING_PATTERN_STARTING_IDENTIFIER, ParserRuleContext.LIST_BINDING_PATTERN,
-                    ParserRuleContext.MAPPING_BINDING_PATTERN, ParserRuleContext.ERROR_BINDING_PATTERN };
+    private static final ParserRuleContext[] BINDING_PATTERN = { ParserRuleContext.BINDING_PATTERN_STARTING_IDENTIFIER,
+            ParserRuleContext.WILDCARD_BINDING_PATTERN, ParserRuleContext.LIST_BINDING_PATTERN,
+            ParserRuleContext.MAPPING_BINDING_PATTERN, ParserRuleContext.ERROR_BINDING_PATTERN };
 
     private static final ParserRuleContext[] LIST_BINDING_PATTERNS_START =
             { ParserRuleContext.LIST_BINDING_PATTERN_MEMBER, ParserRuleContext.CLOSE_BRACKET };
@@ -594,8 +594,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.IF_KEYWORD, ParserRuleContext.RIGHT_DOUBLE_ARROW };
 
     private static final ParserRuleContext[] MATCH_PATTERN_START = { ParserRuleContext.CONSTANT_EXPRESSION,
-            ParserRuleContext.VAR_KEYWORD, ParserRuleContext.LIST_MATCH_PATTERN,
-            ParserRuleContext.MAPPING_MATCH_PATTERN, ParserRuleContext.ERROR_MATCH_PATTERN };
+            ParserRuleContext.VAR_KEYWORD, ParserRuleContext.WILDCARD_BINDING_PATTERN,
+            ParserRuleContext.LIST_MATCH_PATTERN, ParserRuleContext.MAPPING_MATCH_PATTERN,
+            ParserRuleContext.ERROR_MATCH_PATTERN };
 
     private static final ParserRuleContext[] LIST_MATCH_PATTERNS_START =
             { ParserRuleContext.LIST_MATCH_PATTERN_MEMBER, ParserRuleContext.CLOSE_BRACKET };
@@ -1130,6 +1131,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     break;
                 case COMPOUND_BINARY_OPERATOR:
                     hasMatch = BallerinaParser.isCompoundBinaryOperator(nextToken.kind);
+                    break;
+                case WILDCARD_BINDING_PATTERN:
+                    hasMatch =  nextToken.kind == SyntaxKind.UNDERSCORE_KEYWORD;
                     break;
 
                 // start a context, so that we know where to fall back, and continue
@@ -2873,6 +2877,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 startContext(ParserRuleContext.ERROR_CONSTRUCTOR);
                 return ParserRuleContext.ERROR_CONSTRUCTOR_RHS;
             case LIST_BINDING_PATTERN_RHS:
+            case WILDCARD_BINDING_PATTERN:
                 return getNextRuleForBindingPattern();
             default:
                 return getNextRuleInternal(currentCtx, nextLookahead);
@@ -5067,6 +5072,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case NAMED_ARG_BINDING_PATTERN:
             case TYPE_DESC_RHS_OR_BP_RHS:
                 return SyntaxKind.IDENTIFIER_TOKEN;
+            case WILDCARD_BINDING_PATTERN:
+                return SyntaxKind.UNDERSCORE_KEYWORD;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
             case MINOR_VERSION:

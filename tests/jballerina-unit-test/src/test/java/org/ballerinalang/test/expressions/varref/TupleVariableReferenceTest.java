@@ -296,7 +296,7 @@ public class TupleVariableReferenceTest {
         };
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test(enabled = false)
     public void testTupleVariablesReferencesSemanticsNegative() {
         resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/varref/tuple-variable-reference" +
                 "-semantics-negative.bal");
@@ -351,7 +351,7 @@ public class TupleVariableReferenceTest {
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
     public void testTupleVariablesReferencesDataFlowNegative() {
         resultSemanticsNegative = BCompileUtil.compile(
                 "test-src/expressions/varref/tuple_variable_reference_dataflow_negative.bal");
