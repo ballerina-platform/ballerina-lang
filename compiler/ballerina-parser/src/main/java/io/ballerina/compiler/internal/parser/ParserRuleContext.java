@@ -370,6 +370,7 @@ public enum ParserRuleContext {
     REGULAR_COMPOUND_STMT_RHS("regular-compound-statement-rhs"),
     LOCAL_TYPE_DEFINITION_STMT("local-type-definition-statement"),
     BINDING_PATTERN_OR_EXPR_RHS("binding-pattern-or-expr-rhs"),
+    BINDING_PATTERN_OR_VAR_REF_RHS("binding.pattern.or.var.ref.rhs"),
     TYPE_DESC_OR_EXPR_RHS("type-desc-or-expr-rhs"),
     STMT_START_WITH_EXPR_RHS("stmt-start-with-expr-rhs"),
     EXPR_STMT_RHS("expr-stmt-rhs"),
