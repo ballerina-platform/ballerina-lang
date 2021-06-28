@@ -203,7 +203,7 @@ type Abc record {
 
 function testMemberAccessWithoutIndex() {
     int[] intArray = [];
-    Abc a = {s: ["1.0", "2.0", "3.0"], v: [1.0, 2.0, 3.0]};
+    Abc a = { s: ["1.0", "2.0"], v: [1.0, 2.0] };
     a.s[] = "4.1";
     a.v[1] = intArray[];
     intArray[]
