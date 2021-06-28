@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
@@ -43,7 +44,7 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class DistinctTypeDescriptorNodeContext extends TypeParameterContextProvider<DistinctTypeDescriptorNode> {
+public class DistinctTypeDescriptorNodeContext extends AbstractCompletionProvider<DistinctTypeDescriptorNode> {
 
     public DistinctTypeDescriptorNodeContext() {
         super(DistinctTypeDescriptorNode.class);
