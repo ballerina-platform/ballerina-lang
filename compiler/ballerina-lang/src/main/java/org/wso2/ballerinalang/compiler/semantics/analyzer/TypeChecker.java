@@ -5253,8 +5253,13 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(filterExpression.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                     symTable.booleanType, actualType);
         }
-        SymbolEnv filterEnv = typeNarrower.evaluateTruth(filterExpression, selectClauses.peek(), queryEnvs.pop());
-        queryEnvs.push(filterEnv);
+        SymbolEnv filterEnv;
+        if (selectClauses.peek() != null) {
+           filterEnv = typeNarrower.evaluateTruth(filterExpression, selectClauses.peek(), queryEnvs.pop());
+           queryEnvs.push(filterEnv);
+        } else {
+            filterEnv = queryEnvs.peek();
+        }
         return filterEnv;
     }
 
