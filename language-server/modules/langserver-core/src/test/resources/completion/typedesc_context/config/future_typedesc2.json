@@ -6,6 +6,20 @@
   "source": "typedesc_context/source/future_typedesc2.bal",
   "items": [
     {
+      "label": "ENUM1_FIELD1",
+      "kind": "EnumMember",
+      "detail": "ENUM1_FIELD1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "AE",
+      "insertText": "ENUM1_FIELD1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TEST_INT_CONST1",
       "kind": "Variable",
       "detail": "1",
@@ -15,7 +29,7 @@
           "value": ""
         }
       },
-      "sortText": "B",
+      "sortText": "AD",
       "insertText": "TEST_INT_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -29,29 +43,31 @@
           "value": ""
         }
       },
-      "sortText": "B",
+      "sortText": "AD",
       "insertText": "TEST_STRING_CONST1",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ENUM1_FIELD1",
-      "kind": "EnumMember",
-      "detail": "ENUM1_FIELD1",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
-      "sortText": "H",
-      "insertText": "ENUM1_FIELD1",
+      "label": "TestEnum1",
+      "kind": "Enum",
+      "detail": "enum",
+      "sortText": "AE",
+      "insertText": "TestEnum1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "ABL",
+      "insertText": "AnnotationType",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "L",
+      "sortText": "ABL",
       "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
@@ -59,7 +75,7 @@
       "label": "TestRecord2",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "L",
+      "sortText": "ABL",
       "insertText": "TestRecord2",
       "insertTextFormat": "Snippet"
     },
@@ -67,7 +83,7 @@
       "label": "TestMap2",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "M",
+      "sortText": "ABM",
       "insertText": "TestMap2",
       "insertTextFormat": "Snippet"
     },
@@ -75,7 +91,7 @@
       "label": "TestMap3",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "M",
+      "sortText": "ABM",
       "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     },
@@ -83,7 +99,7 @@
       "label": "TestObject1",
       "kind": "Interface",
       "detail": "Object",
-      "sortText": "K",
+      "sortText": "ABK",
       "insertText": "TestObject1",
       "insertTextFormat": "Snippet"
     },
@@ -91,7 +107,7 @@
       "label": "ErrorOne",
       "kind": "Event",
       "detail": "Error",
-      "sortText": "Q",
+      "sortText": "ABQ",
       "insertText": "ErrorOne",
       "insertTextFormat": "Snippet"
     },
@@ -99,7 +115,7 @@
       "label": "ErrorTwo",
       "kind": "Event",
       "detail": "Error",
-      "sortText": "Q",
+      "sortText": "ABQ",
       "insertText": "ErrorTwo",
       "insertTextFormat": "Snippet"
     },
@@ -110,7 +126,7 @@
       "documentation": {
         "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
       },
-      "sortText": "I",
+      "sortText": "ABI",
       "insertText": "ResponseMessage",
       "insertTextFormat": "Snippet"
     },
@@ -121,40 +137,24 @@
       "documentation": {
         "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
       },
-      "sortText": "I",
+      "sortText": "ABI",
       "insertText": "RequestMessage",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "AnnotationType",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "AnnotationType",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestEnum1",
-      "kind": "Enum",
-      "detail": "enum",
-      "sortText": "I",
-      "insertText": "TestEnum1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestClass1",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "K",
-      "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Listener",
       "kind": "Interface",
       "detail": "Class",
-      "sortText": "K",
+      "sortText": "ABK",
       "insertText": "Listener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestClass1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "ABK",
+      "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -164,7 +164,7 @@
       "documentation": {
         "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
       },
-      "sortText": "K",
+      "sortText": "ABK",
       "insertText": "Client",
       "insertTextFormat": "Snippet"
     },
@@ -175,7 +175,7 @@
       "documentation": {
         "left": "Represents a response.\n"
       },
-      "sortText": "K",
+      "sortText": "ABK",
       "insertText": "Response",
       "insertTextFormat": "Snippet"
     }

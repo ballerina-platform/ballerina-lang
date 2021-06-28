@@ -788,4 +788,36 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(buildLog.contains("unsupported coverage report format 'html' found. Only 'xml' format is " +
                 "supported."));
     }
+
+    @Test
+    public void testDumpBuildTimeForPackage() throws IOException {
+        Path projectPath = this.testResources.resolve("validApplicationProject");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, true);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("dump-build-time-package.txt"));
+
+        Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("build-time.json")));
+        Assert.assertTrue(projectPath.resolve("target").resolve("build-time.json").toFile().length() > 0);
+    }
+
+    @Test
+    public void testDumpBuildTimeForStandaloneFile() throws IOException {
+        Path balFilePath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
+
+        System.setProperty("user.dir", this.testResources.resolve("valid-bal-file").toString());
+        BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, true);
+        new CommandLine(buildCommand).parse(balFilePath.toString());
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("dump-build-time-standalone.txt"));
+        Assert.assertTrue(Files.exists(this.testResources.resolve("valid-bal-file").resolve("build-time.json")));
+        Assert.assertTrue(
+                this.testResources.resolve("valid-bal-file").resolve("build-time.json").toFile().length() > 0);
+    }
+
+
 }

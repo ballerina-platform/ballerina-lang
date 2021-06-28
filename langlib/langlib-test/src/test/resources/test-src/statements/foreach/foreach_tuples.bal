@@ -283,6 +283,33 @@ function testTupleWithRestDescriptorInForeach5() {
     assertEquality(10, arr[3][1][0]);
 }
 
+type Bar record {
+    int id;
+    boolean flag;
+};
+
+function testTupleWithRestDescriptorInForeach6() {
+    [[string, Bar, boolean...], [int, boolean[]], [float, int...]] t1 =
+               [["Ballerina", {id: 34, flag: true}, false], [12, [true,false]], [1, 2, 3, 4]];
+    [string|int|float, (Bar|boolean|boolean[]|int)[]][] a1 = [];
+    foreach var [f1, ...f2] in t1 {
+        a1.push([f1, f2]);
+    }
+    assertEquality("Ballerina", a1[0][0]);
+    assertEquality(34, (<Bar>a1[0][1][0]).id);
+    assertEquality(true, (<Bar>a1[0][1][0]).flag);
+    assertEquality(false, a1[0][1][1]);
+    assertEquality(12, a1[1][0]);
+    assertEquality(2, (<boolean[]>a1[1][1][0]).length());
+    assertEquality(true, (<boolean[]>a1[1][1][0])[0]);
+    assertEquality(false, (<boolean[]>a1[1][1][0])[1]);
+    assertEquality(1.0, a1[2][0]);
+    assertEquality(3, (a1[2][1]).length());
+    assertEquality(2, a1[2][1][0]);
+    assertEquality(3, a1[2][1][1]);
+    assertEquality(4, a1[2][1][2]);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
