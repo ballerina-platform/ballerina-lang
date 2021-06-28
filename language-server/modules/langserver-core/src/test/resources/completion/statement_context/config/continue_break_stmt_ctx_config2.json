@@ -114,6 +114,15 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "if",
       "kind": "Snippet",
       "detail": "Statement",
@@ -681,7 +690,7 @@
     {
       "label": "testFunction()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -694,19 +703,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "item",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "item",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "numberList",
       "kind": "Variable",
       "detail": "int[]",
       "sortText": "B",
       "insertText": "numberList",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "item",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "item",
       "insertTextFormat": "Snippet"
     }
   ]

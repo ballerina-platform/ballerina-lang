@@ -114,6 +114,15 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "if",
       "kind": "Snippet",
       "detail": "Statement",
@@ -632,7 +641,7 @@
     {
       "label": "testFunction(boolean validator1, boolean validator2)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -649,19 +658,19 @@
       }
     },
     {
-      "label": "validator2",
-      "kind": "Variable",
-      "detail": "boolean",
-      "sortText": "B",
-      "insertText": "validator2",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "validator1",
       "kind": "Variable",
       "detail": "boolean",
       "sortText": "B",
       "insertText": "validator1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "validator2",
+      "kind": "Variable",
+      "detail": "boolean",
+      "sortText": "B",
+      "insertText": "validator2",
       "insertTextFormat": "Snippet"
     },
     {

@@ -81,4 +81,12 @@ public class BFutureType extends BType implements FutureType {
         return TypeChecker.checkIsType(constraint, other.constraint);
     }
 
+    @Override
+    public String toString() {
+        return TypeConstants.FUTURE_TNAME + getConstraintString();
+    }
+
+    private String getConstraintString() {
+        return constraint != null ? "<" + constraint + ">" : "";
+    }
 }

@@ -166,3 +166,12 @@ class NoFillerObject {
 
     }
 }
+
+function testIncompatibleTypesWithRest() {
+    [int, string, boolean...] a1 = [12, "ABC", false, true, false];
+    var [a, ...b] = a1;
+    boolean[] x = b;
+
+    var [...c] = a1;
+    [int, string, string] y = c;
+}
