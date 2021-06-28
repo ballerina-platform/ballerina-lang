@@ -31,7 +31,6 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
