@@ -86,7 +86,7 @@ public class RunCommand implements BLauncherCmd {
     private Boolean observabilityIncluded;
 
     private static final String runCmd =
-            "bal run [--debug] <executable-jar> \n" +
+            "bal run [--debug <port>] <executable-jar> \n" +
             "    bal run [--experimental] [--offline]\n" +
             "                  [<ballerina-file | package-path>] [-- program-args...]\n ";
 
@@ -195,7 +195,7 @@ public class RunCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal run [--debug] <executable-jar>\n");
+        out.append("  bal run [--debug <port>] <executable-jar>\n");
         out.append("  bal run [--offline] [<balfile> | <project-path>]\n" +
                 "[--] [args...] \n");
     }
