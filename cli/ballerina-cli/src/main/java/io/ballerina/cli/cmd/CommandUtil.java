@@ -124,7 +124,7 @@ public class CommandUtil {
             URISyntaxException {
         // We will be creating following in the project directory
         // - Ballerina.toml
-        // - main.bal
+        // - service.bal
         // - .gitignore       <- git ignore file
 
         applyTemplate(path, template);
@@ -136,7 +136,7 @@ public class CommandUtil {
 
             Path testDirPath = path.resolve(Paths.get("tests"));
             Path testFilePath = testDirPath.resolve("main_test.bal");
-            Files.move(testFilePath, testFilePath.resolveSibling(guessPkgName(packageName) + ".bal"));
+            Files.move(testFilePath, testFilePath.resolveSibling(guessPkgName(packageName) + "_test.bal"));
 
             String packageMd = FileUtils.readFileAsString(
                     NEW_CMD_DEFAULTS + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME);
@@ -145,6 +145,27 @@ public class CommandUtil {
                     packageMd.getBytes(StandardCharsets.UTF_8));
         } else {
             initPackage(path);
+            if (template.equalsIgnoreCase("main")) {
+                Path source = path.resolve("main.bal");
+                Files.move(source, source.resolveSibling(guessPkgName(packageName) + ".bal"),
+                        StandardCopyOption.REPLACE_EXISTING);
+
+                Path testDirPath = path.resolve(Paths.get("tests"));
+                Path testFilePath = testDirPath.resolve("main_test.bal");
+                Files.move(testFilePath, testFilePath.resolveSibling(guessPkgName(packageName) + "_test.bal"));
+            } else if (template.equalsIgnoreCase("service")) {
+                Path source = path.resolve("service.bal");
+                Files.move(source, source.resolveSibling(guessPkgName(packageName) + ".bal"),
+                        StandardCopyOption.REPLACE_EXISTING);
+
+                Path testDirPath = path.resolve(Paths.get("tests"));
+                Path testFilePath = testDirPath.resolve("hello_service_test.bal");
+                Files.move(testFilePath, testFilePath.resolveSibling(guessPkgName(packageName) + "_test.bal"));
+            } else {
+                Path source = path.resolve("main.bal");
+                Files.move(source, source.resolveSibling(guessPkgName(packageName) + ".bal"),
+                        StandardCopyOption.REPLACE_EXISTING);
+            }
             String packageMd = FileUtils.readFileAsString(
                     NEW_CMD_DEFAULTS + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME);
 

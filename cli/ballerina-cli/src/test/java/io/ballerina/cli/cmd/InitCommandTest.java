@@ -54,7 +54,7 @@ public class InitCommandTest extends BaseCommandTest {
                 projectPath.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[build-options]\n" +
                 "observabilityIncluded = true\n";
-        Assert.assertEquals(tomlContent, expectedContent);
+        Assert.assertTrue(tomlContent.contains(expectedContent));
 
         Path testPath = projectPath.resolve(ProjectConstants.TEST_DIR_NAME);
         Assert.assertFalse(Files.exists(testPath));
@@ -79,12 +79,9 @@ public class InitCommandTest extends BaseCommandTest {
         // foo/
         // - Ballerina.toml
         // - Package.md
-        // - Module.md
-        // - main.bal
-        // - resources
+        // - service.bal
         // - tests
-        //      - main_test.bal
-        //      - resources/
+        //      - hello_service_test.bal
         // - .gitignore       <- git ignore file
 
         Assert.assertTrue(Files.exists(packageDir));
@@ -94,10 +91,11 @@ public class InitCommandTest extends BaseCommandTest {
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[build-options]\n" +
                 "observabilityIncluded = true\n";
-        Assert.assertEquals(tomlContent, expectedContent);
+        Assert.assertTrue(tomlContent.contains(expectedContent));
 
-        Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
-        Assert.assertTrue(Files.notExists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve("myproject.bal")));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.TEST_DIR_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
 
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }
@@ -115,12 +113,9 @@ public class InitCommandTest extends BaseCommandTest {
         // foo/
         // - Ballerina.toml
         // - Package.md
-        // - Module.md
-        // - hello_service.bal
-        // - resources
+        // - service.bal
         // - tests
         //      - hello_service_test.bal
-        //      - resources/
         // - .gitignore       <- git ignore file
 
         Assert.assertTrue(Files.exists(packageDir));
@@ -130,10 +125,11 @@ public class InitCommandTest extends BaseCommandTest {
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[build-options]\n" +
                 "observabilityIncluded = true\n";
-        Assert.assertEquals(tomlContent, expectedContent);
+        Assert.assertTrue(tomlContent.contains(expectedContent));
 
-        Assert.assertTrue(Files.exists(packageDir.resolve("service.bal")));
-        Assert.assertTrue(Files.notExists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve("myproject.bal")));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.TEST_DIR_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
 
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }
@@ -152,11 +148,10 @@ public class InitCommandTest extends BaseCommandTest {
         // - Ballerina.toml
         // - Package.md
         // - Module.md
-        // - main.bal
+        // - service.bal
         // - resources
         // - tests
-        //      - main_test.bal
-        //      - resources/
+        //      - hello_service_test.bal
         // - .gitignore       <- git ignore file
 
         Assert.assertTrue(Files.exists(packageDir));
@@ -167,13 +162,12 @@ public class InitCommandTest extends BaseCommandTest {
         String expectedTomlContent = "[package]\n" +
                 "org = \"" + System.getProperty("user.name") + "\"\n" +
                 "name = \"myproject\"\n" +
-                "version = \"0.1.0\"\n" +
-                "\n" +
-                "[build-options]\n" +
-                "observabilityIncluded = true\n";
-        Assert.assertEquals(tomlContent, expectedTomlContent);
+                "version = \"0.1.0\"\n";
+        Assert.assertTrue(tomlContent.contains(expectedTomlContent));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.TEST_DIR_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve("myproject.bal")));
 
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
