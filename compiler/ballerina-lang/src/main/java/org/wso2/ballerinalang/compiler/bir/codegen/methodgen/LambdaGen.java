@@ -228,7 +228,6 @@ public class LambdaGen {
             }
             paramTypes = new ArrayList<>(type.paramTypes);
             paramTypes.add(type.restType);
-            throw new RuntimeException();
         }
         return paramTypes;
     }
