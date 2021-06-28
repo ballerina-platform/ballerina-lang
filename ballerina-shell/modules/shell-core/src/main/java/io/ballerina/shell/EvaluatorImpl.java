@@ -85,7 +85,7 @@ class EvaluatorImpl extends Evaluator {
             Collection<Snippet> snippets = snippetFactory.createSnippets(nodes);
             invoker.execute(snippets);
         } catch (IOException e) {
-            addErrorDiagnostic("Error loading from file: " + filePath);
+            addErrorDiagnostic("Failed to load declarations from file: " + filePath);
             throw new PreprocessorException();
         } finally {
             addAllDiagnostics(preprocessor.diagnostics());

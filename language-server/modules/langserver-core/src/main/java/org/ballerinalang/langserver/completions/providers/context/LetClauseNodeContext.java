@@ -61,8 +61,7 @@ public class LetClauseNodeContext extends IntermediateClauseNodeContext<LetClaus
 
             completionItems.addAll(this.getCompletionItemList(typesInModule, context));
         } else {
-            completionItems.addAll(this.getTypeItems(context));
-            completionItems.addAll(this.getModuleCompletionItems(context));
+            completionItems.addAll(this.getTypeDescContextItems(context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
         }
         this.sort(context, node, completionItems);

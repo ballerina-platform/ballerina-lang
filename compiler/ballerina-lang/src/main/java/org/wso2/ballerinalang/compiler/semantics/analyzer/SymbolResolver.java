@@ -1051,6 +1051,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     Name typeName = names.fromIdNode(sizeReference.variableName);
 
                     BSymbol sizeSymbol = lookupMainSpaceSymbolInPackage(size.pos, env, pkgAlias, typeName);
+                    sizeReference.symbol = sizeSymbol;
 
                     if (symTable.notFoundSymbol == sizeSymbol) {
                         dlog.error(arrayTypeNode.pos, DiagnosticErrorCode.UNDEFINED_SYMBOL, size);
@@ -1230,6 +1231,15 @@ public class SymbolResolver extends BLangNodeVisitor {
             tableType.keyPos = tableKeySpecifier.pos;
         }
 
+        if (constraintType.tag == TypeTags.MAP &&
+                (tableType.fieldNameList != null || tableType.keyTypeConstraint != null) &&
+                !tableType.tsymbol.owner.getFlags().contains(Flag.LANG_LIB)) {
+            dlog.error(tableType.keyPos,
+                    DiagnosticErrorCode.KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT);
+            resultType = symTable.semanticError;
+            return;
+        }
+
         markParameterizedType(tableType, constraintType);
         tableTypeNode.tableType = tableType;
 
@@ -1274,7 +1284,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         tupleTypeSymbol.type = tupleType;
 
         if (tupleTypeNode.restParamType != null) {
-            tupleType.restType = resolveTypeNode(tupleTypeNode.restParamType, env);
+            BType tupleRestType = resolveTypeNode(tupleTypeNode.restParamType, env);
+            if (tupleRestType == symTable.noType) {
+                resultType = symTable.noType;
+                return;
+            }
+            tupleType.restType = tupleRestType;
             markParameterizedType(tupleType, tupleType.restType);
         }
 

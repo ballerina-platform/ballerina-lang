@@ -25,10 +25,13 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.Settings;
+import io.ballerina.projects.internal.ImportModuleRequest;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -36,6 +39,7 @@ import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.packaging.converters.URIDryConverter;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Lists;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -56,6 +60,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -451,6 +456,18 @@ public class ProjectUtils {
     }
 
     /**
+     * Construct and return the thin jar moduleName.
+     *
+     * @param org        organization
+     * @param moduleName module name
+     * @param version    version
+     * @return the moduleName of the thin jar
+     */
+    public static String getThinJarFileName(PackageOrg org, String moduleName, PackageVersion version) {
+        return org.value() + "-" + moduleName + "-" + version.value();
+    }
+
+    /**
      * Create and get the home repository path.
      *
      * @return home repository path
@@ -611,15 +628,34 @@ public class ProjectUtils {
         content.append("version = \"").append(version).append("\"\n");
     }
 
-    public static List<PackageName> getPossiblePackageNames(String moduleName) {
-        String[] modNameParts = moduleName.split("\\.");
-        StringJoiner pkgNameBuilder = new StringJoiner(".");
+    public static List<PackageName> getPossiblePackageNames(ImportModuleRequest importModuleRequest) {
+        var pkgNameBuilder = new StringJoiner(".");
+
+        // If built in package, return moduleName as it is
+        if (isBuiltInPackage(importModuleRequest.packageOrg(), importModuleRequest.moduleName())) {
+            pkgNameBuilder.add(importModuleRequest.moduleName());
+            return Collections.singletonList(PackageName.from(pkgNameBuilder.toString()));
+        }
+
+        String[] modNameParts = importModuleRequest.moduleName().split("\\.");
         List<PackageName> possiblePkgNames = new ArrayList<>(modNameParts.length);
         for (String modNamePart : modNameParts) {
             pkgNameBuilder.add(modNamePart);
             possiblePkgNames.add(PackageName.from(pkgNameBuilder.toString()));
         }
         return possiblePkgNames;
+    }
+
+    public static boolean isBuiltInPackage(PackageOrg org, String moduleName) {
+        return (org.isBallerinaOrg() && moduleName.startsWith("lang.")) ||
+                (org.value().equals(Names.BALLERINA_INTERNAL_ORG.getValue())) ||
+                (org.isBallerinaOrg() && moduleName.equals(Names.JAVA.getValue())) ||
+                (org.isBallerinaOrg() && moduleName.equals(Names.TEST.getValue()));
+    }
+
+    public static boolean isLangLibPackage(PackageOrg org, PackageName packageName) {
+        return (org.isBallerinaOrg() && packageName.value().startsWith("lang.")) ||
+                (org.isBallerinaOrg() && packageName.value().equals(Names.JAVA.getValue()));
     }
 
     /**

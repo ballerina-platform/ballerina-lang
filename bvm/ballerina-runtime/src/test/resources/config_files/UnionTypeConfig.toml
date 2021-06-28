@@ -1,0 +1,31 @@
+stringIntVar="hello"
+intStringVar=123456
+byteStringVar=5
+floatIntStringVar=123.45
+decimalStringVar=7.89
+arrayUnionVar = [123,456,789]
+anyDataPrimitiveTypeVar = 9.87
+
+[mapUnionVar]
+name = "Waruna"
+age = 14
+
+[anyDataStructuredTypeVar]
+name = "Riyafa"
+age = 10
+
+[recordUnionVar]
+name = "Manu"
+age = 12
+
+[[tableUnionVar]]
+name = "Nadeeshan"
+age = 11
+
+[[tableUnionVar]]
+name = "Gabilan"
+
+[[tableUnionVar]]
+name = "Hinduja"
+age = 15
+

@@ -72,7 +72,7 @@ public class MavenSupportTest extends CommandTest {
 
         bindgenCommand.execute();
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("Ballerina project detected at:"));
+        Assert.assertTrue(output.contains("Ballerina package detected at:"));
         Assert.assertTrue(output.contains("Resolving maven dependencies..."));
         Assert.assertTrue(output.contains("Following jars were added to the classpath"));
         Assert.assertTrue(output.contains("snakeyaml-1.25.jar"));
@@ -101,6 +101,8 @@ public class MavenSupportTest extends CommandTest {
 
         bindgenCommand.execute();
         String output = readOutput(true);
+        String tomlContent = Files.readString(Paths.get(projectDir, "Ballerina.toml"));
+        Assert.assertFalse(tomlContent.contains("yamls"));
         Assert.assertTrue(output.contains("error: unable to resolve the maven dependency: Could not " +
                 "find artifact org.yamls:snakeyaml:jar:1.25 in central"));
     }

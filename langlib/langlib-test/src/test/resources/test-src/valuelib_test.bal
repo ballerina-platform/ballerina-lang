@@ -103,7 +103,7 @@ function testToJsonStringForNonJsonTypes() {
     result["anAnyData"] = anAnyData.toJsonString();
 
     assert(result["aNil"], "null");
-    assert(result["aString"], "aString");
+    assert(result["aString"], "\"aString\"");
     assert(result["aNumber"], "10");
     assert(result["aFloatNumber"], "10.5");
     assert(result["anStringArray"], "[\"hello\", \"world\"]");
@@ -699,6 +699,77 @@ function testCloneWithTypeNumeric7() {
     assert(a2[2], <decimal> 3);
 }
 
+type ByteArray byte[];
+
+function testCloneWithTypeDecimalToInt() {
+    decimal a = 12.3456;
+    int|error result = a.cloneWithType(int);
+    assert(result is int, true);
+    assert(checkpanic result, 12);
+
+    decimal[] a1 = [1.23, 2.34, 3.45];
+    int[]|error a2e = a1.cloneWithType(IntArray);
+    assert(a2e is int[], true);
+
+    int[] a2 = checkpanic a2e;
+    assert(a2.length(), a1.length());
+    assert(a2[0], 1);
+    assert(a2[1], 2);
+    assert(a2[2], 3);
+}
+
+function testCloneWithTypeDecimalToByte() {
+    decimal a = 12.3456;
+    byte|error result = a.cloneWithType(byte);
+    assert(result is byte, true);
+    assert(checkpanic result, 12);
+
+    decimal[] a1 = [1.23, 2.34, 3.45];
+    byte[]|error a2e = a1.cloneWithType(ByteArray);
+    assert(a2e is byte[], true);
+
+    byte[] a2 = checkpanic a2e;
+    assert(a2.length(), a1.length());
+    assert(a2[0], 1);
+    assert(a2[1], 2);
+    assert(a2[2], 3);
+}
+
+function testCloneWithTypeDecimalToIntSubType() {
+    decimal a = 12.3456;
+    int:Signed32|error result = a.cloneWithType(int:Signed32);
+    assert(result is int:Signed32, true);
+    assert(checkpanic result, 12);
+}
+
+function testCloneWithTypeDecimalToIntNegative() {
+    decimal a = 9223372036854775807.5;
+    int|error result = a.cloneWithType(int);
+    checkDecimalToIntError(result);
+
+    decimal[] a1 = [9223372036854775807.5, -9223372036854775807.6];
+    int[]|error a2e = a1.cloneWithType(IntArray);
+    checkDecimalToIntError(a2e);
+
+    decimal a2 = 0.0 / 0;
+    int|error nan = a2.cloneWithType(int);
+    assert(nan is error, true);
+    error err = <error>nan;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina}NumberConversionError");
+    assert(messageString, "'decimal' value 'NaN' cannot be converted to 'int'");
+}
+
+function checkDecimalToIntError(any|error result) {
+    assert(result is error, true);
+    error err = <error>result;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'decimal' value cannot be converted to 'int'");
+}
+
 type StringArray string[];
 function testCloneWithTypeStringArray() {
    string anArray = "[\"hello\", \"world\"]";
@@ -1120,6 +1191,17 @@ function testFromJsonWithTypeWithInferredArgument() {
     assert(s is error, true);
 }
 
+type FooBar [StringType...];
+type StringType string;
+
+public function testFromJsonWithTypeWithTypeReferences() {
+   json j = ["foo"];
+   FooBar f = checkpanic j.fromJsonWithType();
+   assert(f is FooBar, true);
+   assert(f is [string...], true);
+   assert(f.toString(), "foo");
+ }
+
 /////////////////////////// Tests for `fromJsonStringWithType()` ///////////////////////////
 
 function testFromJsonStringWithTypeJson() {
@@ -1144,7 +1226,7 @@ function testFromJsonStringWithTypeJson() {
     assert(result["aNull"] is (), true);
 
     json aStringJson = <json> checkpanic result["aString"];
-    assert(aStringJson.toJsonString(), "aString");
+    assert(aStringJson.toJsonString(), "\"aString\"");
 
     json anArrayJson = <json> checkpanic result["anArray"];
     assert(anArrayJson.toJsonString(), "[\"hello\", \"world\"]");

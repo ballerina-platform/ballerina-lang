@@ -699,6 +699,7 @@ public enum ParserRuleContext {
     TYPE_DESC_RHS_OR_BP_RHS("type-desc-rhs-or-binding-pattern-rhs"),
     LIST_BINDING_PATTERN_RHS("list-binding-pattern-rhs"),
     TYPE_DESC_RHS_IN_TYPED_BP("type-desc-rhs-in-typed-binding-pattern"),
+    ASSIGNMENT_STMT_RHS("assignment-stmt-rhs"),
     ;
 
     private String value;

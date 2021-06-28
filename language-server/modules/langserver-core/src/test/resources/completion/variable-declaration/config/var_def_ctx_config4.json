@@ -29,7 +29,7 @@
           "value": ""
         }
       },
-      "sortText": "A",
+      "sortText": "AB",
       "insertText": "TEST_INT_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -45,6 +45,14 @@
       },
       "sortText": "D",
       "insertText": "TEST_STRING_CONST1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "N",
+      "insertText": "AnnotationType",
       "insertTextFormat": "Snippet"
     },
     {
@@ -67,14 +75,6 @@
       },
       "sortText": "K",
       "insertText": "RequestMessage",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "AnnotationType",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "N",
-      "insertText": "AnnotationType",
       "insertTextFormat": "Snippet"
     },
     {
@@ -182,7 +182,7 @@
     {
       "label": "function1()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -197,7 +197,7 @@
     {
       "label": "function2()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -210,16 +210,16 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "function3(int param1, int param2, float... param3)(int)",
+      "label": "function3(int param1, int param2, float... param3)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Returns** `int`   \n- Return Value Description  \n  \n"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Return** `int`   \n- Return Value Description  \n  \n"
         }
       },
-      "sortText": "B",
+      "sortText": "AC",
       "filterText": "function3",
       "insertText": "function3(${1})",
       "insertTextFormat": "Snippet",
@@ -231,7 +231,7 @@
     {
       "label": "function4(int param1, int param2, string param3, float... param4)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",

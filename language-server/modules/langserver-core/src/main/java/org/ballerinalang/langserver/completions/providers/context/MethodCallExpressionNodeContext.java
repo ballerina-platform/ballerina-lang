@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -57,10 +58,13 @@ public class MethodCallExpressionNodeContext extends FieldAccessContext<MethodCa
         hierarchy and skip properly
         eg:
         (2) s<cursor>abc.def.testMethod()
+        (3) self.<cursor>Method()
          */
         int cursor = context.getCursorPositionInTree();
         NameReferenceNode nameRef = node.methodName();
+        Token dotToken = node.dotToken();
 
-        return cursor >= nameRef.textRange().startOffset() && cursor <= nameRef.textRange().endOffset();
+        return ((cursor >= nameRef.textRange().startOffset() && cursor <= nameRef.textRange().endOffset())
+                || (!dotToken.isMissing() && cursor > dotToken.textRange().startOffset()));
     }
 }

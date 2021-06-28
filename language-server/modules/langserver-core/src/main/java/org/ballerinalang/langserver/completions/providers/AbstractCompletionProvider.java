@@ -35,6 +35,7 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.symbols.WorkerSymbol;
 import io.ballerina.compiler.api.symbols.XMLNamespaceSymbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -175,16 +176,23 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 if (varSymbol.qualifiers().contains(Qualifier.ISOLATED) && !CommonUtil.withinLockStatementNode(ctx)) {
                     return;
                 }
-                TypeSymbol typeDesc = (varSymbol).typeDescriptor();
+                TypeSymbol typeDesc = varSymbol.typeDescriptor();
+                /*
+                Null check added for safety.
+                Eg: public listener test = <cursor>
+                 */
                 String typeName = typeDesc == null ? "" : CommonUtil.getModifiedTypeName(ctx, typeDesc);
                 CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, varSymbol.getName().get(),
                         typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
 
-                if (ctx.enclosedModuleMember().isPresent() && CommonUtil.isSelfClassSymbol(symbol, ctx,
-                        ctx.enclosedModuleMember().get())) {
-                    TypeSymbol rawType = CommonUtil.getRawType(varSymbol.typeDescriptor());
-                    completionItems.addAll(populateSelfClassSymbolCompletionItems(ctx, rawType));
+                if (typeDesc != null) {
+                    /*
+                    Null check added for safety.
+                    Eg: public listener test = <cursor>
+                     */
+                    TypeSymbol rawType = CommonUtil.getRawType(typeDesc);
+                    completionItems.addAll(populateSelfClassSymbolCompletionItems(symbol, ctx, rawType));
                 }
             } else if (symbol.kind() == PARAMETER) {
                 ParameterSymbol paramSymbol = (ParameterSymbol) symbol;
@@ -206,11 +214,11 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, xmlItem));
             } else if (symbol.kind() == RECORD_FIELD) {
                 RecordFieldSymbol recordFieldSymbol = (RecordFieldSymbol) symbol;
-                CompletionItem recFieldItem = FieldCompletionItemBuilder.build(recordFieldSymbol);
+                CompletionItem recFieldItem = FieldCompletionItemBuilder.build(recordFieldSymbol, ctx);
                 completionItems.add(new RecordFieldCompletionItem(ctx, recordFieldSymbol, recFieldItem));
             } else if (symbol.kind() == OBJECT_FIELD || symbol.kind() == CLASS_FIELD) {
                 ObjectFieldSymbol objectFieldSymbol = (ObjectFieldSymbol) symbol;
-                CompletionItem objFieldItem = FieldCompletionItemBuilder.build(objectFieldSymbol);
+                CompletionItem objFieldItem = FieldCompletionItemBuilder.build(objectFieldSymbol, false);
                 completionItems.add(new ObjectFieldCompletionItem(ctx, objectFieldSymbol, objFieldItem));
             }
 
@@ -225,18 +233,17 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      * @param context LS Operation Context
      * @return {@link List}     List of completion items
      */
-    protected List<LSCompletionItem> getTypeItems(BallerinaCompletionContext context) {
+    private List<LSCompletionItem> getTypeItems(BallerinaCompletionContext context) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        visibleSymbols.forEach(bSymbol -> {
-            // Specifically remove the error type, since this is covered with langlib suggestion and type builtin types
-            if (!Names.ERROR.getValue().equals(bSymbol.getName().orElse(""))
-                    && (bSymbol.kind() == SymbolKind.TYPE_DEFINITION || bSymbol.kind() == SymbolKind.CLASS
-                    || bSymbol.kind() == ENUM)) {
-                CompletionItem cItem = TypeCompletionItemBuilder.build(bSymbol, bSymbol.getName().get());
-                completionItems.add(new SymbolCompletionItem(context, bSymbol, cItem));
-            }
-        });
+        // Specifically remove the error type, since this is covered with langlib suggestion and type builtin types
+        visibleSymbols.stream()
+                .filter(CommonUtil.typesFilter()
+                        .and(symbol -> !Names.ERROR.getValue().equals(symbol.getName().orElse(""))))
+                .forEach(symbol -> {
+                    CompletionItem cItem = TypeCompletionItemBuilder.build(symbol, symbol.getName().get());
+                    completionItems.add(new SymbolCompletionItem(context, symbol, cItem));
+                });
 
         completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
         completionItems.addAll(Arrays.asList(
@@ -246,8 +253,25 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()),
                 new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD_TYPE_DESC.get()),
                 new SnippetCompletionItem(context, Snippet.KW_DISTINCT.get()),
-                new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get())
+                new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()),
+                new SnippetCompletionItem(context, Snippet.KW_TRUE.get()),
+                new SnippetCompletionItem(context, Snippet.KW_FALSE.get())
         ));
+
+        return completionItems;
+    }
+
+    /**
+     * Get the type descriptor context completion items.
+     * For this context, we usually get the types as well as the modules since we need to suggest the types in modules
+     *
+     * @param context Completion context
+     * @return {@link List} of completion items
+     */
+    protected List<LSCompletionItem> getTypeDescContextItems(BallerinaCompletionContext context) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        completionItems.addAll(this.getTypeItems(context));
+        completionItems.addAll(this.getModuleCompletionItems(context));
 
         return completionItems;
     }
@@ -270,7 +294,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             String pkgName = importNode.moduleName().stream()
                     .map(Token::text)
                     .collect(Collectors.joining("."));
-            
+
             if (CommonUtil.PRE_DECLARED_LANG_LIBS.contains(pkgName.replace("'", ""))) {
                 // skip the predeclared langlib imports
                 return;
@@ -403,9 +427,9 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         }
         Optional<TypeSymbol> contextType = context.getContextType();
         if (contextType.isPresent() && contextType.get().typeKind() == TypeDescKind.FUNCTION) {
-                CompletionItem pointerCompletionItem =
-                        FunctionCompletionItemBuilder.buildFunctionPointer((FunctionSymbol) symbol, context);
-                completionItems.add(new FunctionPointerCompletionItem(context, symbol, pointerCompletionItem));
+            CompletionItem pointerCompletionItem =
+                    FunctionCompletionItemBuilder.buildFunctionPointer((FunctionSymbol) symbol, context);
+            completionItems.add(new FunctionPointerCompletionItem(context, symbol, pointerCompletionItem));
         }
         CompletionItem completionItem = FunctionCompletionItemBuilder.build((FunctionSymbol) symbol, context);
         completionItems.add(new SymbolCompletionItem(context, symbol, completionItem));
@@ -452,6 +476,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_OBJECT_CONSTRUCTOR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE16_LITERAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE64_LITERAL.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
 
         // Avoid the error symbol suggestion since it is covered by the lang.error lang-lib 
         List<Symbol> filteredList = visibleSymbols.stream()
@@ -513,28 +538,32 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
     /**
      * Populate Completion Items of Self Class Symbol.
      *
-     * @param ctx completion context
+     * @param ctx     completion context
      * @param rawType type descriptor
      * @return completion item
      */
-    private List<LSCompletionItem> populateSelfClassSymbolCompletionItems(BallerinaCompletionContext ctx,
+    private List<LSCompletionItem> populateSelfClassSymbolCompletionItems(Symbol symbol, BallerinaCompletionContext ctx,
                                                                           TypeSymbol rawType) {
+        Optional<ModuleMemberDeclarationNode> moduleMember = ctx.enclosedModuleMember();
+        if (moduleMember.isEmpty() || !CommonUtil.isSelfClassSymbol(symbol, ctx, moduleMember.get())) {
+            return Collections.emptyList();
+        }
         List<LSCompletionItem> completionItems = new ArrayList<>();
         ObjectTypeSymbol objectTypeDesc = (ObjectTypeSymbol) rawType;
 
         objectTypeDesc.fieldDescriptors().values().stream()
                 .map(classFieldSymbol -> {
-                    CompletionItem completionItem = FieldCompletionItemBuilder.build(classFieldSymbol,
-                            true);
+                    CompletionItem completionItem = FieldCompletionItemBuilder.build(classFieldSymbol, true);
                     return new ObjectFieldCompletionItem(ctx, classFieldSymbol, completionItem);
-                }).forEach(completionItems::add);
+                })
+                .forEach(completionItems::add);
 
         objectTypeDesc.methods().values().stream()
                 .map(methodSymbol -> {
-                    CompletionItem completionItem = FunctionCompletionItemBuilder.buildMethod(methodSymbol,
-                            ctx);
+                    CompletionItem completionItem = FunctionCompletionItemBuilder.buildMethod(methodSymbol, ctx);
                     return new SymbolCompletionItem(ctx, methodSymbol, completionItem);
                 }).forEach(completionItems::add);
+        
         return completionItems;
     }
 }
