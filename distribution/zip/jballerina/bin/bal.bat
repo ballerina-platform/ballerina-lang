@@ -151,6 +151,9 @@ set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024
 set jar=%2
 if "%1" == "run" if not "%2" == "" if "%jar:~-4%" == ".jar" goto runJarFile
 
+set jar=%3
+if "%1" == "run" if not "%2" == "" if "%2:~0,8%" == "--debug=" if "%jar:~-4%" == ".jar" goto runJarDebugModeWithDebugFlagAndPortTogether
+
 set jar=%4
 if "%1" == "run" if not "%2" == "" if "%2" == "--debug" if "%jar:~-4%" == ".jar" goto runJarDebugMode
 
@@ -166,6 +169,12 @@ goto end
 :runJarDebugMode
 for /f "tokens=3,*" %%a in ("%*") do set ARGS=%%b
 "%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=%3 -jar %ARGS%
+goto end
+
+:runJarDebugModeWithDebugFlagAndPortTogether
+set PORT=%%2:~8%
+for /f "tokens=2,*" %%a in ("%*") do set ARGS=%%b
+"%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=%PORT -jar %ARGS%
 goto end
 
 :end

@@ -261,7 +261,7 @@ if [[ $1 == "native-img" ]]; then
         echo "Please set GRAALVM_HOME for native image generation"
     fi
 # if 1st arg is "run" and 2nd or 3rd arg ends with ".jar".
-elif [[ $1 == "run" && ( $2 == *.jar || $4 == *.jar ) ]]; then
+elif [[ $1 == "run" && ( $2 == *.jar || $3 == *.jar || $4 == *.jar ) ]]; then
       # if 2nd arg end with ".jar".
       if [[ $2 == *.jar ]]; then
           $JAVACMD \
@@ -273,6 +273,12 @@ elif [[ $1 == "run" && ( $2 == *.jar || $4 == *.jar ) ]]; then
             $CMD_LINE_ARGS \
             -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=$3 \
             -jar "${@:4}" # ignores "run"
+      elif [[ $2 == --debug=* ]] && [[ $3 == *.jar ]]; then
+          PORT=$(echo $2 | cut -d '=' -f 2)
+          $JAVACMD \
+            $CMD_LINE_ARGS \
+            -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=$PORT \
+            -jar "${@:3}" # ignores "run"
       fi
 else
     $JAVACMD \
