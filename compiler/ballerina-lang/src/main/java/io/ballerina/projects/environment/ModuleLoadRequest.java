@@ -25,6 +25,8 @@ import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.tools.diagnostics.Location;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -40,7 +42,7 @@ public class ModuleLoadRequest {
     private final PackageVersion version;
     private final PackageDependencyScope scope;
     private final DependencyResolutionType dependencyResolvedType;
-    private final Location location;
+    private final List<Location> locations = new ArrayList<>();
 
     public ModuleLoadRequest(PackageOrg orgName,
                              PackageName packageName,
@@ -54,7 +56,6 @@ public class ModuleLoadRequest {
         this.version = version;
         this.scope = scope;
         this.dependencyResolvedType = dependencyResolvedType;
-        this.location = null;
     }
 
     public ModuleLoadRequest(PackageOrg orgName,
@@ -70,7 +71,7 @@ public class ModuleLoadRequest {
         this.version = version;
         this.scope = scope;
         this.dependencyResolvedType = dependencyResolvedType;
-        this.location = location;
+        this.locations.add(location);
     }
 
     public Optional<PackageOrg> orgName() {
@@ -101,8 +102,12 @@ public class ModuleLoadRequest {
         return dependencyResolvedType == DependencyResolutionType.INJECTED;
     }
 
-    public Location location() {
-        return location;
+    public List<Location> locations() {
+        return locations;
+    }
+
+    public void addAllLocations(List<Location> locations) {
+        this.locations.addAll(locations);
     }
 
     @Override
