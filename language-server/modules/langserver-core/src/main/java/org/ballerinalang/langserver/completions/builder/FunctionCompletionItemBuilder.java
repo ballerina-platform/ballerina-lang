@@ -28,7 +28,6 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -36,7 +35,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -150,8 +148,9 @@ public final class FunctionCompletionItemBuilder {
     }
 
     private static void setMeta(CompletionItem item, FunctionSymbol bSymbol, BallerinaCompletionContext ctx) {
+        FunctionTypeSymbol functionTypeDesc = bSymbol.typeDescriptor();
+        item.setDetail(functionTypeDesc.returnTypeDescriptor().get().signature());
         item.setInsertTextFormat(InsertTextFormat.Snippet);
-        item.setDetail(ItemResolverConstants.FUNCTION_TYPE);
         item.setKind(CompletionItemKind.Function);
         if (bSymbol != null) {
             List<String> funcArguments = getFuncArguments(bSymbol, ctx);
@@ -266,7 +265,6 @@ public final class FunctionCompletionItemBuilder {
         if (functionSymbol == null) {
             return ImmutablePair.of(functionName + "()", functionName + "()");
         }
-        FunctionTypeSymbol functionTypeDesc = functionSymbol.typeDescriptor();
         StringBuilder signature = new StringBuilder(functionName + "(");
         StringBuilder insertText = new StringBuilder(functionName + "(");
         List<String> funcArguments = getFuncArguments(functionSymbol, ctx);
@@ -276,14 +274,6 @@ public final class FunctionCompletionItemBuilder {
         }
         signature.append(")");
         insertText.append(")");
-        Optional<TypeSymbol> returnType = functionTypeDesc.returnTypeDescriptor();
-        String initString = "(";
-        String endString = ")";
-
-        if (returnType.isPresent() && returnType.get().typeKind() != TypeDescKind.NIL) {
-            signature.append(initString).append(CommonUtil.getModifiedTypeName(ctx, returnType.get()));
-            signature.append(endString);
-        }
 
         return new ImmutablePair<>(insertText.toString(), signature.toString());
     }

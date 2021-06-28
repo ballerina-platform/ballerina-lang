@@ -363,7 +363,8 @@ public class LangLibValueTest {
                 { "testConvertJsonToAmbiguousType" },
                 { "testFromJsonWithTypeWithNullValues" },
                 { "testFromJsonWithTypeWithNullValuesNegative" },
-                { "testFromJsonWithTypeWithInferredArgument" }
+                { "testFromJsonWithTypeWithInferredArgument" },
+                { "testFromJsonWithTypeWithTypeReferences" }
         };
     }
 
