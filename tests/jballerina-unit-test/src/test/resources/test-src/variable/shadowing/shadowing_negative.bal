@@ -138,3 +138,10 @@ string returnVal = "Return value";
 
 function testVarAsReturnType() returns returnVal {
 }
+
+public enum Foo {
+    foo,
+    bar
+}
+
+type Foo int;
