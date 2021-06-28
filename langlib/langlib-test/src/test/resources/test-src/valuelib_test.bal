@@ -1018,6 +1018,7 @@ type IntThreeOrFour 3|4;
 type FloatOneOrTwo 1.0|2.0;
 type FloatTwoOrThree 2.0|3.0;
 type FloatThreeOrFour 3.0|4.0;
+type IntOneOrFloatTwo 1|2.5;
 
 function testCloneWithTypeWithFiniteType() {
     int x = 2;
@@ -1094,6 +1095,17 @@ function testCloneWithTypeWithUnionTypeArrayFromIntArray() {
     assert(d, [3.0, 4.0]);
 }
 
+function testCloneWithTypeWithUnionOfFiniteTypeNegative() {
+    int x = 2;
+
+    (IntOneOrFloatTwo|IntTwoOrThree)|error a = x.cloneWithType();
+    assert(a is error, true);
+    error err = <error> a;
+    var message = err.detail()["message"];
+    string messageString = message is error? message.toString(): message.toString();
+    assert(messageString, "'int' value cannot be converted to '(IntOneOrFloatTwo|IntTwoOrThree)': ambiguous target type");
+}
+
 function testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative() {
     int[] x = [1, 2, 3, 4];
 
@@ -1115,7 +1127,7 @@ function testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative() {
     int[] y = [3, 4];
 
     (IntThreeOrFour|FloatThreeOrFour)[]|error e = y.cloneWithType();
-    assert(c is error, true);
+    assert(e is error, true);
     err = <error> e;
     message = err.detail()["message"];
     messageString = message is error? message.toString(): message.toString();
