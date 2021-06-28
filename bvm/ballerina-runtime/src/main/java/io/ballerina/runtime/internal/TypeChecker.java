@@ -1044,6 +1044,17 @@ public class TypeChecker {
                     return checkIsJSONType(recordType.restFieldType, unresolvedTypes);
                 }
                 return true;
+            case TypeTags.TUPLE_TAG:
+                BTupleType sourceTupleType = (BTupleType) sourceType;
+                for (Type memberType : sourceTupleType.getTupleTypes()) {
+                    if (!checkIsJSONType(memberType, unresolvedTypes)) {
+                        return false;
+                    }
+                }
+                if (sourceTupleType.getRestType() != null) {
+                    return checkIsJSONType(sourceTupleType.getRestType(), unresolvedTypes);
+                }
+                return true;
             case TypeTags.UNION_TAG:
                 for (Type memberType : ((BUnionType) sourceType).getMemberTypes()) {
                     if (!checkIsJSONType(memberType, unresolvedTypes)) {

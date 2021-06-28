@@ -748,6 +748,10 @@ public class Types {
                 return true;
             }
 
+            if (sourceTag == TypeTags.TUPLE) {
+                return isTupleTypeAssignable(source, target, unresolvedTypes);
+            }
+
             if (sourceTag == TypeTags.ARRAY) {
                 return isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes);
             }
@@ -1033,12 +1037,26 @@ public class Types {
             unresolvedTypes.add(pair);
         }
 
+        BTupleType rhsTupleType;
+        if (target.tag == TypeTags.JSON && source.tag == TypeTags.TUPLE) {
+            rhsTupleType = (BTupleType) source;
+            for (int i = 0; i < rhsTupleType.tupleTypes.size(); i++) {
+                if (!isAssignable(rhsTupleType.tupleTypes.get(i), symTable.jsonType, unresolvedTypes)) {
+                    return false;
+                }
+            }
+            if (rhsTupleType.restType != null) {
+                return isAssignable(rhsTupleType.restType, symTable.jsonType, unresolvedTypes);
+            }
+            return true;
+        }
+
         if (source.tag != TypeTags.TUPLE || target.tag != TypeTags.TUPLE) {
             return false;
         }
 
         BTupleType lhsTupleType = (BTupleType) target;
-        BTupleType rhsTupleType = (BTupleType) source;
+        rhsTupleType = (BTupleType) source;
 
         if (lhsTupleType.restType == null && rhsTupleType.restType != null) {
             return false;

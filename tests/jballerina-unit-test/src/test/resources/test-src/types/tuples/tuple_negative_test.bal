@@ -181,3 +181,13 @@ function getData() returns [int, string...] {
 function getData2() returns int[2] {
     return [1, 2];
 }
+
+function testTupleToJSONAssignmentNegative() {
+    xml A = xml `xml string`;
+    [string, int, xml...] B = ["text1", 1, A];
+    json jsonTest = B;
+
+    [string, int|xml, string...] C = ["text1", 1, A.toString()];
+    jsonTest = <json[]>C;
+    jsonTest = C;
+}
