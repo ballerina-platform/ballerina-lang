@@ -76,6 +76,18 @@ public class SyntaxTreeModifyTest {
             .resolve("modify")
             .resolve("mainHttpCallWithPrint.bal");
 
+    private Path mainSendMail = FileUtils.RES_DIR.resolve("extensions")
+            .resolve("document")
+            .resolve("ast")
+            .resolve("modify")
+            .resolve("mainSendMail.bal");
+
+    private Path mainSendMailModified = FileUtils.RES_DIR.resolve("extensions")
+            .resolve("document")
+            .resolve("ast")
+            .resolve("modify")
+            .resolve("mainSendMailModified.bal");
+
 //    private Path serviceNatsFile = FileUtils.RES_DIR.resolve("extensions")
 //            .resolve("document")
 //            .resolve("ast")
@@ -141,6 +153,33 @@ public class SyntaxTreeModifyTest {
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
         TestUtil.closeDocument(this.serviceEndpoint, expectedFile);
     }
+
+   @Test(description = "Update content.")
+   public void testUpdate() throws IOException {
+        skipOnWindows();
+        Path inputFile = LSExtensionTestUtil.createTempFile(mainSendMail);
+        TestUtil.openDocument(serviceEndpoint, inputFile);
+        Path expectedFile = LSExtensionTestUtil.createTempFile(mainSendMailModified);
+        TestUtil.openDocument(serviceEndpoint, expectedFile);
+        Gson gson = new Gson();
+        ASTModification modification1 = new ASTModification(0, 0, 0, 0, true,
+                "INSERT",
+                gson.fromJson("{STATEMENT: \"import ballerina/log;\\n\",TYPE: \"ballerina/log\"}",
+                        JsonObject.class));
+        ASTModification modification2 = new ASTModification(6, 0, 6, 0,
+                false,
+                "INSERT", gson
+                .fromJson("{STATEMENT: \"log:printInfo(\\\"\\\");\\n\"}", JsonObject.class));
+        BallerinaSyntaxTreeResponse astModifyResponse = LSExtensionTestUtil
+                .modifyAndGetBallerinaSyntaxTree(inputFile.toString(),
+                        new ASTModification[]{modification1, modification2}, this.serviceEndpoint);
+        BallerinaSyntaxTreeResponse astResponse = LSExtensionTestUtil.getBallerinaSyntaxTree(
+                expectedFile.toString(), this.serviceEndpoint);
+        Assert.assertTrue(astModifyResponse.isParseSuccess());
+        // Assert.assertEquals(astModifyResponse.getSyntaxTree(), astResponse.getSyntaxTree());
+        TestUtil.closeDocument(this.serviceEndpoint, inputFile);
+        TestUtil.closeDocument(this.serviceEndpoint, expectedFile);
+   }
 
 //    @Test(description = "Update content.")
 //    public void testUpdate() throws IOException {
