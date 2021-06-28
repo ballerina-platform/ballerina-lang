@@ -846,6 +846,36 @@ function f4() {
     }
 }
 
+type Obj object {
+    int i;
+    int[] j;
+};
+
+class Class {
+    string k = "";
+    final string[] & readonly l = [];
+}
+
+class IsolatedClassIncludingObjectAndClass {
+    *Obj;
+    *Class;
+
+    final int i = 1;
+    final readonly & int[] j = [];
+    final string k;
+
+    function init(string[] arg) {
+        self.k = "default";
+        self.l = arg.cloneReadOnly();
+    }
+
+    function access() returns anydata {
+        lock {
+            return self.k + self.l.toString();
+        }
+    }
+}
+
 public function testIsolatedInference() {
     IsolatedClassWithNoMutableFields a = new ([], {i: 1});
     assertTrue(<any> a is isolated object {});
@@ -1013,6 +1043,10 @@ public function testIsolatedInference() {
     assertTrue(<any> f3 is isolated function);
     assertTrue(<any> f4 is isolated function);
     assertTrue(isMethodIsolated(z, "init"));
+
+    IsolatedClassIncludingObjectAndClass a2 = new ([]);
+    assertTrue(isMethodIsolated(a2, "init"));
+    assertTrue(isMethodIsolated(a2, "access"));
 }
 
 isolated function assertTrue(any|error actual) {

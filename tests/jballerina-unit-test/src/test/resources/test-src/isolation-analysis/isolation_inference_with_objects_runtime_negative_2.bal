@@ -75,6 +75,83 @@ class ClassWithObjectConstructorExprWithExternalMethod {
     }
 }
 
+class ClassWithPotentiallyIsolatedFieldNegative {
+    final (int[] & readonly)|NonIsolatedClass|string x = f1();
+
+    function init() {
+    }
+
+    function func() {
+        var s = self.x;
+    }
+}
+
+class NonIsolatedClass {
+    final int[] i = arr;
+
+    function init() {
+    }
+}
+
+int[] arr = [];
+
+function f1() returns NonIsolatedClass {
+    _ = arr;
+    return new;
+}
+
+type Obj object {
+    int i;
+    int[] j;
+};
+
+class Class {
+    final string k = "";
+    string[] l = [];
+}
+
+class NonIsolatedClassIncludingObjectAndClassWithNonFinalNonPrivateOverridingField {
+    *Obj;
+    *Class;
+
+    int i = 1;
+    final readonly & int[] j = [];
+    final string k;
+    final string[] & readonly l;
+
+    function init(string[] arg) {
+        self.k = "default";
+        self.l = arg.cloneReadOnly();
+    }
+
+    function access() returns anydata {
+        lock {
+            return self.k + self.l.toString();
+        }
+    }
+}
+
+class NonIsolatedClassIncludingObjectAndClassNotOverridingField {
+    *Obj;
+    *Class;
+
+    final readonly & int[] j = [];
+    final string k;
+    final string[] & readonly l;
+
+    function init(string[] arg) {
+        self.i = 0;
+        self.k = "default";
+        self.l = arg.cloneReadOnly();
+    }
+
+    function access() returns anydata {
+        lock {
+            return self.k + self.l.toString();
+        }
+    }
+}
+
 function testIsolatedInference() {
     ClassWithExternalMethodOne a = new;
     assertFalse(<any> a is isolated object {});
@@ -96,6 +173,25 @@ function testIsolatedInference() {
     assertFalse(ob2 is isolated object {});
     assertFalse(isMethodIsolated(ob2, "f2"));
     assertTrue(isMethodIsolated(ob2, "f4"));
+
+    ClassWithPotentiallyIsolatedFieldNegative d = new;
+    assertFalse(<any> d is isolated object {});
+    assertFalse(isMethodIsolated(d, "init"));
+    assertTrue(isMethodIsolated(d, "func"));
+
+    NonIsolatedClass e = new;
+    assertFalse(<any> e is isolated object {});
+    assertFalse(isMethodIsolated(e, "init"));
+
+    assertFalse(f1 is isolated function () returns NonIsolatedClass);
+
+    NonIsolatedClassIncludingObjectAndClassWithNonFinalNonPrivateOverridingField f = new ([]);
+    assertFalse(<any> f is isolated object {});
+    assertTrue(isMethodIsolated(f, "init"));
+    assertTrue(isMethodIsolated(f, "access"));
+
+    NonIsolatedClassIncludingObjectAndClassNotOverridingField g = new ([]);
+    assertFalse(<any> g is isolated object {});
 }
 
 isolated function assertTrue(any|error actual) {
