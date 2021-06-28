@@ -131,6 +131,13 @@ public class IsolationInferenceTest {
         };
     }
 
+    @Test
+    public void testIsolatedInferenceForObjectInitMethod() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/isolation-analysis/isolation_inference_for_object_init.bal");
+        BRunUtil.invoke(result, "testIsolatedInference");
+    }
+
     // This is called from the test file via the attach method of the listener.
     public static Object testServiceDeclarationMethodIsolationInference(BObject listener, BObject s, Object name) {
         assertTrue(isResourceIsolated(s, "get", "foo"));

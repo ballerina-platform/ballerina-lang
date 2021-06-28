@@ -1277,13 +1277,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (accessOfPotentiallyIsolatedVariable) {
-            if (isObjectFieldDefaultValue(env)) {
-                // Not accessed within a lock statement, therefore the potentially isolated var won't be isolated.
-                // TODO: 2021-06-28 revisit for object constructor
-                markObjectInitMethodDependencyOnNonInferableConstructs(((BLangClassDefinition) env.node));
-            } else {
-                markDependentlyIsolatedOnVar(symbol);
-            }
+            markDependentlyIsolatedOnVar(symbol);
         } else {
             markDependsOnIsolationNonInferableConstructs();
         }
@@ -1297,28 +1291,20 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (recordFieldDefaultValue) {
             dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
+            return;
         }
 
         if (objectFieldDefaultValueRequiringIsolation) {
             dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_MUTABLE_ACCESS_AS_OBJECT_DEFAULT);
-        }
-    }
-
-    private void markObjectInitMethodDependencyOnNonInferableConstructs(BLangClassDefinition classDefinition) {
-        BLangFunction initMethod = classDefinition.initFunction;
-        if (initMethod == null) {
             return;
         }
-        BInvokableSymbol initMethodSymbol = initMethod.symbol;
-        IsolationInferenceInfo inferenceInfo;
-        if (isolationInferenceInfoMap.containsKey(initMethodSymbol)) {
-            inferenceInfo = isolationInferenceInfoMap.get(initMethodSymbol);
-        } else {
-            inferenceInfo = new IsolationInferenceInfo();
-            isolationInferenceInfoMap.put(((BLangClassDefinition) env.node).initFunction.symbol, inferenceInfo);
 
+        if (isObjectFieldDefaultValue(env)) {
+            BLangFunction initFunction = ((BLangClassDefinition) env.node).initFunction;
+            if (initFunction != null) {
+                markInitMethodDependentlyIsolatedOnVar(initFunction, symbol);
+            }
         }
-        inferenceInfo.dependsOnlyOnInferableConstructs = false;
     }
 
     @Override
@@ -1426,7 +1412,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             } else if (isObjectFieldDefaultValue(env)) {
                 BLangFunction initFunction = ((BLangClassDefinition) env.node).initFunction;
                 if (initFunction != null) {
-                    markInitFunctionDependentlyIsolatedOnFunction(initFunction, initInvocationSymbol);
+                    markInitMethodDependentlyIsolatedOnFunction(initFunction, initInvocationSymbol);
                 }
             }
         }
@@ -2004,7 +1990,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }  else if (isObjectFieldDefaultValue(env)) {
             BLangFunction initFunction = ((BLangClassDefinition) env.node).initFunction;
             if (initFunction != null) {
-                markInitFunctionDependentlyIsolatedOnFunction(initFunction, symbol);
+                markInitMethodDependentlyIsolatedOnFunction(initFunction, symbol);
             }
         }
     }
@@ -3193,7 +3179,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         markDependentlyIsolatedOnFunction(symbol);
     }
 
-    private void markInitFunctionDependentlyIsolatedOnFunction(BLangInvokableNode initMethod, BInvokableSymbol symbol) {
+    private void markInitMethodDependentlyIsolatedOnFunction(BLangInvokableNode initMethod, BInvokableSymbol symbol) {
         BInvokableSymbol initMethodSymbol = initMethod.symbol;
         if (!isolationInferenceInfoMap.containsKey(initMethodSymbol)) {
             isolationInferenceInfoMap.put(initMethodSymbol, new IsolationInferenceInfo());
@@ -3220,8 +3206,21 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnFunctions.add(symbol);
     }
 
+    private void markInitMethodDependentlyIsolatedOnVar(BLangInvokableNode initMethod, BSymbol symbol) {
+        BInvokableSymbol initMethodSymbol = initMethod.symbol;
+        if (!isolationInferenceInfoMap.containsKey(initMethodSymbol)) {
+            isolationInferenceInfoMap.put(initMethodSymbol, new IsolationInferenceInfo());
+
+        }
+        markFunctionDependentlyIsolatedOnVar(initMethod, symbol);
+    }
+
     private void markDependentlyIsolatedOnVar(BSymbol symbol) {
         BLangInvokableNode enclInvokable = env.enclInvokable;
+        markFunctionDependentlyIsolatedOnVar(enclInvokable, symbol);
+    }
+
+    private void markFunctionDependentlyIsolatedOnVar(BLangInvokableNode enclInvokable, BSymbol symbol) {
         if (enclInvokable == null) {
             return;
         }
