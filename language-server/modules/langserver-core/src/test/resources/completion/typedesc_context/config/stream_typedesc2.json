@@ -6,6 +6,20 @@
   "source": "typedesc_context/source/stream_typedesc2.bal",
   "items": [
     {
+      "label": "ENUM1_FIELD1",
+      "kind": "EnumMember",
+      "detail": "ENUM1_FIELD1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "AE",
+      "insertText": "ENUM1_FIELD1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TEST_INT_CONST1",
       "kind": "Variable",
       "detail": "1",
@@ -34,73 +48,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ENUM1_FIELD1",
-      "kind": "EnumMember",
-      "detail": "ENUM1_FIELD1",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
+      "label": "TestEnum1",
+      "kind": "Enum",
+      "detail": "enum",
       "sortText": "AE",
-      "insertText": "ENUM1_FIELD1",
+      "insertText": "TestEnum1",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestRecord1",
+      "label": "AnnotationType",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "ABL",
-      "insertText": "TestRecord1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestRecord2",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "ABL",
-      "insertText": "TestRecord2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap2",
-      "kind": "TypeParameter",
-      "detail": "Map",
       "sortText": "ABM",
-      "insertText": "TestMap2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap3",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "ABM",
-      "insertText": "TestMap3",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestObject1",
-      "kind": "Interface",
-      "detail": "Object",
-      "sortText": "ABK",
-      "insertText": "TestObject1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ErrorOne",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "ABQ",
-      "insertText": "ErrorOne",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ErrorTwo",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "ABQ",
-      "insertText": "ErrorTwo",
+      "insertText": "AnnotationType",
       "insertTextFormat": "Snippet"
     },
     {
@@ -126,27 +86,67 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestEnum1",
-      "kind": "Enum",
-      "detail": "enum",
-      "sortText": "AE",
-      "insertText": "TestEnum1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "AnnotationType",
+      "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "ABL",
-      "insertText": "AnnotationType",
+      "sortText": "ABM",
+      "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestClass1",
+      "label": "TestRecord2",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "ABM",
+      "insertText": "TestRecord2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap2",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "ABN",
+      "insertText": "TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap3",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "ABN",
+      "insertText": "TestMap3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "ABK",
+      "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorOne",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "ABL",
+      "insertText": "ErrorOne",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorTwo",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "ABL",
+      "insertText": "ErrorTwo",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Listener",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "ABK",
-      "insertText": "TestClass1",
+      "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
     {
@@ -172,11 +172,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Listener",
+      "label": "TestClass1",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "ABK",
-      "insertText": "Listener",
+      "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     }
   ]
