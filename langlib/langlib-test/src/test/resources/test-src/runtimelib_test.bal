@@ -14,19 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.runtime as runtime;
 import ballerina/jballerina.java;
-
-function getCallStackTest() returns runtime:StackFrame[] {
-    return runtime:getStackTrace();
-}
+import ballerina/lang.runtime as runtime;
 
 function getCallStacktoStringTest() {
     runtime:StackFrame[] stackFrames = runtime:getStackTrace();
     assertEquality(stackFrames.length(), 3);
-    assertEquality("callableName: externGetStackTrace moduleName: ballerina.lang.runtime.0_0_1 fileName: runtime.bal lineNumber: 95", stackFrames[0].toString());
-    assertEquality("callableName: getStackTrace moduleName: ballerina.lang.runtime.0_0_1 fileName: runtime.bal lineNumber: 85", stackFrames[1].toString());
-    assertEquality("callableName: getCallStacktoStringTest  fileName: runtimelib_test.bal lineNumber: 25", stackFrames[2].toString());
+    assertEquality("callableName: externGetStackTrace moduleName: ballerina.lang.runtime.0_0_1 fileName: runtime.bal " +
+                    "lineNumber: 95", stackFrames[0].toString());
+    assertEquality("callableName: getStackTrace moduleName: ballerina.lang.runtime.0_0_1 fileName: runtime.bal " +
+                    "lineNumber: 85", stackFrames[1].toString());
+    assertEquality("callableName: getCallStacktoStringTest  fileName: runtimelib_test.bal lineNumber: 21",
+                    stackFrames[2].toString());
 
     java:StackFrameImpl stackFrame1 = <java:StackFrameImpl> stackFrames[1];
     string callableName = stackFrame1.callableName;
@@ -48,7 +47,7 @@ function getCallStacktoStringTest() {
     assertEquality("getCallStacktoStringTest", callableName);
     assertEquality((), moduleName);
     assertEquality("runtimelib_test.bal", fileName);
-    assertEquality(25, lineNumber);
+    assertEquality(21, lineNumber);
 }
 
 function assertEquality(any|error expected, any|error actual) {

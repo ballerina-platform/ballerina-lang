@@ -31,8 +31,9 @@ public readonly class StackFrameImpl {
     #
     # + return - A stack frame as string
     public function toString() returns string {
-        if (self.moduleName is string) {
-            return "callableName: " + self.callableName + " " + "moduleName: " + <string> self.moduleName +
+        var moduleName = self.moduleName;
+        if (moduleName is string) {
+            return "callableName: " + self.callableName + " " + "moduleName: " + moduleName +
                             " " + "fileName: " + self.fileName + " " + "lineNumber: " + getStringValue(self.lineNumber);
         } else {
             return "callableName: " + self.callableName + " " +

@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 /**
  * Test case for Error StackTrace.
  *
- * @since 2.0
+ * @since 2.0.0
  */
 public class ErrorStackTraceTest {
 
