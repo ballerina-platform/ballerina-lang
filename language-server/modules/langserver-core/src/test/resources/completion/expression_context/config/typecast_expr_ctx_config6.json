@@ -50,11 +50,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "runtime",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -68,30 +68,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value3",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value as value3 ;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -119,11 +96,11 @@
       ]
     },
     {
-      "label": "ballerina/jballerina.java",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "java",
+      "insertText": "value3",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -137,7 +114,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jballerina.java;\n"
+          "newText": "import ballerina/lang.value as value3 ;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -457,6 +457,15 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "AnnotationType",
       "kind": "Struct",
       "detail": "Record",
@@ -468,8 +477,39 @@
       "label": "value2",
       "kind": "Variable",
       "detail": "string",
-      "sortText": "A",
+      "sortText": "AB",
       "insertText": "value2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getTDesc()",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "getTDesc",
+      "insertText": "getTDesc()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorName",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "Q",
+      "insertText": "ErrorName",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "AM",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -489,37 +529,6 @@
       "detail": "int",
       "sortText": "D",
       "insertText": "value1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "O",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ErrorName",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "Q",
-      "insertText": "ErrorName",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getTDesc()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "getTDesc",
-      "insertText": "getTDesc()",
       "insertTextFormat": "Snippet"
     },
     {

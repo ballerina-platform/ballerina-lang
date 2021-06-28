@@ -23,8 +23,10 @@ import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateBalaTask;
 import io.ballerina.cli.task.CreateExecutableTask;
+import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.RunTestsTask;
+import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
@@ -67,6 +69,14 @@ public class BuildCommand implements BLauncherCmd {
         this.errStream = System.err;
         this.exitWhenFinish = true;
         this.skipCopyLibsFromDist = false;
+    }
+
+    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean dumpBuildTime) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = false;
+        this.dumpBuildTime = dumpBuildTime;
     }
 
     public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
@@ -173,7 +183,11 @@ public class BuildCommand implements BLauncherCmd {
             description = "list conflicted classes when generating executable")
     private Boolean listConflictedClasses;
 
+    @CommandLine.Option(names = "--dump-build-time", description = "calculate and dump build time")
+    private Boolean dumpBuildTime;
+
     public void execute() {
+        long start = 0;
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
             this.errStream.println(commandUsageInfo);
@@ -203,7 +217,14 @@ public class BuildCommand implements BLauncherCmd {
                 return;
             }
             try {
+                if (buildOptions.dumpBuildTime()) {
+                    start = System.currentTimeMillis();
+                    BuildTime.getInstance().timestamp = start;
+                }
                 project = SingleFileProject.load(this.projectPath, buildOptions);
+                if (buildOptions.dumpBuildTime()) {
+                    BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
+                }
             } catch (ProjectException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -222,7 +243,14 @@ public class BuildCommand implements BLauncherCmd {
                 return;
             }
             try {
+                if (buildOptions.dumpBuildTime()) {
+                    start = System.currentTimeMillis();
+                    BuildTime.getInstance().timestamp = start;
+                }
                 project = BuildProject.load(this.projectPath, buildOptions);
+                if (buildOptions.dumpBuildTime()) {
+                    BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
+                }
             } catch (ProjectException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -232,7 +260,7 @@ public class BuildCommand implements BLauncherCmd {
 
         if (!(this.compile && project.currentPackage().compilerPluginToml().isPresent())) {
             if (isProjectEmpty(project)) {
-                CommandUtil.printError(this.errStream, "package is empty. please add at least one .bal file", null,
+                CommandUtil.printError(this.errStream, "package is empty. please add at least one .bal file.", null,
                         false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
@@ -297,6 +325,7 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateBalaTask(outStream), isSingleFileBuild || !this.compile)
                 // create the executable jar, skip if -c flag is provided
                 .addTask(new CreateExecutableTask(outStream, this.output), this.compile)
+                .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 
         taskExecutor.executeTasks(project);
@@ -327,6 +356,7 @@ public class BuildCommand implements BLauncherCmd {
                 .dumpBir(dumpBIR)
                 .dumpBirFile(dumpBIRFile)
                 .listConflictedClasses(listConflictedClasses)
+                .dumpBuildTime(dumpBuildTime)
                 .build();
     }
 

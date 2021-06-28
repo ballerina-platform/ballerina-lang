@@ -56,7 +56,11 @@ public class ModuleTupleVariableTest {
                 "testDeclaredWithVar3",
                 "testTupleVarWithAnnotations",
                 "testVariableForwardReferencing",
-                "testVariableDeclaredInTupleAsAnnotationValue"
+                "testVariableDeclaredInTupleAsAnnotationValue",
+                "testModuleLevelTupleRest1",
+                "testModuleLevelTupleRest2",
+                "testModuleLevelTupleRest3",
+                "testModuleLevelTupleRest4"
         };
     }
 
