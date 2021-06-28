@@ -1,0 +1,24 @@
+{
+  "line": 1,
+  "character": 4,
+  "expected": [
+    {
+      "title": "Make 'main' function public",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 4
+            },
+            "end": {
+              "line": 1,
+              "character": 4
+            }
+          },
+          "newText": "public "
+        }
+      ]
+    }
+  ]
+}
