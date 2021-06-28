@@ -7096,9 +7096,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        // Collect all the lambda functions, except the lambdas
-        // inside query lambda.
-        if (!env.enclInvokable.flagSet.contains(Flag.QUERY_LAMBDA)) {
+        // Collect all the lambda functions.
+        if (!env.enclPkg.lambdaFunctions.contains(bLangLambdaFunction)) {
             env.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
         }
         result = bLangLambdaFunction;
