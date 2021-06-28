@@ -205,6 +205,28 @@ function testComplexQueryWithAnonFuncExpr2() {
     v = f2 is (function () returns int) ? f2() : ();
     assertEqual(v is int, true);
     assertEqual(v, 63);
+
+    (function () returns Card)[] fn4 = from var person in personList
+                                       order by person.firstName descending
+                                       select function () returns Card {
+                                           string hello = "Hello ";
+                                           function () returns string ff = function () returns string {
+                                               return hello + person.firstName;
+                                           };
+                                           string message = ff();
+                                           Card cd = {msg: message, noOfEmp: 25 + y};
+                                           return cd;
+                                       };
+
+    assertEqual(fn4.length(), 3);
+    function () returns Card f3 = fn4[0];
+    Card card = f3();
+    assertEqual("Hello Ranjan", card.msg);
+    assertEqual(35, card.noOfEmp);
+    f3 = fn4[1];
+    card = f3();
+    assertEqual("Hello John", card.msg);
+    assertEqual(35, card.noOfEmp);
 }
 
 Employee e1 = {firstName: "Alex", lastName: "George", dept: "Engineering"};
@@ -214,27 +236,48 @@ Employee e3 = {firstName: "Alex", lastName: "Fonseka", dept: "Operations"};
 Employee[] employeeList = [e1, e2, e3];
 
 function testInnerQueryWithAnonFuncExpr() {
-    var fn = from var person in personList
-             from var empFunc in (from var emp in employeeList select function () returns string {
-                 return emp.firstName + " " + emp.dept;
-             })
-             where person.firstName == "Alex"
-             limit 2
-             select function () returns string {
-                 function () returns string ff = empFunc;
-                 string vv = ff();
-                 string aa = person.age.toString();
-                 return vv + " " + aa;
-             };
+    var fn1 = from var person in personList
+              from var empFunc in (from var emp in employeeList select function () returns string {
+                  return emp.firstName + " " + emp.dept;
+              })
+              where person.firstName == "Alex"
+              limit 2
+              select function () returns string {
+                  function () returns string ff = empFunc;
+                  string vv = ff();
+                  string aa = person.age.toString();
+                  return vv + " " + aa;
+              };
 
-    assertEqual(fn.length(), 2);
-    function () returns string f = fn[0];
+    assertEqual(fn1.length(), 2);
+    function () returns string f = fn1[0];
     string details = f();
     assertEqual(details, "Alex Engineering 23");
 
-    f = fn[1];
+    f = fn1[1];
     details = f();
     assertEqual(details, "John HR 23");
+
+    var fn2 = from var {firstName: fnm, lastName: lnm, age: a} in personList
+              from var empFunc in (from var emp in employeeList select function () returns string {
+                  return emp.dept;
+              })
+              where fnm == "Alex"
+              limit 2
+              select function () returns string {
+                  function () returns string ff = empFunc;
+                  string dept = ff();
+                  return fnm + " " + lnm + " in " + dept;
+              };
+
+    assertEqual(fn2.length(), 2);
+    f = fn2[0];
+    details = f();
+    assertEqual(details, "Alex George in Engineering");
+
+    f = fn2[1];
+    details = f();
+    assertEqual(details, "Alex George in HR");
 }
 
 int[] arr = [3, 4, 5];
@@ -245,9 +288,35 @@ int[] arr = [3, 4, 5];
                                            select function () returns string => p.firstName + " " + p.lastName;
 
 int[] globalFn3 = from int m in arr
-                   let function () returns int func = function () returns int => m * y
-                   where func === function () returns int => 20
-                   select m;
+                  let function () returns int func = function () returns int => m * y
+                  where func === function () returns int {
+                      return 20;
+                  }
+                  select m;
+
+(function () returns string)[] globalFn4 = from var {firstName, lastName, age} in personList
+                                           where firstName == "Alex"
+                                           select function () returns string {
+                                               string hello = "Hello ";
+                                               return hello + firstName + " " + lastName;
+                                           };
+
+type Card record {|
+   string msg;
+   int noOfEmp;
+|};
+
+(function () returns Card)[] globalFn5 = from var person in personList
+                                         from var empFunc in (from var {firstName, lastName, dept} in employeeList
+                                         select function () returns string => firstName + " " + dept)
+                                         where person.firstName == "Alex"
+                                         limit 2
+                                         select function () returns Card {
+                                             function () returns string ff = empFunc;
+                                             string message = ff();
+                                             Card cd = {msg: message, noOfEmp: 25 + y};
+                                             return cd;
+                                         };
 
 function testGlobalQueryWithAnonFuncExpr() {
     var fn1 = globalFn1;
@@ -280,6 +349,23 @@ function testGlobalQueryWithAnonFuncExpr() {
 
     var fn3 = globalFn3;
     assertEqual(fn3.length(), 0);
+
+    var fn4 = globalFn4;
+    assertEqual(fn4.length(), 1);
+    function () returns string f4 = fn4[0];
+    string value3 = f4();
+    assertEqual(value3, "Hello Alex George");
+
+    var fn5 = globalFn5;
+    assertEqual(fn5.length(), 2);
+    function () returns Card f5 = fn5[0];
+    Card card1 = f5();
+    assertEqual("Alex Engineering", card1.msg);
+    assertEqual(35, card1.noOfEmp);
+    f5 = fn5[1];
+    card1 = f5();
+    assertEqual("John HR", card1.msg);
+    assertEqual(35, card1.noOfEmp);
 }
 
 function assertEqual(any actual, any expected) {

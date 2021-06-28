@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 /**
  * This contains methods to test query expressions with anonymous function expressions.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public class QueryExprWithAnonFunctionExprs {
     private CompileResult result;
