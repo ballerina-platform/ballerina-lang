@@ -146,6 +146,11 @@ public class AddOperationTest {
         BRunUtil.invoke(result, functionName);
     }
 
+    @Test(description = "Test contextually expected type of numeric literals in addition")
+    public void testContextuallyExpectedTypeOfNumericLiteralInAdd() {
+        BRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInAdd");
+    }
+
     @DataProvider
     public Object[] dataToTestAdditionWithTypes() {
         return new Object[]{
