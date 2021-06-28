@@ -398,4 +398,14 @@ public class XMLLiteralTest {
                 "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY data \"Example\" >]><foo>&data;</foo>");
         Assert.assertEquals(xml.toString(), "<foo>Example</foo>");
     }
+
+    @Test
+    public void testXMLSequenceValueAssignment() {
+        BRunUtil.invoke(result, "testXMLSequenceValueAssignment");
+    }
+
+    @Test
+    public void testXMLTextValueAssignment() {
+        BRunUtil.invoke(result, "testXMLTextValueAssignment");
+    }
 }
