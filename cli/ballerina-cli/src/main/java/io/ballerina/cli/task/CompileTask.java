@@ -18,6 +18,7 @@
 
 package io.ballerina.cli.task;
 
+import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
@@ -61,8 +62,22 @@ public class CompileTask implements Task {
         this.out.println("\t" + sourceName);
 
         try {
+            long start = 0;
+            if (project.buildOptions().dumpBuildTime()) {
+                start = System.currentTimeMillis();
+                project.currentPackage().getResolution();
+                BuildTime.getInstance().packageResolutionDuration = System.currentTimeMillis() - start;
+                start = System.currentTimeMillis();
+            }
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+            if (project.buildOptions().dumpBuildTime()) {
+                BuildTime.getInstance().packageCompilationDuration = System.currentTimeMillis() - start;
+                start = System.currentTimeMillis();
+            }
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+            if (project.buildOptions().dumpBuildTime()) {
+                BuildTime.getInstance().codeGenDuration = System.currentTimeMillis() - start;
+            }
             DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
             diagnosticResult.diagnostics().forEach(d -> err.println(d.toString()));
             if (diagnosticResult.hasErrors()) {

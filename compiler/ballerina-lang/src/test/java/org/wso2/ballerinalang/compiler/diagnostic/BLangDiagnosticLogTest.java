@@ -28,6 +28,7 @@ import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
@@ -55,6 +56,7 @@ public class BLangDiagnosticLogTest {
     public void setup() {
         context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(CompilerOptionName.PROJECT_API_INITIATED_COMPILATION, String.valueOf(true));
         dlog = BLangDiagnosticLog.getInstance(context);
     }
 

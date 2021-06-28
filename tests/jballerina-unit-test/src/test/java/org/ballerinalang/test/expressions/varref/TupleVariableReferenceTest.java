@@ -30,6 +30,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -275,6 +276,26 @@ public class TupleVariableReferenceTest {
         Assert.assertEquals(refValueArray2.getRefValue(1).stringValue(), "FooUpdated");
     }
 
+    @Test(dataProvider = "dataToTestRestVarRefType", description = "Test tuple rest var ref type")
+    public void testNeverWithExpressions(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestRestVarRefType() {
+        return new Object[]{
+                "testRestVarRefType1",
+                "testRestVarRefType2",
+                "testRestVarRefType3",
+                "testRestVarRefType4",
+                "testRestVarRefType5",
+                "testRestVarRefType6",
+                "testRestVarRefType7",
+                "testRestVarRefType8",
+                "testRestVarRefType9"
+        };
+    }
+
     @Test(groups = { "disableOnOldParser" })
     public void testTupleVariablesReferencesSemanticsNegative() {
         resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/varref/tuple-variable-reference" +
@@ -323,6 +344,10 @@ public class TupleVariableReferenceTest {
                 errorMsg1 + "'[[string,[int,[boolean,int]]],[float,int]]', found 'any'", 139, 84);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "invalid expr in assignment lhs", 160, 33);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'boolean[]', found " +
+                "'[string,boolean...]'", 173, 19);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'[int,string,string]', found " +
+                "'[int,string,boolean...]'", 176, 31);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 

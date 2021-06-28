@@ -66,7 +66,7 @@ public class PullCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
         Assert.assertTrue(
-                actual.contains("ballerina: invalid package name. Provide the package name with the organization"));
+                actual.contains("ballerina: invalid package name. Provide the package name with the organization."));
         Assert.assertTrue(
                 actual.contains("bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}"));
     }
@@ -80,7 +80,7 @@ public class PullCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
         Assert.assertTrue(
-                actual.contains("ballerina: invalid organization. Provide the package name with the organization"));
+                actual.contains("ballerina: invalid organization. Provide the package name with the organization."));
         Assert.assertTrue(
                 actual.contains("bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}"));
     }
@@ -94,7 +94,7 @@ public class PullCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
         Assert.assertTrue(
-                actual.contains("ballerina: invalid package name. Provide the package name with the organization "));
+                actual.contains("ballerina: invalid package name. Provide the package name with the organization."));
         Assert.assertTrue(
                 actual.contains("bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}"));
     }

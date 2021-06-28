@@ -65,16 +65,17 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
             return this.getCompletionItemList(QNameReferenceUtil.getTypesInModule(context, nameRef), context);
         }
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getTypeDescContextItems(context));
-        completionItems.addAll(this.getObjectTypeQualifierItems(context));
+        completionItems.addAll(this.getTypeQualifierItems(context));
 
         return completionItems;
     }
 
-    private List<LSCompletionItem> getObjectTypeQualifierItems(BallerinaCompletionContext context) {
+    private List<LSCompletionItem> getTypeQualifierItems(BallerinaCompletionContext context) {
         // Note: here we do not add the service type qualifier since it is being added via getTypeItems call.
         return Arrays.asList(
                 new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()),
-                new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
+                new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()),
+                new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
     }
 
     private boolean onTypeNameContext(BallerinaCompletionContext context, TypeDefinitionNode node) {

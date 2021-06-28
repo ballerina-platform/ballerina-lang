@@ -9,7 +9,7 @@
       "label": "annotationCommon",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "annotationCommon {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -18,7 +18,7 @@
       "label": "parameterAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "parameterAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -27,7 +27,7 @@
       "label": "parameterAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "parameterAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -36,7 +36,7 @@
       "label": "commonAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "commonAnnotation1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
@@ -45,7 +45,7 @@
       "label": "commonAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "Q",
+      "sortText": "B",
       "insertText": "commonAnnotation2 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []

@@ -50,11 +50,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "runtime",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -68,30 +68,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -119,11 +96,11 @@
       ]
     },
     {
-      "label": "ballerina/jballerina.java",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "java",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -137,7 +114,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jballerina.java;\n"
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -457,42 +457,47 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "'if",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "D",
-      "insertText": "'if",
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "from",
+      "insertText": "from ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "'function()(string)",
+      "label": "example(Currency 'from, string to)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `Currency` 'from  \n- `string` to"
         }
       },
       "sortText": "E",
-      "filterText": "'function",
-      "insertText": "'function()",
-      "insertTextFormat": "Snippet"
+      "filterText": "example",
+      "insertText": "example(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "'from",
       "kind": "Variable",
       "detail": "Currency",
-      "sortText": "A",
+      "sortText": "AB",
       "insertText": "'from",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fromCurrency",
-      "kind": "Variable",
-      "detail": "Currency",
-      "sortText": "A",
-      "insertText": "fromCurrency",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "O",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -515,39 +520,43 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "fromCurrency",
+      "kind": "Variable",
+      "detail": "Currency",
+      "sortText": "AB",
+      "insertText": "fromCurrency",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Currency",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "N",
+      "sortText": "AL",
       "insertText": "Currency",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "O",
-      "insertText": "Thread",
+      "label": "'if",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "D",
+      "insertText": "'if",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "example(Currency 'from, string to)",
+      "label": "'function()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `Currency` 'from  \n- `string` to"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
         }
       },
       "sortText": "E",
-      "filterText": "example",
-      "insertText": "example(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "filterText": "'function",
+      "insertText": "'function()",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "readonly",

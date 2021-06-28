@@ -9,11 +9,10 @@ import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectUtils;
-import io.ballerina.projects.util.RepoUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.net.Proxy;
 import java.nio.file.Files;
@@ -56,7 +55,7 @@ public class RemotePackageRepository implements PackageRepository {
         if (Files.notExists(cacheDirectory)) {
             throw new ProjectException("cache directory does not exists: " + cacheDirectory);
         }
-        String ballerinaShortVersion = ProjectUtils.getBallerinaShortVersion();
+        String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
         FileSystemRepository fileSystemRepository = new FileSystemRepository(
                 environment, cacheDirectory, ballerinaShortVersion);
         Proxy proxy = initializeProxy(settings.getProxy());
@@ -99,7 +98,7 @@ public class RemotePackageRepository implements PackageRepository {
             for (String supportedPlatform : SUPPORTED_PLATFORMS) {
                 try {
                     this.client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
-                                            ProjectUtils.getBallerinaVersion(), true);
+                                            RepoUtils.getBallerinaVersion(), true);
                 } catch (CentralClientException e) {
                     // ignore when get package fail
                 }
@@ -128,7 +127,7 @@ public class RemotePackageRepository implements PackageRepository {
 
         try {
             for (String version : this.client.getPackageVersions(orgName, packageName, JvmTarget.JAVA_11.code(),
-                                                                 ProjectUtils.getBallerinaVersion())) {
+                                                                 RepoUtils.getBallerinaVersion())) {
                 packageVersions.add(PackageVersion.from(version));
             }
         } catch (ConnectionErrorException e) {

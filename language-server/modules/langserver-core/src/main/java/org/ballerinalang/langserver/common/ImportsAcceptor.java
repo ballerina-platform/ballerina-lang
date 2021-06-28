@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.common;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.projects.Project;
-import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.eclipse.lsp4j.Position;
@@ -93,9 +92,7 @@ public class ImportsAcceptor {
      */
     public List<TextEdit> getNewImportTextEdits() {
         List<TextEdit> edits = new ArrayList<>();
-        newImports.forEach(i -> {
-            edits.add(createImportTextEdit(i));
-        });
+        newImports.forEach(i -> edits.add(createImportTextEdit(i)));
         return edits;
     }
 
@@ -109,16 +106,11 @@ public class ImportsAcceptor {
     }
 
     private TextEdit createImportTextEdit(String pkgName) {
-        Location pos = null;
-
-        if (!currentModuleImportsMap.isEmpty()) {
-            ImportDeclarationNode lastImport =
-                    CommonUtil.getLastItem(new ArrayList<>(currentModuleImportsMap.keySet()));
-            pos = lastImport.location();
-        }
+        Optional<ImportDeclarationNode> lastImport =
+                CommonUtil.getLastItem(new ArrayList<>(currentModuleImportsMap.keySet()));
 
         int endCol = 0;
-        int endLine = pos == null ? 0 : pos.lineRange().endLine().line();
+        int endLine = lastImport.isEmpty() ? 0 : lastImport.get().location().lineRange().endLine().line();
 
         String editText = "import " + pkgName + ";\n";
         Range range = new Range(new Position(endLine, endCol), new Position(endLine, endCol));

@@ -37,6 +37,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.FileReader;
@@ -134,9 +135,9 @@ public class TestBalaWriter {
             Assert.assertEquals(packageJson.getPlatform(), "java11");
             Assert.assertEquals(packageJson.getPlatformDependencies().size(), 1);
 
-            Assert.assertEquals(packageJson.getBallerinaVersion(), ProjectUtils.getBallerinaShortVersion());
+            Assert.assertEquals(packageJson.getBallerinaVersion(), RepoUtils.getBallerinaShortVersion());
             Assert.assertEquals(packageJson.getImplementationVendor(), "WSO2");
-            Assert.assertEquals(packageJson.getLanguageSpecVersion(), ProjectUtils.getBallerinaSpecVersion());
+            Assert.assertEquals(packageJson.getLanguageSpecVersion(), RepoUtils.getBallerinaSpecVersion());
         }
 
         // compiler-plugin.json
