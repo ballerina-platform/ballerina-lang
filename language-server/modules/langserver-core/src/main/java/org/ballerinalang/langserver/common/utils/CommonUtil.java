@@ -951,10 +951,10 @@ public class CommonUtil {
         TextDocument textDocument = syntaxTree.textDocument();
         LineRange symbolRange = symbol.getLocation().get().lineRange();
         int start = textDocument.textPositionFrom(symbolRange.startLine());
-        int len = symbolRange.endLine().offset() - symbolRange.startLine().offset();
-        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(start, len), true);
+        int end = textDocument.textPositionFrom(symbolRange.endLine());
+        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(start, end - start), true);
     }
-
+    
     public static boolean isWithinLineRange(Position pos, LineRange lineRange) {
         int sLine = lineRange.startLine().line();
         int sCol = lineRange.startLine().offset();
