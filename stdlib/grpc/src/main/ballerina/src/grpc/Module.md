@@ -250,7 +250,7 @@ The code snippet given below calls the above service using the auto-generated Ba
     ChatClient chatClient = new("http://localhost:9090");
 
     // Execute the service streaming call by registering a message listener.
-    grpc:StreamingClient|grpc:Error ep = = chatClient->chat(ChatMessageListener);
+    grpc:StreamingClient|grpc:Error ep = chatClient->chat(ChatMessageListener);
 
 // Send multiple messages to the server.
 string[] greets = ["Hi", "Hey", "GM"];
