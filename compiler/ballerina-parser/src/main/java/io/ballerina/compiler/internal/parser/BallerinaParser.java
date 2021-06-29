@@ -5366,8 +5366,13 @@ public class BallerinaParser extends AbstractParser {
     private STNode recoverExpressionRhs(OperatorPrecedence currentPrecedenceLevel, STNode lhsExpr, boolean isRhsExpr,
                                         boolean allowActions, boolean isInMatchGuard, boolean isInConditionalExpr) {
         STToken token = peek();
-        Solution solution = recover(token, ParserRuleContext.EXPRESSION_RHS, currentPrecedenceLevel, lhsExpr, isRhsExpr,
-                allowActions, isInMatchGuard, isInConditionalExpr);
+        SyntaxKind lhsExprKind = lhsExpr.kind;
+        Solution solution;
+        if (lhsExprKind == SyntaxKind.QUALIFIED_NAME_REFERENCE || lhsExprKind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            solution = recover(token, ParserRuleContext.VARIABLE_REF_RHS);
+        } else {
+            solution = recover(token, ParserRuleContext.EXPRESSION_RHS);
+        }
 
         // If the current rule was recovered by removing a token, then this entire rule is already
         // parsed while recovering. so we done need to parse the remaining of this rule again.
@@ -5385,12 +5390,10 @@ public class BallerinaParser extends AbstractParser {
             SyntaxKind binaryOpKind = getBinaryOperatorKindToInsert(currentPrecedenceLevel);
             ParserRuleContext binaryOpContext = getMissingBinaryOperatorContext(currentPrecedenceLevel);
             insertToken(binaryOpKind, binaryOpContext);
-            return parseExpressionRhsInternal(currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions, isInMatchGuard,
-                    isInConditionalExpr);
-        } else {
-            return parseExpressionRhsInternal(currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions, isInMatchGuard,
-                    isInConditionalExpr);
         }
+
+        return parseExpressionRhsInternal(currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions, isInMatchGuard,
+                isInConditionalExpr);
     }
 
     private STNode createXMLStepExpression(STNode lhsExpr) {
@@ -14683,7 +14686,14 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 STToken token = peek();
-                recover(token, ParserRuleContext.BINDING_PATTERN_OR_EXPR_RHS, typeOrExpr, allowAssignment);
+                SyntaxKind typeOrExprKind = typeOrExpr.kind;
+                if (typeOrExprKind == SyntaxKind.QUALIFIED_NAME_REFERENCE ||
+                        typeOrExprKind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                    recover(token, ParserRuleContext.BINDING_PATTERN_OR_VAR_REF_RHS);
+                } else {
+                    recover(token, ParserRuleContext.BINDING_PATTERN_OR_EXPR_RHS);
+                }
+
                 return parseTypedBindingPatternOrExprRhs(typeOrExpr, allowAssignment);
         }
     }
