@@ -261,7 +261,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean nonErrorLoggingCheck = false;
     private int letCount = 0;
     private Stack<SymbolEnv> queryEnvs, prevEnvs;
-    private Stack<BLangNode> selectClauses;
+    private Stack<BLangNode> queryFinalClauses;
     private boolean checkWithinQueryExpr = false;
     private BLangMissingNodesHelper missingNodesHelper;
     private boolean breakToParallelQueryEnv = false;
@@ -341,7 +341,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
-        this.selectClauses = new Stack<>();
+        this.queryFinalClauses = new Stack<>();
         this.queryEnvs = new Stack<>();
         this.prevEnvs = new Stack<>();
         this.unifier = new Unifier();
@@ -4923,15 +4923,15 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             queryEnvs.push(env);
         }
-        selectClauses.push(queryExpr.getSelectClause());
+        queryFinalClauses.push(queryExpr.getSelectClause());
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         BLangExpression collectionNode = (BLangExpression) ((BLangFromClause) clauses.get(0)).getCollection();
         clauses.forEach(clause -> clause.accept(this));
-        BType actualType = resolveQueryType(queryEnvs.peek(), ((BLangSelectClause) selectClauses.peek()).expression,
+        BType actualType = resolveQueryType(queryEnvs.peek(), ((BLangSelectClause) queryFinalClauses.peek()).expression,
                 collectionNode.getBType(), expType, queryExpr);
         actualType = (actualType == symTable.semanticError) ? actualType :
                 types.checkType(queryExpr.pos, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
-        selectClauses.pop();
+        queryFinalClauses.pop();
         queryEnvs.pop();
         if (cleanPrevEnvs) {
             prevEnvs.pop();
@@ -4951,7 +4951,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isWithinQuery() {
-        return !queryEnvs.isEmpty() && !selectClauses.isEmpty();
+        return !queryEnvs.isEmpty() && !queryFinalClauses.isEmpty();
     }
 
     private BType resolveQueryType(SymbolEnv env, BLangExpression selectExp, BType collectionType,
@@ -5119,14 +5119,14 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         queryEnvs.push(prevEnvs.peek());
         BLangDoClause doClause = queryAction.getDoClause();
-        selectClauses.push(doClause);
+        queryFinalClauses.push(doClause);
         List<BLangNode> clauses = queryAction.getQueryClauses();
         clauses.forEach(clause -> clause.accept(this));
         // Analyze foreach node's statements.
         semanticAnalyzer.analyzeStmt(doClause.body, SymbolEnv.createBlockEnv(doClause.body, queryEnvs.peek()));
         BType actualType = BUnionType.create(null, symTable.errorType, symTable.nilType);
         resultType = types.checkType(doClause.pos, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
-        selectClauses.pop();
+        queryFinalClauses.pop();
         queryEnvs.pop();
         prevEnvs.pop();
     }
@@ -5253,7 +5253,7 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(filterExpression.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                     symTable.booleanType, actualType);
         }
-        SymbolEnv filterEnv = typeNarrower.evaluateTruth(filterExpression, selectClauses.peek(), queryEnvs.pop());
+        SymbolEnv filterEnv = typeNarrower.evaluateTruth(filterExpression, queryFinalClauses.peek(), queryEnvs.pop());
         queryEnvs.push(filterEnv);
         return filterEnv;
     }
