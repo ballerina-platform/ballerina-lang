@@ -186,15 +186,14 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
     @Override
     public void visit(ImportDeclarationNode importDeclarationNode) {
         addUnusedImportNode(importDeclarationNode);
-
-        if (importDeclarationNode.moduleName().size() > 0 && importDeclarationNode.moduleName()
-                .get(importDeclarationNode.moduleName().size() - 1) != null) {
+        int moduleNamePosition = importDeclarationNode.moduleName().size() - 1;
+        if (importDeclarationNode.moduleName().size() > 0) {
             Optional<ImportPrefixNode> prefix = importDeclarationNode.prefix();
             if (prefix.isPresent()) {
                 moveUnusedtoUsedImport(prefix.get().prefix().lineRange(), importDeclarationNode);
             } else {
-                moveUnusedtoUsedImport(importDeclarationNode.moduleName()
-                        .get(importDeclarationNode.moduleName().size() - 1).lineRange(), importDeclarationNode);
+                moveUnusedtoUsedImport(importDeclarationNode.moduleName().get(moduleNamePosition).lineRange(),
+                        importDeclarationNode);
             }
         }
     }
