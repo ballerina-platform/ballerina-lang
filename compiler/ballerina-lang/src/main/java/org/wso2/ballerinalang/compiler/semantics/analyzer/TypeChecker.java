@@ -261,7 +261,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean nonErrorLoggingCheck = false;
     private int letCount = 0;
     private Stack<SymbolEnv> queryEnvs, prevEnvs;
-    private Stack<BLangSelectClause> selectClauses;
+    private Stack<BLangNode> selectClauses;
     private boolean checkWithinQueryExpr = false;
     private BLangMissingNodesHelper missingNodesHelper;
     private boolean breakToParallelQueryEnv = false;
@@ -4927,7 +4927,7 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         BLangExpression collectionNode = (BLangExpression) ((BLangFromClause) clauses.get(0)).getCollection();
         clauses.forEach(clause -> clause.accept(this));
-        BType actualType = resolveQueryType(queryEnvs.peek(), selectClauses.peek().expression,
+        BType actualType = resolveQueryType(queryEnvs.peek(), ((BLangSelectClause) selectClauses.peek()).expression,
                 collectionNode.getBType(), expType, queryExpr);
         actualType = (actualType == symTable.semanticError) ? actualType :
                 types.checkType(queryExpr.pos, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
@@ -5118,8 +5118,8 @@ public class TypeChecker extends BLangNodeVisitor {
             prevEnvs.push(prevEnvs.peek());
         }
         queryEnvs.push(prevEnvs.peek());
-        selectClauses.push(null);
         BLangDoClause doClause = queryAction.getDoClause();
+        selectClauses.push(doClause);
         List<BLangNode> clauses = queryAction.getQueryClauses();
         clauses.forEach(clause -> clause.accept(this));
         // Analyze foreach node's statements.
@@ -5253,13 +5253,8 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(filterExpression.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                     symTable.booleanType, actualType);
         }
-        SymbolEnv filterEnv;
-        if (selectClauses.peek() != null) {
-           filterEnv = typeNarrower.evaluateTruth(filterExpression, selectClauses.peek(), queryEnvs.pop());
-           queryEnvs.push(filterEnv);
-        } else {
-            filterEnv = queryEnvs.peek();
-        }
+        SymbolEnv filterEnv = typeNarrower.evaluateTruth(filterExpression, selectClauses.peek(), queryEnvs.pop());
+        queryEnvs.push(filterEnv);
         return filterEnv;
     }
 
