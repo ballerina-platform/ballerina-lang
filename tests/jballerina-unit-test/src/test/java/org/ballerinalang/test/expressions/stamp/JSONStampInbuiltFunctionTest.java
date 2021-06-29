@@ -170,6 +170,11 @@ public class JSONStampInbuiltFunctionTest {
     }
 
     @Test
+    public void testStampTupleToJSON() {
+        BRunUtil.invoke(compileResult, "stampTupleToJSON");
+    }
+
+    @Test
     public void testStampJSONArrayToConstraintArray() {
 
         BValue[] results = BRunUtil.invoke(compileResult, "stampJSONArrayToConstraintArray");

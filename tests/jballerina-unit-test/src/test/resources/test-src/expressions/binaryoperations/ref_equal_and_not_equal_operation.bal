@@ -446,3 +446,11 @@ function testEmptyXMLSequencesRefEquality() returns boolean {
     xml q = y/*;
     return z === q;
 }
+
+function testTupleJSONRefEqualityFalse() returns boolean {
+    [string, int] t = ["Hi", 1];
+    json j = "Hi 1";
+    return t === j && !(j !== t);
+}
+
+

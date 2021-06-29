@@ -36,13 +36,6 @@ function stampTupleToRecord() returns Employee|error {
     return returnValue;
 }
 
-function stampTupleToJSON() returns json|error {
-    [string, string, string] tupleValue = ["Mohan", "single", "LK2014"];
-
-    json|error jsonValue = tupleValue.cloneWithType(json);
-    return jsonValue;
-}
-
 type XmlType xml;
 
 function stampTupleToXML() returns xml|error {

@@ -109,6 +109,20 @@ function stampJSONArrayToConstraintArray() returns Student []|error{
     return studentArray;
 }
 
+function stampTupleToJSON() {
+    [string, string, string] tupleValue = ["Mohan", "single", "LK2014"];
+    json|error jsonValue = tupleValue.cloneWithType(json);
+
+    assert(jsonValue is error, false);
+
+    json tempVal = null;
+    if (jsonValue is json) {
+        tempVal = jsonValue;
+    }
+    assert((<json[]>tempVal)[0] is string, true);
+    assert((<json[]>tempVal)[2].toString() , "LK2014");
+}
+
 function stampJSONArrayToAnyTypeArray() returns anydata []|error{
     json jsonArray =  [1, false, "foo", { first: "John", last: "Pala" }];
     anydata[]|error anydataArray = jsonArray.cloneWithType(AnydataArray);
@@ -174,4 +188,15 @@ function stampNullJSONToArrayNegative() returns StringArray|error {
     var s = j.cloneWithType(StringArray);
 
     return s;
+}
+
+function assert(anydata actual, anydata expected) {
+    if (expected != actual) {
+        typedesc<anydata> expT = typeof expected;
+        typedesc<anydata> actT = typeof actual;
+        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        error e = error(reason);
+        panic e;
+    }
 }

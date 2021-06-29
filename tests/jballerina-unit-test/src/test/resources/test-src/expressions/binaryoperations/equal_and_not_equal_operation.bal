@@ -1324,6 +1324,17 @@ function isEqual(anydata a, anydata b) returns boolean {
     return a == b && !(b != a);
 }
 
+function testTupleJSONEqualityNegative() {
+    [string, int] t = ["Hi", 1];
+    json j = "Hi 1";
+    boolean bool1 = t == j && t != j;
+    assert(bool1, false);
+
+    [string, int][] e = [["Hi", 1]];
+    bool1 = e == j && e != j;
+    assert(bool1, false);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;
