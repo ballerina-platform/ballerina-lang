@@ -3409,7 +3409,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         for (BLangTypeDefinition typeDefinition : bLangPackage.typeDefinitions) {
-            if (!typeDefinition.flagSet.contains(Flag.PUBLIC)) {
+            Set<Flag> flagSet = typeDefinition.flagSet;
+            if (!flagSet.contains(Flag.PUBLIC) || flagSet.contains(Flag.ANONYMOUS)) {
                 continue;
             }
 
