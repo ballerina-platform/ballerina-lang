@@ -50,6 +50,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -518,7 +519,8 @@ public class GlobalVariableRefAnalyzer {
         List<BSymbol> secondSubList = new ArrayList<>(symbolsOfCycle.subList(splitFrom, len));
         secondSubList.addAll(firstSubList);
 
-        List<BLangIdentifier> names = secondSubList.stream().map(this::getNodeName).collect(Collectors.toList());
+        List<BLangIdentifier> names = secondSubList.stream()
+                .map(this::getNodeName).filter(Objects::nonNull).collect(Collectors.toList());
         dlog.error(firstNode.get().getPosition(), DiagnosticErrorCode.GLOBAL_VARIABLE_CYCLIC_DEFINITION, names);
     }
 
@@ -545,7 +547,7 @@ public class GlobalVariableRefAnalyzer {
                 }
             }
         }
-        throw new IllegalArgumentException("Cannot find topLevelNode: " + symbol);
+        return null;
     }
 
     private BSymbol getSymbol(Node node) {

@@ -522,14 +522,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (symbol.owner.tag == SymTag.LET && env.enclVarSym != null) {
-            BVarSymbol dependentVar = env.enclVarSym;
-            addDependency(dependentVar, symbol);
-        }
-
         this.currDependentSymbol.push(symbol);
         if (variable.typeNode != null && variable.typeNode.getBType() != null) {
             recordGlobalVariableReferenceRelationship(variable.typeNode.getBType().tsymbol);
+        }
+        boolean withInModuleVarLetExpr = symbol.owner.tag == SymTag.LET && isGlobalVarSymbol(env.enclVarSym);
+        if (withInModuleVarLetExpr) {
+            BVarSymbol dependentVar = env.enclVarSym;
+            this.currDependentSymbol.push(dependentVar);
         }
         try {
             if (variable.isDeclaredWithVar) {
@@ -554,6 +554,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
             addUninitializedVar(variable);
         } finally {
+            if (withInModuleVarLetExpr) {
+                this.currDependentSymbol.pop();
+            }
             this.currDependentSymbol.pop();
         }
     }
