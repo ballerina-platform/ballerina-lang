@@ -42,11 +42,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "runtime",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -60,53 +60,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/module1;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -134,11 +88,11 @@
       ]
     },
     {
-      "label": "ballerina/jballerina.java",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "java",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -152,7 +106,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jballerina.java;\n"
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -176,6 +153,29 @@
             }
           },
           "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
         }
       ]
     },
@@ -481,107 +481,17 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getFunction",
+      "label": "total",
       "kind": "Variable",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `function (int, int) returns int`   \n  \n"
-        }
-      },
+      "detail": "int",
       "sortText": "D",
-      "filterText": "getFunction",
-      "insertText": "getFunction",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getFunction()(function (int, int) returns int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `function (int, int) returns int`   \n  \n"
-        }
-      },
-      "sortText": "AC",
-      "filterText": "getFunction",
-      "insertText": "getFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "addFunction",
-      "kind": "Variable",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` num1  \n- `int` num2  \n  \n**Return** `int`   \n  \n"
-        }
-      },
-      "sortText": "AB",
-      "filterText": "addFunction",
-      "insertText": "addFunction",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "addFunction(int num1, int num2)(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` num1  \n- `int` num2  \n  \n**Return** `int`   \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "addFunction",
-      "insertText": "addFunction(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "main",
-      "kind": "Variable",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "D",
-      "filterText": "main",
-      "insertText": "main",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "main()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "main",
-      "insertText": "main()",
+      "insertText": "total",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "process",
       "kind": "Variable",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -598,9 +508,9 @@
       }
     },
     {
-      "label": "process(function (int, int) returns int func, int num1, int num2)(int)",
+      "label": "process(function (int, int) returns int func, int num1, int num2)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -615,14 +525,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "O",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "myInt1",
@@ -641,11 +543,79 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "total",
+      "label": "addFunction",
       "kind": "Variable",
       "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` num1  \n- `int` num2  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "AB",
+      "filterText": "addFunction",
+      "insertText": "addFunction",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "addFunction(int num1, int num2)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` num1  \n- `int` num2  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "addFunction",
+      "insertText": "addFunction(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "O",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "main",
+      "kind": "Variable",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
       "sortText": "D",
-      "insertText": "total",
+      "filterText": "main",
+      "insertText": "main",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "main()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "main",
+      "insertText": "main()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -662,7 +632,7 @@
     {
       "label": "subtractFunction",
       "kind": "Variable",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -679,9 +649,9 @@
       }
     },
     {
-      "label": "subtractFunction(int a, int b)(int)",
+      "label": "subtractFunction(int a, int b)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -696,6 +666,36 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "getFunction",
+      "kind": "Variable",
+      "detail": "function (int, int) returns int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `function (int, int) returns int`   \n  \n"
+        }
+      },
+      "sortText": "D",
+      "filterText": "getFunction",
+      "insertText": "getFunction",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getFunction()",
+      "kind": "Function",
+      "detail": "function (int, int) returns int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `function (int, int) returns int`   \n  \n"
+        }
+      },
+      "sortText": "AC",
+      "filterText": "getFunction",
+      "insertText": "getFunction()",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "readonly",

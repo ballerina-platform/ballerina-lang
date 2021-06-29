@@ -22,8 +22,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Expression Context tests.
@@ -47,10 +45,5 @@ public class ClassDefContextTest extends CompletionTest {
     @Override
     public String getTestResourceDir() {
         return "class_def";
-    }
-
-    @Override
-    public List<String> skipList() {
-        return Arrays.asList("config3.json", "config8.json", "config12.json", "config13.json");
     }
 }

@@ -235,6 +235,15 @@ public class StaticMethods {
         return (int) (a + 5);
     }
 
+    public static int[] acceptIntReturnIntArrayThrowsCheckedException(long a) throws JavaInteropTestCheckedException {
+        int arr[] = {1, 2, 3};
+        if (a == 1) {
+            return arr;
+        } else {
+            throw new JavaInteropTestCheckedException("Invalid state");
+        }
+    }
+
     public static ArrayValue getArrayValueFromMapWhichThrowsCheckedException(BString key, MapValue mapValue)
             throws JavaInteropTestCheckedException {
         ArrayValue arrayValue = (ArrayValue) ValueCreator.createArrayValue(intArrayType);
@@ -658,4 +667,6 @@ public class StaticMethods {
             return null;
         }
     }
+
+
 }

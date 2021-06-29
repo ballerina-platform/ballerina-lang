@@ -42,11 +42,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "runtime",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -60,53 +60,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/module1;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -134,11 +88,11 @@
       ]
     },
     {
-      "label": "ballerina/jballerina.java",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "java",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -152,7 +106,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jballerina.java;\n"
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -176,6 +153,29 @@
             }
           },
           "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
         }
       ]
     },
@@ -489,33 +489,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Driver",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "M",
-      "insertText": "Driver",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "defaultModel",
-      "kind": "Variable",
-      "detail": "Model",
-      "sortText": "C",
-      "insertText": "defaultModel",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "createVehicle(Model model)(Vehicle)",
+      "label": "createVehicle(Model model)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "test/lsproject.models:0.1.0:Vehicle",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -540,17 +516,36 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Model",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "A",
-      "insertText": "Model",
+      "label": "defaultModel",
+      "kind": "Variable",
+      "detail": "Model",
+      "sortText": "C",
+      "insertText": "defaultModel",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "createVehicleModel(string name)(Model)",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "M",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "createVehicleModel(string name)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "test/lsproject.models:0.1.0:Model",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -567,14 +562,19 @@
       }
     },
     {
-      "label": "StrandData",
+      "label": "Driver",
       "kind": "Struct",
       "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
       "sortText": "M",
-      "insertText": "StrandData",
+      "insertText": "Driver",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Model",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "A",
+      "insertText": "Model",
       "insertTextFormat": "Snippet"
     },
     {
@@ -636,7 +636,7 @@
     {
       "label": "new(string name)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
