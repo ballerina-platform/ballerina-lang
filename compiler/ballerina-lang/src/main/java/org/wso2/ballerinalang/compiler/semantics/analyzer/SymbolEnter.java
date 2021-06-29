@@ -1323,7 +1323,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (typeDefinitions.isEmpty()) {
                 BType referredType = symResolver.resolveTypeNode(currentTypeOrClassNode, env);
                 if (referredType.tag == TypeTags.RECORD || referredType.tag == TypeTags.OBJECT ||
-                        referredType.tag == TypeTags.FINITE) {
+                        referredType.tag == TypeTags.FINITE || (referredType.tag == TypeTags.UNION &&
+                        referredType.tsymbol != null && referredType.tsymbol.tag == SymTag.ENUM)) {
                     // we are referring an fully or partially defined type from another cyclic type eg: record, class
                     return;
                 }
