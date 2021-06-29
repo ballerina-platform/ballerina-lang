@@ -96,7 +96,7 @@ public class BSymbol implements Symbol {
 
     @Override
     public Name getOriginalName() {
-        return originalName;
+        return originalName.getValue() != null ? originalName : name;
     }
 
     @Override
