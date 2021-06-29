@@ -207,12 +207,14 @@ public class CPEntry {
     public static class PackageCPEntry extends CPEntry {
         public int orgNameCPIndex;
         public int pkgNameCPIndex;
+        public int moduleNameCPIndex;
         public int versionCPIndex;
 
-        public PackageCPEntry(int orgNameCPIndex, int pkgNameCPIndex, int versionCPIndex) {
+        public PackageCPEntry(int orgNameCPIndex, int pkgNameCPIndex, int moduleNameCPIndex, int versionCPIndex) {
             super(Type.CP_ENTRY_PACKAGE);
             this.orgNameCPIndex = orgNameCPIndex;
             this.pkgNameCPIndex = pkgNameCPIndex;
+            this.moduleNameCPIndex = moduleNameCPIndex;
             this.versionCPIndex = versionCPIndex;
         }
 
@@ -229,12 +231,13 @@ public class CPEntry {
             PackageCPEntry that = (PackageCPEntry) o;
             return orgNameCPIndex == that.orgNameCPIndex &&
                     pkgNameCPIndex == that.pkgNameCPIndex &&
+                    moduleNameCPIndex == that.moduleNameCPIndex &&
                     versionCPIndex == that.versionCPIndex;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(orgNameCPIndex, pkgNameCPIndex, versionCPIndex);
+            return Objects.hash(orgNameCPIndex, pkgNameCPIndex, moduleNameCPIndex, versionCPIndex);
         }
     }
 

@@ -86,7 +86,7 @@ public abstract class AbstractParserErrorHandler {
         if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
             SyntaxKind expectedTokenKind = getExpectedTokenKind(currentCtx);
             Solution fix = new Solution(Action.INSERT, currentCtx, expectedTokenKind, currentCtx.toString());
-            applyFix(currentCtx, fix, args);
+            applyFix(currentCtx, fix);
             return fix;
         }
 
@@ -103,7 +103,8 @@ public abstract class AbstractParserErrorHandler {
             if (bestMatch.matches > 0) {
                 Solution sol = bestMatch.solution;
                 if (sol != null) {
-                    applyFix(currentCtx, sol, args);
+                    sol = validateSolution(sol, currentCtx, nextToken);
+                    applyFix(currentCtx, sol);
                     return sol;
                 }
 
@@ -114,6 +115,16 @@ public abstract class AbstractParserErrorHandler {
         // Fail safe. This means we can't find a path to recover.
         assert itterCount != ITTER_LIMIT : "fail safe reached";
         return getFailSafeSolution(currentCtx, nextToken);
+    }
+
+    private Solution validateSolution(Solution sol, ParserRuleContext currentCtx, STToken nextToken) {
+        // Special case the `KEEP` of `DOCUMENTATION_STRING` since we are skipping them in errorHandler
+        // This will avoid `KEEP` of invalid `DOCUMENTATION_STRING` tokens. It is assumed that recover will not
+        // be invoked on a valid `DOCUMENTATION_STRING` token
+        if (sol.action == Action.KEEP && nextToken.kind == SyntaxKind.DOCUMENTATION_STRING) {
+            return new Solution(Action.REMOVE, currentCtx, SyntaxKind.DOCUMENTATION_STRING, currentCtx.toString());
+        }
+        return sol;
     }
 
     private Solution getFailSafeSolution(ParserRuleContext currentCtx, STToken nextToken) {
@@ -137,14 +148,13 @@ public abstract class AbstractParserErrorHandler {
      *
      * @param currentCtx Current context
      * @param fix        Fix to apply
-     * @param args       Arguments that requires to continue parsing from the given parser context
      */
-    private void applyFix(ParserRuleContext currentCtx, Solution fix, Object... args) {
+    private void applyFix(ParserRuleContext currentCtx, Solution fix) {
         if (fix.action == Action.REMOVE) {
             fix.removedToken = consumeInvalidToken();
             fix.recoveredNode = this.tokenReader.peek();
             fix.tokenKind = this.tokenReader.peek().kind;
-        } else {
+        } else if (fix.action == Action.INSERT) {
             fix.recoveredNode = handleMissingToken(currentCtx, fix);
         }
     }
