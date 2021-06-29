@@ -419,20 +419,27 @@ public class BUnionType extends BType implements UnionType {
         return this.immutableType;
     }
 
+    private String getQualifiedName(String pkg, String name) {
+        return (pkg.isBlank() || pkg.equals(".")) ? name : pkg + ":" + name;
+    }
+
     private void computeStringRepresentation() {
         if (cachedToString != null) {
             return;
         }
         if (tsymbol != null && !tsymbol.getName().getValue().isEmpty()) {
             String typeName = tsymbol.getName().getValue();
+            String packageId = tsymbol.pkgID.toString();
+            boolean isTypeParam = Symbols.isFlagOn(flags, Flags.TYPE_PARAM);
             // improve readability of cyclic union types
             if (isCyclic && (pCloneable.matcher(typeName).matches() ||
-                    Symbols.isFlagOn(flags, Flags.TYPE_PARAM) && pCloneableType.matcher(typeName).matches())) {
-                cachedToString = tsymbol.pkgID.toString() + ":" + CLONEABLE;
+                    (isTypeParam && pCloneableType.matcher(typeName).matches()))) {
+                System.out.printf("433");
+                cachedToString = getQualifiedName(packageId, CLONEABLE);
                 return;
             }
-            if (!Symbols.isFlagOn(this.flags, Flags.TYPE_PARAM)) {
-                cachedToString = typeName;
+            if (!isTypeParam) {
+                cachedToString = getQualifiedName(packageId, typeName);
                 return;
             }
         }
