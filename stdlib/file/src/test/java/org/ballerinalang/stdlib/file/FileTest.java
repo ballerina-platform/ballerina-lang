@@ -150,7 +150,6 @@ public class FileTest {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
             assertEquals(error.getReason(), FileConstants.FILE_SYSTEM_ERROR);
-            assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("Error while deleting "));
 
             // Remove directory with recursive true
             BValue[] args2 = {new BString(tempSourceDirPath.toString()), new BBoolean(true)};
