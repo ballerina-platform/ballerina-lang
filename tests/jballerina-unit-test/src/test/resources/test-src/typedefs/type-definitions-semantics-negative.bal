@@ -18,3 +18,7 @@ type PersonOrInt int|Person;
 type PersonOrNil Person?;
 
 type InvalidIntersectionType int & string;
+
+function foo() {
+    type MyType int;
+}

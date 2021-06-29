@@ -22,13 +22,12 @@ We appreciate your help!
 
     - [StackOverflow](https://stackoverflow.com/questions/tagged/ballerina): to get help with Ballerina (use the Ballerina tag for any of your questions)
     - [Slack](https://ballerina.io/community/slack/): for real-time discussions with the team and community
-    - [Ballerina-Dev Google Group](https://groups.google.com/forum/#!forum/ballerina-dev): (community mailing list) to discuss Ballerina roadmap, features, and related issues
     - [Twitter](https://twitter.com/ballerinalang): to tweet about Ballerina (use the “#ballerinalang” hashtag) 
     - [GitHub](https://github.com/ballerina-platform/ballerina-lang/issues): to file issues, join the conversations on new features, comment on other issues, and send your pull requests.
 
 - Submitting a bug is just as important as contributing to code. Report an issue in the relevant repo out of the GitHub repos listed below. 
 
-    >**Tip:** If you are unsure whether you have found a bug, search existing issues in the corresponding repo on GitHub and raise it in the [Ballerina-Dev Google Group](#https://groups.google.com/forum/#!forum/ballerina-dev).
+    >**Tip:** If you are unsure whether you have found a bug, search existing issues in the corresponding repo on GitHub and raise it in the [Ballerina Slack channel](#https://ballerina-platform.slack.com/).
     - Compiler, runtime, standard library, or tooling: <a href="https://github.com/ballerina-platform/ballerina-lang/issues">ballerina-lang</a> repo
     - Language specification: <a href="https://github.com/ballerina-platform/ballerina-spec/issues">ballerina-spec</a> repo
     - Website: <a href="https://github.com/ballerina-platform/ballerina-dev-website/issues">ballerina-dev-website</a> repo
@@ -77,4 +76,4 @@ For installation instructions, see [Ballerina VS Code Documentation](https://bal
 
 ## Propose changes to Ballerina
 
-Start the discussion on the changes you propose in the [Ballerina-Dev Google Group](https://groups.google.com/forum/#!forum/ballerina-dev). Once there is enough consensus around the proposal, you will likely be asked to file an issue on GitHub and label it as 'Proposal' to continue a detailed discussion there.
+Start the discussion on the changes you propose in the [Ballerina Slack channel](https://ballerina-platform.slack.com/). Once there is enough consensus around the proposal, you will likely be asked to file an issue on GitHub and label it as 'Proposal' to continue a detailed discussion there.

@@ -26,12 +26,12 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.observability.anaylze.model.DocumentHolder;
 import org.ballerinalang.observability.anaylze.model.ModuleHolder;
 import org.ballerinalang.observability.anaylze.model.PackageHolder;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -146,7 +146,7 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
     }
 
     private String generateCanonicalJsonString(PackageHolder packageHolder) throws IOException {
-        final String ballerinaVersion = ProjectUtils.getBallerinaVersion();
+        final String ballerinaVersion = RepoUtils.getBallerinaVersion();
         StringBuilder jsonStringBuilder = new StringBuilder().append("{\"")
                 .append(BALLERINA_VERSION_KEY).append("\":\"").append(ballerinaVersion).append("\",\"")
                 .append(PACKAGE_ORG_KEY).append("\":\"").append(packageHolder.getOrg()).append("\",\"")

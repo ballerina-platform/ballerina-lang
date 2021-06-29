@@ -152,6 +152,11 @@ public class RefTypeTests {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test
+    public void interopWithHandleOrErrorReturn() {
+        BRunUtil.invoke(result, "interopWithHandleOrErrorReturn");
+    }
+
     @Test(description = "Test interoperability with ballerina json return")
     public void testInteropWithJsonReturns() {
         BValue[] returns = BRunUtil.invoke(result, "testJsonReturns");
@@ -318,9 +323,9 @@ public class RefTypeTests {
         Assert.assertTrue(returns instanceof ErrorValue);
         ErrorValue error = (ErrorValue) returns;
         Assert.assertEquals(error.getPrintableStackTrace(), "java.util.EmptyStackException\n" +
-                "\tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:401)\n" +
+                "\tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:420)\n" +
                 "\t   ballerina_types_as_interop_types:testThrowJavaException2(ballerina_types_as_interop_types.bal:" +
-                "393)");
+                "412)");
     }
 
     @Test

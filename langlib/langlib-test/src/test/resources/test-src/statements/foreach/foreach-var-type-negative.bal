@@ -72,3 +72,9 @@ function test6() {
     }
 }
 
+function test7() {
+    string str = "foo";
+    foreach int s in str {
+
+    }
+}

@@ -370,6 +370,7 @@ public enum ParserRuleContext {
     REGULAR_COMPOUND_STMT_RHS("regular-compound-statement-rhs"),
     LOCAL_TYPE_DEFINITION_STMT("local-type-definition-statement"),
     BINDING_PATTERN_OR_EXPR_RHS("binding-pattern-or-expr-rhs"),
+    BINDING_PATTERN_OR_VAR_REF_RHS("binding.pattern.or.var.ref.rhs"),
     TYPE_DESC_OR_EXPR_RHS("type-desc-or-expr-rhs"),
     STMT_START_WITH_EXPR_RHS("stmt-start-with-expr-rhs"),
     EXPR_STMT_RHS("expr-stmt-rhs"),
@@ -616,6 +617,7 @@ public enum ParserRuleContext {
     EXPR_START_OR_INFERRED_TYPEDESC_DEFAULT_START("expr-start-or-inferred-typedesc-default-start"),
     TYPE_CAST_PARAM_START_OR_INFERRED_TYPEDESC_DEFAULT_END("type-cast-param-start-or-inferred-typedesc-default-end"),
     END_OF_PARAMS_OR_NEXT_PARAM_START("end-of-params-or-next-param-start"),
+    BRACED_EXPRESSION("braced-expression"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),
@@ -699,6 +701,7 @@ public enum ParserRuleContext {
     TYPE_DESC_RHS_OR_BP_RHS("type-desc-rhs-or-binding-pattern-rhs"),
     LIST_BINDING_PATTERN_RHS("list-binding-pattern-rhs"),
     TYPE_DESC_RHS_IN_TYPED_BP("type-desc-rhs-in-typed-binding-pattern"),
+    ASSIGNMENT_STMT_RHS("assignment-stmt-rhs"),
     ;
 
     private String value;
