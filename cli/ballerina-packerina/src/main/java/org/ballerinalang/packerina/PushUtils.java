@@ -364,8 +364,8 @@ public class PushUtils {
                                                   dep.toString() + ". reason: " + errorContent);
                 }
             } else if (statusCode == 500) {
-                throw createLauncherException("error: could not connect to remote repository to find module: "
-                                                      + dep.toString() + ".");
+                throw createLauncherException("error: could not connect to remote repository to find module: " +
+                                              dep.toString() + ".");
             }
             conn.disconnect();
             Authenticator.setDefault(null);
