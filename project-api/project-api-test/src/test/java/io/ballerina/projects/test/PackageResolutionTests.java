@@ -343,8 +343,8 @@ public class PackageResolutionTests extends BaseTest {
                             "ERROR [foo.bal:(5:1,5:1)] missing semicolon token");
         // Check invalid bala diagnostics
         Assert.assertTrue(diagnosticIterator.next().toString().contains(
-                "ERROR [bar.bal:(3:1,3:18)] invalid bala file:"));
-        Assert.assertTrue(diagnosticIterator.next().toString().contains(
                 "ERROR [foo.bal:(1:1,1:18)] invalid bala file:"));
+        Assert.assertTrue(diagnosticIterator.next().toString().contains(
+                "ERROR [bar.bal:(3:1,3:18)] invalid bala file:"));
     }
 }
