@@ -162,6 +162,10 @@ public function interopWithAnydataReturn() returns boolean {
     return true;
 }
 
+public function interopWithJavaStringReturn() returns anydata {
+    return acceptNothingInvalidAnyReturn();
+}
+
 public function interopWithHandleOrErrorReturn() {
     handle|error handleOrError = acceptIntReturnIntArrayThrowsCheckedException(1);
     test:assertEquals(handleOrError is error, false);
@@ -179,6 +183,10 @@ public function interopWithHandleOrErrorReturn() {
 public function acceptIntAnydataReturn(int s) returns anydata= @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
     name:"acceptIntUnionReturn"
+} external;
+
+public function acceptNothingInvalidAnyReturn() returns anydata = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function acceptIntReturnIntThrowsCheckedException(int a) returns int | error = @java:Method {
