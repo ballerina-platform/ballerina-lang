@@ -152,6 +152,20 @@ class NonIsolatedClassIncludingObjectAndClassNotOverridingField {
     }
 }
 
+class NonIsolatedClassWithInitWithDifferentStatementKinds {
+    int[] & readonly a; // not isolated due to this
+    final readonly & record {record {int i;} val;} b;
+
+    function init(int[] & readonly a, record {record {int i;} val;} b) {
+        self.a = a;
+        b.val.i = 1;
+        b.val["i"] = 1;
+        record {record {int i;} val;} & readonly c = b.cloneReadOnly();
+        b.val = {i: 2};
+        self.b = c;
+    }
+}
+
 function testIsolatedInference() {
     ClassWithExternalMethodOne a = new;
     assertFalse(<any> a is isolated object {});
@@ -192,6 +206,10 @@ function testIsolatedInference() {
 
     NonIsolatedClassIncludingObjectAndClassNotOverridingField g = new ([]);
     assertFalse(<any> g is isolated object {});
+
+    NonIsolatedClassWithInitWithDifferentStatementKinds h = new ([1, 2], {val: {i: 123}});
+    assertFalse(<any> h is isolated object {});
+    assertTrue(isMethodIsolated(h, "init"));
 }
 
 isolated function assertTrue(any|error actual) {

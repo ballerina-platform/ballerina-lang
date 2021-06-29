@@ -19,11 +19,15 @@ import ballerina/jballerina.java;
 
 class IsolatedClassWithNoMutableFields {
     public final int[] & readonly a;
-    final readonly & record {int i;} b;
+    final readonly & record {record {int i;} val;} b;
 
-    function init(int[] & readonly a, record {int i;} & readonly b) {
+    function init(int[] & readonly a, record {record {int i;} val;} b) {
         self.a = a;
-        self.b = b;
+        b.val.i = 1;
+        b.val["i"] = 1;
+        record {record {int i;} val;} & readonly c = b.cloneReadOnly();
+        b.val = {i: 2};
+        self.b = c;
     }
 }
 
@@ -877,7 +881,7 @@ class IsolatedClassIncludingObjectAndClass {
 }
 
 public function testIsolatedInference() {
-    IsolatedClassWithNoMutableFields a = new ([], {i: 1});
+    IsolatedClassWithNoMutableFields a = new ([], {val: {i: 1}});
     assertTrue(<any> a is isolated object {});
     assertTrue(isMethodIsolated(a, "init"));
 

@@ -1963,7 +1963,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         analyzeArgs(requiredArgs, restArgs);
 
-        if (inLockStatement && !isolatedFunctionCall) {
+        if (inLockStatement) {
             copyInLockInfoStack.peek().nonIsolatedInvocations.add(invocationExpr);
         }
 
@@ -3312,6 +3312,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         for (BLangSimpleVariable referencedField : classDefinition.referencedFields) {
             String name = referencedField.name.value;
             if (fields.containsKey(name)) {
+                // Shouldn't get here based on the current implementation, since the field will not be available as a
+                // referenced field if explicitly specified in the including type.
                 continue;
             }
 
@@ -3534,13 +3536,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     }
 
                     if (!field.flagSet.contains(Flag.FINAL)) {
+                        // Shouldn't get here, since we don't add classes with fields that are neither private nor
+                        // final to the inferable construct map.
                         return false;
                     }
 
                     BType fieldType = field.typeNode.getBType();
-                    if (!types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(fieldType) &&
-                            !isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(publiclyExposedObjectTypes,
-                                    classDefinitions, fieldType, unresolvedSymbols)) {
+                    if (!isSubTypeOfReadOnlyOrIsolatedObjectUnionWithInference(publiclyExposedObjectTypes,
+                                    classDefinitions, true, fieldType, unresolvedSymbols)) {
                         return false;
                     }
                 }
@@ -3656,37 +3659,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return Symbols.isFlagOn(symbol.flags, Flags.FINAL) &&
                 isSubTypeOfReadOnlyOrIsolatedObjectUnionWithInference(publiclyExposedObjectTypes, classDefinitions,
                                                                       true, symbol.type, unresolvedSymbols);
-    }
-
-    private boolean isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(Set<BType> publiclyExposedObjectTypes,
-                                                                         List<BLangClassDefinition> classDefinitions,
-                                                                         BType fieldType,
-                                                                         Set<BSymbol> unresolvedSymbols) {
-        if (types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(fieldType)) {
-            return true;
-        }
-
-        if (fieldType.tag == TypeTags.OBJECT) {
-            BTypeSymbol tsymbol = fieldType.tsymbol;
-            if (this.isolationInferenceInfoMap.containsKey(tsymbol)) {
-                return inferVariableOrClassIsolation(publiclyExposedObjectTypes, classDefinitions, tsymbol,
-                                     (VariableIsolationInferenceInfo) this.isolationInferenceInfoMap.get(tsymbol),
-                                     true, unresolvedSymbols);
-            }
-            return false;
-        }
-
-        if (fieldType.tag != TypeTags.UNION) {
-            return false;
-        }
-
-        for (BType memberType : ((BUnionType) fieldType).getMemberTypes()) {
-            if (!isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(publiclyExposedObjectTypes, classDefinitions,
-                    memberType, unresolvedSymbols)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private boolean inferFunctionIsolation(BSymbol symbol, IsolationInferenceInfo functionIsolationInferenceInfo,
