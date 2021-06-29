@@ -72,6 +72,18 @@ public class TestCommandTest extends BaseCommandTest {
         testCommand.execute();
     }
 
+    @Test(description = "Test a valid ballerina file with periods in the file name")
+    public void testTestBalFileWithPeriods() throws IOException {
+        Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample.tests.bal");
+
+        System.setProperty("user.dir", this.testResources.resolve("valid-test-bal-file").toString());
+        // set valid source root
+        TestCommand testCommand = new TestCommand(validBalFilePath, false);
+        // name of the file as argument
+        new CommandLine(testCommand).parse(validBalFilePath.toString());
+        testCommand.execute();
+    }
+
     @Test(description = "Test non .bal file")
     public void testNonBalFileTest() throws IOException {
         Path nonBalFilePath = this.testResources.resolve("non-bal-file").resolve("hello_world.txt");
