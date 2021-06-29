@@ -14,24 +14,31 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import configStructuredTypes.imported_records;
-import configStructuredTypes.open_records;
-import configStructuredTypes.util;
+type Engineer record {|
+    string name = "";
+    int id = 555;
+|};
 
-public function main() {
-    testRecords();
-    testTables();
-    testArrays();
-    testMaps();
-    testComplexRecords();
+type Lecturer record {|
+    string name;
+    Department department1;
+    Department department2?;
+    readonly Department department3;
+|};
 
-    imported_records:testRecords();
-    imported_records:testTables();
-    imported_records:testArrays();
-    imported_records:testMaps();
+type Department readonly & record {|
+    string name;
+|};
 
-    open_records:testOpenRecords();
-    open_records:testRestFields();
-    
-    util:print("Tests passed");
-}
+type Lawyer readonly & record {|
+    string name;
+    Address address1;
+    Address address2?;
+    readonly Address address3;
+|};
+
+type Address record {|
+    string city;
+|};
+
+type Subject map<string>;

@@ -747,7 +747,13 @@ public class TomlProvider implements ConfigProvider {
             Field field = recordType.getFields().get(fieldName);
             TomlNode value = tomlField.getValue();
             if (field == null) {
-                field = retrieveAdditionalField(recordType, fieldName, value);
+                if (recordType.isSealed()) {
+                    // Panic if this record type is closed and user adds a new field.
+                    invalidTomlLines.add(value.location().lineRange());
+                    throw new ConfigException(CONFIG_TOML_INVALID_ADDTIONAL_RECORD_FIELD, getLineRange(value),
+                            fieldName, recordType.toString());
+                }
+                field = createAdditionalField(recordType, fieldName, value);
             }
             Object objectValue = retrieveValue(value, variableName + "." + fieldName, field.getFieldType());
             initialValueEntries.put(fieldName, objectValue);
@@ -759,14 +765,7 @@ public class TomlProvider implements ConfigProvider {
         return ValueCreator.createReadonlyRecordValue(recordType.getPackage(), recordName, initialValueEntries);
     }
 
-    private Field retrieveAdditionalField(RecordType recordType, String fieldName, TomlNode value) {
-        LineRange lineRange = value.location().lineRange();
-        if (recordType.isSealed()) {
-            // Panic if this record type is closed and user adds a new field.
-            invalidTomlLines.add(lineRange);
-            throw new ConfigException(CONFIG_TOML_INVALID_ADDTIONAL_RECORD_FIELD, getLineRange(value),
-                    fieldName, recordType.toString());
-        }
+    private Field createAdditionalField(RecordType recordType, String fieldName, TomlNode value) {
         Type restFieldType = recordType.getRestFieldType();
         if (!isAnyDataType(restFieldType)) {
             return TypeCreator.createField(restFieldType, fieldName, SymbolFlags.READONLY);
