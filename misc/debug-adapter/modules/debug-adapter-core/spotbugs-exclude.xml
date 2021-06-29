@@ -46,14 +46,17 @@
             </And>
             <And>
                 <Bug pattern="UPM_UNCALLED_PRIVATE_METHOD"/>
-                <And>
-                    <Class name="org.ballerinalang.debugadapter.evaluation.DebugExpressionCompiler"/>
-                    <Method name="validateForCompilationErrors"/>
-                </And>
+                <Class name="org.ballerinalang.debugadapter.evaluation.DebugExpressionCompiler"/>
+                <Method name="validateForCompilationErrors"/>
             </And>
             <And>
                 <Bug pattern="BC_UNCONFIRMED_CAST"/>
                 <Class name="org.ballerinalang.debugadapter.evaluation.engine.expression.MethodCallExpressionEvaluator"/>
+            </And>
+            <And>
+                <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON"/>
+                <Class name="org.ballerinalang.debugadapter.evaluation.engine.expression.MethodCallExpressionEvaluator"/>
+                <Method name="invokeObjectMethod"/>
             </And>
         </Or>
     </Match>
