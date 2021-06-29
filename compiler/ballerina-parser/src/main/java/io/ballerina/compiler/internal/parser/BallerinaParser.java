@@ -10675,7 +10675,8 @@ public class BallerinaParser extends AbstractParser {
         STNode signature;
 
         STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN || isSignatureRequiredInFucType(qualifiers)) {
+        if (nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN ||
+                isSyntaxKindInList(qualifiers, SyntaxKind.TRANSACTIONAL_KEYWORD)) {
             signature = parseFuncSignature(true);
             qualifierList = createFuncTypeQualNodeList(qualifiers, true);
         } else {
@@ -10686,10 +10687,6 @@ public class BallerinaParser extends AbstractParser {
 
         endContext();
         return STNodeFactory.createFunctionTypeDescriptorNode(qualifierList, functionKeyword, signature);
-    }
-
-    private boolean isSignatureRequiredInFucType(List<STNode> qualifiers) {
-        return !qualifiers.isEmpty() && getLastNodeInList(qualifiers).kind == SyntaxKind.TRANSACTIONAL_KEYWORD;
     }
     
     private STNode getLastNodeInList(List<STNode> nodeList) {

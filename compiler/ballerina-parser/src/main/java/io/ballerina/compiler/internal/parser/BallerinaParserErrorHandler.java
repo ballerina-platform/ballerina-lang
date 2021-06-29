@@ -3386,7 +3386,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 if (parentCtx == ParserRuleContext.ANON_FUNC_EXPRESSION) {
                     return ParserRuleContext.OPEN_PARENTHESIS;
                 } else if (parentCtx == ParserRuleContext.FUNC_TYPE_DESC) {
-                    return ParserRuleContext.FUNC_TYPE_FUNC_KEYWORD_RHS;
+                    return ParserRuleContext.FUNC_TYPE_FUNC_KEYWORD_RHS_START;
                 }
                 return ParserRuleContext.FUNCTION_KEYWORD_RHS;
             case RETURNS_KEYWORD:
@@ -4930,10 +4930,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
      */
     private ParserRuleContext getNextRuleForFuncTypeFuncKeywordRhs() {
         ParserRuleContext parentCtx = getParentContext();
-        if (parentCtx == ParserRuleContext.FUNC_TYPE_DESC) {
-            return ParserRuleContext.FUNC_TYPE_FUNC_KEYWORD_RHS_START;
-        }
-        
         if (parentCtx == ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE) {
             endContext();
             parentCtx = getParentContext();

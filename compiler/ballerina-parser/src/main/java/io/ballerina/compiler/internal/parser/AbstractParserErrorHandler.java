@@ -100,11 +100,10 @@ public abstract class AbstractParserErrorHandler {
 
         if (itterCount < ITTER_LIMIT) {
             Result bestMatch = seekMatch(currentCtx);
-            avoidRecurrentSol(bestMatch);
+            validateSolution(bestMatch, currentCtx, nextToken);
             if (bestMatch.matches > 0) {
                 Solution sol = bestMatch.solution;
                 if (sol != null) {
-                    sol = validateSolution(sol, currentCtx, nextToken);
                     applyFix(currentCtx, sol);
                     return sol;
                 }
@@ -118,31 +117,29 @@ public abstract class AbstractParserErrorHandler {
         return getFailSafeSolution(currentCtx, nextToken);
     }
 
-    private Solution validateSolution(Solution sol, ParserRuleContext currentCtx, STToken nextToken) {
-        // Special case the `KEEP` of `DOCUMENTATION_STRING` since we are skipping them in errorHandler
-        // This will avoid `KEEP` of invalid `DOCUMENTATION_STRING` tokens. It is assumed that recover will not
-        // be invoked on a valid `DOCUMENTATION_STRING` token
-        if (sol.action == Action.KEEP && nextToken.kind == SyntaxKind.DOCUMENTATION_STRING) {
-            return new Solution(Action.REMOVE, currentCtx, SyntaxKind.DOCUMENTATION_STRING, currentCtx.toString());
-        }
-        return sol;
-    }
-
     private Solution getFailSafeSolution(ParserRuleContext currentCtx, STToken nextToken) {
         Solution sol = new Solution(Action.REMOVE, currentCtx, nextToken.kind, nextToken.toString());
         sol.removedToken = consumeInvalidToken();
         return sol;
     }
 
-    private void avoidRecurrentSol(Result bestMatch) {
-        // If solution is INSERT fix followed by immediate REMOVE fix,
-        // then it could be repeated next time coming to the error handler.
-        // Therefore in such case, set the solution to immediate REMOVE fix.
+    private void validateSolution(Result bestMatch, ParserRuleContext currentCtx, STNode nextToken) {
         Solution sol = bestMatch.solution;
         if (sol == null) {
             return;
         }
 
+        // Special case the `KEEP` of `DOCUMENTATION_STRING` since we are skipping them in errorHandler.
+        // This will avoid `KEEP` of invalid `DOCUMENTATION_STRING` tokens.
+        // It is assumed that recover will not be invoked on a valid `DOCUMENTATION_STRING` token.
+        if (sol.action == Action.KEEP && nextToken.kind == SyntaxKind.DOCUMENTATION_STRING) {
+            bestMatch.solution = new Solution(Action.REMOVE, currentCtx, SyntaxKind.DOCUMENTATION_STRING,
+                    currentCtx.toString());
+        }
+        
+        // If best match is INSERT fix followed by immediate REMOVE fix,
+        // then it could be repeated next time coming to the error handler.
+        // Therefore in such case, set the solution to immediate REMOVE fix.
         if (sol.action != Action.INSERT || bestMatch.fixes.size() < 2) {
             return;
         }
@@ -404,7 +401,7 @@ public abstract class AbstractParserErrorHandler {
 
         return getFinalResult(currentMatches, bestMatch);
     }
-    
+
     private boolean hasFoundBestAlternative(Result result) {
         // If the best possible solution is found we can exit early. However, if that solution
         // is an REMOVE action, then we should not terminate, because there can be another
