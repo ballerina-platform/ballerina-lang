@@ -880,6 +880,17 @@ class IsolatedClassIncludingObjectAndClass {
     }
 }
 
+readonly class ReadOnlyClass {
+    int i = 1;
+    int[] j = [];
+
+    function f1() {
+        _ = self.i;
+    }
+
+    function f2() returns int[] => self.j;
+}
+
 public function testIsolatedInference() {
     IsolatedClassWithNoMutableFields a = new ([], {val: {i: 1}});
     assertTrue(<any> a is isolated object {});
@@ -1051,6 +1062,11 @@ public function testIsolatedInference() {
     IsolatedClassIncludingObjectAndClass a2 = new ([]);
     assertTrue(isMethodIsolated(a2, "init"));
     assertTrue(isMethodIsolated(a2, "access"));
+
+    ReadOnlyClass b2 = new;
+    assertTrue(<any> b2 is isolated object {});
+    assertTrue(isMethodIsolated(b2, "f1"));
+    assertTrue(isMethodIsolated(b2, "f2"));
 }
 
 isolated function assertTrue(any|error actual) {
