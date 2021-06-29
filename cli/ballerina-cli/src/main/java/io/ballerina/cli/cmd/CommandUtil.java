@@ -36,7 +36,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +43,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
@@ -130,47 +128,8 @@ public class CommandUtil {
         applyTemplate(path, template);
         if (template.equalsIgnoreCase("lib")) {
             initLibPackage(path, packageName);
-            Path source = path.resolve("lib.bal");
-            Files.move(source, source.resolveSibling(guessPkgName(packageName) + ".bal"),
-                    StandardCopyOption.REPLACE_EXISTING);
-
-            Path testDirPath = path.resolve(Paths.get("tests"));
-            Path testFilePath = testDirPath.resolve("main_test.bal");
-            Files.move(testFilePath, testFilePath.resolveSibling(guessPkgName(packageName) + "_test.bal"));
-
-            String packageMd = FileUtils.readFileAsString(
-                    NEW_CMD_DEFAULTS + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME);
-
-            Files.write(path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME),
-                    packageMd.getBytes(StandardCharsets.UTF_8));
         } else {
             initPackage(path);
-            if (template.equalsIgnoreCase("main")) {
-                Path source = path.resolve("main.bal");
-                Files.move(source, source.resolveSibling(guessPkgName(packageName) + ".bal"),
-                        StandardCopyOption.REPLACE_EXISTING);
-
-                Path testDirPath = path.resolve(Paths.get("tests"));
-                Path testFilePath = testDirPath.resolve("main_test.bal");
-                Files.move(testFilePath, testFilePath.resolveSibling(guessPkgName(packageName) + "_test.bal"));
-            } else if (template.equalsIgnoreCase("service")) {
-                Path source = path.resolve("service.bal");
-                Files.move(source, source.resolveSibling(guessPkgName(packageName) + ".bal"),
-                        StandardCopyOption.REPLACE_EXISTING);
-
-                Path testDirPath = path.resolve(Paths.get("tests"));
-                Path testFilePath = testDirPath.resolve("hello_service_test.bal");
-                Files.move(testFilePath, testFilePath.resolveSibling(guessPkgName(packageName) + "_test.bal"));
-            } else {
-                Path source = path.resolve("main.bal");
-                Files.move(source, source.resolveSibling(guessPkgName(packageName) + ".bal"),
-                        StandardCopyOption.REPLACE_EXISTING);
-            }
-            String packageMd = FileUtils.readFileAsString(
-                    NEW_CMD_DEFAULTS + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME);
-
-            Files.write(path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME),
-                    packageMd.getBytes(StandardCharsets.UTF_8));
         }
         Path gitignore = path.resolve(ProjectConstants.GITIGNORE_FILE_NAME);
         if (Files.notExists(gitignore)) {
@@ -237,7 +196,14 @@ public class CommandUtil {
      */
     public static void applyTemplate(Path modulePath, String template) throws IOException, URISyntaxException {
         Path templateDir = getTemplatePath().resolve(template);
-        Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
+        if (template.equalsIgnoreCase("main")) {
+            templateDir = getTemplatePath().resolve("default");
+            Path tempDirTest = getTemplatePath().resolve("main");
+            Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
+            Files.walkFileTree(tempDirTest, new FileUtils.Copy(tempDirTest, modulePath));
+        } else {
+            Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
+        }
     }
 
     /**

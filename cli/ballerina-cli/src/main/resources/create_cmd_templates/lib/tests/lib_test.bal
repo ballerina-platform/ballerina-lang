@@ -12,8 +12,18 @@ function beforeSuiteFunc() {
 
 @test:Config {}
 function testFunction() {
-    io:println("I'm in test function!");
-    test:assertTrue(true, msg = "Failed!");
+    string name = "John";
+    string welcomeMsg = hello(name);
+    test:assertEquals("Hello, John", welcomeMsg);
+}
+
+// Negative Test function
+
+@test:Config {}
+function negativeTestFunction() {
+    string name = "";
+    string welcomeMsg = hello(name);
+    test:assertEquals("Hello, World!", welcomeMsg);
 }
 
 // After Suite Function

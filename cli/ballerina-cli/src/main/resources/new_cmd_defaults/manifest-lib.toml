@@ -2,20 +2,3 @@
 org = "ORG_NAME"
 name = "PKG_NAME"
 version = "0.1.0"
-#license= ["Apache 2.0"]
-#authors= ["jo", "pramodya"]
-#keywords= ["toml", "ballerina"]
-#repository= "https://github.com/ballerina-platform/ballerina-lang"
-
-#[[platform.libraries]]
-#artifactId = "mysql-connector-java"
-#version = "5.1.45"
-#path = "./libs/mysql-connector-java-5.1.45.jar"
-#groupId = "mysql"
-
-[build-options]
-observabilityIncluded = true
-#offline = true
-#skipTests = false
-#cloud = "k8s"
-#taintCheck = true
