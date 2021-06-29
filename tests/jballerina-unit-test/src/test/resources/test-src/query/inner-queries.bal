@@ -292,7 +292,7 @@ function testTypeTestInWhereClause() {
                    from int j in (from var k in w where k is int select k)
                    where i is int && j > 10
                    where i is 1|2|3
-                   select <int>i * j;
+                   select i * j;
     assertEquality(6, result.length());
     assertEquality(20, result[0]);
     assertEquality(40, result[1]);

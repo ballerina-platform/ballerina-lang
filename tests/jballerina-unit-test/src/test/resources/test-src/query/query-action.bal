@@ -198,13 +198,18 @@ function testQueryExpressionIteratingOverXMLInFromInQueryAction() returns float 
     return total;
 }
 
+type Record record {|
+    int? i;
+    string? j;
+|};
+
 function testTypeTestInWhereClause() {
     int?[] v = [1, 2, (), 3];
     int total = 0;
     error? result = from var i in v
                     where i is int
                     do {
-                        total += <int>i;
+                        total += i;
                     };
     assertEquality((), result);
     assertEquality(6, total);
@@ -226,7 +231,7 @@ function testTypeTestInWhereClause() {
              from int j in (from var k in w where k is int select k)
              where i is int && j > 10
              do {
-                 total += <int>i * j;
+                 total += i * j;
              };
     assertEquality((), result);
     assertEquality(360, total);
@@ -236,10 +241,28 @@ function testTypeTestInWhereClause() {
              where i is int
              where i is 1|2|3
              do {
-                 total += <int>i;
+                 total += i;
              };
     assertEquality((), result);
     assertEquality(6, total);
+
+    Record r1 = {i: 1, j: ()};
+    Record r2 = {i: 1, j: "A"};
+    Record r3 = {i: 1, j: "C"};
+
+    Record[] recordList = [r1, r2, r3];
+    (string|float)[] y = ["X", 30.5, 40.5, "Y", 10.5, "Z", 20.5];
+    x = 0;
+
+    result = from var {i, j} in recordList
+             from float k in (from var m in y where m is float select m)
+             where i is int
+             where j is string
+             do {
+                 x += <float>i * k;
+             };
+    assertEquality((), result);
+    assertEquality(204.0, x);
 }
 
 function assertEquality(any|error expected, any|error actual) {
