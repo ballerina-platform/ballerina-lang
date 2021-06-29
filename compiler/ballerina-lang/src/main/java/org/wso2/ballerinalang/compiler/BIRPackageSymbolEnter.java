@@ -846,8 +846,9 @@ public class BIRPackageSymbolEnter {
                 BParameterizedType varType = (BParameterizedType) type;
                 varType.paramSymbol = paramsMap.get(varType.name);
                 varType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PARAMETERIZED | varType.paramSymbol.flags,
-                                                  varType.paramSymbol.name, varType.paramSymbol.pkgID, varType,
-                                                  invSymbol, varType.paramSymbol.pos, VIRTUAL);
+                                                  varType.paramSymbol.name, varType.paramSymbol.originalName,
+                                                  varType.paramSymbol.pkgID, varType, invSymbol,
+                                                  varType.paramSymbol.pos, VIRTUAL);
                 break;
             case TypeTags.MAP:
             case TypeTags.FUTURE:
