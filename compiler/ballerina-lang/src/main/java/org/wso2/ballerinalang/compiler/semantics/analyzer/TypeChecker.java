@@ -5296,22 +5296,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (expType == symTable.noType) {
             checkExprCandidateType = symTable.noType;
         } else {
-            boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
-            this.nonErrorLoggingCheck = true;
-            int prevErrorCount = this.dlog.errorCount();
-            this.dlog.resetErrorCount();
-            this.dlog.mute();
-
-            checkedExpr.expr.cloneAttempt++;
-            BLangExpression clone = nodeCloner.cloneNode(checkedExpr.expr);
-            BType exprType = checkExpr(clone, env, expType);
-
-            this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
-            this.dlog.setErrorCount(prevErrorCount);
-            if (!prevNonErrorLoggingCheck) {
-                this.dlog.unmute();
-            }
-
+            BType exprType = getCandidateType(checkedExpr, expType);
             if (exprType == symTable.semanticError) {
                 checkExprCandidateType = BUnionType.create(null, expType, symTable.errorType);
             } else {
