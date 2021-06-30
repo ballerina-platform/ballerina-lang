@@ -1018,10 +1018,12 @@ type IntThreeOrFour 3|4;
 type FloatOneOrTwo 1.0|2.0;
 type FloatTwoOrThree 2.0|3.0;
 type FloatThreeOrFour 3.0|4.0;
-type IntOneOrFloatTwo 1|2.5;
+type IntOneOrFloatTwo 1|2.0;
+type IntTwoOrFloatTwo 2|2.0;
 
 function testCloneWithTypeWithFiniteType() {
     int x = 2;
+    float y = 2.0;
 
     IntOneOrTwo|error a = x.cloneWithType();
     assert(a is IntOneOrTwo, true);
@@ -1032,6 +1034,16 @@ function testCloneWithTypeWithFiniteType() {
     assert(c is error, false);
     FloatOneOrTwo d = checkpanic c;
     assert(d, 2.0);
+
+    IntTwoOrFloatTwo|error e = x.cloneWithType();
+    assert(e is error, false);
+    IntTwoOrFloatTwo f = checkpanic e;
+    assert(f, 2);
+
+    IntTwoOrFloatTwo|error g = y.cloneWithType();
+    assert(g is error, false);
+    IntTwoOrFloatTwo h = checkpanic g;
+    assert(h, 2.0);
 }
 
 function testCloneWithTypeWithUnionOfFiniteType() {
@@ -1132,6 +1144,13 @@ function testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative() {
     message = err.detail()["message"];
     messageString = message is error? message.toString(): message.toString();
     assert(messageString, "'int' value cannot be converted to '(IntThreeOrFour|FloatThreeOrFour)': ambiguous target type");
+
+    IntThreeOrFour[]|FloatThreeOrFour[]|error f = y.cloneWithType();
+    assert(f is error, true);
+    err = <error> f;
+    message = err.detail()["message"];
+    messageString = message is error? message.toString(): message.toString();
+    assert(messageString, "'int[]' value cannot be converted to '(IntThreeOrFour[]|FloatThreeOrFour[])': ambiguous target type");
 }
 
 /////////////////////////// Tests for `fromJsonWithType()` ///////////////////////////
