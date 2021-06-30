@@ -104,6 +104,7 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.RE
  * <li> Unary expression
  * <li> Type test expression
  * <li> Type cast expression
+ * <li> Trap expression
  * </ul>
  * <br>
  * To be Implemented.
@@ -116,7 +117,6 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.RE
  * <li> Let expression
  * <li> Range expression
  * <li> Checking expression
- * <li> Trap expression
  * <li> Query expression
  * <li> XML navigation expression
  * </ul>
