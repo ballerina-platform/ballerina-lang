@@ -55,22 +55,12 @@ public class VarIgnoreTest {
         BAssertUtil.validateError(res, i++, "incompatible types: expected 'error', found 'string'", 2, 11);
         BAssertUtil.validateError(res, i++, "a wildcard binding pattern can be used only "
                 + "with a value that belong to type 'any'", 3, 1);
+        BAssertUtil.validateError(res, i++, "incompatible types: expected 'string', found 'int'", 7, 16);
         BAssertUtil.validateError(res, i++, "a wildcard binding pattern can be used only "
-                + "with a value that belong to type 'any'", 16, 1);
+                + "with a value that belong to type 'any'", 9, 5);
         BAssertUtil.validateError(res, i++, "a wildcard binding pattern can be used only "
-                + "with a value that belong to type 'any'", 17, 12);
-        BAssertUtil.validateError(res, i++, "incompatible types: expected 'string', found 'int'", 20, 16);
-        BAssertUtil.validateError(res, i++, "a wildcard binding pattern can be used only "
-                + "with a value that belong to type 'any'", 22, 5);
-        BAssertUtil.validateError(res, i++, "a wildcard binding pattern can be used only "
-                + "with a value that belong to type 'any'", 23, 5);
-        BAssertUtil.validateError(res, i++, "incompatible types: expected 'error', found 'string'", 24, 15);
-        BAssertUtil.validateError(res, i++, "a wildcard binding pattern can be used only "
-                + "with a value that belong to type 'any'", 26, 9);
-        BAssertUtil.validateError(res, i++, "a wildcard binding pattern can be used only "
-                + "with a value that belong to type 'any'", 27, 20);
-        BAssertUtil.validateError(res, i++, "a wildcard binding pattern can be used only "
-                + "with a value that belong to type 'any'", 30, 9);
+                + "with a value that belong to type 'any'", 10, 5);
+        BAssertUtil.validateError(res, i++, "incompatible types: expected 'error', found 'string'", 11, 15);
         Assert.assertEquals(res.getErrorCount(), i);
     }
 
