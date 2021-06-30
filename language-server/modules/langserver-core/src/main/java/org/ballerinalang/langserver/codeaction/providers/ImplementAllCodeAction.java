@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ import static org.ballerinalang.langserver.codeaction.CodeActionUtil.computePosi
  * @since 1.2.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class ImplementAllCodeAction extends AbstractCodeActionProvider {
+public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction {
 
     public static final String NAME = "Implement All";
 
@@ -52,6 +52,7 @@ public class ImplementAllCodeAction extends AbstractCodeActionProvider {
                 CodeActionNodeType.SERVICE,
                 CodeActionNodeType.CLASS_FUNCTION,
                 CodeActionNodeType.MODULE_VARIABLE,
+                CodeActionNodeType.OBJECT_FUNCTION,
                 CodeActionNodeType.LOCAL_VARIABLE));
     }
 
@@ -73,6 +74,10 @@ public class ImplementAllCodeAction extends AbstractCodeActionProvider {
                 )
                 .filter(diagnostic -> DIAGNOSTICCODES.contains(diagnostic.diagnosticInfo().code()))
                 .collect(Collectors.toList());
+        
+        if (diags.isEmpty() || diags.size() == 1) {
+            return Collections.emptyList();
+        }
 
         SyntaxTree syntaxTree = context.workspace().syntaxTree(context.filePath()).orElseThrow();
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
