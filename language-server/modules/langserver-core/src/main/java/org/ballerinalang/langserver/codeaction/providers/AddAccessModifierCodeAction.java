@@ -39,7 +39,7 @@ import java.util.Optional;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class AccessModifierCodeAction extends AbstractCodeActionProvider {
+public class AddAccessModifierCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "Add Access Modifier";
 
@@ -47,7 +47,7 @@ public class AccessModifierCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, 
                                                     DiagBasedPositionDetails positionDetails, 
                                                     CodeActionContext context) {
-        if (!(diagnostic.message().contains(CommandConstants.NO_PUBLIC_FOR_MAIN_FUNCTION))) {
+        if (!("BCE2096".equals(diagnostic.diagnosticInfo().code()))) {
             return Collections.emptyList();
         }
         

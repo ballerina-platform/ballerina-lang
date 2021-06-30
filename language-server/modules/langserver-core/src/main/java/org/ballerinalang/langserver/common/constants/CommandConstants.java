@@ -130,7 +130,5 @@ public class CommandConstants {
     
     public static final String REPORT_USAGE_STATISTICS_COMMAND_TITLE = "Report usage statistics";
     
-    public static final String NO_PUBLIC_FOR_MAIN_FUNCTION = "the 'main' function should be public";
-
     public static final String MAKE_MAIN_FUNCTION_PUBLIC = "Make 'main' function public";
 }

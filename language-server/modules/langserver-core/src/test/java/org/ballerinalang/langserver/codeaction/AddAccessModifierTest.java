@@ -26,11 +26,11 @@ import java.io.IOException;
  *
  * @since 2.0.0
  */
-public class AccessModifierTest extends AbstractCodeActionTest {
+public class AddAccessModifierTest extends AbstractCodeActionTest {
 
     @Override
     public String getResourceDir() {
-        return "access-modifier";
+        return "add-access-modifier";
     }
 
     @Override
