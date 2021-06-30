@@ -21,21 +21,21 @@ under the License.
 
 <suite name="commands-test-suite">
     <test name="command-tests" preserve-order="true" parallel="false">
-        <classes>
-            <class name="io.ballerina.cli.cmd.AddCommandTest" />
-            <class name="io.ballerina.cli.cmd.BaseCommandTest" />
-            <class name="io.ballerina.cli.cmd.BuildCommandTest" />
-            <class name="io.ballerina.cli.cmd.CleanCommandTest" />
-            <class name="io.ballerina.cli.cmd.DocCommandTest" />
-            <class name="io.ballerina.cli.cmd.InitCommandTest" />
-            <class name="io.ballerina.cli.cmd.NewCommandTest" />
-            <class name="io.ballerina.cli.cmd.PrintUtilsTest" />
-            <class name="io.ballerina.cli.cmd.PullCommandTest" />
-            <class name="io.ballerina.cli.cmd.PushCommandTest" />
-            <class name="io.ballerina.cli.cmd.RunCommandTest" />
-            <class name="io.ballerina.cli.cmd.SearchCommandTest" />
-            <class name="io.ballerina.cli.cmd.ShellCommandTest" />
-            <class name="io.ballerina.cli.cmd.TestCommandTest" />
-        </classes>
+<!--        <classes>-->
+<!--            <class name="io.ballerina.cli.cmd.AddCommandTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.BaseCommandTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.BuildCommandTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.CleanCommandTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.DocCommandTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.InitCommandTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.NewCommandTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.PrintUtilsTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.PullCommandTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.PushCommandTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.RunCommandTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.SearchCommandTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.ShellCommandTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.TestCommandTest" />-->
+<!--        </classes>-->
     </test>
 </suite>
