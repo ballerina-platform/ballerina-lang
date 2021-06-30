@@ -434,7 +434,6 @@ public class BUnionType extends BType implements UnionType {
             // improve readability of cyclic union types
             if (isCyclic && (pCloneable.matcher(typeName).matches() ||
                     (isTypeParam && pCloneableType.matcher(typeName).matches()))) {
-                System.out.printf("433");
                 cachedToString = getQualifiedName(packageId, CLONEABLE);
                 return;
             }
