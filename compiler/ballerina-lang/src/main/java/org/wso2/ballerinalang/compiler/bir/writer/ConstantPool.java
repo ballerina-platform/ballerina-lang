@@ -117,6 +117,7 @@ public class ConstantPool {
                     CPEntry.PackageCPEntry pkgCPEntry = (CPEntry.PackageCPEntry) cpEntry;
                     stream.writeInt(pkgCPEntry.orgNameCPIndex);
                     stream.writeInt(pkgCPEntry.pkgNameCPIndex);
+                    stream.writeInt(pkgCPEntry.moduleNameCPIndex);
                     stream.writeInt(pkgCPEntry.versionCPIndex);
                     break;
                 case CP_ENTRY_SHAPE:

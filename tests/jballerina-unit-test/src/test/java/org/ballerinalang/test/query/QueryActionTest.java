@@ -136,6 +136,11 @@ public class QueryActionTest {
         Assert.assertEquals(((BFloat) returnValues[0]).floatValue(), 149.93);
     }
 
+    @Test(description = "Test type test in where clause")
+    public void testTypeTestInWhereClause() {
+        BRunUtil.invoke(result, "testTypeTestInWhereClause");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

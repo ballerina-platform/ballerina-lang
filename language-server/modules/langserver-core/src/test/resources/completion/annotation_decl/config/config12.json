@@ -9,7 +9,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "field",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "field",
       "insertText": "field",
       "insertTextFormat": "Snippet"

@@ -16,11 +16,9 @@
 package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
-import io.ballerina.tools.diagnostics.DiagnosticPropertyKind;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 
 import java.util.List;
@@ -70,16 +68,13 @@ public class DiagBasedPositionDetailsImpl implements DiagBasedPositionDetails {
      * {@inheritDoc}
      */
     @Override
-    public Optional<TypeSymbol> diagnosticProperty(int propertyIndex) {
+    public <T> Optional<T> diagnosticProperty(int propertyIndex) {
         List<DiagnosticProperty<?>> props = diagnostic.properties();
-        if (props.size() < (propertyIndex + 1) || props.get(propertyIndex).kind() != DiagnosticPropertyKind.SYMBOLIC) {
+        if (props.size() < (propertyIndex + 1)) {
             return Optional.empty();
         }
 
-        Symbol rhsTypeSymbol = ((DiagnosticProperty<Symbol>) props.get(propertyIndex)).value();
-        if (diagnostic.properties().get(propertyIndex) == null || !(rhsTypeSymbol instanceof TypeSymbol)) {
-            return Optional.empty();
-        }
-        return Optional.of((TypeSymbol) rhsTypeSymbol);
+        DiagnosticProperty<?> diagnosticProperty = props.get(propertyIndex);
+        return Optional.of((T) diagnosticProperty.value());
     }
 }

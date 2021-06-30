@@ -413,14 +413,19 @@ public class SortingUtil {
                         case Interface:
                             rank = 11;
                             break;
-                        case Struct:
+                        case Event:
                             rank = 12;
                             break;
-                        case TypeParameter:
+                        case Struct:
                             rank = 13;
                             break;
-                        case Module:
+                        case TypeParameter:
                             rank = 14;
+                            break;
+                        case Module:
+                            rank = 15;
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -429,13 +434,13 @@ public class SortingUtil {
                 if (completionItemKind != null) {
                     switch (completionItemKind) {
                         case TypeParameter:
-                            rank = 13;
+                            rank = 14;
                             break;
                         case Snippet:
-                            rank = 15;
+                            rank = 16;
                             break;
                         case Keyword:
-                            rank = 16;
+                            rank = 17;
                             break;
                     }
                 }
@@ -449,7 +454,7 @@ public class SortingUtil {
         }
 
         if (rank == -1) {
-            rank = 17;
+            rank = 18;
         } else {
             rank = rankOffset + rank;
         }

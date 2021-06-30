@@ -27,6 +27,7 @@ package io.ballerina.projects;
 public class BuildOptionsBuilder {
     private Boolean testReport;
     private Boolean codeCoverage;
+    private Boolean dumpBuildTime;
     private final CompilationOptionsBuilder compilationOptionsBuilder;
 
     public BuildOptionsBuilder() {
@@ -40,6 +41,11 @@ public class BuildOptionsBuilder {
 
     public BuildOptionsBuilder codeCoverage(Boolean value) {
         codeCoverage = value;
+        return this;
+    }
+
+    public BuildOptionsBuilder dumpBuildTime(Boolean value) {
+        dumpBuildTime = value;
         return this;
     }
 
@@ -85,6 +91,6 @@ public class BuildOptionsBuilder {
 
     public BuildOptions build() {
         CompilationOptions compilationOptions = compilationOptionsBuilder.build();
-        return new BuildOptions(testReport, codeCoverage, compilationOptions);
+        return new BuildOptions(testReport, codeCoverage, dumpBuildTime, compilationOptions);
     }
 }
