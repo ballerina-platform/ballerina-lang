@@ -138,6 +138,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private static final String SCOPE_NAME_LOCAL = "Local";
     private static final String SCOPE_NAME_GLOBAL = "Global";
     private static final String VALUE_UNKNOWN = "unknown";
+    private static final String METHOD_INIT = "$init$";
     private static final String COMPILATION_ERROR_MESSAGE = "error: compilation contains errors";
 
     public JBallerinaDebugServer() {
@@ -282,6 +283,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             if (loadedThreadFrames.containsKey(activeThread.uniqueID())) {
                 stackTraceResponse.setStackFrames(loadedThreadFrames.get(activeThread.uniqueID()));
             } else {
+                if (activeThread.frames().get(0).location().method().name().equals(METHOD_INIT)) {
+                    prepareFor(DebugInstruction.STEP_OVER);
+                    eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_OVER);
+                }
                 StackFrame[] validFrames = activeThread.frames().stream()
                         .map(this::toDapStackFrame)
                         .filter(JBallerinaDebugServer::isValidFrame)
