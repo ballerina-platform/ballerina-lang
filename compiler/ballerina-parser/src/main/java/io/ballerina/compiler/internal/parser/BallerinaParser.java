@@ -6318,12 +6318,13 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
             case CLOSE_BRACE_TOKEN:
-                STNode objectField = createMissingSimpleObjectField(metadata, qualifiers, isObjectTypeDesc);
                 if (metadata != null) {
+                    STNode objectField = createMissingSimpleObjectField(metadata, qualifiers, isObjectTypeDesc);
                     objectField = SyntaxErrors.addDiagnostic(objectField,
                             DiagnosticErrorCode.ERROR_METADATA_NOT_ATTACHED_TO_A_OBJECT_MEMBER);
+                    return objectField;
                 }
-                return objectField;
+                return null;
             case PUBLIC_KEYWORD:
             case PRIVATE_KEYWORD:
                 reportInvalidQualifierList(qualifiers);
@@ -6376,6 +6377,8 @@ public class BallerinaParser extends AbstractParser {
             case ERROR_KEYWORD: // error-binding-pattern not allowed in fields
             case OPEN_BRACE_TOKEN: // mapping-binding-pattern not allowed in fields
                 return false;
+            case CLOSE_BRACE_TOKEN:
+                return true;
             default:
                 return isModuleVarDeclStart(1);
         }
