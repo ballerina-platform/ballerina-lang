@@ -470,8 +470,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         setSymbolOwner(variable, env.scope.owner);
         variable.setInitialExpression(desugar.addConversionExprIfRequired(valueAccessExpr, inputClause.varType));
         // add at 0, otherwise, this goes under existing stmts.
-        body.stmts.add(0, desugar.rewrite((BLangStatement) variableDefinitionNode, env));
-        removeScopeEntries(symbols, env);
+        body.stmts.add(0, (BLangStatement) variableDefinitionNode);
 
         // at this point;
         // function(_Frame frame) returns _Frame|error? {
@@ -558,15 +557,14 @@ public class QueryDesugar extends BLangNodeVisitor {
 
         // frame["x"] = x;, note: stmts will get added in reverse order.
         List<BVarSymbol> symbols = getIntroducedSymbols(letClause);
-        symbols.forEach(symbol -> env.scope.define(symbol.name, symbol));
         shadowSymbolScope(pos, body, ASTBuilderUtil.createVariableRef(pos, frameSymbol), symbols);
+
         Collections.reverse(letClause.letVarDeclarations);
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
             // add at 0, otherwise, this goes under existing stmts.
-            body.stmts.add(0, desugar.rewrite((BLangStatement)letVariable.definitionNode, env));
+            body.stmts.add(0, (BLangStatement) letVariable.definitionNode);
             setSymbolOwner((BLangVariable) letVariable.definitionNode.getVariable(), env.scope.owner);
         }
-        removeScopeEntries(symbols, env);
         lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_LET_FUNCTION, Lists.of(lambda), pos);
     }
@@ -985,16 +983,11 @@ public class QueryDesugar extends BLangNodeVisitor {
         Collections.reverse(symbols);
         for (BVarSymbol symbol : symbols) {
             // since the var decl is now within lambda, remove scope entry from encl env.
+            env.scope.entries.remove(symbol.name);
+            env.enclPkg.globalVariableDependencies.values().forEach(d -> d.remove(symbol));
             BLangStatement addToFrameStmt = getAddToFrameStmt(pos, frameRef,
                     symbol.name.value, ASTBuilderUtil.createVariableRef(pos, symbol));
             lambdaBody.stmts.add(0, addToFrameStmt);
-        }
-    }
-
-    private void removeScopeEntries(List<BVarSymbol> symbols, SymbolEnv env) {
-        for (BVarSymbol symbol: symbols) {
-            env.scope.entries.remove(symbol.name);
-            env.enclPkg.globalVariableDependencies.values().forEach(d -> d.remove(symbol));
         }
     }
 
@@ -1502,11 +1495,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef.BLangPackageVarRef bLangPackageVarRef) {
         visit((BLangSimpleVarRef) bLangPackageVarRef);
-    }
-
-    @Override
-    public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
-        // Do nothing
     }
 
     @Override
