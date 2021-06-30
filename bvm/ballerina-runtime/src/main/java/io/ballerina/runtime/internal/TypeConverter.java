@@ -290,8 +290,13 @@ public class TypeConverter {
                 break;
             case TypeTags.FINITE_TYPE_TAG:
                 for (Object valueSpaceItem : ((BFiniteType) targetType).valueSpace) {
-                    if (TypeChecker.isFiniteTypeValue(inputValue, TypeChecker.getType(inputValue), valueSpaceItem)) {
-                        convertibleTypes.add(TypeChecker.getType(valueSpaceItem));
+                    Type inputValueType = TypeChecker.getType(inputValue);
+                    Type valueSpaceItemType = TypeChecker.getType(valueSpaceItem);
+                    if (inputValue == valueSpaceItem && inputValueType.getTag() == valueSpaceItemType.getTag()) {
+                        return Set.of(inputValueType);
+                    }
+                    if (TypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem)) {
+                        convertibleTypes.add(valueSpaceItemType);
                     }
                 }
                 break;
