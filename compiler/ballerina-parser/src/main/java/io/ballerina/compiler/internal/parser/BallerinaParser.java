@@ -13763,6 +13763,20 @@ public class BallerinaParser extends AbstractParser {
         STNode matchGuard = parseMatchGuard();
         STNode rightDoubleArrow = parseDoubleRightArrow();
         STNode blockStmt = parseBlockNode();
+        
+        if (isNodeListEmpty(matchPatterns)) {
+            STToken identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            STNode constantPattern = STNodeFactory.createSimpleNameReferenceNode(identifier);
+            matchPatterns = STNodeFactory.createNodeList(constantPattern);
+            
+            DiagnosticErrorCode errorCode = DiagnosticErrorCode.ERROR_MISSING_MATCH_PATTERN;
+            if (matchGuard != null) {
+                matchGuard = SyntaxErrors.addDiagnostic(matchGuard, errorCode);
+            } else {
+                rightDoubleArrow = SyntaxErrors.addDiagnostic(rightDoubleArrow, errorCode);
+            }
+        }
+        
         return STNodeFactory.createMatchClauseNode(matchPatterns, matchGuard, rightDoubleArrow, blockStmt);
     }
 
@@ -13820,7 +13834,7 @@ public class BallerinaParser extends AbstractParser {
         switch (nextTokenKind) {
             case PIPE_TOKEN:
             case IF_KEYWORD:
-            case RIGHT_ARROW_TOKEN:
+            case RIGHT_DOUBLE_ARROW_TOKEN:
                 return true;
             default:
                 return false;
