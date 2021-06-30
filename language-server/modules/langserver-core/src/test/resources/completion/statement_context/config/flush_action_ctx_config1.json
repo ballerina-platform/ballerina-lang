@@ -6,14 +6,6 @@
   "source": "statement_context/source/flush_action_ctx_source1.bal",
   "items": [
     {
-      "label": "w1",
-      "kind": "Variable",
-      "detail": "worker",
-      "sortText": "B",
-      "insertText": "w1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "w3",
       "kind": "Variable",
       "detail": "worker",
@@ -22,10 +14,18 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "w1",
+      "kind": "Variable",
+      "detail": "worker",
+      "sortText": "B",
+      "insertText": "w1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"

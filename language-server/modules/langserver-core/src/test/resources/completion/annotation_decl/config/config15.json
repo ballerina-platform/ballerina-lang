@@ -9,7 +9,7 @@
       "label": "remote",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "remote",
       "insertText": "remote",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "remote function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "remote function",
       "insertText": "remote function",
       "insertTextFormat": "Snippet"
