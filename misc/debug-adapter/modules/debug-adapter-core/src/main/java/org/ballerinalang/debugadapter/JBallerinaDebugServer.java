@@ -283,9 +283,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             if (loadedThreadFrames.containsKey(activeThread.uniqueID())) {
                 stackTraceResponse.setStackFrames(loadedThreadFrames.get(activeThread.uniqueID()));
             } else {
+                // if the active thread's top stack frame name is `$init$`, then send a `STEP_INTO` request.
+                // This is to avoid `$init$` stack frame information represented on the top of the call stack,
+                // as this stack frame does not give any useful information to the user.
                 if (activeThread.frames().get(0).location().method().name().equals(METHOD_INIT)) {
-                    prepareFor(DebugInstruction.STEP_OVER);
-                    eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_OVER);
+                    prepareFor(DebugInstruction.STEP_IN);
+                    eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_INTO);
                 }
                 StackFrame[] validFrames = activeThread.frames().stream()
                         .map(this::toDapStackFrame)
