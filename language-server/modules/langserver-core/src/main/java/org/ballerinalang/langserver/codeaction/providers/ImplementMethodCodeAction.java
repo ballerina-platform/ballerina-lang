@@ -34,7 +34,7 @@ import java.util.List;
  * @since 1.2.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class ImplementMethodCodeAction extends AbstractCodeActionProvider {
+public class ImplementMethodCodeAction extends AbstractImplementMethodCodeAction {
 
     public static final String NAME = "Implement Method";
 
@@ -45,13 +45,17 @@ public class ImplementMethodCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        List<TextEdit> edits = new ArrayList<>();
-        edits.addAll(getDiagBasedTextEdits(diagnostic, positionDetails, context));
-        String commandTitle = String.format(CommandConstants.IMPLEMENT_FUNCS_TITLE,
-                positionDetails.diagnosticProperty(DIAG_PROPERTY_NAME_INDEX).get());
-        CodeAction quickFixCodeAction = createQuickFixCodeAction(commandTitle, edits, context.fileUri());
-        quickFixCodeAction.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList((diagnostic))));
-        return Collections.singletonList(quickFixCodeAction);
+        List<TextEdit> edits = new ArrayList<>(getDiagBasedTextEdits(diagnostic, positionDetails, context));
+        if (!edits.isEmpty()) {
+            if (positionDetails.diagnosticProperty(DIAG_PROPERTY_NAME_INDEX).isPresent()) {
+                String commandTitle = String.format(CommandConstants.IMPLEMENT_FUNCS_TITLE,
+                        positionDetails.diagnosticProperty(DIAG_PROPERTY_NAME_INDEX).get());
+                CodeAction quickFixCodeAction = createQuickFixCodeAction(commandTitle, edits, context.fileUri());
+                quickFixCodeAction.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList(diagnostic)));
+                return Collections.singletonList(quickFixCodeAction);
+            }
+        }
+        return Collections.emptyList();
     }
 
     @Override

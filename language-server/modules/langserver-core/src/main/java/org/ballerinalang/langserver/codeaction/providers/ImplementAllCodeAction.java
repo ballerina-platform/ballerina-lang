@@ -20,7 +20,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
@@ -40,7 +39,7 @@ import static org.ballerinalang.langserver.codeaction.CodeActionUtil.computePosi
 /**
  * Code Action provider for implementing all the functions of an object.
  *
- * @since 1.2.0
+ * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction {
@@ -80,8 +79,7 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction {
         }
 
         SyntaxTree syntaxTree = context.workspace().syntaxTree(context.filePath()).orElseThrow();
-        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
-        List<TextEdit> edits = new ArrayList<>(importsAcceptor.getNewImportTextEdits());
+        List<TextEdit> edits = new ArrayList<>();
 
         diags.forEach(diagnostic -> {
             DiagBasedPositionDetails positionDetails = computePositionDetails(syntaxTree, diagnostic, context);
