@@ -40,6 +40,7 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TrapExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
@@ -57,6 +58,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.expression.MethodCallExp
 import org.ballerinalang.debugadapter.evaluation.engine.expression.OptionalFieldAccessExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.SimpleNameReferenceEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.StringTemplateEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.TrapExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.TypeCastExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.TypeOfExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.TypeTestExpressionEvaluator;
@@ -328,6 +330,14 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     @Override
+    public void visit(TrapExpressionNode trapExpressionNode) {
+        visitSyntaxNode(trapExpressionNode);
+        trapExpressionNode.expression().accept(this);
+        Evaluator exprEvaluator = result;
+        result = new TrapExpressionEvaluator(context, trapExpressionNode, exprEvaluator);
+    }
+
+    @Override
     public void visit(UnaryExpressionNode unaryExpressionNode) {
         visitSyntaxNode(unaryExpressionNode);
         unaryExpressionNode.expression().accept(this);
@@ -422,7 +432,7 @@ public class EvaluatorBuilder extends NodeVisitor {
         addMiscellaneousSyntax();
 
         // Adds action syntax.
-        addRemoteMethodCallAction();
+        addRemoteMethodCallActionSyntax();
     }
 
     private void addLiteralExpressionSyntax() {
@@ -584,7 +594,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addTrapExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.TRAP_EXPRESSION);
     }
 
     private void addQueryExpressionSyntax() {
@@ -595,7 +605,7 @@ public class EvaluatorBuilder extends NodeVisitor {
         // Todo
     }
 
-    private void addRemoteMethodCallAction() {
+    private void addRemoteMethodCallActionSyntax() {
         supportedSyntax.add(SyntaxKind.REMOTE_METHOD_CALL_ACTION);
     }
 
