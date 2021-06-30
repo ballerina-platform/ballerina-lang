@@ -189,21 +189,19 @@ class JvmObservabilityGen {
             }
             for (int i = 0; i < typeDef.attachedFuncs.size(); i++) {
                 BIRFunction func = typeDef.attachedFuncs.get(i);
-                if (isService) {
-                    if ((func.flags & Flags.RESOURCE) == Flags.RESOURCE ||
-                            (func.flags & Flags.REMOTE) == Flags.REMOTE) {
-                        rewriteControlFlowInvocation(func, pkg);
-                    }
+                if (isService && ((func.flags & Flags.RESOURCE) == Flags.RESOURCE ||
+                        (func.flags & Flags.REMOTE) == Flags.REMOTE)) {
+                    rewriteControlFlowInvocation(func, pkg);
                 }
                 rewriteAsyncInvocations(func, typeDef, pkg);
                 rewriteObservableFunctionInvocations(func, pkg);
                 if (isService) {
                     if ((func.flags & Flags.RESOURCE) == Flags.RESOURCE) {
                         rewriteObservableFunctionBody(func, pkg, typeDef, func.name.value, serviceName,
-                                true, false, false, false);
+                                                      true, false, false, false);
                     } else if ((func.flags & Flags.REMOTE) == Flags.REMOTE) {
                         rewriteObservableFunctionBody(func, pkg, typeDef, func.name.value, serviceName,
-                                false, true, false, false);
+                                                      false, true, false, false);
                     }
                 }
             }
@@ -521,7 +519,7 @@ class JvmObservabilityGen {
                     BIRBasicBlock observeEndBB = insertBasicBlock(func, i + 3);
                     BIRBasicBlock rePanicBB = insertBasicBlock(func, i + 4);
 
-                    BIRVariableDcl trappedErrorVariableDcl = new BIRVariableDcl(symbolTable.errorType,
+                    BIRVariableDcl trappedErrorVariableDcl = new BIRVariableDcl(symbolTable.errorOrNilType,
                             new Name(String.format("$%s$trappedError", currentBB.id.value)), VarScope.FUNCTION,
                             VarKind.TEMP);
                     func.localVars.add(trappedErrorVariableDcl);
@@ -661,9 +659,9 @@ class JvmObservabilityGen {
                         BIRBasicBlock observeEndBB = insertBasicBlock(func, newCurrentIndex + 3);
                         BIRBasicBlock rePanicBB = insertBasicBlock(func, newCurrentIndex + 4);
 
-                        BIRVariableDcl trappedErrorVariableDcl = new BIRVariableDcl(symbolTable.errorType,
-                                new Name(String.format("$%s$trappedError", newCurrentBB.id.value)),
-                                VarScope.FUNCTION, VarKind.TEMP);
+                        BIRVariableDcl trappedErrorVariableDcl = new BIRVariableDcl(symbolTable.errorOrNilType,
+                                new Name(String.format("$%s$trappedError", newCurrentBB.id.value)), VarScope.FUNCTION,
+                                VarKind.TEMP);
                         func.localVars.add(trappedErrorVariableDcl);
                         BIROperand trappedErrorOperand = new BIROperand(trappedErrorVariableDcl);
 
