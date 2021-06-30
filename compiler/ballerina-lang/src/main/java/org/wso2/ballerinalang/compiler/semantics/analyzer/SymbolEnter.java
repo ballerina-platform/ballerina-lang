@@ -2250,7 +2250,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     ignoredCount++;
                     simpleVar.setBType(symTable.anyType);
                     if (!types.isAssignable(type, symTable.anyType)) {
-                        dlog.error(varNode.pos, DiagnosticErrorCode.WILD_CARD_BINDING_ONLY_SUPPORTS_TYPE_ANY);
+                        dlog.error(varNode.pos, DiagnosticErrorCode.WILD_CARD_BINDING_PATTERN_ONLY_SUPPORTS_TYPE_ANY);
                     }
                     continue;
                 }
@@ -2604,7 +2604,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     if (!types.isAssignable(recordVarTypeFields.get((variable.getKey().getValue())).type,
                             symTable.anyType)) {
                         dlog.error(variable.valueBindingPattern.pos,
-                                DiagnosticErrorCode.WILD_CARD_BINDING_ONLY_SUPPORTS_TYPE_ANY);
+                                DiagnosticErrorCode.WILD_CARD_BINDING_PATTERN_ONLY_SUPPORTS_TYPE_ANY);
                     }
                     continue;
                 }

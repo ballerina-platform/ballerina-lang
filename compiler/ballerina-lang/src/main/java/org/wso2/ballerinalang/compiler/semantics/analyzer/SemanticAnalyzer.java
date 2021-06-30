@@ -1406,7 +1406,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BType bindingValueType = bindingExp != null && bindingExp.getBType() != null
                 ? bindingExp.getBType() : variable.getBType();
         if (!types.isAssignable(bindingValueType, symTable.anyType)) {
-            dlog.error(variable.pos, DiagnosticErrorCode.WILD_CARD_BINDING_ONLY_SUPPORTS_TYPE_ANY);
+            dlog.error(variable.pos, DiagnosticErrorCode.WILD_CARD_BINDING_PATTERN_ONLY_SUPPORTS_TYPE_ANY);
         }
         // Fake symbol to prevent runtime failures down the line.
         variable.symbol = new BVarSymbol(0, Names.IGNORE, env.enclPkg.packageID,
