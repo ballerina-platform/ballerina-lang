@@ -1504,16 +1504,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr indexBasedAccess) {
-        // Do nothing
-    }
-
-    @Override
-    public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr indexBasedAccess) {
-        // Do nothing
-    }
-
-    @Override
     public void visit(BLangTypeInit connectorInitExpr) {
         connectorInitExpr.argsExpr.forEach(arg -> arg.accept(this));
         connectorInitExpr.initInvocation.accept(this);
