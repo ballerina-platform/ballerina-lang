@@ -728,9 +728,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     BLangVariableReference addGetStreamFromPipeline(BLangBlockStmt blockStmt, BLangVariableReference pipelineRef) {
         Location pos = pipelineRef.pos;
-        BLangVariableReference streamVarRef = getStreamFunctionVariableRef(blockStmt,
+        return getStreamFunctionVariableRef(blockStmt,
                 QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION, null, Lists.of(pipelineRef), pos);
-        return streamVarRef;
     }
 
     /**
@@ -1305,9 +1304,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         identifiers = new HashMap<>();
         currentLambdaBody = (BLangBlockFunctionBody) function.getBody();
         List<BLangStatement> stmts = new ArrayList<>(currentLambdaBody.getStatements());
-        stmts.forEach(stmt -> {
-            stmt.accept(this);
-        });
+        stmts.forEach(stmt -> stmt.accept(this));
         currentFrameSymbol = null;
         identifiers = null;
         currentLambdaBody = null;
