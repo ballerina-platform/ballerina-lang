@@ -2249,8 +2249,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (varName == Names.IGNORE) {
                     ignoredCount++;
                     simpleVar.setBType(symTable.anyType);
-                    types.checkType(varNode.pos, type, simpleVar.getBType(),
-                                    DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+                    if (!types.isAssignable(type, symTable.anyType)) {
+                        dlog.error(varNode.pos, DiagnosticErrorCode.WILD_CARD_BINDING_ONLY_SUPPORTS_TYPE_ANY);
+                    }
                     continue;
                 }
             }
@@ -2600,9 +2601,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                     if (!recordVarTypeFields.containsKey(variable.getKey().getValue())) {
                         continue;
                     }
-                    types.checkType(variable.valueBindingPattern.pos,
-                                    recordVarTypeFields.get((variable.getKey().getValue())).type, simpleVar.getBType(),
-                                    DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+                    if (!types.isAssignable(recordVarTypeFields.get((variable.getKey().getValue())).type,
+                            symTable.anyType)) {
+                        dlog.error(variable.valueBindingPattern.pos,
+                                DiagnosticErrorCode.WILD_CARD_BINDING_ONLY_SUPPORTS_TYPE_ANY);
+                    }
                     continue;
                 }
             }
