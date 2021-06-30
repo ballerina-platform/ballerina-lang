@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -34,7 +34,7 @@
       "label": "Fill record {| int Fa1; Bar Fa2; |} Required Fields",
       "kind": "Property",
       "detail": "record {| int Fa1; Bar Fa2; |}",
-      "sortText": "Q",
+      "sortText": "R",
       "filterText": "fill",
       "insertText": "Fa2: {Ba1: 0, Ba2: \"\"},\nFa1: 0",
       "insertTextFormat": "Snippet"

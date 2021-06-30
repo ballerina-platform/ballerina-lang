@@ -12,7 +12,7 @@
       "documentation": {
         "left": "foreach statement for iterable variable - employeeTab"
       },
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "foreach Employee item in employeeTab {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -38,7 +38,7 @@
       "documentation": {
         "left": "foreach i statement for iterable variable - employeeTab"
       },
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "foreach int i in ${1:0}...employeeTab.length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [

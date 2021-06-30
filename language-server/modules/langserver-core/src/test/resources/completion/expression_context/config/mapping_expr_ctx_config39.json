@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -42,7 +42,7 @@
       "label": "Fill Rec1 Required Fields",
       "kind": "Property",
       "detail": "Rec1",
-      "sortText": "Q",
+      "sortText": "R",
       "filterText": "fill",
       "insertText": "rec1Field1: 0,\nrec1Field2: 0",
       "insertTextFormat": "Snippet"
@@ -75,7 +75,7 @@
       "label": "Fill Rec2 Required Fields",
       "kind": "Property",
       "detail": "Rec2",
-      "sortText": "Q",
+      "sortText": "R",
       "filterText": "fill",
       "insertText": "rec2Field2: 0,\nrec2Field3: 0,\nrec2Field1: 0",
       "insertTextFormat": "Snippet"
@@ -100,7 +100,7 @@
       "label": "Fill record {| int anonField1; string anonField2; anydata...; |} Required Fields",
       "kind": "Property",
       "detail": "record {| int anonField1; string anonField2; anydata...; |}",
-      "sortText": "Q",
+      "sortText": "R",
       "filterText": "fill",
       "insertText": "anonField2: \"\",\nanonField1: 0",
       "insertTextFormat": "Snippet"
@@ -125,7 +125,7 @@
       "label": "Fill Rec3 Required Fields",
       "kind": "Property",
       "detail": "Rec3",
-      "sortText": "Q",
+      "sortText": "R",
       "filterText": "fill",
       "insertText": "rec3Field1: 0,\nrec3Field2: 0",
       "insertTextFormat": "Snippet"
