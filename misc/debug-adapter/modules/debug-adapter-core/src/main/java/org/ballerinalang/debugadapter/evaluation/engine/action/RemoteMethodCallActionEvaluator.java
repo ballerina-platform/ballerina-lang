@@ -95,12 +95,12 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
         if (classDef.isEmpty()) {
             // Resolves the JNI signature to see if the the object/class is defined with a dependency module.
             String signature = resultVar.getJvmValue().type().signature();
-            if (!signature.startsWith("L")) {
+            if (!signature.startsWith(QUALIFIED_TYPE_SIGNATURE_PREFIX)) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_NOT_FOUND.getString(),
                         className));
             }
 
-            String[] signatureParts = signature.substring(1).split("/");
+            String[] signatureParts = signature.substring(1).split(JNI_SIGNATURE_SEPARATOR);
             if (signatureParts.length < 2) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_NOT_FOUND.getString(),
                         className));
@@ -122,8 +122,9 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
         }
 
         GeneratedInstanceMethod objectMethod = getRemoteMethodByName(resultVar, objectMethodDef.get());
-        objectMethod.setNamedArgValues(generateNamedArgs(context, methodName, objectMethodDef.get().
-                typeDescriptor(), argEvaluators));
+        Map<String, Value> argValueMap = generateNamedArgs(context, methodName, objectMethodDef.get().typeDescriptor(),
+                argEvaluators);
+        objectMethod.setNamedArgValues(argValueMap);
         return objectMethod.invokeSafely();
     }
 

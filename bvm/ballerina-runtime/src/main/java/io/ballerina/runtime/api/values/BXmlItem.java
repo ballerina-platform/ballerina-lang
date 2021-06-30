@@ -26,7 +26,7 @@ import javax.xml.namespace.QName;
  */
 public interface BXmlItem extends BXml {
 
-    String XMLNS_URL_PREFIX = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}";
+    String XMLNS_NS_URI_PREFIX = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}";
 
     String XMLNS = "xmlns";
 

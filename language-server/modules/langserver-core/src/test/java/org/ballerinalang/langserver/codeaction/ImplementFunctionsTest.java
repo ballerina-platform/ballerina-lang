@@ -29,6 +29,7 @@ import java.io.IOException;
  * @since 2.0.0
  */
 public class ImplementFunctionsTest extends AbstractCodeActionTest {
+
     @Override
     public String getResourceDir() {
         return "implement-functions";
@@ -47,6 +48,8 @@ public class ImplementFunctionsTest extends AbstractCodeActionTest {
                 {"implementFuncObj1.json", "implementFuncObj.bal"},
                 {"implementFuncObj2.json", "implementFuncObj.bal"},
                 {"implementFuncObj3.json", "implementFuncObj.bal"},
+                {"implementFunctionInService1.json", "implementFunctionInService.bal"},
+                {"implementFuncInObjConstructorExpr1.json", "implementFuncInObjConstructorExpr1.bal"},
         };
     }
 }

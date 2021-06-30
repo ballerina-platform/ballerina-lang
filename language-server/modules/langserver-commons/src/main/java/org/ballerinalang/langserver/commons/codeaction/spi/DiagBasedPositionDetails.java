@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.commons.codeaction.spi;
 
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 
 import java.util.Optional;
@@ -46,10 +45,10 @@ public interface DiagBasedPositionDetails {
     Symbol matchedSymbol();
 
     /**
-     * Returns optional symbol of the diagnostic property.
+     * Returns optional value of the diagnostic property.
      *
      * @param propertyIndex property index
-     * @return {@link TypeSymbol}
+     * @return Value of the property at given index
      */
-    Optional<TypeSymbol> diagnosticProperty(int propertyIndex);
+    <T> Optional<T> diagnosticProperty(int propertyIndex);
 }

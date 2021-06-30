@@ -22,12 +22,18 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
 import java.util.List;
+
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.EMPTY;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERIOD_SEPARATOR;
 
 /**
  * Native implementation for get error's call stack.
@@ -55,9 +61,20 @@ public class GetStackTrace {
     private static Object[] getStackFrame(StackTraceElement stackTraceElement) {
         Object[] values = new Object[4];
         values[0] = stackTraceElement.getMethodName();
-        values[1] = stackTraceElement.getClassName();
         values[2] = stackTraceElement.getFileName();
         values[3] = stackTraceElement.getLineNumber();
+
+        String moduleName = IdentifierUtils.decodeIdentifier(stackTraceElement.getClassName())
+                .replace(FILE_NAME_PERIOD_SEPARATOR, DOT);
+        String fileName = stackTraceElement.getFileName().replace(BLANG_SRC_FILE_SUFFIX, EMPTY);
+        if (!moduleName.equals(fileName)) {
+            int index = moduleName.lastIndexOf(DOT + fileName);
+            if (index != -1) {
+                values[1] = moduleName.substring(0, index);
+            } else {
+                values[1] = moduleName;
+            }
+        }
         return values;
     }
 }

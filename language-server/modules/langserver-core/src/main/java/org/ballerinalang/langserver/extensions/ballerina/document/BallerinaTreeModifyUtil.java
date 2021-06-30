@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 /**
@@ -89,7 +90,7 @@ public class BallerinaTreeModifyUtil {
             } else {
                 value = entry.getValue().getAsString();
             }
-            mapping = mapping.replaceAll("\\$" + key, value);
+            mapping = mapping.replaceAll("\\$" + key, Matcher.quoteReplacement(value));
         }
         return mapping;
     }

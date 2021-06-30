@@ -875,6 +875,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // TODO Clean this code up. Can we move the this to BLangPackageBuilder class
         // Create import package symbol
         Name orgName;
+        Name pkgName = null;
         Name version;
         PackageID enclPackageID = env.enclPkg.packageID;
         // The pattern of the import statement is 'import [org-name /] module-name [version sem-ver]'
@@ -893,10 +894,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (projectAPIInitiatedCompilation) {
                     version = Names.EMPTY;
                 } else {
-                    String pkgName = importPkgNode.getPackageName().stream()
+                    String pkgNameComps = importPkgNode.getPackageName().stream()
                             .map(id -> id.value)
                             .collect(Collectors.joining("."));
-                    if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)
+                    if (this.sourceDirectory.getSourcePackageNames().contains(pkgNameComps)
                             && orgName.value.equals(enclPackageID.orgName.value)) {
                         version = enclPackageID.version;
                     } else {
@@ -906,14 +907,20 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         } else {
             orgName = enclPackageID.orgName;
+            pkgName = enclPackageID.pkgName;
             version = (Names.DEFAULT_VERSION.equals(enclPackageID.version)) ? Names.EMPTY : enclPackageID.version;
         }
 
         List<Name> nameComps = importPkgNode.pkgNameComps.stream()
                 .map(identifier -> names.fromIdNode(identifier))
                 .collect(Collectors.toList());
+        Name moduleName = new Name(nameComps.stream().map(Name::getValue).collect(Collectors.joining(".")));
 
-        PackageID pkgId = new PackageID(orgName, nameComps, version);
+        if (pkgName == null) {
+            pkgName = moduleName;
+        }
+
+        PackageID pkgId = new PackageID(orgName, pkgName, moduleName, version, null);
 
         // Un-exported modules not inside current package is not allowed to import.
         BPackageSymbol bPackageSymbol = this.packageCache.getSymbol(pkgId);
@@ -2134,7 +2141,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode, BTupleType tupleTypeNode,
                                                     SymbolEnv env) {
-
         if (tupleTypeNode == null) {
         /*
           This switch block will resolve the tuple type of the tuple variable.
@@ -2189,11 +2195,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                             }
                         }
                         tupleTypeNode = new BTupleType(memberTupleTypes);
+                        tupleTypeNode.restType = getPossibleRestTypeForUnion(varNode, possibleTypes);
                         break;
                     }
 
                     if (possibleTypes.get(0).tag == TypeTags.TUPLE) {
                         tupleTypeNode = (BTupleType) possibleTypes.get(0);
+                        tupleTypeNode.restType = getPossibleRestTypeForUnion(varNode, possibleTypes);
                         break;
                     }
 
@@ -2202,6 +2210,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         memberTypes.add(possibleTypes.get(0));
                     }
                     tupleTypeNode = new BTupleType(memberTypes);
+                    tupleTypeNode.restType = getPossibleRestTypeForUnion(varNode, possibleTypes);
                     break;
                 case TypeTags.ANY:
                 case TypeTags.ANYDATA:
@@ -2262,25 +2271,18 @@ public class SymbolEnter extends BLangNodeVisitor {
             int tupleNodeMemCount = tupleTypeNode.tupleTypes.size();
             int varNodeMemCount = varNode.memberVariables.size();
             BType restType = tupleTypeNode.restType;
+            List<BType> memberTypes = new ArrayList<>();
             if (varNodeMemCount < tupleNodeMemCount) {
-                LinkedHashSet<BType> varTypes = new LinkedHashSet<>();
                 for (int j = varNodeMemCount; j < tupleNodeMemCount; j++) {
-                    varTypes.add(tupleTypeNode.tupleTypes.get(j));
-                }
-                if (restType != null) {
-                    varTypes.add(restType);
-                }
-                if (varTypes.size() > 1) {
-                    restType = BUnionType.create(null, varTypes);
-                } else {
-                    restType = varTypes.iterator().next();
+                    memberTypes.add(tupleTypeNode.tupleTypes.get(j));
                 }
             }
-            if (restType != null) {
-                type = new BArrayType(restType);
+            if (!memberTypes.isEmpty()) {
+                BTupleType restTupleType = new BTupleType(memberTypes);
+                restTupleType.restType = restType;
+                type = restTupleType;
             } else {
-                LinkedHashSet<BType> varTypes = new LinkedHashSet<>(tupleTypeNode.tupleTypes);
-                type = new BArrayType(BUnionType.create(null, varTypes));
+                type = restType != null ? new BArrayType(restType) : null;
             }
             defineMemberNode(varNode.restVariable, env, type);
         }
@@ -2291,6 +2293,35 @@ public class SymbolEnter extends BLangNodeVisitor {
             return false;
         }
         return true;
+    }
+
+    private BType getPossibleRestTypeForUnion(BLangTupleVariable varNode, List<BType> possibleTypes) {
+        if (varNode.restVariable == null) {
+            return null;
+        }
+        LinkedHashSet<BType> memberRestTypes = new LinkedHashSet<>();
+        for (BType possibleType : possibleTypes) {
+            if (possibleType.tag == TypeTags.TUPLE) {
+                BTupleType tupleType = (BTupleType) possibleType;
+                for (int j = varNode.memberVariables.size(); j < tupleType.tupleTypes.size();
+                     j++) {
+                    memberRestTypes.add(tupleType.tupleTypes.get(j));
+                }
+                if (tupleType.restType != null) {
+                    memberRestTypes.add(tupleType.restType);
+                }
+            } else if (possibleType.tag == TypeTags.ARRAY) {
+                memberRestTypes.add(((BArrayType) possibleType).eType);
+            } else {
+                memberRestTypes.add(possibleType);
+            }
+        }
+        if (!memberRestTypes.isEmpty()) {
+            return memberRestTypes.size() > 1 ? BUnionType.create(null, memberRestTypes) :
+                    memberRestTypes.iterator().next();
+        } else {
+            return varNode.getBType();
+        }
     }
 
     private boolean checkMemVarCountMatchWithMemTypeCount(BLangTupleVariable varNode, BTupleType tupleTypeNode) {

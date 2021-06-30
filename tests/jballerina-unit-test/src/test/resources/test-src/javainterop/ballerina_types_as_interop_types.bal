@@ -1,4 +1,5 @@
 import ballerina/jballerina.java;
+import ballerina/test;
 
 public function interopWithArrayAndMap() returns int[] {
     map<int> mapVal = { "keyVal":8};
@@ -79,7 +80,8 @@ public function interopWithUnionReturn() returns boolean {
 }
 
 public function acceptIntUnionReturn(int s) returns int|string|float|boolean|handle = @java:Method {
-    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+    name:"acceptIntAnyReturn"
 } external;
 
 public function interopWithObjectReturn() returns boolean {
@@ -137,7 +139,7 @@ public function interopWithAnyReturn() returns boolean {
 
 public function acceptIntAnyReturn(int s) returns any= @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
-    name:"acceptIntUnionReturn"
+    name:"acceptIntAnyReturn"
 } external;
 
 public function interopWithAnydataReturn() returns boolean {
@@ -160,12 +162,38 @@ public function interopWithAnydataReturn() returns boolean {
     return true;
 }
 
+public function interopWithJavaStringReturn() returns anydata {
+    return acceptNothingInvalidAnyReturn();
+}
+
+public function interopWithHandleOrErrorReturn() {
+    handle|error handleOrError = acceptIntReturnIntArrayThrowsCheckedException(1);
+    test:assertEquals(handleOrError is error, false);
+    test:assertEquals(handleOrError is handle, true);
+
+    handleOrError = acceptIntReturnIntArrayThrowsCheckedException(5);
+    test:assertEquals(handleOrError is error, true);
+    error err = <error> handleOrError;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    test:assertEquals(err.message(), "org.ballerinalang.nativeimpl.jvm.tests.JavaInteropTestCheckedException");
+    test:assertEquals(messageString, "Invalid state");
+}
+
 public function acceptIntAnydataReturn(int s) returns anydata= @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
     name:"acceptIntUnionReturn"
 } external;
 
+public function acceptNothingInvalidAnyReturn() returns anydata = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
 public function acceptIntReturnIntThrowsCheckedException(int a) returns int | error = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function acceptIntReturnIntArrayThrowsCheckedException(int a) returns handle|error = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 

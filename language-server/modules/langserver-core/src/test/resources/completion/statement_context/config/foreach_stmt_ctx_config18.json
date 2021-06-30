@@ -12,7 +12,7 @@
       "documentation": {
         "left": "foreach statement for iterable variable - employeeTab"
       },
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "foreach Employee item in employeeTab {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -38,7 +38,7 @@
       "documentation": {
         "left": "foreach i statement for iterable variable - employeeTab"
       },
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "foreach int i in ${1:0}...employeeTab.length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -60,7 +60,7 @@
     {
       "label": "add(map<any|error> val)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -77,9 +77,9 @@
       }
     },
     {
-      "label": "reduce(function () func, any|error initial)(any|error)",
+      "label": "reduce(function () func, any|error initial)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "any|error",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -98,7 +98,7 @@
     {
       "label": "forEach(function () func)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -115,9 +115,9 @@
       }
     },
     {
-      "label": "length()(int)",
+      "label": "length()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -132,7 +132,7 @@
     {
       "label": "put(map<any|error> val)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -149,9 +149,9 @@
       }
     },
     {
-      "label": "iterator()(object {public isolated function next() returns record {| map<any|error> value; |}? ;})",
+      "label": "iterator()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "object {public isolated function next() returns record {| map<any|error> value; |}? ;}",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -166,7 +166,7 @@
     {
       "label": "removeAll()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -179,9 +179,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "toArray()(map<any|error>[])",
+      "label": "toArray()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "map<any|error>[]",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -194,9 +194,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "map(function () func)(table<any|error> key<never>)",
+      "label": "map(function () func)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "table<any|error> key<never>",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -213,9 +213,9 @@
       }
     },
     {
-      "label": "cloneWithType(typedesc<anydata> t)(t|error)",
+      "label": "cloneWithType(typedesc<anydata> t)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "t|error",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -232,9 +232,9 @@
       }
     },
     {
-      "label": "cloneReadOnly()(CloneableType & readonly)",
+      "label": "cloneReadOnly()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "CloneableType & readonly",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -247,9 +247,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "toBalString()(string)",
+      "label": "toBalString()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -262,9 +262,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "toJson()(json)",
+      "label": "toJson()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "json",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -277,9 +277,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "isReadOnly()(boolean)",
+      "label": "isReadOnly()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "boolean",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -292,9 +292,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "clone()(CloneableType)",
+      "label": "clone()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "CloneableType",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -307,9 +307,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ensureType(typedesc<any> t)(t|error)",
+      "label": "ensureType(typedesc<any> t)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "t|error",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -326,9 +326,9 @@
       }
     },
     {
-      "label": "toString()(string)",
+      "label": "toString()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -341,9 +341,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "toJsonString()(string)",
+      "label": "toJsonString()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",

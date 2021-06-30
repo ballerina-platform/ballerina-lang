@@ -14,9 +14,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getName()(string)",
+      "label": "getName()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",

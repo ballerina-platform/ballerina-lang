@@ -160,9 +160,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "abs(int n)(int)",
+      "label": "abs(int n)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -179,9 +179,9 @@
       }
     },
     {
-      "label": "sum(int... ns)(int)",
+      "label": "sum(int... ns)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -198,9 +198,9 @@
       }
     },
     {
-      "label": "max(int n, int... ns)(int)",
+      "label": "max(int n, int... ns)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -217,9 +217,9 @@
       }
     },
     {
-      "label": "min(int n, int... ns)(int)",
+      "label": "min(int n, int... ns)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -236,9 +236,9 @@
       }
     },
     {
-      "label": "fromString(string s)(int|error)",
+      "label": "fromString(string s)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int|error",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -255,9 +255,9 @@
       }
     },
     {
-      "label": "toHexString(int n)(string)",
+      "label": "toHexString(int n)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -274,9 +274,9 @@
       }
     },
     {
-      "label": "fromHexString(string s)(int|error)",
+      "label": "fromHexString(string s)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int|error",
       "documentation": {
         "right": {
           "kind": "markdown",

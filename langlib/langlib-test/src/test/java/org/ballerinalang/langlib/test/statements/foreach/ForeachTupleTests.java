@@ -142,7 +142,8 @@ public class ForeachTupleTests {
                 "testTupleWithRestDescriptorInForeach2",
                 "testTupleWithRestDescriptorInForeach3",
                 "testTupleWithRestDescriptorInForeach4",
-                "testTupleWithRestDescriptorInForeach5"
+                "testTupleWithRestDescriptorInForeach5",
+                "testTupleWithRestDescriptorInForeach6"
         };
     }
 
