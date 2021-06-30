@@ -413,8 +413,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         analyzeNode(funcNode.body, funcEnv);
 
-        if (!isIsolated(symbol.flags) && this.inferredIsolated && !
-                Symbols.isFlagOn(symbol.flags, Flags.WORKER)) {
+        if (!isIsolated(symbol.flags) && this.inferredIsolated && !Symbols.isFlagOn(symbol.flags, Flags.WORKER)) {
             if (isBallerinaModule(env.enclPkg)) {
                 dlog.warning(funcNode.pos, DiagnosticWarningCode.FUNCTION_CAN_BE_MARKED_ISOLATED, funcNode.name);
             }
@@ -1207,7 +1206,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             if (accessOfPotentiallyIsolatedVariable) {
                 ((VariableIsolationInferenceInfo) this.isolationInferenceInfoMap.get(symbol)).accessedLockInfo
                         .add(exprInfo);
-                accessOfPotentiallyIsolatedVariable = true;
                 exprInfo.accessedPotentiallyIsolatedVars.add(symbol);
             }
         } else if (accessOfPotentiallyIsolatedVariable ||
@@ -2361,14 +2359,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isObjectFieldDefaultValue(SymbolEnv env) {
-        BLangNode node = env.node;
-        NodeKind kind = node.getKind();
-
-        if (kind != NodeKind.CLASS_DEFN) {
-            return false;
-        }
-
-        return true;
+        return env.node.getKind() == NodeKind.CLASS_DEFN;
     }
 
     private boolean isDefinitionReference(BSymbol symbol) {
@@ -3127,11 +3118,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (!flagSet.contains(Flag.ATTACHED)) {
-            if (flagSet.contains(Flag.PUBLIC)) {
-                return false;
-            }
-
-            return true;
+            return !flagSet.contains(Flag.PUBLIC);
         }
 
         BSymbol owner = funcNode.symbol.owner;
@@ -3273,11 +3260,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean isVarRequiringInference(BSymbol moduleLevelVarSymbol) {
         long symbolFlags = moduleLevelVarSymbol.flags;
-        if (Symbols.isFlagOn(symbolFlags, Flags.PUBLIC)) {
-            return false;
-        }
-
-        if (Symbols.isFlagOn(symbolFlags, Flags.ISOLATED)) {
+        if (Symbols.isFlagOn(symbolFlags, Flags.PUBLIC) || Symbols.isFlagOn(symbolFlags, Flags.ISOLATED)) {
             return false;
         }
 
