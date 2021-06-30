@@ -239,6 +239,13 @@ public class RefTypeTests {
         Assert.assertEquals(((BValueType) returns[0]).intValue(), 3);
     }
 
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: java.lang.ClassCastException \\{\"message\":\"class " +
+                    "java.lang.String cannot be cast to class io.ballerina.runtime.api.values.BValue.*")
+    public void testInteropWithJavaStringReturn() {
+        BRunUtil.invoke(result, "interopWithJavaStringReturn");
+    }
+
     @Test
     public void testAcceptMixType() {
         BValue[] returns = BRunUtil.invoke(result, "testAcceptMixTypes");
@@ -323,9 +330,9 @@ public class RefTypeTests {
         Assert.assertTrue(returns instanceof ErrorValue);
         ErrorValue error = (ErrorValue) returns;
         Assert.assertEquals(error.getPrintableStackTrace(), "java.util.EmptyStackException\n" +
-                "\tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:419)\n" +
+                "\tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:428)\n" +
                 "\t   ballerina_types_as_interop_types:testThrowJavaException2(ballerina_types_as_interop_types.bal:" +
-                "411)");
+                "420)");
     }
 
     @Test

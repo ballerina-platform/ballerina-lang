@@ -9,7 +9,7 @@
       "label": "typeguard",
       "kind": "Snippet",
       "detail": "Destructure the variable myFunc(5) with typeguard",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "if myFunc(5) is int {\n\t${1}\n} else {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [

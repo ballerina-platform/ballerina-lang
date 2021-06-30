@@ -236,10 +236,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
     private List<LSCompletionItem> getTypeItems(BallerinaCompletionContext context) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        // Specifically remove the error type, since this is covered with langlib suggestion and type builtin types
         visibleSymbols.stream()
-                .filter(CommonUtil.typesFilter()
-                        .and(symbol -> !Names.ERROR.getValue().equals(symbol.getName().orElse(""))))
+                .filter(CommonUtil.typesFilter())
                 .forEach(symbol -> {
                     CompletionItem cItem = TypeCompletionItemBuilder.build(symbol, symbol.getName().get());
                     completionItems.add(new SymbolCompletionItem(context, symbol, cItem));

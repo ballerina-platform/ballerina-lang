@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -114,7 +114,7 @@
       "label": "Fill record {| ballerina/module1:0.1.0:TestRecord1 record1; Err err1; Foo record2; table<Foo> key(f1) myTable; xml myXML; map<string> myMap; error myError; NodeCredential credentials; Node node; error|float randomNum; boolean isAlive; string[][] keywords; |} Required Fields",
       "kind": "Property",
       "detail": "record {| ballerina/module1:0.1.0:TestRecord1 record1; Err err1; Foo record2; table<Foo> key(f1) myTable; xml myXML; map<string> myMap; error myError; NodeCredential credentials; Node node; error|float randomNum; boolean isAlive; string[][] keywords; |}",
-      "sortText": "Q",
+      "sortText": "R",
       "filterText": "fill",
       "insertText": "node: new ({ip: \"\", port: 0, username: \"\", files: new ()}, 0, \"\"),\nisAlive: false,\nerr1: error (\"\", message = \"\"),\nmyXML: xml ``,\nkeywords: [[]],\ncredentials: {ip: \"\", port: 0, username: \"\", files: new ()},\nrecord2: {f1: 0},\nrecord1: {},\nmyMap: {},\nmyTable: table [{f1: 0}],\nmyError: error (\"\"),\nrandomNum: error (\"\")",
       "insertTextFormat": "Snippet"

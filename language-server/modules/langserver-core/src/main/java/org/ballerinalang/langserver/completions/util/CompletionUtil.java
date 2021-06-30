@@ -46,6 +46,9 @@ import java.util.stream.Collectors;
  */
 public class CompletionUtil {
 
+    private CompletionUtil() {
+    }
+
     /**
      * Get the completion Items for the context.
      *
@@ -131,25 +134,6 @@ public class CompletionUtil {
         TextRange range = TextRange.from(txtPos, 0);
         NonTerminalNode nonTerminalNode = ((ModulePartNode) document.get().syntaxTree().rootNode()).findNode(range);
 
-        while (true) {
-            /*
-            ModulePartNode's parent is null
-             */
-            if (nonTerminalNode.parent() != null && !withinTextRange(txtPos, nonTerminalNode)) {
-                nonTerminalNode = nonTerminalNode.parent();
-                continue;
-            }
-            break;
-        }
-
         context.setNodeAtCursor(nonTerminalNode);
-    }
-
-    private static boolean withinTextRange(int position, NonTerminalNode node) {
-        TextRange rangeWithMinutiae = node.textRangeWithMinutiae();
-        TextRange textRange = node.textRange();
-        TextRange leadingMinutiaeRange = TextRange.from(rangeWithMinutiae.startOffset(),
-                textRange.startOffset() - rangeWithMinutiae.startOffset());
-        return leadingMinutiaeRange.endOffset() <= position;
     }
 }

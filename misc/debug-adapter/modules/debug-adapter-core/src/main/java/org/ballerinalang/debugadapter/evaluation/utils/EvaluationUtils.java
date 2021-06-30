@@ -61,6 +61,7 @@ public class EvaluationUtils {
     public static final String B_BITWISE_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "bitwise_operations";
     public static final String B_SHIFT_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "shift_operations";
     public static final String B_LOGICAL_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "logical_operations";
+    public static final String B_UTILS_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "utils";
 
     // Ballerina runtime helper classes
     private static final String RUNTIME_HELPER_PREFIX = "io.ballerina.runtime.";
@@ -115,6 +116,7 @@ public class EvaluationUtils {
     public static final String B_UNARY_MINUS_METHOD = "unaryMinus";
     public static final String B_UNARY_INVERT_METHOD = "unaryInvert";
     public static final String B_UNARY_NOT_METHOD = "unaryNot";
+    public static final String B_GET_TRAP_RESULT_METHOD = "getTrapResult";
     public static final String GET_TYPEDESC_METHOD = "getTypedesc";
     public static final String CHECK_IS_TYPE_METHOD = "checkIsType";
     public static final String CHECK_CAST_METHOD = "checkCast";

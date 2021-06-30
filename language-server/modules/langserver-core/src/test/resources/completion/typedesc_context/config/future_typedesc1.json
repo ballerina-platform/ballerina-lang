@@ -6,30 +6,54 @@
   "source": "typedesc_context/source/future_typedesc1.bal",
   "items": [
     {
+      "label": "TestMap1",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "ABN",
+      "insertText": "TestMap1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
         "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "ABL",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap1",
-      "kind": "TypeParameter",
-      "detail": "Map",
       "sortText": "ABM",
-      "insertText": "TestMap1",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "TestMap2",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "ABM",
+      "sortText": "ABN",
       "insertText": "TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "ABN",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "AAM",
+      "insertText": "TestRecord1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap3",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "ABN",
+      "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     },
     {
@@ -38,30 +62,6 @@
       "detail": "Singleton",
       "sortText": "AD",
       "insertText": "TEST_CONST",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestRecord1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "AAL",
-      "insertText": "TestRecord1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap3",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "ABM",
-      "insertText": "TestMap3",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "ABM",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -204,7 +204,7 @@
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "ABN",
+      "sortText": "ABO",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
