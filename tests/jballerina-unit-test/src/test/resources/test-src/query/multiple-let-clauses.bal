@@ -169,6 +169,7 @@ public function testwildcardBindingPatternInLetClause() {
     Person p3 = {deptAccess: "ENG", firstName: "Grainier", lastName: "Perera"};
     Person[] personList = [p1, p2, p3];
     Person[] outputPersonList = from var person in personList
+        let error error(_, msg = message1) = bar()
         let var [_, name] = foo()
         where person.deptAccess == "MKT" && person.firstName == name
         select {
@@ -184,6 +185,10 @@ public function testwildcardBindingPatternInLetClause() {
 
 function foo() returns [string, string] {
   return ["Mark", "Mark"];
+}
+
+function bar() returns error {
+    return error("", msg = "asdasd");
 }
 
 //---------------------------------------------------------------------------------------------------------
