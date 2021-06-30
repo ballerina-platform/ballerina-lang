@@ -128,14 +128,6 @@ public class WorkerFailTest {
     }
 
     @Test
-    public void invalidSendWithErrorCheckTest() {
-        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-with-error-check.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-        String message = result.getDiagnostics()[0].message();
-        Assert.assertTrue(message.contains("can not be used after a non-error return"), message);
-    }
-
-    @Test
     public void invalidSendInIf() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-in-if.bal");
         String message = Arrays.toString(result.getDiagnostics());
