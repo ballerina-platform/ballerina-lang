@@ -80,6 +80,7 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_ON.get()));
             resolvedContext = ResolvedContext.SERVICE_TYPEDESC;
         } else {
+            // Type descriptor completions and the keyword completions are suggested via the ModulePartNodeContext.
             return CompletionUtil.route(ctx, node.parent());
         }
         this.sort(ctx, node, completionItems, resolvedContext);
