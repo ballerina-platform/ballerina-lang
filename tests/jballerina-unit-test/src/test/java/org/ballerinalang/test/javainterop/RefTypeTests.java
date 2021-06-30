@@ -239,7 +239,7 @@ public class RefTypeTests {
         Assert.assertEquals(((BValueType) returns[0]).intValue(), 3);
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
+    @Test(enabled = false, expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: java.lang.ClassCastException \\{\"message\":\"class " +
                     "java.lang.String cannot be cast to class io.ballerina.runtime.api.values.BValue.*")
     public void testInteropWithJavaStringReturn() {
