@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -34,7 +34,7 @@
       "label": "Fill Employee Required Fields",
       "kind": "Property",
       "detail": "Employee",
-      "sortText": "Q",
+      "sortText": "R",
       "filterText": "fill",
       "insertText": "name: {first: \"\", last: \"\"},\nsalary: 0",
       "insertTextFormat": "Snippet"

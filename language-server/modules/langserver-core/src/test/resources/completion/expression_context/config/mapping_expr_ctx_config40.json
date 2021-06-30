@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -26,7 +26,7 @@
       "label": "Fill Rec1 Optional Fields",
       "kind": "Property",
       "detail": "Rec1",
-      "sortText": "Q",
+      "sortText": "R",
       "filterText": "fill",
       "insertText": "rec1Field3: 0",
       "insertTextFormat": "Snippet"
@@ -59,7 +59,7 @@
       "label": "Fill Rec2 Required Fields",
       "kind": "Property",
       "detail": "Rec2",
-      "sortText": "Q",
+      "sortText": "R",
       "filterText": "fill",
       "insertText": "rec2Field2: 0,\nrec2Field3: 0,\nrec2Field1: 0",
       "insertTextFormat": "Snippet"
