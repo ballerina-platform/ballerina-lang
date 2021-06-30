@@ -48,7 +48,7 @@ public class GenDocsForBalaTest {
     
     @Test
     public void generatingDocsForBalaTest() throws IOException {
-        Path balaPath = this.resourceDir.resolve("balas").resolve("foo-sf-any-1.3.5.bala");
+        Path balaPath = this.resourceDir.resolve("balas").resolve("foo-fb-any-1.3.5.bala");
         
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
@@ -57,18 +57,19 @@ public class GenDocsForBalaTest {
         BallerinaDocGenerator.generateAPIDocs(balaProject, this.docsPath.toString(), true);
     
         String sfModuleApiDocsJsonAsString = Files.readString(
-                this.docsPath.resolve("foo").resolve("sf").resolve("1.3.5")
+                this.docsPath.resolve("foo").resolve("fb").resolve("1.3.5")
                         .resolve(BallerinaDocGenerator.API_DOCS_JSON));
-        Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("## Module Overview\\n\\n" +
-                        "Module.md content [Ballerina](https://ballerina.io)."),
-                "Module.md content is missing");
+        Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("\"id\":\"fb\",\"summary\":\"This module " +
+                        "provides an implementation to interact with fb Brokers via fb Consumer and " +
+                        "fb [Ballerina](https://ballerina.io) Producer clients.\\n\""),
+                "Default module summary is missing");
+        Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("\"id\":\"fb.world\",\"summary\":" +
+                        "\"Connects the twilio communication services.\\n\""),
+                "fb.world module summary is missing");
         Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("Block"), "Block type is missing");
-        Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("\"summary\":" +
-                        "\"Module.md content [Ballerina](https://ballerina.io).\\n\""),
-                "Module summary missing");
 
         String sfWorldModuleApiDocsJsonAsString = Files.readString(
-                this.docsPath.resolve("foo").resolve("sf.world").resolve("1.3.5")
+                this.docsPath.resolve("foo").resolve("fb.world").resolve("1.3.5")
                         .resolve(BallerinaDocGenerator.API_DOCS_JSON));
         Assert.assertTrue(sfWorldModuleApiDocsJsonAsString.contains("PersonZ"), "PersonZ class is missing");
     }

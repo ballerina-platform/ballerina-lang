@@ -63,10 +63,10 @@ public class BallerinaDocUtils {
     }
 
     public static String getSummary(String description) {
-        Pattern pattern = Pattern.compile("^(#+.*\\n+)?(.*\\n?)");
+        Pattern pattern = Pattern.compile("^(#+.*\\n+(\\[?!.*\\n+)*)?(.*\\n?)");
         Matcher matcher = pattern.matcher(description);
         if (matcher.find()) {
-            return matcher.group(2);
+            return matcher.group(3);
         } else {
             return null;
         }
