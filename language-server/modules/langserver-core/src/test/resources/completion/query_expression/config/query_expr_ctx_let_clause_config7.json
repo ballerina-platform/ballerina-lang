@@ -51,7 +51,7 @@
       "label": "AnnotationType",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "L",
+      "sortText": "M",
       "insertText": "AnnotationType",
       "insertTextFormat": "Snippet"
     },
@@ -81,7 +81,7 @@
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "L",
+      "sortText": "M",
       "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
@@ -89,7 +89,7 @@
       "label": "TestRecord2",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "L",
+      "sortText": "M",
       "insertText": "TestRecord2",
       "insertTextFormat": "Snippet"
     },
@@ -97,7 +97,7 @@
       "label": "TestMap2",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "M",
+      "sortText": "N",
       "insertText": "TestMap2",
       "insertTextFormat": "Snippet"
     },
@@ -105,7 +105,7 @@
       "label": "TestMap3",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "M",
+      "sortText": "N",
       "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     },
@@ -121,7 +121,7 @@
       "label": "ErrorOne",
       "kind": "Event",
       "detail": "Error",
-      "sortText": "Q",
+      "sortText": "L",
       "insertText": "ErrorOne",
       "insertTextFormat": "Snippet"
     },
@@ -129,7 +129,7 @@
       "label": "ErrorTwo",
       "kind": "Event",
       "detail": "Error",
-      "sortText": "Q",
+      "sortText": "L",
       "insertText": "ErrorTwo",
       "insertTextFormat": "Snippet"
     },
