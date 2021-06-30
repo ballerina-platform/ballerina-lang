@@ -116,4 +116,9 @@ public class MatchStatementTest extends AbstractStatementTest {
         testFile("match-stmt/match_stmt_source_17.bal", "match-stmt/match_stmt_assert_17.json");
         testFile("match-stmt/match_stmt_source_18.bal", "match-stmt/match_stmt_assert_18.json");
     }
+
+    @Test
+    public void testMissingMatchPattern() {
+        testFile("match-stmt/match_stmt_source_20.bal", "match-stmt/match_stmt_assert_20.json");
+    }
 }

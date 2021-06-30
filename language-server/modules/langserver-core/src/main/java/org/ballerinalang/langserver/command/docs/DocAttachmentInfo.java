@@ -108,19 +108,17 @@ public class DocAttachmentInfo implements Documentation {
             deprecatedDescription = other.deprecatedDescription().orElse(this.deprecatedDesc);
         }
 
-        return new DocAttachmentInfo(description, newParamsMap, returnValueDescription, deprecatedDescription, 
+        return new DocAttachmentInfo(description, newParamsMap, returnValueDescription, deprecatedDescription,
                 docStart, padding);
     }
 
     public String getDocumentationString() {
         return getDocumentationString(true);
     }
-    
+
     public String getDocumentationString(boolean newlineAtEnd) {
         StringBuilder result = new StringBuilder();
-        // TODO: Seems like the parser isn't honoring the platform specific line separator. Therefore, splitting with
-        //      "/n" for now
-        String[] descriptionLines = this.description.trim().split("\n");
+        String[] descriptionLines = this.description.trim().split("(\r)?\n");
         for (String descriptionLine : descriptionLines) {
             result.append(String.format("# %s%n", descriptionLine.trim()));
         }
@@ -139,7 +137,10 @@ public class DocAttachmentInfo implements Documentation {
 
         if (deprecatedDesc != null) {
             result.append(String.format("%s# # Deprecated%n", padding));
-            result.append(String.format("%s# %s%n", padding, deprecatedDesc));
+            String[] deprecatedDescLines = deprecatedDesc.trim().split("(\r)?\n");
+            for (String deprecatedLine : deprecatedDescLines) {
+                result.append(String.format("%s# %s%n", padding, deprecatedLine));
+            }
         }
 
         if (newlineAtEnd) {
