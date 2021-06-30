@@ -23,6 +23,7 @@ import io.ballerina.projects.PackageManifest;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.TypeFlags;
@@ -292,17 +293,18 @@ public class BRunUtil {
                 } catch (InvocationTargetException e) {
                     Throwable t = e.getTargetException();
                     if (t instanceof BLangRuntimeException) {
-                        throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(t.getMessage());
+                        throw ErrorCreator.createError(StringUtils.fromString(t.getMessage()));
                     }
                     if (t instanceof io.ballerina.runtime.api.values.BError) {
-                        throw new io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException(
-                                "error: " + ((io.ballerina.runtime.api.values.BError) t).getPrintableStackTrace());
+                        throw ErrorCreator.createError(StringUtils.fromString(
+                                "error: " + ((io.ballerina.runtime.api.values.BError) t).getPrintableStackTrace()));
                     }
                     if (t instanceof StackOverflowError) {
-                        throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException("error: " +
-                                "{ballerina}StackOverflow {\"message\":\"stack overflow\"}");
+                        throw ErrorCreator.createError(StringUtils.fromString("error: " +
+                                "{ballerina}StackOverflow {\"message\":\"stack overflow\"}"));
                     }
-                    throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
+                    throw ErrorCreator.createError(StringUtils.fromString("Error while invoking function '" +
+                                                                                  functionName + "'"), e);
                 }
             };
 
@@ -429,17 +431,18 @@ public class BRunUtil {
                 } catch (InvocationTargetException e) {
                     Throwable t = e.getTargetException();
                     if (t instanceof BLangRuntimeException) {
-                        throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(t.getMessage());
+                        throw ErrorCreator.createError(StringUtils.fromString(t.getMessage()));
                     }
                     if (t instanceof io.ballerina.runtime.api.values.BError) {
-                        throw new io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException(
-                                "error: " + ((ErrorValue) t).getPrintableStackTrace());
+                        throw ErrorCreator.createError(
+                                StringUtils.fromString("error: " + ((ErrorValue) t).getPrintableStackTrace()));
                     }
                     if (t instanceof StackOverflowError) {
-                        throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException("error: " +
-                                "{ballerina}StackOverflow {\"message\":\"stack overflow\"}");
+                        throw ErrorCreator.createError(StringUtils.fromString(("error: " +
+                                "{ballerina}StackOverflow {\"message\":\"stack overflow\"}")));
                     }
-                    throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
+                    throw ErrorCreator.createError(
+                            StringUtils.fromString("Error while invoking function '" + functionName + "'"));
                 }
             };
 
@@ -1429,7 +1432,7 @@ public class BRunUtil {
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
-                if (t instanceof io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException) {
+                if (t instanceof BLangRuntimeException) {
                     throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof ErrorValue) {

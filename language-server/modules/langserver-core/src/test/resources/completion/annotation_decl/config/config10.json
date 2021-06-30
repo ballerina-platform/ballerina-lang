@@ -9,7 +9,7 @@
       "label": "type",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "type",
       "insertText": "type ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "class",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "class",
       "insertText": "class ",
       "insertTextFormat": "Snippet"
@@ -27,7 +27,7 @@
       "label": "object function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "object function",
       "insertText": "object function",
       "insertTextFormat": "Snippet"
@@ -36,7 +36,7 @@
       "label": "service remote function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "service remote function",
       "insertText": "service remote function",
       "insertTextFormat": "Snippet"
@@ -45,7 +45,7 @@
       "label": "parameter",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "parameter",
       "insertText": "parameter",
       "insertTextFormat": "Snippet"
@@ -54,7 +54,7 @@
       "label": "return",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "return",
       "insertText": "return",
       "insertTextFormat": "Snippet"
@@ -63,7 +63,7 @@
       "label": "service",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "service",
       "insertText": "service",
       "insertTextFormat": "Snippet"
@@ -72,7 +72,7 @@
       "label": "object field",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "object field",
       "insertText": "object field",
       "insertTextFormat": "Snippet"
@@ -81,7 +81,7 @@
       "label": "record field",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "record field",
       "insertText": "record field",
       "insertTextFormat": "Snippet"
@@ -90,7 +90,7 @@
       "label": "field",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "field",
       "insertText": "field",
       "insertTextFormat": "Snippet"
@@ -99,7 +99,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
@@ -108,7 +108,7 @@
       "label": "Annotation",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "Annotation",
       "insertText": "annotation ",
       "insertTextFormat": "Snippet"
@@ -117,7 +117,7 @@
       "label": "external",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "external",
       "insertText": "external;",
       "insertTextFormat": "Snippet"
@@ -126,7 +126,7 @@
       "label": "var",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "var",
       "insertText": "var ",
       "insertTextFormat": "Snippet"
@@ -135,7 +135,7 @@
       "label": "const",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "const",
       "insertText": "const ",
       "insertTextFormat": "Snippet"
@@ -144,7 +144,7 @@
       "label": "listener",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "listener",
       "insertText": "listener ",
       "insertTextFormat": "Snippet"
@@ -153,7 +153,7 @@
       "label": "worker",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "worker",
       "insertText": "worker",
       "insertTextFormat": "Snippet"

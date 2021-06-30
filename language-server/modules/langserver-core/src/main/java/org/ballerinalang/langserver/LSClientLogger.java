@@ -145,7 +145,7 @@ public class LSClientLogger {
         if (identifier != null) {
             result.append("uri: '").append(identifier.getUri().replaceFirst("file://", "")).append("'");
         }
-        if (position != null && position[0] != null) {
+        if (position != null && position.length > 0 && position[0] != null) {
             if (position.length == 2) {
                 // Range
                 result.append(", [").append(position[0].getLine() + 1)
