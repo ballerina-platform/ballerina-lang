@@ -2894,7 +2894,7 @@ public class BallerinaParser extends AbstractParser {
             case CLASS_KEYWORD:
                 return true;
             case SERVICE_KEYWORD:
-                return isServiceDeclStart(ParserRuleContext.OBJECT_MEMBER, 1);
+                return isServiceDeclStart(ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER, 1);
             case PUBLIC_KEYWORD:
                 return !isObject && isEndOfModuleLevelNode(peekIndex + 1, false);
             case FUNCTION_KEYWORD:
@@ -6125,7 +6125,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseObjectTypeDescriptor(STNode objectKeyword, STNode objectTypeQualifiers) {
         startContext(ParserRuleContext.OBJECT_TYPE_DESCRIPTOR);
         STNode openBrace = parseOpenBrace();
-        STNode objectMemberDescriptors = parseObjectMembers(ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR);
+        STNode objectMemberDescriptors = parseObjectMembers(ParserRuleContext.OBJECT_TYPE_MEMBER);
         STNode closeBrace = parseCloseBrace();
         endContext();
         return STNodeFactory.createObjectTypeDescriptorNode(objectTypeQualifiers, objectKeyword, openBrace,
@@ -6151,7 +6151,7 @@ public class BallerinaParser extends AbstractParser {
         STNode objectKeyword = parseObjectKeyword();
         STNode typeReference = parseObjectConstructorTypeReference();
         STNode openBrace = parseOpenBrace();
-        STNode objectMembers = parseObjectMembers(ParserRuleContext.OBJECT_MEMBER);
+        STNode objectMembers = parseObjectMembers(ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER);
         STNode closeBrace = parseCloseBrace();
         endContext();
         return STNodeFactory.createObjectConstructorExpressionNode(annots,
@@ -6223,7 +6223,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
             }
 
-            if (context == ParserRuleContext.OBJECT_MEMBER && member.kind == SyntaxKind.TYPE_REFERENCE) {
+            if (context == ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER && member.kind == SyntaxKind.TYPE_REFERENCE) {
                 addInvalidNodeToNextToken(member, DiagnosticErrorCode.ERROR_TYPE_INCLUSION_IN_OBJECT_CONSTRUCTOR);
             } else {
                 objectMembers.add(member);
@@ -6278,7 +6278,7 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 ParserRuleContext recoveryCtx;
-                if (context == ParserRuleContext.OBJECT_MEMBER) {
+                if (context == ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER) {
                     recoveryCtx = ParserRuleContext.OBJECT_MEMBER_START;
                 } else {
                     recoveryCtx = ParserRuleContext.CLASS_MEMBER_START;
@@ -6298,13 +6298,13 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseObjectMemberWithoutMeta(STNode metadata, ParserRuleContext context) {
-        boolean isObjectTypeDesc = context == ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR;
+        boolean isObjectTypeDesc = context == ParserRuleContext.OBJECT_TYPE_MEMBER;
 
         ParserRuleContext recoveryCtx;
-        if (context == ParserRuleContext.OBJECT_MEMBER) {
-            recoveryCtx = ParserRuleContext.OBJECT_MEMBER_WITHOUT_METADATA;
+        if (context == ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER) {
+            recoveryCtx = ParserRuleContext.OBJECT_CONS_MEMBER_WITHOUT_META;
         } else {
-            recoveryCtx = ParserRuleContext.CLASS_MEMBER_WITHOUT_METADATA;
+            recoveryCtx = ParserRuleContext.CLASS_MEMBER_OR_OBJECT_MEMBER_WITHOUT_META;
         }
 
         List<STNode> typeDescQualifiers = new ArrayList<>();
@@ -7501,7 +7501,7 @@ public class BallerinaParser extends AbstractParser {
         STNode onKeyword = parseOnKeyword();
         STNode expressionList = parseListeners();
         STNode openBrace = parseOpenBrace();
-        STNode objectMembers = parseObjectMembers(ParserRuleContext.OBJECT_MEMBER);
+        STNode objectMembers = parseObjectMembers(ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER);
         STNode closeBrace = parseCloseBrace();
 
         onKeyword =

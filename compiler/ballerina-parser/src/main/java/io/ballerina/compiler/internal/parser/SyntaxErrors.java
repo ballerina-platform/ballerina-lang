@@ -122,8 +122,8 @@ public class SyntaxErrors {
             case ASSIGNMENT_OR_VAR_DECL_STMT:
             case DEFAULTABLE_PARAM:
             case REST_PARAM:
-            case CLASS_MEMBER_WITHOUT_METADATA:
-            case OBJECT_MEMBER_WITHOUT_METADATA:
+            case CLASS_MEMBER_OR_OBJECT_MEMBER_WITHOUT_META:
+            case OBJECT_CONS_MEMBER_WITHOUT_META:
             case RECORD_FIELD_WITHOUT_METADATA:
             case TYPE_DESCRIPTOR:
             case OPTIONAL_TYPE_DESCRIPTOR:
