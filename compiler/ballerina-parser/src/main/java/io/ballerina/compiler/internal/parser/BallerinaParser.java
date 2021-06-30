@@ -2579,9 +2579,8 @@ public class BallerinaParser extends AbstractParser {
      * @return Context to recover
      */
     private ParserRuleContext getTypeDescRecoveryCtx(List<STNode> qualifiers) {
-        ParserRuleContext defaultRecoveryCtx = ParserRuleContext.TYPE_DESCRIPTOR;
         if (qualifiers.isEmpty()) {
-            return defaultRecoveryCtx;
+            return ParserRuleContext.TYPE_DESCRIPTOR;
         }
 
         STNode lastQualifier = getLastNodeInList(qualifiers);
@@ -2592,9 +2591,9 @@ public class BallerinaParser extends AbstractParser {
                 return ParserRuleContext.FUNC_TYPE_DESC;
             case SERVICE_KEYWORD:
             case CLIENT_KEYWORD:
-                return ParserRuleContext.OBJECT_TYPE_DESCRIPTOR;
             default:
-                return defaultRecoveryCtx;
+                // We reach here for service and client only.
+                return ParserRuleContext.OBJECT_TYPE_DESCRIPTOR;
         }
     }
 
