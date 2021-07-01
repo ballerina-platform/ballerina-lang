@@ -209,6 +209,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -1975,7 +1976,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if ((target.expressions.size() > i)) {
                     targetType = varRefExpr.getBType();
                 } else {
-                    targetType = ((BArrayType) varRefExpr.getBType()).eType;
+                    BType varRefExprType = varRefExpr.getBType();
+                    if (varRefExprType.tag == TypeTags.ARRAY) {
+                        targetType = ((BArrayType) varRefExprType).eType;
+                    } else {
+                        targetType = varRefExprType;
+                    }
                 }
 
                 if (!types.isAssignable(sourceType, targetType)) {
@@ -2415,6 +2421,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     if (listMatchPattern.restMatchPattern == null) {
                         return;
                     }
+                    if (arrayType.state == BArrayState.CLOSED) {
+                        BTupleType restTupleType = createTupleForClosedArray(
+                                arrayType.size - listMatchPattern.matchPatterns.size(), arrayType.eType);
+                        listMatchPattern.restMatchPattern.setBType(restTupleType);
+                        BVarSymbol restMatchPatternSymbol = listMatchPattern.restMatchPattern.declaredVars
+                                .get(listMatchPattern.restMatchPattern.getIdentifier().getValue());
+                        restMatchPatternSymbol.type = restTupleType;
+                        return;
+                    }
                     BLangRestMatchPattern restMatchPattern = listMatchPattern.restMatchPattern;
                     BType restType = ((BArrayType) restMatchPattern.getBType()).eType;
                     restType = types.mergeTypes(restType, arrayType.eType);
@@ -2438,16 +2453,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     listMatchPattern.setBType(tupleType);
                     return;
                 }
-                BType restType = ((BArrayType) listMatchPattern.restMatchPattern.getBType()).eType;
-                for (int i = matchPatterns.size(); i < types.size(); i++) {
-                    restType = this.types.mergeTypes(restType, types.get(i));
-                }
-                if (patternTupleType.restType != null) {
-                    restType = this.types.mergeTypes(restType, patternTupleType.restType);
-                }
-                ((BArrayType) listMatchPattern.restMatchPattern.getBType()).eType = restType;
-                tupleType.restType = restType;
-                listMatchPattern.setBType(tupleType);
+                tupleType.restType = createTypeForTupleRestType(matchPatterns.size(), types, patternTupleType.restType);
+                listMatchPattern.restMatchPattern.setBType(tupleType.restType);
+                matchPattern.setBType(patternType);
+                BVarSymbol restMatchPatternSymbol = listMatchPattern.restMatchPattern.declaredVars
+                        .get(listMatchPattern.restMatchPattern.getIdentifier().getValue());
+                restMatchPatternSymbol.type = tupleType.restType;
                 return;
             case MAPPING_MATCH_PATTERN:
                 BLangMappingMatchPattern mappingMatchPattern = (BLangMappingMatchPattern) matchPattern;
@@ -2483,6 +2494,30 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 setRestMatchPatternConstraintType(recordType, boundedFieldNames, restPatternRecType,
                         restVarSymbolRecordType);
         }
+    }
+
+    private BTupleType createTupleForClosedArray(int noOfElements, BType elementType) {
+        List<BType> memTypes = Collections.nCopies(noOfElements, elementType);
+        return new BTupleType(memTypes);
+    }
+
+    private BType createTypeForTupleRestType(int startIndex, List<BType> types, BType patternRestType) {
+        List<BType> remainingTypes = new ArrayList<>();
+        for (int i = startIndex; i < types.size(); i++) {
+            remainingTypes.add(types.get(i));
+        }
+        if (!remainingTypes.isEmpty()) {
+            BTupleType restTupleType = new BTupleType(remainingTypes);
+            if (patternRestType != null) {
+                restTupleType.restType = patternRestType;
+            }
+            return restTupleType;
+        } else {
+            if (patternRestType != null) {
+                return new BArrayType(patternRestType);
+            }
+        }
+        return null;
     }
 
     @Override
@@ -2897,8 +2932,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BVarSymbol captureBindingPatternSymbol =
                         captureBindingPattern.declaredVars.get(
                                 captureBindingPattern.getIdentifier().getValue());
-                captureBindingPatternSymbol.type = this.types.mergeTypes(captureBindingPatternSymbol.type,
-                        bindingPatternType);
+                captureBindingPatternSymbol.type = bindingPatternType.tag == TypeTags.ERROR ? bindingPatternType :
+                        this.types.mergeTypes(captureBindingPatternSymbol.type, bindingPatternType);
                 captureBindingPattern.setBType(captureBindingPatternSymbol.type);
                 return;
             case LIST_BINDING_PATTERN:
@@ -2916,6 +2951,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         assignTypesToMemberPatterns(memberBindingPattern, arrayType.eType);
                     }
                     if (listBindingPattern.restBindingPattern == null) {
+                        return;
+                    }
+                    if (arrayType.state == BArrayState.CLOSED) {
+                        BTupleType restTupleType = createTupleForClosedArray(
+                                arrayType.size - listBindingPattern.bindingPatterns.size(), arrayType.eType);
+                        listBindingPattern.restBindingPattern.setBType(restTupleType);
+                        BVarSymbol restBindingPatternSymbol = listBindingPattern.restBindingPattern.declaredVars
+                                .get(listBindingPattern.restBindingPattern.getIdentifier().getValue());
+                        restBindingPatternSymbol.type = restTupleType;
                         return;
                     }
                     BLangRestBindingPattern restBindingPattern = listBindingPattern.restBindingPattern;
@@ -2941,16 +2985,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     bindingPattern.setBType(tupleType);
                     return;
                 }
-                BType restType = ((BArrayType) listBindingPattern.restBindingPattern.getBType()).eType;
-                for (int i = bindingPatterns.size(); i < types.size(); i++) {
-                    restType = this.types.mergeTypes(restType, types.get(i));
-                }
-                if (bindingPatternTupleType.restType != null) {
-                    restType = this.types.mergeTypes(restType, bindingPatternTupleType.restType);
-                }
-                ((BArrayType) listBindingPattern.restBindingPattern.getBType()).eType = restType;
-                tupleType.restType = restType;
-                bindingPattern.setBType(tupleType);
+                tupleType.restType = createTypeForTupleRestType(bindingPatterns.size(), types,
+                        bindingPatternTupleType.restType);
+                listBindingPattern.restBindingPattern.setBType(tupleType.restType);
+                bindingPattern.setBType(bindingPatternType);
+                BVarSymbol restBindingPatternSymbol =
+                        listBindingPattern.restBindingPattern.declaredVars
+                                .get(listBindingPattern.restBindingPattern.getIdentifier().getValue());
+                restBindingPatternSymbol.type = tupleType.restType;
                 return;
             case MAPPING_BINDING_PATTERN:
                 BLangMappingBindingPattern mappingBindingPattern = (BLangMappingBindingPattern) bindingPattern;

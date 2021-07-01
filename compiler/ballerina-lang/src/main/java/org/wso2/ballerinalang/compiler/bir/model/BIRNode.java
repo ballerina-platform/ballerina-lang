@@ -65,10 +65,10 @@ public abstract class BIRNode {
         public final List<BIRServiceDeclaration> serviceDecls;
         public boolean isListenerAvailable;
 
-        public BIRPackage(Location pos, Name org, Name name, Name version,
+        public BIRPackage(Location pos, Name org, Name pkgName, Name name, Name version,
                           Name sourceFileName) {
             super(pos);
-            packageID = new PackageID(org, name, version, sourceFileName);
+            packageID = new PackageID(org, pkgName, name, version, sourceFileName);
             this.importModules = new ArrayList<>();
             this.typeDefs = new ArrayList<>();
             this.globalVars = new ArrayList<>();

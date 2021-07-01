@@ -66,7 +66,7 @@ public abstract class AbstractCommandExecutionTest {
         TestUtil.openDocument(serviceEndpoint, sourcePath);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
-        
+
         List<Object> args = getArgs(configJsonObject, sourcePath);
 
         JsonObject responseJson = getCommandResponse(args, command);
@@ -114,7 +114,7 @@ public abstract class AbstractCommandExecutionTest {
 
         return args;
     }
-    
+
     protected abstract List<Object> getArgs(JsonObject argsObject);
 
     /**

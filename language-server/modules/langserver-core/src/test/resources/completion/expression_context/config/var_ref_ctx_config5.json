@@ -163,7 +163,7 @@
       "label": "Signed32",
       "kind": "TypeParameter",
       "detail": "Signed32",
-      "sortText": "M",
+      "sortText": "N",
       "insertText": "Signed32",
       "insertTextFormat": "Snippet"
     },
@@ -171,7 +171,7 @@
       "label": "Signed16",
       "kind": "TypeParameter",
       "detail": "Signed16",
-      "sortText": "M",
+      "sortText": "N",
       "insertText": "Signed16",
       "insertTextFormat": "Snippet"
     },
@@ -179,7 +179,7 @@
       "label": "Signed8",
       "kind": "TypeParameter",
       "detail": "Signed8",
-      "sortText": "M",
+      "sortText": "N",
       "insertText": "Signed8",
       "insertTextFormat": "Snippet"
     },
@@ -187,7 +187,7 @@
       "label": "Unsigned32",
       "kind": "TypeParameter",
       "detail": "Unsigned32",
-      "sortText": "M",
+      "sortText": "N",
       "insertText": "Unsigned32",
       "insertTextFormat": "Snippet"
     },
@@ -195,7 +195,7 @@
       "label": "Unsigned16",
       "kind": "TypeParameter",
       "detail": "Unsigned16",
-      "sortText": "M",
+      "sortText": "N",
       "insertText": "Unsigned16",
       "insertTextFormat": "Snippet"
     },
@@ -203,7 +203,7 @@
       "label": "Unsigned8",
       "kind": "TypeParameter",
       "detail": "Unsigned8",
-      "sortText": "M",
+      "sortText": "N",
       "insertText": "Unsigned8",
       "insertTextFormat": "Snippet"
     },

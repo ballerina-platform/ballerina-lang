@@ -33,6 +33,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -265,6 +266,23 @@ public class InstanceMethodTest {
         args[0] = new BHandleValue(testIns);
         BRunUtil.invoke(result, "testGetCurrentModule", args);
     }
+
+    @Test(dataProvider = "unionWithErrorTestFunctions")
+    public void testUnionWithErrorReturnArrays(String function) {
+        InstanceMethods testIns = new InstanceMethods();
+        BValue[] args = new BValue[1];
+        args[0] = new BHandleValue(testIns);
+        BRunUtil.invoke(result, function, args);
+    }
+
+    @DataProvider(name = "unionWithErrorTestFunctions")
+    public Object[] unionWithErrorTestFunctions() {
+        return new String[] {
+             "testUnionWithErrorReturnByteArray",
+             "testAnyOrErrorReturnStringArray"
+        };
+    }
+
 
     @AfterClass
     public void tearDown() {

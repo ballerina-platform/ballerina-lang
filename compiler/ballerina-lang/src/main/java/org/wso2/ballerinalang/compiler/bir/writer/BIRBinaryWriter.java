@@ -105,6 +105,7 @@ public class BIRBinaryWriter {
         birImpModList.forEach(impMod -> {
             PackageID packageID =  impMod.packageID;
             buf.writeInt(addStringCPEntry(packageID.orgName.getValue()));
+            buf.writeInt(addStringCPEntry(packageID.pkgName.getValue()));
             buf.writeInt(addStringCPEntry(packageID.name.getValue()));
             buf.writeInt(addStringCPEntry(packageID.version.getValue()));
         });

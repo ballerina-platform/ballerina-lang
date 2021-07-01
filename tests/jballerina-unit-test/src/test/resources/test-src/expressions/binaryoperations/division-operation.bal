@@ -85,6 +85,18 @@ function testDivisionSingleton() {
     assertEqual(a1 / a7, 1);
 }
 
+function testContextuallyExpectedTypeOfNumericLiteralInDivision() {
+    float a1 = 10.0 / 2.0;
+    float a2 = (10 / 5) / 2.0;
+    decimal a3 = 30.0 / 15;
+    decimal a4 = 9.0 / 3.0;
+
+    assertEqual(a1, 5.0);
+    assertEqual(a2, 1.0);
+    assertEqual(a3, 2.0d);
+    assertEqual(a4, 3.0d);
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;
