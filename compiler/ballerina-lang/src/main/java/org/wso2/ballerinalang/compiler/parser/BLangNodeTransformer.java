@@ -2149,6 +2149,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         SeparatedNodeList<io.ballerina.compiler.syntax.tree.ExpressionNode> keys =
                 indexedExpressionNode.keyExpression();
         if (keys.size() == 0) {
+            // TODO : This should be handle by Parser issue #31536
+            assert false;
             dlog.error(getPosition(indexedExpressionNode.closeBracket()),
                     DiagnosticErrorCode.ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR);
             Token missingIdentifier = NodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN,
