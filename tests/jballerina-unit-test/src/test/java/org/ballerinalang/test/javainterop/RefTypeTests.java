@@ -240,8 +240,7 @@ public class RefTypeTests {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: java.lang.ClassCastException \\{\"message\":\"class " +
-                    "java.lang.String cannot be cast to class io.ballerina.runtime.api.values.BValue.*")
+            expectedExceptionsMessageRegExp = "error: java.lang.ClassCastException.*")
     public void testInteropWithJavaStringReturn() {
         BRunUtil.invoke(result, "interopWithJavaStringReturn");
     }
