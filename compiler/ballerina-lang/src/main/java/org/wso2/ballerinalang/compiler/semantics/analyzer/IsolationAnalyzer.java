@@ -1313,33 +1313,30 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         if (!isInvalidIsolatedObjectFieldOrMethodAccessViaSelfIfOutsideLock(fieldAccessExpr, true)) {
             BType bType = expr.getBType();
             BTypeSymbol tsymbol = bType.tsymbol;
-            if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && isSelfOfObject((BLangSimpleVarRef) expr) &&
-                    this.isolationInferenceInfoMap.containsKey(tsymbol) && !inObjectInitMethod()) {
-                if (inLockStatement) {
-                    if (((ClassIsolationInferenceInfo) this.isolationInferenceInfoMap.get(tsymbol))
-                            .protectedFields.contains(fieldAccessExpr.field)) {
-                        LockInfo lockInfo = copyInLockInfoStack.peek();
-                        ((VariableIsolationInferenceInfo) this.isolationInferenceInfoMap.get(tsymbol)).accessedLockInfo
-                                .add(lockInfo);
-                        lockInfo.accessedPotentiallyIsolatedVars.add(tsymbol);
-                    }
-                } else {
-                    BLangIdentifier field = fieldAccessExpr.field;
-                    if (((ClassIsolationInferenceInfo) this.isolationInferenceInfoMap.get(tsymbol))
-                            .protectedFields.contains(field)) {
-                        VariableIsolationInferenceInfo inferenceInfo =
-                                (VariableIsolationInferenceInfo) this.isolationInferenceInfoMap.get(tsymbol);
-                        inferenceInfo.accessedOutsideLockStatement = true;
+            BLangIdentifier field = fieldAccessExpr.field;
 
-                        BType fieldType = fieldAccessExpr.getBType();
-                        if (Symbols.isFlagOn(((BObjectType) bType).fields.get(field.value).symbol.flags, Flags.FINAL) &&
-                                isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(env.enclPkg.symbol, fieldType)) {
-                            inferenceInfo.typesOfFinalFieldsAccessedOutsideLock.add(fieldType);
-                        } else {
-                            inferenceInfo.accessOutsideLockStatementValidIfInferredIsolated = false;
-                        }
-                    }
-                }
+            if (!isPotentiallyProtectedFieldAccessedInNonInitMethod(expr, tsymbol, field)) {
+                return;
+            }
+
+            if (inLockStatement) {
+                LockInfo lockInfo = copyInLockInfoStack.peek();
+                ((VariableIsolationInferenceInfo) this.isolationInferenceInfoMap.get(tsymbol)).accessedLockInfo
+                        .add(lockInfo);
+                lockInfo.accessedPotentiallyIsolatedVars.add(tsymbol);
+                return;
+            }
+
+            VariableIsolationInferenceInfo inferenceInfo =
+                    (VariableIsolationInferenceInfo) this.isolationInferenceInfoMap.get(tsymbol);
+            inferenceInfo.accessedOutsideLockStatement = true;
+
+            BType fieldType = fieldAccessExpr.getBType();
+            if (Symbols.isFlagOn(((BObjectType) bType).fields.get(field.value).symbol.flags, Flags.FINAL) &&
+                    isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(env.enclPkg.symbol, fieldType)) {
+                inferenceInfo.typesOfFinalFieldsAccessedOutsideLock.add(fieldType);
+            } else {
+                inferenceInfo.accessOutsideLockStatementValidIfInferredIsolated = false;
             }
             return;
         }
@@ -1351,6 +1348,16 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         dlog.error(fieldAccessExpr.pos,
                    DiagnosticErrorCode.INVALID_MUTABLE_FIELD_ACCESS_IN_ISOLATED_OBJECT_OUTSIDE_LOCK);
+    }
+
+    private boolean isPotentiallyProtectedFieldAccessedInNonInitMethod(BLangExpression expr, BTypeSymbol tsymbol,
+                                                                       BLangIdentifier field) {
+        return expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                isSelfOfObject((BLangSimpleVarRef) expr) &&
+                this.isolationInferenceInfoMap.containsKey(tsymbol) &&
+                !inObjectInitMethod() &&
+                ((ClassIsolationInferenceInfo) this.isolationInferenceInfoMap.get(tsymbol))
+                        .protectedFields.contains(field);
     }
 
     @Override
