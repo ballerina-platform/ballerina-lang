@@ -1107,7 +1107,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.unresolvedRecordDueToFields = new HashSet<>(typeDefs.size());
         this.resolveRecordsUnresolvedDueToFields = false;
         for (BLangNode typeDef : typeDefs) {
-            if (isErrorIntersectionType(typeDef, env)) {
+            if (isErrorIntersectionTypeCreatingNewType(typeDef, env)) {
                 populateUndefinedErrorIntersection((BLangTypeDefinition) typeDef, env);
                 continue;
             }
@@ -1157,7 +1157,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.intersectionTypes.add(typeDef);
     }
 
-    private boolean isErrorIntersectionType(BLangNode typeDef, SymbolEnv env) {
+    private boolean isErrorIntersectionTypeCreatingNewType(BLangNode typeDef, SymbolEnv env) {
         boolean isIntersectionType = typeDef.getKind() == NodeKind.TYPE_DEFINITION
                 && ((BLangTypeDefinition) typeDef).typeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE;
         if (!isIntersectionType) {
@@ -1167,13 +1167,15 @@ public class SymbolEnter extends BLangNodeVisitor {
         BLangIntersectionTypeNode intersectionTypeNode =
                 (BLangIntersectionTypeNode) ((BLangTypeDefinition) typeDef).typeNode;
 
+        Set<BType> errorTypes = new HashSet<>();
+
         for (BLangType type : intersectionTypeNode.constituentTypeNodes) {
             BType bType = symResolver.resolveTypeNode(type, env);
             if (bType.tag == TypeTags.ERROR) {
-                return true;
+                errorTypes.add(bType);
             }
         }
-        return false;
+        return errorTypes.size() > 1;
     }
 
     private void checkErrors(SymbolEnv env, BLangNode unresolvedType, BLangNode currentTypeOrClassNode,
