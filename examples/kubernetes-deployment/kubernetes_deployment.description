@@ -1,0 +1,10 @@
+//Ballerina supports generating Kubernetes artifacts based on annotations.
+//A single Ballerina module is mapped to a single Kubernetes deployment.
+//Minikube or Docker for Mac/Windows should be configured and
+//Kubernetes should be enabled to run the example.
+//This example deploys an HTTPS service, which retrieves values from a config file to Kubernetes.
+//Before running the sample, create a directory named `security` inside current working directory
+//from where the ballerina build command will be issued.
+//Then, copy the [ballerinaKeystore.p12 and ballerinaTruststore.p12 files](https://github.com/ballerina-platform/ballerina-lang/tree/ballerina-1.2.x/examples/resources/)
+//to the security folder.<br/><br/>
+//For more information, see the [Kubernetes Deployment Guide](https://ballerina.io/learn/deployment/kubernetes/).

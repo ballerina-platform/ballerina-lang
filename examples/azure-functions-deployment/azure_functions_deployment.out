@@ -1,0 +1,77 @@
+# Prerequisites: Azure CLI tools installation and configuration
+
+# Build the Ballerina program to generate the Azure Functions
+ballerina build azure_functions_deployment.bal
+Compiling source
+	azure_functions_deployment.bal
+
+Generating executables
+	azure_functions_deployment.jar
+	@azure.functions:Function: hello, fromHttpToQueue, fromQueueToQueue, fromBlobToQueue, httpTriggerBlobInput, httpTriggerBlobOutput, sendSMS, cosmosDBToQueue1, cosmosDBToQueue2, httpTriggerCosmosDBInput1, httpTriggerCosmosDBInput2, httpTriggerCosmosDBInput3, httpTriggerCosmosDBOutput1, httpTriggerCosmosDBOutput2, httpTriggerCosmosDBOutput3, queuePopulationTimer
+
+	Run the following command to deploy Ballerina Azure Functions:
+	az functionapp deployment source config-zip -g <resource_group> -n <function_app_name> --src azure-functions.zip
+
+# Execute the following Azure CLI command to publish the functions (replace with your respective Azure <resource_group> and <function_app_name>)
+az functionapp deployment source config-zip -g functions1777 -n functions1777 --src  azure-functions.zip 
+Getting scm site credentials for zip deployment
+Starting zip deployment. This operation can take a while to complete ...
+Deployment endpoint responded with status code 202
+{
+  "active": true,
+  "author": "N/A",
+  "author_email": "N/A",
+  "complete": true,
+  "deployer": "ZipDeploy",
+  "end_time": "2020-07-02T06:48:08.7706207Z",
+  "id": "2bacf185fb114d42aab762dfd5f303dc",
+  "is_readonly": true,
+  "is_temp": false,
+  "last_success_end_time": "2020-07-02T06:48:08.7706207Z",
+  "log_url": "https://functions1777.scm.azurewebsites.net/api/deployments/latest/log",
+  "message": "Created via a push deployment",
+  "progress": "",
+  "provisioningState": null,
+  "received_time": "2020-07-02T06:47:56.2756472Z",
+  "site_name": "functions1777",
+  "start_time": "2020-07-02T06:47:56.7600364Z",
+  "status": 4,
+  "status_text": "",
+  "url": "https://functions1777.scm.azurewebsites.net/api/deployments/latest"
+}
+
+# Invoke the functions (replace with your <auth_code> value in authenticated requests)
+curl -d "Jack" https://functions1777.azurewebsites.net/api/hello
+Hello, Jack!
+
+curl -d "ABCDE" https://functions1777.azurewebsites.net/api/fromHttpToQueue?code=<auth_code>
+Request: url=https://functions1777.azurewebsites.net/api/fromHttpToQueue... body=ABCDE
+
+curl "https://functions1777.azurewebsites.net/api/httpTriggerBlobInput?name=input.txt&code=<auth_code>"
+Blob: input.txt Length: 6 Content: 65 66 67 68 69 10
+
+curl -d "123456" "https://functions1777.azurewebsites.net/api/httpTriggerBlobOutput?name=payload.txt&code=<auth_code>"
+Blob: payload.txt Content: 123456
+
+curl -d "Hello!" "https://functions1777.azurewebsites.net/api/sendSMS?to=xxxxxxxxxx&code=<auth_code>"
+Message - to: xxxxxxxxxx body: Hello!
+
+curl "https://functions1777.azurewebsites.net/api/httpTriggerCosmosDBInput1?id=id1&code=<auth_code>"
+id=id1 _rid=zEkwANYTRPoFAAAAAAAAAA== _self=dbs/zEkwAA==/colls/zEkwANYTRPo=/docs/zEkwANYTRPoFAAAAAAAAAA==/ _ts=1591201470 _etag="10009f6c-0000-0100-0000-5ed7cebe0000" name=Tom birthYear=1950 country=Sri Lanka pk=p1
+
+curl "https://functions1777.azurewebsites.net/api/httpTriggerCosmosDBInput2?id=id1&code=<auth_code>"
+id=id1 name=Tom birthYear=1950 _rid=zEkwANYTRPoFAAAAAAAAAA== _self=dbs/zEkwAA==/colls/zEkwANYTRPo=/docs/zEkwANYTRPoFAAAAAAAAAA==/ _ts=1591201470 _etag="10009f6c-0000-0100-0000-5ed7cebe0000" country=Sri Lanka pk=p1
+
+curl "https://functions1777.azurewebsites.net/api/c1/Sri%20Lanka?code=<auth_code>"
+id=id3 name=Jack X birthYear=1950 country=Sri Lanka pk=p1 _rid=zEkwANYTRPoEAAAAAAAAAA== _self=dbs/zEkwAA==/colls/zEkwANYTRPo=/docs/zEkwANYTRPoEAAAAAAAAAA==/ _etag="1000076b-0000-0100-0000-5ed7cc110000" _attachments=attachments/ _ts=1591200785 id=id4 name=Tom birthYear=1950 country=Sri Lanka pk=p1 _rid=zEkwANYTRPoFAAAAAAAAAA== _self=dbs/zEkwAA==/colls/zEkwANYTRPo=/docs/zEkwANYTRPoFAAAAAAAAAA==/ _etag="10009f6c-0000-0100-0000-5ed7cebe0000" _attachments=attachments/ _ts=1591201470
+
+curl https://functions1777.azurewebsites.net/api/httpTriggerCosmosDBOutput1?code=<auth_code>
+Adding entry: id=abf42517-53d7-4fa3-a30c-87cb65e9597d name=John Doe birthYear=1980
+
+curl https://functions1777.azurewebsites.net/api/httpTriggerCosmosDBOutput2?code=<auth_code>
+Adding entries: id=f510e0d2-5341-4901-8c12-9aac1b212378 name=John Doe A birthYear=1985 id=cc145a0f-cb4f-4a5f-8d0f-fbf01209aa2d name=John Doe B birthYear=1990
+
+curl https://functions1777.azurewebsites.net/api/httpTriggerCosmosDBOutput3?code=<auth_code>
+[{"id":"4ba53cb4-47a1-4028-af7b-2515f0a9c6bf","name":"Jack","birthYear":2001},{"id":"5b8a6697-c9e9-488d-91b3-3942574efeef","name":"Will","birthYear":2005}]
+
+

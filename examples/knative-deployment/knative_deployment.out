@@ -1,0 +1,47 @@
+# Build the Ballerina program.
+$ ballerina build knative_deployment.bal
+Compiling source
+	knative_deployment.bal
+
+Generating executables
+	knative_deployment.jar
+
+Generating Knative artifacts...
+
+	@knative:Service 			 - complete 1/1
+	@knative:Docker 			 - complete 3/3
+
+	Run the following command to deploy the Knative artifacts:
+	kubectl apply -f ./kubernetes
+
+	Run the following command to install the application using Helm:
+	helm install --name hello-world-knative ./kubernetes/hello-world-knative
+
+
+# Verify if the Docker image is generated.
+$ docker images
+REPOSITORY           TAG                 IMAGE ID            CREATED             SIZE
+knative_deployment   latest              85933f1c05b0        3 minutes ago       133MB
+
+# Apply the Knative artifacts.
+$ kubectl apply -f ./kubernetes/
+service.serving.knative.dev/hello-world-knative created
+
+# Wait for the `hello-world-knative` route to be ready.
+$ watch -n 1 kubectl get pod,revision,route
+NAME                                                        READY   STATUS        RESTARTS   AGE
+pod/hello-world-knative-dd6nk-deployment-5694769c7d-nzvts   2/2     Running       0          12s
+
+NAME                                                     CONFIG NAME           K8S SERVICE NAME            GENERATION   READY   REASON
+revision.serving.knative.dev/hello-world-knative-dd6nk   hello-world-knative   hello-world-knative-dd6nk   1            True
+
+NAME                                            URL                                              READY   REASON
+route.serving.knative.dev/hello-world-knative   http://hello-world-knative.default.example.com   True
+
+# Add DNS mapping for the `hello-world-knative` route's URL.
+$ sudo vim /etc/hosts
+127.0.0.1 hello-world-knative.default.example.com
+
+# Access the service.
+$ curl -kv http://hello-world-knative.default.example.com/helloWorld/sayHello
+Hello, World from service helloWorld !

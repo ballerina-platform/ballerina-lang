@@ -1,0 +1,4 @@
+//Ballerina supports generating Docker images, Dockerfile based on annotations.
+//A single Ballerina module is mapped to a single Docker Image.
+//Docker should be configured to run the sample.<br/><br/>
+//For more information, see the [Docker Deployment Guide](https://ballerina.io/learn/deployment/docker/).

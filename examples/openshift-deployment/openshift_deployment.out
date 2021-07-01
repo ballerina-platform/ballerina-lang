@@ -1,0 +1,117 @@
+# Build the Ballerina program.
+$ ballerina build openshift_deployment.bal
+Compiling source
+	openshift_deployment.bal
+
+Generating executables.
+	openshift_deployment.jar
+
+Generating artifacts...
+
+	@kubernetes:Service 			 - complete 1/1
+	@kubernetes:Deployment 			 - complete 1/1
+	@kubernetes:Docker 			 - complete 1/1
+	@kubernetes:Helm 			 - complete 1/1
+	@openshift:BuildConfig 			 - complete 1/1
+	@openshift:ImageStream 			 - complete 1/1
+	@openshift:Route 			 - complete 1/1
+
+	Run the following command to deploy the OpenShift artifacts:
+	oc apply -f ./kubernetes/openshift
+
+	Run the following command to start a build:
+	oc start-build bc/openshift-openshift-bc-openshift-bc --from-dir=. --follow
+
+	Run the following command to deploy the Kubernetes artifacts:
+	kubectl apply -f ./kubernetes
+
+# Create a new OpenShift project
+$ oc new-project hello-api
+
+# Deploy the OpenShift artifacts
+$ oc apply -f ./kubernetes/openshift
+buildconfig.build.openshift.io/openshift-openshift-bc-openshift-bc created
+imagestream.image.openshift.io/hello-service created
+route.route.openshift.io/helloep-openshift-route created
+
+# Trigger a build to create the Docker image.
+$ oc start-build bc/openshift-openshift-bc-openshift-bc --from-dir=. --follow
+Uploading directory "." as binary input for the build ...
+..
+Uploading finished
+build.build.openshift.io/openshift-openshift-bc-openshift-bc-1 started
+Receiving source from STDIN as archive ...
+Pulling image ballerina/jre8:v1 ...
+Pulled 3/4 layers, 92% complete
+Pulled 4/4 layers, 100% complete
+Extracting
+Step 1/10 : FROM ballerina/jre8:v1
+ ---> 6953736bfaaa
+Step 2/10 : LABEL maintainer "dev@ballerina.io"
+ ---> Running in e77dfb0dfe3c
+ ---> e3ae9b17b0b7
+Removing intermediate container e77dfb0dfe3c
+Step 3/10 : RUN addgroup troupe     && adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina     && apk add --update --no-cache bash     && chown -R ballerina:troupe /usr/bin/java     && rm -rf /var/cache/apk/*
+ ---> Running in eaa889f617e6
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.9/main/x86_64/APKINDEX.tar.gz
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.9/community/x86_64/APKINDEX.tar.gz
+(1/5) Installing ncurses-terminfo-base (6.1_p20190105-r0)
+(2/5) Installing ncurses-terminfo (6.1_p20190105-r0)
+(3/5) Installing ncurses-libs (6.1_p20190105-r0)
+(4/5) Installing readline (7.0.003-r1)
+(5/5) Installing bash (4.4.19-r1)
+Executing bash-4.4.19-r1.post-install
+Executing busybox-1.29.3-r10.trigger
+OK: 93 MiB in 58 packages
+ ---> c49c36916288
+Removing intermediate container eaa889f617e6
+Step 4/10 : WORKDIR /home/ballerina
+ ---> a701b8eae0d9
+Removing intermediate container 50703b9e9269
+Step 5/10 : COPY openshift_deployment.jar /home/ballerina
+ ---> 991deed81242
+Removing intermediate container ce1ec590569b
+Step 6/10 : EXPOSE 9090
+ ---> Running in 854b6576d5d6
+ ---> d00ae6c70a05
+Removing intermediate container 854b6576d5d6
+Step 7/10 : USER ballerina
+ ---> Running in c56759363d0a
+ ---> 2fc8a5b56b1b
+Removing intermediate container c56759363d0a
+Step 8/10 : CMD java -jar openshift_deployment.jar
+ ---> Running in 0c2eb5f6f61b
+ ---> 1cf62f598ef2
+Removing intermediate container 0c2eb5f6f61b
+Step 9/10 : ENV "OPENSHIFT_BUILD_NAME" "openshift-openshift-bc-openshift-bc-1" "OPENSHIFT_BUILD_NAMESPACE" "hello-api2"
+ ---> Running in 1aeed538f9bc
+ ---> 35657b171b0a
+Removing intermediate container 1aeed538f9bc
+Step 10/10 : LABEL "io.openshift.build.name" "openshift-openshift-bc-openshift-bc-1" "io.openshift.build.namespace" "hello-api2"
+ ---> Running in a48523992d84
+ ---> 104517906bb2
+Removing intermediate container a48523992d84
+Successfully built 104517906bb2
+Pushing image 172.30.1.1:5000/hello-api2/hello-service:v1.0 ...
+Pushed 0/6 layers, 7% complete
+Pushed 1/6 layers, 28% complete
+Pushed 2/6 layers, 50% complete
+Pushed 3/6 layers, 60% complete
+Pushed 4/6 layers, 70% complete
+Pushed 5/6 layers, 87% complete
+Pushed 6/6 layers, 100% complete
+Push successful
+
+# Deploy the Kubernetes artifacts
+$ kubectl apply -f ./kubernetes
+service/helloep-svc created
+deployment.apps/openshift-deployment-deployment created
+
+# Check if pods are running
+$ oc get pods
+NAME                                               READY     STATUS      RESTARTS   AGE
+openshift-deployment-deployment-865d564bc9-5rh78   1/1       Running     0          35m
+
+# Invoke the service. If you are using minikube, go to www.oc-example.com to get the minikube IP. Use the `minikube ip` command to find the IP.
+$ curl --resolve www.oc-example.com:80:192.168.99.101 http://www.oc-example.com/hello/john
+Hello john!
