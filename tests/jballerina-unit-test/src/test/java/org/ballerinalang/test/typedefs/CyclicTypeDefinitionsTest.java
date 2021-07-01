@@ -115,6 +115,9 @@ public class CyclicTypeDefinitionsTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', " +
                 "found '[int,I[]]'", 34, 12);
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'v'", 37, 19);
+        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'J'", 40, 6);
+        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'K'", 43, 6);
+        BAssertUtil.validateError(negativeResult, i++, "tuple and expression size does not match", 50, 11);
         Assert.assertEquals(i, negativeResult.getErrorCount());
     }
 

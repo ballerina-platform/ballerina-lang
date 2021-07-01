@@ -1105,8 +1105,15 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         this.unresolvedTypes = new ArrayList<>(typeDefs.size());
         this.unresolvedRecordDueToFields = new HashSet<>(typeDefs.size());
+//        Set<BLangNode> iteratedTypeDefs = new HashSet<>(typeDefs.size());
         this.resolveRecordsUnresolvedDueToFields = false;
         for (BLangNode typeDef : typeDefs) {
+            //disallow type definitions with same name
+//            if (!iteratedTypeDefs.add(typeDef)) {
+//                String currentTypeNodeName = currentTypeOrClassNode.typeName.value;
+//                dlog.error(typeDef.getPosition(), DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, );
+//                return;
+//            }
             if (isErrorIntersectionType(typeDef, env)) {
                 populateUndefinedErrorIntersection((BLangTypeDefinition) typeDef, env);
                 continue;
@@ -1651,16 +1658,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private BType defineSymbolsForCyclicTypeDefinitions(BLangTypeDefinition typeDef, SymbolEnv env) {
+    private BType createSymbolAndDefineInScope(BLangTypeDefinition typeDef, SymbolEnv env) {
         Name newTypeDefName = names.fromIdNode(typeDef.name);
         BTypeSymbol typeDefSymbol;
         BType newTypeNode;
 
-        BSymbol foundSym = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(typeDef.name));
-        if (foundSym != symTable.notFoundSymbol) {
-            newTypeNode = foundSym.type;
-            return newTypeNode;
-        }
         switch (typeDef.typeNode.getKind()) {
             case TUPLE_TYPE_NODE:
                 newTypeNode = new BTupleType(null, new ArrayList<>(), true);
@@ -1679,6 +1681,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         newTypeNode.tsymbol = typeDefSymbol;
         newTypeNode.flags |= typeDefSymbol.flags;
         return newTypeNode;
+    }
+
+    private BType defineSymbolsForCyclicTypeDefinitions(BLangTypeDefinition typeDef, SymbolEnv env) {
+        BType newTypeNode;
+        BSymbol foundSym = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(typeDef.name));
+        if (foundSym != symTable.notFoundSymbol) {
+            newTypeNode = foundSym.type;
+            return newTypeNode;
+        }
+        return createSymbolAndDefineInScope(typeDef, env);
     }
 
     private BType getCyclicDefinedType(BLangTypeDefinition typeDef, SymbolEnv env) {
@@ -1727,7 +1739,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangNode unresolvedNode : unresolvedTypes) {
             if (unresolvedNode.getKind() == NodeKind.TYPE_DEFINITION && 
                     ((BLangTypeDefinition) unresolvedNode).hasCyclicReference) {
-                defineSymbolsForCyclicTypeDefinitions((BLangTypeDefinition) unresolvedNode, env);
+                createSymbolAndDefineInScope((BLangTypeDefinition) unresolvedNode, env);
             }
         }
         this.env = prevEnv;
@@ -2759,7 +2771,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BRecordType recordVarType = new BRecordType(recordSymbol);
         LinkedHashMap<String, BField> unMappedFields = new LinkedHashMap<>() {{
             putAll(recordType.fields);
-            if(recordType.restFieldType.tag == TypeTags.RECORD) {
+            if (recordType.restFieldType.tag == TypeTags.RECORD) {
                 putAll(((BRecordType) recordType.restFieldType).fields);
             }
         }};

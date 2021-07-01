@@ -35,3 +35,17 @@ function testTupleCyclic() {
 }
 
 type R[int, R[1], v...];
+
+type J [int, J[2]];
+type J [int, map<J>];
+
+type K string|int|K[];
+type K map<K>|string|K[]|int;
+
+type L [int, L[2]];
+type M [int, L[]];
+
+function testFillerValueCyclicTuple() {
+    M a = [1];
+    L b = [1];
+}
