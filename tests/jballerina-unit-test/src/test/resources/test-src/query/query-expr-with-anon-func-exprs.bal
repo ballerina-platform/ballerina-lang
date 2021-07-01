@@ -280,6 +280,86 @@ function testInnerQueryWithAnonFuncExpr() {
     assertEqual(details, "Alex George in HR");
 }
 
+function testQueryWithNestedLambdaFunctions() {
+    var fn1 = from var {firstName: fnm, lastName: lnm, age: a} in personList
+              select function () returns (function() returns (function () returns string)) {
+                  return function() returns (function () returns string) {
+                      return function () returns string => fnm + " " + lnm;
+                  };
+              };
+
+    assertEqual(3, fn1.length());
+    function () returns (function() returns (function () returns string)) f1 = fn1[0];
+    function() returns (function () returns string) f2 = f1();
+    function () returns string f3 = f2();
+    string v = f3();
+    assertEqual(v, "Alex George");
+
+    f1 = fn1[1];
+    f2 = f1();
+    f3 = f2();
+    v = f3();
+    assertEqual(v, "Ranjan Fonseka");
+
+    f1 = fn1[2];
+    f2 = f1();
+    f3 = f2();
+    v = f3();
+    assertEqual(v, "John David");
+
+    var fn2 = from int i in [1, 2, 3, 4]
+              let function () returns (function () returns (int)) func = function () returns
+                                                           (function () returns (int)) => foo
+              select function () returns int {
+                  function () returns (int) ff = func();
+                  int val = ff();
+                  return val + i;
+              };
+
+    assertEqual(4, fn2.length());
+    function () returns int f4 = fn2[0];
+    int sum = f4();
+    assertEqual(sum, 4);
+
+    f4 = fn2[1];
+    sum = f4();
+    assertEqual(sum, 5);
+
+    f4 = fn2[2];
+    sum = f4();
+    assertEqual(sum, 6);
+
+    f4 = fn2[3];
+    sum = f4();
+    assertEqual(sum, 7);
+
+    var fn3 = from var {firstName: fnm, lastName: lnm, age: a} in personList
+              select function () returns string {
+                  function (string, string) returns (string) anonFunction =
+                  function (string x, string y) returns (string) {
+                      return x + " " + y;
+                  };
+                  return anonFunction(fnm, lnm);
+             };
+
+    assertEqual(3, fn3.length());
+    function () returns string f5 = fn3[0];
+    string nm = f5();
+    assertEqual(nm, "Alex George");
+
+    f5 = fn3[1];
+    nm = f5();
+    assertEqual(nm, "Ranjan Fonseka");
+
+    f5 = fn3[2];
+    nm = f5();
+    assertEqual(nm, "John David");
+}
+
+function foo() returns int {
+    return 1 + 2;
+}
+
 int[] arr = [3, 4, 5];
 (function () returns int)[] globalFn1 = from int m in arr
                                         select function () returns int => m * y;
@@ -317,6 +397,13 @@ type Card record {|
                                              Card cd = {msg: message, noOfEmp: 25 + y};
                                              return cd;
                                          };
+
+var globalFn6 = from var person in personList
+                select function () returns (function() returns (function () returns string)) {
+                    return function() returns (function () returns string) {
+                        return function () returns string => person.firstName + " " + person.lastName;
+                    };
+                };
 
 function testGlobalQueryWithAnonFuncExpr() {
     var fn1 = globalFn1;
@@ -366,6 +453,25 @@ function testGlobalQueryWithAnonFuncExpr() {
     card1 = f5();
     assertEqual("John HR", card1.msg);
     assertEqual(35, card1.noOfEmp);
+
+    assertEqual(3, globalFn6.length());
+    function () returns (function() returns (function () returns string)) f6 = globalFn6[0];
+    function() returns (function () returns string) f6a = f6();
+    function () returns string f6b = f6a();
+    string personName = f6b();
+    assertEqual(personName, "Alex George");
+
+    f6 = globalFn6[1];
+    f6a = f6();
+    f6b = f6a();
+    personName = f6b();
+    assertEqual(personName, "Ranjan Fonseka");
+
+    f6 = globalFn6[2];
+    f6a = f6();
+    f6b = f6a();
+    personName = f6b();
+    assertEqual(personName, "John David");
 }
 
 function assertEqual(any actual, any expected) {
