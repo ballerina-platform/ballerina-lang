@@ -1367,27 +1367,7 @@
                               "children": [
                                 {
                                   "kind": "LIST",
-                                  "hasDiagnostics": true,
-                                  "children": [
-                                    {
-                                      "kind": "ANNOTATION",
-                                      "hasDiagnostics": true,
-                                      "children": [
-                                        {
-                                          "kind": "AT_TOKEN",
-                                          "isMissing": true,
-                                          "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_AT_TOKEN"
-                                          ]
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "isMissing": true
-                                        }
-                                      ]
-                                    }
-                                  ]
+                                  "children": []
                                 },
                                 {
                                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -1585,27 +1565,7 @@
                               "children": [
                                 {
                                   "kind": "LIST",
-                                  "hasDiagnostics": true,
-                                  "children": [
-                                    {
-                                      "kind": "ANNOTATION",
-                                      "hasDiagnostics": true,
-                                      "children": [
-                                        {
-                                          "kind": "AT_TOKEN",
-                                          "isMissing": true,
-                                          "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_AT_TOKEN"
-                                          ]
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "isMissing": true
-                                        }
-                                      ]
-                                    }
-                                  ]
+                                  "children": []
                                 },
                                 {
                                   "kind": "SIMPLE_NAME_REFERENCE",
