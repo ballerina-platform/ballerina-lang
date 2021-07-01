@@ -284,8 +284,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 stackTraceResponse.setStackFrames(loadedThreadFrames.get(activeThread.uniqueID()));
             } else {
                 try {
-                    // If the active thread's top stack frame name is equal to `J_INIT_FRAME_NAME`,
-                    // need to abort the processing and send a `step-in` request to resume the VM to stop at its next state.
+                    // If the active thread's top stack frame name is equal to `J_INIT_FRAME_NAME`, need to abort the
+                    // processing and send a `step-in` request to resume the VM to stop at its next state.
                     // This is because the above state is related to java-level object initialisation and therefore
                     // suspending the VM at that intermediate state does not provide any useful information to the user.
                     if (activeThread.frames().get(0).location().method().name().equals(J_INIT_FRAME_NAME)) {
