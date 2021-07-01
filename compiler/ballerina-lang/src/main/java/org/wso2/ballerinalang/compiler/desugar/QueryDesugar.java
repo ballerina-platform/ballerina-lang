@@ -1373,7 +1373,6 @@ public class QueryDesugar extends BLangNodeVisitor {
         structFunctionVarRef.expr.accept(this);
     }
 
-
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
         exprStmtNode.expr.accept(this);
@@ -1551,6 +1550,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             }
         }
     }
+
     @Override
     public void visit(BLangSimpleVarRef.BLangPackageVarRef bLangPackageVarRef) {
         visit((BLangSimpleVarRef) bLangPackageVarRef);
