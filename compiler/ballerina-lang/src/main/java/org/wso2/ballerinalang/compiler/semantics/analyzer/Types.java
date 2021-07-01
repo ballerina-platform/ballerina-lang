@@ -1229,8 +1229,6 @@ public class Types {
             case TypeTags.TYPEDESC:
             case TypeTags.HANDLE:
                 return true;
-            case TypeTags.UNION:
-                return Symbols.isFlagOn(type.flags, Flags.ENUM);
             case TypeTags.XML:
                 return ((BXMLType) type).constraint.tag == TypeTags.NEVER;
         }

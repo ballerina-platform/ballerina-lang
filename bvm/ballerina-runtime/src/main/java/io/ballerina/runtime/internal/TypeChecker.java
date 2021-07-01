@@ -1800,8 +1800,6 @@ public class TypeChecker {
             case TypeTags.FUNCTION_POINTER_TAG:
             case TypeTags.HANDLE_TAG:
                 return true;
-            case TypeTags.UNION_TAG:
-                return SymbolFlags.isFlagOn(((BUnionType) sourceType).getFlags(), SymbolFlags.ENUM);
             case TypeTags.XML_TAG:
                 return ((BXmlType) sourceType).constraint.getTag() == TypeTags.NEVER_TAG;
         }
