@@ -31,6 +31,7 @@ import java.util.List;
 
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.ATHROW;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_UTILS;
@@ -71,6 +72,7 @@ public class JvmErrorGen {
         BIRNode.BIRVariableDcl varDcl = panicTerm.errorOp.variableDcl;
         int errorIndex = this.getJVMIndexOfVarRef(varDcl);
         jvmInstructionGen.generateVarLoad(this.mv, varDcl, errorIndex);
+        this.mv.visitTypeInsn(CHECKCAST, JvmConstants.BERROR);
         this.mv.visitInsn(ATHROW);
     }
 

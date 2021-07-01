@@ -19,6 +19,7 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.projects.util.ProjectConstants;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -64,7 +65,19 @@ public class TestCommandTest extends BaseCommandTest {
     public void testTestBalFile() throws IOException {
         Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample_tests.bal");
 
-        System.setProperty("user.dir", this.testResources.resolve("valid-test-bal-file").toString());
+        System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
+        // set valid source root
+        TestCommand testCommand = new TestCommand(validBalFilePath, false);
+        // name of the file as argument
+        new CommandLine(testCommand).parse(validBalFilePath.toString());
+        testCommand.execute();
+    }
+
+    @Test(description = "Test a valid ballerina file with periods in the file name")
+    public void testTestBalFileWithPeriods() {
+        Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample.tests.bal");
+
+        System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
         // set valid source root
         TestCommand testCommand = new TestCommand(validBalFilePath, false);
         // name of the file as argument
@@ -115,7 +128,7 @@ public class TestCommandTest extends BaseCommandTest {
     @Test(description = "Test a valid ballerina project")
     public void testBuildProjectWithTests() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(testCommand).parse();
@@ -127,7 +140,7 @@ public class TestCommandTest extends BaseCommandTest {
     @Test(description = "Build a valid ballerina project")
     public void testBuildMultiModuleProject() throws IOException {
         Path projectPath = this.testResources.resolve("validMultiModuleProjectWithTests");
-        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(testCommand).parse();

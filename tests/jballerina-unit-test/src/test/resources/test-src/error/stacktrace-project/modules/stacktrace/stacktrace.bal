@@ -14,36 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-class PersonClz {
-    string fname;
-    string lname;
-
-    public function init(string fname, string lname) {
-        self.fname = fname;
-        self.lname = lname;
-    }
-
-    public function getFullName() returns string {
-        return self.fname + " " + self.lname;
-    }
+public function getStackTrace() returns error:CallStackElement[] {
+    error e = error("error!");
+    return e.stackTrace().callStack;
 }
-
-type Person record {|
-    string name;
-    int age;
-    Person? parent;
-|};
-
-type Employee record {|
-    *Person;
-    string designation;
-|};
-
-function test() {
-    PersonClz person = new("John", "Doe");
-    int sum = add(10, 20);
-}
-
-function add(int x, int y) returns int => x + y;
-
-function sum(int x, int y) returns int => x + y;

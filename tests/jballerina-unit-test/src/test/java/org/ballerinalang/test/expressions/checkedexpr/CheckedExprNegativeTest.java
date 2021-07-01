@@ -66,9 +66,14 @@ public class CheckedExprNegativeTest {
     public void testCheckedErrorvsReturnTypeMismatch() {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_error_return_type_mismatch_negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 2);
-        BAssertUtil.validateError(compile, 0, ERROR_MISMATCH_ERR_MSG, 24, 13);
-        BAssertUtil.validateError(compile, 1, ERROR_MISMATCH_ERR_MSG, 45, 17);
+        int i = 0;
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 24, 13);
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 45, 17);
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 55, 23);
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 56, 13);
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 57, 20);
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 58, 23);
+        Assert.assertEquals(compile.getErrorCount(), i);
     }
 
     @Test

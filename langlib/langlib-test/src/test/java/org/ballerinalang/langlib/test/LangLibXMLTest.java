@@ -141,6 +141,7 @@ public class LangLibXMLTest {
     public void testSetElementName() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetElementName");
         assertEquals(((BXML) returns[0]).stringValue(), "<el2 attr=\"attr1\">content</el2>");
+        assertEquals(((BXML) returns[1]).stringValue(), "<Elem xmlns=\"http://www.ballerina-schema.io/schema\"/>");
     }
 
     @Test

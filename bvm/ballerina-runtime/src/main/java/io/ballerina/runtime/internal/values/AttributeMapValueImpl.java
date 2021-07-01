@@ -31,7 +31,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
-import static io.ballerina.runtime.internal.values.XmlItem.XMLNS_URL_PREFIX;
+import static io.ballerina.runtime.internal.values.XmlItem.XMLNS_NS_URI_PREFIX;
 
 /**
  * Validating xml attribute map.
@@ -89,7 +89,7 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
             return;
         }
 
-        BString nsOfPrefix = get(StringUtils.fromString(XMLNS_URL_PREFIX + prefix));
+        BString nsOfPrefix = get(StringUtils.fromString(XMLNS_NS_URI_PREFIX + prefix));
         if (namespaceUri != null && nsOfPrefix != null && !namespaceUri.equals(nsOfPrefix.getValue())) {
             String errorMsg = String.format(
                     "failed to add attribute '%s:%s'. prefix '%s' is already bound to namespace '%s'",

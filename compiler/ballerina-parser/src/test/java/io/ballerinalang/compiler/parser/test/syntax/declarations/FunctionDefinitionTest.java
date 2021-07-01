@@ -188,4 +188,9 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
     public void testErrorsBeforeFunDef() {
         testFile("func-definition/func_def_source_32.bal", "func-definition/func_def_assert_32.json");
     }
+
+    @Test
+    public void testRecoveryWhenTypingExternal() {
+        testFile("func-definition/func_def_source_33.bal", "func-definition/func_def_assert_33.json");
+    }
 }

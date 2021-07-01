@@ -67,7 +67,7 @@ public isolated function detail(error<DetailType> e) returns DetailType = @java:
 # + lineNumber - Line number
 public type CallStackElement record {|
     string callableName;
-    string moduleName;
+    string moduleName?;
     string fileName;
     int lineNumber;
 |};

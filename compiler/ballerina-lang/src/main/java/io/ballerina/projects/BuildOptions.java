@@ -25,13 +25,14 @@ import java.util.Objects;
 public class BuildOptions {
     private Boolean testReport;
     private Boolean codeCoverage;
+    private Boolean dumpBuildTime;
     private CompilationOptions compilationOptions;
 
-    BuildOptions(Boolean testReport,
-                 Boolean codeCoverage,
+    BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime,
                  CompilationOptions compilationOptions) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
+        this.dumpBuildTime = dumpBuildTime;
         this.compilationOptions = compilationOptions;
     }
 
@@ -41,6 +42,10 @@ public class BuildOptions {
 
     public boolean codeCoverage() {
         return toBooleanDefaultIfNull(codeCoverage);
+    }
+
+    public boolean dumpBuildTime() {
+        return toBooleanDefaultIfNull(dumpBuildTime);
     }
 
     public boolean skipTests() {
@@ -83,6 +88,8 @@ public class BuildOptions {
                 theirOptions.codeCoverage, () -> toBooleanDefaultIfNull(this.codeCoverage));
         this.testReport = Objects.requireNonNullElseGet(
                 theirOptions.testReport, () -> toBooleanDefaultIfNull(this.testReport));
+        this.dumpBuildTime = Objects.requireNonNullElseGet(
+                theirOptions.dumpBuildTime, () -> toBooleanDefaultIfNull(this.dumpBuildTime));
         this.compilationOptions = compilationOptions.acceptTheirs(theirOptions.compilationOptions());
 
         return this;
@@ -101,7 +108,7 @@ public class BuildOptions {
     public enum OptionName {
         TEST_REPORT("testReport"),
         CODE_COVERAGE("codeCoverage"),
-        B7A_CONFIG_FILE("b7aConfigFile")
+        DUMP_BUILD_TIME("dumpBuildTime")
         ;
 
         private String name;
