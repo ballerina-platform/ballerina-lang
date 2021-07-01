@@ -16,13 +16,9 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
-import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -101,23 +97,5 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         Optional<Token> equalsToken = node.equalsToken();
 
         return equalsToken.isPresent() && equalsToken.get().textRange().endOffset() <= cursor;
-    }
-
-    @Override
-    public boolean onPreValidation(BallerinaCompletionContext context, ObjectFieldNode node) {
-        /*
-        This validation is added in order to avoid identifying the following context as object field node context.
-        This is happened due to the parser recovery strategy.
-        Eg: type TestType client o<cursor>
-         */
-        NonTerminalNode parent = node.parent();
-        return (parent.kind() == SyntaxKind.CLASS_DEFINITION
-                && !((ClassDefinitionNode) parent).openBrace().isMissing()) ||
-                (parent.kind() == SyntaxKind.OBJECT_TYPE_DESC
-                        && !((ObjectTypeDescriptorNode) parent).openBrace().isMissing()) ||
-                (parent.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
-                        && !((ObjectConstructorExpressionNode) parent).openBraceToken().isMissing()) ||
-                (parent.kind() == SyntaxKind.SERVICE_DECLARATION
-                        && !((ServiceDeclarationNode) parent).openBraceToken().isMissing());
     }
 }

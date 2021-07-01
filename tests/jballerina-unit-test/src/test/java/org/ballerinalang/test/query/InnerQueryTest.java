@@ -90,6 +90,11 @@ public class InnerQueryTest {
         validateError(negativeResult, i, "undefined symbol 'emp'", 88, 30);
     }
 
+    @Test(description = "Test type test in where clause")
+    public void testTypeTestInWhereClause() {
+        BRunUtil.invoke(result, "testTypeTestInWhereClause");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

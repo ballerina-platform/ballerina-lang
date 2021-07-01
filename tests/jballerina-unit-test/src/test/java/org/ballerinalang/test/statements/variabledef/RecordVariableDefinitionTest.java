@@ -362,6 +362,12 @@ public class RecordVariableDefinitionTest {
                         "'record {| never name?; (int|boolean|string) age; boolean married?; (string|int)...; |}' " +
                         "does not support field access for non-required field 'married'",
                 287, 23);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "a wildcard binding pattern can be used only with a value that belong to type 'any'",
+                298, 12);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "a wildcard binding pattern can be used only with a value that belong to type 'any'",
+                301, 20);
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 

@@ -62,12 +62,16 @@ public class LangLibNegativeTest {
                 63, 19);
         BAssertUtil.validateError(negativeResult, err++, "missing identifier",
                 71, 26);
-        BAssertUtil.validateError(negativeResult, err++, "missing identifier",
-                71, 26);
         BAssertUtil.validateError(negativeResult, err++, "missing semicolon token",
                 71, 26);
         BAssertUtil.validateError(negativeResult, err++, "invalid token 'join'",
                 71, 30);
+        BAssertUtil.validateError(negativeResult, err++, "invalid token '\"string...\"'",
+                71, 52);
+        BAssertUtil.validateError(negativeResult, err++, "invalid token ','",
+                71, 52);
+        BAssertUtil.validateError(negativeResult, err++, "missing identifier",
+                71, 53);
         Assert.assertEquals(negativeResult.getErrorCount(), err);
     }
 
