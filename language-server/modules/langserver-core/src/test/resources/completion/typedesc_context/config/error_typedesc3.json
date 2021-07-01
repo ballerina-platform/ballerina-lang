@@ -6,10 +6,18 @@
   "source": "typedesc_context/source/error_typedesc3.bal",
   "items": [
     {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "ABM",
+      "insertText": "AnnotationType",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "L",
+      "sortText": "ABM",
       "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +25,7 @@
       "label": "TestRecord2",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "L",
+      "sortText": "ABM",
       "insertText": "TestRecord2",
       "insertTextFormat": "Snippet"
     },
@@ -25,7 +33,7 @@
       "label": "TestMap2",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "M",
+      "sortText": "ABN",
       "insertText": "TestMap2",
       "insertTextFormat": "Snippet"
     },
@@ -33,16 +41,8 @@
       "label": "TestMap3",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "M",
+      "sortText": "ABN",
       "insertText": "TestMap3",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "AnnotationType",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "AnnotationType",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -51,6 +51,9 @@ public class VariableUtils {
      */
     public static String getBType(Value value) {
         try {
+            if (!(value instanceof ObjectReference)) {
+                return UNKNOWN_VALUE;
+            }
             ObjectReference valueRef = (ObjectReference) value;
             Field bTypeField = valueRef.referenceType().fieldByName(FIELD_TYPE);
             Value bTypeRef = valueRef.getValue(bTypeField);
@@ -98,6 +101,9 @@ public class VariableUtils {
      */
     public static String getStringValue(SuspendedContext context, Value jvmObject) {
         try {
+            if (!(jvmObject instanceof ObjectReference)) {
+                return UNKNOWN_VALUE;
+            }
             Optional<Method> method = VariableUtils.getMethod(jvmObject, METHOD_STRINGVALUE);
             if (method.isPresent()) {
                 Value stringValue = ((ObjectReference) jvmObject).invokeMethod(context.getOwningThread()
@@ -147,7 +153,7 @@ public class VariableUtils {
      * @param value JDI value instance.
      * @return true the given JDI value is a ballerina service variable instance.
      */
-     static boolean isService(Value value) {
+     public static boolean isService(Value value) {
         try {
             return getFieldValue(value, FIELD_TYPE).map(type -> type.type().name().endsWith
                 (JVMValueType.BTYPE_SERVICE.getString())).orElse(false);

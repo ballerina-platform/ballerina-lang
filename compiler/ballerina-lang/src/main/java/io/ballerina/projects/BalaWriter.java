@@ -32,6 +32,8 @@ import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Dependency;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -56,8 +58,7 @@ import static io.ballerina.projects.util.ProjectConstants.BALA_JSON;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
 import static io.ballerina.projects.util.ProjectUtils.getBalaName;
-import static io.ballerina.projects.util.ProjectUtils.getBallerinaShortVersion;
-import static io.ballerina.projects.util.ProjectUtils.getBallerinaSpecVersion;
+import static org.wso2.ballerinalang.compiler.util.Names.BALLERINA_INTERNAL_ORG;
 
 /**
  * {@code BalaWriter} writes a package to bala format.
@@ -74,8 +75,8 @@ public abstract class BalaWriter {
     // Set the target as any for default bala.
     protected String target = "any";
     private static final String IMPLEMENTATION_VENDOR = "WSO2";
-    private static final String BALLERINA_SHORT_VERSION = getBallerinaShortVersion();
-    private static final String BALLERINA_SPEC_VERSION = getBallerinaSpecVersion();
+    private static final String BALLERINA_SHORT_VERSION = RepoUtils.getBallerinaShortVersion();
+    private static final String BALLERINA_SPEC_VERSION = RepoUtils.getBallerinaSpecVersion();
     protected PackageContext packageContext;
     Optional<CompilerPluginDescriptor> compilerPluginToml;
 
@@ -273,9 +274,14 @@ public abstract class BalaWriter {
                 continue;
             }
 
-            PackageContext packageContext = resolvedDep.packageInstance().packageContext();
-            Dependency dependency = new Dependency(packageContext.packageOrg().toString(),
-                    packageContext.packageName().toString(), packageContext.packageVersion().toString());
+            PackageContext pkgContext = resolvedDep.packageInstance().packageContext();
+            // Skip `ballerinai` and `ballerina/observability` packages.
+            if (isBallerinaiOrBallerinaObservePackage(pkgContext)) {
+                continue;
+            }
+
+            Dependency dependency = new Dependency(pkgContext.packageOrg().toString(),
+                    pkgContext.packageName().toString(), pkgContext.packageVersion().toString());
 
             List<Dependency> dependencyList = new ArrayList<>();
             Collection<ResolvedPackageDependency> pkgDependencies = dependencyGraph.getDirectDependencies(resolvedDep);
@@ -284,7 +290,13 @@ public abstract class BalaWriter {
                     // We don't add the test dependencies to the bala file.
                     continue;
                 }
+
                 PackageContext dependencyPkgContext = resolvedTransitiveDep.packageInstance().packageContext();
+                // Skip `ballerinai` and `ballerina/observability` packages.
+                if (isBallerinaiOrBallerinaObservePackage(dependencyPkgContext)) {
+                    continue;
+                }
+
                 Dependency dep = new Dependency(dependencyPkgContext.packageOrg().toString(),
                         dependencyPkgContext.packageName().toString(),
                         dependencyPkgContext.packageVersion().toString());
@@ -297,6 +309,11 @@ public abstract class BalaWriter {
     }
 
     private List<ModuleDependency> getModuleDependencies(Package pkg, PackageCache packageCache) {
+        // Skip `ballerinai` and `ballerina/observability` packages.
+        if (isBallerinaiOrBallerinaObservePackage(pkg.packageOrg(), pkg.packageName())) {
+            return Collections.emptyList();
+        }
+
         List<ModuleDependency> modules = new ArrayList<>();
         for (ModuleId moduleId : pkg.moduleIds()) {
             Module module = pkg.module(moduleId);
@@ -377,5 +394,27 @@ public abstract class BalaWriter {
             }
             return file.toString();
         }
+    }
+
+    /**
+     * Check package is a `ballerinai` package or `ballerina/observe` package.
+     *
+     * @param context package context
+     * @return package is a `ballerinai` package or `ballerina/observe` package
+     */
+    private boolean isBallerinaiOrBallerinaObservePackage(PackageContext context) {
+        return isBallerinaiOrBallerinaObservePackage(context.packageOrg(), context.packageName());
+    }
+
+    /**
+     * Check package is a `ballerinai` package or `ballerina/observe` package.
+     *
+     * @param packageOrg  package org
+     * @param packageName package name
+     * @return package is a `ballerinai` package or `ballerina/observe` package
+     */
+    private boolean isBallerinaiOrBallerinaObservePackage(PackageOrg packageOrg, PackageName packageName) {
+        return BALLERINA_INTERNAL_ORG.getValue().equals(packageOrg.value()) ||
+                (packageOrg.isBallerinaOrg() && packageName.value().equals(Names.OBSERVE.getValue()));
     }
 }

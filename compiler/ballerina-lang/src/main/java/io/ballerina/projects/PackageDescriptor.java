@@ -17,7 +17,7 @@
  */
 package io.ballerina.projects;
 
-import org.wso2.ballerinalang.compiler.util.Names;
+import io.ballerina.projects.util.ProjectUtils;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -29,8 +29,6 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class PackageDescriptor {
-    private static final String LANG_LIB_PACKAGE_NAME_PREFIX = "lang.";
-
     private final PackageName packageName;
     private final PackageOrg packageOrg;
     private final PackageVersion packageVersion;
@@ -73,15 +71,11 @@ public class PackageDescriptor {
     }
 
     public boolean isLangLibPackage() {
-        return (org().isBallerinaOrg() && packageName.value().startsWith(LANG_LIB_PACKAGE_NAME_PREFIX)) ||
-                (org().isBallerinaOrg() && packageName.value().equals(Names.JAVA.getValue()));
+        return ProjectUtils.isLangLibPackage(org(), packageName);
     }
 
     public boolean isBuiltInPackage() {
-        return (org().isBallerinaOrg() && packageName.value().startsWith(LANG_LIB_PACKAGE_NAME_PREFIX)) ||
-                (org().value().equals(Names.BALLERINA_INTERNAL_ORG.getValue())) ||
-                (org().isBallerinaOrg() && packageName.value().equals(Names.JAVA.getValue())) ||
-                (org().isBallerinaOrg() && packageName.value().equals(Names.TEST.getValue()));
+        return ProjectUtils.isBuiltInPackage(org(), packageName.value());
     }
 
     @Override

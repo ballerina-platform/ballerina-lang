@@ -1552,16 +1552,16 @@ public class JvmInstructionGen {
         }
         BType errorType = null;
         BType otherType = null;
-        boolean foundError = false;
+        int foundError = 0;
         for (BType bType : unionMemberTypes) {
             if (bType.tag == TypeTags.ERROR) {
                 errorType = bType;
-                foundError = true;
+                foundError++;
             } else {
                 otherType = bType;
             }
         }
-        return foundError && (type.equals(errorType) || type.equals(otherType));
+        return foundError == 1 && (type.equals(errorType) || type.equals(otherType));
     }
 
     private void generateNegateBoolean() {

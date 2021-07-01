@@ -606,6 +606,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
+        boolean prevLoopAlterNotAllowed = loopAlterNotAllowed;
+        loopAlterNotAllowed = true;
         this.checkStatementExecutionValidity(transactionNode);
         //Check whether transaction statement occurred in a transactional scope
         if (!transactionalFuncCheckStack.empty() && transactionalFuncCheckStack.peek()) {
@@ -650,15 +652,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.doneWithinTransactionCheckStack.pop();
         analyzeOnFailClause(transactionNode.onFailClause);
         this.errorTypes.pop();
+        this.loopAlterNotAllowed = prevLoopAlterNotAllowed;
     }
 
     private void analyzeOnFailClause(BLangOnFailClause onFailClause) {
         if (onFailClause != null) {
+            boolean prevLoopAlterNotAllowed = loopAlterNotAllowed;
+            loopAlterNotAllowed = true;
             boolean currentStatementReturns = this.statementReturns;
             this.resetStatementReturns();
             this.resetLastStatement();
             analyzeNode(onFailClause, env);
             this.statementReturns = currentStatementReturns;
+            loopAlterNotAllowed = prevLoopAlterNotAllowed;
         }
     }
 
@@ -2269,6 +2275,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForeach foreach) {
+        boolean prevLoopAlterNotAllowed = loopAlterNotAllowed;
+        loopAlterNotAllowed = false;
         this.loopWithinTransactionCheckStack.push(true);
         this.errorTypes.push(new LinkedHashSet<>());
         boolean statementReturns = this.statementReturns;
@@ -2289,10 +2297,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
         analyzeOnFailClause(foreach.onFailClause);
         this.errorTypes.pop();
+        loopAlterNotAllowed = prevLoopAlterNotAllowed;
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
+        boolean prevLoopAlterNotAllowed = loopAlterNotAllowed;
+        loopAlterNotAllowed = false;
         this.loopWithinTransactionCheckStack.push(true);
         this.errorTypes.push(new LinkedHashSet<>());
         boolean statementReturns = this.statementReturns;
@@ -2311,6 +2322,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(whileNode.expr);
         analyzeOnFailClause(whileNode.onFailClause);
         this.errorTypes.pop();
+        this.loopAlterNotAllowed = prevLoopAlterNotAllowed;
     }
 
     @Override
@@ -2868,7 +2880,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         };
         for (BType returnType : returnTypesUpToNow) {
-            if (returnType.tag == TypeTags.ERROR) {
+            if (onlyContainErrors(returnType)) {
                 returnTypeAndSendType.add(returnType);
             } else {
                 this.dlog.error(pos, DiagnosticErrorCode.WORKER_SEND_AFTER_RETURN);
@@ -2975,7 +2987,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         Set<BType> returnTypesUpToNow = this.returnTypes.peek();
         LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<>();
         for (BType returnType : returnTypesUpToNow) {
-            if (returnType.tag == TypeTags.ERROR) {
+            if (onlyContainErrors(returnType)) {
                 returnTypeAndSendType.add(returnType);
             } else {
                 this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.WORKER_RECEIVE_AFTER_RETURN);
@@ -2987,6 +2999,28 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         } else {
             return symTable.nilType;
         }
+    }
+
+    private boolean onlyContainErrors(BType returnType) {
+        if (returnType == null) {
+            return false;
+        }
+
+        returnType = types.getTypeWithEffectiveIntersectionTypes(returnType);
+        if (returnType.tag == TypeTags.ERROR) {
+            return true;
+        }
+
+        if (returnType.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) returnType).getMemberTypes()) {
+                BType t = types.getTypeWithEffectiveIntersectionTypes(memberType);
+                if (t.tag != TypeTags.ERROR) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     public void visit(BLangLiteral literalExpr) {
@@ -3787,7 +3821,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!this.errorTypes.empty()) {
             this.errorTypes.peek().add(getErrorTypes(checkedExpr.expr.getBType()));
         }
-        returnTypes.peek().add(exprType);
+
+        BType errorTypes;
+        if (exprType.tag == TypeTags.UNION) {
+            errorTypes = types.getErrorType((BUnionType) exprType);
+        } else {
+            errorTypes = exprType;
+        }
+        returnTypes.peek().add(errorTypes);
     }
 
     @Override

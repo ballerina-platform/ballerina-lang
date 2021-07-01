@@ -6,11 +6,11 @@
   "source": "type_def/source/source1.bal",
   "items": [
     {
-      "label": "ENUM_MEMBER1",
+      "label": "CONST1",
       "kind": "TypeParameter",
       "detail": "Singleton",
-      "sortText": "E",
-      "insertText": "ENUM_MEMBER1",
+      "sortText": "D",
+      "insertText": "CONST1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -20,16 +20,16 @@
       "documentation": {
         "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "BL",
+      "sortText": "BM",
       "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "CONST1",
+      "label": "TEST_TYPE",
       "kind": "TypeParameter",
-      "detail": "Singleton",
-      "sortText": "D",
-      "insertText": "CONST1",
+      "detail": "Function",
+      "sortText": "AN",
+      "insertText": "TEST_TYPE",
       "insertTextFormat": "Snippet"
     },
     {
@@ -44,16 +44,16 @@
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
-      "sortText": "BM",
+      "sortText": "BN",
       "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TEST_TYPE",
+      "label": "ENUM_MEMBER1",
       "kind": "TypeParameter",
-      "detail": "Function",
-      "sortText": "AM",
-      "insertText": "TEST_TYPE",
+      "detail": "Singleton",
+      "sortText": "E",
+      "insertText": "ENUM_MEMBER1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -116,7 +116,7 @@
       "label": "service",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "service",
       "insertTextFormat": "Snippet"
     },
@@ -124,7 +124,7 @@
       "label": "record",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "X",
+      "sortText": "Z",
       "filterText": "record",
       "insertText": "record ",
       "insertTextFormat": "Snippet"
@@ -133,7 +133,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "X",
+      "sortText": "Z",
       "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
@@ -142,7 +142,7 @@
       "label": "record {}",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "W",
+      "sortText": "X",
       "filterText": "record",
       "insertText": "record {${1}}",
       "insertTextFormat": "Snippet"
@@ -151,7 +151,7 @@
       "label": "record {||}",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "W",
+      "sortText": "X",
       "filterText": "record",
       "insertText": "record {|${1}|}",
       "insertTextFormat": "Snippet"
@@ -160,7 +160,7 @@
       "label": "distinct",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "X",
+      "sortText": "Z",
       "filterText": "distinct",
       "insertText": "distinct",
       "insertTextFormat": "Snippet"
@@ -169,7 +169,7 @@
       "label": "object {}",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "W",
+      "sortText": "X",
       "filterText": "object",
       "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
@@ -178,7 +178,7 @@
       "label": "true",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "X",
+      "sortText": "Z",
       "filterText": "true",
       "insertText": "true",
       "insertTextFormat": "Snippet"
@@ -187,7 +187,7 @@
       "label": "false",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "X",
+      "sortText": "Z",
       "filterText": "false",
       "insertText": "false",
       "insertTextFormat": "Snippet"
@@ -196,7 +196,7 @@
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "BN",
+      "sortText": "BO",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
@@ -431,7 +431,7 @@
       "label": "isolated",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "X",
+      "sortText": "Z",
       "filterText": "isolated",
       "insertText": "isolated ",
       "insertTextFormat": "Snippet"
@@ -440,9 +440,18 @@
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "X",
+      "sortText": "Z",
       "filterText": "client",
       "insertText": "client ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "transactional",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Z",
+      "filterText": "transactional",
+      "insertText": "transactional",
       "insertTextFormat": "Snippet"
     }
   ]

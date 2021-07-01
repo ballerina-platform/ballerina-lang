@@ -331,6 +331,8 @@ public enum Snippet {
 
     STMT_RETURN(SnippetGenerator.getReturnStatementSnippet()),
 
+    STMT_RETURN_SC(SnippetGenerator.getReturnSCStatementSnippet()),
+
     STMT_PANIC(SnippetGenerator.getPanicStatementSnippet()),
 
     STMT_TRANSACTION(SnippetGenerator.getTransactionStatementSnippet()),

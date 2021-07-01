@@ -46,6 +46,7 @@ public class InitCommand implements BLauncherCmd {
 
     private Path userDir;
     private PrintStream errStream;
+    private boolean exitWhenFinish;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
@@ -57,14 +58,16 @@ public class InitCommand implements BLauncherCmd {
     private String template = "";
 
     public InitCommand() {
-        userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
-        errStream = System.err;
+        this.userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        this.errStream = System.err;
+        this.exitWhenFinish = true;
         CommandUtil.initJarFs();
     }
 
-    public InitCommand(Path userDir, PrintStream errStream) {
+    public InitCommand(Path userDir, PrintStream errStream, boolean exitWhenFinish) {
         this.userDir = userDir;
         this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
         CommandUtil.initJarFs();
     }
 
@@ -80,18 +83,20 @@ public class InitCommand implements BLauncherCmd {
         // If the current directory is a ballerina project ignore.
         if (ProjectUtils.isBallerinaProject(this.userDir)) {
             CommandUtil.printError(errStream,
-                    "Directory is already a Ballerina project",
+                    "directory is already a Ballerina project.",
                     null,
                     false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
         // Check if one argument is given and not more than one argument.
         if (argList != null && !(1 == argList.size())) {
             CommandUtil.printError(errStream,
-                    "too many arguments.",
+                    "too many arguments",
                     "bal init <project-name>",
                     true);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
@@ -101,19 +106,21 @@ public class InitCommand implements BLauncherCmd {
         Path projectRoot = ProjectUtils.findProjectRoot(this.userDir);
         if (projectRoot != null) {
             CommandUtil.printError(errStream,
-                    "Directory is already within a Ballerina project :" +
+                    "directory is already within a Ballerina project :" +
                             projectRoot.resolve(ProjectConstants.BALLERINA_TOML).toString(),
                     null,
                     false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
         // Check if the template exists
         if (!template.equals("") && !CommandUtil.getTemplates().contains(template)) {
             CommandUtil.printError(errStream,
-                    "Template not found, use `bal init --help` to view available templates.",
+                    "template not found, use `bal init --help` to view available templates.",
                     null,
                     false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
@@ -122,17 +129,18 @@ public class InitCommand implements BLauncherCmd {
             packageName = argList.get(0);
             if (!ProjectUtils.validatePackageName(packageName)) {
                 CommandUtil.printError(errStream,
-                        "Invalid package name : '" + packageName + "' :\n" +
+                        "invalid package name : '" + packageName + "' :\n" +
                                 "Package name can only contain alphanumerics and underscores" +
-                                "and the maximum length is 256 characters",
+                                "and the maximum length is 256 characters.",
                         null,
                         false);
+                CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
         }
 
         if (!ProjectUtils.validatePackageName(packageName)) {
-            errStream.println("Unallowed characters in the project name were replaced by " +
+            errStream.println("unallowed characters in the project name were replaced by " +
                     "underscores when deriving the package name. Edit the Ballerina.toml to change it.");
             errStream.println();
         }
@@ -144,11 +152,18 @@ public class InitCommand implements BLauncherCmd {
                 CommandUtil.initPackageByTemplate(userDir, packageName, template);
             }
         } catch (AccessDeniedException e) {
-            errStream.println("error: Error occurred while initializing project : " + " Access Denied : " +
-                    e.getMessage());
+            CommandUtil.printError(errStream,
+                    "error occurred while initializing project : " + " Access Denied : " + e.getMessage(),
+                    null,
+                    false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         } catch (IOException | URISyntaxException e) {
-            errStream.println("error: Error occurred while initializing project : " + e.getMessage());
+            CommandUtil.printError(errStream,
+                    "error occurred while initializing project : " + e.getMessage(),
+                    null,
+                    false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
         errStream.println("Created new Ballerina package '" + guessPkgName(packageName) + "'.");
@@ -161,7 +176,7 @@ public class InitCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("initialize a Ballerina project in current directory");
+        out.append("Initialize a Ballerina project in current directory");
     }
 
     @Override

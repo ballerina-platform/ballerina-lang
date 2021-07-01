@@ -55,7 +55,6 @@ public class ProjectConstants {
 
     public static final String USER_DIR = "user.dir";
     public static final String USER_NAME = "user.name";
-    public static final String USER_HOME = "user.home";
 
     // Bala specific constants
     public static final String MODULES_ROOT = "modules";
@@ -74,10 +73,6 @@ public class ProjectConstants {
     public static final String BLANG_COMPILED_PKG_BIR_EXT = ".bir";
     public static final String BLANG_COMPILED_JAR_EXT = ".jar";
     public static final String RESOURCE_DIR_NAME = "resources";
-
-    public static final String BALLERINA_VERSION = "ballerina.version";
-    public static final String BALLERINA_PACK_VERSION = "ballerina.packVersion";
-    public static final String PROPERTIES_FILE = "/META-INF/tool.properties";
 
     public static final String TARGET_BALA_DIR_NAME = "bala";
     public static final String BALLERINA_HOME = "ballerina.home";

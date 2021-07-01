@@ -164,3 +164,9 @@ function foo(Bar b) returns Bar {
 type Bar record {
     int bar = 0;
 };
+
+function invalidUsageOfCompoundAssignmentAsExpr() {
+    int a = 5;
+    int f = a <<= 3;
+    int g = a >>= 3;
+}

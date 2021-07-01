@@ -313,7 +313,11 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private boolean hasSameOwner(BSymbol symbol, BSymbol foundSym) {
         // check whether the given symbol owner is same as found symbol's owner
-        if (foundSym.owner == symbol.owner) {
+        if (foundSym.owner == symbol.owner ||
+                //TODO: remove this, once #26284, #30688 are fixed
+                (foundSym.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE &&
+                (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE &&
+                foundSym.pkgID.equals(symbol.pkgID)) {
             return true;
         } else if (Symbols.isFlagOn(symbol.owner.flags, Flags.LAMBDA) &&
                 ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE)) {
@@ -1051,6 +1055,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     Name typeName = names.fromIdNode(sizeReference.variableName);
 
                     BSymbol sizeSymbol = lookupMainSpaceSymbolInPackage(size.pos, env, pkgAlias, typeName);
+                    sizeReference.symbol = sizeSymbol;
 
                     if (symTable.notFoundSymbol == sizeSymbol) {
                         dlog.error(arrayTypeNode.pos, DiagnosticErrorCode.UNDEFINED_SYMBOL, size);
@@ -2006,11 +2011,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             return symTable.semanticError;
         }
 
-        if (isErrorIntersection) {
+        if (isErrorIntersection && !isAlreadyExistingType) {
             BType detailType = ((BErrorType) potentialIntersectionType).detailType;
-            if (isAlreadyExistingType) {
-                potentialIntersectionType = types.createErrorType(detailType, potentialIntersectionType.flags, env);
-            }
 
             boolean existingErrorDetailType = false;
             if (detailType.tsymbol != null) {

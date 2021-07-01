@@ -47,6 +47,7 @@ public class FunctionParamsTest extends AbstractDeclarationTest {
     }
     
     // Recovery tests
+
     @Test
     public void testRequiredParamAfterDefaultableParam() {
         test("func-definition/func_params_source_02.bal", "func-definition/func_params_assert_02.json");
@@ -63,8 +64,9 @@ public class FunctionParamsTest extends AbstractDeclarationTest {
     }
 
     @Test
-    public void testIncompleteBinarExprInDefaultableParams() {
+    public void testIncompleteExprInDefaultableParams() {
         test("func-definition/func_params_source_06.bal", "func-definition/func_params_assert_06.json");
+        testFile("func-definition/func_params_source_25.bal", "func-definition/func_params_assert_25.json");
     }
 
     @Test

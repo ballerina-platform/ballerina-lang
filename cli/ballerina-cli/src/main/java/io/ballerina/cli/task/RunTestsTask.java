@@ -20,6 +20,7 @@ package io.ballerina.cli.task;
 
 import com.google.gson.Gson;
 import io.ballerina.cli.launcher.LauncherUtils;
+import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
@@ -140,6 +141,10 @@ public class RunTestsTask implements Task {
 
     @Override
     public void execute(Project project) {
+        long start = 0;
+        if (project.buildOptions().dumpBuildTime()) {
+            start = System.currentTimeMillis();
+        }
         try {
             ProjectUtils.checkExecutePermission(project.sourceRoot());
         } catch (ProjectException e) {
@@ -254,6 +259,9 @@ public class RunTestsTask implements Task {
 
         // Cleanup temp cache for SingleFileProject
         cleanTempCache(project, cachesRoot);
+        if (project.buildOptions().dumpBuildTime()) {
+            BuildTime.getInstance().testingExecutionDuration = System.currentTimeMillis() - start;
+        }
     }
 
     private void generateCoverage(Project project, JBallerinaBackend jBallerinaBackend)
