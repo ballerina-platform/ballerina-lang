@@ -216,8 +216,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final CompilerContext.Key<QueryDesugar> QUERY_DESUGAR_KEY = new CompilerContext.Key<>();
     private BLangExpression onConflictExpr;
     private BVarSymbol currentFrameSymbol;
-    private BLangBlockFunctionBody currentLambdaBody;
-    private SymbolEnv currentLambdaEnv;
+    private BLangBlockFunctionBody currentQueryLambdaBody;
     private Map<String, BSymbol> identifiers;
     private int streamElementCount = 0;
     private final Desugar desugar;
@@ -227,7 +226,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private final Types types;
     private SymbolEnv env;
     private boolean containsCheckExpr;
-    private boolean inLambdaInQuery;
+    private boolean withinLambdaFunc = false;
 
     private QueryDesugar(CompilerContext context) {
         context.put(QUERY_DESUGAR_KEY, this);
@@ -1307,27 +1306,27 @@ public class QueryDesugar extends BLangNodeVisitor {
         if (function.flagSet.contains(Flag.QUERY_LAMBDA)) {
             currentFrameSymbol = function.requiredParams.get(0).symbol;
             identifiers = new HashMap<>();
-            currentLambdaBody = (BLangBlockFunctionBody) function.getBody();
-            currentLambdaEnv = SymbolEnv.createFuncBodyEnv(currentLambdaBody, env);
-            List<BLangStatement> stmts = new ArrayList<>(currentLambdaBody.getStatements());
+            currentQueryLambdaBody = (BLangBlockFunctionBody) function.getBody();
+            List<BLangStatement> stmts = new ArrayList<>(currentQueryLambdaBody.getStatements());
             stmts.forEach(stmt -> stmt.accept(this));
             currentFrameSymbol = null;
             identifiers = null;
-            currentLambdaBody = null;
-            currentLambdaEnv = null;
-        } else if (function.getBody().getKind() == NodeKind.EXPR_FUNCTION_BODY) {
-            inLambdaInQuery = true;
-            // module-level anonymous function has an expr function body.
-            BLangExprFunctionBody anonLambdaBody = (BLangExprFunctionBody) function.getBody();
-            anonLambdaBody.expr.accept(this);
+            currentQueryLambdaBody = null;
         } else {
-            inLambdaInQuery = true;
-            BLangBlockFunctionBody anonLambdaBody = (BLangBlockFunctionBody) function.getBody();
-            List<BLangStatement> stmts = new ArrayList<>(anonLambdaBody.getStatements());
-            stmts.forEach(stmt -> stmt.accept(this));
+            boolean prevWithinLambdaFunc = withinLambdaFunc;
+            withinLambdaFunc = true;
+            if (function.getBody().getKind() == NodeKind.EXPR_FUNCTION_BODY) {
+                // module-level anonymous function has an expr function body.
+                BLangExprFunctionBody anonLambdaBody = (BLangExprFunctionBody) function.getBody();
+                anonLambdaBody.expr.accept(this);
+            } else {
+                BLangBlockFunctionBody anonLambdaBody = (BLangBlockFunctionBody) function.getBody();
+                List<BLangStatement> stmts = new ArrayList<>(anonLambdaBody.getStatements());
+                stmts.forEach(stmt -> stmt.accept(this));
+            }
+            withinLambdaFunc = prevWithinLambdaFunc;
         }
         env.enclPkg.lambdaFunctions.add(lambda);
-        inLambdaInQuery = false;
     }
 
     @Override
@@ -1370,6 +1369,12 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef structFunctionVarRef) {
+        structFunctionVarRef.expr.accept(this);
+    }
+
+
+    @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
         exprStmtNode.expr.accept(this);
     }
@@ -1390,6 +1395,11 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation.BFunctionPointerInvocation functionPointerInvocationExpr) {
         visit((BLangInvocation) functionPointerInvocationExpr);
+    }
+
+    @Override
+    public void visit(BLangInvocation.BLangAttachedFunctionInvocation attachedFunctionInvocation) {
+        visit((BLangInvocation) attachedFunctionInvocation);
     }
 
     @Override
@@ -1426,8 +1436,13 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecordLiteral.BLangStructLiteral bLangStructLiteral) {
-        visit((BLangRecordLiteral) bLangStructLiteral);
+    public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
+        visit((BLangRecordLiteral) structLiteral);
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral.BLangMapLiteral mapLiteral) {
+        visit((BLangRecordLiteral) mapLiteral);
     }
 
     @Override
@@ -1492,7 +1507,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         // because, lookup using name produce unexpected results if there's variable shadowing.
         if (symbol != null && symbol != resolvedSymbol && !FRAME_PARAMETER_NAME.equals(identifier)) {
             if (!identifiers.containsKey(identifier)) {
-                Location pos = currentLambdaBody.pos;
+                Location pos = currentQueryLambdaBody.pos;
                 BLangFieldBasedAccess frameAccessExpr = desugar.getFieldAccessExpression(pos, identifier,
                         symTable.anyOrErrorType, currentFrameSymbol);
                 frameAccessExpr.expr = desugar.addConversionExprIfRequired(frameAccessExpr.expr,
@@ -1500,13 +1515,13 @@ public class QueryDesugar extends BLangNodeVisitor {
 
                 if (symbol instanceof BVarSymbol) {
                     ((BVarSymbol) symbol).originalSymbol = null;
-                    if (inLambdaInQuery && symbol.closure) {
+                    if (withinLambdaFunc && symbol.closure) {
                         // When there's a closure in a lambda inside a query lambda the symbol.closure is
                         // true for all its usages. Therefore mark symbol.closure = false for the existing
                         // symbol and create a new symbol with the same properties.
                         symbol.closure = false;
-                        symbol = new BVarSymbol(0, symbol.name,
-                                env.scope.owner.pkgID, symbol.type, env.scope.owner, pos, VIRTUAL);
+                        symbol = new BVarSymbol(0, symbol.name, env.scope.owner.pkgID, symbol.type, env.scope.owner,
+                                pos, VIRTUAL);
                         symbol.closure = true;
                         bLangSimpleVarRef.symbol = symbol;
                         bLangSimpleVarRef.varSymbol = symbol;
@@ -1515,11 +1530,12 @@ public class QueryDesugar extends BLangNodeVisitor {
                     BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, identifier, symbol.type,
                             desugar.addConversionExprIfRequired(frameAccessExpr, symbol.type), (BVarSymbol) symbol);
                     BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);
-                    currentLambdaBody.stmts.add(0, variableDef);
-                    currentLambdaEnv.scope.define(symbol.name, symbol);
+                    currentQueryLambdaBody.stmts.add(0, variableDef);
+                    SymbolEnv queryLambdaEnv = SymbolEnv.createFuncBodyEnv(currentQueryLambdaBody, env);
+                    queryLambdaEnv.scope.define(symbol.name, symbol);
                 }
                 identifiers.put(identifier, symbol);
-            } else if (identifiers.containsKey(identifier) && inLambdaInQuery) {
+            } else if (identifiers.containsKey(identifier) && withinLambdaFunc) {
                 symbol = identifiers.get(identifier);
                 bLangSimpleVarRef.symbol = symbol;
                 bLangSimpleVarRef.varSymbol = symbol;
@@ -1541,8 +1557,18 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangSimpleVarRef.BLangLocalVarRef bLangLocalVarRef) {
-        visit(((BLangSimpleVarRef) bLangLocalVarRef));
+    public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
+        visit(((BLangSimpleVarRef) localVarRef));
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef.BLangFieldVarRef fieldVarRef) {
+        visit(((BLangSimpleVarRef) fieldVarRef));
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef.BLangFunctionVarRef functionVarRef) {
+        visit(((BLangSimpleVarRef) functionVarRef));
     }
 
     @Override
@@ -1552,8 +1578,38 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr bLangStructFieldAccessExpr) {
-        visit((BLangIndexBasedAccess) bLangStructFieldAccessExpr);
+    public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr structFieldAccessExpr) {
+        visit((BLangIndexBasedAccess) structFieldAccessExpr);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangMapAccessExpr mapAccessExpr) {
+        visit((BLangIndexBasedAccess) mapAccessExpr);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr arrayAccessExpr) {
+        visit((BLangIndexBasedAccess) arrayAccessExpr);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangTableAccessExpr tableAccessExpr) {
+        visit((BLangIndexBasedAccess) tableAccessExpr);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangTupleAccessExpr tupleAccessExpr) {
+        visit((BLangIndexBasedAccess) tupleAccessExpr);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangStringAccessExpr stringAccessExpr) {
+        visit((BLangIndexBasedAccess) stringAccessExpr);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr xmlAccessExpr) {
+        visit((BLangIndexBasedAccess) xmlAccessExpr);
     }
 
     @Override
@@ -1624,6 +1680,11 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangListConstructorExpr.BLangTupleLiteral tupleLiteral) {
         tupleLiteral.exprs.forEach(expression -> expression.accept(this));
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangJSONArrayLiteral jsonArrayLiteral) {
+        jsonArrayLiteral.exprs.forEach(expression -> expression.accept(this));
     }
 
     @Override
