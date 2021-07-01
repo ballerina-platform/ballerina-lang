@@ -68,7 +68,7 @@ public class BallerinaDocUtils {
         if (matcher.find()) {
             return matcher.group(3);
         } else {
-            return null;
+            return "";
         }
     }
 }

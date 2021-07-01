@@ -22,6 +22,7 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
+import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -73,7 +74,22 @@ public class GenDocsForBalaTest {
                         .resolve(BallerinaDocGenerator.API_DOCS_JSON));
         Assert.assertTrue(sfWorldModuleApiDocsJsonAsString.contains("PersonZ"), "PersonZ class is missing");
     }
-    
+
+    @Test
+    public void testDocutilsGetSummary() {
+        String description = "Connects the fb communication services!@#$%^&*()-=+_';/?><|\"";
+        String summary = BallerinaDocUtils.getSummary(description);
+        Assert.assertEquals(summary, "Connects the fb communication services!@#$%^&*()-=+_';/?><|\"");
+
+        description = "Connects the fb communication services\n\n#Heading\n\nParagraph after the first heading";
+        summary = BallerinaDocUtils.getSummary(description);
+        Assert.assertEquals(summary, "Connects the fb communication services\n");
+
+        description = "";
+        summary = BallerinaDocUtils.getSummary(description);
+        Assert.assertEquals(summary, "");
+    }
+
     @AfterMethod
     public void cleanUp() throws IOException {
         if (Files.exists(this.docsPath)) {
