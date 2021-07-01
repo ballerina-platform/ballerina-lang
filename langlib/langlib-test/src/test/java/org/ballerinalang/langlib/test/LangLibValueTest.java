@@ -339,7 +339,6 @@ public class LangLibValueTest {
                 { "testCloneWithTypeWithFiniteArrayTypeFromIntArray" },
                 { "testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray" },
                 { "testCloneWithTypeWithUnionTypeArrayFromIntArray" },
-                { "testCloneWithTypeWithUnionOfFiniteTypeNegative" },
                 { "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative" }
         };
     }
