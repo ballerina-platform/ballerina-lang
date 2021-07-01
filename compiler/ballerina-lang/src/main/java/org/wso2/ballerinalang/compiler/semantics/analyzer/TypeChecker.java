@@ -5291,18 +5291,24 @@ public class TypeChecker extends BLangNodeVisitor {
         String operatorType = checkedExpr.getKind() == NodeKind.CHECK_EXPR ? "check" : "checkpanic";
         BLangExpression exprWithCheckingKeyword = checkedExpr.expr;
         boolean firstVisit = exprWithCheckingKeyword.getBType() == null;
-        BType typeOfExprWithCheckingKeyword;
+
+        BType checkExprCandidateType;
         if (expType == symTable.noType) {
-            typeOfExprWithCheckingKeyword = symTable.noType;
+            checkExprCandidateType = symTable.noType;
         } else {
-            typeOfExprWithCheckingKeyword = BUnionType.create(null, expType, symTable.errorType);
+            BType exprType = getCandidateType(checkedExpr, expType);
+            if (exprType == symTable.semanticError) {
+                checkExprCandidateType = BUnionType.create(null, expType, symTable.errorType);
+            } else {
+                checkExprCandidateType = addDefaultErrorIfNoErrorComponentFound(expType);
+            }
         }
 
         if (checkedExpr.getKind() == NodeKind.CHECK_EXPR && types.isUnionOfSimpleBasicTypes(expType)) {
-            rewriteWithEnsureTypeFunc(checkedExpr, typeOfExprWithCheckingKeyword);
+            rewriteWithEnsureTypeFunc(checkedExpr, checkExprCandidateType);
         }
 
-        BType exprType = checkExpr(checkedExpr.expr, env, typeOfExprWithCheckingKeyword);
+        BType exprType = checkExpr(checkedExpr.expr, env, checkExprCandidateType);
         if (checkedExpr.expr.getKind() == NodeKind.WORKER_RECEIVE) {
             if (firstVisit) {
                 isTypeChecked = false;
@@ -5429,6 +5435,15 @@ public class TypeChecker extends BLangNodeVisitor {
             this.dlog.unmute();
         }
         return rhsType;
+    }
+
+    private BType addDefaultErrorIfNoErrorComponentFound(BType type) {
+        for (BType t : types.getAllTypes(type)) {
+            if (types.isAssignable(t, symTable.errorType)) {
+                return type;
+            }
+        }
+        return BUnionType.create(null, type, symTable.errorType);
     }
 
     @Override
