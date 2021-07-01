@@ -262,16 +262,49 @@ function testCheckedErrorsWithReadOnlyInUnion() {
     assertEquality(1234, checkpanic y);
 }
 
-function returnNil() returns error? {
-    return ();
+type Err distinct error;
+
+function ternaryCheck(boolean b) returns string|Err {
+    return check (b ? barOrErr() : bazOrErr());
 }
 
-function callExprWithCheck() returns error? {
-    check returnNil();
+function barOrErr() returns string|Err {
+    return "bar";
 }
 
-function testCallExprWithCheck() {
-   assertFalse(callExprWithCheck() is error);
+function bazOrErr() returns string|Err {
+    return error("Err");
+}
+
+function testCheckWithTernaryOperator() {
+    var a = ternaryCheck(false);
+    if !(a is Err) {
+        panic error("Expected value of type: Err, found: " + (typeof a).toString());
+    }
+    a = ternaryCheck(true);
+    if !(a is string) {
+        panic error("Expected value of type: string, found: " + (typeof a).toString());
+    }
+}
+
+function emitError(int i) returns int|Err|error {
+    match i {
+        1 => { return 1; }
+        2 => { return error Err("Err"); }
+        _ => { return error("Any error"); }
+    }
+}
+
+function performErrornousAction(int i) returns error? {
+    int m = check emitError(i);
+}
+
+function testCheckWithMixOfDefaultErrorAndDistinctErrors() {
+    var result = performErrornousAction(1);
+    assertTrue(result is ());
+
+    result = performErrornousAction(2);
+    assertTrue(result is Err && result.message() == "Err");
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
