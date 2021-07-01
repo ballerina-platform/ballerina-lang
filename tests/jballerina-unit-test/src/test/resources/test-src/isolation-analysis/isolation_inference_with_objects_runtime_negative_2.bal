@@ -166,6 +166,64 @@ class NonIsolatedClassWithInitWithDifferentStatementKinds {
     }
 }
 
+class NonIsolatedClassWithMultipleLocksOne {
+    private int[] x = [];
+    final readonly & int[] y = [];
+
+    function fn() {
+        lock {
+            lock {
+                f5();
+            }
+            self.x.push(1);
+        }
+    }
+
+    function fn2() {
+        lock {
+            self.x.push(1);
+        }
+
+        lock {
+            int[] a = self.x;
+            boolean b = f6(a);
+        }
+    }
+}
+
+class NonIsolatedClassWithMultipleLocksTwo {
+    private int[] x = [];
+    final readonly & int[] y = [];
+
+    function fn() {
+        lock {
+            lock {
+                f5();
+            }
+            self.x.push(1);
+        }
+    }
+
+    function fn2() {
+        lock {
+            self.x.push(1);
+            _ = f6([]);
+        }
+
+        lock {
+            int[] a = self.y;
+            boolean b = f6(a);
+        }
+    }
+}
+
+function f5() {
+}
+
+int x = 1;
+
+function f6(int[] arr) returns boolean => arr[0] == x;
+
 function testIsolatedInference() {
     ClassWithExternalMethodOne a = new;
     assertFalse(<any> a is isolated object {});
@@ -210,6 +268,18 @@ function testIsolatedInference() {
     NonIsolatedClassWithInitWithDifferentStatementKinds h = new ([1, 2], {val: {i: 123}});
     assertFalse(<any> h is isolated object {});
     assertTrue(isMethodIsolated(h, "init"));
+
+    NonIsolatedClassWithMultipleLocksOne i = new;
+    assertFalse(<any> i is isolated object {});
+    assertTrue(isMethodIsolated(i, "fn"));
+    assertFalse(isMethodIsolated(i, "fn2"));
+    assertTrue(<any> f5 is isolated function);
+    assertFalse(<any> f6 is isolated function);
+
+    NonIsolatedClassWithMultipleLocksTwo j = new;
+    assertFalse(<any> j is isolated object {});
+    assertTrue(isMethodIsolated(j, "fn"));
+    assertFalse(isMethodIsolated(j, "fn2"));
 }
 
 isolated function assertTrue(any|error actual) {

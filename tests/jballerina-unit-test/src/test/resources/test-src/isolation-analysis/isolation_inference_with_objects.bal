@@ -891,6 +891,38 @@ readonly class ReadOnlyClass {
     function f2() returns int[] => self.j;
 }
 
+class IsolatedClassWithMultipleLocks {
+    private int[] x = [];
+    final readonly & int[] y = [];
+
+    function fn() {
+        lock {
+            lock {
+                f5();
+            }
+            self.x.push(1);
+        }
+    }
+
+    function fn2() {
+        lock {
+            self.x.push(1);
+        }
+
+        lock {
+            int[] a = self.y;
+            boolean b = f6(a);
+        }
+    }
+}
+
+function f5() {
+}
+
+int x = 1;
+
+function f6(int[] arr) returns boolean => arr[0] == x;
+
 public function testIsolatedInference() {
     IsolatedClassWithNoMutableFields a = new ([], {val: {i: 1}});
     assertTrue(<any> a is isolated object {});
@@ -1067,6 +1099,13 @@ public function testIsolatedInference() {
     assertTrue(<any> b2 is isolated object {});
     assertTrue(isMethodIsolated(b2, "f1"));
     assertTrue(isMethodIsolated(b2, "f2"));
+
+    IsolatedClassWithMultipleLocks c2 = new;
+    assertTrue(<any> c2 is isolated object {});
+    assertTrue(isMethodIsolated(c2, "fn"));
+    assertFalse(isMethodIsolated(c2, "fn2"));
+    assertTrue(<any> f5 is isolated function);
+    assertFalse(<any> f6 is isolated function);
 }
 
 isolated function assertTrue(any|error actual) {

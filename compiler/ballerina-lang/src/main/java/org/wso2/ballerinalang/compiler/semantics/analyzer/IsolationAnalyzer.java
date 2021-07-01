@@ -1316,10 +1316,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && isSelfOfObject((BLangSimpleVarRef) expr) &&
                     this.isolationInferenceInfoMap.containsKey(tsymbol) && !inObjectInitMethod()) {
                 if (inLockStatement) {
-                    LockInfo lockInfo = copyInLockInfoStack.peek();
-                    ((VariableIsolationInferenceInfo) this.isolationInferenceInfoMap.get(tsymbol)).accessedLockInfo
-                            .add(lockInfo);
-                    lockInfo.accessedPotentiallyIsolatedVars.add(tsymbol);
+                    if (((ClassIsolationInferenceInfo) this.isolationInferenceInfoMap.get(tsymbol))
+                            .protectedFields.contains(fieldAccessExpr.field)) {
+                        LockInfo lockInfo = copyInLockInfoStack.peek();
+                        ((VariableIsolationInferenceInfo) this.isolationInferenceInfoMap.get(tsymbol)).accessedLockInfo
+                                .add(lockInfo);
+                        lockInfo.accessedPotentiallyIsolatedVars.add(tsymbol);
+                    }
                 } else {
                     BLangIdentifier field = fieldAccessExpr.field;
                     if (((ClassIsolationInferenceInfo) this.isolationInferenceInfoMap.get(tsymbol))
