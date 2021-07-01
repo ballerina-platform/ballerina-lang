@@ -32,21 +32,21 @@ public class TypeTags {
     public static final int BOOLEAN_TAG = STRING_TAG + 1;
 
     // subtypes of int & string
-    public static final int SIGNED32_INT_TAG = BOOLEAN_TAG + 1;
-    public static final int SIGNED16_INT_TAG = SIGNED32_INT_TAG + 1;
-    public static final int SIGNED8_INT_TAG = SIGNED16_INT_TAG + 1;
-    public static final int UNSIGNED32_INT_TAG = SIGNED8_INT_TAG + 1;
-    public static final int UNSIGNED16_INT_TAG = UNSIGNED32_INT_TAG + 1;
-    public static final int UNSIGNED8_INT_TAG = UNSIGNED16_INT_TAG + 1;
-    public static final int CHAR_STRING_TAG = UNSIGNED8_INT_TAG + 1;
+    public static final int SIGNED8_INT_TAG = BOOLEAN_TAG + 1;
+    public static final int UNSIGNED8_INT_TAG = SIGNED8_INT_TAG + 1;
+    public static final int SIGNED16_INT_TAG = UNSIGNED8_INT_TAG + 1;
+    public static final int UNSIGNED16_INT_TAG = SIGNED16_INT_TAG + 1;
+    public static final int SIGNED32_INT_TAG = UNSIGNED16_INT_TAG+ 1;
+    public static final int UNSIGNED32_INT_TAG = SIGNED32_INT_TAG + 1;
+    public static final int CHAR_STRING_TAG = UNSIGNED32_INT_TAG + 1;
 
-    public static final int JSON_TAG = CHAR_STRING_TAG + 1;
+    public static final int NULL_TAG = CHAR_STRING_TAG + 1;
+    public static final int JSON_TAG = NULL_TAG + 1;
     public static final int XML_TAG = JSON_TAG + 1;
     public static final int TABLE_TAG = XML_TAG + 1;
-    public static final int NULL_TAG = TABLE_TAG + 1;
 
     // subtypes of Xml & ()
-    public static final int XML_ELEMENT_TAG = NULL_TAG + 1;
+    public static final int XML_ELEMENT_TAG = TABLE_TAG + 1;
     public static final int XML_PI_TAG = XML_ELEMENT_TAG + 1;
     public static final int XML_COMMENT_TAG = XML_PI_TAG + 1;
     public static final int XML_TEXT_TAG = XML_COMMENT_TAG + 1;
