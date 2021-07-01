@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.compiler.api.symbols.DiagnosticState;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -255,11 +256,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private DiagnosticCode diagCode;
     private BType resType;
     private Unifier unifier;
+    private PackageID rootPackage;
 
     private Map<BVarSymbol, BType.NarrowedTypes> narrowedTypeInfo;
     // Stack holding the fall-back environments. fall-back env is the env to go back
     // after visiting the current env.
     private Stack<SymbolEnv> prevEnvs = new Stack<>();
+    private Set<String> configKeys = new HashSet<>();
+    private Set<BVarSymbol> invalidVars = new HashSet<>();
 
     private int recordCount = 0;
 
@@ -290,11 +294,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
+        this.rootPackage = getRootPackage(pkgNode.moduleContextDataHolder.descriptor());
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         pkgNode.accept(this);
         return pkgNode;
     }
 
+    private PackageID getRootPackage(ModuleDescriptor moduleDesc) {
+        return new PackageID(names.fromString(moduleDesc.org().value()),
+                names.fromString(moduleDesc.packageName().value()), names.fromString(moduleDesc.version().toString()));
+    }
 
     // Visitor methods
 
@@ -328,6 +337,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             analyzeDef((BLangNode) pkgLevelNode, pkgEnv);
         }
+        analyzeModuleConfigurableAmbiguity(pkgNode);
 
         while (pkgNode.lambdaFunctions.peek() != null) {
             BLangLambdaFunction lambdaFunction = pkgNode.lambdaFunctions.poll();
@@ -870,6 +880,47 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         transferForkFlag(varNode);
+    }
+
+    private void analyzeModuleConfigurableAmbiguity(BLangPackage pkgNode) {
+        Set<BVarSymbol> configVars = symResolver.getConfigVarSymbols(pkgNode.symbol);
+        populateModuleKeys(configVars);
+        for (BVarSymbol variable : configVars) {
+            validateMapConfigVariable(variable.pkgID.orgName.value + "." + variable.pkgID.name.value + "."
+                    + variable.name.value, variable);
+            if (variable.pkgID.getOrgName().equals(rootPackage.getOrgName())) {
+                validateMapConfigVariable(variable.pkgID.name.value + "." + variable.name.value, variable);
+                if (variable.pkgID.getName().equals(rootPackage.getName()) &&
+                        !(variable.name.equals(variable.pkgID.name))) {
+                    validateMapConfigVariable(variable.name.value, variable);
+                }
+            }
+        }
+    }
+
+    private void populateModuleKeys(Set<BVarSymbol> configVars) {
+        for (BVarSymbol variable : configVars) {
+            configKeys.add(variable.pkgID.orgName.value + "." + variable.pkgID.name.value);
+            if (!variable.pkgID.getOrgName().equals(rootPackage.getOrgName())) {
+                break;
+            }
+            configKeys.add(variable.pkgID.name.value);
+        }
+    }
+
+    private void validateMapConfigVariable(String configKey, BVarSymbol variable) {
+        if (configKeys.contains(configKey) && isSubTypeOfMapping(variable.type) && !invalidVars.contains(variable)) {
+            invalidVars.add(variable);
+            dlog.error(variable.pos, DiagnosticErrorCode.CONFIGURABLE_VARIABLE_MODULE_AMBIGUITY_FOUND,
+                    variable.name.value);
+        }
+    }
+
+   private boolean isSubTypeOfMapping(BType type) {
+        if (type.tag == TypeTags.INTERSECTION) {
+            return isSubTypeOfMapping(((BIntersectionType) type).effectiveType);
+        }
+        return types.isSubTypeOfMapping(type);
     }
 
     private void checkSupportedConfigType(BType type, Location location, String varName) {
