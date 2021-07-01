@@ -1058,6 +1058,12 @@ function testCloneWithTypeWithUnionOfFiniteType() {
     assert(c is error, false);
     FloatTwoOrThree|FloatThreeOrFour d = checkpanic c;
     assert(d, 3.0);
+
+    int y = 2;
+    (IntOneOrFloatTwo|IntTwoOrThree)|error e = y.cloneWithType();
+    assert(e is error, false);
+    IntOneOrFloatTwo|IntTwoOrThree f = checkpanic e;
+    assert(f, 2);
 }
 
 function testCloneWithTypeWithFiniteArrayTypeFromIntArray() {
@@ -1101,21 +1107,16 @@ function testCloneWithTypeWithUnionTypeArrayFromIntArray() {
     assert(b, [1,2,3]);
 
     int[] y = [3, 4];
+
     (float|FloatThreeOrFour)[]|error c = y.cloneWithType();
     assert(c is error, false);
     (float|FloatThreeOrFour)[] d = checkpanic c;
     assert(d, [3.0, 4.0]);
-}
 
-function testCloneWithTypeWithUnionOfFiniteTypeNegative() {
-    int x = 2;
-
-    (IntOneOrFloatTwo|IntTwoOrThree)|error a = x.cloneWithType();
-    assert(a is error, true);
-    error err = <error> a;
-    var message = err.detail()["message"];
-    string messageString = message is error? message.toString(): message.toString();
-    assert(messageString, "'int' value cannot be converted to '(IntOneOrFloatTwo|IntTwoOrThree)': ambiguous target type");
+    (IntThreeOrFour|FloatThreeOrFour)[]|error e = y.cloneWithType();
+    assert(e is error, false);
+    (IntThreeOrFour|FloatThreeOrFour)[] f = checkpanic e;
+    assert(f, [3, 4]);
 }
 
 function testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative() {
@@ -1137,13 +1138,6 @@ function testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative() {
     assert(messageString, "'int[]' value cannot be converted to '(IntTwoOrThree|IntThreeOrFour)[]'");
 
     int[] y = [3, 4];
-
-    (IntThreeOrFour|FloatThreeOrFour)[]|error e = y.cloneWithType();
-    assert(e is error, true);
-    err = <error> e;
-    message = err.detail()["message"];
-    messageString = message is error? message.toString(): message.toString();
-    assert(messageString, "'int' value cannot be converted to '(IntThreeOrFour|FloatThreeOrFour)': ambiguous target type");
 
     IntThreeOrFour[]|FloatThreeOrFour[]|error f = y.cloneWithType();
     assert(f is error, true);

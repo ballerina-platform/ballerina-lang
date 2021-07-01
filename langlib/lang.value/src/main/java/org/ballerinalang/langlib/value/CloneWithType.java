@@ -110,14 +110,20 @@ public class CloneWithType {
         }
         Set<Type> convertibleTypes;
         convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType);
+
+        Type sourceType = TypeChecker.getType(value);
         if (convertibleTypes.isEmpty()) {
             throw createConversionError(value, targetType);
-        } else if (!allowAmbiguity && convertibleTypes.size() > 1) {
+        } else if (!allowAmbiguity && convertibleTypes.size() > 1 && !convertibleTypes.contains(sourceType)) {
             throw createAmbiguousConversionError(value, targetType);
         }
 
-        Type sourceType = TypeChecker.getType(value);
-        Type matchingType = convertibleTypes.iterator().next();
+        Type matchingType;
+        if (convertibleTypes.contains(sourceType)) {
+            matchingType = sourceType;
+        } else {
+            matchingType = convertibleTypes.iterator().next();
+        }
         // handle primitive values
         if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG) {
             if (TypeChecker.checkIsType(value, matchingType)) {
