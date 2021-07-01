@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.Flag;
@@ -122,13 +123,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static java.lang.String.format;
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
+
+import static java.lang.String.format;
 
 /**
  * @since 0.94
@@ -2166,6 +2168,25 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private boolean isModuleLevelVar(BSymbol symbol) {
         return symbol.getKind() == SymbolKind.VARIABLE && symbol.owner.getKind() == SymbolKind.PACKAGE;
+    }
+
+    public Set<BVarSymbol> getConfigVarSymbols(BPackageSymbol packageSymbol) {
+        Set<BVarSymbol> configVars = new HashSet<>();
+        analyseAndAddConfigVar(packageSymbol, configVars);
+        if (!packageSymbol.imports.isEmpty()) {
+            for (BPackageSymbol importSymbol : packageSymbol.imports) {
+                analyseAndAddConfigVar(importSymbol, configVars);
+            }
+        }
+        return configVars;
+    }
+
+    private void analyseAndAddConfigVar(BPackageSymbol pkgSymbol, Set<BVarSymbol> configVars) {
+        for (Scope.ScopeEntry entry : pkgSymbol.scope.entries.values()) {
+            if (entry.symbol.tag == SymTag.VARIABLE && SymbolFlags.isFlagOn(entry.symbol.flags, Flags.CONFIGURABLE)) {
+                configVars.add((BVarSymbol) entry.symbol);
+            }
+        }
     }
 
     private static class ParameterizedTypeInfo {
