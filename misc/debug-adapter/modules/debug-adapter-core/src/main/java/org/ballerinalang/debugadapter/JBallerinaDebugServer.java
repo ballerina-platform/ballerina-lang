@@ -160,6 +160,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         capabilities.setSupportsTerminateRequest(true);
         capabilities.setSupportTerminateDebuggee(true);
         capabilities.setSupportsConditionalBreakpoints(true);
+        capabilities.setSupportsLogPoints(true);
         // Todo - Implement
         capabilities.setSupportsCompletionsRequest(false);
         capabilities.setSupportsRestartRequest(false);
@@ -453,10 +454,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     private BalBreakpoint toBreakpoint(SourceBreakpoint sourceBreakpoint, Source source) {
-        BalBreakpoint breakpoint = new BalBreakpoint();
-        breakpoint.setLine(sourceBreakpoint.getLine());
-        breakpoint.setSource(source);
+        BalBreakpoint breakpoint = new BalBreakpoint(source, sourceBreakpoint.getLine());
         breakpoint.setCondition(sourceBreakpoint.getCondition());
+        breakpoint.setLogMessage(sourceBreakpoint.getLogMessage());
         return breakpoint;
     }
 
