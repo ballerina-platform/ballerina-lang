@@ -24,7 +24,7 @@ import java.util.List;
 
 /**
  * Expression Context tests.
- * 
+ *
  * @since 2.0.0
  */
 public class TypeDescContextTest extends CompletionTest {
@@ -33,7 +33,7 @@ public class TypeDescContextTest extends CompletionTest {
     public Object[][] dataProvider() {
         return this.getConfigsList();
     }
-    
+
     @Override
     public String getTestResourceDir() {
         return "typedesc_context";

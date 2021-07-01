@@ -286,3 +286,17 @@ function testRestFieldResolving() {
     var extraRec = rest;
     boolean married = extraRec.married;
 }
+
+record {|
+    int i;
+    error e;
+|} n = {
+    i: 1,
+    e: error("")
+};
+
+var {i, e: _} = n;
+
+function testWildCardBindingAssignability() {
+    var {i: i2, e: _} = n;
+}
