@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test;
 
+import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.runtime.api.Module;
@@ -111,6 +112,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -121,6 +123,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -1329,13 +1332,19 @@ public class BRunUtil {
                 packageManifest.name().toString(),
                 packageManifest.version().toString(),
                 MODULE_INIT_CLASS_NAME);
-        URLClassLoader classLoader = (URLClassLoader) compileResult.getClassLoader();
+        //URLClassLoader classLoader = (URLClassLoader) compileResult.getClassLoader();
+        Collection<JarLibrary> jarPathRequiredForExecution = compileResult.getJarPathRequiredForExecution();
+        String classpath1 = "";
+        for (JarLibrary jarLibrary:jarPathRequiredForExecution) {
+            classpath1 = classpath1 + File.pathSeparator + jarLibrary.path();
+        }
 
         try {
             final List<String> actualArgs = new ArrayList<>();
             actualArgs.add(0, "java");
             actualArgs.add(1, "-cp");
-            String classPath = System.getProperty("java.class.path") + ":" + getClassPath(classLoader);
+            //String classPath = System.getProperty("java.class.path") + File.pathSeparator + getClassPath(classLoader);
+            String classPath = System.getProperty("java.class.path") + classpath1;
             actualArgs.add(2, classPath);
             actualArgs.add(3, initClassName);
             actualArgs.addAll(Arrays.asList(args));
