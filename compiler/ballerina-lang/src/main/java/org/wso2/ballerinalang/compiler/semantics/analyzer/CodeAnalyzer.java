@@ -1004,6 +1004,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean checkSimilarErrorMatchPattern(BLangErrorMatchPattern firstErrorMatchPattern,
                                                   BLangErrorMatchPattern secondErrorMatchPattern) {
+        if (firstErrorMatchPattern == null || secondErrorMatchPattern == null) {
+            return false;
+        }
+
         if (!checkSimilarErrorTypeReference(firstErrorMatchPattern.errorTypeReference,
                 secondErrorMatchPattern.errorTypeReference)) {
             return false;
@@ -1384,6 +1388,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean checkSimilarErrorBindingPatterns(BLangErrorBindingPattern firstErrorBindingPattern,
                                                      BLangErrorBindingPattern secondErrorBindingPattern) {
+        if (firstErrorBindingPattern == null || secondErrorBindingPattern == null) {
+            return false;
+        }
+
         if (!checkSimilarErrorTypeReference(firstErrorBindingPattern.errorTypeReference,
                 secondErrorBindingPattern.errorTypeReference)) {
             return false;
