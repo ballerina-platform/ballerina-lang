@@ -815,11 +815,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         validateWorkerAnnAttachments(varNode.expr);
 
-        if (this.symbolEnter.isIgnoredOrEmpty(varNode)) {
-            // Fake symbol to prevent runtime failures down the line.
-            varNode.symbol = new BVarSymbol(0, Names.IGNORE, env.enclPkg.packageID, symTable.anyType, env.scope.owner,
-                                            varNode.pos, VIRTUAL);
-        }
+        handleWildCardBindingVariable(varNode);
 
         BType lhsType = varNode.symbol.type;
         varNode.setBType(lhsType);
@@ -1295,13 +1291,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 BLangSimpleVariable simpleVariable = (BLangSimpleVariable) variable;
 
-                Name varName = names.fromIdNode(simpleVariable.name);
-                if (varName == Names.IGNORE) {
-                    dlog.error(simpleVariable.pos, DiagnosticErrorCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
-                    return;
-                }
-
                 simpleVariable.setBType(rhsType);
+
+                handleWildCardBindingVariable(simpleVariable);
 
                 int ownerSymTag = env.scope.owner.tag;
                 if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE || (ownerSymTag & SymTag.LET) == SymTag.LET) {
@@ -1407,6 +1399,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private void handleWildCardBindingVariable(BLangSimpleVariable variable) {
+        if (!variable.name.value.equals(Names.IGNORE.value)) {
+            return;
+        }
+        BLangExpression bindingExp = variable.expr;
+        BType bindingValueType = bindingExp != null && bindingExp.getBType() != null
+                ? bindingExp.getBType() : variable.getBType();
+        if (!types.isAssignable(bindingValueType, symTable.anyType)) {
+            dlog.error(variable.pos, DiagnosticErrorCode.WILD_CARD_BINDING_PATTERN_ONLY_SUPPORTS_TYPE_ANY);
+        }
+        // Fake symbol to prevent runtime failures down the line.
+        variable.symbol = new BVarSymbol(0, Names.IGNORE, env.enclPkg.packageID,
+                variable.getBType(), env.scope.owner, variable.pos, VIRTUAL);
+    }
+
     void handleDeclaredVarInForeach(BLangVariable variable, BType rhsType, SymbolEnv blockEnv) {
         switch (variable.getKind()) {
             case VARIABLE:
@@ -1489,9 +1496,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         switch (variable.getKind()) {
             case VARIABLE:
                 Name name = names.fromIdNode(((BLangSimpleVariable) variable).name);
-                if (name == Names.IGNORE) {
-                    return;
-                }
                 variable.setBType(symTable.semanticError);
                 symbolEnter.defineVarSymbol(variable.pos, variable.flagSet, variable.getBType(), name, blockEnv,
                                             variable.internal);
@@ -1547,14 +1551,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangSimpleVariableDef varDefNode) {
-        // This will prevent cases Eg:- int _ = 100;
-        // We have prevented '_' from registering variable symbol at SymbolEnter, Hence this validation added.
-        Name varName = names.fromIdNode(varDefNode.var.name);
-        if (varName == Names.IGNORE) {
-            dlog.error(varDefNode.var.pos, DiagnosticErrorCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
-            return;
-        }
-
         analyzeDef(varDefNode.var, env);
     }
 
