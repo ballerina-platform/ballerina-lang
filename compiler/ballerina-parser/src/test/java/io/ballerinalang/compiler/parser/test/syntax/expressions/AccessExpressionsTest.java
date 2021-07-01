@@ -167,4 +167,9 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
     public void testMemberAccessRecovery() {
         testFile("access-expr/member_access_expr_source_11.bal", "access-expr/member_access_expr_assert_11.json");
     }
+
+    @Test
+    public void testModuleCallSyntaxErrors() {
+        testFile("access-expr/module_call_source.bal", "access-expr/module_call_assert.json");
+    }
 }

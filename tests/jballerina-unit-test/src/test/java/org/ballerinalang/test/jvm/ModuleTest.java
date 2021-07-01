@@ -27,8 +27,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.BAssertUtil.validateError;
-
 /**
  * Test cases to cover modules related tests on JBallerina.
  *
@@ -37,12 +35,10 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 public class ModuleTest {
 
     private CompileResult compileResult;
-    private CompileResult compileResultNegative;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/jvm/TestProject");
-        compileResultNegative = BCompileUtil.compile("test-src/jvm/TestProjectNegative");
     }
 
     @Test(description = "Test module")
@@ -53,27 +49,8 @@ public class ModuleTest {
         Assert.assertEquals(calculatedValue.intValue(), 12);
     }
 
-    @Test(description = "Test module negative")
-    public void testModuleNegative() {
-        int i = 0;
-        validateError(compileResultNegative, i++, "invalid expression statement", 20, 5);
-        validateError(compileResultNegative, i++, "undefined symbol 'shapes'", 20, 5);
-        validateError(compileResultNegative, i++, "missing key expr in member access expr", 20, 23);
-        validateError(compileResultNegative, i++, "missing semicolon token", 20, 25);
-        validateError(compileResultNegative, i++, "undefined symbol 'unitSquare1'", 20, 25);
-        validateError(compileResultNegative, i++, "undefined symbol 'shapes'", 21, 39);
-        validateError(compileResultNegative, i++, "invalid expression statement", 22, 5);
-        validateError(compileResultNegative, i++, "undefined symbol 'shapes'", 22, 5);
-        validateError(compileResultNegative, i++, "missing key expr in member access expr", 22, 23);
-        validateError(compileResultNegative, i++, "missing semicolon token", 22, 25);
-        validateError(compileResultNegative, i++, "undefined symbol 'unitSquare3'", 22, 25);
-        validateError(compileResultNegative, i++, "undefined symbol 'shapes'", 22, 39);
-        Assert.assertEquals(compileResultNegative.getErrorCount(), i);
-    }
-
     @AfterClass
     public void tearDown() {
         compileResult = null;
-        compileResultNegative = null;
     }
 }

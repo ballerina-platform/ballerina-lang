@@ -196,16 +196,9 @@ function testInvalidRecordMemberAccessByConst() {
     int i2 = e[AGEC];
 }
 
-type Abc record {
-    string[] s;
-    float[] v;
-};
-
 function testMemberAccessWithoutIndex() {
     int[] intArray = [];
-    Abc a = { s: ["1.0", "2.0"], v: [1.0, 2.0] };
-    a.s[] = "4.1";
-    a.v[1] = intArray[];
+    int value = intArray[];
     intArray[]
 }
 
