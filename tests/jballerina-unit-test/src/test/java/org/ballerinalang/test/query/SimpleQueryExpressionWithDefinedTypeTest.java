@@ -366,6 +366,11 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
+    @Test(description = "Test type test in where clause")
+    public void testTypeTestInWhereClause() {
+        BRunUtil.invoke(result, "testTypeTestInWhereClause");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

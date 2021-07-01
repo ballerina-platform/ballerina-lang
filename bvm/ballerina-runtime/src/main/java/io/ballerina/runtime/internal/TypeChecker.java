@@ -385,7 +385,7 @@ public class TypeChecker {
             } else if (value instanceof Integer || value instanceof Byte) {
                 return TYPE_BYTE;
             }
-        } else if (value instanceof BString || value instanceof String) {
+        } else if (value instanceof BString) {
             return TYPE_STRING;
         } else if (value instanceof Boolean) {
             return TYPE_BOOLEAN;

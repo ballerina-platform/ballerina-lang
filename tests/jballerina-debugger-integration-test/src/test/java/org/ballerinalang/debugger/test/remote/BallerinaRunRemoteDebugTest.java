@@ -27,6 +27,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 
@@ -64,25 +67,38 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
         String msg = REMOTE_DEBUG_LISTENING + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.debugMain("run", new String[]{"--debug", String.valueOf(port),
-            debugTestRunner.testEntryFilePath}, null, new String[]{}, new LogLeecher[]{clientLeecher},
-            debugTestRunner.testProjectPath, 10);
+                        debugTestRunner.testEntryFilePath}, null, new String[]{}, new LogLeecher[]{clientLeecher},
+                debugTestRunner.testProjectPath, 10);
         clientLeecher.waitForText(20000);
     }
 
-    @Test
-    public void testSuspendOnBallerinaJarRun() throws BallerinaTestException {
+    @Test(description = "Tests executable JAR debugging support with [--debug <PORT>] option.")
+    public void testSuspendOnBallerinaJarRun1() throws BallerinaTestException {
+        int port = findFreePort();
+        testBalJarInDebugMode("--debug", String.valueOf(port));
+    }
+
+    @Test(description = "Tests executable JAR debugging support with [--debug=<PORT>] option.")
+    public void testSuspendOnBallerinaJarRun2() throws BallerinaTestException {
+        int port = findFreePort();
+        testBalJarInDebugMode("--debug=" + port);
+    }
+
+    public void testBalJarInDebugMode(String... debugOptions) throws BallerinaTestException {
         String executablePath = Paths.get("target", "bin", testProjectName.replaceAll("-", "_") + ".jar")
-            .toFile().getPath();
+                .toFile().getPath();
         LogLeecher clientLeecher = new LogLeecher(executablePath);
         balClient.runMain("build", new String[]{}, null, new String[]{},
-            new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath);
+                new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath);
         clientLeecher.waitForText(20000);
 
-        int port = findFreePort();
+        String port = debugOptions[0].contains("=") ? debugOptions[0].split("=")[1] : debugOptions[1];
         String msg = REMOTE_DEBUG_LISTENING + port;
         clientLeecher = new LogLeecher(msg);
-        balClient.debugMain("run", new String[]{"--debug", String.valueOf(port), executablePath}, null,
-            new String[]{}, new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath, 10);
+        List<String> debugOptionsList = new ArrayList<>(Arrays.asList(debugOptions));
+        debugOptionsList.add(executablePath);
+        balClient.debugMain("run", debugOptionsList.toArray(new String[0]), null,
+                new String[]{}, new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath, 10);
         clientLeecher.waitForText(20000);
     }
 

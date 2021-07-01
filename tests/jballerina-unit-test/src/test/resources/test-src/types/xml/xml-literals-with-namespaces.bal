@@ -157,3 +157,12 @@ function XMLWithDefaultNamespaceToString() returns string {
 
     return x.toString();
 }
+
+function testXmlLiteralUsingXmlNamespacePrefix() {
+    xml x1 = xml `<entry xml:base="https://namespace.servicebus.windows.net/$Resources/Eventhubs"></entry>`;
+    string s = x1.toString();
+    string expectedStr = "<entry xml:base=\"https://namespace.servicebus.windows.net/$Resources/Eventhubs\"></entry>";
+    if (s != expectedStr) {
+        panic error("Assertion error", expected = expectedStr, found=s);
+    }
+}

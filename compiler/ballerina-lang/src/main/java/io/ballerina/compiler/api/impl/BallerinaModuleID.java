@@ -43,6 +43,16 @@ public class BallerinaModuleID implements ModuleID {
         return this.moduleID.getOrgName().getValue();
     }
 
+    /**
+     * Get the Package name of this module ID.
+     *
+     * @return Package name
+     */
+    @Override
+    public String packageName() {
+        return moduleID.getPkgName().getValue();
+    }
+
     @Override
     public String moduleName() {
         return this.moduleID.getNameComps().stream().map(Name::getValue).collect(Collectors.joining("."));
