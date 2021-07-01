@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/jballerina.java;
-import ballerina/lang.'value as value;
 
 # Type for value that can be cloned.
 # This is the same as in lang.value, but is copied here to avoid a dependency.
@@ -68,7 +67,7 @@ public isolated function detail(error<DetailType> e) returns DetailType = @java:
 # + lineNumber - Line number
 public type CallStackElement record {|
     string callableName;
-    string moduleName;
+    string moduleName?;
     string fileName;
     int lineNumber;
 |};

@@ -215,6 +215,16 @@ public class ErrorTest {
     }
 
     @Test
+    public void testLocalErrorTypeWithClosure() {
+        BRunUtil.invoke(errorTestResult, "testLocalErrorTypeWithClosure");
+    }
+
+    @Test
+    public void testLocalErrorTypeWithinLambda() {
+        BRunUtil.invoke(errorTestResult, "testLocalErrorTypeWithinLambda");
+    }
+
+    @Test
     public void testErrorNegative() {
         CompileResult negativeCompileResult = BCompileUtil.compile("test-src/error/error_test_negative.bal");
         int i = 0;
@@ -358,9 +368,9 @@ public class ErrorTest {
     @Test
     public void testStackOverFlow() {
         BValue[] result = BRunUtil.invoke(errorTestResult, "testStackOverFlow");
-        String expected1 = "{callableName:\"bar\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
+        String expected1 = "{callableName:\"bar\", fileName:\"error_test.bal\", " +
                 "lineNumber:408}";
-        String expected2 = "{callableName:\"bar2\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
+        String expected2 = "{callableName:\"bar2\", fileName:\"error_test.bal\", " +
                 "lineNumber:412}";
         String resultStack = ((BValueArray) result[0]).getRefValue(0).toString();
         Assert.assertTrue(resultStack.equals(expected1) || resultStack.equals(expected2), "Received unexpected " +

@@ -385,7 +385,7 @@ public class TypeChecker {
             } else if (value instanceof Integer || value instanceof Byte) {
                 return TYPE_BYTE;
             }
-        } else if (value instanceof BString || value instanceof String) {
+        } else if (value instanceof BString) {
             return TYPE_STRING;
         } else if (value instanceof Boolean) {
             return TYPE_BOOLEAN;
@@ -1932,18 +1932,19 @@ public class TypeChecker {
     }
 
     private static boolean checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(Type type) {
-        Set<Type> visitedTypeSet = new HashSet<>();
-        visitedTypeSet.add(type);
+        Set<String> visitedTypeSet = new HashSet<>();
         return checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(type, visitedTypeSet);
     }
 
     private static boolean checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(Type type,
-                                                                                   Set<Type> visitedTypeSet) {
+                                                                                   Set<String> visitedTypeSet) {
         switch (type.getTag()) {
             case TypeTags.NEVER_TAG:
                 return true;
             case TypeTags.RECORD_TYPE_TAG:
-                for (Field field : ((BRecordType) type).getFields().values()) {
+                BRecordType recordType = (BRecordType) type;
+                visitedTypeSet.add(recordType.getName());
+                for (Field field : recordType.getFields().values()) {
                     // skip check for fields with self referencing type and not required fields.
                     if ((SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.REQUIRED) ||
                             !SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL)) &&
@@ -1956,9 +1957,12 @@ public class TypeChecker {
                 return false;
             case TypeTags.TUPLE_TAG:
                 BTupleType tupleType = (BTupleType) type;
+                visitedTypeSet.add(tupleType.getName());
                 List<Type> tupleTypes = tupleType.getTupleTypes();
                 for (Type mem : tupleTypes) {
-                    visitedTypeSet.add(mem);
+                    if (!visitedTypeSet.add(mem.getName())) {
+                        continue;
+                    }
                     if (checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(mem, visitedTypeSet)) {
                         return true;
                     }
@@ -1966,8 +1970,9 @@ public class TypeChecker {
                 return false;
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) type;
+                visitedTypeSet.add(arrayType.getName());
                 Type elemType = arrayType.getElementType();
-                visitedTypeSet.add(elemType);
+                visitedTypeSet.add(elemType.getName());
                 return arrayType.getState() != ArrayState.OPEN &&
                         checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(elemType, visitedTypeSet);
             default:
@@ -2510,12 +2515,22 @@ public class TypeChecker {
             return false;
         }
 
+        TableValueImpl tableValue = (TableValueImpl) sourceValue;
+        BTableType sourceType = (BTableType) tableValue.getType();
+        if (targetType.getKeyType() != null && sourceType.getFieldNames() == null) {
+            return false;
+        }
+
+        if (sourceType.getKeyType() != null && !checkIsType(tableValue.getKeyType(), targetType.getKeyType())) {
+            return false;
+        }
+
         TypeValuePair typeValuePair = new TypeValuePair(sourceValue, targetType);
         if (unresolvedValues.contains(typeValuePair)) {
             return true;
         }
 
-        TableValueImpl tableValue = (TableValueImpl) sourceValue;
+
         Object[] objects = tableValue.values().toArray();
         for (Object object : objects) {
             if (!checkIsLikeType(object, targetType.getConstrainedType(), allowNumericConversion)) {
@@ -2574,8 +2589,12 @@ public class TypeChecker {
         unresolvedTypes.add(pair);
         BErrorType bErrorType = (BErrorType) sourceType;
 
+        if (!checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes)) {
+            return false;
+        }
+
         if (targetType.typeIdSet == null) {
-            return checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
+            return true;
         }
 
         BTypeIdSet sourceTypeIdSet = bErrorType.typeIdSet;
@@ -2593,9 +2612,13 @@ public class TypeChecker {
             return false;
         }
 
+        if (!checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues,
+                allowNumericConversion)) {
+            return false;
+        }
+
         if (targetType.typeIdSet == null) {
-            return checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues,
-                    allowNumericConversion);
+            return true;
         }
 
         BTypeIdSet sourceIdSet = ((BErrorType) sourceType).typeIdSet;

@@ -2,6 +2,12 @@ function intAdd(int a, int b) returns (int) {
     return a + b;
 }
 
+function overflowByAddition() {
+    int num1 = 9223372036854775807;
+    int num2 = 1;
+    int ans = num1 + num2;
+}
+
 function floatAdd(float a, float b) returns (float) {
     return a + b;
 }
@@ -127,6 +133,18 @@ function testAddSingleton() {
     assertEqual(a1 + a5, 11);
     assertEqual(a1 + a6, 16);
     assertEqual(a1 + a7, 13);
+}
+
+function testContextuallyExpectedTypeOfNumericLiteralInAdd() {
+    float a1 = 10.0 + 5;
+    float a2 = 5 + 3 + 10.0;
+    decimal a3 = 5 + 15.0;
+    decimal a4 = 5.0 + 10.0 + 10;
+
+    assertEqual(a1, 15.0);
+    assertEqual(a2, 18.0);
+    assertEqual(a3, 20.0d);
+    assertEqual(a4, 25.0d);
 }
 
 function assertEqual(any actual, any expected) {

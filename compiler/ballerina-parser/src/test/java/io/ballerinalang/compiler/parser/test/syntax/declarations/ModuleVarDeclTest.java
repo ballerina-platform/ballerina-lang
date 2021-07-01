@@ -114,4 +114,9 @@ public class ModuleVarDeclTest extends AbstractDeclarationTest {
     public void testTopLevelRecoveryWithModuleVarQualifiers() {
         testFile("module-var-decl/module_var_decl_source_17.bal", "module-var-decl/module_var_decl_assert_17.json");
     }
+
+    @Test
+    public void testInvalidLocalConstDecl() {
+        testFile("module-var-decl/module_var_decl_source_18.bal", "module-var-decl/module_var_decl_assert_18.json");
+    }
 }

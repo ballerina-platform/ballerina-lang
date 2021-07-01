@@ -35,6 +35,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
@@ -228,23 +229,13 @@ public class TesterinaUtils {
                 String[] functionDetail = function.split(":");
                 try {
                     if (functionDetail[0].equals(suite.getPackageID())) {
-                        if (functionDetail[1].equals(TesterinaConstants.WILDCARD)) {
-                            handleWildCard(filteredList, suite.getTests());
-                        } else if (functionDetail[1].endsWith(TesterinaConstants.WILDCARD)) {
-                            handleEndingWithWildCard(filteredList, suite.getTests(), functionDetail[1]);
-                        } else {
-                            filteredList.add(functionDetail[1]);
-                        }
+                        handleWildCards(filteredList, suite.getTests(), functionDetail[1]);
                     }
                 } catch (IndexOutOfBoundsException e) {
-                    errStream.println("Error occured while executing tests. Test list cannot be empty");
+                    errStream.println("Error occurred while executing tests. Test list cannot be empty");
                 }
             } else {
-                if (function.endsWith(TesterinaConstants.WILDCARD)) {
-                    handleEndingWithWildCard(filteredList, suite.getTests(), function);
-                } else {
-                    filteredList.add(function);
-                }
+                handleWildCards(filteredList, suite.getTests(), function);
             }
         }
 
@@ -259,18 +250,16 @@ public class TesterinaUtils {
         return updatedTestList;
     }
 
-    private static void handleWildCard(List<String> filteredList, List<Test> suiteTests) {
-        for (Test test : suiteTests) {
-            filteredList.add(test.getTestName());
-        }
-    }
-
-    private static void handleEndingWithWildCard(List<String> filteredList, List<Test> suiteTests, String function) {
-        String fn = function.replace(TesterinaConstants.WILDCARD, "");
-        for (Test test : suiteTests) {
-            if (test.getTestName().startsWith(fn)) {
-                filteredList.add(test.getTestName());
+    private static void handleWildCards(List<String> filteredList, List<Test> suiteTests, String function) {
+        if (function.contains(TesterinaConstants.WILDCARD)) {
+            for (Test test: suiteTests) {
+                if (Pattern.matches(function.replace(TesterinaConstants.WILDCARD, DOT + TesterinaConstants.WILDCARD),
+                        test.getTestName())) {
+                    filteredList.add(test.getTestName());
+                }
             }
+        } else {
+            filteredList.add(function);
         }
     }
 
@@ -284,7 +273,7 @@ public class TesterinaUtils {
         StringBuilder sb = new StringBuilder();
         sb.append(errorMsg);
         // Append function/action/resource name with package path (if any)
-        StackTraceElement[] stackTrace = getStackTrace(throwable);
+        StackTraceElement[] stackTrace = throwable.getStackTrace();
         if (stackTrace.length == 0) {
             return sb.toString();
         }
@@ -294,7 +283,6 @@ public class TesterinaUtils {
         for (int i = 1; i < stackTrace.length; i++) {
             printStackElement(sb, stackTrace[i], "\n\t   ");
         }
-        sb.append("\n\nCheck ballerina-internal log for more details");
         return sb.toString();
     }
 

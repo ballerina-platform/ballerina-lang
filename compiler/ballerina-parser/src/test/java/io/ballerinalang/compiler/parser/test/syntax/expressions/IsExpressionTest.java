@@ -41,6 +41,11 @@ public class IsExpressionTest extends AbstractExpressionsTest {
         test("a == b / c is int + d", "is-expr/is_expr_assert_03.json");
     }
 
+    @Test
+    public void testIsExprInIfStmt() {
+        testFile("is-expr/is_expr_assert_07.bal", "is-expr/is_expr_assert_07.json");
+    }
+
     // Recovery test
 
     @Test

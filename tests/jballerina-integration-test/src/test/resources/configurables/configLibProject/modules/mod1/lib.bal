@@ -36,3 +36,34 @@ public enum HttpVersion {
 
 public type IntMap map<int>;
 public type ManagerMap map<Manager>;
+
+public type GrantConfig ClientCredentialsGrantConfig|PasswordGrantConfig|RefreshTokenGrantConfig;
+
+public type ClientCredentialsGrantConfig record {|
+    int|string clientId;
+    anydata clientSecret;
+    ClientConfiguration clientConfig;
+|};
+
+public type PasswordGrantConfig record {|
+    (string|int)[] password;
+    ClientConfiguration clientConfig?;
+|};
+
+public type RefreshTokenGrantConfig record {|
+    string token;
+    float|int timeLimit;
+    ClientConfiguration clientConfig;
+|};
+
+public type ClientConfiguration record {|
+    HttpVersion httpVersion?;
+    map<anydata> customHeaders;
+|};
+
+public type One 1;
+
+public type Two 2.5;
+
+public type Three "three";
+

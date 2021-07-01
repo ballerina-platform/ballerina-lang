@@ -92,6 +92,7 @@ public class BindgenFileGenerator {
     private SyntaxTree replacePlaceholders(String content, String alias) {
         String modifiedContent = content.replace("FULL_CLASS_NAME", currentClass.getName())
                 .replace("CLASS_TYPE", currentClass.isInterface() ? "interface" : "class")
+                .replace("INS_CLASS_NAME", currentClass.getName().replace("$", "\\$"))
                 .replace("SIMPLE_CLASS_NAME_CAPS", alias.toUpperCase(Locale.getDefault()))
                 .replace("SIMPLE_CLASS_NAME", alias)
                 .replace("ACCESS_MODIFIER", env.hasPublicFlag() ? "public " : "");

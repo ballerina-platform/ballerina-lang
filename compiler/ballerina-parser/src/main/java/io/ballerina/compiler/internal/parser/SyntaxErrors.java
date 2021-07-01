@@ -176,7 +176,9 @@ public class SyntaxErrors {
             case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:
             case PATH_SEGMENT_IDENT:
             case BINDING_PATTERN_OR_EXPR_RHS:
+            case BINDING_PATTERN_OR_VAR_REF_RHS:
             case NAMED_ARG_BINDING_PATTERN:
+            case TYPE_DESC_RHS_OR_BP_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
@@ -257,6 +259,7 @@ public class SyntaxErrors {
             case ARG_LIST_OPEN_PAREN:
             case PARENTHESISED_TYPE_DESC_START:
             case ERROR_CONSTRUCTOR_RHS:
+            case ERROR_BINDING_PATTERN_ERROR_KEYWORD_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_PAREN_TOKEN;
             case SEMICOLON:
             case OBJECT_FIELD_RHS:
@@ -366,6 +369,7 @@ public class SyntaxErrors {
             case FUNCTION_IDENT:
             case OPTIONAL_PEER_WORKER:
             case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
+            case TYPE_DESC_WITHOUT_ISOLATED:
                 return DiagnosticErrorCode.ERROR_MISSING_FUNCTION_KEYWORD;
             case CONST_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_CONST_KEYWORD;
@@ -387,6 +391,7 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_RECORD_KEYWORD;
             case OBJECT_KEYWORD:
             case OBJECT_IDENT:
+            case OBJECT_TYPE_DESCRIPTOR:
                 return DiagnosticErrorCode.ERROR_MISSING_OBJECT_KEYWORD;
             case VERSION_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_VERSION_KEYWORD;
@@ -514,14 +519,11 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_VAR_KEYWORD;
             case MAP_KEYWORD:
             case NAMED_WORKER_DECL:
-            case PARAMETERIZED_TYPE:
+            case MAP_TYPE_DESCRIPTOR:
                 return DiagnosticErrorCode.ERROR_MISSING_MAP_KEYWORD;
-            case FUTURE_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_FUTURE_KEYWORD;
-            case TYPEDESC_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_TYPEDESC_KEYWORD;
             case ERROR_KEYWORD:
             case ERROR_BINDING_PATTERN:
+            case PARAMETERIZED_TYPE:
                 return DiagnosticErrorCode.ERROR_MISSING_ERROR_KEYWORD;
             case STREAM_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_STREAM_KEYWORD;

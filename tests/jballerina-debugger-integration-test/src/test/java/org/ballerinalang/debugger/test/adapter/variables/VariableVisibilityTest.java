@@ -52,19 +52,18 @@ public class VariableVisibilityTest extends BaseTestCase {
         String testModuleFileName = "main.bal";
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
 
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 117));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 190));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 201));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 201));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 208));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 215));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 224));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 123));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 204));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 223));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 230));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 237));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 246));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 252));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 259));
         // Todo - enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/27738
-        // debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 239));
+        // debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 241));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 292));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 270));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 248));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
     }
 
@@ -115,25 +114,25 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        Assert.assertEquals(localVariables.size(), 42);
+        Assert.assertEquals(localVariables.size(), 45);
 
         // local variable visibility test inside `else` statement.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        Assert.assertEquals(localVariables.size(), 42);
+        Assert.assertEquals(localVariables.size(), 45);
 
         // local variable visibility test inside `else-if` statement.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        Assert.assertEquals(localVariables.size(), 42);
+        Assert.assertEquals(localVariables.size(), 45);
 
         // local variable visibility test inside `while` loop.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        Assert.assertEquals(localVariables.size(), 42);
+        Assert.assertEquals(localVariables.size(), 45);
 
         // local variable visibility test inside `foreach` loop.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
@@ -145,7 +144,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        Assert.assertEquals(localVariables.size(), 43);
+        Assert.assertEquals(localVariables.size(), 46);
 
         // Todo - enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/27738
         // local variable visibility test inside `foreach` statement + lambda function.
@@ -270,8 +269,11 @@ public class VariableVisibilityTest extends BaseTestCase {
         // json variable visibility test
         debugTestRunner.assertVariable(localVariables, "jsonVar", "map<json> (size = 3)", "json");
 
-        // table variable visibility test
-        debugTestRunner.assertVariable(localVariables, "tableVar", "table<Employee> (entries = 3)", "table");
+        // table with key variable visibility test
+        debugTestRunner.assertVariable(localVariables, "tableWithKeyVar", "table<Employee> (entries = 3)", "table");
+
+        // table without key variable visibility test
+        debugTestRunner.assertVariable(localVariables, "tableWithoutKeyVar", "table<Employee> (entries = 3)", "table");
 
         // stream variable visibility test
         debugTestRunner.assertVariable(localVariables, "oddNumberStream", "stream<int, error>", "stream");
@@ -280,6 +282,9 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(localVariables, " /:@[`{~π_var", "IL with special characters in var", "string");
         debugTestRunner.assertVariable(localVariables, "üňĩćőđę_var", "IL with unicode characters in var", "string");
         debugTestRunner.assertVariable(localVariables, "ĠĿŐΒȂɭ_ /:@[`{~π_json", "map<json> (size = 0)", "json");
+
+        // service variable visibility test
+        debugTestRunner.assertVariable(localVariables, "serviceVar", "service", "service");
     }
 
     @Test(dependsOnMethods = "globalVariableVisibilityTest",
@@ -396,11 +401,24 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(jsonChildVariables, "name", "apple", "string");
         debugTestRunner.assertVariable(jsonChildVariables, "price", "40", "int");
 
-        // table child variable visibility test
-        Map<String, Variable> tableChildVariables = debugTestRunner.fetchChildVariables(localVariables.get("tableVar"));
-        debugTestRunner.assertVariable(tableChildVariables, "[0]", "Employee", "record");
-        debugTestRunner.assertVariable(tableChildVariables, "[1]", "Employee", "record");
-        debugTestRunner.assertVariable(tableChildVariables, "[2]", "Employee", "record");
+        // table with key child variable visibility test
+        Map<String, Variable> tableWithKeyChildVariables =
+            debugTestRunner.fetchChildVariables(localVariables.get("tableWithKeyVar"));
+        debugTestRunner.assertVariable(tableWithKeyChildVariables, "[0]", "Employee", "record");
+        debugTestRunner.assertVariable(tableWithKeyChildVariables, "[1]", "Employee", "record");
+        debugTestRunner.assertVariable(tableWithKeyChildVariables, "[2]", "Employee", "record");
+
+        // table without key child variable visibility test
+        Map<String, Variable> tableWithoutKeyChildVariables =
+            debugTestRunner.fetchChildVariables(localVariables.get("tableWithoutKeyVar"));
+        debugTestRunner.assertVariable(tableWithoutKeyChildVariables, "[0]", "Employee", "record");
+        debugTestRunner.assertVariable(tableWithoutKeyChildVariables, "[1]", "Employee", "record");
+        debugTestRunner.assertVariable(tableWithoutKeyChildVariables, "[2]", "Employee", "record");
+
+        // service child variable visibility test
+        Map<String, Variable> serviceChildVariables =
+            debugTestRunner.fetchChildVariables(localVariables.get("serviceVar"));
+        debugTestRunner.assertVariable(serviceChildVariables, "i", "5", "int");
     }
 
     @AfterClass(alwaysRun = true)

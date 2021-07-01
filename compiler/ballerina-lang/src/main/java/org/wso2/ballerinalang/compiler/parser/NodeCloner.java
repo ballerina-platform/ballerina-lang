@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -261,12 +262,31 @@ public class NodeCloner extends BLangNodeVisitor {
         return clone;
     }
 
+    public <T extends Node> T cloneNode(T source) {
+
+        if (source == null) {
+            return null;
+        }
+        BLangNode sourceNode = (BLangNode) source;
+        sourceNode.cloneAttempt += 1;
+        int prevCloneAttempt = currentCloneAttempt;
+        currentCloneAttempt = ((BLangNode) source).cloneAttempt;
+        sourceNode.accept(this);
+        BLangNode result = sourceNode.cloneRef;
+        result.pos = sourceNode.pos;
+        result.internal = sourceNode.internal;
+        result.addWS(source.getWS());
+        result.setBType(sourceNode.getBType());
+        currentCloneAttempt = prevCloneAttempt;
+        return (T) result;
+    }
+
     private <T extends Node> List<T> cloneList(List<T> nodes) {
 
         if (nodes == null) {
             return null;
         }
-        List<T> cloneList = new ArrayList<>();
+        List<T> cloneList = new ArrayList<>(nodes.size());
         for (T node : nodes) {
             T clone = (T) clone(node);
             cloneList.add(clone);
@@ -275,7 +295,7 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Node> T clone(T source) {
+    private <T extends Node> T clone(T source) {
 
         if (source == null) {
             return null;
@@ -293,7 +313,7 @@ public class NodeCloner extends BLangNodeVisitor {
             result.pos = sourceNode.pos;
             result.internal = sourceNode.internal;
             result.addWS(source.getWS());
-            result.type = sourceNode.type;
+            result.setBType(sourceNode.getBType());
         }
         return (T) result;
     }
@@ -330,7 +350,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.originalValue = source.originalValue;
         clone.isFiniteContext = source.isFiniteContext;
         clone.isConstant = source.isConstant;
-        clone.type = source.type;
+        clone.setBType(source.getBType());
     }
 
     private void cloneBLangAccessExpression(BLangAccessExpression source, BLangAccessExpression clone) {
@@ -751,7 +771,6 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.restMatchPattern = clone(source.restMatchPattern);
         clone.matchGuardIsAvailable = source.matchGuardIsAvailable;
         clone.matchPatterns = cloneList(source.matchPatterns);
-        clone.declaredVars = source.declaredVars;
     }
 
     @Override
@@ -1585,7 +1604,7 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     private List<BLangLetVariable> cloneLetVarDeclarations(List<BLangLetVariable> letVarDeclarations) {
-        List<BLangLetVariable> cloneDefs = new ArrayList<>();
+        List<BLangLetVariable> cloneDefs = new ArrayList<>(letVarDeclarations.size());
         for (BLangLetVariable letVarDeclaration : letVarDeclarations) {
             BLangLetVariable clonedVar = new BLangLetVariable();
             clonedVar.definitionNode = clone(letVarDeclaration.definitionNode);
@@ -1839,12 +1858,20 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.detailType = clone(source.detailType);
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
+        clone.isAnonymous = source.isAnonymous;
+        clone.isLocal = source.isLocal;
         cloneBLangType(source, clone);
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
         // Ignore
+        BLangSimpleVarRef.BLangLocalVarRef clone = new BLangSimpleVarRef.BLangLocalVarRef(
+                (BVarSymbol) localVarRef.varSymbol);
+        localVarRef.cloneRef = clone;
+        clone.pkgAlias = localVarRef.pkgAlias;
+        clone.variableName = localVarRef.variableName;
+
     }
 
     @Override

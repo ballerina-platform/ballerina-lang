@@ -165,6 +165,8 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, JSON_VAR, "map<json> (size = 2)", "json");
         // anonymous object variable test (AnonPerson object)
         debugTestRunner.assertExpression(context, ANON_OBJECT_VAR, "Person_\\ /<>:@[`{~π_ƮέŞŢ", "object");
+        // service object variable test
+        debugTestRunner.assertExpression(context, SERVICE_VAR, "service", "service");
 
         // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/26139
         // debugTestRunner.assertExpression(context, GL, "Ballerina", "string");
@@ -192,6 +194,9 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, RECORD_VAR + ".'Ȧɢέ_\\ \\/\\:\\@\\[\\`\\{\\~π", "20", "int");
         // json fields
         debugTestRunner.assertExpression(context, JSON_VAR + ".name", "John", "string");
+        // service object fields
+        debugTestRunner.assertExpression(context, String.format("%s.i", SERVICE_VAR), "5", "int");
+
         // nested field access (chain access)
         debugTestRunner.assertExpression(context, RECORD_VAR + ".grades.maths", "80", "int");
         // optional field access
@@ -304,13 +309,16 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // function by passing each value separately.
         // debugTestRunner.assertExpression(context, "printDetails(\"Diana\", 20, ...modules);", "[2500, 20, 0.02]",
         // "string");
+
+        // Function which includes asynchronous calls.
+        debugTestRunner.assertExpression(context, "getSum(10, 20);", "30", "int");
     }
 
     @Override
     @Test
     public void methodCallEvaluationTest() throws BallerinaTestException {
 
-        // 1. object methods
+        // 1. object methods (with async method calls)
         debugTestRunner.assertExpression(context, OBJECT_VAR + ".getSum(34,56)", "90", "int");
 
         // 2. lang library methods
@@ -697,6 +705,15 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void xmlNavigationEvaluationTest() throws BallerinaTestException {
         // Todo
+    }
+
+    @Override
+    @Test
+    public void remoteCallActionEvaluationTest() throws BallerinaTestException {
+        debugTestRunner.assertExpression(context, String.format("%s->getName(\"John\")", CLIENT_OBJECT_VAR), "John",
+                "string");
+        debugTestRunner.assertExpression(context, String.format("%s->getTotalMarks(78,90)", CLIENT_OBJECT_VAR),
+                "168", "int");
     }
 
     @AfterClass(alwaysRun = true)

@@ -83,7 +83,7 @@ public class ForeachNegativeTests {
     @Test
     public void testForeachVarTypeNegative() {
         CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-var-type-negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 6);
+        Assert.assertEquals(compile.getErrorCount(), 7);
         int index = 0;
         BAssertUtil.validateError(compile, index++,
                 "incompatible types: expected 'anydata', found 'json'", 34, 13);
@@ -94,8 +94,9 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, index++,
                 "incompatible types: expected 'xml', found '(string|float|int|boolean)'", 56, 17);
         BAssertUtil.validateError(compile, index++, "incompatible types: expected 'json', found 'xml'", 63, 13);
-        BAssertUtil.validateError(compile, index, "incompatible types: expected 'anydata', " +
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected 'anydata', " +
                 "found '(boolean|float|xml)'", 70, 14);
-
+        BAssertUtil.validateError(compile, index, "incompatible types: expected 'string:Char', " +
+                "found 'int'", 77, 13);
     }
 }

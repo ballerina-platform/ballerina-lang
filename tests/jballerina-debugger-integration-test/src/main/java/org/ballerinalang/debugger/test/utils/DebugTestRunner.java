@@ -499,6 +499,7 @@ public class DebugTestRunner {
             Map<String, Variable> variables = new HashMap<>();
             VariablesArguments childVarArgs = new VariablesArguments();
             childVarArgs.setVariablesReference(parentVariable.getVariablesReference());
+            childVarArgs.setCount(parentVariable.getIndexedVariables());
             VariablesResponse response = listener.getConnector().getRequestManager().variables(childVarArgs);
             Arrays.stream(response.getVariables()).forEach(variable -> variables.put(variable.getName(), variable));
             return variables;

@@ -187,12 +187,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_NEVER_KEYWORD("BCE0288", "error.missing.never.keyword"),
     ERROR_MISSING_VAR_KEYWORD("BCE0289", "error.missing.var.keyword"),
     ERROR_MISSING_MAP_KEYWORD("BCE0290", "error.missing.map.keyword"),
-    ERROR_MISSING_FUTURE_KEYWORD("BCE0291", "error.missing.future.keyword"),
-    ERROR_MISSING_TYPEDESC_KEYWORD("BCE0292", "error.missing.typedesc.keyword"),
-    ERROR_MISSING_ERROR_KEYWORD("BCE0293", "error.missing.error.keyword"),
-    ERROR_MISSING_STREAM_KEYWORD("BCE0294", "error.missing.stream.keyword"),
-    ERROR_MISSING_READONLY_KEYWORD("BCE0295", "error.missing.readonly.keyword"),
-    ERROR_MISSING_DISTINCT_KEYWORD("BCE0296", "error.missing.distinct.keyword"),
+    ERROR_MISSING_ERROR_KEYWORD("BCE0291", "error.missing.error.keyword"),
+    ERROR_MISSING_STREAM_KEYWORD("BCE0292", "error.missing.stream.keyword"),
+    ERROR_MISSING_READONLY_KEYWORD("BCE0293", "error.missing.readonly.keyword"),
+    ERROR_MISSING_DISTINCT_KEYWORD("BCE0294", "error.missing.distinct.keyword"),
 
     // Missing other tokens
     ERROR_MISSING_IDENTIFIER("BCE0400", "error.missing.identifier"),
@@ -243,6 +241,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_METADATA_NOT_ATTACHED_TO_A_TOP_LEVEL_CONSTRUCT("BCE0524",
             "error.metadata.not.attached.to.a.top.level.construct"),
     ERROR_METADATA_NOT_ATTACHED_TO_A_OBJECT_MEMBER("BCE0525", "error.metadata.not.attached.to.a.object.member"),
+    ERROR_MISSING_MATCH_PATTERN("BCE0526", "error.missing.match.pattern"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),
@@ -332,6 +331,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION("BCE671", "error.invalid.expression.expected.a.call.expression"),
     ERROR_TYPE_DESC_AFTER_REST_DESCRIPTOR("BCE672", "error.type.desc.after.rest.descriptor"),
     ERROR_CONFIGURABLE_VAR_IMPLICITLY_FINAL("BCE673", "error.configurable.var.implicitly.final"),
+    ERROR_LOCAL_CONST_DECL_NOT_ALLOWED("BCE674", "error.local.const.decl.not.allowed"),
+    ERROR_FIELD_INITIALIZATION_NOT_ALLOWED_IN_OBJECT_TYPE("BCE675",
+            "error.field.initialization.not.allowed.in.object.type"),
     ;
 
     String diagnosticId;

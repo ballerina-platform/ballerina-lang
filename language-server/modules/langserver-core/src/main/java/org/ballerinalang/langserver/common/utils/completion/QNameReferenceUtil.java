@@ -101,8 +101,7 @@ public class QNameReferenceUtil {
                                                 QualifiedNameReferenceNode qNameRef) {
         Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, QNameReferenceUtil.getAlias(qNameRef));
         return module.map(symbol -> symbol.allSymbols().stream()
-                .filter(moduleItem -> moduleItem.kind() == SymbolKind.TYPE_DEFINITION ||
-                        moduleItem.kind() == SymbolKind.CLASS || moduleItem.kind() == SymbolKind.ENUM)
+                .filter(CommonUtil.typesFilter())
                 .collect(Collectors.toList()))
                 .orElseGet(ArrayList::new);
     }
@@ -110,11 +109,11 @@ public class QNameReferenceUtil {
     /**
      * Check whether the current cursor is positioned in the qualified name identifier.
      *
-     * @param context completion context
+     * @param context Positioned operation context
      * @param node    node to be evaluated
      * @return {@link Boolean}
      */
-    public static boolean onQualifiedNameIdentifier(BallerinaCompletionContext context, Node node) {
+    public static boolean onQualifiedNameIdentifier(PositionedOperationContext context, Node node) {
         if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             return false;
         }
@@ -122,5 +121,22 @@ public class QNameReferenceUtil {
         int cursor = context.getCursorPositionInTree();
 
         return colonPos < cursor;
+    }
+
+    /**
+     * If the cursor is on the module prefix part of a qualified name reference node.
+     *
+     * @param context Positioned operation context
+     * @param node    Node to check
+     * @return True if cursor is on the module prefix part
+     */
+    public static boolean onModulePrefix(PositionedOperationContext context, Node node) {
+        if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            return false;
+        }
+        int colonPos = ((QualifiedNameReferenceNode) node).colon().textRange().startOffset();
+        int cursor = context.getCursorPositionInTree();
+
+        return cursor <= colonPos;
     }
 }

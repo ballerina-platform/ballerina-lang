@@ -2,6 +2,12 @@ function intMultiply(int a, int b) returns (int) {
     return a * b;
 }
 
+function overflowByMultiplication() {
+    int num1 = -1;
+    int num2 = -9223372036854775808;
+    int ans = num1 * num2;
+}
+
 function floatMultiply(float a, float b) returns (float) {
     return a * b;
 }
@@ -67,6 +73,18 @@ function testMultiplySingleton() {
     assertEqual(a1 * a5, 600);
     assertEqual(a1 * a6, 100);
     assertEqual(a1 * a7, 240);
+}
+
+function testContextuallyExpectedTypeOfNumericLiteralInMultiply() {
+    float a1 = 10.0 * 2;
+    float a2 = 5 * 3 * 2.0;
+    decimal a3 = 15.0 * 2;
+    decimal a4 = 5.0 * 3.0 * 2;
+
+    assertEqual(a1, 20.0);
+    assertEqual(a2, 30.0);
+    assertEqual(a3, 30.0d);
+    assertEqual(a4, 30.0d);
 }
 
 function assertEqual(any actual, any expected) {

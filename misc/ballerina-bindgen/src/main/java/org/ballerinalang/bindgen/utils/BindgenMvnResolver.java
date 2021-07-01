@@ -70,8 +70,8 @@ public class BindgenMvnResolver {
         } else {
             mvnRepository = Paths.get(projectRoot.toString(), TARGET_DIR, MVN_REPO);
         }
-        handleDependency(groupId, artifactId, version, mvnRepository.toString(), projectRoot, null);
         Dependency dependency = resolveDependency(groupId, artifactId, version, mvnRepository.toString());
+        handleDependency(groupId, artifactId, version, mvnRepository.toString(), projectRoot, null);
         if (resolve) {
             outStream.println("\nResolving maven dependencies...");
             dependencyTraversal(dependency, mvnRepository.toString(), projectRoot);

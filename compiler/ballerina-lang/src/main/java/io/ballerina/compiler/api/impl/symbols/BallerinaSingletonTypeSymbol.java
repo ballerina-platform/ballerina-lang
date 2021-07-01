@@ -44,7 +44,8 @@ public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements 
         super(context, TypeDescKind.SINGLETON, bType);
 
         // Special case handling for `()` since in BLangLiteral, `null` is used to represent nil.
-        if (shape instanceof BLangLiteral && ((BLangLiteral) shape).value == null && shape.type.tag == TypeTags.NIL) {
+        if (shape instanceof BLangLiteral && ((BLangLiteral) shape).value == null
+                && shape.getBType().tag == TypeTags.NIL) {
             this.typeName = "()";
         } else {
             this.typeName = shape.toString();
@@ -56,7 +57,7 @@ public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements 
         if (this.langLibFunctions == null) {
             LangLibrary langLibrary = LangLibrary.getInstance(this.context);
             BFiniteType internalType = (BFiniteType) this.getBType();
-            BType valueType = internalType.getValueSpace().iterator().next().type;
+            BType valueType = internalType.getValueSpace().iterator().next().getBType();
             List<FunctionSymbol> functions = langLibrary.getMethods(valueType.getKind());
             this.langLibFunctions = filterLangLibMethods(functions, valueType);
         }

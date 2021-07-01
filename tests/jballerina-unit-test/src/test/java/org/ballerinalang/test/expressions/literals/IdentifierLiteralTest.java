@@ -168,10 +168,9 @@ public class IdentifierLiteralTest {
                 BCompileUtil.compile("test-src/expressions/literals/identifierliteral/invalid_IL_special_char.bal");
         Assert.assertEquals(resultNeg.getErrorCount(), 12);
         BAssertUtil.validateError(resultNeg, 0, "no new variables on left side", 18, 5);
-        BAssertUtil.validateError(resultNeg, 1, "invalid intersection type '$missingNode$_0 & *%_var = ': no " +
-                "intersection", 18, 14);
-        BAssertUtil.validateError(resultNeg, 2, "missing semicolon token", 18, 14);
-        BAssertUtil.validateError(resultNeg, 3, "missing type desc", 18, 14);
+        BAssertUtil.validateError(resultNeg, 1, "missing semicolon token", 18, 14);
+        BAssertUtil.validateError(resultNeg, 2, "missing type desc", 18, 14);
+        BAssertUtil.validateError(resultNeg, 3, "unsupported intersection '$missingNode$_0 & *%_var = '", 18, 14);
         BAssertUtil.validateError(resultNeg, 4, "missing equal token", 18, 33);
         BAssertUtil.validateError(resultNeg, 5, "undefined symbol 'value'", 18, 33);
         BAssertUtil.validateError(resultNeg, 6, "missing binary operator", 18, 38);
@@ -205,14 +204,13 @@ public class IdentifierLiteralTest {
     public void testInvalidILUnicodeChar() {
         CompileResult resultNeg =
                 BCompileUtil.compile("test-src/expressions/literals/identifierliteral/invalid_IL_unicode_char.bal");
-        Assert.assertEquals(resultNeg.getErrorCount(), 7);
+        Assert.assertEquals(resultNeg.getErrorCount(), 6);
         BAssertUtil.validateError(resultNeg, 0, "incomplete quoted identifier", 18, 12);
         BAssertUtil.validateError(resultNeg, 1, "missing semicolon token", 18, 17);
         BAssertUtil.validateError(resultNeg, 2, "undefined symbol 'whiteSpace'", 18, 17);
         BAssertUtil.validateError(resultNeg, 3, "incomplete quoted identifier", 19, 12);
-        BAssertUtil.validateError(resultNeg, 4, "undefined symbol ''", 19, 12);
-        BAssertUtil.validateError(resultNeg, 5, "missing binary operator", 19, 17);
-        BAssertUtil.validateError(resultNeg, 6, "undefined symbol 'whiteSpace'", 19, 17);
+        BAssertUtil.validateError(resultNeg, 4, "missing binary operator", 19, 17);
+        BAssertUtil.validateError(resultNeg, 5, "undefined symbol 'whiteSpace'", 19, 17);
     }
 
     @Test

@@ -13,10 +13,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "test",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -30,7 +30,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -53,28 +53,6 @@
             }
           },
           "newText": "import ballerina/lang.array;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/jballerina.java",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "java",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -119,6 +97,28 @@
             }
           },
           "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -224,6 +224,7 @@
       "label": "service",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "service",
       "insertText": "service",
       "insertTextFormat": "Snippet"
     },
@@ -231,6 +232,7 @@
       "label": "new",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "new",
       "insertText": "new ",
       "insertTextFormat": "Snippet"
     },
@@ -238,6 +240,7 @@
       "label": "isolated",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "isolated",
       "insertText": "isolated ",
       "insertTextFormat": "Snippet"
     },
@@ -245,6 +248,7 @@
       "label": "transactional",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "transactional",
       "insertText": "transactional",
       "insertTextFormat": "Snippet"
     },
@@ -252,6 +256,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
@@ -259,6 +264,7 @@
       "label": "let",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "let",
       "insertText": "let",
       "insertTextFormat": "Snippet"
     },
@@ -266,6 +272,7 @@
       "label": "typeof",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "typeof",
       "insertText": "typeof ",
       "insertTextFormat": "Snippet"
     },
@@ -273,6 +280,7 @@
       "label": "trap",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "trap",
       "insertText": "trap",
       "insertTextFormat": "Snippet"
     },
@@ -280,6 +288,7 @@
       "label": "error",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "error",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -287,6 +296,7 @@
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "client",
       "insertText": "client ",
       "insertTextFormat": "Snippet"
     },
@@ -294,6 +304,7 @@
       "label": "object",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "object",
       "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
@@ -301,6 +312,7 @@
       "label": "true",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "true",
       "insertText": "true",
       "insertTextFormat": "Snippet"
     },
@@ -308,6 +320,7 @@
       "label": "false",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "false",
       "insertText": "false",
       "insertTextFormat": "Snippet"
     },
@@ -315,6 +328,7 @@
       "label": "check",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "check",
       "insertText": "check ",
       "insertTextFormat": "Snippet"
     },
@@ -322,6 +336,7 @@
       "label": "checkpanic",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "checkpanic",
       "insertText": "checkpanic ",
       "insertTextFormat": "Snippet"
     },
@@ -329,6 +344,7 @@
       "label": "is",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "is",
       "insertText": "is",
       "insertTextFormat": "Snippet"
     },
@@ -336,6 +352,7 @@
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
+      "filterText": "error",
       "insertText": "error(\"${1}\")",
       "insertTextFormat": "Snippet"
     },
@@ -343,13 +360,15 @@
       "label": "object constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "insertText": "object {${1}};",
+      "filterText": "object",
+      "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "base16",
       "kind": "Snippet",
       "detail": "Snippet",
+      "filterText": "base16",
       "insertText": "base16 `${1}`",
       "insertTextFormat": "Snippet"
     },
@@ -357,28 +376,16 @@
       "label": "base64",
       "kind": "Snippet",
       "detail": "Snippet",
+      "filterText": "base64",
       "insertText": "base64 `${1}`",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "name()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "filterText": "name",
-      "insertText": "name()",
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "filterText": "from",
+      "insertText": "from ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -389,10 +396,31 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "n",
       "kind": "Variable",
       "detail": "int",
       "insertText": "n",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "filterText": "name",
+      "insertText": "name()",
       "insertTextFormat": "Snippet"
     },
     {
