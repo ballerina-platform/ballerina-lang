@@ -36,7 +36,7 @@ public class TypeTags {
     public static final int UNSIGNED8_INT_TAG = SIGNED8_INT_TAG + 1;
     public static final int SIGNED16_INT_TAG = UNSIGNED8_INT_TAG + 1;
     public static final int UNSIGNED16_INT_TAG = SIGNED16_INT_TAG + 1;
-    public static final int SIGNED32_INT_TAG = UNSIGNED16_INT_TAG+ 1;
+    public static final int SIGNED32_INT_TAG = UNSIGNED16_INT_TAG + 1;
     public static final int UNSIGNED32_INT_TAG = SIGNED32_INT_TAG + 1;
     public static final int CHAR_STRING_TAG = UNSIGNED32_INT_TAG + 1;
 

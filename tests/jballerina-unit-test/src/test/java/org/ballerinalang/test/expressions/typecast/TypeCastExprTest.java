@@ -653,7 +653,8 @@ public class TypeCastExprTest {
                 { "testFiniteTypeArrayToSigned32IntArray" },
                 { "testFiniteTypeArrayToUnsigned32IntArray" },
                 { "testFiniteTypeArrayToSigned16IntArray" },
-                { "testFiniteTypeArrayToUnsigned16IntArray" }
+                { "testFiniteTypeArrayToUnsigned16IntArray" },
+                { "testIntSubtypeCastingWithErrors" }
         };
     }
 
