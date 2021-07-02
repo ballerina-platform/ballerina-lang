@@ -201,8 +201,6 @@ public class JDIEventProcessor {
                     + lineNumber + ", due to the timeout when evaluating the condition.", STDOUT);
             if (!logMessage.isEmpty()) {
                 context.getAdapter().sendOutput(logMessage, STDOUT);
-                // As we are disabling all the breakpoint requests before evaluating the user's conditional expression,
-                // need to re-enable all the breakpoints before continuing the remote VM execution.
                 restoreBreakpoints(context.getLastInstruction());
                 context.getDebuggeeVM().resume();
             } else {

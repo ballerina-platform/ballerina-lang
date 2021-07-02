@@ -20,6 +20,7 @@ package org.ballerinalang.debugger.test.utils;
 
 import org.ballerinalang.debugger.test.utils.client.TestDAPClientConnector;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.eclipse.lsp4j.debug.OutputEventArguments;
 import org.eclipse.lsp4j.debug.StackFrame;
 import org.eclipse.lsp4j.debug.StackTraceArguments;
 import org.eclipse.lsp4j.debug.StackTraceResponse;
@@ -43,12 +44,11 @@ public class DebugHitListener extends TimerTask {
     private StoppedEventArguments debugHitContext;
     private BallerinaTestDebugPoint debugHitpoint;
     private boolean debugHitFound;
+    private String lastOutputLog;
 
     public DebugHitListener(TestDAPClientConnector connector) {
         this.connector = connector;
         this.debugHitFound = false;
-        this.debugHitContext = null;
-        this.debugHitpoint = null;
     }
 
     public StoppedEventArguments getDebugHitContext() {
@@ -61,6 +61,10 @@ public class DebugHitListener extends TimerTask {
 
     public BallerinaTestDebugPoint getDebugHitpoint() {
         return debugHitpoint;
+    }
+
+    public String getLastOutputLog() {
+        return lastOutputLog;
     }
 
     @Override
@@ -83,6 +87,7 @@ public class DebugHitListener extends TimerTask {
                 debugHitFound = true;
                 debugHitContext = event;
                 debugHitpoint = bp;
+                lastOutputLog = getQueuedOutputEvents();
                 this.cancel();
             }
         }
@@ -91,6 +96,16 @@ public class DebugHitListener extends TimerTask {
         if (!connector.getServerEventHolder().getTerminatedEvents().isEmpty() ||
                 !connector.getServerEventHolder().getExitedEvents().isEmpty()) {
             this.cancel();
+        }
+    }
+
+    private String getQueuedOutputEvents() {
+        OutputEventArguments[] outputEventArguments = connector.getServerEventHolder().getOutputEvents()
+                .toArray(new OutputEventArguments[0]);
+        if (outputEventArguments.length > 0) {
+            return outputEventArguments[outputEventArguments.length - 1].getOutput();
+        } else {
+            return "";
         }
     }
 
