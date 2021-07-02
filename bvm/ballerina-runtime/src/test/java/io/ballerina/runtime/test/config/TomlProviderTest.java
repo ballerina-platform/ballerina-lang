@@ -138,46 +138,6 @@ public class TomlProviderTest {
         };
     }
 
-    @Test(dataProvider = "record-data-provider")
-    public void testTomlProviderRecords(String variableName, Map<String, Field> fields,
-                                        Map<String, Object> expectedValues) {
-
-        RecordType type =
-                TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY, fields, null, true, 6);
-        VariableKey recordVar = new VariableKey(ROOT_MODULE, variableName, type, true);
-        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{recordVar}));
-        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
-                List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("RecordTypeConfig.toml"),
-                        configVarMap.keySet())));
-        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
-
-        Assert.assertTrue(configValueMap.get(recordVar) instanceof BMap<?, ?>,
-                "Non-map value received for variable : " + variableName);
-        BMap<?, ?> record = (BMap<?, ?>) configValueMap.get(recordVar);
-        for (Map.Entry<String, Object> expectedField : expectedValues.entrySet()) {
-            BString fieldName = fromString(fields.get(expectedField.getKey()).getFieldName());
-            Assert.assertEquals((record.get(fieldName)), expectedField.getValue());
-        }
-    }
-
-    @DataProvider(name = "record-data-provider")
-    public Object[][] recordDataProvider() {
-        Field name = TypeCreator.createField(TYPE_STRING, "name", SymbolFlags.REQUIRED);
-        Field nameReadOnly = TypeCreator.createField(TYPE_STRING, "name", SymbolFlags.READONLY);
-        Field age = TypeCreator.createField(TYPE_INT, "age", SymbolFlags.OPTIONAL);
-        return new Object[][]{
-                {"requiredFieldRecord", Map.ofEntries(Map.entry("name", name)),
-                        Map.ofEntries(Map.entry("name", fromString("John")))},
-                {"readonlyFieldRecord", Map.ofEntries(Map.entry("name", nameReadOnly)),
-                        Map.ofEntries(Map.entry("name", fromString("Jade")))},
-                {"optionalFieldRecord", Map.ofEntries(Map.entry("name", nameReadOnly), Map.entry("age", age)),
-                        Map.ofEntries(Map.entry("name", fromString("Anna")), Map.entry("age", 21L))},
-                {"optionalMissingField", Map.ofEntries(Map.entry("name", nameReadOnly), Map.entry("age", age)),
-                        Map.ofEntries(Map.entry("name", fromString("Peter")))},
-        };
-    }
-
     @Test(dataProvider = "table-data-provider")
     public void testTomlProviderTables(String variableName, Map<String, Field> fields, String key, Map<String,
             Object>[] expectedValues) {

@@ -170,7 +170,13 @@ public class ConfigurableTest extends BaseTest {
 
     @Test()
     public void testConfigurableRecordsAndRecordTables() throws BallerinaTestException {
-        executeBalCommand("/configStructuredTypesProject", "configStructuredTypes", null);
+        String project = "configStructuredTypesProject";
+        String configFilePaths = Paths.get(testFileLocation, project, "Config_records.toml") +
+                File.pathSeparator + Paths.get(testFileLocation, project, "Config_maps.toml") +
+                File.pathSeparator + Paths.get(testFileLocation, project, "Config_open_records.toml") +
+                File.pathSeparator + Paths.get(testFileLocation, project, "Config_tables.toml");
+        executeBalCommand("/" + project, "configStructuredTypes",
+                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE, configFilePaths))));
     }
 
     @Test()

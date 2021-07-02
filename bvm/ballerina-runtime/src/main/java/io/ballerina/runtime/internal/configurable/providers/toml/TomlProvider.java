@@ -750,12 +750,15 @@ public class TomlProvider implements ConfigProvider {
             Field field = recordType.getFields().get(fieldName);
             TomlNode value = tomlField.getValue();
             if (field == null) {
-                invalidTomlLines.add(value.location().lineRange());
-                throw new ConfigException(CONFIG_TOML_INVALID_ADDTIONAL_RECORD_FIELD, getLineRange(value), fieldName,
-                                          variableName, recordType.toString());
+                if (recordType.isSealed()) {
+                    // Panic if this record type is closed and user adds a new field.
+                    invalidTomlLines.add(value.location().lineRange());
+                    throw new ConfigException(CONFIG_TOML_INVALID_ADDTIONAL_RECORD_FIELD, getLineRange(value),
+                            fieldName, recordType.toString());
+                }
+                field = createAdditionalField(recordType, fieldName, value);
             }
-            Type fieldType = field.getFieldType();
-            Object objectValue = retrieveValue(value, variableName + "." + fieldName, fieldType);
+            Object objectValue = retrieveValue(value, variableName + "." + fieldName, field.getFieldType());
             initialValueEntries.put(fieldName, objectValue);
         }
         validateRequiredField(initialValueEntries, recordType, variableName, tomlValue);
@@ -763,6 +766,20 @@ public class TomlProvider implements ConfigProvider {
             return createReadOnlyFieldRecord(initialValueEntries, recordType, variableName, tomlValue);
         }
         return ValueCreator.createReadonlyRecordValue(recordType.getPackage(), recordName, initialValueEntries);
+    }
+
+    private Field createAdditionalField(RecordType recordType, String fieldName, TomlNode value) {
+        Type restFieldType = recordType.getRestFieldType();
+        if (!isAnyDataType(restFieldType)) {
+            return TypeCreator.createField(restFieldType, fieldName, SymbolFlags.READONLY);
+        } else {
+            return TypeCreator.createField(Utils.getTypeFromTomlValue(value), fieldName, SymbolFlags.READONLY);
+        }
+    }
+
+    private boolean isAnyDataType(Type restFieldType) {
+        return restFieldType.getTag() == TypeTags.ANYDATA_TAG || (restFieldType.getTag() == TypeTags.INTERSECTION_TAG &&
+                ((IntersectionType) restFieldType).getEffectiveType().getTag() == TypeTags.ANYDATA_TAG);
     }
 
     private BMap<BString, Object> createReadOnlyFieldRecord(Map<String, Object> initialValueEntries,
