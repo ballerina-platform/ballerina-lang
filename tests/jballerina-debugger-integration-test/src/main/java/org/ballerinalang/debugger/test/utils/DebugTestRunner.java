@@ -102,16 +102,16 @@ public class DebugTestRunner {
         assertionMode = AssertionMode.HARD_ASSERT;
     }
 
-    public static void initialize(Path projectResources, Path singleFileResources) throws BallerinaTestException, IOException {
+    public static void initialize(Path projectDir, Path singleFileDir) throws BallerinaTestException, IOException {
         balServer = new BalServer();
         Path tempProjectDirectory = Files.createTempDirectory("bal-test-integration-debugger-project-");
 
         // Copy all the test resources to a temp dir.
         testSingleFileBaseDir = tempProjectDirectory.resolve("single-file-tests");
-        FileUtils.copyFolder(singleFileResources, testSingleFileBaseDir);
+        FileUtils.copyFolder(singleFileDir, testSingleFileBaseDir);
 
         testProjectBaseDir = tempProjectDirectory.resolve("project-based-tests");
-        FileUtils.copyFolder(projectResources, testProjectBaseDir);
+        FileUtils.copyFolder(projectDir, testProjectBaseDir);
     }
 
     public void setAssertionMode(AssertionMode assertionMode) {
