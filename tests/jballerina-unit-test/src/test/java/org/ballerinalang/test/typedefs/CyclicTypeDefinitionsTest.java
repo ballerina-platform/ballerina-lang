@@ -123,9 +123,9 @@ public class CyclicTypeDefinitionsTest {
         BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "XUnion1, P, XUnion1"),
                 42, 1);
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'XListRef'", 44, 18);
-        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'J'", 40, 6);
-        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'K'", 43, 6);
-        BAssertUtil.validateError(negativeResult, i++, "tuple and expression size does not match", 50, 11);
+        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'J'", 47, 6);
+        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'K'", 50, 6);
+        BAssertUtil.validateError(negativeResult, i++, "tuple and expression size does not match", 57, 11);
         Assert.assertEquals(i, negativeResult.getErrorCount());
     }
 
