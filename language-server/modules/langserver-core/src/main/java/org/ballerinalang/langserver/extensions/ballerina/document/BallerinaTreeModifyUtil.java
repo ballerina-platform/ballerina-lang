@@ -35,6 +35,7 @@ import org.ballerinalang.diagramutil.JSONGenerationException;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.ballerinalang.langserver.extensions.ballerina.document.visitor.FindVariableDeclarationVisitor;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedSymbolsVisitor;
 
 import java.nio.file.Path;
@@ -139,6 +140,68 @@ public class BallerinaTreeModifyUtil {
                         theEndOffset - theStartOffset), mainStartMapping);
     }
 
+    public static JsonElement getTypeSymbol(String variableName, ASTModification[] astModifications,
+                                            Path compilationPath, WorkspaceManager workspaceManager)
+            throws Exception {
+
+        Optional<SyntaxTree> oldSyntaxTree = workspaceManager.syntaxTree(compilationPath);
+        if (oldSyntaxTree.isEmpty()) {
+            throw new JSONGenerationException("Modification error");
+        }
+
+        Optional<SemanticModel> semanticModel = workspaceManager.semanticModel(compilationPath);
+        Optional<Document> srcFile = workspaceManager.document(compilationPath);
+
+        if (semanticModel.isEmpty() || srcFile.isEmpty()) {
+            throw new JSONGenerationException("Modification error");
+        }
+
+        TextDocument oldTextDocument = oldSyntaxTree.get().textDocument();
+        List<TextEdit> edits = new ArrayList<>();
+
+
+        for (ASTModification astModification : astModifications) {
+            String mapping = BallerinaTreeModifyUtil.resolveMapping(astModification.getType(),
+                    astModification.getConfig() == null ? new JsonObject() : astModification.getConfig());
+
+            if (mapping != null) {
+                LinePosition startLinePos = LinePosition.from(astModification.getStartLine(),
+                        astModification.getStartColumn());
+                LinePosition endLinePos = LinePosition.from(astModification.getEndLine(),
+                        astModification.getEndColumn());
+                int startOffset = oldTextDocument.textPositionFrom(startLinePos);
+                int endOffset = oldTextDocument.textPositionFrom(endLinePos);
+                edits.add(TextEdit.from(
+                        TextRange.from(startOffset,
+                                endOffset - startOffset), mapping));
+            }
+        }
+
+        TextDocumentChange textDocumentChange = TextDocumentChange.from(edits.toArray(
+                new TextEdit[0]));
+        TextDocument newTextDocument = oldTextDocument.apply(textDocumentChange);
+
+        // Use formatter to format the source document.
+        SyntaxTree newSyntaxTree = SyntaxTree.from(newTextDocument);
+        newSyntaxTree = Formatter.format(newSyntaxTree);
+
+
+        SemanticModel newSemanticModel = updateWorkspaceDocument(compilationPath, newSyntaxTree.toSourceCode(),
+                workspaceManager);
+
+        Optional<Document> formattedSrcFile = workspaceManager.document(compilationPath);
+        if (formattedSrcFile.isEmpty()) {
+            throw new JSONGenerationException("Modification error");
+        }
+
+        FindVariableDeclarationVisitor declarationVisitor = new FindVariableDeclarationVisitor(variableName);
+        declarationVisitor.visit((ModulePartNode) formattedSrcFile.get().syntaxTree().rootNode());
+
+        JsonElement syntaxTreeJson = DiagramUtil.getSyntaxTreeJSON(
+                declarationVisitor.getVarDeclarationNode(), newSemanticModel);
+
+        return ((JsonObject) syntaxTreeJson).get("typeData");
+    }
 
     public static JsonElement modifyTree(ASTModification[] astModifications, Path compilationPath,
                                          WorkspaceManager workspaceManager)
@@ -206,7 +269,7 @@ public class BallerinaTreeModifyUtil {
         newSyntaxTree = Formatter.format(newSyntaxTree);
 
         SemanticModel newSemanticModel = updateWorkspaceDocument(compilationPath, newSyntaxTree.toSourceCode(),
-                                                                 workspaceManager);
+                workspaceManager);
 
         Optional<Document> formattedSrcFile = workspaceManager.document(compilationPath);
         if (formattedSrcFile.isEmpty()) {

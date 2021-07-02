@@ -54,5 +54,8 @@ public interface BallerinaDocumentService {
     CompletableFuture<List<PublishDiagnosticsParams>> diagnostics(BallerinaProjectParams params);
 
     @JsonRequest
+    CompletableFuture<TypeSymbolResponse> getTypeSymbol(TypeSymbolRequest request);
+
+    @JsonRequest
     CompletableFuture<SyntaxTreeNodeResponse> syntaxTreeNode(SyntaxTreeNodeRequest params);
 }

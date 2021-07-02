@@ -28,6 +28,8 @@ import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSynta
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeResponse;
 import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxApiCallsRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxApiCallsResponse;
+import org.ballerinalang.langserver.extensions.ballerina.document.TypeSymbolRequest;
+import org.ballerinalang.langserver.extensions.ballerina.document.TypeSymbolResponse;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Range;
@@ -47,6 +49,7 @@ public class LSExtensionTestUtil {
 
     private static final String AST = "ballerinaDocument/syntaxTree";
     private static final String SYNTAX_TREE_MODIFY = "ballerinaDocument/syntaxTreeModify";
+    private static final String RETRIEVE_TYPE_SYMBOL = "ballerinaDocument/getTypeSymbol";
     private static final String SYNTAX_TREE_BY_RANGE = "ballerinaDocument/syntaxTreeByRange";
     private static final String SYNTAX_TREE_LOCATE = "ballerinaDocument/syntaxTreeLocate";
     private static final String SYNTAX_API_QUOTE = "ballerinaDocument/syntaxApiCalls";
@@ -70,6 +73,16 @@ public class LSExtensionTestUtil {
                 TestUtil.getTextDocumentIdentifier(filePath), astModifications);
         CompletableFuture result = serviceEndpoint.request(SYNTAX_TREE_MODIFY, astModifyRequest);
         return GSON.fromJson(getResult(result), BallerinaSyntaxTreeResponse.class);
+    }
+
+    public static TypeSymbolResponse getTypeSymbol(String filePath,
+                                                   String variableName,
+                                                   ASTModification[] astModifications,
+                                                   Endpoint serviceEndpoint) {
+        TypeSymbolRequest typeSymbolRequest = new TypeSymbolRequest(
+                variableName, TestUtil.getTextDocumentIdentifier(filePath), astModifications);
+        CompletableFuture result = serviceEndpoint.request(RETRIEVE_TYPE_SYMBOL, typeSymbolRequest);
+        return GSON.fromJson(getResult(result), TypeSymbolResponse.class);
     }
 
     /**

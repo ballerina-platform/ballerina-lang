@@ -146,6 +146,9 @@
         <Class name="org.ballerinalang.langserver.extensions.ballerina.document.BallerinaASTModifyRequest"/>
     </Match>
     <Match>
+        <Class name="org.ballerinalang.langserver.extensions.ballerina.document.TypeSymbolRequest"/>
+    </Match>
+    <Match>
         <Package name="org.ballerinalang.langserver.command.testgen.template"/>
     </Match>
     <Match>
