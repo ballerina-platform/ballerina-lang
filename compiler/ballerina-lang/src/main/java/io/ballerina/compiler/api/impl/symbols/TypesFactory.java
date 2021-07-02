@@ -59,11 +59,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import static org.ballerinalang.model.types.TypeKind.OBJECT;
@@ -94,7 +91,6 @@ public class TypesFactory {
     private final CompilerContext context;
     private final SymbolFactory symbolFactory;
     private final SymbolTable symbolTable;
-    private final Map<BType, TypeSymbol> typeCache;
 
     private TypesFactory(CompilerContext context) {
         context.put(TYPES_FACTORY_KEY, this);
@@ -102,7 +98,6 @@ public class TypesFactory {
         this.context = context;
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
-        this.typeCache = new HashMap<>();
     }
 
     public static TypesFactory getInstance(CompilerContext context) {
@@ -137,23 +132,7 @@ public class TypesFactory {
                                                         bType.tsymbol.getName().getValue());
         }
 
-        if (this.typeCache.containsKey(bType)) {
-            TypeSymbol typeSymbol = this.typeCache.get(bType);
-
-            // Have to special case invokable types since equals() is overridden in BInvokableType.
-            if (bType.tag != TypeTags.INVOKABLE) {
-                return typeSymbol;
-            }
-
-            if (bType == ((AbstractTypeSymbol) typeSymbol).getBType()) {
-                return typeSymbol;
-            }
-        }
-
         TypeSymbol typeSymbol = createTypeDescriptor(bType, moduleID);
-
-        // Because of the above explained reason, equivalent invokable types won't get cached either here.
-        typeCache.putIfAbsent(bType, typeSymbol);
         return typeSymbol;
     }
 
