@@ -381,8 +381,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void testTupleJSONRefEqualityFalse() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleJSONRefEqualityFalse");
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        BRunUtil.invoke(result, "testTupleJSONRefEqualityFalse");
     }
 
     @Test

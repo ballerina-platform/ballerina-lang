@@ -63,6 +63,7 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.RefValue;
 import io.ballerina.runtime.internal.values.StreamValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.XmlSequence;
@@ -1051,8 +1052,9 @@ public class TypeChecker {
                         return false;
                     }
                 }
-                if (sourceTupleType.getRestType() != null) {
-                    return checkIsJSONType(sourceTupleType.getRestType(), unresolvedTypes);
+                Type tupleRestType = sourceTupleType.getRestType();
+                if (tupleRestType != null) {
+                    return checkIsJSONType(tupleRestType, unresolvedTypes);
                 }
                 return true;
             case TypeTags.UNION_TAG:
@@ -2462,6 +2464,15 @@ public class TypeChecker {
             unresolvedValues.add(typeValuePair);
             for (Object object : ((MapValueImpl) sourceValue).values()) {
                 if (!checkIsLikeType(object, targetType, unresolvedValues, allowNumericConversion)) {
+                    return false;
+                }
+            }
+            return true;
+        } else if (sourceType.getTag() == TypeTags.TUPLE_TAG) {
+            ArrayValue source = (ArrayValue) sourceValue;
+            Object[] tupleValues = source.getValues();
+            for (int i = 0; i < ((TupleValueImpl) sourceValue).size(); i++) {
+                if (!checkIsLikeType(tupleValues[i], targetType, unresolvedValues, allowNumericConversion)) {
                     return false;
                 }
             }

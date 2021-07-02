@@ -1037,16 +1037,15 @@ public class Types {
             unresolvedTypes.add(pair);
         }
 
-        BTupleType rhsTupleType;
         if (target.tag == TypeTags.JSON && source.tag == TypeTags.TUPLE) {
-            rhsTupleType = (BTupleType) source;
+            BTupleType rhsTupleType = (BTupleType) source;
             for (int i = 0; i < rhsTupleType.tupleTypes.size(); i++) {
-                if (!isAssignable(rhsTupleType.tupleTypes.get(i), symTable.jsonType, unresolvedTypes)) {
+                if (!isAssignable(rhsTupleType.tupleTypes.get(i), target, unresolvedTypes)) {
                     return false;
                 }
             }
             if (rhsTupleType.restType != null) {
-                return isAssignable(rhsTupleType.restType, symTable.jsonType, unresolvedTypes);
+                return isAssignable(rhsTupleType.restType, target, unresolvedTypes);
             }
             return true;
         }
@@ -1056,7 +1055,7 @@ public class Types {
         }
 
         BTupleType lhsTupleType = (BTupleType) target;
-        rhsTupleType = (BTupleType) source;
+        BTupleType rhsTupleType = (BTupleType) source;
 
         if (lhsTupleType.restType == null && rhsTupleType.restType != null) {
             return false;

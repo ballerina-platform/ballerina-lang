@@ -454,7 +454,7 @@ function testTupleToJSONAssignment() {
      assertEquality(true, C is json);
 
      [int, int...] B = [];
-     jsonTest = y;
+     jsonTest = B;
      assertEquality(true, B is json);
 
      [string, int] D = ["text1", 1];
@@ -479,6 +479,12 @@ function testTupleToJSONAssignment() {
      jsonTest = H;
      assertEquality(true, H is json);
      assertEquality(true, (<json[]>(<json[]>jsonTest)[1])[0] is string);
+
+     xml testXml = xml `<elem>text1</elem>`;
+     [string, xml]|json J = ["Anne", testXml];
+     assertEquality(false, J is json);
+     [string, xml[]|int]|json K = ["text1", [testXml]];
+     assertEquality(false, K is json);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

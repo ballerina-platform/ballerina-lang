@@ -450,7 +450,17 @@ function testEmptyXMLSequencesRefEquality() returns boolean {
 function testTupleJSONRefEqualityFalse() returns boolean {
     [string, int] t = ["Hi", 1];
     json j = "Hi 1";
-    return t === j && !(j !== t);
+    assert(t === j, false);
+    assert(!(j !== t), false);
 }
 
-
+function assert(anydata actual, anydata expected) {
+    if (expected == actual) {
+        return;
+    }
+    typedesc<anydata> expT = typeof expected;
+    typedesc<anydata> actT = typeof actual;
+    string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+     panic error(reason);
+}
