@@ -21,14 +21,10 @@ import org.ballerinalang.model.clauses.OnFailClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Implementation of "on-fail" clause statement.
@@ -41,10 +37,8 @@ public class BLangOnFailClause extends BLangNode implements OnFailClauseNode {
     public VariableDefinitionNode variableDefinitionNode;
     public BType varType;
     public boolean isDeclaredWithVar;
-    public boolean statementBlockReturns;
     public boolean bodyContainsFail;
     public boolean isInternal;
-    public Set<BSymbol> possibleClosureSymbols = new HashSet<>();
 
     public BLangOnFailClause() {
     }

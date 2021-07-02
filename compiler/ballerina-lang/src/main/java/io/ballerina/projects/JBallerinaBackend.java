@@ -506,8 +506,8 @@ public class JBallerinaBackend extends CompilerBackend {
         try {
             assembleExecutableJar(executableFilePath, manifest, jarLibraries);
         } catch (IOException e) {
-            throw new ProjectException("error while creating the executable jar file for package: " +
-                    this.packageContext.packageName(), e);
+            throw new ProjectException("error while creating the executable jar file for package '" +
+                    this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
         }
         return executableFilePath;
     }
