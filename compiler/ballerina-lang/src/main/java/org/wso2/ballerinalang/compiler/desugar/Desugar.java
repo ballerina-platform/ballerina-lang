@@ -2090,6 +2090,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVariableDef errorDetailVar = createVarDef(((BLangSimpleVariable) valueBindingPattern).name.value,
                                                                  valueBindingPattern.getBType(), detailEntryVar,
                                                                  valueBindingPattern.pos);
+            errorDetailVar.var.symbol = valueBindingPattern.symbol;
             parentBlockStmt.addStatement(errorDetailVar);
             return;
         }
