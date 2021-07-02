@@ -21,6 +21,7 @@ import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.PackageCompilation;
@@ -33,8 +34,11 @@ import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.diagramutil.JSONGenerationException;
 import org.ballerinalang.formatter.core.Formatter;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.ballerinalang.langserver.extensions.ballerina.document.visitor.FindNodes;
+import org.ballerinalang.langserver.extensions.ballerina.document.visitor.TypeSymbolVisitor;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedSymbolsVisitor;
 
 import java.nio.file.Path;
@@ -139,6 +143,68 @@ public class BallerinaTreeModifyUtil {
                         theEndOffset - theStartOffset), mainStartMapping);
     }
 
+    public static JsonElement getTypeSymbol(String variableName, ASTModification[] astModifications,
+                                            Path compilationPath, WorkspaceManager workspaceManager)
+            throws Exception {
+
+        Optional<SyntaxTree> oldSyntaxTree = workspaceManager.syntaxTree(compilationPath);
+        if (oldSyntaxTree.isEmpty()) {
+            throw new JSONGenerationException("Modification error");
+        }
+
+        Optional<SemanticModel> semanticModel = workspaceManager.semanticModel(compilationPath);
+        Optional<Document> srcFile = workspaceManager.document(compilationPath);
+
+        if (semanticModel.isEmpty() || srcFile.isEmpty()) {
+            throw new JSONGenerationException("Modification error");
+        }
+
+        TextDocument oldTextDocument = oldSyntaxTree.get().textDocument();
+        List<TextEdit> edits = new ArrayList<>();
+
+
+        for (ASTModification astModification : astModifications) {
+            String mapping = BallerinaTreeModifyUtil.resolveMapping(astModification.getType(),
+                    astModification.getConfig() == null ? new JsonObject() : astModification.getConfig());
+
+            if (mapping != null) {
+                LinePosition startLinePos = LinePosition.from(astModification.getStartLine(),
+                        astModification.getStartColumn());
+                LinePosition endLinePos = LinePosition.from(astModification.getEndLine(),
+                        astModification.getEndColumn());
+                int startOffset = oldTextDocument.textPositionFrom(startLinePos);
+                int endOffset = oldTextDocument.textPositionFrom(endLinePos);
+                edits.add(TextEdit.from(
+                        TextRange.from(startOffset,
+                                endOffset - startOffset), mapping));
+            }
+        }
+
+        TextDocumentChange textDocumentChange = TextDocumentChange.from(edits.toArray(
+                new TextEdit[0]));
+        TextDocument newTextDocument = oldTextDocument.apply(textDocumentChange);
+
+        // Use formatter to format the source document.
+        SyntaxTree newSyntaxTree = SyntaxTree.from(newTextDocument);
+        newSyntaxTree = Formatter.format(newSyntaxTree);
+
+
+
+        SemanticModel newSemanticModel = updateWorkspaceDocument(compilationPath, newSyntaxTree.toSourceCode(),
+                workspaceManager);
+
+        Optional<Document> formattedSrcFile = workspaceManager.document(compilationPath);
+        if (formattedSrcFile.isEmpty()) {
+            throw new JSONGenerationException("Modification error");
+        }
+
+        TypeSymbolVisitor typeSymbolVisitor = new TypeSymbolVisitor(variableName);
+        typeSymbolVisitor.visit((ModulePartNode) formattedSrcFile.get().syntaxTree().rootNode());
+
+        JsonElement syntaxTreeJson = DiagramUtil.getSyntaxTreeJSON(typeSymbolVisitor.getVarDeclarationNode(), newSemanticModel);
+
+        return ((JsonObject) syntaxTreeJson) .get("typeData");
+    }
 
     public static JsonElement modifyTree(ASTModification[] astModifications, Path compilationPath,
                                          WorkspaceManager workspaceManager)
@@ -206,7 +272,7 @@ public class BallerinaTreeModifyUtil {
         newSyntaxTree = Formatter.format(newSyntaxTree);
 
         SemanticModel newSemanticModel = updateWorkspaceDocument(compilationPath, newSyntaxTree.toSourceCode(),
-                                                                 workspaceManager);
+                workspaceManager);
 
         Optional<Document> formattedSrcFile = workspaceManager.document(compilationPath);
         if (formattedSrcFile.isEmpty()) {

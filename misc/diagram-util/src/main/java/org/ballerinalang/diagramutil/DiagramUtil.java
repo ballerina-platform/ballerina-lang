@@ -26,6 +26,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Document;
 
 /**
@@ -63,6 +64,25 @@ public class DiagramUtil {
      * @return {@link JsonObject}   ST as a Json Object
      */
     public static JsonElement getSyntaxTreeJSON(NonTerminalNode node, SemanticModel semanticModel) {
+        JsonElement syntaxTreeJson;
+        try {
+            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(semanticModel);
+            syntaxTreeJson = mapGenerator.transformSyntaxNode(node.kind() == SyntaxKind.LIST ? node.parent() : node);
+        } catch (Throwable e) {
+            syntaxTreeJson = new JsonObject();
+        }
+
+        return syntaxTreeJson;
+    }
+
+    /**
+     * Get the Modified JSON ST with type info for a  VariableDeclarationNode.
+     *
+     * @param node  {@link VariableDeclarationNode} The node that needs to be mapped
+     * @param semanticModel {@link SemanticModel} Semantic model for the syntax tree.
+     * @return {@link JsonObject}   ST as a Json Object
+     */
+    public static JsonElement getSyntaxTreeJSON(VariableDeclarationNode node, SemanticModel semanticModel) {
         JsonElement syntaxTreeJson;
         try {
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(semanticModel);

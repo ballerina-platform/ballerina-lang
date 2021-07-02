@@ -219,6 +219,36 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     }
 
     @Override
+    public CompletableFuture<TypeSymbolResponse> getTypeSymbol(TypeSymbolRequest request) {
+        String fileUri = request.getDocumentIdentifier().getUri();
+        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+        TypeSymbolResponse typeSymbolResponse = new TypeSymbolResponse();
+
+        if (filePath.isEmpty()) {
+            return CompletableFuture.supplyAsync(() -> typeSymbolResponse);
+        }
+
+        try {
+            // Apply modifications.
+            JsonElement typeData = BallerinaTreeModifyUtil.getTypeSymbol(
+                    request.getVariableName(),
+                    request.getAstModifications(),
+                    filePath.get(),
+                    this.workspaceManager);
+
+            typeSymbolResponse.setTypeData(typeData);
+
+        } catch (Throwable e) {
+            String msg = "Operation 'ballerinaDocument/syntaxTreeModify' failed!";
+            this.clientLogger.logError(DocumentContext.DC_SYNTAX_TREE_MODIFY, msg, e, request.getDocumentIdentifier(),
+                    (Position) null);
+        }
+
+
+        return CompletableFuture.supplyAsync(() -> typeSymbolResponse);
+    }
+
+    @Override
     public CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreeModify(BallerinaSyntaxTreeModifyRequest request) {
         BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
         String fileUri = request.getDocumentIdentifier().getUri();

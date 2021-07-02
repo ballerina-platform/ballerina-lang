@@ -54,5 +54,8 @@ public interface BallerinaDocumentService {
     CompletableFuture<List<PublishDiagnosticsParams>> diagnostics(BallerinaProjectParams params);
 
     @JsonRequest
+    CompletableFuture<TypeSymbolResponse> getTypeSymbol(TypeSymbolRequest request);  // TODO: Define the model class for TypeSymbol response
+
+    @JsonRequest
     CompletableFuture<SyntaxTreeNodeResponse> syntaxTreeNode(SyntaxTreeNodeRequest params);
 }

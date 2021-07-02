@@ -1,8 +1,8 @@
 import ballerina/http;
-service hello on new http:Listener(9090) {
-    resource function sayHello(http:Caller caller, http:Request req) {
-        http:Client clientEndpoint = new ("http://postman-echo.com");
-        http:Response response = checkpanic clientEndpoint->get("/get?test=123");
+
+service / on new http:Listener(8090) {
+    resource function get hello(http:Caller caller, http:Request request) returns error? {
+        http:Client httpEndpoint = check new ("http://postman-echo.com");
+        http:Response response = check httpEndpoint->get("/get?test=123");
     }
 }
-
