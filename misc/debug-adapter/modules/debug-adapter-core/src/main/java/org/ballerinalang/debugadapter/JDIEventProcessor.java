@@ -60,6 +60,7 @@ import java.util.concurrent.TimeoutException;
 import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
+import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.CONSOLE;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 
 /**
@@ -183,8 +184,8 @@ public class JDIEventProcessor {
             if (result) {
                 if (!logMessage.isEmpty()) {
                     context.getAdapter().sendOutput(logMessage, STDOUT);
-                    // As we are disabling all the breakpoint requests before evaluating the user's conditional expression,
-                    // need to re-enable all the breakpoints before continuing the remote VM execution.
+                    // As we are disabling all the breakpoint requests before evaluating the user's conditional
+                    // expression, need to re-enable all the breakpoints before continuing the remote VM execution.
                     restoreBreakpoints(context.getLastInstruction());
                     context.getDebuggeeVM().resume();
                 } else {
@@ -197,8 +198,8 @@ public class JDIEventProcessor {
                 context.getDebuggeeVM().resume();
             }
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            context.getAdapter().sendOutput("Warning: Skipping the conditional breakpoint at line: "
-                    + lineNumber + ", due to the timeout when evaluating the condition.", STDOUT);
+            context.getAdapter().sendOutput(String.format("Warning: Skipping conditional breakpoint at line: %d, " +
+                    "due to timeout while evaluating the condition:'%s'.", lineNumber, condition), CONSOLE);
             if (!logMessage.isEmpty()) {
                 context.getAdapter().sendOutput(logMessage, STDOUT);
                 restoreBreakpoints(context.getLastInstruction());

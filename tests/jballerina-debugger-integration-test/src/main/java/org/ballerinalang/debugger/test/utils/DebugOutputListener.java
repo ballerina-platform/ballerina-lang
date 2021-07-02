@@ -20,8 +20,6 @@ package org.ballerinalang.debugger.test.utils;
 
 import org.ballerinalang.debugger.test.utils.client.TestDAPClientConnector;
 import org.eclipse.lsp4j.debug.OutputEventArguments;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -31,8 +29,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class DebugOutputListener extends TimerTask {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DebugOutputListener.class);
-    TestDAPClientConnector connector;
+    private final TestDAPClientConnector connector;
     private OutputEventArguments debugOutputContext;
     private boolean debugOutputFound;
     private String lastOutputLog;
