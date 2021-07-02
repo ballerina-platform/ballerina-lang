@@ -80,7 +80,7 @@ public class CodeGenerator {
         jvmObservabilityGen.instrumentPackage(packageSymbol.bir);
 
         dlog.setCurrentPackageId(packageSymbol.pkgID);
-        final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog);
+        final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog, compilerContext);
 
         populateExternalMap(jvmPackageGen);
 
