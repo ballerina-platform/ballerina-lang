@@ -48,3 +48,14 @@ type ClientConfiguration record {|
 |};
 
 configurable table<ClientConfiguration> tableVar = ?;
+
+type Parent record {|
+    string name;
+    Parent child?;
+|};
+
+configurable Parent p = ?;
+
+type CyclicUnion int|CyclicUnion[];
+
+configurable CyclicUnion unionVar = ?;

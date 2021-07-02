@@ -95,6 +95,10 @@ public abstract class BLangNode implements Node {
         return pos;
     }
 
+    public void setPosition(Location location) {
+        this.pos = location;
+    }
+
     public abstract void accept(BLangNodeVisitor visitor);
 
     @Override

@@ -25,6 +25,11 @@ function testOnFailEdgeTestcases() {
     testFailPassWithinOnFail();
     testTypeNarrowingInsideOnfail();
     testBreakWithinOnfail();
+    assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Error caught at levet #2",
+    testReturnWithinOnfail());
+    assertEquality(1, testIntReturnWithinOnfail());
+    testBreakWithinOnfailForOuterLoop();
+    assertEquality(44, testLambdaFunctionWithOnFail());
 }
 
 function testUnreachableCodeWithIf(){
@@ -260,6 +265,78 @@ function testBreakWithinOnfail() {
     }
 
     assertEquality("-> Before error thrown -> Error caught! Loop broke with digit: 1", str);
+}
+
+function testReturnWithinOnfail() returns string {
+    int i = 0;
+    string str = "";
+    while (i < 2) {
+        do {
+            str += " -> Before error thrown, ";
+            fail getError();
+        } on fail error e {
+            str += " -> Error caught at level #1";
+            fail getError();
+        }
+        i = i + 1;
+    } on fail error e {
+        str += " -> Error caught at levet #2";
+        return str;
+    }
+    return "should not reach here";
+}
+
+function testIntReturnWithinOnfail() returns int {
+    int i = 1;
+    while (i < 2) {
+        do {
+            fail getError();
+        } on fail error e {
+            fail getError();
+        }
+        i = i + 1;
+    } on fail error e {
+        return i;
+    }
+    return 0;
+}
+
+function testBreakWithinOnfailForOuterLoop() {
+    string str = "";
+    foreach int digit in 1 ... 5 {
+        do {
+            fail getError();
+        } on fail error e {
+            if (digit < 4) {
+                str += "Loop continued with digit: " + digit.toString() + " ->";
+                continue;
+            } else {
+                str += "Loop broke with digit: " + digit.toString();
+                break;
+            }
+        }
+        str += "-> should not reach here!";
+    }
+    assertEquality("Loop continued with digit: 1 ->Loop continued with digit: 2 ->Loop continued with digit: 3 " +
+    "->Loop broke with digit: 4", str);
+}
+
+function testLambdaFunctionWithOnFail() returns int {
+    var lambdaFunc = function () returns int {
+          int a = 10;
+          int b = 11;
+          int c = 0;
+          do {
+              error err = error("custom error", message = "error value");
+              c = a + b;
+              fail err;
+          } on fail error e {
+              function (int, int) returns int arrow = (x, y) => x + y + a + b + c;
+              a = arrow(1, 1);
+          }
+          return a;
+    };
+    return lambdaFunc();
 }
 
 function getCheckError()  returns int|error {
