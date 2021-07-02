@@ -138,6 +138,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private static final String SCOPE_NAME_LOCAL = "Local";
     private static final String SCOPE_NAME_GLOBAL = "Global";
     private static final String VALUE_UNKNOWN = "unknown";
+    private static final String J_INIT_FRAME_NAME = "$init$";
     private static final String COMPILATION_ERROR_MESSAGE = "error: compilation contains errors";
 
     public JBallerinaDebugServer() {
@@ -282,6 +283,19 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             if (loadedThreadFrames.containsKey(activeThread.uniqueID())) {
                 stackTraceResponse.setStackFrames(loadedThreadFrames.get(activeThread.uniqueID()));
             } else {
+                try {
+                    // If the active thread's top stack frame name is equal to `J_INIT_FRAME_NAME`, need to abort the
+                    // processing and send a `step-in` request to resume the VM to stop at its next state.
+                    // This is because the above state is related to java-level object initialisation and therefore
+                    // suspending the VM at that intermediate state does not provide any useful information to the user.
+                    if (activeThread.frames().get(0).location().method().name().equals(J_INIT_FRAME_NAME)) {
+                        prepareFor(DebugInstruction.STEP_IN);
+                        eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_INTO);
+                    }
+                } catch (Exception ignored) {
+                    // Ignore the exception and continue the flow.
+                    // This will result in having `J_INIT_FRAME_NAME` on the top of the call stack.
+                }
                 StackFrame[] validFrames = activeThread.frames().stream()
                         .map(this::toDapStackFrame)
                         .filter(JBallerinaDebugServer::isValidFrame)
