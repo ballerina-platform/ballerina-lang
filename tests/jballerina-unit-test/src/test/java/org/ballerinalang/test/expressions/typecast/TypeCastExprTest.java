@@ -648,13 +648,16 @@ public class TypeCastExprTest {
                 { "testUnsigned16IntArrayToSigned32IntArray" },
                 { "testUnsigned8IntArrayToSigned16IntArray" },
                 { "testUnsigned8IntArrayToUnsigned16IntArray" },
+                { "testSigned8IntArrayToSigned16IntArray" },
+                { "testByteArrayToUnSigned32IntArray"},
                 { "testCharArrayToStringArray" },
                 { "testMapOfCharToMapOfString" },
                 { "testFiniteTypeArrayToSigned32IntArray" },
                 { "testFiniteTypeArrayToUnsigned32IntArray" },
                 { "testFiniteTypeArrayToSigned16IntArray" },
                 { "testFiniteTypeArrayToUnsigned16IntArray" },
-                { "testIntSubtypeCastingWithErrors" }
+                { "testIntSubtypeCastingWithErrors" },
+                { "testCharAOrCharBArrayToStringArray" }
         };
     }
 
