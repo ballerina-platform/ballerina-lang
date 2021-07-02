@@ -731,9 +731,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     BLangVariableReference addGetStreamFromPipeline(BLangBlockStmt blockStmt, BLangVariableReference pipelineRef) {
         Location pos = pipelineRef.pos;
-        BLangVariableReference streamVarRef = getStreamFunctionVariableRef(blockStmt,
+        return getStreamFunctionVariableRef(blockStmt,
                 QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION, null, Lists.of(pipelineRef), pos);
-        return streamVarRef;
     }
 
     /**
@@ -1073,7 +1072,9 @@ public class QueryDesugar extends BLangNodeVisitor {
                 }
             } else {
                 // Simple binding
-                symbols.add(((BLangSimpleVariable) variable).symbol);
+                if (variable.symbol != null) {
+                    symbols.add(((BLangSimpleVariable) variable).symbol);
+                }
             }
             return symbols;
         }
