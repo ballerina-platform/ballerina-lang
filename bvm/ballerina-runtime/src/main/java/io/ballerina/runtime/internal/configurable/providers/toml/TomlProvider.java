@@ -45,7 +45,6 @@ import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
-import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
@@ -103,7 +102,7 @@ public class TomlProvider implements ConfigProvider {
     private final Set<LineRange> invalidTomlLines = new HashSet<>();
     private final ModuleInfo moduleInfo;
 
-    Map<Module, TomlTableNode> moduleTomlNodeMap = new HashMap<>();
+    Map<Module, List<TomlTableNode>> moduleNodeMap = new HashMap<>();
 
     Set<String> invalidRequiredModuleSet = new HashSet<>();
 
@@ -247,20 +246,22 @@ public class TomlProvider implements ConfigProvider {
     @Override
     public Optional<BArray> getAsArrayAndMark(Module module, VariableKey key) {
         Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
-        TomlTableNode moduleNode = getModuleTomlNode(module, key);
-        if (moduleNode != null && moduleNode.entries().containsKey(key.variable)) {
-            TomlNode tomlValue = moduleNode.entries().get(key.variable);
-            return Optional.of(retrieveArrayValue(tomlValue, key.variable, (ArrayType) effectiveType));
+        for (TomlTableNode moduleNode : getModuleTomlNodes(module, key)) {
+            if (moduleNode.entries().containsKey(key.variable)) {
+                TomlNode tomlValue = moduleNode.entries().get(key.variable);
+                return Optional.of(retrieveArrayValue(tomlValue, key.variable, (ArrayType) effectiveType));
+            }
         }
         return Optional.empty();
     }
 
     @Override
     public Optional<BMap<BString, Object>> getAsRecordAndMark(Module module, VariableKey key) {
-        TomlTableNode moduleNode = getModuleTomlNode(module, key);
-        if (moduleNode != null && moduleNode.entries().containsKey(key.variable)) {
-            TomlNode tomlValue = moduleNode.entries().get(key.variable);
-            return Optional.of(retrieveRecordValue(tomlValue, key.variable, key.type));
+        for (TomlTableNode moduleNode : getModuleTomlNodes(module, key)) {
+            if (moduleNode.entries().containsKey(key.variable)) {
+                TomlNode tomlValue = moduleNode.entries().get(key.variable);
+                return Optional.of(retrieveRecordValue(tomlValue, key.variable, key.type));
+            }
         }
         return Optional.empty();
     }
@@ -269,10 +270,11 @@ public class TomlProvider implements ConfigProvider {
     public Optional<BMap<BString, Object>> getAsMapAndMark(Module module, VariableKey key) {
         String variableName = key.variable;
         MapType effectiveType = (MapType) ((IntersectionType) key.type).getEffectiveType();
-        TomlTableNode moduleNode = getModuleTomlNode(module, key);
-        if (moduleNode != null && moduleNode.entries().containsKey(variableName)) {
-            TomlNode tomlValue = moduleNode.entries().get(variableName);
-            return Optional.of(retrieveMapValue(tomlValue, variableName, effectiveType));
+        for (TomlTableNode moduleNode : getModuleTomlNodes(module, key)) {
+            if (moduleNode.entries().containsKey(variableName)) {
+                TomlNode tomlValue = moduleNode.entries().get(variableName);
+                return Optional.of(retrieveMapValue(tomlValue, variableName, effectiveType));
+            }
         }
         return Optional.empty();
     }
@@ -342,26 +344,25 @@ public class TomlProvider implements ConfigProvider {
         if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             tableType = (TableType) ((BIntersectionType) key.type).getConstituentTypes().get(0);
         }
-        TomlTableNode moduleNode = getModuleTomlNode(module, key);
-        if (moduleNode != null && moduleNode.entries().containsKey(key.variable)) {
-            TomlNode tomlValue = moduleNode.entries().get(key.variable);
-            return Optional.of(retrieveTableValue(tomlValue, key.variable, tableType));
+        for (TomlTableNode moduleNode : getModuleTomlNodes(module, key)) {
+            if (moduleNode.entries().containsKey(key.variable)) {
+                TomlNode tomlValue = moduleNode.entries().get(key.variable);
+                return Optional.of(retrieveTableValue(tomlValue, key.variable, tableType));
+            }
         }
         return Optional.empty();
     }
 
     @Override
     public Optional<Object> getAsUnionAndMark(Module module, VariableKey key) {
-        TomlTableNode moduleNode = getModuleTomlNode(module, key);
-        TomlNode tomlValue = null;
-        if (moduleNode != null && moduleNode.entries().containsKey(key.variable)) {
-            tomlValue = moduleNode.entries().get(key.variable);
+        for (TomlTableNode moduleNode : getModuleTomlNodes(module, key)) {
+            if (moduleNode.entries().containsKey(key.variable)) {
+                TomlNode tomlValue = moduleNode.entries().get(key.variable);
+                BUnionType unionType = (BUnionType) ((BIntersectionType) key.type).getEffectiveType();
+                return Optional.of(retrieveUnionValue(tomlValue, key.variable, unionType));
+            }
         }
-        if (tomlValue == null) {
-            return Optional.empty();
-        }
-        BUnionType unionType = (BUnionType) ((BIntersectionType) key.type).getEffectiveType();
-        return Optional.of(retrieveUnionValue(tomlValue, key.variable, unionType));
+        return Optional.empty();
     }
 
     @Override
@@ -381,10 +382,11 @@ public class TomlProvider implements ConfigProvider {
 
     private TomlNode getBasicTomlValue(Module module, VariableKey key) {
         String variableName = key.variable;
-        TomlTableNode moduleNode = getModuleTomlNode(module, key);
-        if (moduleNode != null && moduleNode.entries().containsKey(variableName)) {
-            TomlNode tomlValue = moduleNode.entries().get(variableName);
-            return getTomlNode(tomlValue, variableName, key.type);
+        for (TomlTableNode moduleNode : getModuleTomlNodes(module, key)) {
+            if (moduleNode.entries().containsKey(variableName)) {
+                TomlNode tomlValue = moduleNode.entries().get(variableName);
+                return getTomlNode(tomlValue, variableName, key.type);
+            }
         }
         return null;
     }
@@ -407,7 +409,7 @@ public class TomlProvider implements ConfigProvider {
         return tomlValue;
     }
 
-    private TomlTableNode retrieveModuleNode(Module module, boolean hasRequired) {
+    private List<TomlTableNode> retrieveModuleNode(Module module, boolean hasRequired) {
         Toml baseToml = new Toml(tomlNode);
         String orgName = module.getOrg();
         String moduleName = module.getName();
@@ -420,14 +422,21 @@ public class TomlProvider implements ConfigProvider {
         return getImportedModuleNode(baseToml, module, hasRequired);
     }
 
-    private TomlTableNode getImportedModuleNode(Toml baseToml, Module module, boolean hasRequired) {
+    private List<TomlTableNode> getImportedModuleNode(Toml baseToml, Module module, boolean hasRequired) {
         String moduleKey = getModuleKey(module);
         Optional<Toml> table = baseToml.getTable(moduleKey);
+        List<TomlTableNode> moduleNodes = new ArrayList<>();
         if (table.isEmpty() && hasRequired && !invalidRequiredModuleSet.contains(module.toString())) {
             throwInvalidImportedModuleError(baseToml, module);
         }
-        table.ifPresent(toml -> visitedNodes.add(toml.rootNode()));
-        return table.map(Toml::rootNode).orElse(null);
+        table.ifPresent(toml -> addToModuleNodeMap(toml, moduleNodes));
+        return moduleNodes;
+    }
+
+    private void addToModuleNodeMap(Toml table, List<TomlTableNode> moduleNodes) {
+        TomlTableNode tableNode = table.rootNode();
+        moduleNodes.add(tableNode);
+        visitedNodes.add(tableNode);
     }
 
     private void throwInvalidImportedModuleError(Toml toml, Module module) {
@@ -458,34 +467,29 @@ public class TomlProvider implements ConfigProvider {
         }
     }
 
-    private TomlTableNode getNonDefaultModuleNode(Toml baseToml, Module module, boolean hasRequired) {
+    private List<TomlTableNode> getNonDefaultModuleNode(Toml baseToml, Module module, boolean hasRequired) {
         String moduleName = module.getName();
         Optional<Toml> table;
+        List<TomlTableNode> moduleNodes = new ArrayList<>();
         String moduleKey = getModuleKey(module);
         if (moduleInfo.hasModuleAmbiguity()) {
             table = baseToml.getTable(moduleKey);
             if (table.isPresent()) {
-                TomlTableNode tableNode = table.get().rootNode();
-                visitedNodes.add(tableNode);
-                return tableNode;
-            }
-            if (!invalidRequiredModuleSet.contains(module.toString())) {
+                addToModuleNodeMap(table.get(), moduleNodes);
+            } else if (!invalidRequiredModuleSet.contains(module.toString())) {
                 invalidRequiredModuleSet.add(module.toString());
                 throw new ConfigException(RuntimeErrors.CONFIG_TOML_MODULE_AMBIGUITY, getLineRange(baseToml.rootNode()),
-                                          moduleName, moduleKey);
-            } else {
-                return null;
+                        moduleName, moduleKey);
             }
         }
         table = baseToml.getTable(moduleName);
-        if (table.isEmpty()) {
-            table = baseToml.getTable(moduleKey);
-            if (table.isEmpty() && hasRequired && !invalidRequiredModuleSet.contains(module.toString())) {
-                throwInvalidSubModuleError(baseToml, module);
-            }
+        table.ifPresent(toml -> moduleNodes.add(toml.rootNode()));
+        table = baseToml.getTable(moduleKey);
+        if (table.isEmpty() && hasRequired && !invalidRequiredModuleSet.contains(module.toString())) {
+            throwInvalidSubModuleError(baseToml, module);
         }
-        table.ifPresent(toml -> visitedNodes.add(toml.rootNode()));
-        return table.map(Toml::rootNode).orElse(null);
+        table.ifPresent(toml -> addToModuleNodeMap(toml, moduleNodes));
+        return moduleNodes;
     }
 
 
@@ -518,22 +522,21 @@ public class TomlProvider implements ConfigProvider {
         }
     }
 
-    private TomlTableNode getRootModuleNode(Toml baseToml) {
+    private List<TomlTableNode> getRootModuleNode(Toml baseToml) {
         String moduleName = rootModule.getName();
         String moduleKey = getModuleKey(rootModule);
         Optional<Toml> table = baseToml.getTable(moduleKey);
-        if (table.isEmpty()) {
-            if (moduleInfo.hasModuleAmbiguity()) {
-                throw new ConfigException(RuntimeErrors.CONFIG_TOML_MODULE_AMBIGUITY, getLineRange(baseToml.rootNode()),
-                        moduleName, moduleKey);
-            }
-            table = baseToml.getTable(moduleName);
-            if (table.isEmpty() || moduleInfo.containsOnlySubModules(table.get().rootNode().entries().keySet())) {
-                return baseToml.rootNode();
-            }
+        List<TomlTableNode> moduleNodes = new ArrayList<>();
+        if (table.isPresent()) {
+            moduleNodes.add(table.get().rootNode());
+        } else if (moduleInfo.hasModuleAmbiguity()) {
+            throw new ConfigException(RuntimeErrors.CONFIG_TOML_MODULE_AMBIGUITY, getLineRange(baseToml.rootNode()),
+                    moduleName, moduleKey);
         }
-        table.ifPresent(toml -> visitedNodes.add(toml.rootNode()));
-        return table.map(Toml::rootNode).orElse(null);
+        table = baseToml.getTable(moduleName);
+        table.ifPresent(toml -> addToModuleNodeMap(toml, moduleNodes));
+        moduleNodes.add(baseToml.rootNode());
+        return moduleNodes;
     }
 
     private Object retrievePrimitiveValue(TomlNode tomlValue, String variableName, Type type) {
@@ -588,7 +591,6 @@ public class TomlProvider implements ConfigProvider {
         }
         return retrieveStructuredValue(tomlValue, variableName, type);
     }
-
 
     private BArray retrieveArrayValue(TomlNode tomlValue, String variableName, ArrayType arrayType) {
         Type elementType = arrayType.getElementType();
@@ -667,15 +669,15 @@ public class TomlProvider implements ConfigProvider {
     }
 
     private BArray getUnionValueArray(TomlNode tomlValue, String variableName, ArrayType arrayType, Type elementType) {
-        TomlValueNode tomlNode = ((TomlKeyValueNode) tomlValue).value();
+        TomlValueNode valueNode = ((TomlKeyValueNode) tomlValue).value();
         ListInitialValueEntry.ExpressionEntry[] expressionEntries;
-        if (tomlNode.kind() != getEffectiveTomlType(arrayType, variableName)) {
+        if (valueNode.kind() != getEffectiveTomlType(arrayType, variableName)) {
             invalidTomlLines.add(tomlValue.location().lineRange());
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName, arrayType,
                                       getTomlTypeString(tomlValue));
         }
         visitedNodes.add(tomlValue);
-        List<TomlValueNode> arrayList = ((TomlArrayValueNode) tomlNode).elements();
+        List<TomlValueNode> arrayList = ((TomlArrayValueNode) valueNode).elements();
         expressionEntries = createArray(variableName, arrayList, elementType);
         return new ArrayValueImpl(arrayType, expressionEntries.length, expressionEntries);
     }
@@ -829,7 +831,7 @@ public class TomlProvider implements ConfigProvider {
             constraintType = ((IntersectionType) constraintType).getEffectiveType();
         }
         TableType type = TypeCreator.createTableType(constraintType, keys, true);
-        return new TableValueImpl<>((BTableType) type, tableData, keyNames);
+        return new TableValueImpl<>(type, tableData, keyNames);
     }
 
     private void validateKeyField(TomlTableNode recordTable, String[] fieldNames, Type tableType,
@@ -865,19 +867,19 @@ public class TomlProvider implements ConfigProvider {
         return tomlValue;
     }
 
-    private TomlTableNode getModuleTomlNode(Module module, VariableKey key) {
-        if (moduleTomlNodeMap.containsKey(module)) {
-            TomlTableNode tomlTableNode = moduleTomlNodeMap.get(module);
-            if (tomlTableNode != null || !key.isRequired()) {
-                return tomlTableNode;
+    private List<TomlTableNode> getModuleTomlNodes(Module module, VariableKey key) {
+        if (moduleNodeMap.containsKey(module)) {
+            List<TomlTableNode> moduleNodes = moduleNodeMap.get(module);
+            if ((moduleNodes != null && !moduleNodes.isEmpty()) || !key.isRequired()) {
+                return moduleNodes;
             }
         }
-        TomlTableNode tomlTableNode = null;
+        List<TomlTableNode> tomlTableNodes = null;
         try {
-            tomlTableNode = retrieveModuleNode(module, key.isRequired());
+            tomlTableNodes = retrieveModuleNode(module, key.isRequired());
         } finally {
-            moduleTomlNodeMap.put(module, tomlTableNode);
+            moduleNodeMap.put(module, tomlTableNodes);
         }
-        return tomlTableNode;
+        return tomlTableNodes;
     }
 }
