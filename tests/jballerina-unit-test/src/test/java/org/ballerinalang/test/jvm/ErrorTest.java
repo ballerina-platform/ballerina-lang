@@ -26,6 +26,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Test cases to cover error related tests on JBallerina.
  *
@@ -80,7 +83,10 @@ public class ErrorTest {
                     "space\"}.*")
     public void testRuntimeOOMError() {
         CompileResult compileResult = BCompileUtil.compile("test-src/jvm/runtime-oom-error.bal");
-        BRunUtil.runMain(compileResult);
+        final List<String> javaOpts = new ArrayList<>();
+        javaOpts.add(0, "-Xms256m");
+        javaOpts.add(1, "-Xmx256m");
+        BRunUtil.runMain(compileResult, javaOpts);
     }
 
     @AfterClass
