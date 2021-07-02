@@ -1914,6 +1914,8 @@ public class Types {
 
     public BErrorType getErrorType(BUnionType type) {
         for (BType member : type.getMemberTypes()) {
+            member = getEffectiveTypeForIntersection(member);
+
             if (member.tag == TypeTags.ERROR) {
                 return (BErrorType) member;
             } else if (member.tag == TypeTags.UNION) {

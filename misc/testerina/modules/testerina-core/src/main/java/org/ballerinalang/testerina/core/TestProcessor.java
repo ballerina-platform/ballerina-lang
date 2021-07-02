@@ -77,6 +77,7 @@ public class TestProcessor {
     private static final String BEFORE_GROUPS_ANNOTATION_NAME = "BeforeGroups";
     private static final String AFTER_GROUPS_ANNOTATION_NAME = "AfterGroups";
     private static final String TEST_PREFIX = "@test:";
+    private static final String FILE_NAME_PERIOD_SEPARATOR = "$$$";
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
 
@@ -309,7 +310,9 @@ public class TestProcessor {
             }
             if (isUtility) {
                 // Remove the duplicated annotations.
-                String className = pos.lineRange().filePath().replace(ProjectConstants.BLANG_SOURCE_EXT, "")
+                String className = pos.lineRange().filePath()
+                        .replace(ProjectConstants.BLANG_SOURCE_EXT, "")
+                        .replace(ProjectConstants.DOT, FILE_NAME_PERIOD_SEPARATOR)
                         .replace("/", ProjectConstants.DOT);
                 String functionClassName = JarResolver.getQualifiedClassName(
                         module.descriptor().org().value(),

@@ -350,6 +350,11 @@ public class WorkerTest {
     }
 
     @Test
+    public void testWorkerInteractionsAfterCheck() {
+        BRunUtil.invoke(result, "testWorkerInteractionsAfterCheck");
+    }
+
+    @Test
     public void testWorkerInsideLock() {
         CompileResult result = BCompileUtil.compile("test-src/workers/worker-in-lock.bal");
         int index = 0;

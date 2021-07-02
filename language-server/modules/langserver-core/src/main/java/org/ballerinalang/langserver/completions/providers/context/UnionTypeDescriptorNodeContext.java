@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +58,15 @@ public class UnionTypeDescriptorNodeContext extends AbstractCompletionProvider<U
         this.sort(context, node, completionItems);
 
         return completionItems;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, UnionTypeDescriptorNode node,
+                     List<LSCompletionItem> completionItems) {
+        for (LSCompletionItem lsCItem : completionItems) {
+            String sortText = SortingUtil.genSortTextForTypeDescContext(context, lsCItem);
+            lsCItem.getCompletionItem().setSortText(sortText);
+        }
     }
 
     @Override
