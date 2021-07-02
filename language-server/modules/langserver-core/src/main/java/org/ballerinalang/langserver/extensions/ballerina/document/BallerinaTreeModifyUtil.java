@@ -21,7 +21,6 @@ import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.PackageCompilation;
@@ -34,11 +33,9 @@ import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.diagramutil.JSONGenerationException;
 import org.ballerinalang.formatter.core.Formatter;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.extensions.ballerina.document.visitor.FindNodes;
-import org.ballerinalang.langserver.extensions.ballerina.document.visitor.TypeSymbolVisitor;
+import org.ballerinalang.langserver.extensions.ballerina.document.visitor.FindVariableDeclarationVisitor;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedSymbolsVisitor;
 
 import java.nio.file.Path;
@@ -189,7 +186,6 @@ public class BallerinaTreeModifyUtil {
         newSyntaxTree = Formatter.format(newSyntaxTree);
 
 
-
         SemanticModel newSemanticModel = updateWorkspaceDocument(compilationPath, newSyntaxTree.toSourceCode(),
                 workspaceManager);
 
@@ -198,12 +194,13 @@ public class BallerinaTreeModifyUtil {
             throw new JSONGenerationException("Modification error");
         }
 
-        TypeSymbolVisitor typeSymbolVisitor = new TypeSymbolVisitor(variableName);
-        typeSymbolVisitor.visit((ModulePartNode) formattedSrcFile.get().syntaxTree().rootNode());
+        FindVariableDeclarationVisitor declarationVisitor = new FindVariableDeclarationVisitor(variableName);
+        declarationVisitor.visit((ModulePartNode) formattedSrcFile.get().syntaxTree().rootNode());
 
-        JsonElement syntaxTreeJson = DiagramUtil.getSyntaxTreeJSON(typeSymbolVisitor.getVarDeclarationNode(), newSemanticModel);
+        JsonElement syntaxTreeJson = DiagramUtil.getSyntaxTreeJSON(
+                declarationVisitor.getVarDeclarationNode(), newSemanticModel);
 
-        return ((JsonObject) syntaxTreeJson) .get("typeData");
+        return ((JsonObject) syntaxTreeJson).get("typeData");
     }
 
     public static JsonElement modifyTree(ASTModification[] astModifications, Path compilationPath,

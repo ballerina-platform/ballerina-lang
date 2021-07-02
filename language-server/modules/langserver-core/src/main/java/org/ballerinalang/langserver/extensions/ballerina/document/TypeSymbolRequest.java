@@ -10,8 +10,8 @@ public class TypeSymbolRequest {
     public TypeSymbolRequest() {
     }
 
-    public TypeSymbolRequest(String variableName,TextDocumentIdentifier documentIdentifier,
-                                            ASTModification[] astModifications) {
+    public TypeSymbolRequest(String variableName, TextDocumentIdentifier documentIdentifier,
+                             ASTModification[] astModifications) {
         this.variableName = variableName;
         this.documentIdentifier = documentIdentifier;
         this.astModifications = astModifications;

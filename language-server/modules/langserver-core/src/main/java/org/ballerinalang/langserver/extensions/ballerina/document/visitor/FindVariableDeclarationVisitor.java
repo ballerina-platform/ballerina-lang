@@ -6,11 +6,14 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 
-public class TypeSymbolVisitor extends NodeVisitor {
-    private String variableName;
+/**
+ * Visitor used for extracting variable declaration node with a given variableName
+ */
+public class FindVariableDeclarationVisitor extends NodeVisitor {
+    private final String variableName;
     private VariableDeclarationNode varDeclarationNode;
 
-    public TypeSymbolVisitor(String variableName) {
+    public FindVariableDeclarationVisitor(String variableName) {
         this.variableName = variableName;
     }
 

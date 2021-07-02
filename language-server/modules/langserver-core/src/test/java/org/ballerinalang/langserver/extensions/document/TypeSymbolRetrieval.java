@@ -33,7 +33,6 @@ public class TypeSymbolRetrieval {
             .resolve("serviceHttpCallModified.bal");
 
 
-
     @BeforeClass
     public void startLangServer() {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();

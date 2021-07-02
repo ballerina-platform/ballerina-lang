@@ -2,6 +2,9 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 
 import com.google.gson.JsonElement;
 
+/**
+ * Represents a Type Symbol response
+ */
 public class TypeSymbolResponse {
     private JsonElement typeData;
 
