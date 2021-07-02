@@ -822,10 +822,7 @@ public class AnnotationDesugar {
             }
 
             BLangExpression expr = ((BLangAssignment) stmt).expr;
-            NodeKind kind = expr.getKind();
-
-            if ((kind == NodeKind.TYPE_INIT_EXPR || kind == NodeKind.OBJECT_CTOR_EXPRESSION) &&
-                    expr.getBType().tsymbol == symbol) {
+            if ((desugar.isMappingOrObjectConstructorOrObjInit(expr)) && expr.getBType().tsymbol == symbol) {
                 return i;
             }
         }
