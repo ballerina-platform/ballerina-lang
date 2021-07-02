@@ -1332,19 +1332,17 @@ public class BRunUtil {
                 packageManifest.name().toString(),
                 packageManifest.version().toString(),
                 MODULE_INIT_CLASS_NAME);
-        //URLClassLoader classLoader = (URLClassLoader) compileResult.getClassLoader();
         Collection<JarLibrary> jarPathRequiredForExecution = compileResult.getJarPathRequiredForExecution();
-        String classpath1 = "";
-        for (JarLibrary jarLibrary:jarPathRequiredForExecution) {
-            classpath1 = classpath1 + File.pathSeparator + jarLibrary.path();
+        String classpath = "";
+        for (JarLibrary jarLibrary : jarPathRequiredForExecution) {
+            classpath = classpath + File.pathSeparator + jarLibrary.path();
         }
 
         try {
             final List<String> actualArgs = new ArrayList<>();
             actualArgs.add(0, "java");
             actualArgs.add(1, "-cp");
-            //String classPath = System.getProperty("java.class.path") + File.pathSeparator + getClassPath(classLoader);
-            String classPath = System.getProperty("java.class.path") + classpath1;
+            String classPath = System.getProperty("java.class.path") + classpath;
             actualArgs.add(2, classPath);
             actualArgs.add(3, initClassName);
             actualArgs.addAll(Arrays.asList(args));
