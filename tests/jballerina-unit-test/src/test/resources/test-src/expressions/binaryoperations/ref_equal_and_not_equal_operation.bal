@@ -447,7 +447,7 @@ function testEmptyXMLSequencesRefEquality() returns boolean {
     return z === q;
 }
 
-function testTupleJSONRefEqualityFalse() returns boolean {
+function testTupleJSONRefEqualityFalse() {
     [string, int] t = ["Hi", 1];
     json j = "Hi 1";
     assert(t === j, false);
