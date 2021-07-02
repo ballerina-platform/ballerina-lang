@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.runtime.api.utils.IdentifierUtils;
@@ -37,6 +38,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTable;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
@@ -45,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -194,10 +197,12 @@ public class JvmInstructionGen {
     private final JvmBStringConstantsGen stringConstantsGen;
     private final SymbolTable symbolTable;
     private final AsyncDataCollector asyncDataCollector;
+    private final Types types;
 
     public JvmInstructionGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, PackageID currentPackage,
                              JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
-                             JvmBStringConstantsGen stringConstantsGen, AsyncDataCollector asyncDataCollector) {
+                             JvmBStringConstantsGen stringConstantsGen, AsyncDataCollector asyncDataCollector,
+                             CompilerContext compilerContext) {
         this.mv = mv;
         this.indexMap = indexMap;
         this.currentPackage = currentPackage;
@@ -208,6 +213,7 @@ public class JvmInstructionGen {
         this.asyncDataCollector = asyncDataCollector;
         this.jvmCastGen = jvmCastGen;
         this.stringConstantsGen = stringConstantsGen;
+        types = Types.getInstance(compilerContext);
     }
 
     static void addJUnboxInsn(MethodVisitor mv, JType jType) {
@@ -1523,13 +1529,15 @@ public class JvmInstructionGen {
     void generateTypeTestIns(BIRNonTerminator.TypeTest typeTestIns) {
         var sourceValue = typeTestIns.rhsOp.variableDcl;
         BType targetType = typeTestIns.type;
-        if (canOptimizeType(sourceValue, targetType, TypeTags.NIL)) {
-            handleNilUnionType(typeTestIns);
-            return;
-        }
-        if (canOptimizeType(sourceValue, targetType, TypeTags.ERROR)) {
-            handleErrorUnionType(typeTestIns);
-            return;
+        if (isValidUnionType(sourceValue.type)) {
+            if (canOptimizeNilType(sourceValue, targetType)) {
+                handleNilUnionType(typeTestIns);
+                return;
+            }
+            if (canOptimizeErrorType(sourceValue, targetType)) {
+                handleErrorUnionType(typeTestIns);
+                return;
+            }
         }
         this.loadVar(sourceValue);
         jvmTypeGen.loadType(this.mv, targetType);
@@ -1539,27 +1547,42 @@ public class JvmInstructionGen {
         this.storeToVar(typeTestIns.lhsOp.variableDcl);
     }
 
-    private boolean canOptimizeType(BIRNode.BIRVariableDcl rhsVar, BType type, int typeTag) {
-        BType rhsType = rhsVar.type;
-        if (rhsType.tag != TypeTags.UNION) {
-            return false;
-        }
-        var unionMemberTypes = ((BUnionType) rhsType).getMemberTypes();
-        if (unionMemberTypes.size() != 2) {
-            return false;
-        }
+    private boolean canOptimizeNilType(BIRNode.BIRVariableDcl sourceValue, BType type) {
         BType mainType = null;
         BType otherType = null;
-        int foundType = 0;
-        for (BType bType : unionMemberTypes) {
-            if (bType.tag == typeTag) {
+        boolean foundNil = false;
+        for (BType bType : ((BUnionType) sourceValue.type).getMemberTypes()) {
+            if (bType.tag == TypeTags.NIL) {
                 mainType = bType;
-                foundType++;
+                foundNil = true;
             } else {
                 otherType = bType;
             }
         }
-        return foundType == 1 && (type.equals(mainType) || type.equals(otherType));
+        return foundNil && (type.equals(mainType) || type.equals(otherType));
+    }
+
+    private boolean canOptimizeErrorType(BIRNode.BIRVariableDcl rhsVar, BType type) {
+        BType errorType = null;
+        BType otherType = null;
+        int foundError = 0;
+        for (BType bType : ((BUnionType) rhsVar.type).getMemberTypes()) {
+            if (bType.tag == TypeTags.ERROR) {
+                foundError++;
+                errorType = bType;
+            } else {
+                otherType = bType;
+            }
+        }
+        return foundError == 1 && ((types.isAssignable(errorType, type) && type.tag == TypeTags.ERROR) ||
+                type.equals(otherType));
+    }
+
+    private boolean isValidUnionType(BType rhsType) {
+        if (rhsType.tag != TypeTags.UNION) {
+            return false;
+        }
+        return ((BUnionType) rhsType).getMemberTypes().size() == 2;
     }
 
     private void handleNilUnionType(BIRNonTerminator.TypeTest typeTestIns) {
