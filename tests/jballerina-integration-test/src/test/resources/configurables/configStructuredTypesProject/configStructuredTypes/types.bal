@@ -14,36 +14,31 @@
 // specific language governing permissions and limitations
 // under the License.
 
-class PersonClz {
-    string fname;
-    string lname;
+type Engineer record {|
+    string name = "";
+    int id = 555;
+|};
 
-    public function init(string fname, string lname) {
-        self.fname = fname;
-        self.lname = lname;
-    }
-
-    public function getFullName() returns string {
-        return self.fname + " " + self.lname;
-    }
-}
-
-type Person record {|
+type Lecturer record {|
     string name;
-    int age;
-    Person? parent;
+    Department department1;
+    Department department2?;
+    readonly Department department3;
 |};
 
-type Employee record {|
-    *Person;
-    string designation;
+type Department readonly & record {|
+    string name;
 |};
 
-function test() {
-    PersonClz person = new("John", "Doe");
-    int sum = add(10, 20);
-}
+type Lawyer readonly & record {|
+    string name;
+    Address address1;
+    Address address2?;
+    readonly Address address3;
+|};
 
-function add(int x, int y) returns int => x + y;
+type Address record {|
+    string city;
+|};
 
-function sum(int x, int y) returns int => x + y;
+type Subject map<string>;

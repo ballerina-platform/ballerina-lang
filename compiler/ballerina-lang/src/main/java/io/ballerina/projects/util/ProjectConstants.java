@@ -74,10 +74,6 @@ public class ProjectConstants {
     public static final String BLANG_COMPILED_JAR_EXT = ".jar";
     public static final String RESOURCE_DIR_NAME = "resources";
 
-    public static final String BALLERINA_VERSION = "ballerina.version";
-    public static final String BALLERINA_PACK_VERSION = "ballerina.packVersion";
-    public static final String PROPERTIES_FILE = "/META-INF/tool.properties";
-
     public static final String TARGET_BALA_DIR_NAME = "bala";
     public static final String BALLERINA_HOME = "ballerina.home";
     public static final String DIST_CACHE_DIRECTORY = "repo";
