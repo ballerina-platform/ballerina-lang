@@ -28,24 +28,33 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
- * Tests for selectively immutable values with the `readonly` type.
+ * Tests for immutability with the `readonly` type.
  *
  * @since 2.0.0
  */
-public class SelectivelyImmutableTypeBalaTest {
+public class ImmutabilityBalaTest {
 
     private CompileResult result;
+    private CompileResult inherentlyImmutableResult;
 
     @BeforeClass
     public void setup() {
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_selectively_immutable");
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_immutable");
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_records");
         result = BCompileUtil.compile("test-src/bala/test_bala/readonly/test_selectively_immutable_type.bal");
+        inherentlyImmutableResult = BCompileUtil.compile(
+                "test-src/bala/test_bala/readonly/test_intersection_with_inherently_immutable_type.bal");
     }
 
     @Test
-    public void testReadonlyType() {
+    public void testSelectivelyImmutableTypes() {
         BRunUtil.invoke(result, "testImmutableTypes");
+    }
+
+    @Test
+    public void testIntersectionOfInherentlyImmutableTypes() {
+        BRunUtil.invoke(inherentlyImmutableResult, "testEnumIntersectionWithReadOnly");
     }
 
     @Test
@@ -88,5 +97,6 @@ public class SelectivelyImmutableTypeBalaTest {
     @AfterClass
     public void tearDown() {
         result = null;
+        inherentlyImmutableResult = null;
     }
 }

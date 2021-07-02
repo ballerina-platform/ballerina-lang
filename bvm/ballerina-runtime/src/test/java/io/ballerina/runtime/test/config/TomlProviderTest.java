@@ -138,46 +138,6 @@ public class TomlProviderTest {
         };
     }
 
-    @Test(dataProvider = "record-data-provider")
-    public void testTomlProviderRecords(String variableName, Map<String, Field> fields,
-                                        Map<String, Object> expectedValues) {
-
-        RecordType type =
-                TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY, fields, null, true, 6);
-        VariableKey recordVar = new VariableKey(ROOT_MODULE, variableName, type, true);
-        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{recordVar}));
-        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
-                List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("RecordTypeConfig.toml"),
-                        configVarMap.keySet())));
-        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
-
-        Assert.assertTrue(configValueMap.get(recordVar) instanceof BMap<?, ?>,
-                "Non-map value received for variable : " + variableName);
-        BMap<?, ?> record = (BMap<?, ?>) configValueMap.get(recordVar);
-        for (Map.Entry<String, Object> expectedField : expectedValues.entrySet()) {
-            BString fieldName = fromString(fields.get(expectedField.getKey()).getFieldName());
-            Assert.assertEquals((record.get(fieldName)), expectedField.getValue());
-        }
-    }
-
-    @DataProvider(name = "record-data-provider")
-    public Object[][] recordDataProvider() {
-        Field name = TypeCreator.createField(TYPE_STRING, "name", SymbolFlags.REQUIRED);
-        Field nameReadOnly = TypeCreator.createField(TYPE_STRING, "name", SymbolFlags.READONLY);
-        Field age = TypeCreator.createField(TYPE_INT, "age", SymbolFlags.OPTIONAL);
-        return new Object[][]{
-                {"requiredFieldRecord", Map.ofEntries(Map.entry("name", name)),
-                        Map.ofEntries(Map.entry("name", fromString("John")))},
-                {"readonlyFieldRecord", Map.ofEntries(Map.entry("name", nameReadOnly)),
-                        Map.ofEntries(Map.entry("name", fromString("Jade")))},
-                {"optionalFieldRecord", Map.ofEntries(Map.entry("name", nameReadOnly), Map.entry("age", age)),
-                        Map.ofEntries(Map.entry("name", fromString("Anna")), Map.entry("age", 21L))},
-                {"optionalMissingField", Map.ofEntries(Map.entry("name", nameReadOnly), Map.entry("age", age)),
-                        Map.ofEntries(Map.entry("name", fromString("Peter")))},
-        };
-    }
-
     @Test(dataProvider = "table-data-provider")
     public void testTomlProviderTables(String variableName, Map<String, Field> fields, String key, Map<String,
             Object>[] expectedValues) {
@@ -269,6 +229,16 @@ public class TomlProviderTest {
 
         Module clashingModule4 = new Module("test_module", "util", "1.0.0");
         VariableKey[] clashingVariableKeys4 = getSimpleVariableKeys(clashingModule4);
+
+        VariableKey[] rootVariables = {new VariableKey(ROOT_MODULE, "a", PredefinedTypes.TYPE_STRING, true),
+                new VariableKey(ROOT_MODULE, "b", PredefinedTypes.TYPE_STRING, true),
+                new VariableKey(ROOT_MODULE, "c", PredefinedTypes.TYPE_STRING, true)};
+        VariableKey[] subModuleVariables = {new VariableKey(subModule, "a", PredefinedTypes.TYPE_STRING, true),
+                new VariableKey(subModule, "b", PredefinedTypes.TYPE_STRING, true),
+                new VariableKey(subModule, "c", PredefinedTypes.TYPE_STRING, true)};
+        VariableKey[] importedVariables = {new VariableKey(importedModule, "a", PredefinedTypes.TYPE_STRING, true),
+                new VariableKey(importedModule, "b", PredefinedTypes.TYPE_STRING, true),
+                new VariableKey(importedModule, "c", PredefinedTypes.TYPE_STRING, true)};
 
         Set<Module> moduleSet = Set.of(ROOT_MODULE);
         return new Object[][]{
@@ -467,6 +437,59 @@ public class TomlProviderTest {
                                 Map.entry(importedVariableKeys[1], fromString("four"))),
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule10.toml"),
                                 Set.of(ROOT_MODULE, subModule, clashingModule3)))
+                },
+                {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariables)),
+                        Map.ofEntries(Map.entry(rootVariables[0], fromString("value a")),
+                                Map.entry(rootVariables[1], fromString("value b")),
+                                Map.entry(rootVariables[2], fromString("value c"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("DifferentModuleSections_root.toml"),
+                                Set.of(ROOT_MODULE)))
+                },
+                {Map.ofEntries(Map.entry(subModule, subModuleVariables)),
+                        Map.ofEntries(Map.entry(subModuleVariables[0], fromString("value a")),
+                                Map.entry(subModuleVariables[1], fromString("value b")),
+                                Map.entry(subModuleVariables[2], fromString("value c"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("DifferentModuleSections_sub.toml"),
+                                Set.of(subModule)))
+                },
+                {Map.ofEntries(Map.entry(importedModule, importedVariables)),
+                        Map.ofEntries(Map.entry(importedVariables[0], fromString("value a")),
+                                Map.entry(importedVariables[1], fromString("value b")),
+                                Map.entry(importedVariables[2], fromString("value c"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("DifferentModuleSections_imported" +
+                                ".toml"), Set.of(importedModule)))
+                },
+                {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariables), Map.entry(subModule, subModuleVariables),
+                        Map.entry(importedModule, importedVariables)),
+                        Map.ofEntries(Map.entry(rootVariables[0], fromString("value a")),
+                                Map.entry(rootVariables[1], fromString("value b")),
+                                Map.entry(rootVariables[2], fromString("value c")),
+                                Map.entry(subModuleVariables[0], fromString("value a")),
+                                Map.entry(subModuleVariables[1], fromString("value b")),
+                                Map.entry(subModuleVariables[2], fromString("value c")),
+                                Map.entry(importedVariables[0], fromString("value a")),
+                                Map.entry(importedVariables[1], fromString("value b")),
+                                Map.entry(importedVariables[2], fromString("value c"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("DifferentModuleSections.toml"),
+                                Set.of(ROOT_MODULE, subModule, importedModule)))
+                },
+                {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
+                        Map.entry(clashingModule1, clashingVariableKeys1)),
+                        Map.ofEntries(Map.entry(rootVariableKeys[0], 54L),
+                                Map.entry(rootVariableKeys[1], fromString("abc")),
+                                Map.entry(clashingVariableKeys1[0], 32L),
+                                Map.entry(clashingVariableKeys1[1], fromString("pqr"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("DifferentModuleSections_clash1.toml"),
+                                Set.of(ROOT_MODULE, clashingModule1)))
+                },
+                {Map.ofEntries(Map.entry(subModule, subVariableKeys),
+                        Map.entry(clashingModule2, clashingVariableKeys2)),
+                        Map.ofEntries(Map.entry(subVariableKeys[0], 12L),
+                                Map.entry(subVariableKeys[1], fromString("apple")),
+                                Map.entry(clashingVariableKeys2[0], 34L),
+                                Map.entry(clashingVariableKeys2[1], fromString("orange"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("DifferentModuleSections_clash2.toml"),
+                                Set.of(subModule, clashingModule2)))
                 },
         };
 
@@ -798,6 +821,42 @@ public class TomlProviderTest {
                 BString fieldName = fromString(fields.get(expectedField.getKey()).getFieldName());
                 Assert.assertEquals((record.get(fieldName)), expectedField.getValue());
             }
+        }
+    }
+
+    @Test
+    public void testMultipleTomlModuleSections() {
+        Field name = TypeCreator.createField(TYPE_STRING, "name", SymbolFlags.REQUIRED);
+        Field age = TypeCreator.createField(TYPE_INT, "age", SymbolFlags.OPTIONAL);
+        Map<String, Field> fields = Map.ofEntries(Map.entry("name", name), Map.entry("age", age));
+        RecordType type =
+                TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY, fields, null, true, 6);
+        VariableKey person1 = new VariableKey(ROOT_MODULE, "person1", type, true);
+        VariableKey person2 = new VariableKey(ROOT_MODULE, "person2", type, true);
+        VariableKey person3 = new VariableKey(ROOT_MODULE, "person3", type, true);
+        Map<Module, VariableKey[]> configVarMap =
+                Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{person1, person2, person3}));
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
+                List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("DifferentModuleSections_record.toml"),
+                        configVarMap.keySet())));
+        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+        validateRecordValues(fields, Map.ofEntries(Map.entry("name", fromString("John")), Map.entry("age", 12L)),
+                configValueMap.get(person1), person1);
+        validateRecordValues(fields, Map.ofEntries(Map.entry("name", fromString("Jack")), Map.entry("age", 14L)),
+                configValueMap.get(person2), person2);
+        validateRecordValues(fields, Map.ofEntries(Map.entry("name", fromString("Jim")), Map.entry("age", 16L)),
+                configValueMap.get(person3), person3);
+    }
+
+    private void validateRecordValues(Map<String, Field> fields, Map<String, Object> expectedValues, Object record,
+                                      VariableKey variableKey) {
+        Assert.assertTrue(record instanceof BMap<?, ?>,
+                "Non-map value received for variable : " + variableKey.variable);
+        BMap<?, ?> recordValue = (BMap<?, ?>) record;
+        for (Map.Entry<String, Object> expectedField : expectedValues.entrySet()) {
+            BString fieldName = fromString(fields.get(expectedField.getKey()).getFieldName());
+            Assert.assertEquals((recordValue.get(fieldName)), expectedField.getValue());
         }
     }
 }
