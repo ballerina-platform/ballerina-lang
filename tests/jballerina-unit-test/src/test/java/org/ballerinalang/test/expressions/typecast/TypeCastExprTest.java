@@ -643,21 +643,12 @@ public class TypeCastExprTest {
     @DataProvider(name = "typesTestExpressionTestFunctions")
     public Object[][] typesTestExpressionTestFunctions() {
         return new Object[][] {
-                { "testByteArrayToIntArray" },
-                { "testSigned32IntArrayToIntArray" },
-                { "testUnsigned16IntArrayToSigned32IntArray" },
-                { "testUnsigned8IntArrayToSigned16IntArray" },
-                { "testUnsigned8IntArrayToUnsigned16IntArray" },
-                { "testSigned8IntArrayToSigned16IntArray" },
-                { "testByteArrayToUnSigned32IntArray"},
+                { "testIntArrayCasting" },
+                { "testIntArrayCastingWithErrors" },
                 { "testCharArrayToStringArray" },
                 { "testMapOfCharToMapOfString" },
-                { "testFiniteTypeArrayToSigned32IntArray" },
-                { "testFiniteTypeArrayToUnsigned32IntArray" },
-                { "testFiniteTypeArrayToSigned16IntArray" },
-                { "testFiniteTypeArrayToUnsigned16IntArray" },
-                { "testIntSubtypeCastingWithErrors" },
-                { "testCharAOrCharBArrayToStringArray" }
+                { "testFiniteTypeArrayToIntArray" },
+                { "testFiniteTypeToStringArray" }
         };
     }
 

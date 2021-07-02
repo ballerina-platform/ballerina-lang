@@ -28,60 +28,121 @@ function stringtoint(string value) returns int|error {
     return result;
 }
 
-function testByteArrayToIntArray() {
-    byte[] arr = [1, 128, 255];
-    any a = arr;
-    test:assertTrue(a is int[]);
-    int[] intArray = <int[]> a;
-    test:assertEquals(intArray, [1, 128, 255]);
+function testIntArrayCasting() {
+
+    byte[] byteArray = [1, 128, 255];
+    int:Signed8[] signed8Array = [-128, 0, 127];
+    int:Signed16[] signed16Array = [-32768, 0, 32767];
+    int:Signed32[] signed32Array = [-20000, 0, 50000];
+    int:Unsigned8[] unsigned8Array = [1, 128, 255];
+    int:Unsigned16[] unsigned16Array = [5, 5050, 65535];
+    int:Unsigned32[] unsigned32Array = [0, 65536, 65555536];
+
+    any anyByteArray = byteArray;
+    any anySigned8Array = signed8Array;
+    any anySigned16Array = signed16Array;
+    any anySigned32Array = signed32Array;
+    any anyUnsigned8Array = unsigned8Array;
+    any anyUnsigned16Array = unsigned16Array;
+    any anyUnsigned32Array = unsigned32Array;
+
+    // byte
+    test:assertEquals(<int[]> anyByteArray, [1, 128, 255]);
+    test:assertEquals(<int:Signed16[]> anyByteArray, [1, 128, 255]);
+    test:assertEquals(<int:Signed32[]> anyByteArray, [1, 128, 255]);
+    test:assertEquals(<int:Unsigned16[]> anyByteArray, [1, 128, 255]);
+    test:assertEquals(<int:Unsigned32[]> anyByteArray, [1, 128, 255]);
+
+    // Unsigned8
+    test:assertEquals(<int[]> anyUnsigned8Array, [1, 128, 255]);
+    test:assertEquals(<int:Signed16[]> anyUnsigned8Array, [1, 128, 255]);
+    test:assertEquals(<int:Signed32[]> anyUnsigned8Array, [1, 128, 255]);
+    test:assertEquals(<int:Unsigned16[]> anyUnsigned8Array, [1, 128, 255]);
+    test:assertEquals(<int:Unsigned32[]> anyUnsigned8Array, [1, 128, 255]);
+
+    // Unsigned16
+    test:assertEquals(<int[]> anyUnsigned16Array, [5, 5050, 65535]);
+    test:assertEquals(<int:Signed32[]> anyUnsigned16Array, [5, 5050, 65535]);
+    test:assertEquals(<int:Unsigned32[]> anyUnsigned16Array, [5, 5050, 65535]);
+
+    // Unsigned32
+    test:assertEquals(<int[]> anyUnsigned32Array, [0, 65536, 65555536]);
+
+    // Signed8
+    test:assertEquals(<int[]> anySigned8Array, [-128, 0, 127]);
+    test:assertEquals(<int:Signed16[]> anySigned8Array, [-128, 0, 127]);
+    test:assertEquals(<int:Signed32[]> anySigned8Array, [-128, 0, 127]);
+
+    // Signed16
+    test:assertEquals(<int[]> anySigned16Array, [-32768, 0, 32767]);
+    test:assertEquals(<int:Signed32[]> anySigned16Array, [-32768, 0, 32767]);
+
+    // Signed32
+    test:assertEquals(<int[]> anySigned32Array, [-20000, 0, 50000]);
 }
 
-function testSigned32IntArrayToIntArray() {
-    int:Signed32[] arr = [1, 2, 3];
-    any a =  arr;
-    test:assertTrue(a is int[]);
-    int[] intArray = <int[]> a;
-    test:assertEquals(intArray, [1, 2, 3]);
-}
+function testIntArrayCastingWithErrors() {
+    int:Signed32[] signed32Array = [-2147483648, 0, 2147483647];
+    int:Unsigned32[] unsigned32Array = [0, 65536, 4294967295];
 
-function testUnsigned16IntArrayToSigned32IntArray() {
-    int:Unsigned16[] arr = [5, 5050, 65535];
-    any a =  arr;
-    test:assertTrue(a is int[]);
-    int:Signed32[] res = <int:Signed32[]> a;
-    test:assertEquals(res, [5, 5050, 65535]);
-}
+    any anySigned32Array = signed32Array;
+    any anyUnsigned32Array = unsigned32Array;
 
-function testSigned8IntArrayToSigned16IntArray() {
-    int:Signed8[] arr = [-128, 0, 127];
-    any a =  arr;
-    test:assertTrue(a is int:Signed32[]);
-    int:Signed16[] res = <int:Signed16[]> a;
-    test:assertEquals(res, [-128, 0, 127]);
-}
+    // casting of UnSigned32[] to Signed32[]
+    int:Signed32[]|error signed32OrError = trap <int:Signed32[]> anyUnsigned32Array;
+    error err = <error> signed32OrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Unsigned32[]' cannot be cast to 'lang.int:Signed32[]'");
 
-function testByteArrayToUnSigned32IntArray() {
-    byte[] arr = [0, 128, 255];
-    any a =  arr;
-    test:assertTrue(a is int:Signed16[]);
-    int:Signed32[] res = <int:Signed32[]> a;
-    test:assertEquals(res, [0, 128, 255]);
-}
+    // casting of Unsigned32Array[] to Signed16[]
+    int:Signed16[]|error signed16OrError = trap <int:Signed16[]> anyUnsigned32Array;
+    err = <error> signed16OrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Unsigned32[]' cannot be cast to 'lang.int:Signed16[]'");
 
-function testUnsigned8IntArrayToSigned16IntArray() {
-    int:Unsigned8[] arr = [5, 55, 255];
-    any a =  arr;
-    test:assertTrue(a is int[]);
-    int:Signed16[] res = <int:Signed16[]> a;
-    test:assertEquals(res, [5, 55, 255]);
-}
+    // casting of Unsigned32Array[] to Signed8[]
+    int:Signed8[]|error signed8OrError = trap <int:Signed8[]> anyUnsigned32Array;
+    err = <error> signed8OrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Unsigned32[]' cannot be cast to 'lang.int:Signed8[]'");
 
-function testUnsigned8IntArrayToUnsigned16IntArray() {
-    int:Unsigned8[] arr = [5, 55, 255];
-    any a =  arr;
-    test:assertTrue(a is int[]);
-    int:Unsigned16[] res = <int:Unsigned16[]> a;
-    test:assertEquals(res, [5, 55, 255]);
+    // casting of Unsigned32Array[] to Unsigned16[]
+    int:Unsigned16[]|error unsigned16OrError = trap <int:Unsigned16[]> anyUnsigned32Array;
+    err = <error> unsigned16OrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Unsigned32[]' cannot be cast to 'lang.int:Unsigned16[]'");
+
+    // casting of Unsigned32Array[] to Unsigned8[]
+    int:Unsigned8[]|error unsigned8OrError = trap <int:Unsigned8[]> anyUnsigned32Array;
+    err = <error> unsigned8OrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Unsigned32[]' cannot be cast to 'lang.int:Unsigned8[]'");
+
+    // casting of Unsigned32Array[] to byte[]
+    byte[]|error byteArrayOrError = trap <byte[]> anyUnsigned32Array;
+    err = <error> byteArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Unsigned32[]' cannot be cast to 'byte[]'");
+
+
+    // casting of Signed32[] to Signed16[]
+    int:Signed16[]|error signed16ArrayOrError = trap <int:Signed16[]> anySigned32Array;
+    err = <error> signed16ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Signed32[]' cannot be cast to 'lang.int:Signed16[]'");
+
+    // casting of Signed32[] to Signed8[]
+    int:Signed8[]|error signed8ArrayOrError = trap <int:Signed8[]> anySigned32Array;
+    err = <error> signed8ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Signed32[]' cannot be cast to 'lang.int:Signed8[]'");
+
+    // casting of Signed32[] to UnSigned32[]
+    int:Unsigned32[]|error unsigned32ArrayOrError = trap <int:Unsigned32[]> anySigned32Array;
+    err = <error> unsigned32ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Signed32[]' cannot be cast to 'lang.int:Unsigned32[]'");
+
+    // casting of Signed32[] to UnSigned16[]
+    int:Unsigned16[]|error unsigned16ArrayOrError = trap <int:Unsigned16[]> anySigned32Array;
+    err = <error> unsigned16ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Signed32[]' cannot be cast to 'lang.int:Unsigned16[]'");
+
+    // casting of Signed32[] to UnSigned8[]
+    int:Unsigned8[]|error unsigned8ArrayOrError = trap <int:Unsigned8[]> anySigned32Array;
+    err = <error> unsigned8ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Signed32[]' cannot be cast to 'lang.int:Unsigned8[]'");
 }
 
 function testCharArrayToStringArray() {
@@ -100,59 +161,28 @@ function testMapOfCharToMapOfString() {
     test:assertEquals(res, {});
 }
 
-function testIntSubtypeCastingWithErrors() {
-    int:Signed32[] a = [1, 2, 3];
-    any b = a;
-    var result = trap <int:Unsigned32[]> b;
-    test:assertTrue(result is error);
-    error err = <error> result;
-    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Signed32[]' cannot be cast to 'lang.int:Unsigned32[]'");
-
-    int:Signed8[] c = [-1, 0, 1];
-    any d = c;
-    result = trap <int:Unsigned16[]> d;
-    test:assertTrue(result is error);
-    err = <error> result;
-    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Signed8[]' cannot be cast to 'lang.int:Unsigned16[]'");
-}
-
 type IntOneOrTwo 1|2;
 
-function testFiniteTypeArrayToSigned32IntArray() {
-    IntOneOrTwo[] a = [1, 2];
-    any[] b = a;
-    int:Signed32[] c = <int:Signed32[]> b;
-    test:assertEquals(c, [1, 2]);
+function testFiniteTypeArrayToIntArray() {
+    IntOneOrTwo[] intOneOrTwoArray = [1, 2];
+    any anyIntOneOrTwoArray = intOneOrTwoArray;
+
+    test:assertEquals(<int:Signed32[]> anyIntOneOrTwoArray, [1, 2]);
+    test:assertEquals(<int:Signed16[]> anyIntOneOrTwoArray, [1, 2]);
+    test:assertEquals(<int:Signed8[]> anyIntOneOrTwoArray, [1, 2]);
+    test:assertEquals(<int:Unsigned32[]> anyIntOneOrTwoArray, [1, 2]);
+    test:assertEquals(<int:Unsigned16[]> anyIntOneOrTwoArray, [1, 2]);
+    test:assertEquals(<int:Unsigned8[]> anyIntOneOrTwoArray, [1, 2]);
 }
 
-function testFiniteTypeArrayToUnsigned32IntArray() {
-    IntOneOrTwo[] a = [1, 2];
-    any[] b = a;
-    int:Unsigned32[] c = <int:Unsigned32[]> b;
-    test:assertEquals(c, [1, 2]);
-}
+type AOrBOrC "A"|"B"|"C";
 
-function testFiniteTypeArrayToSigned16IntArray() {
-    IntOneOrTwo[] a = [1, 2];
-    any[] b = a;
-    int:Signed16[] c = <int:Signed16[]> b;
-    test:assertEquals(c, [1, 2]);
-}
+function testFiniteTypeToStringArray() {
+    AOrBOrC[] array = ["A", "C"];
+    any anyArray = array;
 
-function testFiniteTypeArrayToUnsigned16IntArray() {
-    IntOneOrTwo[] a = [1, 2];
-    any[] b = a;
-    int:Unsigned16[] c = <int:Unsigned16[]> b;
-    test:assertEquals(c, [1, 2]);
-}
-
-type CharAOrCharB "A"|"B";
-
-function testCharAOrCharBArrayToStringArray() {
-    CharAOrCharB[] a = ["A"];
-    any[] b = a;
-    string[] c = <string[]> b;
-    test:assertEquals(c, ["A"]);
+    test:assertEquals(<string[]> anyArray, ["A", "C"]);
+    test:assertEquals(<string:Char[]> anyArray, ["A", "C"]);
 }
 
 function testJsonIntToString() returns string|error {
