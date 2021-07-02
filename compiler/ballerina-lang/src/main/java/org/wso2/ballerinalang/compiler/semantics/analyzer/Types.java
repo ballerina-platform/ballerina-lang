@@ -1016,6 +1016,8 @@ public class Types {
                     if (source.constraint.tag == TypeTags.NEVER ||
                             source.constraint.tag == TypeTags.XML_TEXT) {
                         return true;
+                    } else if (source.constraint.tag == TypeTags.UNION) {
+                        return false;
                     } else {
                         return isAssignable(targetType, source.constraint, unresolvedTypes);
                     }
