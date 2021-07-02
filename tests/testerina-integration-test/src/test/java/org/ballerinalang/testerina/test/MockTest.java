@@ -20,10 +20,13 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.testerina.test.utils.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 /**
@@ -35,9 +38,11 @@ public class MockTest extends BaseTestCase {
     private String projectPath;
 
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() throws BallerinaTestException, IOException {
         balClient = new BMainInstance(balServer);
         projectPath = projectBasedTestsPath.toString();
+        FileUtils.copyFolder(Paths.get("build/libs"),
+                Paths.get(projectPath, "object-mocking-tests", "libs"));
     }
 
     @Test()
@@ -48,19 +53,19 @@ public class MockTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2)) {
-            Assert.fail("Test failed due to function mocking failure in test framework.");
+            Assert.fail("Test failed due to function mocking failure in test framework..\nOutput:\n" + output);
         }
     }
 
     @Test()
     public void testObjectMocking() throws BallerinaTestException {
-        String msg1 = "5 passing";
+        String msg1 = "7 passing";
         String msg2 = "6 failing";
         String[] args = mergeCoverageArgs(new String[]{"object-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2)) {
-            Assert.fail("Test failed due to object mocking failure in test framework.");
+            Assert.fail("Test failed due to object mocking failure in test framework.\nOutput:\n" + output);
         }
     }
 }
