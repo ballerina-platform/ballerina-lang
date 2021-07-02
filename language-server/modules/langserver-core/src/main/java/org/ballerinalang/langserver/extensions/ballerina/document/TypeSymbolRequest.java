@@ -2,6 +2,9 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 
+/**
+ * Represents typeSymbol request.
+ */
 public class TypeSymbolRequest {
     private String variableName;
     private TextDocumentIdentifier documentIdentifier;

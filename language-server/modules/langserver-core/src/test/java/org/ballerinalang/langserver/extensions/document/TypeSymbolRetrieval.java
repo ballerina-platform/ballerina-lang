@@ -3,8 +3,6 @@ package org.ballerinalang.langserver.extensions.document;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import java.io.IOException;
-import java.nio.file.Path;
 import org.ballerinalang.langserver.extensions.LSExtensionTestUtil;
 import org.ballerinalang.langserver.extensions.ballerina.document.ASTModification;
 import org.ballerinalang.langserver.extensions.ballerina.document.TypeSymbolResponse;
@@ -16,6 +14,12 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+import java.nio.file.Path;
+
+/**
+ * Test to validate TypeSymbol Retrieval.
+ */
 public class TypeSymbolRetrieval {
 
     private Endpoint serviceEndpoint;
@@ -44,7 +48,8 @@ public class TypeSymbolRetrieval {
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
         Gson gson = new Gson();
-        ASTModification modification1 = new ASTModification(2, 0, 2, 0, false,
+        ASTModification modification1 = new ASTModification(2, 0, 2, 0,
+                false,
                 "INSERT", gson
                 .fromJson("{\"STATEMENT\":\"var testVar = \\\"Send\\\" + \\\" Help!\\\";\"}"
                         , JsonObject.class));
@@ -53,7 +58,8 @@ public class TypeSymbolRetrieval {
                         "testVar",
                         new ASTModification[] {modification1}, this.serviceEndpoint);
 
-        JsonElement typeSymbol = typeSymbolResponse.getTypeData().getAsJsonObject().get("typeSymbol").getAsJsonObject().get("typeKind");
+        JsonElement typeSymbol = typeSymbolResponse.getTypeData().getAsJsonObject()
+                .get("typeSymbol").getAsJsonObject().get("typeKind");
         Assert.assertEquals(typeSymbol.getAsString(), "string");
 
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
@@ -74,7 +80,8 @@ public class TypeSymbolRetrieval {
                         "testVar",
                         new ASTModification[] {modification1}, this.serviceEndpoint);
 
-        JsonElement typeSymbol = typeSymbolResponse.getTypeData().getAsJsonObject().get("typeSymbol").getAsJsonObject().get("typeKind");
+        JsonElement typeSymbol = typeSymbolResponse.getTypeData().getAsJsonObject().get("typeSymbol")
+                .getAsJsonObject().get("typeKind");
         Assert.assertEquals(typeSymbol.getAsString(), "string");
 
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);

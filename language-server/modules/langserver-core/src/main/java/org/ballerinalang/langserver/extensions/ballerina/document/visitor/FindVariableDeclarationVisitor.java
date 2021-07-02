@@ -7,7 +7,7 @@ import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 
 /**
- * Visitor used for extracting variable declaration node with a given variableName
+ * Visitor used for extracting variable declaration node with a given variableName.
  */
 public class FindVariableDeclarationVisitor extends NodeVisitor {
     private final String variableName;
