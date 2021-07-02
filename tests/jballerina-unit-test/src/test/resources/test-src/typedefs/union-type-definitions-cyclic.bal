@@ -219,6 +219,62 @@ function testCastingToImmutableCyclicUnion() {
     assert(<int[]> [1, 2], <anydata> checkpanic h);
 }
 
+type P XNil|XBoolean|XInt|XString|XUnion4|XIntersection4|XNever|XAny|
+    	   XListRef|XFunctionRef;
+
+const XNil = "nil";
+const XBoolean = "boolean";
+const XInt = "int";
+const XString = "string";
+const XNever = "never";
+const XAny = "any";
+
+type XUnion4 ["|", P...];
+type XIntersection4 ["&", P...];
+
+type ListDef P[];
+type FunctionDef P[2];
+
+type Defs record {|
+       ListDef[] listDefs;
+       FunctionDef[] functionDefs;
+|};
+
+type XListRef ["listRef", int];
+type XFunctionRef ["functionRef", int];
+type mapDef map<P>;
+type tupleDef [P...];
+
+function testIndirectRecursion() {
+    P test1 = ["|", "int", "nil"];
+    assert(test1 is XUnion4, true);
+
+    FunctionDef test2 = ["nil","string"];
+    assert(test2[0] is XNil, true);
+
+    ListDef test3 = [["|"],["&"],"any"];
+
+    if(test3[1] is XIntersection4) {
+       test2[0]= ["listRef", 1];
+    }
+    assert(test2[0].toString(), "listRef 1");
+
+    Defs test4 = {
+       listDefs: [[["&"]]],
+       functionDefs: []
+    };
+    assert(test4.functionDefs is FunctionDef[], true);
+
+    mapDef test5 = {one: "never"};
+    tupleDef test6;
+    if (test5["one"] is XBoolean) {
+        test6 = [["|"],["functionRef", 1]];
+    } else {
+        test6 = [["functionRef", 1]];
+    }
+    assert((<XFunctionRef>test6[0])[0] is string, true);
+}
+
 function assert(anydata expected, anydata actual) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;
