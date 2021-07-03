@@ -831,8 +831,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLetClause letClause) {
+        SymbolEnv letClauseEnv = letClause.env;
         for (BLangLetVariable letVarDeclaration : letClause.letVarDeclarations) {
-            analyzeNode((BLangNode) letVarDeclaration.definitionNode, env);
+            analyzeNode((BLangNode) letVarDeclaration.definitionNode, letClauseEnv);
         }
     }
 
