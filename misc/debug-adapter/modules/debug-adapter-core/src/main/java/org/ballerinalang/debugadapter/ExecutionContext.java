@@ -72,6 +72,13 @@ public class ExecutionContext {
         return debuggeeVM;
     }
 
+    public DebugOutputLogger getOutputLogger() {
+        if (getAdapter() == null) {
+            return null;
+        }
+        return getAdapter().getOutputLogger();
+    }
+
     public void setDebuggeeVM(VirtualMachineProxyImpl debuggeeVM) {
         this.debuggeeVM = debuggeeVM;
     }
