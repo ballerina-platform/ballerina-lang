@@ -643,8 +643,8 @@ public class TypeCastExprTest {
     @DataProvider(name = "typesTestExpressionTestFunctions")
     public Object[][] typesTestExpressionTestFunctions() {
         return new Object[][] {
-                { "testIntArrayCasting" },
-                { "testIntArrayCastingWithErrors" },
+                { "testIntSubtypeArrayCasting" },
+                { "testIntSubtypeArrayCastingWithErrors" },
                 { "testCharArrayToStringArray" },
                 { "testMapOfCharToMapOfString" },
                 { "testFiniteTypeArrayToIntArray" },

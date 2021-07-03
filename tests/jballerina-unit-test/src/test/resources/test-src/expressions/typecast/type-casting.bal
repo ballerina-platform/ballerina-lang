@@ -28,7 +28,7 @@ function stringtoint(string value) returns int|error {
     return result;
 }
 
-function testIntArrayCasting() {
+function testIntSubtypeArrayCasting() {
 
     byte[] byteArray = [1, 128, 255];
     int:Signed8[] signed8Array = [-128, 0, 127];
@@ -81,68 +81,111 @@ function testIntArrayCasting() {
     test:assertEquals(<int[]> anySigned32Array, [-20000, 0, 50000]);
 }
 
-function testIntArrayCastingWithErrors() {
+function testIntSubtypeArrayCastingWithErrors() {
     int:Signed32[] signed32Array = [-2147483648, 0, 2147483647];
     int:Unsigned32[] unsigned32Array = [0, 65536, 4294967295];
+    int:Signed16[] signed16Array = [1, 2, 3];
+    int:Unsigned16[] unsigned16Array = [1, 2, 3];
+    int:Signed8[] signed8Array = [1, 2, 3];
+    int:Unsigned8[] unsigned8Array = [1, 2, 3];
 
     any anySigned32Array = signed32Array;
     any anyUnsigned32Array = unsigned32Array;
+    any anySigned16Array = signed16Array;
+    any anyUnsigned16Array = unsigned16Array;
+    any anySigned8Array = signed8Array;
+    any anyUnsigned8Array = unsigned8Array;
 
-    // casting of UnSigned32[] to Signed32[]
-    int:Signed32[]|error signed32OrError = trap <int:Signed32[]> anyUnsigned32Array;
-    error err = <error> signed32OrError;
+    // cast to Signed32[]
+    int:Signed32[]|error signed32ArrayOrError = trap <int:Signed32[]> anyUnsigned32Array;
+    error err = <error> signed32ArrayOrError;
     assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Unsigned32[]' cannot be cast to 'lang.int:Signed32[]'");
 
-    // casting of Unsigned32Array[] to Signed16[]
-    int:Signed16[]|error signed16OrError = trap <int:Signed16[]> anyUnsigned32Array;
-    err = <error> signed16OrError;
-    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Unsigned32[]' cannot be cast to 'lang.int:Signed16[]'");
-
-    // casting of Unsigned32Array[] to Signed8[]
-    int:Signed8[]|error signed8OrError = trap <int:Signed8[]> anyUnsigned32Array;
-    err = <error> signed8OrError;
-    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Unsigned32[]' cannot be cast to 'lang.int:Signed8[]'");
-
-    // casting of Unsigned32Array[] to Unsigned16[]
-    int:Unsigned16[]|error unsigned16OrError = trap <int:Unsigned16[]> anyUnsigned32Array;
-    err = <error> unsigned16OrError;
-    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Unsigned32[]' cannot be cast to 'lang.int:Unsigned16[]'");
-
-    // casting of Unsigned32Array[] to Unsigned8[]
-    int:Unsigned8[]|error unsigned8OrError = trap <int:Unsigned8[]> anyUnsigned32Array;
-    err = <error> unsigned8OrError;
-    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Unsigned32[]' cannot be cast to 'lang.int:Unsigned8[]'");
-
-    // casting of Unsigned32Array[] to byte[]
-    byte[]|error byteArrayOrError = trap <byte[]> anyUnsigned32Array;
-    err = <error> byteArrayOrError;
-    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Unsigned32[]' cannot be cast to 'byte[]'");
-
-
-    // casting of Signed32[] to Signed16[]
-    int:Signed16[]|error signed16ArrayOrError = trap <int:Signed16[]> anySigned32Array;
-    err = <error> signed16ArrayOrError;
-    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Signed32[]' cannot be cast to 'lang.int:Signed16[]'");
-
-    // casting of Signed32[] to Signed8[]
-    int:Signed8[]|error signed8ArrayOrError = trap <int:Signed8[]> anySigned32Array;
-    err = <error> signed8ArrayOrError;
-    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Signed32[]' cannot be cast to 'lang.int:Signed8[]'");
-
-    // casting of Signed32[] to UnSigned32[]
+    // cast to UnSigned32[]
     int:Unsigned32[]|error unsigned32ArrayOrError = trap <int:Unsigned32[]> anySigned32Array;
     err = <error> unsigned32ArrayOrError;
     assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Signed32[]' cannot be cast to 'lang.int:Unsigned32[]'");
 
-    // casting of Signed32[] to UnSigned16[]
-    int:Unsigned16[]|error unsigned16ArrayOrError = trap <int:Unsigned16[]> anySigned32Array;
+    unsigned32ArrayOrError = trap <int:Unsigned32[]> anySigned16Array;
+    err = <error> unsigned32ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Signed16[]' cannot be cast to 'lang.int:Unsigned32[]'");
+
+    unsigned32ArrayOrError = trap <int:Unsigned32[]> anySigned8Array;
+    err = <error> unsigned32ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Signed8[]' cannot be cast to 'lang.int:Unsigned32[]'");
+
+    // cast to Unsigned16[]
+    int:Unsigned16[]|error unsigned16ArrayOrError = trap <int:Unsigned16[]> anyUnsigned32Array;
+    err = <error> unsigned16ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Unsigned32[]' cannot be cast to 'lang.int:Unsigned16[]'");
+
+    unsigned16ArrayOrError = trap <int:Unsigned16[]> anySigned32Array;
     err = <error> unsigned16ArrayOrError;
     assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Signed32[]' cannot be cast to 'lang.int:Unsigned16[]'");
 
-    // casting of Signed32[] to UnSigned8[]
-    int:Unsigned8[]|error unsigned8ArrayOrError = trap <int:Unsigned8[]> anySigned32Array;
+    unsigned16ArrayOrError = trap <int:Unsigned16[]> anySigned16Array;
+    err = <error> unsigned16ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Signed16[]' cannot be cast to 'lang.int:Unsigned16[]'");
+
+    unsigned16ArrayOrError = trap <int:Unsigned16[]> anySigned8Array;
+    err = <error> unsigned16ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Signed8[]' cannot be cast to 'lang.int:Unsigned16[]'");
+
+    // cast to Signed16[]
+    int:Signed16[]|error signed16ArrayOrError = trap <int:Signed16[]> anyUnsigned32Array;
+    err = <error> signed16ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Unsigned32[]' cannot be cast to 'lang.int:Signed16[]'");
+
+    signed16ArrayOrError = trap <int:Signed16[]> anySigned32Array;
+    err = <error> signed16ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Signed32[]' cannot be cast to 'lang.int:Signed16[]'");
+
+    signed16ArrayOrError = trap <int:Signed16[]> anyUnsigned16Array;
+    err = <error> signed16ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Unsigned16[]' cannot be cast to 'lang.int:Signed16[]'");
+
+    // cast to Signed8[]
+    int:Signed8[]|error signed8ArrayOrError = trap <int:Signed8[]> anyUnsigned32Array;
+    err = <error> signed8ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Unsigned32[]' cannot be cast to 'lang.int:Signed8[]'");
+
+    signed8ArrayOrError = trap <int:Signed8[]> anyUnsigned16Array;
+    err = <error> signed8ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Unsigned16[]' cannot be cast to 'lang.int:Signed8[]'");
+
+    signed8ArrayOrError = trap <int:Signed8[]> anyUnsigned8Array;
+    err = <error> signed8ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Unsigned8[]' cannot be cast to 'lang.int:Signed8[]'");
+
+    signed8ArrayOrError = trap <int:Signed8[]> anySigned32Array;
+    err = <error> signed8ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Signed32[]' cannot be cast to 'lang.int:Signed8[]'");
+
+    signed8ArrayOrError = trap <int:Signed8[]> anySigned16Array;
+    err = <error> signed8ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Signed16[]' cannot be cast to 'lang.int:Signed8[]'");
+
+    // cast to Unsigned8[]
+    int:Unsigned8[]|error unsigned8ArrayOrError = trap <int:Unsigned8[]> anyUnsigned32Array;
+    err = <error> unsigned8ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Unsigned32[]' cannot be cast to 'lang.int:Unsigned8[]'");
+
+    unsigned8ArrayOrError = trap <int:Unsigned8[]> anySigned32Array;
     err = <error> unsigned8ArrayOrError;
     assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Signed32[]' cannot be cast to 'lang.int:Unsigned8[]'");
+
+    unsigned8ArrayOrError = trap <int:Unsigned8[]> anyUnsigned16Array;
+    err = <error> unsigned8ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Unsigned16[]' cannot be cast to 'lang.int:Unsigned8[]'");
+
+    unsigned8ArrayOrError = trap <int:Unsigned8[]> anySigned16Array;
+    err = <error> unsigned8ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Signed16[]' cannot be cast to 'lang.int:Unsigned8[]'");
+
+    unsigned8ArrayOrError = trap <int:Unsigned8[]> anySigned8Array;
+    err = <error> unsigned8ArrayOrError;
+    assertEquality(err.detail()["message"], "incompatible types: 'lang.int:Signed8[]' cannot be cast to 'lang.int:Unsigned8[]'");
+
 }
 
 function testCharArrayToStringArray() {
