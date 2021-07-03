@@ -14,60 +14,31 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type Student record {
+type Engineer record {|
     string name = "";
-    int id = 444;
-};
-
-public type Employee readonly & record {
-    string name = "";
-    int id = 0;
-};
-
-public type Officer record {|
-    readonly string name = "";
-    readonly int id = 0;
+    int id = 555;
 |};
 
-
-public type Person readonly & record {
-     string name;
-     int id;
-     Address address;
-};
-
-public type Address  record {
-    string city;
-    County country = {};
-};
-
-public type County  record {
-    string name = "SL";
-};
-
-public type PersonArray Person;
-
-public type Lecturer record {|
+type Lecturer record {|
     string name;
     Department department1;
     Department department2?;
     readonly Department department3;
 |};
 
-public type Department readonly & record {|
+type Department readonly & record {|
     string name;
 |};
 
-public type Lawyer readonly & record {|
+type Lawyer readonly & record {|
     string name;
-    Place place1;
-    Place place2?;
-    readonly Place place3;
+    Address address1;
+    Address address2?;
+    readonly Address address3;
 |};
 
-public type Place record {|
+type Address record {|
     string city;
 |};
 
-public type IntMap map<int>;
-public type StudentMap map<Student>;
+type Subject map<string>;

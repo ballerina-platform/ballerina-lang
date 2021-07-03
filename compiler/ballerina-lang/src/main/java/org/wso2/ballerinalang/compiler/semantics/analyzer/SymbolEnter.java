@@ -127,6 +127,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
@@ -1194,9 +1195,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // Recursively check all members.
                 for (BLangType memberTypeNode : memberTypeNodes) {
                     checkErrors(env, unresolvedType, memberTypeNode, visitedNodes, fromStructuredType);
-                    if (((BLangTypeDefinition) unresolvedType).hasCyclicReference) {
-                        break;
-                    }
                 }
                 break;
             case INTERSECTION_TYPE_NODE:
@@ -1210,9 +1208,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 memberTypeNodes = tupleNode.memberTypeNodes;
                 for (BLangType memberTypeNode : memberTypeNodes) {
                     checkErrors(env, unresolvedType, memberTypeNode, visitedNodes, true);
-                    if (((BLangTypeDefinition) unresolvedType).hasCyclicReference) {
-                        break;
-                    }
                 }
                 if (tupleNode.restParamType != null) {
                     checkErrors(env, unresolvedType, tupleNode.restParamType, visitedNodes, true);
@@ -1226,6 +1221,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TABLE_TYPE:
                 checkErrors(env, unresolvedType, ((BLangTableTypeNode) currentTypeOrClassNode).constraint, visitedNodes,
                         true);
+                break;
+            case STREAM_TYPE:
+                checkErrors(env, unresolvedType, ((BLangStreamType) currentTypeOrClassNode).constraint, visitedNodes,
+                        true);
+                BLangType completionType = ((BLangStreamType) currentTypeOrClassNode).error;
+                if (completionType != null) {
+                    checkErrors(env, unresolvedType, completionType, visitedNodes, true);
+                }
                 break;
             case USER_DEFINED_TYPE:
                 checkErrorsOfUserDefinedType(env, unresolvedType, (BLangUserDefinedType) currentTypeOrClassNode,
@@ -1270,6 +1273,23 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    private  boolean isTypeConstructorAvailable(NodeKind unresolvedType) {
+        switch (unresolvedType) {
+            case OBJECT_TYPE:
+            case RECORD_TYPE:
+            case CONSTRAINED_TYPE:
+            case ARRAY_TYPE:
+            case TUPLE_TYPE_NODE:
+            case TABLE_TYPE:
+            case ERROR_TYPE:
+            case FUNCTION_TYPE:
+            case STREAM_TYPE:    
+                return true;
+            default:
+                return false;
+        }
+    }
+
     private void checkErrorsOfUserDefinedType(SymbolEnv env, BLangNode unresolvedType,
                                               BLangUserDefinedType currentTypeOrClassNode,
                                               Stack<String> visitedNodes, boolean fromStructuredType) {
@@ -1286,15 +1306,19 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (sameTypeNode || isVisited) {
             if (typeDef) {
                 BLangTypeDefinition typeDefinition = (BLangTypeDefinition) unresolvedType;
-                if (fromStructuredType && (typeDefinition.getTypeNode().getKind() == NodeKind.UNION_TYPE_NODE
-                        || typeDefinition.getTypeNode().getKind() == NodeKind.TUPLE_TYPE_NODE)) {
-                    // Valid cyclic dependency
+                NodeKind unresolvedTypeNodeKind = typeDefinition.getTypeNode().getKind();
+                if (fromStructuredType && (unresolvedTypeNodeKind == NodeKind.UNION_TYPE_NODE
+                        || unresolvedTypeNodeKind == NodeKind.TUPLE_TYPE_NODE)) {
+                    // Type definitions with tuples and unions are allowed to have cyclic references atm
                     typeDefinition.hasCyclicReference = true;
                     return;
                 }
+                // Recursive types (A -> B -> C -> B) are valid provided they go through a type constructor
+                if (unresolvedTypeNodeKind != NodeKind.OBJECT_TYPE && isTypeConstructorAvailable(unresolvedTypeNodeKind)
+                    && !sameTypeNode) {
+                    return;
+                }
             }
-
-            //type definitions with tuple and unions are allowed to have cyclic reference atm
             if (isVisited) {
                 // Invalid dependency detected. But in here, all the types in the list might not
                 // be necessary for the cyclic dependency error message.
@@ -1331,9 +1355,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             if (typeDefinitions.isEmpty()) {
                 BType referredType = symResolver.resolveTypeNode(currentTypeOrClassNode, env);
-                if (referredType.tag == TypeTags.RECORD || referredType.tag == TypeTags.OBJECT ||
-                        referredType.tag == TypeTags.FINITE) {
-                    // we are referring an fully or partially defined type from another cyclic type eg: record, class
+                // We are referring a fully or partially defined type from another cyclic type
+                if (referredType != symTable.noType) {
                     return;
                 }
 
@@ -2764,7 +2787,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BRecordType recordVarType = new BRecordType(recordSymbol);
         LinkedHashMap<String, BField> unMappedFields = new LinkedHashMap<>() {{
             putAll(recordType.fields);
-            if(recordType.restFieldType.tag == TypeTags.RECORD) {
+            if (recordType.restFieldType.tag == TypeTags.RECORD) {
                 putAll(((BRecordType) recordType.restFieldType).fields);
             }
         }};
