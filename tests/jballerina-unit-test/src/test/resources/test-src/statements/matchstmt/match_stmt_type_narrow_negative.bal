@@ -120,3 +120,23 @@ function testMatchClauseWithTypeGuardNegative8(Person p) {
         }
     }
 }
+
+type C 1|2|1;
+type D 1|2;
+
+function testMatchClauseWithTypeGuardNegative9() {
+    int value = 2;
+    match value {
+        var a if a is C => {
+        }
+        var a if a is D => {
+        }
+    }
+
+    match value {
+        var a if a is int|string => {
+        }
+        var a if a is string|int|string => {
+        }
+    }
+}

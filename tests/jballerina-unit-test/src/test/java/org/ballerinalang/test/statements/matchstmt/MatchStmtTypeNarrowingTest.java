@@ -91,8 +91,6 @@ public class MatchStmtTypeNarrowingTest {
     @Test(description = "Test match clause with type guard negative scenarios")
     public void testMatchClauseWithTypeGuardNegative() {
         resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/match_stmt_type_narrow_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 0);
-        Assert.assertEquals(resultNegative.getWarnCount(), 10);
         int i = -1;
         String unreachablePattern = "unreachable pattern";
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 24, 9);
@@ -105,6 +103,10 @@ public class MatchStmtTypeNarrowingTest {
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 97, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 112, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 119, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 132, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 139, 9);
+        Assert.assertEquals(resultNegative.getErrorCount(), 0);
+        Assert.assertEquals(resultNegative.getWarnCount(), ++i);
     }
 
     @AfterClass
