@@ -18181,11 +18181,12 @@ public class BallerinaParser extends AbstractParser {
             case IDENTIFIER_TOKEN:
                 return STNodeFactory.createSimpleNameReferenceNode(ambiguousNode);
             case INDEXED_EXPRESSION:
-                STNodeList keys = (STNodeList) ((STIndexedExpressionNode) ambiguousNode).keyExpression;
+                STIndexedExpressionNode indexedExpressionNode = (STIndexedExpressionNode) ambiguousNode;
+                STNodeList keys = (STNodeList) indexedExpressionNode.keyExpression;
                 if (keys.size() == 0) {
-                    STNode lhsExpr = ((STIndexedExpressionNode) ambiguousNode).containerExpression;
-                    STNode openBracket = ((STIndexedExpressionNode) ambiguousNode).openBracket;
-                    STNode closeBracket = ((STIndexedExpressionNode) ambiguousNode).closeBracket;
+                    STNode lhsExpr = indexedExpressionNode.containerExpression;
+                    STNode openBracket = indexedExpressionNode.openBracket;
+                    STNode closeBracket = indexedExpressionNode.closeBracket;
                     STNode missingVarRef = STNodeFactory
                            .createSimpleNameReferenceNode(SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN));
                     STNode keyExpr = STNodeFactory.createNodeList(missingVarRef);
