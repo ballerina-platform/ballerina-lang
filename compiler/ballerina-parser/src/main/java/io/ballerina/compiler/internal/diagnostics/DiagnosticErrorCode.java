@@ -241,6 +241,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_METADATA_NOT_ATTACHED_TO_A_TOP_LEVEL_CONSTRUCT("BCE0524",
             "error.metadata.not.attached.to.a.top.level.construct"),
     ERROR_METADATA_NOT_ATTACHED_TO_A_OBJECT_MEMBER("BCE0525", "error.metadata.not.attached.to.a.object.member"),
+    ERROR_MISSING_MATCH_PATTERN("BCE0526", "error.missing.match.pattern"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),
@@ -331,6 +332,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_TYPE_DESC_AFTER_REST_DESCRIPTOR("BCE672", "error.type.desc.after.rest.descriptor"),
     ERROR_CONFIGURABLE_VAR_IMPLICITLY_FINAL("BCE673", "error.configurable.var.implicitly.final"),
     ERROR_LOCAL_CONST_DECL_NOT_ALLOWED("BCE674", "error.local.const.decl.not.allowed"),
+    ERROR_FIELD_INITIALIZATION_NOT_ALLOWED_IN_OBJECT_TYPE("BCE675",
+            "error.field.initialization.not.allowed.in.object.type"),
     ;
 
     String diagnosticId;

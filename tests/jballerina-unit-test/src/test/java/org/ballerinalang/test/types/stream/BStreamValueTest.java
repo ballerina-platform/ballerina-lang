@@ -34,12 +34,13 @@ import org.testng.annotations.Test;
  */
 public class BStreamValueTest {
 
-    private CompileResult result, negativeResult;
+    private CompileResult result, negativeResult, incompleteTypeResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/stream/stream-value.bal");
         negativeResult = BCompileUtil.compile("test-src/types/stream/stream-negative.bal");
+        incompleteTypeResult = BCompileUtil.compile("test-src/types/stream/stream-type-incomplete-definition.bal");
     }
 
     @Test(description = "Test global stream construct")
@@ -255,10 +256,18 @@ public class BStreamValueTest {
 
     }
 
+    @Test(description = "Test incomplete stream definition")
+    public void testIncompleteTypeResult() {
+        int i = 0;
+        BAssertUtil.validateError(incompleteTypeResult, i++, "missing type desc", 17, 15);
+        Assert.assertEquals(i, incompleteTypeResult.getErrorCount());
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
         negativeResult = null;
+        incompleteTypeResult = null;
     }
 
 }

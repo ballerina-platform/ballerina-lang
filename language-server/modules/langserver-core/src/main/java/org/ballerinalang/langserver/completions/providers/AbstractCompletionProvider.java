@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -92,6 +93,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
+import static io.ballerina.compiler.api.symbols.SymbolKind.PATH_PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.XMLNS;
@@ -201,6 +203,13 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 CompletionItem variableCItem = ParameterCompletionItemBuilder.build(paramSymbol.getName().get(),
                         typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
+            } else if (symbol.kind() == PATH_PARAMETER) {
+                PathParameterSymbol paramSymbol = (PathParameterSymbol) symbol;
+                TypeSymbol typeDesc = paramSymbol.typeDescriptor();
+                String typeName = CommonUtil.getModifiedTypeName(ctx, typeDesc);
+                CompletionItem variableCItem = ParameterCompletionItemBuilder.build(paramSymbol.getName().get(),
+                        typeName);
+                completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
             } else if (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS
                     || symbol.kind() == ENUM) {
                 // Here skip all the package symbols since the package is added separately
@@ -236,10 +245,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
     private List<LSCompletionItem> getTypeItems(BallerinaCompletionContext context) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        // Specifically remove the error type, since this is covered with langlib suggestion and type builtin types
         visibleSymbols.stream()
-                .filter(CommonUtil.typesFilter()
-                        .and(symbol -> !Names.ERROR.getValue().equals(symbol.getName().orElse(""))))
+                .filter(CommonUtil.typesFilter())
                 .forEach(symbol -> {
                     CompletionItem cItem = TypeCompletionItemBuilder.build(symbol, symbol.getName().get());
                     completionItems.add(new SymbolCompletionItem(context, symbol, cItem));

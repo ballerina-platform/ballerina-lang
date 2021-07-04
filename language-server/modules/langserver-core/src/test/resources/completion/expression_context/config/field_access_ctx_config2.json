@@ -12,7 +12,7 @@
       "documentation": {
         "left": "foreach statement for iterable variable - functionWithReturn()"
       },
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "foreach var item in functionWithReturn() {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -38,7 +38,7 @@
       "documentation": {
         "left": "foreach i statement for iterable variable - functionWithReturn()"
       },
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "foreach int i in ${1:0}...functionWithReturn().length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [

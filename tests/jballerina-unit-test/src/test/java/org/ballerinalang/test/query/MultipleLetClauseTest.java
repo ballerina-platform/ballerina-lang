@@ -108,6 +108,11 @@ public class MultipleLetClauseTest {
         BRunUtil.invoke(result, "testQueryExpressionWithinLetClause");
     }
 
+    @Test
+    public void testwildcardBindingPatternInLetClause() {
+        BRunUtil.invoke(result, "testwildcardBindingPatternInLetClause");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

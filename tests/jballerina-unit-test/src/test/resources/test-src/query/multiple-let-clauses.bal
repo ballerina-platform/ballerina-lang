@@ -162,6 +162,35 @@ function testQueryExpressionWithinLetClause() {
     assertEquality(1, emp.deptId);
 }
 
+public function testwildcardBindingPatternInLetClause() {
+
+    Person p1 = {deptAccess: "OP", firstName: "Ranjan", lastName: "Fonseka"};
+    Person p2 = {deptAccess: "MKT", firstName: "Mark", lastName: "George"};
+    Person p3 = {deptAccess: "ENG", firstName: "Grainier", lastName: "Perera"};
+    Person[] personList = [p1, p2, p3];
+    Person[] outputPersonList = from var person in personList
+        let error error(_, msg = message1) = bar()
+        let var [_, name] = foo()
+        where person.deptAccess == "MKT" && person.firstName == name
+        select {
+            firstName: name,
+            lastName: person.lastName,
+            deptAccess: "WSO2"
+        };
+    assertEquality(1, outputPersonList.length());
+    Person p = outputPersonList[0];
+    assertEquality(p.firstName, "Mark");
+    assertEquality(p.lastName, "George");
+}
+
+function foo() returns [string, string] {
+  return ["Mark", "Mark"];
+}
+
+function bar() returns error {
+    return error("", msg = "asdasd");
+}
+
 //---------------------------------------------------------------------------------------------------------
 const ASSERTION_ERROR_REASON = "AssertionError";
 
