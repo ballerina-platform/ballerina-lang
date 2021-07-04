@@ -64,7 +64,13 @@ public class DebugOutputLogger {
         }
         OutputEventArguments outputArguments = new OutputEventArguments();
         outputArguments.setOutput(output);
-        outputArguments.setCategory(OutputEventArgumentsCategory.CONSOLE);
+        // Since Ballerina compiler logs and errors are redirected to the same stream (STDERR) by design, output
+        // category has to be derived based on the output prefix.
+        if (containsBalErrorPrefix(output)) {
+            outputArguments.setCategory(OutputEventArgumentsCategory.STDERR);
+        } else {
+            outputArguments.setCategory(OutputEventArgumentsCategory.CONSOLE);
+        }
         client.output(outputArguments);
     }
 
