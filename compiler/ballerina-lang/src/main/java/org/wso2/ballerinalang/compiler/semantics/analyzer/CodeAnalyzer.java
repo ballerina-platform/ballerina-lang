@@ -1522,83 +1522,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             BLangTypeTestExpr secondTypeTest = (BLangTypeTestExpr) secondMatchGuard.expr;
             return ((BLangSimpleVarRef) firstTypeTest.expr).variableName.toString().equals(
                     ((BLangSimpleVarRef) secondTypeTest.expr).variableName.toString()) &&
-                    checkSimilarTypeDescInTypeTest(firstTypeTest.typeNode.getBType(),
+                    types.isAssignable(firstTypeTest.typeNode.getBType(),
                             secondTypeTest.typeNode.getBType());
         }
         return false;
-    }
-
-    private boolean checkSimilarTypeDescInTypeTest(BType firstType, BType secondType) {
-        if (firstType.tag != secondType.tag) {
-            return false;
-        }
-        switch (firstType.tag) {
-            case TypeTags.FINITE:
-                BFiniteType firstFiniteType = (BFiniteType) firstType;
-                BFiniteType secondFiniteType = (BFiniteType) secondType;
-                if (firstFiniteType.getValueSpace().size() != secondFiniteType.getValueSpace().size()) {
-                    return false;
-                }
-                for (BLangExpression expr1 : firstFiniteType.getValueSpace()) {
-                    boolean exprFound = false;
-                    for (BLangExpression expr2 : secondFiniteType.getValueSpace()) {
-                        if (expr2.getKind() == NodeKind.LITERAL && expr1.getKind() == NodeKind.LITERAL) {
-                            exprFound = ((BLangLiteral) expr2).value.equals(((BLangLiteral) expr1).value);
-                        } else if (expr2.getKind() == NodeKind.NUMERIC_LITERAL &&
-                                expr1.getKind() == NodeKind.NUMERIC_LITERAL) {
-                            exprFound = ((BLangNumericLiteral) expr2).value
-                                    .equals(((BLangNumericLiteral) expr1).value);
-                        }
-                        if (exprFound) {
-                            break;
-                        }
-                    }
-                    if (!exprFound) {
-                        return false;
-                    }
-                }
-                return true;
-            case TypeTags.UNION:
-                BUnionType firstUnionType = (BUnionType) firstType;
-                BUnionType secondUnionType = (BUnionType) secondType;
-                if (firstUnionType.getMemberTypes().size() != secondUnionType.getMemberTypes().size()) {
-                    return false;
-                }
-                for (BType memType1 : firstUnionType.getMemberTypes()) {
-                    boolean memTypeFound = false;
-                    for (BType memType2 : secondUnionType.getMemberTypes()) {
-                        memTypeFound = checkSimilarTypeDescInTypeTest(memType1, memType2);
-                        if (memTypeFound) {
-                            break;
-                        }
-                    }
-                    if (!memTypeFound) {
-                        return false;
-                    }
-                }
-                return true;
-            case TypeTags.TUPLE:
-                BTupleType firstTupleType = (BTupleType) firstType;
-                BTupleType secondTupleType = (BTupleType) secondType;
-                if (firstTupleType.tupleTypes.size() != secondTupleType.tupleTypes.size()) {
-                    return false;
-                }
-                BType firstRestType = firstTupleType.restType;
-                BType secondRestType = secondTupleType.restType;
-                if ((firstRestType == null || secondRestType == null) && firstRestType != secondRestType) {
-                    return false;
-                }
-                for (int i = 0; i < firstTupleType.tupleTypes.size(); i++) {
-                    boolean tupleMemberFound = checkSimilarTypeDescInTypeTest(firstTupleType.tupleTypes.get(i),
-                            secondTupleType.tupleTypes.get(i));
-                    if (!tupleMemberFound) {
-                        return false;
-                    }
-                }
-                return firstRestType == null || checkSimilarTypeDescInTypeTest(firstRestType, secondRestType);
-            default:
-                return types.isSameType(firstType, secondType);
-        }
     }
 
     private boolean compareVariables(Map<String, BVarSymbol> varsInPreviousMatchPattern,
