@@ -716,6 +716,73 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangFunctionTypeNode functionTypeNode) {
+        SymbolEnv funcEnv = SymbolEnv.createTypeEnv(functionTypeNode, functionTypeNode.symbol.scope, env);
+        for (BLangVariable param : functionTypeNode.params) {
+            analyzeDef(param, funcEnv);
+        }
+        if (functionTypeNode.restParam != null) {
+            analyzeDef(functionTypeNode.restParam.typeNode, funcEnv);
+        }
+        if (functionTypeNode.returnTypeNode != null) {
+            analyzeDef(functionTypeNode.returnTypeNode, funcEnv);
+        }
+        functionTypeNode.analyzed = true;
+    }
+
+    @Override
+    public void visit(BLangUserDefinedType userDefinedType) {
+    }
+
+    @Override
+    public void visit(BLangValueType valueType) {
+        valueType.type = symResolver.resolveTypeNode(valueType, env);
+    }
+
+    @Override
+    public void visit(BLangBuiltInRefTypeNode builtInRefTypeNode) {
+    }
+
+    @Override
+    public void visit(BLangStreamType streamType) {
+        analyzeDef(streamType.constraint, env);
+    }
+
+    @Override
+    public void visit(BLangArrayType arrayType) {
+        analyzeDef(arrayType.elemtype, env);
+    }
+
+    @Override
+    public void visit(BLangIntersectionTypeNode intersectionTypeNode) {
+        for (BLangType langType : intersectionTypeNode.constituentTypeNodes) {
+            analyzeDef(langType, env);
+        }
+    }
+    @Override
+    public void visit(BLangConstrainedType constrainedType) {
+        analyzeDef(constrainedType.constraint, env);
+    }
+
+    @Override
+    public void visit(BLangUnionTypeNode unionTypeNode) {
+        List<BLangType> unionMemberTypes = unionTypeNode.memberTypeNodes;
+        for (BLangType memType : unionMemberTypes) {
+            analyzeDef(memType, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangTupleTypeNode tupleTypeNode) {
+        for (BLangType memType : tupleTypeNode.memberTypeNodes) {
+            analyzeDef(memType, env);
+        }
+        if (tupleTypeNode.restParamType != null) {
+            analyzeDef(tupleTypeNode.restParamType, env);
+        }
+    }
+
+    @Override
     public void visit(BLangErrorType errorType) {
         if (errorType.detailType == null) {
             return;
