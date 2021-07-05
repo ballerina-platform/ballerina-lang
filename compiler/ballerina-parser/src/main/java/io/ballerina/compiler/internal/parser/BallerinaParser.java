@@ -8471,6 +8471,7 @@ public class BallerinaParser extends AbstractParser {
                 // Everything else can not be written as a statement.
                 STNode semicolon = parseSemicolon();
                 endContext();
+                expression = getExpression(expression);
                 STNode exprStmt = STNodeFactory.createExpressionStatementNode(SyntaxKind.INVALID_EXPRESSION_STATEMENT,
                         expression, semicolon);
                 exprStmt = SyntaxErrors.addDiagnostic(exprStmt, DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_STATEMENT);
@@ -18247,6 +18248,22 @@ public class BallerinaParser extends AbstractParser {
                         errorCons.typeReference, errorCons.openParenToken, errorArgs, errorCons.closeParenToken);
             case IDENTIFIER_TOKEN:
                 return STNodeFactory.createSimpleNameReferenceNode(ambiguousNode);
+            case INDEXED_EXPRESSION:
+                STIndexedExpressionNode indexedExpressionNode = (STIndexedExpressionNode) ambiguousNode;
+                STNodeList keys = (STNodeList) indexedExpressionNode.keyExpression;
+                if (keys.size() == 0) {
+                    STNode lhsExpr = indexedExpressionNode.containerExpression;
+                    STNode openBracket = indexedExpressionNode.openBracket;
+                    STNode closeBracket = indexedExpressionNode.closeBracket;
+                    STNode missingVarRef = STNodeFactory
+                           .createSimpleNameReferenceNode(SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN));
+                    STNode keyExpr = STNodeFactory.createNodeList(missingVarRef);
+                    closeBracket = SyntaxErrors.addDiagnostic(closeBracket,
+                            DiagnosticErrorCode.ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR);
+                    ambiguousNode = STNodeFactory.createIndexedExpressionNode(lhsExpr, openBracket, keyExpr,
+                            closeBracket);
+                }
+                return ambiguousNode;
             case SIMPLE_NAME_REFERENCE:
             case QUALIFIED_NAME_REFERENCE:
             default:
