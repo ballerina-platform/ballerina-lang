@@ -745,29 +745,30 @@ function testCloneWithTypeDecimalToIntSubType() {
 function testCloneWithTypeDecimalToIntNegative() {
     decimal a = 9223372036854775807.5;
     int|error result = a.cloneWithType(int);
-    checkDecimalToIntError(result);
-
-    decimal[] a1 = [9223372036854775807.5, -9223372036854775807.6];
-    int[]|error a2e = a1.cloneWithType(IntArray);
-    checkDecimalToIntError(a2e);
-
-    decimal a2 = 0.0 / 0;
-    int|error nan = a2.cloneWithType(int);
-    assert(nan is error, true);
-    error err = <error>nan;
-    var message = err.detail()["message"];
-    string messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina}NumberConversionError");
-    assert(messageString, "'decimal' value 'NaN' cannot be converted to 'int'");
-}
-
-function checkDecimalToIntError(any|error result) {
     assert(result is error, true);
     error err = <error>result;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
     assert(messageString, "'decimal' value cannot be converted to 'int'");
+
+    decimal[] a1 = [9223372036854775807.5, -9223372036854775807.6];
+    int[]|error a2e = a1.cloneWithType(IntArray);
+    assert(a2e is error, true);
+    err = <error>a2e;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'decimal[]' value cannot be converted to 'int[]'");
+
+    decimal a2 = 0.0 / 0;
+    int|error nan = a2.cloneWithType(int);
+    assert(nan is error, true);
+    err = <error>nan;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina}NumberConversionError");
+    assert(messageString, "'decimal' value 'NaN' cannot be converted to 'int'");
 }
 
 type StringArray string[];
@@ -933,6 +934,33 @@ function testCloneWithTypeWithImmutableTypes() {
    assert(anyDataArray[0], 3);
    assert(anyDataArray[1], 4);
    assert(anyDataArray[2], "foo");
+}
+
+type Person3 record {|
+    string name = "abc";
+    int age;
+|};
+
+type Person4 record {|
+    int age;
+|};
+
+function testCloneWithTypeImmutableStructuredTypes() {
+    map<Person4> m = {a: {age: 12}};
+    map<Person3 & readonly> & readonly personMap = checkpanic m.cloneWithType();
+    Person3 person1 = <Person3>personMap["a"];
+    assert(person1.age, 12);
+
+    Person4[] m1 = [{age: 12}];
+    (Person3 & readonly)[] arr = checkpanic m1.cloneWithType();
+    Person3 person2 = arr[0];
+    assert(person2.age, 12);
+
+    table<Person4> m3 = table [{age: 12}];
+    table<Person3 & readonly> tab = checkpanic m3.cloneWithType();
+    record {| Person3 & readonly value; |} p = <record {| Person3 & readonly value; |}>tab.iterator().next();
+    Person3 person3 = p["value"];
+    assert(person3.age, 12);
 }
 
 /////////////////////////// Tests for `fromJsonWithType()` ///////////////////////////
