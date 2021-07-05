@@ -993,10 +993,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDef) {
-        if (typeDef.typeNode.getKind() == NodeKind.OBJECT_TYPE
-                || typeDef.typeNode.getKind() == NodeKind.RECORD_TYPE) {
-            typeDef.typeNode = rewrite(typeDef.typeNode, env);
-        }
+        typeDef.typeNode = rewrite(typeDef.typeNode, env);
 
         typeDef.annAttachments.forEach(attachment ->  rewrite(attachment, env));
         result = typeDef;
@@ -1010,6 +1007,9 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
+        objectTypeNode.fields.forEach(field -> {
+            rewrite(field, env);
+        });
         // Merge the fields defined within the object and the fields that
         // get inherited via the type references.
         objectTypeNode.fields.addAll(objectTypeNode.referencedFields);
@@ -4845,6 +4845,7 @@ public class Desugar extends BLangNodeVisitor {
         ((BLangBlockFunctionBody) onFailFunc.function.body).scope.define(onFailErrorVariableDef.var.symbol.name,
                 onFailErrorVariableDef.var.symbol);
         env.enclPkg.lambdaFunctions.add(onFailFunc);
+        onFailFunc.function = rewrite(onFailFunc.function, onFailFunc.capturedClosureEnv);
 
         //  var $onFailFunc$ = function (error $thrownError$) returns any|error {
         //    <"Content in on fail clause goes here">
@@ -6885,8 +6886,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        // Collect all the lambda functions.
-        env.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
+        bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function, bLangLambdaFunction.capturedClosureEnv);
         result = bLangLambdaFunction;
     }
 
@@ -6931,7 +6931,7 @@ public class Desugar extends BLangNodeVisitor {
         funcSymbol.params = paramSymbols;
         funcSymbol.restParam = getRestSymbol(funcNode);
         funcSymbol.retType = funcNode.returnTypeNode.type;
-
+        ((BInvokableTypeSymbol) funcSymbol.type.tsymbol).params = paramSymbols;
         // Create function type.
         List<BType> paramTypes = paramSymbols.stream().map(paramSym -> paramSym.type).collect(Collectors.toList());
         funcNode.type = new BInvokableType(paramTypes, getRestType(funcSymbol), funcNode.returnTypeNode.type, null);
@@ -6940,7 +6940,6 @@ public class Desugar extends BLangNodeVisitor {
         lambdaFunction.function.body.pos = bLangArrowFunction.pos;
         // At this phase lambda function is semantically correct. Therefore simply env can be assigned.
         lambdaFunction.capturedClosureEnv = env;
-        rewrite(lambdaFunction.function, env);
         env.enclPkg.addFunction(lambdaFunction.function);
         bLangArrowFunction.function = lambdaFunction.function;
         result = rewriteExpr(lambdaFunction);
