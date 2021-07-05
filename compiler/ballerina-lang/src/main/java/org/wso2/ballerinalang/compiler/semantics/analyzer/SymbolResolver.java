@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.Flag;
@@ -2171,18 +2170,18 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public Set<BVarSymbol> getConfigVarSymbols(BPackageSymbol packageSymbol) {
         Set<BVarSymbol> configVars = new HashSet<>();
-        analyseAndAddConfigVar(packageSymbol, configVars);
+        populateConfigurableVars(packageSymbol, configVars);
         if (!packageSymbol.imports.isEmpty()) {
             for (BPackageSymbol importSymbol : packageSymbol.imports) {
-                analyseAndAddConfigVar(importSymbol, configVars);
+                populateConfigurableVars(importSymbol, configVars);
             }
         }
         return configVars;
     }
 
-    private void analyseAndAddConfigVar(BPackageSymbol pkgSymbol, Set<BVarSymbol> configVars) {
+    private void populateConfigurableVars(BPackageSymbol pkgSymbol, Set<BVarSymbol> configVars) {
         for (Scope.ScopeEntry entry : pkgSymbol.scope.entries.values()) {
-            if (entry.symbol.tag == SymTag.VARIABLE && SymbolFlags.isFlagOn(entry.symbol.flags, Flags.CONFIGURABLE)) {
+            if (entry.symbol.tag == SymTag.VARIABLE && Symbols.isFlagOn(entry.symbol.flags, Flags.CONFIGURABLE)) {
                 configVars.add((BVarSymbol) entry.symbol);
             }
         }
