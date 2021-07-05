@@ -215,6 +215,16 @@ public class ErrorTest {
     }
 
     @Test
+    public void testLocalErrorTypeWithClosure() {
+        BRunUtil.invoke(errorTestResult, "testLocalErrorTypeWithClosure");
+    }
+
+    @Test
+    public void testLocalErrorTypeWithinLambda() {
+        BRunUtil.invoke(errorTestResult, "testLocalErrorTypeWithinLambda");
+    }
+
+    @Test
     public void testErrorNegative() {
         CompileResult negativeCompileResult = BCompileUtil.compile("test-src/error/error_test_negative.bal");
         int i = 0;
@@ -250,6 +260,16 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'error<record {| " +
                         "string message?; error cause?; int i; anydata...; |}>', found 'int'", 122, 65);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'string', expected a subtype" +
+                " of 'map<ballerina/lang.value:1.0.0:Cloneable>'", 139, 11);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid token ','", 139, 25);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid token 'Detail'", 139, 25);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'string', expected a subtype" +
+                " of 'map<ballerina/lang.value:1.0.0:Cloneable>'", 140, 11);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'int', expected a subtype of" +
+                " 'map<ballerina/lang.value:1.0.0:Cloneable>'", 141, 11);
+        BAssertUtil.validateError(negativeCompileResult, i++, "unknown error detail arg 'id' passed to closed error " +
+                "detail type 'CloseDetail'", 143, 47);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 
@@ -315,7 +335,7 @@ public class ErrorTest {
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
         Assert.assertEquals(message, "error: array index out of range: index: 4, size: 2\n\t" +
-                "at ballerina.lang.array.1_1_0:slice(array.bal:126)\n\t" +
+                "at ballerina.lang.array.1_1_0:slice(array.bal:128)\n\t" +
                 "   error_test:testStackTraceInNative(error_test.bal:339)");
     }
 
@@ -348,9 +368,9 @@ public class ErrorTest {
     @Test
     public void testStackOverFlow() {
         BValue[] result = BRunUtil.invoke(errorTestResult, "testStackOverFlow");
-        String expected1 = "{callableName:\"bar\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
+        String expected1 = "{callableName:\"bar\", fileName:\"error_test.bal\", " +
                 "lineNumber:408}";
-        String expected2 = "{callableName:\"bar2\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
+        String expected2 = "{callableName:\"bar2\", fileName:\"error_test.bal\", " +
                 "lineNumber:412}";
         String resultStack = ((BValueArray) result[0]).getRefValue(0).toString();
         Assert.assertTrue(resultStack.equals(expected1) || resultStack.equals(expected2), "Received unexpected " +

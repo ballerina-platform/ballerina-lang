@@ -74,19 +74,28 @@ public class BindgenUtils {
 
     private static PrintStream errStream;
     private static PrintStream outStream;
+    private static final String HAS_DIAGNOSTICS_ERROR = "syntax tree generated contains diagnostic errors";
 
     public static void outputSyntaxTreeFile(JError jError, BindgenEnv bindgenEnv,
                                             String outPath, Boolean append) throws BindgenException {
 
         SyntaxTree syntaxTree = new BindgenFileGenerator(bindgenEnv).generate(jError);
-        printOutputFile(syntaxTree.toSourceCode(), outPath, append);
+        if (syntaxTree.hasDiagnostics()) {
+            bindgenEnv.setFailedClassGens(jError.getShortExceptionName(), HAS_DIAGNOSTICS_ERROR);
+        } else {
+            printOutputFile(syntaxTree.toSourceCode(), outPath, append);
+        }
     }
 
     public static void outputSyntaxTreeFile(JClass jClass, BindgenEnv bindgenEnv,
                                             String outPath, Boolean append) throws BindgenException {
 
         SyntaxTree syntaxTree = new BindgenFileGenerator(bindgenEnv).generate(jClass);
-        printOutputFile(syntaxTree.toSourceCode(), outPath, append);
+        if (syntaxTree.hasDiagnostics()) {
+            bindgenEnv.setFailedClassGens(jClass.getCurrentClass().getName(), HAS_DIAGNOSTICS_ERROR);
+        } else {
+            printOutputFile(syntaxTree.toSourceCode(), outPath, append);
+        }
     }
 
     private static void printOutputFile(String content, String outPath, boolean append) throws BindgenException {
@@ -98,7 +107,7 @@ public class BindgenUtils {
             writer.println(Formatter.format(content));
             fileWriter.close();
         } catch (IOException | FormatterException e) {
-            throw new BindgenException("Unable to create the Ballerina file: " + e.getMessage(), e);
+            throw new BindgenException("error: unable to create the file: " + outPath + " " + e.getMessage(), e);
         } finally {
             if (writer != null) {
                 writer.close();
@@ -118,10 +127,10 @@ public class BindgenUtils {
             try {
                 final boolean mkdirResult = directory.mkdirs();
                 if (!mkdirResult) {
-                    throw new BindgenException("Unable to create the directory: " + path);
+                    throw new BindgenException("error: unable to create the directory: " + path);
                 }
             } catch (SecurityException e) {
-                throw new BindgenException("Unable to create the directory: " + path, e);
+                throw new BindgenException("error: unable to create the directory: " + path + " " + e.getMessage(), e);
             }
         }
     }
@@ -310,9 +319,9 @@ public class BindgenUtils {
             classLoader = (URLClassLoader) AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () ->
                     new ChildFirstClassLoader(urls.toArray(new URL[0]), parent));
         } catch (RuntimeException e) {
-            throw new BindgenException("Error while loading the classpaths.", e);
+            throw new BindgenException("error: unable to load the provided classpaths: " + e.getMessage(), e);
         } catch (Exception e) {
-            throw new BindgenException("Error while processing the classpaths.", e);
+            throw new BindgenException("error: unable to process the provided classpaths: " + e.getMessage(), e);
         }
         return classLoader;
     }

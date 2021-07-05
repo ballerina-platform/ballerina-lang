@@ -49,8 +49,7 @@
                 },
                 {
                     "name": "identifier",
-                    "type": "ValueNode",
-                    "occurrences": "MULTIPLE_SEPARATED"
+                    "type": "KeyNode"
                 },
                 {
                     "name": "closeBracket",
@@ -78,8 +77,7 @@
                 },
                 {
                     "name": "identifier",
-                    "type": "ValueNode",
-                    "occurrences": "MULTIPLE_SEPARATED"
+                    "type": "KeyNode"
                 },
                 {
                     "name": "firstCloseBracket",
@@ -103,8 +101,7 @@
             "attributes": [
                 {
                     "name": "identifier",
-                    "type": "ValueNode",
-                    "occurrences": "MULTIPLE_SEPARATED"
+                    "type": "KeyNode"
                 },
                 {
                     "name": "assign",
@@ -126,7 +123,7 @@
                     "type": "Token"
                 },
                 {
-                    "name": "values",
+                    "name": "value",
                     "type": "ValueNode",
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
@@ -210,6 +207,18 @@
                 {
                     "name": "value",
                     "type": "IdentifierToken"
+                }
+            ]
+        },
+        {
+            "name": "KeyNode",
+            "base": "Node",
+            "kind": "KEY",
+            "attributes": [
+                {
+                    "name": "value",
+                    "type": "ValueNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
                 }
             ]
         }

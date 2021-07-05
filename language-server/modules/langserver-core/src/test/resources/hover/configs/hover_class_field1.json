@@ -1,0 +1,21 @@
+{
+  "source": {
+    "file": "projectls/defmodsource2.bal"
+  },
+  "position": {
+    "line": 6,
+    "character": 27
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "Name of the person"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

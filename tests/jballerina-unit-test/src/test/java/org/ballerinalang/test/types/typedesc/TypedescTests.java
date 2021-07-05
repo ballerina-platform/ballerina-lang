@@ -57,9 +57,9 @@ public class TypedescTests {
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<readonly>', found " +
                 "'typedesc<int[]>'", 21, 28);
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<(string[]|boolean[])>', found " +
-                "'typedesc<(int[] & readonly)>'", 22, 38);
+                "'typedesc<ImmutableIntArray>'", 22, 38);
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<string>', " +
-                "found 'typedesc<(int[] & readonly)>'", 23, 26);
+                "found 'typedesc<ImmutableIntArray>'", 23, 26);
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<string[]>', found " +
                 "'typedesc<foo>'", 24, 28);
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<string>', found " +
@@ -216,6 +216,12 @@ public class TypedescTests {
     public void testTypeDefWithFunctionTypeDescAsTypedesc() {
         BRunUtil.invoke(result, "testTypeDefWithFunctionTypeDescAsTypedesc");
     }
+
+    @Test
+    public void testTypeDefWithIntersectionTypeDescAsTypedescNegative() {
+        BRunUtil.invoke(result, "testTypeDefWithIntersectionTypeDescAsTypedescNegative");
+    }
+
 
     @AfterClass
     public void tearDown() {

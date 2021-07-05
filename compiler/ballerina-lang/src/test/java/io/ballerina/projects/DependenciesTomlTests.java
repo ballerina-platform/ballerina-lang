@@ -92,13 +92,11 @@ public class DependenciesTomlTests {
                                                     DEPENDENCIES_TOML_REPO.resolve("dependency-wo-org-value.toml"));
         DiagnosticResult diagnostics = packageManifest.diagnostics();
         Assert.assertTrue(diagnostics.hasErrors());
-        Assert.assertEquals(diagnostics.errors().size(), 2);
+        Assert.assertEquals(diagnostics.errors().size(), 1);
         Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
         Diagnostic firstDiagnostic = iterator.next();
-        Assert.assertEquals(firstDiagnostic.message(),
-                            "incompatible type for key 'org': expected 'STRING', found 'BOOLEAN'");
         Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(2:0,2:0)");
-        Assert.assertEquals(iterator.next().message(), "missing value");
+        Assert.assertEquals(firstDiagnostic.message(), "missing value");
     }
 
     /**

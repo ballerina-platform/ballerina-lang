@@ -35,9 +35,14 @@ public class ImportsNegativeTests {
     @Test(description = "Test invalid import on single file")
     public void testInvalidImportOnMultipleFiles() {
         CompileResult result = BCompileUtil.compile("test-src/imports/InvalidImportTestProject");
-        assertEquals(result.getErrorCount(), 2);
-        validateError(result, 0, "cannot resolve module 'unknown/module'", 1, 1);
-        validateError(result, 1, "cannot resolve module 'unknown/module'", 1, 1);
+        int index = 0;
+        validateError(result, index++, "cannot resolve module 'unknown/module'", 1, 1);
+        validateError(result, index++, "cannot resolve module 'unknown/module'", 1, 1);
+        validateError(result, index++, "undefined module 'module'", 4, 5);
+        validateError(result, index++, "unknown type 'foo'", 4, 5);
+        validateError(result, index++, "incompatible types: expected 'testorg/invalidimport:1.0.0:R', found 'int'",
+                8, 24);
+        assertEquals(result.getErrorCount(), index);
     }
 
     @Test(description = "Test invalid autoimports")

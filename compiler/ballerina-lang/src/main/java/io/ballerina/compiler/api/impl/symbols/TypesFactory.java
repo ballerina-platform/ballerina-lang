@@ -60,25 +60,42 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.ballerinalang.model.types.TypeKind.OBJECT;
 import static org.ballerinalang.model.types.TypeKind.PARAMETERIZED;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.ANY;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.ANYDATA;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.BOOLEAN;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.BYTE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.DECIMAL;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.ERROR;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.FLOAT;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.FUTURE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.HANDLE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.INT;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.JSON;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.MAP;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.NEVER;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.NIL;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.NONE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.READONLY;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.SEMANTIC_ERROR;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.SIGNED16_INT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.SIGNED32_INT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.SIGNED8_INT;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.STREAM;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.STRING;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.TABLE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.TYPEDESC;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.UNSIGNED16_INT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.UNSIGNED32_INT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.UNSIGNED8_INT;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.XML;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.XML_COMMENT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.XML_ELEMENT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.XML_PI;
@@ -96,7 +113,6 @@ public class TypesFactory {
     private final CompilerContext context;
     private final SymbolFactory symbolFactory;
     private final SymbolTable symbolTable;
-    private final Map<BType, TypeSymbol> typeCache;
 
     private TypesFactory(CompilerContext context) {
         context.put(TYPES_FACTORY_KEY, this);
@@ -104,7 +120,6 @@ public class TypesFactory {
         this.context = context;
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
-        this.typeCache = new HashMap<>();
     }
 
     public static TypesFactory getInstance(CompilerContext context) {
@@ -117,21 +132,28 @@ public class TypesFactory {
     }
 
     public TypeSymbol getTypeDescriptor(BType bType) {
-        return getTypeDescriptor(bType, false);
+        return getTypeDescriptor(bType, bType != null ? bType.tsymbol : null, false);
+    }
+
+    public TypeSymbol getTypeDescriptor(BType bType, BTypeSymbol tSymbol) {
+        return getTypeDescriptor(bType, tSymbol, false);
     }
 
     /**
-     * Get the type descriptor for the given type.
+     * Get the type descriptor for the given type. This method takes a type and a type symbol both because there are
+     * instances where the tSymbol != tSymbol.type.tsymbol. e.g., a type symbol created for a type definition. Neither
+     * bType nor tSymbol should be null.
      *
      * @param bType       {@link BType} of the type descriptor
+     * @param tSymbol     The type symbol associated with the context in which this method is called
      * @param rawTypeOnly Whether to convert the type descriptor to type reference or keep the raw type
      * @return {@link TypeSymbol} generated
      */
-    public TypeSymbol getTypeDescriptor(BType bType, boolean rawTypeOnly) {
-        return getTypeDescriptor(bType, rawTypeOnly, true);
+    public TypeSymbol getTypeDescriptor(BType bType, BTypeSymbol tSymbol, boolean rawTypeOnly) {
+        return getTypeDescriptor(bType, tSymbol, rawTypeOnly, true);
     }
 
-    TypeSymbol getTypeDescriptor(BType bType, boolean rawTypeOnly, boolean getOriginalType) {
+    TypeSymbol getTypeDescriptor(BType bType, BTypeSymbol tSymbol, boolean rawTypeOnly, boolean getOriginalType) {
         if (bType == null || bType.tag == NONE) {
             return null;
         }
@@ -140,37 +162,21 @@ public class TypesFactory {
             Optional<BIntersectionType> intersectionType = ((IntersectableReferenceType) bType).getIntersectionType();
             if (intersectionType.isPresent()) {
                 bType = intersectionType.get();
+                tSymbol = bType.tsymbol;
             }
         }
 
-        ModuleID moduleID = bType.tsymbol == null ? null : new BallerinaModuleID(bType.tsymbol.pkgID);
+        ModuleID moduleID = tSymbol == null ? null : new BallerinaModuleID(tSymbol.pkgID);
 
-        if (isTypeReference(bType, rawTypeOnly)) {
-            return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID, bType,
-                                                        bType.tsymbol.getName().getValue());
+        if (isTypeReference(bType, tSymbol, rawTypeOnly)) {
+            return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID, bType, tSymbol);
         }
 
-        if (this.typeCache.containsKey(bType)) {
-            TypeSymbol typeSymbol = this.typeCache.get(bType);
-
-            // Have to special case invokable types since equals() is overridden in BInvokableType.
-            if (bType.tag != TypeTags.INVOKABLE) {
-                return typeSymbol;
-            }
-
-            if (bType == ((AbstractTypeSymbol) typeSymbol).getBType()) {
-                return typeSymbol;
-            }
-        }
-
-        TypeSymbol typeSymbol = createTypeDescriptor(bType, moduleID);
-
-        // Because of the above explained reason, equivalent invokable types won't get cached either here.
-        typeCache.putIfAbsent(bType, typeSymbol);
+        TypeSymbol typeSymbol = createTypeDescriptor(bType, tSymbol, moduleID);
         return typeSymbol;
     }
 
-    private TypeSymbol createTypeDescriptor(BType bType, ModuleID moduleID) {
+    private TypeSymbol createTypeDescriptor(BType bType, BTypeSymbol tSymbol, ModuleID moduleID) {
         switch (bType.getKind()) {
             case BOOLEAN:
                 return new BallerinaBooleanTypeSymbol(this.context, moduleID, bType);
@@ -210,9 +216,8 @@ public class TypesFactory {
                 return new BallerinaXMLTypeSymbol(this.context, moduleID, (BXMLType) bType);
             case OBJECT:
                 ObjectTypeSymbol objType = new BallerinaObjectTypeSymbol(this.context, moduleID, (BObjectType) bType);
-                if (Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
-                    return symbolFactory.createClassSymbol((BClassSymbol) bType.tsymbol, bType.tsymbol.name.value,
-                                                           objType);
+                if (Symbols.isFlagOn(tSymbol.flags, Flags.CLASS)) {
+                    return symbolFactory.createClassSymbol((BClassSymbol) tSymbol, tSymbol.name.value, objType);
                 }
                 return objType;
             case RECORD:
@@ -246,8 +251,7 @@ public class TypesFactory {
 
                 return new BallerinaUnionTypeSymbol(this.context, moduleID, finiteType);
             case FUNCTION:
-                return new BallerinaFunctionTypeSymbol(this.context, moduleID, (BInvokableTypeSymbol) bType.tsymbol,
-                        bType);
+                return new BallerinaFunctionTypeSymbol(this.context, moduleID, (BInvokableTypeSymbol) tSymbol, bType);
             case NEVER:
                 return new BallerinaNeverTypeSymbol(this.context, moduleID, (BNeverType) bType);
             case INTERSECTION:
@@ -299,19 +303,26 @@ public class TypesFactory {
         throw new IllegalStateException("Invalid XML subtype type tag: " + internalType.tag);
     }
 
-    private static boolean isTypeReference(BType bType, boolean rawTypeOnly) {
-        if (rawTypeOnly || bType.tsymbol == null) {
+    private boolean isTypeReference(BType bType, BTypeSymbol tSymbol, boolean rawTypeOnly) {
+        // Not considering type params as type refs for now because having it in the typedesc form will make more
+        // sense for end users of the API consumers (e.g., VS Code plugin users). This probably can be removed once
+        // https://github.com/ballerina-platform/ballerina-lang/issues/18150 is fixed.
+        if (rawTypeOnly || tSymbol == null || Symbols.isFlagOn(tSymbol.flags, Flags.TYPE_PARAM)) {
             return false;
         }
 
-        if ((bType.tsymbol.flags & Flags.ANONYMOUS) == Flags.ANONYMOUS) {
+        if (Symbols.isFlagOn(tSymbol.flags, Flags.ANONYMOUS)) {
             return false;
+        }
+
+        if (!isBuiltinNamedType(bType.tag) && !tSymbol.name.value.isEmpty()) {
+            return true;
         }
 
         final TypeKind kind = bType.getKind();
-        return kind == RECORD || kind == OBJECT || kind == PARAMETERIZED || bType.tsymbol.isLabel
+        return kind == RECORD || kind == OBJECT || kind == PARAMETERIZED || tSymbol.isLabel
                 || bType instanceof BIntSubType || bType instanceof BStringSubType || bType instanceof BXMLSubType
-                || bType.tsymbol.kind == SymbolKind.ENUM || isCustomError(bType.tsymbol);
+                || tSymbol.kind == SymbolKind.ENUM || isCustomError(tSymbol);
     }
 
     public static TypeDescKind getTypeDescKind(TypeKind bTypeKind) {
@@ -386,5 +397,34 @@ public class TypesFactory {
 
     private static boolean isCustomError(BTypeSymbol tSymbol) {
         return tSymbol.kind == SymbolKind.ERROR && !Names.ERROR.equals(tSymbol.name);
+    }
+
+    private static boolean isBuiltinNamedType(int tag) {
+        switch (tag) {
+            case INT:
+            case BYTE:
+            case FLOAT:
+            case DECIMAL:
+            case STRING:
+            case BOOLEAN:
+            case JSON:
+            case XML:
+            case NIL:
+            case ANY:
+            case ANYDATA:
+            case HANDLE:
+            case READONLY:
+            case NEVER:
+            case MAP:
+            case STREAM:
+            case TYPEDESC:
+            case TABLE:
+            case ERROR:
+            case FUTURE:
+            case SEMANTIC_ERROR:
+                return true;
+        }
+
+        return false;
     }
 }

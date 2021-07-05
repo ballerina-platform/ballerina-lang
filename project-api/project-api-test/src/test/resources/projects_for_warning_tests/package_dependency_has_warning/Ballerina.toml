@@ -1,4 +1,0 @@
-[package]
-org = "foo"
-name = "test_warning"
-version = "0.1.0"

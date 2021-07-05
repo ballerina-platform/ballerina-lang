@@ -79,7 +79,8 @@ public class ForeachCompletionUtil {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (!isInBlockContext(expr) || !ITERABLES.contains(CommonUtil.getRawType(typeSymbol).typeKind())
                 || !(expr.expression().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
-                expr.expression().kind() == SyntaxKind.FUNCTION_CALL)) {
+                expr.expression().kind() == SyntaxKind.FUNCTION_CALL ||
+                expr.expression().kind() == SyntaxKind.FIELD_ACCESS)) {
             return completionItems;
         }
         completionItems.addAll(getForEachCompletionItems(ctx, expr, typeSymbol));
@@ -110,11 +111,10 @@ public class ForeachCompletionUtil {
         textEdits.add(textEdit);
 
         String symbolName;
-        if (expr.expression().kind() == SyntaxKind.FUNCTION_CALL) {
-            symbolName = expr.expression().toSourceCode().trim();
-            //todo: Trim for arguments as well
-        } else {
+        if (expr.expression().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             symbolName = ((SimpleNameReferenceNode) expr.expression()).name().text();
+        } else {
+            symbolName = expr.expression().toSourceCode().trim();
         }
 
         completionItems.add(new StaticCompletionItem(ctx,
@@ -139,7 +139,7 @@ public class ForeachCompletionUtil {
         String detail = "foreach var item in expr";
         //change label and tests accordingly
         String label = "foreach";
-        String type = getTypeOfIteratorVariable(symbol);
+        String type = getTypeOfIteratorVariable(ctx, symbol);
         StringBuilder snippet = new StringBuilder("foreach");
         snippet.append(" ").append(type).append(" ")
                 .append(CommonUtil.getValidatedSymbolName(ctx, VAR_NAME)).append(" in ").append(symbolName)
@@ -177,22 +177,22 @@ public class ForeachCompletionUtil {
      * @param symbol iterable type symbol.
      * @return signature of the member type.
      */
-    public static String getTypeOfIteratorVariable(TypeSymbol symbol) {
+    public static String getTypeOfIteratorVariable(BallerinaCompletionContext ctx, TypeSymbol symbol) {
 
         String type;
         TypeSymbol rawType = CommonUtil.getRawType(symbol);
         switch (rawType.typeKind()) {
             case STRING:
             case XML:
-                type = rawType.signature();
+                type = CommonUtil.getModifiedTypeName(ctx, rawType);
                 break;
             case ARRAY:
-                type = ((ArrayTypeSymbol) rawType).memberTypeDescriptor().signature();
+                type = CommonUtil.getModifiedTypeName(ctx, ((ArrayTypeSymbol) rawType).memberTypeDescriptor());
                 break;
             case TUPLE:
                 List<String> typesSet = new ArrayList<>(((TupleTypeSymbol) rawType).
                         memberTypeDescriptors().stream().map(
-                        tSymbol -> tSymbol.typeKind().getName()).collect(Collectors.toSet()));
+                        tSymbol -> CommonUtil.getModifiedTypeName(ctx, tSymbol)).collect(Collectors.toSet()));
                 if (typesSet.size() == 1) {
                     type = typesSet.get(0);
                 } else {
@@ -200,13 +200,13 @@ public class ForeachCompletionUtil {
                 }
                 break;
             case MAP:
-                type = ((MapTypeSymbol) rawType).typeParam().signature();
+                type = CommonUtil.getModifiedTypeName(ctx, ((MapTypeSymbol) rawType).typeParam());
                 break;
             case TABLE:
-                type = ((TableTypeSymbol) rawType).rowTypeParameter().signature();
+                type = CommonUtil.getModifiedTypeName(ctx, ((TableTypeSymbol) rawType).rowTypeParameter());
                 break;
             case STREAM:
-                type = ((StreamTypeSymbol) rawType).typeParameter().signature();
+                type = CommonUtil.getModifiedTypeName(ctx, ((StreamTypeSymbol) rawType).typeParameter());
                 break;
             case RECORD:
                 //todo: Fix when #30245 is fixed.

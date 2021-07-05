@@ -55,7 +55,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNDEFINED_STRUCTURE_FIELD("BCE2024", "undefined.field.in.structure"),
     TYPE_NOT_ALLOWED_WITH_NEW("BCE2025", "type.not.allowed.with.new"),
     INVALID_INTERSECTION_TYPE("BCE2026", "invalid.intersection.type"),
-    INVALID_NON_READONLY_INTERSECTION_TYPE("BCE2027", "invalid.non.readonly.intersection.type"),
+    UNSUPPORTED_TYPE_INTERSECTION("BCE2027", "unsupported.type.intersection"),
     INVALID_READONLY_INTERSECTION_TYPE("BCE2028", "invalid.readonly.intersection.type"),
     INVALID_READONLY_OBJECT_INTERSECTION_TYPE("BCE2029", "invalid.readonly.object.intersection.type"),
     INVALID_READONLY_OBJECT_TYPE("BCE2030", "invalid.readonly.object.type"),
@@ -69,7 +69,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL("BCE2038", "attempt.expose.non.public.symbol"),
     UNDEFINED_PARAMETER("BCE2039", "undefined.parameter"),
     ATTACHED_FUNCTIONS_MUST_HAVE_BODY("BCE2040", "attached.functions.must.have.body"),
-    ABSTRACT_OBJECT_CONSTRUCTOR("BCE2041", "abstract.object.constructor"),
+    INIT_METHOD_IN_OBJECT_TYPE_DESCRIPTOR("BCE2041", "illegal.init.method.in.object.type.descriptor"),
     CANNOT_INITIALIZE_ABSTRACT_OBJECT("BCE2042", "cannot.initialize.abstract.object"),
     INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT("BCE2043", "invalid.interface.of.non.abstract.object"),
     UNIMPLEMENTED_REFERENCED_METHOD_IN_CLASS("BCE2044", "unimplemented.referenced.method.in.class"),
@@ -104,7 +104,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     BINARY_OP_INCOMPATIBLE_TYPES("BCE2070", "binary.op.incompatible.types"),
     UNARY_OP_INCOMPATIBLE_TYPES("BCE2071", "unary.op.incompatible.types"),
     SELF_REFERENCE_VAR("BCE2072", "self.reference.var"),
-    INVALID_WORKER_SEND_POSITION("BCE2073", "invalid.worker.send.position"),
+    UNSUPPORTED_WORKER_SEND_POSITION("BCE2073", "unsupported.worker.send.position"),
     INVALID_WORKER_RECEIVE_POSITION("BCE2074", "invalid.worker.receive.position"),
     UNDEFINED_WORKER("BCE2075", "undefined.worker"),
     INVALID_WORKER_JOIN_RESULT_TYPE("BCE2076", "invalid.worker.join.result.type"),
@@ -152,6 +152,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE2114", "defaultable.param.not.allowed.after.included.record.param"),
     REQUIRED_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM(
             "BCE2115", "required.param.not.allowed.after.included.record.param"),
+    INCOMPATIBLE_SUB_TYPE_FIELD("BCE2116", "incompatible.sub.type.field"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
@@ -349,10 +350,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_ERROR_REASON_BINDING_PATTERN("BCE2613", "invalid.error.reason.binding.pattern"),
     INVALID_ERROR_REST_BINDING_PATTERN("BCE2614", "invalid.error.rest.binding.pattern"),
     INVALID_TYPE_DEFINITION_FOR_ERROR_VAR("BCE2615", "invalid.type.definition.for.error.var"),
-    INVALID_ERROR_DESTRUCTURING_NO_REASON_GIVEN("BCE2616", "invalid.error.destructuring.reason"),
-    INVALID_ERROR_MATCH_PATTERN("BCE2617", "invalid.error.match.pattern"),
-    DUPLICATE_VARIABLE_IN_BINDING_PATTERN("BCE2618", "duplicate.variable.in.binding.pattern"),
-    INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN("BCE2619", "invalid.variable.reference.in.binding.pattern"),
+    INVALID_ERROR_MATCH_PATTERN("BCE2616", "invalid.error.match.pattern"),
+    DUPLICATE_VARIABLE_IN_BINDING_PATTERN("BCE2617", "duplicate.variable.in.binding.pattern"),
+    INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN("BCE2618", "invalid.variable.reference.in.binding.pattern"),
+    CANNOT_ASSIGN_VALUE_TO_TYPE_DEF("BCE2619", "cannot.assign.value.to.type.def"),
 
     INVALID_NAMESPACE_PREFIX("BCE2620", "invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("BCE2621", "mismatching.xml.start.end.tags"),
@@ -389,11 +390,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     NEVER_TYPED_VAR_DEF_NOT_ALLOWED("BCE2646", "never.typed.var.def.not.allowed"),
     NEVER_TYPED_OBJECT_FIELD_NOT_ALLOWED("BCE2647", "never.typed.object.field.not.allowed"),
 
-    EXPRESSION_DOES_NOT_SUPPORT_MEMBER_ACCESS("BCE2648", "expression.does.not.support.member.access"),
-    EXPRESSION_DOES_NOT_SUPPORT_FIELD_ACCESS("BCE2649", "expression.does.not.support.field.access"),
     CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTOR_TYPES("BCE2650",
             "cannot.use.type.inclusion.with.more.than.one.open.record.with.different.rest.descriptor.types"),
     INVALID_METHOD_CALL_EXPR_ON_FIELD("BCE2651", "invalid.method.call.expr.on.field"),
+    INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR("BCE2652", "incompatible.type.wait.future.expr"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("BCE2800", "iterable.not.supported.collection"),
@@ -411,9 +411,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     // match statement related errors
     MATCH_STMT_CANNOT_GUARANTEE_A_MATCHING_PATTERN("BCE2900", "match.stmt.cannot.guarantee.a.matching.pattern"),
     MATCH_STMT_UNREACHABLE_PATTERN("BCE2901", "match.stmt.unreachable.pattern"),
-    MATCH_STMT_UNMATCHED_PATTERN("BCE2902", "match.stmt.unmatched.pattern"),
     MATCH_STMT_PATTERN_ALWAYS_MATCHES("BCE2903", "match.stmt.pattern.always.matches"),
-    MATCH_STMT_PATTERN_UNREACHABLE("BCE2904", "match.stmt.unreachable.pattern.available"),
 
     MATCH_PATTERN_NOT_SUPPORTED("BCE2905", "match.pattern.not.supported"),
     MATCH_PATTERNS_SHOULD_CONTAIN_SAME_SET_OF_VARIABLES(
@@ -479,7 +477,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     KEY_SPECIFIER_FIELD_MUST_BE_READONLY("BCE3308", "key.specifier.field.must.be.readonly"),
     KEY_SPECIFIER_FIELD_MUST_BE_REQUIRED("BCE3309", "key.specifier.field.must.be.required"),
     KEY_SPECIFIER_FIELD_MUST_BE_ANYDATA("BCE3310", "key.specifier.field.must.be.anydata"),
-    KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT("BCE3311", "key.specifier.field.value.must.be.constant"),
+    KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT_EXPR("BCE3311", "key.specifier.field.value.must.be.constant.expr"),
     KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT(
             "BCE3312", "key.constraint.not.supported.for.table.with.map.constraint"),
     CANNOT_INFER_MEMBER_TYPE_FOR_TABLE_DUE_AMBIGUITY("BCE3313", "cannot.infer.member.type.for.table.due.ambiguity"),
@@ -508,7 +506,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     TYPE_REQUIRED_FOR_CONST_WITH_EXPRESSIONS("BCE3500", "type.required.for.const.with.expressions"),
     CANNOT_UPDATE_CONSTANT_VALUE("BCE3501", "cannot.update.constant.value"),
     CANNOT_ASSIGN_VALUE_TO_CONSTANT("BCE3502", "cannot.assign.value.to.constant"),
-    CANNOT_DEFINE_CONSTANT_WITH_TYPE("BCE3503", "cannot.define.constant.with.type"),
+    INVALID_CONST_DECLARATION("BCE3503", "invalid.const.declaration"),
     EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION("BCE3504", "expression.is.not.a.constant.expression"),
     INVALID_CONST_EXPRESSION("BCE3505", "invalid.const.expression"),
     CONSTANT_EXPRESSION_NOT_SUPPORTED("BCE3506", "const.expression.not.supported"),
@@ -637,85 +635,88 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE3956", "invalid.non.private.mutable.field.in.isolated.object"),
     INVALID_MUTABLE_FIELD_ACCESS_IN_ISOLATED_OBJECT_OUTSIDE_LOCK(
             "BCE3957", "invalid.mutable.field.access.in.isolated.object.outside.lock"),
-    INVALID_REFERENCE_TO_SELF_IN_ISOLATED_OBJECT_OUTSIDE_LOCK(
-            "BCE3958", "invalid.reference.to.self.in.isolated.object.outside.lock"),
-    INVALID_NON_ISOLATED_EXPRESSION_AS_INITIAL_VALUE("BCE3959", "invalid.non.isolated.expression.as.initial.value"),
+    INVALID_NON_ISOLATED_EXPRESSION_AS_INITIAL_VALUE("BCE3958", "invalid.non.isolated.expression.as.initial.value"),
     INVALID_TRANSFER_OUT_OF_LOCK_WITH_RESTRICTED_VAR_USAGE(
-            "BCE3960", "invalid.transfer.out.of.lock.with.restricted.var.usage"),
+            "BCE3959", "invalid.transfer.out.of.lock.with.restricted.var.usage"),
     INVALID_TRANSFER_INTO_LOCK_WITH_RESTRICTED_VAR_USAGE(
-            "BCE3961", "invalid.transfer.into.lock.with.restricted.var.usage"),
+            "BCE3960", "invalid.transfer.into.lock.with.restricted.var.usage"),
     INVALID_NON_ISOLATED_INVOCATION_IN_LOCK_WITH_RESTRICTED_VAR_USAGE(
-            "BCE3962", "invalid.non.isolated.invocation.in.lock.with.restricted.var.usage"),
-    INVALID_ISOLATED_VARIABLE_ACCESS_OUTSIDE_LOCK("BCE3963", "invalid.isolated.variable.access.outside.lock"),
+            "BCE3961", "invalid.non.isolated.invocation.in.lock.with.restricted.var.usage"),
+    INVALID_ISOLATED_VARIABLE_ACCESS_OUTSIDE_LOCK("BCE3962", "invalid.isolated.variable.access.outside.lock"),
     INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE(
-            "BCE3964", "invalid.assignment.in.lock.with.restricted.var.usage"),
-    INVALID_USAGE_OF_MULTIPLE_RESTRICTED_VARS_IN_LOCK("BCE3965", "invalid.usage.of.multiple.restricted.vars.in.lock"),
+            "BCE3963", "invalid.assignment.in.lock.with.restricted.var.usage"),
+    INVALID_USAGE_OF_MULTIPLE_RESTRICTED_VARS_IN_LOCK("BCE3964", "invalid.usage.of.multiple.restricted.vars.in.lock"),
 
     INVALID_ISOLATED_QUALIFIER_ON_MODULE_NO_INIT_VAR_DECL(
-            "BCE3966", "invalid.isolated.qualifier.on.module.no.init.var.decl"),
+            "BCE3965", "invalid.isolated.qualifier.on.module.no.init.var.decl"),
     ONLY_A_SIMPLE_VARIABLE_CAN_BE_MARKED_AS_ISOLATED(
-            "BCE3967", "only.a.simple.variable.can.be.marked.as.isolated"),
+            "BCE3966", "only.a.simple.variable.can.be.marked.as.isolated"),
 
     // Configurable var related error codes
 
     CONFIGURABLE_VARIABLE_CANNOT_BE_DECLARED_WITH_VAR(
-            "BCE3968", "configurable.variable.cannot.be.declared.with.var"),
-    CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA_AND_READONLY(
-            "BCE3969", "configurable.variable.must.be.anydata.and.readonly"),
+            "BCE3967", "configurable.variable.cannot.be.declared.with.var"),
+    CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA(
+            "BCE3968", "configurable.variable.must.be.anydata"),
     ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_CONFIGURABLE(
-            "BCE3970", "only.simple.variables.are.allowed.to.be.configurable"),
+            "BCE3969", "only.simple.variables.are.allowed.to.be.configurable"),
     CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED(
-            "BCE3971", "configurable.variable.currently.not.supported"),
+            "BCE3970", "configurable.variable.currently.not.supported"),
 
-    REMOTE_FUNCTION_IN_NON_NETWORK_OBJECT("BCE3972", "remote.function.in.non.network.object"),
-    UNSUPPORTED_PATH_PARAM_TYPE("BCE3973", "unsupported.path.param.type"),
-    UNSUPPORTED_REST_PATH_PARAM_TYPE("BCE3974", "unsupported.rest.path.param.type"),
-    OBJECT_TYPE_DEF_DOES_NOT_ALLOW_RESOURCE_FUNC_DECL("BCE3975",
+    REMOTE_FUNCTION_IN_NON_NETWORK_OBJECT("BCE3971", "remote.function.in.non.network.object"),
+    UNSUPPORTED_PATH_PARAM_TYPE("BCE3972", "unsupported.path.param.type"),
+    UNSUPPORTED_REST_PATH_PARAM_TYPE("BCE3973", "unsupported.rest.path.param.type"),
+    OBJECT_TYPE_DEF_DOES_NOT_ALLOW_RESOURCE_FUNC_DECL("BCE3974",
             "unsupported.resource.function.declaration.in.object.type"),
-    SERVICE_ABSOLUTE_PATH_OR_LITERAL_IS_REQUIRED_BY_LISTENER("BCE3976",
+    SERVICE_ABSOLUTE_PATH_OR_LITERAL_IS_REQUIRED_BY_LISTENER("BCE3975",
             "service.absolute.path.or.literal.required.by.listener"),
-    SERVICE_PATH_LITERAL_IS_NOT_SUPPORTED_BY_LISTENER("BCE3977", "service.path.literal.is.not.supported.by.listener"),
-    SERVICE_ABSOLUTE_PATH_IS_NOT_SUPPORTED_BY_LISTENER("BCE3978", "service.absolute.path.is.not.supported.by.listener"),
-    SERVICE_LITERAL_REQUIRED_BY_LISTENER("BCE3979", "service.path.literal.required.by.listener"),
-    SERVICE_ABSOLUTE_PATH_REQUIRED_BY_LISTENER("BCE3980", "service.absolute.path.required.by.listener"),
-    SERVICE_TYPE_IS_NOT_SUPPORTED_BY_LISTENER("BCE3981", "service.type.is.not.supported.by.listener"),
+    SERVICE_PATH_LITERAL_IS_NOT_SUPPORTED_BY_LISTENER("BCE3976", "service.path.literal.is.not.supported.by.listener"),
+    SERVICE_ABSOLUTE_PATH_IS_NOT_SUPPORTED_BY_LISTENER("BCE3977", "service.absolute.path.is.not.supported.by.listener"),
+    SERVICE_LITERAL_REQUIRED_BY_LISTENER("BCE3978", "service.path.literal.required.by.listener"),
+    SERVICE_ABSOLUTE_PATH_REQUIRED_BY_LISTENER("BCE3979", "service.absolute.path.required.by.listener"),
+    SERVICE_TYPE_IS_NOT_SUPPORTED_BY_LISTENER("BCE3980", "service.type.is.not.supported.by.listener"),
 
     INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPE_DESCRIPTOR(
-            "BCE3982", "invalid.read.only.class.inclusion.in.object.type.descriptor"),
-    INVALID_INCLUSION_WITH_MISMATCHED_QUALIFIERS("BCE3983", "invalid.inclusion.with.mismatched.qualifiers"),
-    INVALID_REFERENCE_WITH_MISMATCHED_QUALIFIERS("BCE3984", "invalid.reference.with.mismatched.qualifiers"),
+            "BCE3981", "invalid.read.only.class.inclusion.in.object.type.descriptor"),
+    INVALID_INCLUSION_WITH_MISMATCHED_QUALIFIERS("BCE3982", "invalid.inclusion.with.mismatched.qualifiers"),
+    INVALID_REFERENCE_WITH_MISMATCHED_QUALIFIERS("BCE3983", "invalid.reference.with.mismatched.qualifiers"),
     INVALID_READ_ONLY_TYPEDESC_INCLUSION_IN_OBJECT_TYPEDESC(
-            "BCE3985", "invalid.read.only.typedesc.inclusion.in.object.typedesc"),
+            "BCE3984", "invalid.read.only.typedesc.inclusion.in.object.typedesc"),
     INVALID_READ_ONLY_TYPEDESC_INCLUSION_IN_NON_READ_ONLY_CLASS(
-            "BCE3986", "invalid.read.only.typedesc.inclusion.in.non.read.only.class"),
+            "BCE3985", "invalid.read.only.typedesc.inclusion.in.non.read.only.class"),
     INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS(
-            "BCE3987", "invalid.read.only.class.inclusion.in.non.read.only.class"),
+            "BCE3986", "invalid.read.only.class.inclusion.in.non.read.only.class"),
     INVALID_FIELD_IN_OBJECT_CONSTUCTOR_EXPR_WITH_READONLY_REFERENCE(
-            "BCE3988", "invalid.field.in.object.constructor.expr.with.readonly.reference"),
+            "BCE3987", "invalid.field.in.object.constructor.expr.with.readonly.reference"),
     MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD(
-            "BCE3989", "mismatched.visibility.qualifiers.in.object.field"),
+            "BCE3988", "mismatched.visibility.qualifiers.in.object.field"),
 
-    MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE3990", "multiple.receive.action.not.yet.supported"),
+    MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE3989", "multiple.receive.action.not.yet.supported"),
 
-    INVALID_READONLY_FIELD_TYPE("BCE3991", "invalid.readonly.field.type"),
+    INVALID_READONLY_FIELD_TYPE("BCE3990", "invalid.readonly.field.type"),
 
-    CONTINUE_NOT_ALLOWED("BCE3992", "continue.not.allowed"),
-    BREAK_NOT_ALLOWED("BCE3993", "break.not.allowed"),
-    TYPE_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS("BCE3994", "type.does.not.support.xml.navigation.access"),
-    XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE("BCE3995", "xml.function.does.not.support.argument.type"),
+    CONTINUE_NOT_ALLOWED("BCE3991", "continue.not.allowed"),
+    BREAK_NOT_ALLOWED("BCE3992", "break.not.allowed"),
+    TYPE_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS("BCE3993", "type.does.not.support.xml.navigation.access"),
+    XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE("BCE3994", "xml.function.does.not.support.argument.type"),
 
-    INTERSECTION_NOT_ALLOWED_WITH_TYPE("BCE3996", "intersection.not.allowed.with.type"),
-    ASYNC_SEND_NOT_YET_SUPPORTED_AS_EXPRESSION("BCE3997", "async.send.action.not.yet.supported.as.expression"),
-    UNUSED_VARIABLE_WITH_INFERRED_TYPE_INCLUDING_ERROR("BCE3998", "unused.variable.with.inferred.type.including.error"),
-    INVALID_ITERABLE_OBJECT_TYPE("BCE3999", "invalid.iterable.type"),
-    INVALID_ITERABLE_COMPLETION_TYPE_IN_FOREACH_NEXT_FUNCTION("BCE4000",
+    INTERSECTION_NOT_ALLOWED_WITH_TYPE("BCE3995", "intersection.not.allowed.with.type"),
+    ASYNC_SEND_NOT_YET_SUPPORTED_AS_EXPRESSION("BCE3996", "async.send.action.not.yet.supported.as.expression"),
+    UNUSED_VARIABLE_WITH_INFERRED_TYPE_INCLUDING_ERROR("BCE3997", "unused.variable.with.inferred.type.including.error"),
+    INVALID_ITERABLE_OBJECT_TYPE("BCE3998", "invalid.iterable.type"),
+    INVALID_ITERABLE_COMPLETION_TYPE_IN_FOREACH_NEXT_FUNCTION("BCE3999",
             "invalid.iterable.completion.type.in.foreach.next.function"),
-    SAME_ARRAY_TYPE_AS_MAIN_PARAMETER("BCE4001", "same.array.type.as.main.param"),
-    VARIABLE_AND_ARRAY_TYPE_AS_MAIN_PARAM("BCE4002", "variable.and.array.type.as.main.param"),
-    INVALID_MAIN_OPTION_PARAMS_TYPE("BCE4003", "invalid.main.option.params.type"),
-    WORKER_INTERACTION_AFTER_WAIT_ACTION("BCE4005", "invalid.worker.message.passing.after.wait.action"),
-    OPTIONAL_OPERAND_PRECEDES_OPERAND("BCE4006", "optional.operand.precedes.operand")
-            ;
+    SAME_ARRAY_TYPE_AS_MAIN_PARAMETER("BCE4000", "same.array.type.as.main.param"),
+    VARIABLE_AND_ARRAY_TYPE_AS_MAIN_PARAM("BCE4001", "variable.and.array.type.as.main.param"),
+    INVALID_MAIN_OPTION_PARAMS_TYPE("BCE4002", "invalid.main.option.params.type"),
+    WORKER_INTERACTION_AFTER_WAIT_ACTION("BCE4003", "invalid.worker.message.passing.after.wait.action"),
+    OPTIONAL_OPERAND_PRECEDES_OPERAND("BCE4004", "optional.operand.precedes.operand"),
+    UNIMPLEMENTED_REFERENCED_METHOD_IN_SERVICE_DECL("BCE4005",
+            "unimplemented.referenced.method.in.service.declaration"),
+    UNIMPLEMENTED_REFERENCED_METHOD_IN_OBJECT_CTOR("BCE4006", "unimplemented.referenced.method.in.object.constructor"),
+    UNSUPPORTED_REMOTE_METHOD_NAME_IN_SCOPE("BCE4007", "unsupported.remote.method.name.in.scope"),
+    WILD_CARD_BINDING_PATTERN_ONLY_SUPPORTS_TYPE_ANY("BCE4008", "wild.card.binding.pattern.only.supports.type.any")
+    ;
 
     private String diagnosticId;
     private String messageKey;

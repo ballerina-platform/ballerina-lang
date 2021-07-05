@@ -17,15 +17,21 @@
  */
 package org.ballerinalang.langserver.contexts;
 
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
+import org.eclipse.lsp4j.CompletionParams;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Language server context implementation.
@@ -33,18 +39,24 @@ import java.util.List;
  * @since 2.0.0
  */
 public class BallerinaCompletionContextImpl extends CompletionContextImpl implements BallerinaCompletionContext {
-
     private final List<Node> resolverChain = new ArrayList<>();
     private Token tokenAtCursor;
     private NonTerminalNode nodeAtCursor;
+    private boolean isContextTypeCaptured = false;
+    private TypeSymbol contextType;
+    private boolean isCapturedEnclosingNode = false;
+    private ModuleMemberDeclarationNode enclosingNode = null;
+    private final CompletionParams completionParams;
 
-    public BallerinaCompletionContextImpl(CompletionContext context, LanguageServerContext serverContext) {
+    public BallerinaCompletionContextImpl(CompletionContext context, LanguageServerContext serverContext,
+                                          CompletionParams completionParams) {
         super(context.operation(),
                 context.fileUri(),
                 context.workspace(),
                 context.getCapabilities(),
                 context.getCursorPosition(),
                 serverContext);
+        this.completionParams = completionParams;
     }
 
     @Override
@@ -81,5 +93,45 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
     @Override
     public List<Node> getResolverChain() {
         return this.resolverChain;
+    }
+
+    @Override
+    public Optional<TypeSymbol> getContextType() {
+        if (!this.isContextTypeCaptured) {
+            this.isContextTypeCaptured = true;
+            NonTerminalNode node = getNodeAtCursor();
+            do {
+                ContextTypeResolver contextTypeResolver = new ContextTypeResolver(this);
+                Optional<TypeSymbol> typeSymbol = node.apply(contextTypeResolver);
+                if (typeSymbol == null || typeSymbol.isEmpty()) {
+                    this.contextType = null;
+                } else {
+                    this.contextType = typeSymbol.get();
+                }
+                node = node.parent();
+            } while (this.contextType == null && node != null);
+        }
+
+        return Optional.ofNullable(this.contextType);
+    }
+
+    @Override
+    public CompletionParams getCompletionParams() {
+        return this.completionParams;
+    }
+
+    @Override
+    public Optional<ModuleMemberDeclarationNode> enclosedModuleMember() {
+        if (!this.isCapturedEnclosingNode) {
+            this.isCapturedEnclosingNode = true;
+            Optional<SyntaxTree> syntaxTree = this.currentSyntaxTree();
+            if (syntaxTree.isEmpty()) {
+                throw new RuntimeException("Cannot find a valid syntax tree");
+            }
+            this.enclosingNode = BallerinaContextUtils.getEnclosingModuleMember(syntaxTree.get(),
+                    this.getCursorPositionInTree()).orElse(null);
+        }
+        
+        return Optional.ofNullable(this.enclosingNode);
     }
 }

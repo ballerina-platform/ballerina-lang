@@ -76,14 +76,10 @@ public class ObjectTypeReferenceTest {
                                   "invalid cyclic type reference in '[C, D, A, B, C]'", 74, 1);
         BAssertUtil.validateError(negativeResult, i++,
                                   "invalid cyclic type reference in '[E, C, E]'", 74, 1);
-        // Disable as new class definition will replace objects that can have method implementations.
-//        BAssertUtil.validateError(negativeResult, i++,
-//                                  "no implementation found for the function 'getName' of non-abstract object " +
-//                                          "'Manager2'", 96, 5);
-        i++;
-//        BAssertUtil.validateError(negativeResult, i++,
-//                "no implementation found for the function 'getSalary' of non-abstract object 'Manager2'", 96, 5);
-        i++;
+        BAssertUtil.validateError(negativeResult, i++,
+                "no implementation found for the method 'getName' of class 'Manager2'", 95, 1);
+        BAssertUtil.validateError(negativeResult, i++,
+                "no implementation found for the method 'getSalary' of class 'Manager2'", 95, 1);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Q' is not an object", 101, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared type reference 'Person1'", 111, 6);
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'Baz'", 119, 6);
@@ -107,6 +103,16 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 66, 6);
         BAssertUtil.validateError(negativeResult, i++, "variable 'name' is not initialized", 69, 16);
         BAssertUtil.validateError(negativeResult, i++, "variable 'salary' is not initialized", 73, 16);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
+    }
+
+    @Test
+    public void testOutOfOrderObjectTypeReferenceNegative() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/object" +
+                "/object_out_of_order_inclusion_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "included field 'body' of type 'anydata' cannot " +
+                "be overridden by a field of type 'Baz2': expected a subtype of 'anydata'", 24, 5);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -360,7 +366,6 @@ public class ObjectTypeReferenceTest {
 
     @Test
     public void testInvalidTypeReferenceAcrossModules() {
-//        CompileResult result = BCompileUtil.compile("test-src/object/ObjectProject", "object_reference_negative");
         CompileResult result = BCompileUtil.compile("test-src/object/ObjectRefNegativeProject");
         int index = 0;
 

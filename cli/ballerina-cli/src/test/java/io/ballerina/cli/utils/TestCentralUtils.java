@@ -1,7 +1,7 @@
 package io.ballerina.cli.utils;
 
+import io.ballerina.projects.Settings;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
-import org.ballerinalang.toml.model.Settings;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;

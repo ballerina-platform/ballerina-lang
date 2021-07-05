@@ -105,9 +105,8 @@ function requiredParamTest() {
     functionWithNoRestParam(100, "string", false, 2.2); // incompatible types:
     functionWithNoRestParam(); // not enough arguments in call to 'functionWithNoRestParam()'
     functionWithNoRestParam(f = 1.2); // not enough arguments in call to 'functionWithNoRestParam()'
-    functionWithNoRestParam(b = false, f = 1.2); // missing required parameter 'x' in call to
-    'functionWithNoRestParam()'
-    // missing required parameter 'y' in call to 'functionWithNoRestParam()'
+    functionWithNoRestParam(b = false, f = 1.2); // missing required parameter 'x' in call to 'functionWithNoRestParam()'
+                                                 // missing required parameter 'y' in call to 'functionWithNoRestParam()'
 }
 
 function testDefaultExprEvaluation() {
@@ -126,4 +125,8 @@ function testForwardReferencingParams2(float y = z * 2, float z = getFloat()) { 
 class Foo {
     function testForwardReferencingParams1(int x, int y = z, int z = 12) { } // undefined symbol 'z'
     function testForwardReferencingParams2(float y = z * 2, float z = getFloat()) { } // undefined symbol 'z'
+}
+
+function foobar(string ')  {
+
 }

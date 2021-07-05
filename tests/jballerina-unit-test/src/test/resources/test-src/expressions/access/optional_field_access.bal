@@ -533,6 +533,43 @@ function testNilValuedFinalAccessInNestedAccess() {
     assertTrue(p is ());
 }
 
+public type Quux record {|
+    int i;
+    Baz baz?;
+|};
+
+public type Baz record {|
+    string a;
+    int i?;
+|};
+
+public function testNestedOptionalFieldAccessOnIntersectionTypes() {
+    Quux & readonly q1 = {i: 1, baz: {a: "hello", i: 2}};
+    var v1 = q1?.baz?.i;
+    assertTrue(v1 is int);
+    assertEquality(2, v1);
+
+    Quux & readonly q2 = {i: 1, baz: {a: "hello"}};
+    int? v2 = q2?.baz?.i;
+    assertTrue(v2 is ());
+    assertEquality((), v2);
+
+    Quux & readonly q3 = {i: 1};
+    var v3 = q3?.baz?.i;
+    assertTrue(v3 is ());
+    assertEquality((), v3);
+
+    Quux & readonly q4 = {i: 1, baz: {a: "hello", i: 2}};
+    var v4 = q4?.baz["i"];
+    assertTrue(v4 is int);
+    assertEquality(2, v4);
+
+    Quux & readonly q5 = {i: 1, baz: {a: "hello"}};
+    int? v5 = q5["baz"]?.i;
+    assertTrue(v5 is ());
+    assertEquality((), v5);
+}
+
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
 }

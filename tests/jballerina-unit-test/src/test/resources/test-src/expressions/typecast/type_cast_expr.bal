@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 const ERR_REASON = "error reason";
 const TYPE_CAST_ERROR = "{ballerina}TypeCastError";
 
@@ -378,7 +380,28 @@ function testFutureCastPositive() returns boolean {
 function testFutureCastNegative() {
     future<int> s1 = start testFutureFunc();
     any a = s1;
-    future<json> s2 = <future<json>> a;
+    future<int[]>|error s2 = trap <future<int[]>> a;
+
+    test:assertEquals(true, s2 is error);
+    error err = <error> s2;
+    test:assertEquals("{ballerina}TypeCastError", err.message());
+    test:assertEquals("incompatible types: 'future<int>' cannot be cast to 'future<int[]>'", <string> checkpanic err.detail()["message"]);
+}
+
+function testFutureOfFutureValueCastNegative() {
+    future<future<int>> s = start foo();
+    any a = s;
+    future<future<int[]>>|error res = trap <future<future<int[]>>> a;
+
+    test:assertEquals(true, res is error);
+    error err = <error> res;
+    test:assertEquals("{ballerina}TypeCastError", err.message());
+    test:assertEquals("incompatible types: 'future<future<int>>' cannot be cast to 'future<future<int[]>>'", <string> checkpanic err.detail()["message"]);
+}
+
+function foo() returns future<int> {
+    future<int> f = start testFutureFunc();
+    return f;
 }
 
 function testObjectCastPositive() returns boolean {
@@ -862,6 +885,34 @@ function testMutableJsonMappingToExclusiveRecordNegative() {
     error err = <error> res;
     assertEquality(TYPE_CAST_ERROR, err.message());
     assertEquality("incompatible types: 'map<json>' cannot be cast to 'Bar'", err.detail()["message"]);
+}
+
+function testTypeCastInConstructorMemberWithUnionCET() {
+    any[]|error v1 = [];
+    var fn1 = function () {
+        record {byte[] a;} x = {a: <byte[]> checkpanic v1};
+    };
+    assertErrorForTypeCastFailure(trap fn1());
+
+    var fn2 = function () {
+        record {byte[] a;}|int x = {a: <byte[]> checkpanic v1};
+    };
+    assertErrorForTypeCastFailure(trap fn2());
+
+    any[]|error v2 = <byte[]> [1, 2];
+
+    record {byte[] a;} x = {a: <byte[]> checkpanic v2};
+    assertEquality(<byte[]> [1, 2], x.a);
+
+    record {byte[] a;}|int y = {a: <byte[]> checkpanic v2};
+    assertEquality(<byte[]> [1, 2], (<record {byte[] a;}> y).a);
+}
+
+function assertErrorForTypeCastFailure(error? res) {
+    assertEquality(true, res is error);
+    error err1 = <error> res;
+    assertEquality("{ballerina}TypeCastError", err1.message());
+    assertEquality("incompatible types: 'any[]' cannot be cast to 'byte[]'", err1.detail()["message"]);
 }
 
 // Util functions

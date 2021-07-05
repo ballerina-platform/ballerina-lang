@@ -61,11 +61,14 @@ public class EvaluationUtils {
     public static final String B_BITWISE_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "bitwise_operations";
     public static final String B_SHIFT_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "shift_operations";
     public static final String B_LOGICAL_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "logical_operations";
+    public static final String B_UTILS_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "utils";
 
     // Ballerina runtime helper classes
     private static final String RUNTIME_HELPER_PREFIX = "io.ballerina.runtime.";
+    public static final String B_DEBUGGER_HELPER_UTILS_CLASS = "org.ballerinalang.debugadapter.runtime.DebuggerRuntime";
     public static final String B_TYPE_CHECKER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeChecker";
     public static final String B_TYPE_CREATOR_CLASS = RUNTIME_HELPER_PREFIX + "api.creators.TypeCreator";
+    public static final String B_TYPE_CONVERTER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeConverter";
     public static final String B_VALUE_CREATOR_CLASS = RUNTIME_HELPER_PREFIX + "api.creators.ValueCreator";
     public static final String B_STRING_UTILS_CLASS = RUNTIME_HELPER_PREFIX + "api.utils.StringUtils";
     public static final String B_TYPE_UTILS_CLASS = RUNTIME_HELPER_PREFIX + "api.utils.TypeUtils";
@@ -73,14 +76,16 @@ public class EvaluationUtils {
     public static final String B_DECIMAL_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.DecimalValue";
     public static final String B_XML_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.XmlValue";
     public static final String B_STRING_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BString";
+    public static final String B_OBJECT_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BObject";
     public static final String B_TYPE_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type";
     public static final String B_TYPE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type[]";
     private static final String B_LINK_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BLink";
     private static final String B_ERROR_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.ErrorValue";
-    public static final String FROM_STRING_CLASS = "org.ballerinalang.langlib.xml.FromString";
 
     // Java runtime helper classes
     public static final String JAVA_OBJECT_CLASS = "java.lang.Object";
+    public static final String JAVA_LANG_CLASSLOADER = "java.lang.ClassLoader";
+    public static final String JAVA_OBJECT_ARRAY_CLASS = JAVA_OBJECT_CLASS + "[]";
     public static final String JAVA_STRING_CLASS = "java.lang.String";
     private static final String JAVA_BOOLEAN_CLASS = "java.lang.Boolean";
     private static final String JAVA_INT_CLASS = "java.lang.Integer";
@@ -111,25 +116,30 @@ public class EvaluationUtils {
     public static final String B_UNARY_MINUS_METHOD = "unaryMinus";
     public static final String B_UNARY_INVERT_METHOD = "unaryInvert";
     public static final String B_UNARY_NOT_METHOD = "unaryNot";
+    public static final String B_GET_TRAP_RESULT_METHOD = "getTrapResult";
     public static final String GET_TYPEDESC_METHOD = "getTypedesc";
     public static final String CHECK_IS_TYPE_METHOD = "checkIsType";
     public static final String CHECK_CAST_METHOD = "checkCast";
     public static final String CREATE_UNION_TYPE_METHOD = "createUnionType";
     public static final String CREATE_DECIMAL_VALUE_METHOD = "createDecimalValue";
+    public static final String CREATE_XML_ITEM = "createXmlItem";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String VALUE_FROM_STRING_METHOD = "fromString";
     public static final String REF_EQUAL_METHOD = "isReferenceEqual";
     public static final String VALUE_EQUAL_METHOD = "isEqual";
     public static final String XML_CONCAT_METHOD = "concatenate";
-    public static final String XML_FROM_STRING_METHOD = "fromString";
-    private static final String B_STRING_CONCAT_METHOD = "concat";
+    public static final String STRING_TO_XML_METHOD = "stringToXml";
+    public static final String INVOKE_OBJECT_METHOD_ASYNC = "invokeObjectMethod";
+    public static final String INVOKE_FUNCTION_ASYNC = "invokeFunction";
     static final String FROM_STRING_METHOD = "fromString";
+    private static final String B_STRING_CONCAT_METHOD = "concat";
     private static final String FOR_NAME_METHOD = "forName";
     private static final String GET_STRING_VALUE_METHOD = "getStringValue";
     private static final String INT_VALUE_METHOD = "intValue";
     private static final String LONG_VALUE_METHOD = "longValue";
     private static final String FLOAT_VALUE_METHOD = "floatValue";
     private static final String DOUBLE_VALUE_METHOD = "doubleValue";
+
     // Misc
     public static final String STRAND_VAR_NAME = "__strand";
     public static final String REST_ARG_IDENTIFIER = "...";
@@ -156,14 +166,14 @@ public class EvaluationUtils {
         }
         List<Method> methods = classesRef.get(0).methodsByName(methodName);
         if (methods == null || methods.isEmpty()) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
-                    "occurred when trying to load JVM util function: " + methodName));
+            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
+                    methodName));
         }
         methods = methods.stream().filter(method -> method.isPublic() && method.isStatic() &&
                 compare(method.argumentTypeNames(), argTypeNames)).collect(Collectors.toList());
         if (methods.size() != 1) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
-                    "occurred when trying to load JVM util function: " + methodName));
+            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
+                    methodName));
         }
         return new RuntimeStaticMethod(context, classesRef.get(0), methods.get(0));
     }
@@ -178,16 +188,16 @@ public class EvaluationUtils {
         }
         List<Method> methods = classesRef.get(0).methodsByName(methodName);
         if (methods == null || methods.isEmpty()) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
-                    "occurred when trying to load JVM util function: " + methodName));
+            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
+                    methodName));
         }
         methods = methods.stream()
                 .filter(method -> method.isPublic() && method.isStatic())
                 .collect(Collectors.toList());
 
         if (methods.size() != 1) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
-                    "occurred when trying to load JVM util function: " + methodName));
+            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
+                    methodName));
         }
         return new GeneratedStaticMethod(context, classesRef.get(0), methods.get(0));
     }

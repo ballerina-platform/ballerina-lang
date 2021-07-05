@@ -132,7 +132,7 @@ public class RecordTypeDefinitionTest extends AbstractDeclarationTest {
 
     @Test
     public void testRecordFieldsAfterRestField() {
-        test("record-type-def/record_type_def_source_20.bal", "record-type-def/record_type_def_assert_20.json");
+        testFile("record-type-def/record_type_def_source_20.bal", "record-type-def/record_type_def_assert_20.json");
     }
     
     @Test
@@ -143,5 +143,10 @@ public class RecordTypeDefinitionTest extends AbstractDeclarationTest {
     @Test
     public void testInvalidComplexTypeInTypeInclusion() {
         test("record-type-def/record_type_def_source_26.bal", "record-type-def/record_type_def_assert_26.json");
+    }
+
+    @Test
+    public void testErrorsBeforeRecordTypeDef() {
+        testFile("record-type-def/record_type_def_source_28.bal", "record-type-def/record_type_def_assert_28.json");
     }
 }

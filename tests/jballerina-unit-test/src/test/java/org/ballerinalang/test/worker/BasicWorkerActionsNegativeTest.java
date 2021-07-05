@@ -20,8 +20,6 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -29,18 +27,11 @@ import org.testng.annotations.Test;
  */
 public class BasicWorkerActionsNegativeTest {
 
-    private CompileResult resultNegative, resultSemanticsNegative;
-
-    @BeforeClass
-    public void setup() {
-        resultNegative = BCompileUtil.compile("test-src/workers/actions-negative.bal");
-        resultSemanticsNegative = BCompileUtil.compile("test-src/workers/actions-semantics-negative.bal");
-    }
-
-    @Test(description = "Test negative scenarios of worker actions", groups = {"disableOnOldParser"})
+    @Test(description = "Test negative scenarios of worker actions")
     public void testWorkerActionsSemanticsNegative() {
         int index = 0;
-        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 8, "Worker actions semantics negative test error" +
+        CompileResult resultSemanticsNegative = BCompileUtil.compile("test-src/workers/actions-semantics-negative.bal");
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 9, "Worker actions semantics negative test error" +
                 " count");
         BAssertUtil.validateError(resultSemanticsNegative, index++,
                 "invalid type for worker send 'Person', expected value:Cloneable", 44, 22);
@@ -55,18 +46,20 @@ public class BasicWorkerActionsNegativeTest {
                 "missing identifier", 139, 13);
         BAssertUtil.validateError(resultSemanticsNegative, index++,
                 "missing identifier", 143, 12);
-        BAssertUtil.validateError(resultSemanticsNegative, index,
+        BAssertUtil.validateError(resultSemanticsNegative, index++,
                 "invalid token 'int'", 143, 16);
+        BAssertUtil.validateError(resultSemanticsNegative, index,
+                "incomplete quoted identifier", 147, 12);
     }
 
     @Test(description = "Test negative scenarios of worker actions")
     public void testNegativeWorkerActions() {
         int index = 0;
-
+        CompileResult resultNegative = BCompileUtil.compile("test-src/workers/actions-negative.bal");
         BAssertUtil.validateError(resultNegative, index++, "invalid worker flush expression for 'w1', there are no " +
                 "worker send statements to 'w1' from 'w3'", 62, 17);
-        BAssertUtil.validateError(resultNegative, index++, "invalid worker send statement position, must be a top " +
-                "level statement in a worker", 76, 13);
+        BAssertUtil.validateError(resultNegative, index++, "worker send statement position not supported yet, " +
+                "must be a top level statement in a worker", 76, 13);
         BAssertUtil.validateError(resultNegative, index++, "invalid worker receive statement position, must be a " +
                 "top level statement in a worker", 83, 19);
         BAssertUtil.validateError(resultNegative, index++, "invalid worker flush expression for 'w2', there are no " +
@@ -90,6 +83,36 @@ public class BasicWorkerActionsNegativeTest {
         BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 229, 25);
         BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 231, 21);
 
+        String notSupportedMsg = "worker send statement position not supported yet, " +
+                "must be a top level statement in a worker";
+
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 244, 13);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 246, 17);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 252, 13);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 253, 13);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 257, 13);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 258, 13);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 263, 17);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 266, 17);
+        BAssertUtil.validateError(resultNegative, index++, "undefined worker 'w1'", 271, 26);
+        BAssertUtil.validateError(resultNegative, index++,
+                "invalid worker receive statement position, must be a top level statement in a worker", 278, 21);
+        BAssertUtil.validateError(resultNegative, index++,
+                "invalid worker receive statement position, must be a top level statement in a worker", 283, 19);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 290, 26);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 292, 30);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 298, 26);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 299, 26);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 303, 26);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 304, 26);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 309, 30);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 312, 30);
+        BAssertUtil.validateError(resultNegative, index++, "undefined worker 'w1'", 317, 39);
+        BAssertUtil.validateError(resultNegative, index++,
+                "invalid worker receive statement position, must be a top level statement in a worker", 324, 34);
+        BAssertUtil.validateError(resultNegative, index++,
+                "invalid worker receive statement position, must be a top level statement in a worker", 329, 32);
+
         Assert.assertEquals(resultNegative.getErrorCount(), index, "Worker actions negative test error count");
     }
 
@@ -107,11 +130,5 @@ public class BasicWorkerActionsNegativeTest {
                 19, 16);
 
         Assert.assertEquals(compileResult.getErrorCount(), index);
-    }
-
-    @AfterClass
-    public void tearDown() {
-        resultNegative = null;
-        resultSemanticsNegative = null;
     }
 }

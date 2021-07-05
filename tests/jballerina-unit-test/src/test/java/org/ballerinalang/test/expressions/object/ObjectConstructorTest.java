@@ -126,6 +126,9 @@ public class ObjectConstructorTest {
                       113, 22);
         validateError(negativeResult, index++, "incompatible types: expected '()', found 'stream<string>'",
                       117, 22);
+        validateError(negativeResult, index++,
+                "no implementation found for the method 'onMessage' of object constructor " +
+                        "'object { function onMessage () returns (); }'", 127, 14);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 

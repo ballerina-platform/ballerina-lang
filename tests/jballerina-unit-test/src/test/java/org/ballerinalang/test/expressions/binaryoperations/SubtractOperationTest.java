@@ -19,6 +19,7 @@ package org.ballerinalang.test.expressions.binaryoperations;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -44,14 +45,21 @@ public class SubtractOperationTest {
 
     @Test(description = "Test two int subtract expression")
     public void testIntAddExpr() {
-        BValue[] args = { new BInteger(100), new BInteger(200)};
+        BValue[] args = { new BInteger(1234567891011L), new BInteger(9876543211110L)};
 
         BValue[]  returns = BRunUtil.invoke(result, "intSubtract", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         long actual = ((BInteger) returns[0]).intValue();
-        long expected = -100;
+        long expected = -8641975320099L;
         Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test two int subtract overflow expression", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\" int range " +
+                    "overflow\"\\}.*")
+    public void testIntOverflowBySubtraction() {
+        BRunUtil.invoke(result, "overflowBySubtraction");
     }
 
     @Test(description = "Test two float subtract expression")
@@ -94,10 +102,15 @@ public class SubtractOperationTest {
         };
     }
 
+    @Test(description = "Test contextually expected type of numeric literals in subtraction")
+    public void testContextuallyExpectedTypeOfNumericLiteralInSubtract() {
+        BRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInSubtract");
+    }
+
     @Test(description = "Test substract statement with errors")
     public void testSubtractStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 12);
-        BAssertUtil.validateError(resultNegative, 0, "operator '-' not defined for 'int' and 'string'", 4, 9);
+        BAssertUtil.validateError(resultNegative, 0, "operator '-' not defined for 'float' and 'string'", 4, 9);
         BAssertUtil.validateError(resultNegative, 1, "operator '-' not defined for 'json' and 'json'", 14, 10);
         BAssertUtil.validateError(resultNegative, 2, "operator '-' not defined for 'C' and 'string'", 28, 14);
         BAssertUtil.validateError(resultNegative, 3, "operator '-' not defined for 'C' and '(float|int)'", 29, 14);

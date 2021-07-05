@@ -17,42 +17,54 @@
 import ballerina/jballerina.java;
 
 // Configurations
-final configurable boolean enabled = false;
-final configurable string provider = "";
-final configurable boolean metricsEnabled = false;
-final configurable string metricsReporter = "prometheus";
-final configurable boolean tracingEnabled = false;
-final configurable string tracingProvider = "jaeger";
+configurable boolean enabled = false;
+configurable string provider = "";
+configurable boolean metricsEnabled = false;
+configurable string metricsReporter = "choreo";
+configurable boolean tracingEnabled = false;
+configurable string tracingProvider = "choreo";
 
 function init() {
     externInitializeModule();
 }
 
+# Check whether observability is enabled.
+#
 public isolated function isObservabilityEnabled() returns boolean = @java:Method {
     name: "isObservabilityEnabled",
     'class: "io.ballerina.runtime.observability.ObserveUtils"
 } external;
 
+# Check whether metrics is enabled.
+#
 public isolated function isMetricsEnabled() returns boolean = @java:Method {
     name: "isMetricsEnabled",
     'class: "io.ballerina.runtime.observability.ObserveUtils"
 } external;
 
+# Retrieve metrics provider.
+#
 public isolated function getMetricsProvider() returns string = @java:Method {
     name: "getMetricsProvider",
     'class: "io.ballerina.runtime.observability.ObserveUtils"
 } external;
 
+# Retrieve metrics reporter.
+#
 public isolated function getMetricsReporter() returns string = @java:Method {
     name: "getMetricsReporter",
     'class: "io.ballerina.runtime.observability.ObserveUtils"
 } external;
 
+# Check whether tracing is enabled.
+#
 public isolated function isTracingEnabled() returns boolean = @java:Method {
     name: "isTracingEnabled",
     'class: "io.ballerina.runtime.observability.ObserveUtils"
 } external;
 
+# Retrieve tracer provider.
+#
 public isolated function getTracingProvider() returns string = @java:Method {
     name: "getTracingProvider",
     'class: "io.ballerina.runtime.observability.ObserveUtils"

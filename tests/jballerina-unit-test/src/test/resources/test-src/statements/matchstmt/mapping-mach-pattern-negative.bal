@@ -109,7 +109,5 @@ function testUnmatchedPatternAgainstClosedRecord(Person person) {
     match person {
         {x: var a, ...var rest} => {
         }
-        {id: var a, name: var b, ...var rest} => {
-        }
     }
 }

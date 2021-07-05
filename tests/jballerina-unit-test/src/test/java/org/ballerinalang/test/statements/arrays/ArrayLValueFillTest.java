@@ -90,6 +90,7 @@ public class ArrayLValueFillTest {
         }
     }
 
+    // https://github.com/ballerina-platform/ballerina-lang/issues/20983
     @Test(enabled = false)
     public void test2DObjectArrays2() {
         BValueArray arr = (BValueArray) BRunUtil.invokeFunction(compileResult, "test2DObjectArrays2")[0];

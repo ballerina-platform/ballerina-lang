@@ -26,7 +26,7 @@ function orderingTest() returns string[] {
         i += 1;
     }
 
-    wait ap;
+    checkpanic wait ap;
 
     append(log, "parent: end");
     return log;

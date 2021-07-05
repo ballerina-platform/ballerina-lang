@@ -19,6 +19,7 @@ package org.ballerinalang.test.object;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -37,5 +38,11 @@ public class DistinctObjectTest {
 
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Obj0', found 'Obj2'", 45, 7);
         Assert.assertEquals(result.getErrorCount(), index);
+    }
+
+    @Test
+    public void testDistinctObjectSubtyping() {
+        CompileResult result = BCompileUtil.compile("test-src/object/distinct_objects_type_inclusion_test.bal");
+        BRunUtil.invoke(result, "testDistinctObjectSubtyping");
     }
 }

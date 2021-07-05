@@ -23,6 +23,8 @@ import com.google.gson.annotations.Expose;
 public class Error extends Construct {
     @Expose
     public Type detailType;
+    @Expose
+    public boolean isDistinct;
 
     public Error(String name, String description, boolean isDeprecated, Type detailType) {
         super(name, description, isDeprecated);

@@ -15,18 +15,12 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeParamsNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,7 +29,7 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class StreamTypeParamsNodeContext extends AbstractCompletionProvider<StreamTypeParamsNode> {
+public class StreamTypeParamsNodeContext extends TypeParameterContextProvider<StreamTypeParamsNode> {
 
     public StreamTypeParamsNodeContext() {
         super(StreamTypeParamsNode.class);
@@ -44,19 +38,6 @@ public class StreamTypeParamsNodeContext extends AbstractCompletionProvider<Stre
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, StreamTypeParamsNode node)
             throws LSCompletionException {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-
-        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            QualifiedNameReferenceNode refNode = ((QualifiedNameReferenceNode) nodeAtCursor);
-            List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, refNode);
-            completionItems.addAll(this.getCompletionItemList(typesInModule, context));
-        } else {
-            completionItems.addAll(this.getModuleCompletionItems(context));
-            completionItems.addAll(this.getTypeItems(context));
-        }
-        this.sort(context, node, completionItems);
-
-        return completionItems;
+        return super.getCompletions(context, node);
     }
 }

@@ -18,6 +18,8 @@
 package org.ballerinalang.bindgen.command;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.ProjectLoader;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.bindgen.utils.BindgenUtils;
@@ -33,7 +35,7 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.COMPONENT_IDENTIF
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
 
 /**
- * This class represents the "ballerina bindgen" command.
+ * This class represents the `bal bindgen` command.
  *
  * @since 1.2.0
  */
@@ -80,14 +82,10 @@ public class BindgenCommand implements BLauncherCmd {
     private String mavenDependency;
 
     @CommandLine.Option(names = {"-o", "--output"},
-            description = "Location of the generated Ballerina bridge code."
+            description = "Generate all bindings inside the specified directory. This option could be " +
+                    "used to generate mappings inside a single module."
     )
     private String outputPath;
-
-    @CommandLine.Option(names = {"-m", "--modules"},
-            description = "Enable Java package to Ballerina module mappings"
-    )
-    private boolean modulesFlag;
 
     @CommandLine.Option(names = {"--public"},
             description = "Set the visibility modifier of Ballerina bindings to public."
@@ -99,7 +97,7 @@ public class BindgenCommand implements BLauncherCmd {
 
     private static final String BINDGEN_CMD = "bal bindgen [(-cp|--classpath) <classpath>...]\n" +
             "                  [(-mvn|--maven) <groupId>:<artifactId>:<version>]\n" +
-            "                  [(-o|--output) <output> | (-m|--modules)]\n" +
+            "                  [(-o|--output) <output-path>]\n" +
             "                  [--public]\n" +
             "                  (<class-name>...)";
 
@@ -115,13 +113,7 @@ public class BindgenCommand implements BLauncherCmd {
         }
 
         if (classNames == null) {
-            setOutError("One or more class names should be specified to generate the Ballerina bindings.");
-            exitWithCode(1, this.exitWhenFinish);
-            return;
-        }
-
-        if (this.outputPath != null && modulesFlag) {
-            setOutError("Output path cannot be provided with the modules flag.");
+            setOutError("one or more class names are required");
             exitWithCode(1, this.exitWhenFinish);
             return;
         }
@@ -134,13 +126,8 @@ public class BindgenCommand implements BLauncherCmd {
                 targetOutputPath = Paths.get(targetOutputPath.toString(), outputPath).normalize();
             }
             bindingsGenerator.setOutputPath(targetOutputPath.toString());
-        } else if (modulesFlag) {
-            if (ProjectDirs.findProjectRoot(targetOutputPath) == null) {
-                setOutError("Ballerina project not detected to generate Java package to Ballerina module mappings.");
-                exitWithCode(1, this.exitWhenFinish);
-                return;
-            }
-            bindingsGenerator.setModulesFlag(modulesFlag);
+        } else {
+            bindingsGenerator.setModulesFlag(true);
             bindingsGenerator.setPublic();
         }
 
@@ -148,18 +135,38 @@ public class BindgenCommand implements BLauncherCmd {
             bindingsGenerator.setPublic();
         }
 
+        Project project = null;
         if (!ProjectDirs.isProject(targetOutputPath)) {
             Path projectDir = ProjectDirs.findProjectRoot(targetOutputPath);
-            if (projectDir != null && projectDir.getParent() != null) {
-                Path parentRoot = projectDir.getParent();
-                if (parentRoot != null) {
-                    outStream.println("\nBallerina project detected at: " + parentRoot.toString());
-                    bindingsGenerator.setProject(ProjectLoader.loadProject(parentRoot));
+            if (projectDir != null) {
+                try {
+                    project = ProjectLoader.loadProject(projectDir);
+                } catch (ProjectException e) {
+                    setOutError("unable to load the Ballerina package [" + projectDir + "]: " + e.getMessage());
+                    exitWithCode(1, this.exitWhenFinish);
+                    return;
                 }
+                outStream.println("\nBallerina package detected at: " + projectDir.toString());
+                bindingsGenerator.setProject(project);
             }
         } else {
-            outStream.println("\nBallerina project detected at: " + targetOutputPath.toString());
-            bindingsGenerator.setProject(ProjectLoader.loadProject(targetOutputPath));
+            try {
+                project = ProjectLoader.loadProject(targetOutputPath);
+            } catch (ProjectException e) {
+                setOutError("unable to load the Ballerina package [" + targetOutputPath + "]: " + e.getMessage());
+                exitWithCode(1, this.exitWhenFinish);
+                return;
+            }
+            outStream.println("\nBallerina package detected at: " + targetOutputPath.toString());
+            bindingsGenerator.setProject(project);
+        }
+
+        if (this.outputPath == null && project == null) {
+            setOutError("unable to detect a Ballerina package: bindings should either be generated inside a valid " +
+                    "Ballerina package or the `[(-o|--output) <output-path>]` option should be used to generate " +
+                    "the bindings inside a specific directory");
+            exitWithCode(1, this.exitWhenFinish);
+            return;
         }
 
         String splitCommaRegex = "\\s*,\\s*";
@@ -172,7 +179,7 @@ public class BindgenCommand implements BLauncherCmd {
         if (this.mavenDependency != null) {
             String[] mvnDependency = this.mavenDependency.split(splitColonRegex);
             if (mvnDependency.length != 3) {
-                setOutError("Error in the maven dependency provided.");
+                setOutError("invalid maven dependency provided");
                 exitWithCode(1, this.exitWhenFinish);
                 return;
             }
@@ -186,13 +193,13 @@ public class BindgenCommand implements BLauncherCmd {
             bindingsGenerator.generateJavaBindings();
             exitWithCode(0, this.exitWhenFinish);
         } catch (BindgenException e) {
-            outError.println("\nError while generating Ballerina bindings:\n" + e.getMessage());
+            outError.println("\nFailed to generate the Ballerina bindings.\n" + e.getMessage());
             exitWithCode(1, this.exitWhenFinish);
         }
     }
 
     private void setOutError(String errorValue) {
-        outError.println("\n" + errorValue + "\n");
+        outError.println("\nerror: " + errorValue + "\n");
         outStream.println(BINDGEN_CMD);
         outStream.println("\nUse 'bal bindgen --help' for more information on the command.");
     }
@@ -210,21 +217,24 @@ public class BindgenCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("A CLI tool for generating Ballerina bridge code for Java APIs. \n");
+        out.append("Generate Ballerina bridge code for Java APIs.\n");
         out.append("\n");
-        out.append("Ballerina bindings could be generated for Java classes residing inside Java libraries \n");
-        out.append("or standard Java classes. Here, the Java classes will be mapped onto Ballerina");
-        out.append("objects, making the developer experience of Ballerina Java interoperability seamless. \n");
+        out.append("Ballerina bindings could be generated for Java classes residing inside Java libraries\n");
+        out.append("or for standard Java classes. The Java classes will be mapped to the Ballerina\n");
+        out.append("classes providing a seamless Java interoperability developer experience to Ballerina users.\n");
         out.append("\n");
-        out.append("The directly dependent Java classes and other required resources will be automatically \n");
-        out.append("generated apart from the specified Java classes. \n");
+        out.append("In addition to the user-specified Java classes, partial implementations of directly\n");
+        out.append("-dependent Java classes will also be generated by the tool. By default, the bindings for\n");
+        out.append("each Java package will be mapped to a separate Ballerina module.\n");
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal " + COMPONENT_IDENTIFIER + " java.utils.ArrayDeque\n");
-        out.append("  bal " + COMPONENT_IDENTIFIER + " -cp ./libs/snakeyaml-1.25.jar,./libs/pdfbox-1.8.10.jar " +
-                "  -o ./src/sample org.yaml.snakeyaml.Yaml org.apache.pdfbox.pdmodel.PDDocument java.io.File\n");
+        out.append("  $ bal " + COMPONENT_IDENTIFIER + " java.utils.ArrayDeque\n");
+        out.append("  $ bal " + COMPONENT_IDENTIFIER + " -cp ./libs/snakeyaml-1.25.jar,./libs/pdfbox-1.8.10.jar " +
+                "-o ./modules/sample\n");
+        out.append("  org.yaml.snakeyaml.Yaml org.apache.pdfbox.pdmodel.PDDocument java.io.File\n");
+        out.append("  $ bal " + COMPONENT_IDENTIFIER + " -mvn org.yaml:snakeyaml:1.25 org.yaml.snakeyaml.Yaml\n");
     }
 
     @Override

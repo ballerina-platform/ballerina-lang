@@ -20,7 +20,7 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
-import io.ballerina.toml.syntax.tree.DocumentNode;
+import io.ballerina.toml.syntax.tree.ArrayNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.List;
@@ -35,8 +35,8 @@ public class TomlArrayValueNode extends TomlValueNode {
 
     private final List<TomlValueNode> elements;
 
-    public TomlArrayValueNode(DocumentNode documentNode, List<TomlValueNode> elements, TomlNodeLocation location) {
-        super(documentNode, TomlType.ARRAY, location);
+    public TomlArrayValueNode(ArrayNode arrayNode, List<TomlValueNode> elements, TomlNodeLocation location) {
+        super(arrayNode, TomlType.ARRAY, location);
         this.elements = elements;
     }
 
@@ -80,5 +80,14 @@ public class TomlArrayValueNode extends TomlValueNode {
         for (TomlValueNode child : elements) {
             child.clearDiagnostics();
         }
+    }
+
+    @Override
+    public boolean isMissingNode() {
+        ArrayNode arrayNode = (ArrayNode) externalTreeNode();
+        if (arrayNode.isMissing()) {
+            return true;
+        }
+        return arrayNode.openBracket().isMissing() || arrayNode.closeBracket().isMissing();
     }
 }

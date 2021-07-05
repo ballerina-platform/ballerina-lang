@@ -37,6 +37,7 @@ public class SyntaxTreeNodeTest {
 
     private static final JsonParser JSON_PARSER = new JsonParser();
     private static final String STRING_LITERAL = "STRING_LITERAL";
+    private static final String MINUTIAE = "WHITESPACE_MINUTIAE";
 
     private Path resource;
     private Endpoint serviceEndpoint;
@@ -67,7 +68,8 @@ public class SyntaxTreeNodeTest {
     @DataProvider(name = "stnode-data-provider")
     public Object[][] getDataProvider() {
         return new Object[][]{
-                {0, 0, "IMPORT_DECLARATION"},
+                {0, 0, MINUTIAE},
+                {0, 1, "IMPORT_DECLARATION"},
                 {2, 25, STRING_LITERAL},
                 {4, 20, "FUNCTION_DEFINITION"},
                 {5, 30, STRING_LITERAL},
@@ -79,9 +81,11 @@ public class SyntaxTreeNodeTest {
                 {19, 30, STRING_LITERAL},
                 {16, 5, "SERVICE_DECLARATION"},
                 {12, 5, "RECORD_TYPE_DESC"},
-                {8, 3, "PARAMETERIZED_TYPE_DESC"},
+                {8, 3, "MAP_TYPE_DESC"},
                 {2, 5, "CONST_DECLARATION"},
-                {18, 45, "RETURN_TYPE_DESCRIPTOR"}
+                {18, 45, "RETURN_TYPE_DESCRIPTOR"},
+                {9, 40, MINUTIAE},
+                {19, 42, MINUTIAE}
         };
     }
 }

@@ -740,6 +740,114 @@ function testListMatchPattern29() {
     assertEquals((), listMatchPattern29(1));
 }
 
+type Rec record {|
+    int|float a;
+|};
+
+function testListMatchPattern30() {
+    [int, Rec|string] a1 = [12, {a: 1}];
+    string result = "";
+
+    match a1 {
+        [12, "B"] => {
+            result = "Pattern1";
+        }
+        [12, {a: 2}] => {
+            result = "Pattern2";
+        }
+        [12, {a: 1}] => {
+            result = "Pattern3";
+        }
+    }
+    assertEquals("Pattern3", result);
+
+    result = "";
+
+    match a1 {
+        [12, "B"] => {
+            result = "Pattern1";
+        }
+        [12, {a: 2}] => {
+            result = "Pattern2";
+        }
+        [12, ...var y] => {
+            result = "Pattern3";
+        }
+    }
+    assertEquals("Pattern3", result);
+
+    [int, Rec|string...] a2 = [12, {a: 1}];
+    result = "";
+
+    match a2 {
+        [12, "B"] => {
+            result = "Pattern1";
+        }
+        [12, {a: 2}] => {
+            result = "Pattern2";
+        }
+        [12, {a: 1}] => {
+            result = "Pattern3";
+        }
+    }
+    assertEquals("Pattern3", result);
+
+    [int, string, Rec|string...] a3 = [12, "C", {a: 1.5}];
+    result = "";
+
+    match a3 {
+        [12, "A", "B", "C"] => {
+            result = "Pattern1";
+        }
+        [12, "A", {a: 1}, "B"]|[12, "C", {a: 1.5}] => {
+            result = "Pattern2";
+        }
+        [12, "A"] => {
+            result = "Pattern3";
+        }
+    }
+    assertEquals("Pattern2", result);
+
+    [Rec|string...] a4 = [{a: 1}, {a: 2}, {a: 3}];
+    result = "";
+
+    match a4 {
+        ["A", "B", "C"] => {
+            result = "Pattern1";
+        }
+        [...var a] => {
+            result = "Pattern2";
+        }
+    }
+    assertEquals("Pattern2", result);
+
+    result = "";
+
+    match a4 {
+        [{a: 1}] => {
+            result = "Pattern1";
+        }
+        [{a: 1}, ...var a] => {
+            result = "Pattern2";
+        }
+    }
+    assertEquals("Pattern2", result);
+
+    error err1 = error("Error One", data= [{b: 5}, 12]);
+    [error, Rec|string...] a5 = [err1, {a: 2}, {a: 3}];
+    result = "";
+
+    match a5 {
+        [error(_), {a: 1}] => {
+            result = "Pattern1";
+        }
+        [error(var a, var b), {a: 2}, {a: 3}] => {
+            result = "Pattern2";
+        }
+    }
+    assertEquals("Pattern2", result);
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

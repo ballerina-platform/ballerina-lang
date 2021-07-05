@@ -18,6 +18,7 @@
 
 package io.ballerina.cli.task;
 
+import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
@@ -25,9 +26,6 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
 
 import java.io.PrintStream;
 
@@ -49,7 +47,6 @@ public class CompileTask implements Task {
 
     @Override
     public void execute(Project project) {
-        this.out.println();
         this.out.println("Compiling source");
 
         String sourceName;
@@ -65,10 +62,24 @@ public class CompileTask implements Task {
         this.out.println("\t" + sourceName);
 
         try {
+            long start = 0;
+            if (project.buildOptions().dumpBuildTime()) {
+                start = System.currentTimeMillis();
+                project.currentPackage().getResolution();
+                BuildTime.getInstance().packageResolutionDuration = System.currentTimeMillis() - start;
+                start = System.currentTimeMillis();
+            }
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+            if (project.buildOptions().dumpBuildTime()) {
+                BuildTime.getInstance().packageCompilationDuration = System.currentTimeMillis() - start;
+                start = System.currentTimeMillis();
+            }
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+            if (project.buildOptions().dumpBuildTime()) {
+                BuildTime.getInstance().codeGenDuration = System.currentTimeMillis() - start;
+            }
             DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
-            diagnosticResult.diagnostics().forEach(d -> err.println(convertDiagnosticToString(d)));
+            diagnosticResult.diagnostics().forEach(d -> err.println(d.toString()));
             if (diagnosticResult.hasErrors()) {
                 throw createLauncherException("compilation contains errors");
             }
@@ -76,17 +87,5 @@ public class CompileTask implements Task {
         } catch (ProjectException e) {
             throw createLauncherException("compilation failed: " + e.getMessage());
         }
-    }
-
-    private String convertDiagnosticToString(Diagnostic diagnostic) {
-        LineRange lineRange = diagnostic.location().lineRange();
-
-        LineRange oneBasedLineRange = LineRange.from(
-                lineRange.filePath(),
-                LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
-                LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
-
-        return diagnostic.diagnosticInfo().severity().toString() + " [" +
-                oneBasedLineRange.filePath() + ":" + oneBasedLineRange + "] " + diagnostic.message();
     }
 }

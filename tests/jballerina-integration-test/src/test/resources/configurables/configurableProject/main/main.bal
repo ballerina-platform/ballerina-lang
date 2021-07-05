@@ -100,6 +100,19 @@ configurable nonKeyTable & readonly nonKeyUsers = ?;
 configurable PersonInfoTable peopleInfo = ?;
 configurable EmpInfoTable & readonly empInfoTab = ?;
 
+enum Colors {
+    RED,
+    GREEN
+}
+
+enum CountryCodes {
+    SL = "Sri Lanka",
+    US = "United States"
+}
+
+configurable Colors & readonly color = ?;
+configurable CountryCodes & readonly countryCode = ?;
+
 public function main() {
     testSimpleValues();
     testArrayValues();
@@ -107,6 +120,7 @@ public function main() {
     testCustomArrayTypeValues();
     testRecordValues();
     testTableValues();
+    testEnumValues();
 
     print("Tests passed");
 }
@@ -248,6 +262,11 @@ function testTableValues() {
     testTableIterator(people);
     testTableIterator(peopleInfo);
     testTableIterator(empInfoTab);
+}
+
+function testEnumValues() {
+    test:assertEquals(color, GREEN);
+    test:assertEquals(countryCode, US);
 }
 
 function testTableIterator(table<map<anydata>> tab) {

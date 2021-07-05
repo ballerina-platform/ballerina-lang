@@ -2,73 +2,73 @@ NAME
        ballerina-run - Build and execute a Ballerina program
 
 SYNOPSIS
-       bal run [<options>][<ballerina-file-path> | <executable-jar> | <ballerina-package-path>]
-       				 [-- <args...>]
+       bal run 
+       bal run <executable-jar> 
+       bal run [--offline] [--experimental] [--debug] [--observability-included] 
+               <ballerina-file-path> 
+       bal run [--offline] [--experimental] [--debug] [--observability-included] 
+               <ballerina-file-path> [--] <args...>
+       bal run [--offline] [--experimental] [--debug] [--observability-included] 
+               <ballerina-package-path> [--] <args...>
 
 
 DESCRIPTION
-       Run builds and executes the given .bal file, package, or program.
+       Build and execute the given `.bal` file, package, or program.
 
-       If a Ballerina source file (.bal file) or a package directory is given, the run
+       If a Ballerina source file (`.bal` file) or a package directory is given, this
        command builds and runs it. Compilation is done internally and the
        executable will not be created.
 
        You may use the 'bal build' command to compile a source and
-       provide the generated binary file (.jar file) to the run command.
-       The binary runs much faster than a source file, because running a source
+       provide the generated binary (JAR) file to the run command.
+       The binary runs much faster than a source file because running a source
        file requires a compilation phase.
 
        You must have either a public 'main' function or a service(s) or both
        in order to run a program or a package.
 
-       When both a 'main' function and a service(s) are present, run executes
+       When both a 'main' function and a service(s) are present, this command executes
        the 'main' function first and then starts the services.
 
 
 OPTIONS
        --offline
-           When building a package, the remote repository (Ballerina Central) is
-           always checked for latest artifacts of the dependencies. If the
-           '--offline' option is specified, this remote check is not done and
-           the local artifacts will be used instead.
+           Build offline using the local artifacts without downloading the latest artifacts of the
+           dependencies from the remote repository (Ballerina Central).
 
        --experimental
            Enable experimental language features.
 
        --debug
-           Run in remote debugging mode.
+           Run in the remote debugging mode.
 
        --observability-included
-           Package observability in the executable when run is used
-           with a source file or a package.
-
-       --taint-check
-           Perform taint flow analysis.
+           Include the dependencies and artifacts in the  executable JAR file(s) of a Ballerina 
+           program that are required to enable the observability functionalities on it.
 
 ARGUMENTS
        --
-           The argument '--' signals the end of Ballerina environment
+           The '--' argument signals the end of the Ballerina environment
            parameters. Any and all arguments following '--' are treated as
            arguments to the program even if they start with '--'.
 
        args...
-           The list of command line arguments for the Ballerina program
+           The list of command-line arguments for the Ballerina program
            being run. The semantics of these arguments are defined by
            the program design.
 
 
 DEFAULT BEHAVIOR
-       Run command runs the 'main' function of the default module in the given package, if present.
-       Then looks for a service, and starts the relevant listeners if services
-       are present. If no 'main' function or service is present, the run
-       command will fail.
+       This command runs the 'main' function of the default module in the given package if present.
+       Then, it looks for a service, and starts the relevant listeners if services
+       are present. It will fail if no 'main' function or service is present.
 
 
 EXAMPLES
-       Run the 'main' function and/or services in the hello .bal file.
+       Run the 'main' function and/or services in the `hello.bal` file.
           $ bal run hello.bal
 
-       Run the 'main' function and/or services in the hello executable jar.
+       Run the 'main' function and/or services in the `hello` executable JAR.
           $ bal run hello.jar
 
        Run the 'main' function and/or services in the current package.
@@ -77,5 +77,5 @@ EXAMPLES
        Run the 'main' function in the `math` package with three program args:
        add, 10, and 5. If the second and third parameters of the 'main'
        function are of types int and int, the second and third arguments
-       would be passed as integer values 10 and 5.
+       would be passed as integer values (10 and 5).
           $ bal run math -- add 10 5

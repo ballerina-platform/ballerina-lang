@@ -41,6 +41,7 @@ import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.JACOCO_XML_FORMAT;
 
 /**
  * This class represents the "bal test" command.
@@ -106,6 +107,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
     private Boolean coverage;
 
+    @CommandLine.Option(names = "--coverage-format", description = "list of supported coverage report formats")
+    private String coverageFormat;
+
     @CommandLine.Option(names = "--observability-included", description = "package observability in the executable.")
     private Boolean observabilityIncluded;
 
@@ -118,9 +122,6 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--includes", hidden = true,
             description = "hidden option for code coverage to include all classes")
     private String includes;
-
-//    @CommandLine.Option(names = "--show-all-warnings", description = "show warnings of dependencies")
-    private Boolean showAllWarnings;
 
     private static final String testCmd = "bal test [--offline] [--skip-tests]\n" +
             "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
@@ -142,6 +143,7 @@ public class TestCommand implements BLauncherCmd {
                         "and continuing the test run...");
             }
             coverage = false;
+            testReport = false;
         }
         BuildOptions buildOptions = constructBuildOptions();
         boolean isSingleFile = false;
@@ -169,14 +171,31 @@ public class TestCommand implements BLauncherCmd {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
         //Display warning if any other options are provided with list-groups flag.
-        boolean displayWarning = false;
-        if (listGroups && (rerunTests || groupList != null || disableGroupList != null || testList != null)) {
-            displayWarning = true;
+        if (listGroups && (rerunTests || coverage || testReport || groupList != null || disableGroupList != null
+                || testList != null)) {
+            this.outStream.println("\nWarning: Other flags are skipped when list-groups flag is provided.\n");
         }
 
-        // Skip --includes flag if it is set without code coverage
-        if (!project.buildOptions().codeCoverage() && includes != null) {
-            this.outStream.println("warning: ignoring --includes flag since code coverage is not enabled");
+        if (project.buildOptions().codeCoverage()) {
+            if (coverageFormat != null) {
+                if (!coverageFormat.equals(JACOCO_XML_FORMAT)) {
+                    String errMsg = "unsupported coverage report format '" + coverageFormat + "' found. Only '" +
+                            JACOCO_XML_FORMAT + "' format is supported.";
+                    CommandUtil.printError(this.errStream, errMsg, null, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                }
+            }
+        } else {
+            // Skip --includes flag if it is set without code coverage
+            if (includes != null) {
+                this.outStream.println("warning: ignoring --includes flag since code coverage is not enabled");
+            }
+            // Skip --coverage-format flag if it is set without code coverage
+            if (coverageFormat != null) {
+                this.outStream.println("warning: ignoring --coverage-format flag since code coverage is not " +
+                        "enabled");
+            }
         }
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
@@ -184,9 +203,9 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
-                .addTask(new ListTestGroupsTask(outStream, displayWarning), !listGroups) // list available test groups
+                .addTask(new ListTestGroupsTask(outStream), !listGroups) // list available test groups
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
-                        testList, includes), listGroups)
+                        testList, includes, coverageFormat), listGroups)
                 .build();
 
         taskExecutor.executeTasks(project);
@@ -203,7 +222,6 @@ public class TestCommand implements BLauncherCmd {
                 .skipTests(false)
                 .testReport(testReport)
                 .observabilityIncluded(observabilityIncluded)
-                .showAllWarnings(showAllWarnings)
                 .build();
     }
 

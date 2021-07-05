@@ -74,6 +74,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -233,13 +234,11 @@ public class JvmTypeGen {
      * @param typeDefs array of type definitions
      */
     void generateUserDefinedTypeFields(ClassWriter cw, List<BIRTypeDefinition> typeDefs) {
-
-        String fieldName;
         // create the type
         for (BIRTypeDefinition typeDef : typeDefs) {
             BType bType = typeDef.type;
             if (bType.tag == TypeTags.RECORD || bType.tag == TypeTags.ERROR || bType.tag == TypeTags.OBJECT
-                    || bType.tag == TypeTags.UNION) {
+                    || bType.tag == TypeTags.UNION || bType.tag == TypeTags.TUPLE) {
                 String name = typeDef.internalName.value;
                 generateTypeField(cw, name);
                 generateTypedescField(cw, name);
@@ -314,6 +313,8 @@ public class JvmTypeGen {
                 createErrorType(mv, (BErrorType) bType, bType.tsymbol.name.value);
             } else if (bType.tag == TypeTags.UNION) {
                 createUnionType(mv, (BUnionType) bType);
+            } else if (bType.tag == TypeTags.TUPLE) {
+                createTupleType(mv, (BTupleType) bType);
             } else {
                 // do not generate anything for other types (e.g.: finite type, etc.)
                 continue;
@@ -335,7 +336,7 @@ public class JvmTypeGen {
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
             if (!(bType.tag == TypeTags.RECORD || bType.tag == TypeTags.ERROR || bType.tag == TypeTags.OBJECT
-                    || bType.tag == TypeTags.UNION)) {
+                    || bType.tag == TypeTags.UNION || bType.tag == TypeTags.TUPLE)) {
                 continue;
             }
 
@@ -396,7 +397,7 @@ public class JvmTypeGen {
                                            String.format("(L%s;)V", TYPE_ID_SET), false);
                     }
                     break;
-                 case TypeTags.UNION:
+                case TypeTags.UNION:
                     BUnionType unionType = (BUnionType) bType;
                     mv.visitTypeInsn(CHECKCAST, UNION_TYPE_IMPL);
                     mv.visitInsn(DUP);
@@ -404,10 +405,20 @@ public class JvmTypeGen {
                     mv.visitInsn(DUP);
 
                     addCyclicFlag(mv, unionType);
-
                     // populate member fields
                     addUnionMembers(mv, unionType);
                     addImmutableType(mv, unionType);
+                    break;
+                case TypeTags.TUPLE:
+                    BTupleType tupleType = (BTupleType) bType;
+                    mv.visitTypeInsn(CHECKCAST, TUPLE_TYPE_IMPL);
+                    mv.visitInsn(DUP);
+                    mv.visitInsn(DUP);
+                    mv.visitInsn(DUP);
+
+                    addCyclicFlag(mv, tupleType);
+                    addTupleMembers(mv, tupleType);
+                    addImmutableType(mv, tupleType);
                     break;
             }
 
@@ -437,11 +448,11 @@ public class JvmTypeGen {
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, TYPE_ID_SET, JVM_INIT_METHOD, "()V", false);
 
-        for (BTypeIdSet.BTypeId typeId : typeIdSet.primary) {
+        for (BTypeIdSet.BTypeId typeId : typeIdSet.getPrimary()) {
             addTypeId(mv, typeId, true);
         }
 
-        for (BTypeIdSet.BTypeId typeId : typeIdSet.secondary) {
+        for (BTypeIdSet.BTypeId typeId : typeIdSet.getSecondary()) {
             addTypeId(mv, typeId, false);
         }
     }
@@ -1028,17 +1039,69 @@ public class JvmTypeGen {
     }
 
     /**
+     * Create a runtime type instance for tuple used in type definitions.
+     *
+     * @param mv        method visitor
+     * @param tupleType tuple type
+     */
+    private void createTupleType(MethodVisitor mv, BTupleType tupleType) {
+        mv.visitTypeInsn(NEW, TUPLE_TYPE_IMPL);
+        mv.visitInsn(DUP);
+
+        // Load type name
+        BTypeSymbol typeSymbol = tupleType.tsymbol;
+        mv.visitLdcInsn(decodeIdentifier(typeSymbol.name.getValue()));
+
+        mv.visitTypeInsn(NEW, MODULE);
+        mv.visitInsn(DUP);
+        PackageID packageID = tupleType.tsymbol.pkgID;
+        mv.visitLdcInsn(packageID.orgName.value);
+        mv.visitLdcInsn(packageID.name.value);
+        mv.visitLdcInsn(packageID.version.value);
+        mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
+                String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
+
+        mv.visitLdcInsn(typeFlag(tupleType));
+        loadCyclicFlag(mv, tupleType);
+        loadReadonlyFlag(mv, tupleType);
+
+        // initialize the tuple type without the members array
+        mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE_IMPL, JVM_INIT_METHOD,
+                String.format("(L%s;L%s;IZZ)V", STRING_VALUE, MODULE), false);
+    }
+
+    /**
+     * Add member type to tuple in a type definition.
+     *
+     * @param mv        method visitor
+     * @param tupleType   tupleType
+     */
+    private void addTupleMembers(MethodVisitor mv, BTupleType tupleType) {
+        createTupleMembersList(mv, tupleType.tupleTypes);
+
+        BType restType = tupleType.restType;
+        if (restType == null) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            loadType(mv, restType);
+        }
+
+        mv.visitMethodInsn(INVOKEVIRTUAL, TUPLE_TYPE_IMPL, SET_MEMBERS_METHOD, String.format("(L%s;L%s;)V", LIST, TYPE),
+                false);
+    }
+
+    /**
      * Add member type to unions in a type definition.
      *
      * @param mv        method visitor
      * @param unionType   unionType
      */
     private void addUnionMembers(MethodVisitor mv, BUnionType unionType) {
-        createMembersArray(mv, unionType.getMemberTypes());
+        createUnionMembersArray(mv, unionType.getMemberTypes());
         mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_MEMBERS_METHOD,
                 String.format("([L%s;)V", TYPE), false);
 
-        createMembersArray(mv, unionType.getOriginalMemberTypes());
+        createUnionMembersArray(mv, unionType.getOriginalMemberTypes());
         mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_ORIGINAL_MEMBERS_METHOD,
                 String.format("([L%s;)V", TYPE), false);
     }
@@ -1047,11 +1110,18 @@ public class JvmTypeGen {
      * Add cyclic flag to union.
      *
      * @param mv        method visitor
-     * @param unionType union
+     * @param userDefinedType bType
      */
-    private void addCyclicFlag(MethodVisitor mv, BUnionType unionType) {
-        loadCyclicFlag(mv, unionType);
-        mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
+    private void addCyclicFlag(MethodVisitor mv, BType userDefinedType) {
+        loadCyclicFlag(mv, userDefinedType);
+        switch (userDefinedType.tag) {
+            case TypeTags.TUPLE:
+                mv.visitMethodInsn(INVOKEVIRTUAL, TUPLE_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
+                break;
+            case TypeTags.UNION:
+                mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
+                break;
+        }
     }
 
     /**
@@ -1495,7 +1565,12 @@ public class JvmTypeGen {
                     mv.visitInsn(ACONST_NULL);
                     return;
                 case TypeTags.TUPLE:
-                    loadTupleType(mv, (BTupleType) bType);
+                    BTupleType tupleType = (BTupleType) bType;
+                    if (tupleType.isCyclic) {
+                        loadUserDefinedType(mv, bType);
+                    } else {
+                        loadTupleType(mv, (BTupleType) bType);
+                    }
                     return;
                 case TypeTags.FINITE:
                     loadFiniteType(mv, (BFiniteType) bType);
@@ -1765,8 +1840,8 @@ public class JvmTypeGen {
         mv.visitTypeInsn(NEW, UNION_TYPE_IMPL);
         mv.visitInsn(DUP);
 
-        createMembersArray(mv, unionType.getMemberTypes());
-        createMembersArray(mv, unionType.getOriginalMemberTypes());
+        createUnionMembersArray(mv, unionType.getMemberTypes());
+        createUnionMembersArray(mv, unionType.getOriginalMemberTypes());
 
         boolean nameLoaded = loadUnionName(mv, unionType);
 
@@ -1815,11 +1890,31 @@ public class JvmTypeGen {
         return true;
     }
 
-    private void loadCyclicFlag(MethodVisitor mv, BUnionType unionType) {
-        mv.visitInsn(unionType.isCyclic ? ICONST_1 : ICONST_0);
+    private void loadCyclicFlag(MethodVisitor mv, BType valueType) {
+        switch (valueType.tag) {
+            case TypeTags.UNION:
+                mv.visitInsn(((BUnionType) valueType).isCyclic ? ICONST_1 : ICONST_0);
+                break;
+            case TypeTags.TUPLE:
+                mv.visitInsn(((BTupleType) valueType).isCyclic ? ICONST_1 : ICONST_0);
+                break;
+        }
     }
 
-    private void createMembersArray(MethodVisitor mv, Set<BType> members) {
+    private void createTupleMembersList(MethodVisitor mv, List<BType> members) {
+        mv.visitTypeInsn(NEW, ARRAY_LIST);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, JVM_INIT_METHOD, "()V", false);
+
+        for (BType tupleType : members) {
+            mv.visitInsn(DUP);
+            loadType(mv, tupleType);
+            mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", String.format("(L%s;)Z", OBJECT), true);
+            mv.visitInsn(POP);
+        }
+    }
+
+    private void createUnionMembersArray(MethodVisitor mv, Set<BType> members) {
         mv.visitLdcInsn((long) members.size());
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, TYPE);
@@ -1924,9 +2019,11 @@ public class JvmTypeGen {
         // Load type flags
         mv.visitLdcInsn(typeFlag(bType));
 
+        loadCyclicFlag(mv, bType);
+
         loadReadonlyFlag(mv, bType);
 
-        mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE_IMPL, JVM_INIT_METHOD, String.format("(L%s;L%s;IZ)V", LIST, TYPE),
+        mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE_IMPL, JVM_INIT_METHOD, String.format("(L%s;L%s;IZZ)V", LIST, TYPE),
                            false);
     }
 
@@ -2125,7 +2222,7 @@ public class JvmTypeGen {
 
         for (BLangExpression valueTypePair : finiteType.getValueSpace()) {
             Object value = ((BLangLiteral) valueTypePair).value;
-            BType valueType = valueTypePair.type;
+            BType valueType = valueTypePair.getBType();
             mv.visitInsn(DUP);
 
             JvmCodeGenUtil.loadConstantValue(valueType, value, mv, stringConstantsGen);

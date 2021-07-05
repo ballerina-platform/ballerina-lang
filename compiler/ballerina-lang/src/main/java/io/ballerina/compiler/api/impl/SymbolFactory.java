@@ -53,6 +53,8 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
@@ -92,11 +94,15 @@ public class SymbolFactory {
 
     private final CompilerContext context;
     private final TypesFactory typesFactory;
+    private final Types types;
+    private final SymbolTable symTable;
 
     private SymbolFactory(CompilerContext context) {
         context.put(SYMBOL_FACTORY_KEY, this);
         this.context = context;
         this.typesFactory = TypesFactory.getInstance(context);
+        this.types = Types.getInstance(context);
+        this.symTable = SymbolTable.getInstance(context);
     }
 
     public static SymbolFactory getInstance(CompilerContext context) {
@@ -163,6 +169,11 @@ public class SymbolFactory {
             }
             if (symbol.kind == SymbolKind.PATH_REST_PARAMETER) {
                 return createPathParamSymbol((BVarSymbol) symbol, PathSegment.Kind.PATH_REST_PARAMETER);
+            }
+
+            // If the symbol is a wildcard('_'), a variable symbol will not be created.
+            if (((BVarSymbol) symbol).isWildcard) {
+                return null;
             }
 
             // return the variable symbol
@@ -237,7 +248,8 @@ public class SymbolFactory {
             builder.withAnnotation(createAnnotationSymbol(annAttachment.annotationSymbol));
         }
 
-        return builder.withTypeDescriptor((FunctionTypeSymbol) typesFactory.getTypeDescriptor(invokableSymbol.type))
+        return builder.withTypeDescriptor((FunctionTypeSymbol) typesFactory
+                .getTypeDescriptor(invokableSymbol.type, invokableSymbol.type.tsymbol, true))
                 .build();
     }
 
@@ -312,6 +324,9 @@ public class SymbolFactory {
         }
         if (isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
             symbolBuilder.withQualifier(Qualifier.CONFIGURABLE);
+        }
+        if (isFlagOn(symbol.flags, Flags.ISOLATED)) {
+            symbolBuilder.withQualifier(Qualifier.ISOLATED);
         }
 
         for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
@@ -398,7 +413,8 @@ public class SymbolFactory {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
 
-        return symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(typeSymbol.type, true)).build();
+        return symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(typeSymbol.type, typeSymbol, true))
+                .build();
     }
 
     public BallerinaEnumSymbol createEnumSymbol(BEnumSymbol enumSymbol, String name) {
@@ -420,12 +436,12 @@ public class SymbolFactory {
 
         return symbolBuilder
                 .withMembers(members)
-                .withTypeDescriptor(typesFactory.getTypeDescriptor(enumSymbol.type, true))
+                .withTypeDescriptor(typesFactory.getTypeDescriptor(enumSymbol.type, enumSymbol, true))
                 .build();
     }
 
     public BallerinaClassSymbol createClassSymbol(BClassSymbol classSymbol, String name) {
-        TypeSymbol type = typesFactory.getTypeDescriptor(classSymbol.type, true);
+        TypeSymbol type = typesFactory.getTypeDescriptor(classSymbol.type, classSymbol, true);
         return createClassSymbol(classSymbol, name, type);
     }
 
@@ -514,7 +530,10 @@ public class SymbolFactory {
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
-        if (symbol.attachedType != null && symbol.attachedType.getType() != null) {
+
+        // Skipping the compiler-generated singleton type `true`.
+        if (symbol.attachedType != null && symbol.attachedType.getType() != null
+                && !types.isAssignable(symbol.attachedType.getType(), this.symTable.trueType)) {
             symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(symbol.attachedType.getType()));
         }
 

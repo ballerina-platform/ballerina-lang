@@ -6,13 +6,13 @@
   "source": "statement_context/source/typeguard_stmt_source2.bal",
   "items": [
     {
-      "label": "cloneReadOnly()(Cloneable & readonly)",
+      "label": "cloneReadOnly()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "CloneableType & readonly",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `Cloneable & readonly`   \n- immutable clone of `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
         }
       },
       "sortText": "D",
@@ -21,13 +21,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "clone()(Cloneable)",
+      "label": "clone()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "CloneableType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `Cloneable`   \n- clone of `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `CloneableType`   \n- clone of parameter `v`  \n  \n"
         }
       },
       "sortText": "D",
@@ -36,13 +36,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ensureType(typedesc<any> t)(t|error)",
+      "label": "ensureType(typedesc<any> t)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "t|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nSafely casts a value to a type.\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it\nreturn - `v` cast to the type described by `t`, or an error, if the cast cannot be done(Defaultable)  \n  \n**Returns** `t|error`   \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it\nreturn - `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done(Defaultable)  \n  \n**Return** `t|error`   \n  \n"
         }
       },
       "sortText": "D",

@@ -28,7 +28,9 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 
 /**
  * This class contains a set of utility method related to compiler plugin implementation.
@@ -36,8 +38,21 @@ import java.util.List;
  * @since 2.0.0
  */
 public class CompilerPlugins {
+    static List<CompilerPlugin> builtInPlugins = new ArrayList<>();
 
     private CompilerPlugins() {
+    }
+
+    static {
+        ServiceLoader<CompilerPlugin> pluginServiceLoader = ServiceLoader
+                .load(CompilerPlugin.class, CompilerPlugins.class.getClassLoader());
+        for (CompilerPlugin plugin : pluginServiceLoader) {
+            builtInPlugins.add(plugin);
+        }
+    }
+
+    public static List<CompilerPlugin> getBuiltInPlugins() {
+        return builtInPlugins;
     }
 
     public static CompilerPlugin loadCompilerPlugin(String pluginClassName, List<Path> jarDependencyPaths) {
@@ -80,7 +95,8 @@ public class CompilerPlugins {
 
     private static ClassLoader createClassLoader(List<Path> jarDependencyPaths) {
         return AccessController.doPrivileged(
-                (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(getJarURLS(jarDependencyPaths))
+                (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(getJarURLS(jarDependencyPaths),
+                        CompilerPlugins.class.getClassLoader())
         );
     }
 

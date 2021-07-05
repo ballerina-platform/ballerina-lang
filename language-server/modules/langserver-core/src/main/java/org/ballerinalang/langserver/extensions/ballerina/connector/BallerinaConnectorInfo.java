@@ -28,28 +28,31 @@ public class BallerinaConnectorInfo {
     private String module;
     private String name;
     private String version;
+    private String cacheVersion;
     private String displayName;
     private String logoBase64Encoded;
     private Boolean beta;
     private String category;
 
-    public BallerinaConnectorInfo(String org, String module, String name,
-                                  String version, String displayName, Boolean beta, String category) {
+    public BallerinaConnectorInfo(String org, String module, String name, String version, String cacheVersion,
+                                  String displayName, Boolean beta, String category) {
         this.org = org;
         this.module = module;
         this.name = name;
         this.version = version;
+        this.cacheVersion = cacheVersion;
         this.displayName = displayName;
         this.beta = beta;
         this.category = category;
     }
 
-    public BallerinaConnectorInfo(String org, String module, String name, String version, String displayName,
-                                  String logoBase64Encoded, Boolean beta, String category) {
+    public BallerinaConnectorInfo(String org, String module, String name, String version, String cacheVersion,
+                                  String displayName, String logoBase64Encoded, Boolean beta, String category) {
         this.org = org;
         this.module = module;
         this.name = name;
         this.version = version;
+        this.cacheVersion = cacheVersion;
         this.displayName = displayName;
         this.logoBase64Encoded = logoBase64Encoded;
         this.beta = beta;
@@ -70,6 +73,10 @@ public class BallerinaConnectorInfo {
 
     public String getVersion() {
         return version;
+    }
+
+    public String getCacheVersion() {
+        return cacheVersion;
     }
 
     public String getDisplayName() {

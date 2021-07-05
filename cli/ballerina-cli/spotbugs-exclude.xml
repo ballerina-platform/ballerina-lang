@@ -30,14 +30,6 @@
         <Bug pattern="UWF_UNWRITTEN_FIELD"/>
     </Match>
     <Match>
-        <Class name="io.ballerina.cli.cmd.TestCommand"/>
-        <Bug pattern="UWF_UNWRITTEN_FIELD"/>
-    </Match>
-    <Match>
-        <Class name="io.ballerina.cli.cmd.DocCommand"/>
-        <Bug pattern="UWF_UNWRITTEN_FIELD"/>
-    </Match>
-    <Match>
         <Class name="io.ballerina.cli.task.RunTestsTask"/>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
     </Match>
@@ -52,6 +44,10 @@
     <Match>
         <Class name="io.ballerina.cli.launcher.LauncherUtils"/>
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.cli.utils.BuildTime"/>
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
     </Match>
     <Match>>
         <Package name="io.ballerina.cli.launcher"/>

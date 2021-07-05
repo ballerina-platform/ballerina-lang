@@ -278,7 +278,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
             if (funcNode.mapSymbol == null) {
                 createFunctionMap(funcNode, funcEnv);
             }
-            addToFunctionMap(funcNode, funcEnv, position, receiver.symbol, receiver.type);
+            addToFunctionMap(funcNode, funcEnv, position, receiver.symbol, receiver.getBType());
         }
 
         funcNode.body = rewrite(funcNode.body, funcEnv);
@@ -369,12 +369,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
         BLangSimpleVarRef.BLangLocalVarRef localVarRef = new BLangSimpleVarRef.BLangLocalVarRef(paramSymbol);
         // Added the flag so it will not be desugared again.
         localVarRef.closureDesugared = true;
-        localVarRef.type = type;
+        localVarRef.setBType(type);
         BLangIndexBasedAccess accessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(funcNode.pos, type,
                 funcNode.mapSymbol, ASTBuilderUtil.createLiteral(funcNode.pos, symTable.stringType,
                         paramSymbol.name.value));
-        accessExpr.type = ((BMapType) funcNode.mapSymbol.type).constraint;
-        accessExpr.lhsVar = true;
+        accessExpr.setBType(((BMapType) funcNode.mapSymbol.type).constraint);
+        accessExpr.isLValue = true;
         BLangAssignment stmt = desugar.rewrite(ASTBuilderUtil.createAssignmentStmt(funcNode.pos, accessExpr,
                 localVarRef), symbolEnv);
         ((BLangBlockFunctionBody) funcNode.body).stmts.add(position, stmt);
@@ -443,12 +443,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         // Add the variable to the created map.
         BLangIndexBasedAccess accessExpr =
-                ASTBuilderUtil.createIndexBasesAccessExpr(varDefNode.pos, varDefNode.type, mapSymbol,
+                ASTBuilderUtil.createIndexBasesAccessExpr(varDefNode.pos, varDefNode.getBType(), mapSymbol,
                                                           ASTBuilderUtil
                                                                   .createLiteral(varDefNode.pos, symTable.stringType,
                                                                                  varDefNode.var.name.value));
-        accessExpr.type = ((BMapType) mapSymbol.type).constraint;
-        accessExpr.lhsVar = true;
+        accessExpr.setBType(((BMapType) mapSymbol.type).constraint);
+        accessExpr.isLValue = true;
         // Written to: 'map["x"] = 8'.
         return ASTBuilderUtil.createAssignmentStmt(varDefNode.pos, accessExpr, varDefNode.var.expr);
     }
@@ -460,6 +460,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
             return createMapSymbolIfAbsent((BLangBlockStmt) node, closureMapCount);
         } else if (node.getKind() == NodeKind.FUNCTION) {
             return createMapSymbolIfAbsent((BLangFunction) node, closureMapCount);
+        } else if (node.getKind() == NodeKind.RESOURCE_FUNC) {
+            return createMapSymbolIfAbsent((BLangResourceFunction) node, closureMapCount);
         }
         return null;
     }
@@ -593,10 +595,10 @@ public class ClosureDesugar extends BLangNodeVisitor {
     public void visit(BLangAssignment assignNode) {
         assignNode.varRef = rewriteExpr(assignNode.varRef);
         if (assignNode.expr.impConversionExpr != null) {
-            types.setImplicitCastExpr(assignNode.expr.impConversionExpr, assignNode.expr.impConversionExpr.type,
-                    assignNode.varRef.type);
+            types.setImplicitCastExpr(assignNode.expr.impConversionExpr, assignNode.expr.impConversionExpr.getBType(),
+                                      assignNode.varRef.getBType());
         } else {
-            types.setImplicitCastExpr(assignNode.expr, assignNode.expr.type, assignNode.varRef.type);
+            types.setImplicitCastExpr(assignNode.expr, assignNode.expr.getBType(), assignNode.varRef.getBType());
         }
         assignNode.expr = rewriteExpr(assignNode.expr);
         result = assignNode;
@@ -1168,8 +1170,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
         // Create the index based access expression.
         BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(varRefExpr.pos, symTable.stringType,
                 varRefExpr.varSymbol.name.value);
-        BLangIndexBasedAccess accessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(varRefExpr.pos, varRefExpr.type,
-                mapSymbol, indexExpr);
+        BLangIndexBasedAccess accessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(varRefExpr.pos,
+                                                                                     varRefExpr.getBType(),
+                                                                                     mapSymbol, indexExpr);
         result = rewriteExpr(accessExpr);
     }
 

@@ -43,7 +43,7 @@ import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_SPREAD_OP;
  * @see BLangMapLiteral
  * @since 0.94
  */
-public class BLangRecordLiteral extends BLangAccessibleExpression implements RecordLiteralNode {
+public class BLangRecordLiteral extends BLangExpression implements RecordLiteralNode {
 
     public List<RecordField> fields;
 
@@ -59,7 +59,7 @@ public class BLangRecordLiteral extends BLangAccessibleExpression implements Rec
     public BLangRecordLiteral(Location pos, BType type) {
         this.pos = pos;
         fields = new ArrayList<>();
-        this.type = type;
+        this.setBType(type);
     }
 
     @Override
@@ -235,7 +235,7 @@ public class BLangRecordLiteral extends BLangAccessibleExpression implements Rec
 
         public BLangStructLiteral(Location pos, BType structType, List<RecordField> fields) {
             super(pos);
-            this.type = structType;
+            this.setBType(structType);
             this.initializer = ((BRecordTypeSymbol) structType.tsymbol).initializerFunc;
             this.fields = fields;
         }
@@ -255,7 +255,7 @@ public class BLangRecordLiteral extends BLangAccessibleExpression implements Rec
 
         public BLangMapLiteral(Location pos, BType mapType, List<RecordField> fields) {
             super(pos);
-            this.type = mapType;
+            this.setBType(mapType);
             this.fields = fields;
         }
 
@@ -276,7 +276,7 @@ public class BLangRecordLiteral extends BLangAccessibleExpression implements Rec
 
         public BLangChannelLiteral(Location pos, BType channelType, String channelName) {
             super(pos);
-            this.type = channelType;
+            this.setBType(channelType);
             this.channelName = channelName;
         }
 

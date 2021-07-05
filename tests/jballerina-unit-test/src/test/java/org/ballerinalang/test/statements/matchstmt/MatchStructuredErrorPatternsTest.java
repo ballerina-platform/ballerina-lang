@@ -35,7 +35,6 @@ import org.testng.annotations.Test;
  *
  * @since 0.990.4
  */
-@Test(groups = "brokenOnErrorChange")
 public class MatchStructuredErrorPatternsTest {
     private CompileResult result, resultNegative;
 
@@ -90,13 +89,11 @@ public class MatchStructuredErrorPatternsTest {
         BValueArray results = (BValueArray) returns[0];
         int i = -1;
         String msg = "Matched with ";
-        // todo: uncomment after fixing record match, and remove ++i below
-        //Assert.assertEquals(results.getString(++i), msg + "a record : true");
-        ++i;
+        Assert.assertEquals(results.getString(++i), msg + "a record : true");
         Assert.assertEquals(results.getString(++i), msg + "an error : Error Code 1");
-        Assert.assertEquals(results.getString(++i), msg + "an error : Error Code 1 {}");
+        Assert.assertEquals(results.getString(++i), msg + "an error : Error Code 1");
         Assert.assertEquals(results.getString(++i), msg + "an error 1: Error Code 1");
-        Assert.assertEquals(results.getString(++i), msg + "an error : Error Code 1, message = Something Wrong");
+        Assert.assertEquals(results.getString(++i), msg + "an error 1: Error Code 1");
     }
 
     @Test(description = "Test basics of structured pattern match statement 1")
@@ -128,9 +125,7 @@ public class MatchStructuredErrorPatternsTest {
         BValueArray results = (BValueArray) returns[0];
         int i = -1;
         String msg = "Matched with ";
-        // todo: uncomment after fixing record match, and remove ++i below
-        //Assert.assertEquals(results.getString(++i), msg + "a record : true");
-        ++i;
+        Assert.assertEquals(results.getString(++i), msg + "a record : true");
         Assert.assertEquals(results.getString(++i), "Default");
         Assert.assertEquals(results.getString(++i), msg + "an error : Error Code 1Something Wrong");
     }
@@ -149,7 +144,7 @@ public class MatchStructuredErrorPatternsTest {
     public void testErrorRestParameterMatch() {
         BInteger[] args0 = { new BInteger(0) };
         BValue[] returns0 = BRunUtil.invoke(result, "testErrorRestParamMatch", args0);
-        Assert.assertEquals(returns0[0].stringValue(), "Msg of error-0");
+        Assert.assertEquals(returns0[0].stringValue(), "Error Code{}");
 
         BInteger[] args1 = { new BInteger(1) };
         BValue[] returns1 = BRunUtil.invoke(result, "testErrorRestParamMatch", args1);
@@ -161,7 +156,7 @@ public class MatchStructuredErrorPatternsTest {
 
         BInteger[] args3 = { new BInteger(3) };
         BValue[] returns3 = BRunUtil.invoke(result, "testErrorRestParamMatch", args3);
-        Assert.assertEquals(returns3[0].stringValue(), "Error Code foo=foo");
+        Assert.assertEquals(returns3[0].stringValue(), "Error Code{\"foo\":\"foo\"}");
     }
 
     @Test(description = "Test error match pattern")
@@ -186,40 +181,19 @@ public class MatchStructuredErrorPatternsTest {
         Assert.assertEquals(returns[0].stringValue(), "Msg");
     }
 
-    @Test(description = "Test pattern will not be matched 2")
+    @Test
     public void testUnreachablePatterns() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 8);
+        Assert.assertEquals(resultNegative.getWarnCount(), 8);
         int i = -1;
-        String unreachablePattern = "unreachable pattern: " +
-                "preceding patterns are too general or the pattern ordering is not correct";
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 29, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 34, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 44, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 50, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 60, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 65, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 80, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 85, 13);
-    }
-
-    @Test(description = "Test unsupported error match pattern")
-    public void testErrorMatchPatternNotSupportedErrors() {
-        CompileResult result = BCompileUtil.compile(
-                "test-src/statements/matchstmt/structured_error_match_patterns_negative2.bal");
-        int i = 0;
-        BAssertUtil.validateError(result, i++,
-                "error match pattern with a constant reference as the reason is not yet supported", 33, 15);
-        BAssertUtil.validateError(result, i++,
-                "invalid error reason binding pattern, error reason should be 'var reason'", 36, 15);
-        BAssertUtil.validateError(result, i++,
-                "invalid error reason binding pattern, error reason should be 'var r'", 45, 15);
-        BAssertUtil.validateError(result, i++,
-                "invalid error detail type 'ErrorDataABC', expected a subtype of " +
-                        "'record {| string message?; error cause?; (anydata|error)...; |}'", 52, 24);
-        BAssertUtil.validateError(result, i++, "unknown type 'ErrorDataABC'", 52, 24);
-        BAssertUtil.validateError(result, i++, "undefined symbol 'm'", 57, 62);
-        Assert.assertEquals(result.getErrorCount(), i);
-
+        String unreachablePattern = "unreachable pattern";
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 29, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 44, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 49, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 50, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 60, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 65, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 80, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 85, 9);
     }
 
     @Test()

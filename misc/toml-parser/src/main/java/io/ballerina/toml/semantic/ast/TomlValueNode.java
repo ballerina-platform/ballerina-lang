@@ -20,7 +20,7 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
-import io.ballerina.toml.syntax.tree.DocumentNode;
+import io.ballerina.toml.syntax.tree.Node;
 
 /**
  * Represents TOML Value in AST.
@@ -29,8 +29,8 @@ import io.ballerina.toml.syntax.tree.DocumentNode;
  */
 public abstract class TomlValueNode extends TomlNode {
 
-    public TomlValueNode(DocumentNode documentNode, TomlType kind, TomlNodeLocation location) {
-        super(documentNode, kind, location);
+    public TomlValueNode(Node node, TomlType kind, TomlNodeLocation location) {
+        super(node, kind, location);
     }
 
     @Override

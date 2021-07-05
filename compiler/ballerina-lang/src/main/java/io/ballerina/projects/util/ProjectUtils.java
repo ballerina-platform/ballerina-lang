@@ -25,17 +25,21 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
+import io.ballerina.projects.Settings;
+import io.ballerina.projects.internal.ImportModuleRequest;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.toml.model.Settings;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.packaging.converters.URIDryConverter;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Lists;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -45,7 +49,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.Authenticator;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -56,15 +59,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.StringJoiner;
+import java.util.jar.Attributes;
 import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,7 +82,6 @@ import static io.ballerina.projects.util.ProjectConstants.ASM_JAR;
 import static io.ballerina.projects.util.ProjectConstants.ASM_TREE_JAR;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_HOME;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_HOME_BRE;
-import static io.ballerina.projects.util.ProjectConstants.BALLERINA_PACK_VERSION;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT;
@@ -85,7 +89,6 @@ import static io.ballerina.projects.util.ProjectConstants.DIFF_UTILS_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_CORE_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_REPORT_JAR;
 import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
-import static io.ballerina.projects.util.ProjectConstants.PROPERTIES_FILE;
 import static io.ballerina.projects.util.ProjectConstants.TEST_CORE_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.TEST_RUNTIME_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
@@ -256,16 +259,6 @@ public class ProjectUtils {
         return Paths.get(System.getProperty(BALLERINA_HOME));
     }
 
-    public static String getBallerinaPackVersion() {
-        try (InputStream inputStream = ProjectUtils.class.getResourceAsStream(PROPERTIES_FILE)) {
-            Properties properties = new Properties();
-            properties.load(inputStream);
-            return properties.getProperty(BALLERINA_PACK_VERSION);
-        } catch (Throwable ignore) {
-        }
-        return "unknown";
-    }
-
     public static Path getBallerinaRTJarPath() {
         String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
         String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
@@ -302,6 +295,16 @@ public class ProjectUtils {
         dependencies.add(new JarLibrary(asmCommonsJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
         dependencies.add(new JarLibrary(diffUtilsJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
         return dependencies;
+    }
+
+    public static Path generateObservabilitySymbolsJar(String packageName) throws IOException {
+        Path jarPath = Files.createTempFile(packageName + "-", "-observability-symbols.jar");
+        Manifest manifest = new Manifest();
+        manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        JarOutputStream jarOutputStream = new JarOutputStream(new BufferedOutputStream(
+                new FileOutputStream(jarPath.toFile())), manifest);
+        jarOutputStream.close();
+        return jarPath;
     }
 
     public static void assembleExecutableJar(Manifest manifest,
@@ -439,6 +442,18 @@ public class ProjectUtils {
     }
 
     /**
+     * Construct and return the thin jar moduleName.
+     *
+     * @param org        organization
+     * @param moduleName module name
+     * @param version    version
+     * @return the moduleName of the thin jar
+     */
+    public static String getThinJarFileName(PackageOrg org, String moduleName, PackageVersion version) {
+        return org.value() + "-" + moduleName + "-" + version.value();
+    }
+
+    /**
      * Create and get the home repository path.
      *
      * @return home repository path
@@ -481,10 +496,10 @@ public class ProjectUtils {
      * @param proxy toml model proxy
      * @return proxy
      */
-    public static Proxy initializeProxy(org.ballerinalang.toml.model.Proxy proxy) {
-        if (proxy != null && !"".equals(proxy.getHost())) {
-            InetSocketAddress proxyInet = new InetSocketAddress(proxy.getHost(), proxy.getPort());
-            if (!"".equals(proxy.getUserName()) && "".equals(proxy.getPassword())) {
+    public static Proxy initializeProxy(io.ballerina.projects.internal.model.Proxy proxy) {
+        if (proxy != null && !"".equals(proxy.host()) && proxy.port() > 0) {
+            InetSocketAddress proxyInet = new InetSocketAddress(proxy.host(), proxy.port());
+            if (!"".equals(proxy.username()) && "".equals(proxy.password())) {
                 Authenticator authenticator = new URIDryConverter.RemoteAuthenticator();
                 Authenticator.setDefault(authenticator);
             }
@@ -514,19 +529,19 @@ public class ProjectUtils {
 
     public static void checkWritePermission(Path path) {
         if (!path.toFile().canWrite()) {
-            throw new ProjectException("'" + path + "' does not have write permissions");
+            throw new ProjectException("'" + path.normalize() + "' does not have write permissions");
         }
     }
 
     public static void checkReadPermission(Path path) {
         if (!path.toFile().canRead()) {
-            throw new ProjectException("'" + path + "' does not have read permissions");
+            throw new ProjectException("'" + path.normalize() + "' does not have read permissions");
         }
     }
 
     public static void checkExecutePermission(Path path) {
         if (!path.toFile().canRead()) {
-            throw new ProjectException("'" + path + "' does not have execute permissions");
+            throw new ProjectException("'" + path.normalize() + "' does not have execute permissions");
         }
     }
 
@@ -599,15 +614,34 @@ public class ProjectUtils {
         content.append("version = \"").append(version).append("\"\n");
     }
 
-    public static List<PackageName> getPossiblePackageNames(String moduleName) {
-        String[] modNameParts = moduleName.split("\\.");
-        StringJoiner pkgNameBuilder = new StringJoiner(".");
+    public static List<PackageName> getPossiblePackageNames(ImportModuleRequest importModuleRequest) {
+        var pkgNameBuilder = new StringJoiner(".");
+
+        // If built in package, return moduleName as it is
+        if (isBuiltInPackage(importModuleRequest.packageOrg(), importModuleRequest.moduleName())) {
+            pkgNameBuilder.add(importModuleRequest.moduleName());
+            return Collections.singletonList(PackageName.from(pkgNameBuilder.toString()));
+        }
+
+        String[] modNameParts = importModuleRequest.moduleName().split("\\.");
         List<PackageName> possiblePkgNames = new ArrayList<>(modNameParts.length);
         for (String modNamePart : modNameParts) {
             pkgNameBuilder.add(modNamePart);
             possiblePkgNames.add(PackageName.from(pkgNameBuilder.toString()));
         }
         return possiblePkgNames;
+    }
+
+    public static boolean isBuiltInPackage(PackageOrg org, String moduleName) {
+        return (org.isBallerinaOrg() && moduleName.startsWith("lang.")) ||
+                (org.value().equals(Names.BALLERINA_INTERNAL_ORG.getValue())) ||
+                (org.isBallerinaOrg() && moduleName.equals(Names.JAVA.getValue())) ||
+                (org.isBallerinaOrg() && moduleName.equals(Names.TEST.getValue()));
+    }
+
+    public static boolean isLangLibPackage(PackageOrg org, PackageName packageName) {
+        return (org.isBallerinaOrg() && packageName.value().startsWith("lang.")) ||
+                (org.isBallerinaOrg() && packageName.value().equals(Names.JAVA.getValue()));
     }
 
     /**

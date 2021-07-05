@@ -650,60 +650,6 @@ function test29() returns [boolean, boolean, boolean, boolean, boolean, boolean,
     return [b10, b11, b20, b21, b30, b31, b40, b41];
 }
 
-function test30() returns int|string {
-    int|string x = 5;
-    var addFunc1 = function () {
-        if (x is int && x > 3) {
-            x = x + 1;
-        } else {
-            x = 0;
-        }
-    };
-    var y = addFunc1();
-    return x;
-}
-
-function test31() returns int|string {
-    int|string x = 5;
-    var func1 = function () {
-        if (x is int && x > 3) {
-            x = x + 1;
-            if (x > 5) {
-               x = x + 10;
-            }
-        } else {
-            x = 0;
-        }
-         var func2 = function () {
-            if (x is int && x > 5) {
-                x = x + 1;
-                var func3 = function () {
-                    if (x is int && x > 10) {
-                        x = x + 1;
-                    } else {
-                        x = 0;
-                    }
-                 };
-                 _ = func3();
-            } else {
-                x = 0;
-            }
-         };
-         _ = func2();
-    };
-    _ = func1();
-
-    if (x is int && x > 3) {
-        x = x + 10;
-        if (x > 25) {
-            x = x + 3;
-        }
-    } else {
-        x = 0;
-    }
-    return x;
-}
-
 public function laterInitCapture() returns string {
     string a;
     boolean test = true;

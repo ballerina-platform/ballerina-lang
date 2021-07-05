@@ -12,5 +12,9 @@ final 5 configurable isolated int g = h;
 const configurable int i = 6;
 // configurable variable must be initialized
 configurable int j;
+// isolated and final qualifiers are not allowed with configurable
+final isolated configurable string f = ?;
+final configurable isolated string g = ?;
+configurable isolated string h = ?;
 
 configurable // test recovery against EOF token

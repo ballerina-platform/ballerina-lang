@@ -269,10 +269,11 @@ public class PackageUtils {
      */
     public static String[] getQModuleNameParts(String path) {
         String[] moduleParts;
+        // Makes the path os-independent, as some of the incoming windows source paths can contain both of the
+        // separator types(possibly due to a potential JDI bug).
+        path = path.replaceAll("\\\\", "/");
         if (path.contains("/")) {
             moduleParts = path.split("/");
-        } else if (path.contains("\\")) {
-            moduleParts = path.split("\\\\");
         } else {
             moduleParts = new String[]{path};
         }

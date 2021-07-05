@@ -23,7 +23,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "PARAMETERIZED_TYPE_DESC",
+                  "kind": "MAP_TYPE_DESC",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -508,6 +508,20 @@
                       "hasDiagnostics": true,
                       "diagnostics": [
                         "ERROR_MISSING_ERROR_KEYWORD"
+                      ]
+                    },
+                    {
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "hasDiagnostics": true,
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_IDENTIFIER"
+                          ]
+                        }
                       ]
                     },
                     {

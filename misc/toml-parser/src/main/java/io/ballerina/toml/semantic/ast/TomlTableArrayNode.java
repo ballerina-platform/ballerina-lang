@@ -20,7 +20,7 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
-import io.ballerina.toml.syntax.tree.DocumentNode;
+import io.ballerina.toml.syntax.tree.TableArrayNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.ArrayList;
@@ -33,14 +33,17 @@ import java.util.Set;
  * @since 2.0.0
  */
 public class TomlTableArrayNode extends TopLevelNode {
+
     private final List<TomlTableNode> children;
-    public TomlTableArrayNode(DocumentNode documentNode, TomlKeyNode key, TomlNodeLocation location) {
-        super(documentNode, key, TomlType.TABLE_ARRAY, location);
+
+    public TomlTableArrayNode(TableArrayNode tableArrayNode, TomlKeyNode key, TomlNodeLocation location) {
+        super(tableArrayNode, key, TomlType.TABLE_ARRAY, location);
         this.children = new ArrayList<>();
     }
-    public TomlTableArrayNode(DocumentNode documentNode, TomlKeyNode key, TomlNodeLocation location,
+
+    public TomlTableArrayNode(TableArrayNode tableArrayNode, TomlKeyNode key, TomlNodeLocation location,
                               List<TomlTableNode> children) {
-        super(documentNode, key, TomlType.TABLE_ARRAY, location);
+        super(tableArrayNode, key, TomlType.TABLE_ARRAY, location);
         this.children = children;
     }
 
@@ -79,5 +82,14 @@ public class TomlTableArrayNode extends TopLevelNode {
     @Override
     public void accept(TomlNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public boolean isMissingNode() {
+        TableArrayNode tableArrayNode = (TableArrayNode) this.externalTreeNode();
+        if (tableArrayNode.isMissing()) {
+            return true;
+        }
+        return tableArrayNode.identifier().isMissing();
     }
 }

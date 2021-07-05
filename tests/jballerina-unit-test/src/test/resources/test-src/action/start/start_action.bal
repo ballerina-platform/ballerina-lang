@@ -24,13 +24,13 @@ type FooRec record {|
 function testRecFieldFuncPointerAsyncCall() {
     FooRec fr = {};
     future<string> fs = start fr.fn();
-    string result = wait fs;
+    string result = checkpanic wait fs;
     assert("FOO", result);
 
     fr["rec"] = <FooRec>{};
     FooRec fr2 = <FooRec>fr["rec"];
     fs = start fr2.fn();
-    string result2 = wait fs;
+    string result2 = checkpanic wait fs;
     assert("FOO", result2);
 }
 
@@ -43,11 +43,11 @@ client class BarObj {
 function testObjectMethodsAsAsyncCalls() {
     BarObj bo = new;
     future<int> fi = start bo->getInt();
-    int resulti = wait fi;
+    int resulti = checkpanic wait fi;
     assert(100, resulti);
 
     future<string> fs = start bo.getName();
-    string results = wait fs;
+    string results = checkpanic wait fs;
     assert("BAR", results);
 }
 
@@ -66,12 +66,12 @@ function assert(anydata expected, anydata actual) {
 
 function testCast() {
     future<string> fs1 = start getMessage([1,2]);
-    string result1 = wait fs1;
+    string result1 = checkpanic wait fs1;
     test:assertValueEqual(result1, "The value is [1,2]");
 
     map<int> marks = {sam: 50, jon: 60};
     future<string> fs2 = start getMessage(marks);
-    string result2 = wait fs2;
+    string result2 = checkpanic wait fs2;
     test:assertValueEqual(result2, "The value is {\"sam\":50,\"jon\":60}");
 }
 

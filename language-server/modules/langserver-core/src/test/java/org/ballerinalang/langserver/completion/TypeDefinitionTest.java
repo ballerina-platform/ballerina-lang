@@ -19,9 +19,6 @@ package org.ballerinalang.langserver.completion;
 
 import org.testng.annotations.DataProvider;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * Type Definition Context tests.
  *
@@ -32,11 +29,6 @@ public class TypeDefinitionTest extends CompletionTest {
     @Override
     public Object[][] dataProvider() {
         return this.getConfigsList();
-    }
-
-    @Override
-    public List<String> skipList() {
-        return Arrays.asList("config2.json", "config1.json");
     }
 
     @Override

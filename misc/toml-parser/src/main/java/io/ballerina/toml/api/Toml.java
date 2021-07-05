@@ -25,9 +25,6 @@ import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlTransformer;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
-import io.ballerina.toml.semantic.diagnostics.DiagnosticComparator;
-import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
-import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.SyntaxTree;
 import io.ballerina.toml.validator.TomlValidator;
@@ -46,8 +43,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * API For Parsing Tom's Obvious, Minimal Language (TOML) file.
@@ -135,7 +130,6 @@ public class Toml {
         TomlTransformer nodeTransformer = new TomlTransformer();
         TomlTableNode
                 transformedTable = (TomlTableNode) nodeTransformer.transform((DocumentNode) syntaxTree.rootNode());
-        transformedTable.addSyntaxDiagnostics(reportSyntaxDiagnostics(syntaxTree.diagnostics()));
         return new Toml(transformedTable);
     }
 
@@ -153,24 +147,10 @@ public class Toml {
         TomlTransformer nodeTransformer = new TomlTransformer();
         TomlTableNode
                 transformedTable = (TomlTableNode) nodeTransformer.transform((DocumentNode) syntaxTree.rootNode());
-        transformedTable.addSyntaxDiagnostics(reportSyntaxDiagnostics(syntaxTree.diagnostics()));
         Toml toml = new Toml(transformedTable);
         TomlValidator tomlValidator = new TomlValidator(schema);
         tomlValidator.validate(toml);
         return toml;
-    }
-
-    private static Set<Diagnostic> reportSyntaxDiagnostics(Iterable<Diagnostic> syntaxDiagnostics) {
-        Set<Diagnostic> diagnostics = new TreeSet<>(new DiagnosticComparator());
-        for (Diagnostic syntaxDiagnostic : syntaxDiagnostics) {
-            TomlNodeLocation tomlNodeLocation = new TomlNodeLocation(syntaxDiagnostic.location().lineRange(),
-                    syntaxDiagnostic.location().textRange());
-            TomlDiagnostic tomlDiagnostic =
-                    new TomlDiagnostic(tomlNodeLocation, syntaxDiagnostic.diagnosticInfo(), syntaxDiagnostic.message());
-            diagnostics.add(tomlDiagnostic);
-        }
-
-        return diagnostics;
     }
 
     /**

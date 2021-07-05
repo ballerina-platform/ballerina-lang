@@ -15,7 +15,7 @@
           "value": "Maximum value of type `int`."
         }
       },
-      "sortText": "A",
+      "sortText": "AB",
       "insertText": "MAX_VALUE",
       "insertTextFormat": "Snippet"
     },
@@ -29,7 +29,7 @@
           "value": "Minimum value of type `int`."
         }
       },
-      "sortText": "A",
+      "sortText": "AB",
       "insertText": "MIN_VALUE",
       "insertTextFormat": "Snippet"
     },
@@ -43,7 +43,7 @@
           "value": "Maximum value of type `Signed32`."
         }
       },
-      "sortText": "A",
+      "sortText": "AB",
       "insertText": "SIGNED32_MAX_VALUE",
       "insertTextFormat": "Snippet"
     },
@@ -57,7 +57,7 @@
           "value": "Minimum value of type `Signed32`."
         }
       },
-      "sortText": "A",
+      "sortText": "AB",
       "insertText": "SIGNED32_MIN_VALUE",
       "insertTextFormat": "Snippet"
     },
@@ -71,7 +71,7 @@
           "value": "Maximum value of type `Signed16`."
         }
       },
-      "sortText": "A",
+      "sortText": "AB",
       "insertText": "SIGNED16_MAX_VALUE",
       "insertTextFormat": "Snippet"
     },
@@ -85,7 +85,7 @@
           "value": "Minimum value of type `Signed16`."
         }
       },
-      "sortText": "A",
+      "sortText": "AB",
       "insertText": "SIGNED16_MIN_VALUE",
       "insertTextFormat": "Snippet"
     },
@@ -99,7 +99,7 @@
           "value": "Maximum value of type `Signed8`."
         }
       },
-      "sortText": "A",
+      "sortText": "AB",
       "insertText": "SIGNED8_MAX_VALUE",
       "insertTextFormat": "Snippet"
     },
@@ -113,7 +113,7 @@
           "value": "Minimum value of type `Signed8`."
         }
       },
-      "sortText": "A",
+      "sortText": "AB",
       "insertText": "SIGNED8_MIN_VALUE",
       "insertTextFormat": "Snippet"
     },
@@ -127,7 +127,7 @@
           "value": "Maximum value of type `Unsigned32`."
         }
       },
-      "sortText": "A",
+      "sortText": "AB",
       "insertText": "UNSIGNED32_MAX_VALUE",
       "insertTextFormat": "Snippet"
     },
@@ -141,7 +141,7 @@
           "value": "Maximum value of type `Unsigned16`."
         }
       },
-      "sortText": "A",
+      "sortText": "AB",
       "insertText": "UNSIGNED16_MAX_VALUE",
       "insertTextFormat": "Snippet"
     },
@@ -155,21 +155,21 @@
           "value": "Maximum value of type `Unsigned8`."
         }
       },
-      "sortText": "A",
+      "sortText": "AB",
       "insertText": "UNSIGNED8_MAX_VALUE",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "abs(int n)(int)",
+      "label": "abs(int n)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns absolute value of an int.\n  \n**Params**  \n- `int` n: int value to be operated on  \n  \n**Returns** `int`   \n- absolute value of `n`  \n  \n"
+          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the absolute value of an int value.\n  \n**Params**  \n- `int` n: int value to be operated on  \n  \n**Return** `int`   \n- absolute value of parameter `n`  \n  \n"
         }
       },
-      "sortText": "A",
+      "sortText": "AC",
       "filterText": "abs",
       "insertText": "abs(${1})",
       "insertTextFormat": "Snippet",
@@ -179,16 +179,16 @@
       }
     },
     {
-      "label": "sum(int... ns)(int)",
+      "label": "sum(int... ns)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns sum of zero or more int values.\n  \n**Params**  \n- `int[]` ns: int values to sum  \n  \n**Returns** `int`   \n- sum of all the `ns`; 0 is `ns` is empty  \n  \n"
+          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns sum of zero or more int values.\n  \n**Params**  \n- `int[]` ns: int values to sum  \n  \n**Return** `int`   \n- sum of all of parameter `ns`; 0 if parameter `ns` is empty  \n  \n"
         }
       },
-      "sortText": "A",
+      "sortText": "AC",
       "filterText": "sum",
       "insertText": "sum(${1})",
       "insertTextFormat": "Snippet",
@@ -198,16 +198,16 @@
       }
     },
     {
-      "label": "max(int n, int... ns)(int)",
+      "label": "max(int n, int... ns)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nMaximum of one or more int values.\n  \n**Params**  \n- `int` n: first int value  \n- `int[]` ns: other int values  \n  \n**Returns** `int`   \n- maximum value of value of `x` and all the `xs`  \n  \n"
+          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the maximum of one or more int values.\n  \n**Params**  \n- `int` n: first int value  \n- `int[]` ns: other int values  \n  \n**Return** `int`   \n- maximum value of value of parameter `x` and all of parameter `xs`  \n  \n"
         }
       },
-      "sortText": "A",
+      "sortText": "AC",
       "filterText": "max",
       "insertText": "max(${1})",
       "insertTextFormat": "Snippet",
@@ -217,16 +217,16 @@
       }
     },
     {
-      "label": "min(int n, int... ns)(int)",
+      "label": "min(int n, int... ns)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nMinimum of one or more int values\n  \n**Params**  \n- `int` n: first int value  \n- `int[]` ns: other int values  \n  \n**Returns** `int`   \n- minimum value of `n` and all the `ns`  \n  \n"
+          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the minimum of one or more int values.\n  \n**Params**  \n- `int` n: first int value  \n- `int[]` ns: other int values  \n  \n**Return** `int`   \n- minimum value of parameter `n` and all of parameter `ns`  \n  \n"
         }
       },
-      "sortText": "A",
+      "sortText": "AC",
       "filterText": "min",
       "insertText": "min(${1})",
       "insertTextFormat": "Snippet",
@@ -236,16 +236,16 @@
       }
     },
     {
-      "label": "fromString(string s)(int|error)",
+      "label": "fromString(string s)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the integer that `s` represents in decimal.\nReturns error if `s` is not the decimal representation of an integer.\nThe first character may be `+` or `-`.\nThis is the inverse of `value:toString` applied to an `int`.\n  \n**Params**  \n- `string` s: string representation of a integer value  \n  \n**Returns** `int|error`   \n- int representation of the argument or error  \n  \n"
+          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the integer of a string that represents in decimal.\n\nReturns error if parameter `s` is not the decimal representation of an integer.\nThe first character may be `+` or `-`.\nThis is the inverse of function `value:toString` applied to an `int`.\n  \n**Params**  \n- `string` s: string representation of a integer value  \n  \n**Return** `int|error`   \n- int representation of the argument or error  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "fromString",
       "insertText": "fromString(${1})",
       "insertTextFormat": "Snippet",
@@ -255,16 +255,16 @@
       }
     },
     {
-      "label": "toHexString(int n)(string)",
+      "label": "toHexString(int n)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns representation of `n` as hexdecimal string.\nThere is no `0x` prefix. Lowercase letters a-f are used.\nNegative numbers will have a `-` prefix. No sign for\nnon-negative numbers.\n  \n**Params**  \n- `int` n: int value  \n  \n**Returns** `string`   \n- hexadecimal string representation of int value  \n  \n"
+          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns representation of an integer as hexdecimal string.\n\nThere is no `0x` prefix. Lowercase letters a-f are used.\nNegative numbers will have a `-` prefix. No sign for\nnon-negative numbers.\n  \n**Params**  \n- `int` n: int value  \n  \n**Return** `string`   \n- hexadecimal string representation of int value  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "toHexString",
       "insertText": "toHexString(${1})",
       "insertTextFormat": "Snippet",
@@ -274,16 +274,16 @@
       }
     },
     {
-      "label": "fromHexString(string s)(int|error)",
+      "label": "fromHexString(string s)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the integer that `s` represents in hexadecimal.\nBoth uppercase A-F and lowercase a-f are allowed.\nIt may start with an optional `+` or `-` sign.\nNo `0x` or `0X` prefix is allowed.\nReturns an error if the `s` is not in an allowed format.\n  \n**Params**  \n- `string` s: hexadecimal string representation of int value  \n  \n**Returns** `int|error`   \n- int value or error  \n  \n"
+          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns the integer that a string value represents in hexadecimal.\n\nBoth uppercase A-F and lowercase a-f are allowed.\nIt may start with an optional `+` or `-` sign.\nNo `0x` or `0X` prefix is allowed.\nReturns an error if the parameter `s` is not in an allowed format.\n  \n**Params**  \n- `string` s: hexadecimal string representation of int value  \n  \n**Return** `int|error`   \n- int value or error  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "fromHexString",
       "insertText": "fromHexString(${1})",
       "insertTextFormat": "Snippet",

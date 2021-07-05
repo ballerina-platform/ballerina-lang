@@ -228,8 +228,12 @@ public class CheckedExpressionOperatorTest {
         BRunUtil.invoke(result, "testCheckedErrorsWithReadOnlyInUnion");
     }
 
-    @Test(description = "Test service resource that returns an error containing check expression",
-            groups = "brokenOnErrorChange")
+    @Test
+    public void testCheckWithMixOfDefaultErrorAndDistinctErrors() {
+        BRunUtil.invoke(result, "testCheckWithMixOfDefaultErrorAndDistinctErrors");
+    }
+
+    @Test(description = "Test service resource that returns an error containing check expression")
     public void testSemanticErrorsWithResources() {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expr_within_resource.bal");

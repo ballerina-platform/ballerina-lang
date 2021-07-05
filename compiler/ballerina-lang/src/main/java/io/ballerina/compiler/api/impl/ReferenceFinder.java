@@ -309,7 +309,10 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
-        find(typeDefinition.typeNode);
+        // We don't want to visit enum type defs as they will be covered under enum constants
+        if (!typeDefinition.flagSet.contains(Flag.ENUM)) {
+            find(typeDefinition.typeNode);
+        }
         find(typeDefinition.annAttachments);
         addIfSameSymbol(typeDefinition.symbol, typeDefinition.name.pos);
     }
@@ -766,7 +769,8 @@ public class ReferenceFinder extends BaseVisitor {
             return;
         }
 
-        if (!varRefExpr.pkgAlias.value.isEmpty() && addIfSameSymbol(varRefExpr.symbol.owner, varRefExpr.pkgAlias.pos)) {
+        if (varRefExpr.pkgAlias != null && !varRefExpr.pkgAlias.value.isEmpty() &&
+                addIfSameSymbol(varRefExpr.symbol.owner, varRefExpr.pkgAlias.pos)) {
             return;
         }
 
@@ -1033,7 +1037,6 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        find(tableMultiKeyExpr.expr);
         find(tableMultiKeyExpr.multiKeyIndexExprs);
     }
 
@@ -1068,13 +1071,13 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
-        if (userDefinedType.type == null || userDefinedType.type.tsymbol == null) {
+        if (userDefinedType.symbol == null) {
             return;
         }
         if (!userDefinedType.pkgAlias.value.isEmpty()) {
-            addIfSameSymbol(userDefinedType.type.tsymbol.owner, userDefinedType.pkgAlias.pos);
+            addIfSameSymbol(userDefinedType.symbol.owner, userDefinedType.pkgAlias.pos);
         }
-        addIfSameSymbol(userDefinedType.type.tsymbol, userDefinedType.typeName.pos);
+        addIfSameSymbol(userDefinedType.symbol, userDefinedType.typeName.pos);
     }
 
     @Override
@@ -1102,6 +1105,7 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
+        find(recordTypeNode.typeRefs);
         find(recordTypeNode.fields);
         find(recordTypeNode.restFieldType);
     }
@@ -1233,6 +1237,7 @@ public class ReferenceFinder extends BaseVisitor {
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
         find(xmlNavigation.childIndex);
         find(xmlNavigation.filters);
+        find(xmlNavigation.expr);
     }
 
     @Override

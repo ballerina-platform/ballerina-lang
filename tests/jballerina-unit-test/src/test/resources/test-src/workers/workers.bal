@@ -10,38 +10,6 @@ function workerReturnTest() returns int {
     return res + 1;
 }
 
-int updateMultiple = 0;
-function waitOnSameFutureByMultiple() returns int {
-    @strand{thread:"any"}
-    worker w1 returns int {
-        return 9;
-    }
-
-    waitOnSameFutureWorkers(w1);
-    sleep(1000);
-    return updateMultiple;
-
-}
-
-function waitOnSameFutureWorkers(future<int> aa) {
-
-    @strand{thread:"any"}
-    worker w1 {
-        int result = wait aa;
-        lock {
-        updateMultiple = updateMultiple + result;
-        }
-    }
-    @strand{thread:"any"}
-    worker w2 {
-        int result = wait aa;
-        lock {
-        updateMultiple = updateMultiple + result;
-        }
-    }
-
-}
-
 public function workerSendToWorker() returns int {
     @strand{thread:"any"}
     worker w1 {
@@ -483,7 +451,7 @@ public function testComplexType() returns Rec {
 }
 
 // First cancel the future and then wait
-public function workerWithFutureTest1() returns int {
+public function workerWithFutureTest1() returns int|error {
     future<int> f1 = @strand{thread:"any"} start add2(5, 5);
     @strand{thread:"any"}
     worker w1 {
@@ -492,10 +460,10 @@ public function workerWithFutureTest1() returns int {
     }
 
     @strand{thread:"any"}
-    worker w2 returns int {
+    worker w2 returns int|error {
       // Delay the execution of worker w2
       sleep(1000);
-      int i = wait f1;
+      int|error i = wait f1;
       return i;
     }
 
@@ -503,7 +471,7 @@ public function workerWithFutureTest1() returns int {
 }
 
 // First wait on the future and then cancel
-public function workerWithFutureTest2() returns int {
+public function workerWithFutureTest2() returns int|error {
     future<int> f1 = @strand{thread:"any"} start add(6, 6);
     @strand{thread:"any"}
     worker w1 {
@@ -514,8 +482,8 @@ public function workerWithFutureTest2() returns int {
     }
 
     @strand{thread:"any"}
-    worker w2 returns int {
-      int i = wait f1;
+    worker w2 returns int|error {
+      int|error i = wait f1;
       return i;
     }
     return wait w2;
@@ -534,7 +502,7 @@ public function workerWithFutureTest3() returns int {
     worker w2 returns int {
       // Delay the execution of worker w1
       sleep(1000);
-      int i = wait f1;
+      int i = checkpanic wait f1;
       return i;
     }
     return wait w2;
@@ -678,6 +646,40 @@ function testLambdaWithWorkerMessagePassing() {
     if (k != 1) {
         panic error("Assertion error: expected 1, found: " + k.toString());
     }
+}
+
+function workerInteractionAfterCheckExpr(boolean errorInBar) returns int|error {
+    worker A returns (error)|string? {
+        check foo();
+        42 -> function;
+    }
+
+    worker B returns Error? {
+        check bar(errorInBar);
+        42 -> function;
+    }
+
+    int x = check <- A;
+    int y = check <- B;
+    return x;
+}
+
+function foo() returns error? => ();
+
+type Error distinct error;
+
+function bar(boolean b) returns Error? {
+    return b ? error("Error") : ();
+}
+
+function testWorkerInteractionsAfterCheck() {
+    var r = workerInteractionAfterCheckExpr(false);
+    if !(r is int && r == 42) {
+        panic error("Assertion error: expected `42` found: " + (typeof(r)).toString());
+    }
+
+    var e = workerInteractionAfterCheckExpr(true);
+    validateError(e, "Error");
 }
 
 public function sleep(int millis) = @java:Method {

@@ -11,11 +11,11 @@ type Baz 1|2;
 public const Baz BAZ = 1; //:11:1:: 'Baz'
 
 object {    // No errors due to anon types.
-             public string s = "";
-             public Baz z = 1;
-             public Foo foo1 = new;
+             public string s;
+             public Baz z;
+             public Foo foo1;
 
-         } anonObj = new;
+         } anonObj = object { public string s = ""; public Baz z = 1; public Foo foo1 = new; };
 
 public class ParentFoo {
 
@@ -36,7 +36,7 @@ class ChildFoo {
     private string name = "";
 
 
-    function init(string name) {
+    isolated function init(string name) {
         self.name = name;
     }
 }
@@ -62,9 +62,9 @@ public function BazFunc (Foo... fArg) returns (Baz) { // :59:26:: 'Foo', :59:48:
 }
 // TODO: Fix me. This is a bug.
 public function test1(object {
-                                          public string s = "";
-                                          public Baz z = 1;
-                                          public Foo foo1 = new;
+                                          public string s;
+                                          public Baz z;
+                                          public Foo foo1;
 
                                       } anonObj1) returns string {
     return "K";
@@ -72,42 +72,42 @@ public function test1(object {
 // TODO: Fix me. This is a bug.
 public function test2() returns object {
 
-                                            public string s = "";
-                                            public Baz z = 1;
-                                            public Foo foo1 = new;
+                                            public string s;
+                                            public Baz z;
+                                            public Foo foo1;
 
                                         }{
-    object {
+    var m = object {
 
         public string s = "";
         public Baz z = 1;
         public Foo foo1 = new;
 
-    } m = new;
+    };
 
     return m;
 }
 // TODO: Fix me. This is a bug.
 function test3() returns string {
-    object {
+    var m = object {
 
         public string s = "";
         public Baz z = 1;
         public Foo foo1 = new;
 
-    } m = new;
+    };
 
     return m.s;
 }
 // TODO: Fix me. This is a bug.
 function test4() returns string {
-    object {
+    var m = object {
 
         public string s = "";
         public Baz z = 1;
         public Foo foo1 = new;
 
-    } m = new;
+    };
 
     return m.s;
 }

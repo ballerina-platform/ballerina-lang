@@ -20,6 +20,7 @@ package io.ballerina.runtime.test.config;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
@@ -31,7 +32,9 @@ import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.providers.cli.CliProvider;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
+import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
+import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -49,9 +52,15 @@ import static io.ballerina.runtime.test.TestUtils.getConfigPath;
  */
 public class ConfigTest {
 
-    Module module = new Module("myOrg", "test_module", "1.0.0");
+    private static final Module module = new Module("myOrg", "test_module", "1.0.0");
 
     private static final Module ROOT_MODULE = new Module("rootOrg", "mod12", "1.0.0");
+    private static final Type[] COLOR_ENUM_MEMBERS = new Type[]{
+            new BFiniteType("Colors", Set.of(StringUtils.fromString("RED")), 0),
+            new BFiniteType("Colors", Set.of(StringUtils.fromString("GREEN")), 0)};
+    private static final Type COLOR_ENUM_UNION = new BUnionType(COLOR_ENUM_MEMBERS, COLOR_ENUM_MEMBERS, 0, false,
+                                                               SymbolFlags.ENUM);
+    public static final Type COLOR_ENUM = new BIntersectionType(module, new Type[]{}, COLOR_ENUM_UNION, 0, true);
     private final Set<Module> moduleSet = Set.of(module);
 
     @Test(dataProvider = "simple-type-values-data-provider")
@@ -126,7 +135,15 @@ public class ConfigTest {
                 // Multiple provider but use the first registered provider ( Toml file value as final value)
                 {new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 13579L,
                         new TomlFileProvider(ROOT_MODULE, getConfigPath("SimpleTypesConfig.toml"), moduleSet),
-                        new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.intVar=13579")}
+                        new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.intVar=13579")},
+                // Enum value given with toml
+                {new VariableKey(module, "color", COLOR_ENUM,
+                                 true), BString.class, StringUtils.fromString("RED"),
+                        new TomlFileProvider(ROOT_MODULE, getConfigPath("EnumTypeConfig.toml"), moduleSet)},
+                // Enum value given with cli
+                {new VariableKey(module, "color", COLOR_ENUM,
+                                 true), BString.class, StringUtils.fromString("GREEN"),
+                        new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.color=GREEN")},
         };
     }
 }

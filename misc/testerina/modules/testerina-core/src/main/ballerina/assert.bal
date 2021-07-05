@@ -33,18 +33,29 @@ type AssertError record {
     string category = "";
 };
 
-# Creates an AssertError with custom message and category.
+# Creates an `AssertError` with the custom message and category.
 #
-# + errorMessage - Custom message for the ballerina error
-# + category - error category
+# + errorMessage - Custom message for the Ballerina error
+# + category - Error category
 #
-# + return - an AssertError with custom message and category
+# + return - An AssertError with custom message and category
 public isolated function createBallerinaError(string errorMessage, string category) returns error {
     error e = error(errorMessage);
     return e;
 }
 
 # Asserts whether the given condition is true. If it is not, a AssertError is thrown with the given errorMessage.
+#
+#### Example
+# ```ballerina
+# import ballerina/test;
+#
+#  @test:Config {}
+#  function testAssertTrue() {
+#      boolean value = false;
+#      test:assertTrue(value, msg = "AssertTrue failed");
+#  }
+# ```
 #
 # + condition - Boolean condition to evaluate
 # + msg - Assertion error message
@@ -56,6 +67,17 @@ public isolated function assertTrue(boolean condition, string msg = "Assertion F
 
 # Asserts whether the given condition is false. If it is not, a AssertError is thrown with the given errorMessage.
 #
+#### Example
+# ```ballerina
+# import ballerina/test;
+#
+#  @test:Config {}
+#  function testAssertFalse() {
+#      boolean value = false;
+#      test:assertFalse(value, msg = "AssertFalse failed");
+#  }
+# ```
+#
 # + condition - Boolean condition to evaluate
 # + msg - Assertion error message
 public isolated function assertFalse(boolean condition, string msg = "Assertion Failed!") {
@@ -65,6 +87,21 @@ public isolated function assertFalse(boolean condition, string msg = "Assertion 
 }
 
 # Asserts whether the given values are equal. If it is not, an AssertError is thrown with the given errorMessage.
+#
+#### Example
+# ```ballerina
+# import ballerina/test;
+#
+# @test:Config {}
+#  function testAssertIntEquals() {
+#      int answer = intAdd(5, 3);
+#      test:assertEquals(answer, 8, msg = "IntAdd function failed");
+#  }
+#
+#  function intAdd(int a, int b) returns (int) {
+#      return (a + b);
+#  }
+# ```
 #
 # + actual - Actual value
 # + expected - Expected value
@@ -77,6 +114,21 @@ public isolated function assertEquals(anydata|error actual, anydata expected, st
 }
 
 # Asserts whether the given values are not equal. If it is equal, an AssertError is thrown with the given errorMessage.
+#
+#### Example
+# ```ballerina
+# import ballerina/test;
+#
+#  @test:Config {}
+#  function testAssertIntEquals() {
+#      int answer = intAdd(5, 3);
+#      test:assertNotEquals(answer, 8, msg = "Matches");
+#  }
+#
+#  function intAdd(int a, int b) returns (int) {
+#      return (a + b);
+#  }
+# ```
 #
 # + actual - Actual value
 # + expected - Expected value
@@ -92,6 +144,26 @@ public isolated function assertNotEquals(anydata actual, anydata expected, strin
 
 # Asserts whether the given values are exactly equal. If it is not, an AssertError is thrown with the given errorMessage.
 #
+#### Example
+# ```ballerina
+# import ballerina/test;
+#
+#  class Person {
+#      public string name = "";
+#      public int age = 0;
+#      public Person? parent = ();
+#      private string email = "default@abc.com";
+#      string address = "No 20, Palm grove";
+#  }
+#
+#  @test:Config {}
+#  function testAssertExactEqualsObject() {
+#      Person p1 = new;
+#      Person p2 = p1;
+#      test:assertExactEquals(p1, p2, msg = "Objects are not exactly equal");
+#  }
+# ```
+#
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
@@ -104,6 +176,26 @@ public isolated function assertExactEquals(any|error actual, any|error expected,
 }
 
 # Asserts whether the given values are not exactly equal. If it is equal, an AssertError is thrown with the given errorMessage.
+#
+#### Example
+# ```ballerina
+# import ballerina/test;
+#
+# class Person {
+#      public string name = "";
+#      public int age = 0;
+#      public Person? parent = ();
+#      private string email = "default@abc.com";
+#      string address = "No 20, Palm grove";
+#  }
+#
+#  @test:Config {}
+#  function testAssertNotExactEqualsObject() {
+#      Person p1 = new;
+#      Person p2 = new ();
+#      test:assertNotExactEquals(p1, p2, msg = "Objects are exactly equal");
+#  }
+# ```
 #
 # + actual - Actual value
 # + expected - Expected value
@@ -118,19 +210,37 @@ public isolated function assertNotExactEquals(any|error actual, any|error expect
     }
 }
 
-# Assert failure is triggered based on user discretion. AssertError is thrown with the given errorMessage.
+# Assert failure is triggered based on your discretion. AssertError is thrown with the given errorMessage.
+#
+#### Example
+# ```ballerina
+# import ballerina/test;
+#
+#  @test:Config {}
+#  function foo() {
+#      error? e = trap bar(); // Expecting `bar()` to panic
+#      if (e is error) {
+#          test:assertEquals(e.message().toString(), "Invalid Operation", msg = "Invalid error reason");
+#      } else {
+#          test:assertFail(msg = "Expected an error");
+#      }
+#  }
+#
+#  function bar() {
+#      panic error("Invalid Operation");
+#  }
+# ```
 #
 # + msg - Assertion error message
 public isolated function assertFail(string msg = "Test Failed!") {
     panic createBallerinaError(msg, assertFailureErrorCategory);
 }
 
-# Get the error message to be shown when there is an inequaklity while asserting two values.
+# Gets the error message to be shown when there is an inequality while asserting two values.
 #
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-#
 # + return - Error message constructed based on the compared values
 isolated function getInequalityErrorMsg(any|error actual, any|error expected, string msg = "\nAssertion Failed!") returns @tainted string {
         string expectedType = getBallerinaType(expected);

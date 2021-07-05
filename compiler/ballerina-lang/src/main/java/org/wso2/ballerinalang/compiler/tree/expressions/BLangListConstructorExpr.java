@@ -35,7 +35,7 @@ import java.util.List;
  * @see BLangJSONArrayLiteral
  * @since 1.0
  */
-public class BLangListConstructorExpr extends BLangAccessibleExpression implements ListConstructorExprNode {
+public class BLangListConstructorExpr extends BLangExpression implements ListConstructorExprNode {
 
     public List<BLangExpression> exprs;
     public boolean isTypedescExpr = false;
@@ -76,7 +76,7 @@ public class BLangListConstructorExpr extends BLangAccessibleExpression implemen
         public BLangArrayLiteral(Location pos, List<BLangExpression> exprs, BType tupleType) {
             this.pos = pos;
             this.exprs = exprs;
-            this.type = tupleType;
+            this.setBType(tupleType);
         }
 
         @Override
@@ -105,7 +105,7 @@ public class BLangListConstructorExpr extends BLangAccessibleExpression implemen
         public BLangTupleLiteral(Location pos, List<BLangExpression> exprs, BType tupleType) {
             this.pos = pos;
             this.exprs = exprs;
-            this.type = tupleType;
+            this.setBType(tupleType);
         }
 
         @Override
@@ -128,7 +128,7 @@ public class BLangListConstructorExpr extends BLangAccessibleExpression implemen
 
         public BLangJSONArrayLiteral(List<BLangExpression> exprs, BType jsonType) {
             this.exprs = exprs;
-            this.type = jsonType;
+            this.setBType(jsonType);
         }
 
         @Override

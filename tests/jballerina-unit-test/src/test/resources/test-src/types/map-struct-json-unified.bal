@@ -1,5 +1,3 @@
-import ballerina/io;
-
 type Person record {
     string name = "";
     int age = 0;
@@ -35,18 +33,15 @@ function testAccessJsonInStruct () returns [string, string, string]| error {
 
     var result1 = p1.parent;
     if (result1 is Person) {
-        status1 = check string.convert(result1.info.status);
-    } else {
-        io:println("Person is null");
+        status1 = check result1.info.status;
     }
 
     var result2 = p1["parent"];
     if (result2 is Person) {
-        status2 = check string.convert(result2["info"]["status"]);
-        status3 = check string.convert(result2.info["status"]);
-    } else {
-        io:println("Person is null");
+        status2 = check result2["info"].status;
+        status3 = check result2.info.status;
     }
+
     return [status1, status2, status3];
 }
 
@@ -65,10 +60,9 @@ function testAccessMapInStruct () returns [any, any, any, string] {
 
     var result = p1["parent"];
     if (result is Person) {
-        city = string.convert(result.address[cityKey]);
-        return [result.address.city, result["address"]["city"], result.address["city"], city];
+        city = checkpanic result.address[cityKey].ensureType();
+        return [result.address["city"], result["address"]["city"], result.address["city"], city];
     } else {
-        io:println("Person is null");
         return [(), (), (), city];
     }
 }
@@ -86,11 +80,11 @@ function testSetValueToJsonInStruct () returns (json) {
 
     var result = p1.parent;
     if (result is Person) {
-         result.info.status = "widowed";
-         result["info"]["retired"] = true;
+         map<json> info = <map<json>> result.info;
+         info["status"] = "widowed";
+         info["retired"] = true;
          return result.info;
     } else {
-         io:println("Person is null");
          return null;
     }
 }
@@ -98,5 +92,5 @@ function testSetValueToJsonInStruct () returns (json) {
 function testAccessArrayInStruct () returns [int, int] {
     Person p1 = {marks:[87, 94, 72]};
     string statusKey = "status";
-    return [p1.marks[1], p1["marks"][2] ?: 0];
+    return [p1.marks[1], p1["marks"][2]];
 }

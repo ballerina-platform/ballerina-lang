@@ -74,20 +74,19 @@ public class AnnotationRuntimeTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test if constants used in annotation are replaced on constant propagation phase",
-          enabled = false)
+    @Test(description = "Test if constants used in annotation are replaced on constant propagation phase")
     public void testConstantPropagationOnAnnotation() {
-        CompileResult resultThree = BCompileUtil.compile("test-src/annotations/annotations_constant_propagation.bal");
-        Assert.assertEquals(resultThree.getErrorCount(), 0);
-        BLangPackage pkg = (BLangPackage) resultThree.getAST();
+        BLangPackage pkg =
+                BCompileUtil.loadProject("test-src/annotations/annotations_constant_propagation.bal")
+                        .currentPackage().getCompilation().defaultModuleBLangPackage();
 
         BLangService service = pkg.services.get(0);
         BLangRecordLiteral serviceAnnotation = (BLangRecordLiteral) service.annAttachments.get(0).expr;
         Assert.assertTrue(((BLangRecordLiteral.BLangRecordKeyValueField) serviceAnnotation.fields.get(0)).valueExpr
                 instanceof BLangConstRef);
 
-        BLangRecordLiteral helloFunctionAnnotation = (BLangRecordLiteral) service.resourceFunctions.get(0)
-                .annAttachments.get(0).expr;
+        BLangRecordLiteral helloFunctionAnnotation =
+                (BLangRecordLiteral) service.serviceClass.functions.get(0).annAttachments.get(0).expr;
         Assert.assertTrue(((BLangRecordLiteral.BLangRecordKeyValueField) helloFunctionAnnotation.fields.get(0))
                 .valueExpr instanceof BLangConstRef);
 

@@ -202,9 +202,14 @@ public type Foo record {
     anydata body;
 };
 
+public type AnotherFoo record {
+    anydata body;
+};
+
 // Out of order inclusion test : added to test a NPE
 type Bar record {
     *Foo;
+    *AnotherFoo;
     Baz body;   // defined after the type definition
 };
 
@@ -216,6 +221,11 @@ function testOutOfOrderFieldOverridingFieldFromTypeInclusion() {
     Baz bazRecord = {id: 4};
     Bar barRecord = {body: bazRecord};
     assertEquality(4, barRecord.body.id);
+}
+
+function testCyclicRecord() {
+    records:C1 cc = {auth: {d1: {x: 34}}};
+    assertEquality(34, cc?.auth?.d1?.x);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

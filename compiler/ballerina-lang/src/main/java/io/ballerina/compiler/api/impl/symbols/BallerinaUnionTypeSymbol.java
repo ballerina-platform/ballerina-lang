@@ -50,6 +50,7 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
     private static final Pattern pCloneableType = Pattern.compile(CLONEABLE_TYPE);
 
     private List<TypeSymbol> memberTypes;
+    private List<TypeSymbol> originalMemberTypes;
     private String signature;
 
     public BallerinaUnionTypeSymbol(CompilerContext context, ModuleID moduleID, BUnionType unionType) {
@@ -74,7 +75,7 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
             } else {
                 for (BLangExpression value : ((BFiniteType) this.getBType()).getValueSpace()) {
                     ModuleID moduleID = getModule().isPresent() ? getModule().get().id() : null;
-                    members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID, value, value.type));
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID, value, value.getBType()));
                 }
             }
 
@@ -82,6 +83,30 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
         }
 
         return this.memberTypes;
+    }
+
+    @Override
+    public List<TypeSymbol> userSpecifiedMemberTypes() {
+        if (this.originalMemberTypes == null) {
+            List<TypeSymbol> members = new ArrayList<>();
+
+            if (this.getBType().tag == TypeTags.UNION) {
+                TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+
+                for (BType memberType : ((BUnionType) this.getBType()).getOriginalMemberTypes()) {
+                    members.add(typesFactory.getTypeDescriptor(memberType));
+                }
+            } else {
+                for (BLangExpression value : ((BFiniteType) this.getBType()).getValueSpace()) {
+                    ModuleID moduleID = getModule().isPresent() ? getModule().get().id() : null;
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID, value, value.getBType()));
+                }
+            }
+
+            this.originalMemberTypes = Collections.unmodifiableList(members);
+        }
+
+        return this.originalMemberTypes;
     }
 
     @Override
@@ -117,7 +142,7 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
             return "...";
         }
 
-        List<TypeSymbol> memberTypes = this.memberTypeDescriptors();
+        List<TypeSymbol> memberTypes = this.userSpecifiedMemberTypes();
         if (containsTwoElements(memberTypes) && containsNil(memberTypes)) {
             TypeSymbol member1 = memberTypes.get(0);
             return member1.typeKind() == NIL ? getSignatureForIntersectionType(memberTypes.get(1)) + "?" :
@@ -134,7 +159,7 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
     }
 
     private String getSignatureForFiniteType() {
-        List<TypeSymbol> memberTypes = this.memberTypeDescriptors();
+        List<TypeSymbol> memberTypes = this.userSpecifiedMemberTypes();
         StringJoiner joiner = new StringJoiner("|");
         for (TypeSymbol typeDescriptor : memberTypes) {
             joiner.add(typeDescriptor.signature());

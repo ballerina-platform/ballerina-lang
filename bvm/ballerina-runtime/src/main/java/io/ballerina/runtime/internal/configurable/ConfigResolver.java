@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
@@ -121,6 +122,9 @@ public class ConfigResolver {
                     case TypeTags.RECORD_TYPE_TAG:
                         return getConfigValue(key, configProvider -> configProvider
                                 .getAsRecordAndMark(module, key));
+                    case TypeTags.MAP_TAG:
+                        return getConfigValue(key, configProvider -> configProvider
+                                .getAsMapAndMark(module, key));
                     case TypeTags.TABLE_TAG:
                         return getConfigValue(key, configProvider -> configProvider
                                 .getAsTableAndMark(module, key));
@@ -131,13 +135,18 @@ public class ConfigResolver {
                     case TypeTags.XML_TEXT_TAG:
                         return getConfigValue(key, configProvider -> configProvider
                                 .getAsXmlAndMark(module, key));
+                    case TypeTags.ANYDATA_TAG:
+                    case TypeTags.UNION_TAG:
+                        return getConfigValue(key, configProvider -> configProvider
+                                    .getAsUnionAndMark(module, key));
                     default:
                         diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
-                                            effectiveType.toString());
+                                            IdentifierUtils.decodeIdentifier(effectiveType.toString()));
                 }
                 break;
             default:
-                diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable, type.toString());
+                diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
+                                    IdentifierUtils.decodeIdentifier(type.toString()));;
         }
         return Optional.empty();
     }

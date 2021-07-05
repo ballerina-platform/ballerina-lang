@@ -45,17 +45,23 @@ public class Option {
     private final BMap<BString, Object> recordVal;
     private final List<String> operandArgs;
     private final Set<BString> recordKeysFound;
+    private final int location;
 
-    public Option(Type recordType) {
+    public Option(Type recordType, int location) {
         this((RecordType) recordType,
-             ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName()));
+             ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName()), location);
     }
 
     public Option(RecordType recordType, BMap<BString, Object> recordVal) {
+        this(recordType, recordVal, 0);
+    }
+
+    public Option(RecordType recordType, BMap<BString, Object> recordVal, int location) {
         this.recordType = recordType;
         this.recordVal = recordVal;
         operandArgs = new ArrayList<>();
         recordKeysFound = new HashSet<>();
+        this.location = location;
     }
 
     public BMap<BString, Object> parseRecord(String[] args) {
@@ -65,7 +71,7 @@ public class Option {
             if (CliUtil.isLongOption(arg)) {
                 index = handleOption(args, index, arg);
             } else if (isShortOption(arg)) {
-                validConfigOption(arg);
+                validateConfigOption(arg);
             } else {
                 operandArgs.add(arg);
             }
@@ -78,7 +84,7 @@ public class Option {
         return arg.startsWith("-");
     }
 
-    private void validConfigOption(String arg) {
+    private void validateConfigOption(String arg) {
         // Skip the config options
         if (arg.length() == 1 || arg.charAt(1) != 'C') {
             throw ErrorCreator.createError(
@@ -250,5 +256,9 @@ public class Option {
 
     public List<String> getOperandArgs() {
         return operandArgs;
+    }
+
+    public int getLocation() {
+        return location;
     }
 }

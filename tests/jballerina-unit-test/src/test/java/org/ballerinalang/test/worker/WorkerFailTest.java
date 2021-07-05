@@ -91,7 +91,7 @@ public class WorkerFailTest {
         Assert.assertTrue(message.contains("expected 'int', found '(error|int)'"), message);
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test
     public void invalidReceiveWithErrorReturnTest() {
         CompileResult result =
                 BCompileUtil.compile("test-src/workers/invalid-receive-with-error-return.bal");
@@ -100,7 +100,7 @@ public class WorkerFailTest {
         Assert.assertTrue(message.contains("incompatible types"), message);
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test
     public void invalidReceiveWithErrorUnionReturnTest() {
         CompileResult result =
                 BCompileUtil.compile("test-src/workers/invalid_receive_with_union_error_return_negative.bal");
@@ -128,20 +128,12 @@ public class WorkerFailTest {
     }
 
     @Test
-    public void invalidSendWithErrorCheckTest() {
-        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-with-error-check.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-        String message = result.getDiagnostics()[0].message();
-        Assert.assertTrue(message.contains("can not be used after a non-error return"), message);
-    }
-
-    @Test
     public void invalidSendInIf() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-in-if.bal");
         String message = Arrays.toString(result.getDiagnostics());
         Assert.assertEquals(result.getErrorCount(), 1, message);
-        Assert.assertTrue(message.contains("invalid worker send statement position, must be a top level statement in " +
-                                                   "a worker"), message);
+        Assert.assertTrue(message.contains("worker send statement position not supported yet, " +
+                "must be a top level statement in a worker"), message);
     }
 
     @Test
@@ -149,8 +141,8 @@ public class WorkerFailTest {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-sync-send-in-if.bal");
         String message = Arrays.toString(result.getDiagnostics());
         Assert.assertEquals(result.getErrorCount(), 1, message);
-        Assert.assertTrue(message.contains("invalid worker send statement position, must be a top level statement in " +
-                                                   "a worker"), message);
+        Assert.assertTrue(message.contains("worker send statement position not supported yet, " +
+                "must be a top level statement in a worker"), message);
     }
 
     @Test
@@ -212,8 +204,8 @@ public class WorkerFailTest {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-async-send-in-foreach.bal");
         String message = Arrays.toString(result.getDiagnostics());
         Assert.assertEquals(result.getErrorCount(), 1, message);
-        Assert.assertTrue(message.contains("invalid worker send statement position, must be a top level statement in " +
-                                                   "a worker"), message);
+        Assert.assertTrue(message.contains("worker send statement position not supported yet, " +
+                "must be a top level statement in a worker"), message);
     }
 
     @Test
@@ -221,8 +213,8 @@ public class WorkerFailTest {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-sync-send-in-foreach.bal");
         String message = Arrays.toString(result.getDiagnostics());
         Assert.assertEquals(result.getErrorCount(), 1, message);
-        Assert.assertTrue(message.contains("invalid worker send statement position, must be a top level statement in " +
-                                                   "a worker"), message);
+        Assert.assertTrue(message.contains("worker send statement position not supported yet, " +
+                "must be a top level statement in a worker"), message);
     }
 
     @Test
@@ -230,8 +222,8 @@ public class WorkerFailTest {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-async-send-in-fork.bal");
         String message = Arrays.toString(result.getDiagnostics());
         Assert.assertEquals(result.getErrorCount(), 1, message);
-        Assert.assertTrue(message.contains("invalid worker send statement position, must be a top level statement " +
-                                                   "in a worker"), message);
+        Assert.assertTrue(message.contains("worker send statement position not supported yet, " +
+                "must be a top level statement in a worker"), message);
     }
 
     @Test
@@ -239,8 +231,8 @@ public class WorkerFailTest {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-sync-send-in-fork.bal");
         String message = Arrays.toString(result.getDiagnostics());
         Assert.assertEquals(result.getErrorCount(), 1, message);
-        Assert.assertTrue(message.contains("invalid worker send statement position, must be a top level statement " +
-                                                   "in a worker"), message);
+        Assert.assertTrue(message.contains("worker send statement position not supported yet, " +
+                "must be a top level statement in a worker"), message);
     }
 
     @Test
@@ -250,17 +242,5 @@ public class WorkerFailTest {
         Assert.assertEquals(result.getErrorCount(), 1, message);
         Assert.assertTrue(message.contains("invalid worker receive statement position, must be a top level statement " +
                                                    "in a worker"), message);
-    }
-
-    @Test(groups = { "brokenOnNewParser" })
-    public void invalidUsagesOfDefault() {
-        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-usage-of-default.bal");
-        Assert.assertEquals(result.getErrorCount(), 6);
-        validateError(result, 0, "mismatched input 'default'. expecting Identifier", 18, 12);
-        validateError(result, 1, "mismatched input 'default'. expecting Identifier", 29, 16);
-        validateError(result, 2, "invalid token 'default'", 36, 12);
-        validateError(result, 3, "invalid token 'default'", 41, 9);
-        validateError(result, 4, "invalid token 'default'", 43, 13);
-        validateError(result, 5, "extraneous input 'default'", 44, 16);
     }
 }

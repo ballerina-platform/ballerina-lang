@@ -26,21 +26,21 @@ import org.testng.annotations.Test;
 /**
  * Test function signatures and calling with optional and named params.
  */
-@Test(groups = { "brokenOnNewParser" })
+@Test
 public class FunctionSignatureNegativeTest {
 
     @Test
     public void testFuncSignatureSemanticsNegative() {
         int i = 0;
-        CompileResult result = BCompileUtil.compile("test-src/functions/different-function-signatures" +
-                "-semantics-negative.bal");
+        CompileResult result =
+                BCompileUtil.compile("test-src/functions/different-function-signatures-semantics-negative.bal");
         String tooManyArguments = "too many arguments in call to ";
 
         BAssertUtil.validateError(result, i++, "redeclared symbol 'c'", 1, 73);
         BAssertUtil.validateError(result, i++, "redeclared argument 'a'", 17, 19);
         BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'c'", 21, 19);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'int', found 'float'", 29, 20);
-        BAssertUtil.validateError(result, i++, "incompatible types: expected 'json', found 'xml:Text'", 40, 61);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'json', found 'xml:Text'", 40, 56);
         BAssertUtil.validateError(result, i++, "missing required parameter 'a' in call to " +
                 "'functionWithOnlyPositionalParams()'", 57, 9);
         BAssertUtil.validateError(result, i++, "missing required parameter 'b' in call to " +
@@ -65,13 +65,12 @@ public class FunctionSignatureNegativeTest {
         BAssertUtil.validateError(result, i++, tooManyArguments + "'functionWithOnlyDefaultableParams()'", 71, 57);
         BAssertUtil.validateError(result, i++, "redeclared argument 'a'", 72, 46);
         BAssertUtil.validateError(result, i++, tooManyArguments + "'functionWithOnlyDefaultableParams()'", 72, 63);
-        BAssertUtil.validateError(result, i++, "required parameter not allowed after defaultable parameters", 75, 60);
+        BAssertUtil.validateError(result, i++, "required parameter after the defaultable parameter", 75, 44);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'boolean', found 'boolean[]'", 85, 33);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'float', found 'boolean[]'", 87, 28);
-        BAssertUtil.validateError(result, i++, "incompatible types: expected '[float,boolean...]', found " +
-                                          "'boolean[]'", 88, 31);
-        BAssertUtil.validateError(result, i++, "incompatible types: expected 'boolean', found 'boolean[]'", 89, 45);
-        BAssertUtil.validateError(result, i++, "positional argument not allowed after named arguments", 89, 45);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected" +
+                " '([float,boolean...]|record {| float f?; |})', found 'boolean[]'", 88, 31);
+        BAssertUtil.validateError(result, i++, "named arg followed by positional arg", 89, 36);
         BAssertUtil.validateError(result, i++, "rest argument not allowed after named arguments", 90, 45);
         BAssertUtil.validateError(result, i++, "missing required parameter 'y' in call to " +
                 "'functionWithNoRestParam()'", 98, 5);
@@ -104,6 +103,7 @@ public class FunctionSignatureNegativeTest {
         BAssertUtil.validateError(result, i++, "undefined symbol 'z'", 123, 50);
         BAssertUtil.validateError(result, i++, "undefined symbol 'z'", 126, 59);
         BAssertUtil.validateError(result, i++, "undefined symbol 'z'", 127, 54);
+        BAssertUtil.validateError(result, i++, "incomplete quoted identifier", 130, 24);
 
         Assert.assertEquals(i, result.getErrorCount());
     }
@@ -118,7 +118,9 @@ public class FunctionSignatureNegativeTest {
     @Test
     public void testFuncWithTwoRestParams() {
         CompileResult result = BCompileUtil.compile("test-src/functions/function-with-two-rest-params.bal");
-        BAssertUtil.validateError(result, 0, "mismatched input ','. expecting ')'", 1, 52);
+        BAssertUtil.validateError(result, 0, "parameter after the rest parameter", 1, 44);
+        BAssertUtil.validateError(result, 1, "undefined symbol 'c'", 2, 16);
+        Assert.assertEquals(result.getErrorCount(), 2);
     }
 
     @Test

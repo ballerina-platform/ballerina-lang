@@ -20,7 +20,7 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
-import io.ballerina.toml.syntax.tree.DocumentNode;
+import io.ballerina.toml.syntax.tree.BoolLiteralNode;
 
 /**
  * Represents A Boolean Value in Toml AST.
@@ -28,12 +28,21 @@ import io.ballerina.toml.syntax.tree.DocumentNode;
  * @since 2.0.0
  */
 public class TomlBooleanValueNode extends TomlBasicValueNode<Boolean> {
-    public TomlBooleanValueNode(DocumentNode documentNode, Boolean value, TomlNodeLocation location) {
-        super(documentNode, value, TomlType.BOOLEAN, location);
+    public TomlBooleanValueNode(BoolLiteralNode boolNode, Boolean value, TomlNodeLocation location) {
+        super(boolNode, value, TomlType.BOOLEAN, location);
     }
 
     @Override
     public void accept(TomlNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public boolean isMissingNode() {
+        BoolLiteralNode boolLiteralNode = (BoolLiteralNode) super.externalTreeNode();
+        if (boolLiteralNode.isMissing()) {
+            return true;
+        }
+        return boolLiteralNode.value().isMissing();
     }
 }

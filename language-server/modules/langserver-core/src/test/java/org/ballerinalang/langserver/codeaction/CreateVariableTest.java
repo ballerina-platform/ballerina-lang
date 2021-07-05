@@ -91,12 +91,17 @@ public class CreateVariableTest extends AbstractCodeActionTest {
                 {"ignoreReturnValueCodeAction.json", "createVariable.bal"},
                 {"projectVariableAssignmentRequiredCodeAction1.json", "testproject/main.bal"},
                 {"projectVariableAssignmentRequiredCodeAction2.json", "testproject/main.bal"},
+                {"projectVariableAssignmentRequiredCodeAction3.json", "testproject/modules/module1/module1.bal"},
                 {"createVariableInClassMethod.json", "createVariableInClassMethod.bal"},
                 {"createVariableInServiceMethod.json", "createVariableInServiceMethod.bal"},
                 {"createVariableInServiceRemoteMethod.json", "createVariableInServiceMethod.bal"},
                 {"createVariableWithUnionType.json", "createVariableWithUnionType.bal"},
                 {"createVariableWithIntersectionType.json", "createVariableWithIntersectionType.bal"},
                 {"createVariableWithIntersectionType2.json", "createVariableWithIntersectionType.bal"},
+                
+                // Create variables of function/invocable type
+                {"createVariableWithFunctionType1.json", "createVariableWithFunctionType1.bal"},
+                {"createVariableWithFunctionType2.json", "createVariableWithFunctionType1.bal"},
         };
     }
 }

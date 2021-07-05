@@ -19,8 +19,10 @@
 package io.ballerina.runtime.internal.configurable.providers.cli;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
@@ -34,8 +36,12 @@ import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
+import io.ballerina.runtime.internal.types.BFiniteType;
+import io.ballerina.runtime.internal.types.BIntersectionType;
+import io.ballerina.runtime.internal.types.BUnionType;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -172,20 +178,58 @@ public class CliProvider implements ConfigProvider {
 
     @Override
     public Optional<BArray> getAsArrayAndMark(Module module, VariableKey key) {
+        CliArg cliArg = getCliArg(module, key);
+        if (cliArg.value == null) {
+            return Optional.empty();
+        }
         Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
         throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
     }
 
     @Override
     public Optional<BMap<BString, Object>> getAsRecordAndMark(Module module, VariableKey key) {
+        CliArg cliArg = getCliArg(module, key);
+        if (cliArg.value == null) {
+            return Optional.empty();
+        }
+        Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
+        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
+    }
+
+    public Optional<BMap<BString, Object>> getAsMapAndMark(Module module, VariableKey key) {
         Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
         throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
     }
 
     @Override
     public Optional<BTable<BString, Object>> getAsTableAndMark(Module module, VariableKey key) {
+        CliArg cliArg = getCliArg(module, key);
+        if (cliArg.value == null) {
+            return Optional.empty();
+        }
         Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
         throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
+    }
+
+    @Override
+    public Optional<Object> getAsUnionAndMark(Module module, VariableKey key) {
+        BUnionType unionType = (BUnionType) ((BIntersectionType) key.type).getEffectiveType();
+        if (!SymbolFlags.isFlagOn(unionType.getFlags(), SymbolFlags.ENUM)) {
+            throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, unionType);
+        }
+        CliArg cliArg = getCliArg(module, key);
+        if (cliArg.value == null) {
+            return Optional.empty();
+        }
+        BString stringVal = StringUtils.fromString(cliArg.value);
+        List<Type> memberTypes = unionType.getMemberTypes();
+        for (Type type : memberTypes) {
+            if (((BFiniteType) type).valueSpace.contains(stringVal)) {
+                return Optional.of(stringVal);
+            }
+        }
+        throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable,
+                                  IdentifierUtils.decodeIdentifier(unionType.toString()), cliArg.value);
     }
 
     @Override

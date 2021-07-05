@@ -22,7 +22,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
@@ -139,6 +138,12 @@ class AIDataMapperCodeActionUtil {
         }
 
         List<DiagnosticProperty<?>> props = diagnostic.properties();
+
+        //To check if the left is a symbol
+        if (props.get(LEFT_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC) {
+            return fEdits;
+        }
+
         TypeDescKind leftSymbolType = ((TypeSymbol) props.get(LEFT_SYMBOL_INDEX).value()).typeKind();
 
         if (props.size() != 2 || props.get(RIGHT_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC ||
@@ -248,8 +253,8 @@ class AIDataMapperCodeActionUtil {
                         }
                     } else if ((positionDetails.matchedNode().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) &&
                             (((TypeCastExpressionNode) positionDetails.matchedNode()).expression().kind() ==
-                                SyntaxKind.FUNCTION_CALL)) {
-                            matchedNode = ((TypeCastExpressionNode) positionDetails.matchedNode()).expression();
+                                    SyntaxKind.FUNCTION_CALL)) {
+                        matchedNode = ((TypeCastExpressionNode) positionDetails.matchedNode()).expression();
                     }
 
                     if (matchedNode == null) {
@@ -478,14 +483,14 @@ class AIDataMapperCodeActionUtil {
     private void generateOptionalMap(Map<String, Object> rightSchemaMap, String foundTypeRight) {
         for (Map.Entry<String, Object> field : rightSchemaMap.entrySet()) {
             StringBuilder optionalKey = new StringBuilder(foundTypeRight.toLowerCase());
-            if (!(((LinkedTreeMap) field.getValue()).containsKey(OPTIONAL))) {
+            if (!(((Map) field.getValue()).containsKey(OPTIONAL))) {
                 optionalKey.append(".").append(field.getKey());
-                generateOptionalMap((Map<String, Object>) ((LinkedTreeMap) field.getValue()).get(PROPERTIES),
+                generateOptionalMap((Map<String, Object>) ((Map) field.getValue()).get(PROPERTIES),
                         optionalKey.toString());
-            } else if ((boolean) ((LinkedTreeMap) field.getValue()).get(OPTIONAL) |
+            } else if ((boolean) ((Map) field.getValue()).get(OPTIONAL) |
                     (checkForOptionalRecordField(optionalKey.toString()) > 0)) {
                 optionalKey.append(".").append(field.getKey());
-                this.isOptionalMap.put(optionalKey.toString(), ((LinkedTreeMap) field.getValue()).get(SIGNATURE).
+                this.isOptionalMap.put(optionalKey.toString(), ((Map) field.getValue()).get(SIGNATURE).
                         toString());
             }
         }
@@ -507,14 +512,14 @@ class AIDataMapperCodeActionUtil {
             if (!fieldName.isEmpty()) {
                 fieldKey.append(fieldName).append(".");
             }
-            if (!(((LinkedTreeMap) field.getValue()).containsKey(READONLY))) {
+            if (!(((Map) field.getValue()).containsKey(READONLY))) {
                 fieldKey.append(field.getKey());
-                getLeftFields((Map<String, Object>) ((LinkedTreeMap) field.getValue()).get(PROPERTIES),
+                getLeftFields((Map<String, Object>) ((Map) field.getValue()).get(PROPERTIES),
                         fieldKey.toString());
             } else {
                 fieldKey.append(field.getKey());
-                this.leftFieldMap.put(fieldKey.toString(), ((LinkedTreeMap) field.getValue()).get(TYPE).toString());
-                if ((((LinkedTreeMap) field.getValue()).get(READONLY)).toString().contains("true")) {
+                this.leftFieldMap.put(fieldKey.toString(), ((Map) field.getValue()).get(TYPE).toString());
+                if ((((Map) field.getValue()).get(READONLY)).toString().contains("true")) {
                     this.leftReadOnlyFields.add(field.getKey());
                 }
             }
@@ -571,18 +576,18 @@ class AIDataMapperCodeActionUtil {
     private void getResponseKeys(Map<String, Object> leftSchemaMap, String keyName) {
         for (Map.Entry<String, Object> field : leftSchemaMap.entrySet()) {
             StringBuilder fieldKey = new StringBuilder();
-            LinkedTreeMap linkedTreeMap = null;
+            Map treeMap = null;
             if (!keyName.isEmpty()) {
                 fieldKey.append(keyName).append(".");
             }
             try {
-                linkedTreeMap = (LinkedTreeMap) field.getValue();
+                treeMap = (Map) field.getValue();
             } catch (Exception e) {
                 //ignore
             }
             fieldKey.append(field.getKey());
-            if (linkedTreeMap != null) {
-                getResponseKeys((Map<String, Object>) linkedTreeMap, fieldKey.toString());
+            if (treeMap != null) {
+                getResponseKeys((Map<String, Object>) treeMap, fieldKey.toString());
             } else {
                 this.responseFieldMap.put(fieldKey.toString(), field.getValue().toString());
             }

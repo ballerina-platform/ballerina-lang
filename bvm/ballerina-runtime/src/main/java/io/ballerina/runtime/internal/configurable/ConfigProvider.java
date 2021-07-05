@@ -57,7 +57,11 @@ public interface ConfigProvider {
 
     Optional<BMap<BString, Object>> getAsRecordAndMark(Module module, VariableKey key);
 
+    Optional<BMap<BString, Object>> getAsMapAndMark(Module module, VariableKey key);
+
     Optional<BTable<BString, Object>> getAsTableAndMark(Module module, VariableKey key);
+
+    Optional<Object> getAsUnionAndMark(Module module, VariableKey key);
 
     Optional<BXml> getAsXmlAndMark(Module module, VariableKey key);
 

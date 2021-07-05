@@ -124,7 +124,8 @@ public class XMLLiteralWithNamespacesTest {
     public void testComplexXMLLiteral() throws IOException {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testComplexXMLLiteral");
         Assert.assertTrue(returns[0] instanceof BXMLItem);
-        Assert.assertEquals(returns[0].stringValue(), BFileUtil.readFileAsString("test-src/types/xml/sampleXML.txt"));
+        Assert.assertEquals(returns[0].stringValue(), BFileUtil.readFileAsString(
+                "src/test/resources/test-src/types/xml/sampleXML.txt"));
     }
 
     @Test
@@ -198,6 +199,11 @@ public class XMLLiteralWithNamespacesTest {
         xmlItem.serialize(baos);
         Assert.assertEquals(new String(baos.toByteArray()),
                 "<foo xmlns=\"http://wso2.com/\">hello</foo>");
+    }
+
+    @Test
+    public void testXmlLiteralUsingXmlNamespacePrefix() {
+        BRunUtil.invoke(literalWithNamespacesResult, "testXmlLiteralUsingXmlNamespacePrefix");
     }
 
     @Test

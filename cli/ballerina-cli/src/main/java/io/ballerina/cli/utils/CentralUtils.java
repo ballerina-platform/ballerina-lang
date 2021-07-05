@@ -18,11 +18,12 @@
 package io.ballerina.cli.utils;
 
 import io.ballerina.cli.launcher.LauncherUtils;
+import io.ballerina.projects.Settings;
+import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
-import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.toml.parser.SettingsProcessor;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
@@ -128,9 +129,13 @@ public class CentralUtils {
     public static Settings readSettings() throws SettingsTomlException {
         Path settingsFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectConstants.SETTINGS_FILE_NAME);
         try {
-            return SettingsProcessor.parseTomlContentFromFile(settingsFilePath);
+            TomlDocument settingsTomlDocument = TomlDocument
+                    .from(String.valueOf(settingsFilePath.getFileName()), Files.readString(settingsFilePath));
+            SettingsBuilder settingsBuilder = SettingsBuilder.from(settingsTomlDocument);
+            return settingsBuilder.settings();
         } catch (IOException e) {
-            return new Settings();
+            // If Settings.toml not exists return empty Settings object
+            return Settings.from();
         }
     }
 

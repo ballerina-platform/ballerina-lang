@@ -54,8 +54,8 @@ public class OptionTest {
         Field stringField = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", 1);
         Map<String, Field> fields = Map.ofEntries(Map.entry("name", stringField));
         RecordType type = TypeCreator.createRecordType(RECORD_NAME, module, 1, fields, null, true, 6);
-        Option option = new Option(type, ValueCreator.createMapValue(type));
         Operand[] operands = {new Operand(false, "birth", PredefinedTypes.TYPE_STRING)};
+        Option option = new Option(type, ValueCreator.createMapValue(type), operands.length);
         String[] args = {"--name", "Riyafa", "-Ckey=value", "--", "--Sri Lanka"};
         CliSpec cliSpec = new CliSpec(option, operands, args);
         Object[] mainArgs = cliSpec.getMainArgs();

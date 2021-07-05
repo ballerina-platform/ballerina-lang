@@ -526,3 +526,28 @@ function testForeachStream() returns boolean {
         age: 40
     };
 }
+
+function testTypeTestInWhereClause() {
+    int?[] v = [1, 2, (), 3];
+    int[] result = from var i in v
+                   where i is int
+                   select i;
+    assertEquality(3, result.length());
+    assertEquality(1, result[0]);
+    assertEquality(2, result[1]);
+    assertEquality(3, result[2]);
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}

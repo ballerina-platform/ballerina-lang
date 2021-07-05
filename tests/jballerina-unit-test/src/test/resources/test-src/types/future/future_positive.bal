@@ -19,99 +19,101 @@ function testBasicTypes() {
     future<boolean> f2 = start status();
     future<string> f3 = start concat("foo");
 
-    int result1 = wait f1;
-    boolean result2 = wait f2;
-    string result3 = wait f3;
+    int result1 = checkpanic wait f1;
+    boolean result2 = checkpanic wait f2;
+    string result3 = checkpanic wait f3;
 
     assertEquality(7, result1);
     assertEquality(true, result2);
     assertEquality("hello foo", result3);
 }
 
-//function testBasicTypesWithoutFutureConstraint() {
-//    future f1 = start add(5, 2);
-//    future f2 = start status();
-//    future f3 = start concat("foo");
-//
-//    any|error result1 = wait f1;
-//    any|error result2 = wait f2;
-//    any|error result3 = wait f3;
-//
-//    assertEquality(7, result1);
-//    assertEquality(true, result2);
-//    assertEquality("hello foo", result3);
-//}
+function testBasicTypesWithoutFutureConstraint() {
+    future f1 = start add(5, 2);
+    future f2 = start status();
+    future f3 = start concat("foo");
+
+    any|error result1 = wait f1;
+    any|error result2 = wait f2;
+    any|error result3 = wait f3;
+
+    assertEquality(7, result1);
+    assertEquality(true, result2);
+    assertEquality("hello foo", result3);
+}
 
 function testRefTypes() {
     future<xml> a = start xmlFile();
     future<json> b = start getJson();
 
-    xml x = wait a;
-    json y = wait b;
+    xml x = checkpanic wait a;
+    json y = checkpanic wait b;
 
     assertEquality(xml `aaa`, x);
     assertEquality(5, y);
 }
 
-//function testRefTypesWithoutFutureConstraint() {
-//    future a = start xmlFile();
-//    future b = start getJson();
-//
-//    any|error x = wait a;
-//    any|error y = wait b;
-//
-//    assertEquality(xml `aaa`, x);
-//    assertEquality(5, y);
-//}
+function testRefTypesWithoutFutureConstraint() {
+    future a = start xmlFile();
+    future b = start getJson();
+
+    any|error x = wait a;
+    any|error y = wait b;
+
+    assertEquality(xml `aaa`, x);
+    assertEquality(5, y);
+}
 
 function testArrayTypes() {
     future<int[]> a = start intArray();
     
-    int[] x = wait a;
+    int[] x = checkpanic wait a;
     
     assertEquality(intArray(), x);
 }
 
-//function testArrayTypesWithoutFutureConstraint() {
-//    future a = start intArray();
-//
-//    any|error x = wait a;
-//
-//    assertEquality(intArray(), x);
-//}
+function testArrayTypesWithoutFutureConstraint() {
+    future a = start intArray();
+
+    any|error x = wait a;
+
+    assertEquality(intArray(), x);
+}
 
 function testRecordTypes() {
     future<Person> a = start getNewPerson();
     
-    Person x = wait a;
+    Person x = checkpanic wait a;
     
     assertEquality(getNewPerson(), x);
 }
 
-//function testRecordTypesWithoutFutureConstraint() {
-//    future a = start getNewPerson();
-//
-//    any|error x = wait a;
-//
-//    assertEquality(getNewPerson(), x);
-//}
+function testRecordTypesWithoutFutureConstraint() {
+    future a = start getNewPerson();
+
+    any|error x = wait a;
+
+    assertEquality(getNewPerson(), x);
+}
 
 function testObjectTypes() {
     future<PersonA> a = start getPersonAObject();
 
-    PersonA x = wait a;
+    PersonA x = checkpanic wait a;
     string name = x.getName();
     
     assertEquality("sample name", name);
 }
 
-//function testObjectTypesWithoutFutureConstraint() {
-//    future a = start getPersonAObject();
-//
-//    any|error x = wait a;
-//
-//    assertEquality("object PersonA", x.toString());
-//}
+function testObjectTypesWithoutFutureConstraint() {
+    future a = start getPersonAObject();
+
+    any x = checkpanic wait a;
+    PersonA personA = <PersonA>x;
+
+    assertEquality(getPersonAObject().age, personA.age);
+    assertEquality(getPersonAObject().name, personA.name);
+}
 
 function testCustomErrorFuture() {
     future<error> te = start getError();
@@ -121,13 +123,14 @@ function testCustomErrorFuture() {
     assertEquality("SimpleErrorType", x.message());
 }
 
-//function testCustomErrorFutureWithoutConstraint() {
-//    future te = start getError();
-//
-//    any|error x = wait te;
-//
-//    assertEquality(getError().toString(), x.toString());
-//}
+function testCustomErrorFutureWithoutConstraint() {
+    future te = start getError();
+
+    any|error x = wait te;
+    string str = (<error>x).toString();
+
+    assertEquality(getError().toString(), str);
+}
 
 function add(int i, int j) returns int {
     int k = i + j;

@@ -96,7 +96,6 @@ public class NumericLiteralNode extends ValueNode {
 
         public NumericLiteralNodeModifier withSign(
                 Token sign) {
-            Objects.requireNonNull(sign, "sign must not be null");
             this.sign = sign;
             return this;
         }

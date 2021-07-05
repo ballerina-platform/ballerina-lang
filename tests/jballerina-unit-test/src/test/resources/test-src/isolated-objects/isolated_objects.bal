@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.array;
+
 public isolated class IsolatedClassWithNoMutableFields {
     public final int[] & readonly a;
     final readonly & record {int i;} b;
@@ -627,6 +629,156 @@ isolated class IsolatedClassWithBoundMethodAccess {
     }
 
     isolated function baz() {
+    }
+}
+
+isolated class IsolatedClassReferringSelfOutsideLock {
+    final int a = 1;
+    private int[] b = [];
+
+    function foo() {
+        f1(self);
+        self.baz();
+    }
+
+    isolated function baz() {
+        f2(1, self);
+    }
+}
+
+function f1(IsolatedClassReferringSelfOutsideLock x) {
+
+}
+
+isolated function f2(int i, IsolatedClassReferringSelfOutsideLock x) {
+
+}
+
+public isolated class IsolatedClassWithBoundMethodAccessOutsideLock {
+
+    public isolated function bar() {
+        isolated function () fn = self.baz;
+    }
+
+    isolated function baz() {
+    }
+}
+
+isolated class IsolatedClassWithInvalidCopyInInMethodCall {
+    private map<int> m = {};
+
+    isolated function baz() returns map<int>[] {
+        map<int>[] y = [];
+
+        lock {
+            map<int>[] y2 = y.cloneReadOnly();
+            y2[0] = self.m.cloneReadOnly();
+            y.clone().push(self.m);
+            array:push(y.clone(), self.m);
+        }
+
+        return y;
+    }
+
+    function qux(map<int[]> y) {
+        lock {
+            _ = y.clone().remove(self.m["a"].toString());
+        }
+    }
+}
+
+var isolatedObjectWithInvalidCopyInInMethodCall = isolated object {
+    private map<int> m = {};
+
+    isolated function baz() returns map<int>[] {
+        map<int>[] y = [];
+
+        lock {
+            map<int>[] y2 = y.clone();
+            y2[0] = self.m.clone();
+            y.clone().push(self.m);
+            array:push(y2, self.m);
+        }
+
+        return y;
+    }
+
+    function qux(map<int[]> y) {
+        lock {
+            _ = y.clone().remove(self.m["a"].toString());
+        }
+    }
+};
+
+isolated class IsolatedClassAssigningProtectedFieldsToLocalVars {
+    private map<int> m = {};
+
+    isolated function baz() returns map<int>[] {
+        map<int>[] y = [];
+        map<int> z;
+        lock {
+            map<int>[] y2 = [self.m];
+            y2[0] = self.m;
+            y2.push(self.m);
+
+            map<int>[] y3 = y.clone();
+            y3[0] = self.m;
+
+            z = self.m.clone();
+
+            return y2.cloneReadOnly();
+        }
+    }
+}
+
+
+const fromMobile = "";
+configurable string toMobile = "";
+
+isolated NonIsolatedClient cl = new;
+
+service / on new Listener() {
+   isolated resource function post foo() returns error? {
+      Response resp;
+      lock {
+         Response val = check cl->sendMessage(fromMobile, toMobile, "Hi!");
+         resp = val.clone();
+      }
+   }
+}
+
+type Response record {|
+   string message;
+   int id;
+|};
+
+public client class NonIsolatedClient {
+   int i = 1;
+
+   isolated remote function sendMessage(string x, string y, string z)
+      returns Response|error => {message: "Hello", id: 0};
+}
+
+isolated class IsolatedClassWithRawTemplateTransfer {
+    private int[] arr = [];
+    private isolated object {}[] arr2 = [];
+
+    function getArrOne() returns any {
+        lock {
+            return `values: ${self.arr.clone()}`;
+        }
+    }
+
+    function getArrTwo() returns any {
+        lock {
+            return `values: ${self.arr2.pop()}`;
+        }
+    }
+
+    function getArrs(int[] intArr) returns any {
+        lock {
+            return `values: ${self.arr2[0]}, ${self.arr.clone()}, ${intArr.clone()}`;
+        }
     }
 }
 

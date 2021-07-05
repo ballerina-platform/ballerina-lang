@@ -15,17 +15,21 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion Provider for {@link FunctionCallExpressionNode} context.
@@ -34,6 +38,7 @@ import java.util.List;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class FunctionCallExpressionNodeContext extends BlockNodeContextProvider<FunctionCallExpressionNode> {
+
     public FunctionCallExpressionNodeContext() {
         super(FunctionCallExpressionNode.class);
     }
@@ -50,7 +55,7 @@ public class FunctionCallExpressionNodeContext extends BlockNodeContextProvider<
         completionItems.addAll(this.expressionCompletions(ctx));
         // TODO: implement the following
 //        completionItems.addAll(this.getNewExprCompletionItems(ctx, node));
-
+        this.sort(ctx, node, completionItems);
         return completionItems;
     }
 
@@ -61,5 +66,22 @@ public class FunctionCallExpressionNodeContext extends BlockNodeContextProvider<
         Token closeParen = node.closeParenToken();
 
         return cursor > openParen.textRange().startOffset() && cursor < closeParen.textRange().endOffset();
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context,
+                     FunctionCallExpressionNode node,
+                     List<LSCompletionItem> completionItems) {
+
+        Optional<TypeSymbol> parameterSymbol = context.getContextType();
+        if (parameterSymbol.isEmpty() || !CommonUtil.isInFunctionCallParameterContext(context, node)) {
+            super.sort(context, node, completionItems);
+            return;
+        }
+        TypeSymbol symbol = parameterSymbol.get();
+        for (LSCompletionItem completionItem : completionItems) {
+            completionItem.getCompletionItem()
+                    .setSortText(SortingUtil.genSortTextByAssignability(completionItem, symbol));
+        }
     }
 }

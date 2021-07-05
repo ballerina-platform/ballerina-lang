@@ -38,6 +38,7 @@ public class BindgenTreeModifier {
 
     private final JClass jClass;
     public final BindgenEnv env;
+    private static final String CLASS_DEF_ERROR = "error: unable to locate the class definition in the syntax tree";
 
     BindgenTreeModifier(JClass jClass, BindgenEnv env) {
         this.jClass = jClass;
@@ -93,7 +94,7 @@ public class BindgenTreeModifier {
 
         AbstractMap.SimpleEntry<Integer, ClassDefinitionNode> classDefinitionDetails = retrieveClassDefinition(members);
         if (classDefinitionDetails == null) {
-            throw new BindgenException("error: unable to locate the class definition in the syntax tree");
+            throw new BindgenException(CLASS_DEF_ERROR);
         }
         NodeList<Node> classDefinitionMembers = classDefinitionDetails.getValue().members();
 
@@ -130,8 +131,7 @@ public class BindgenTreeModifier {
         return members.set(classDefinitionDetails.getKey(), modifiedClassDefinition);
     }
 
-    private NodeList<ModuleMemberDeclarationNode> updateConstructors(NodeList<ModuleMemberDeclarationNode> members)
-            throws BindgenException {
+    private NodeList<ModuleMemberDeclarationNode> updateConstructors(NodeList<ModuleMemberDeclarationNode> members) {
         List<FunctionDefinitionNode> constructorFunctions = new LinkedList<>();
 
         for (ModuleMemberDeclarationNode node : members) {
@@ -152,8 +152,7 @@ public class BindgenTreeModifier {
         return memberList;
     }
 
-    private NodeList<ModuleMemberDeclarationNode> updateStaticMethods(NodeList<ModuleMemberDeclarationNode> members)
-            throws BindgenException {
+    private NodeList<ModuleMemberDeclarationNode> updateStaticMethods(NodeList<ModuleMemberDeclarationNode> members) {
         List<FunctionDefinitionNode> staticFunctions = new LinkedList<>();
 
         for (ModuleMemberDeclarationNode node : members) {
@@ -179,7 +178,7 @@ public class BindgenTreeModifier {
         List<FunctionDefinitionNode> instanceFunctions = new LinkedList<>();
         AbstractMap.SimpleEntry<Integer, ClassDefinitionNode> classDefinitionDetails = retrieveClassDefinition(members);
         if (classDefinitionDetails == null) {
-            throw new BindgenException("error: unable to locate the class definition in the syntax tree");
+            throw new BindgenException(CLASS_DEF_ERROR);
         }
         NodeList<Node> classDefinitionMembers = classDefinitionDetails.getValue().members();
 
@@ -204,8 +203,7 @@ public class BindgenTreeModifier {
         return members.set(classDefinitionDetails.getKey(), modifiedClassDefinition);
     }
 
-    private NodeList<ModuleMemberDeclarationNode> updateStaticFields(NodeList<ModuleMemberDeclarationNode> members)
-            throws BindgenException {
+    private NodeList<ModuleMemberDeclarationNode> updateStaticFields(NodeList<ModuleMemberDeclarationNode> members) {
         List<FunctionDefinitionNode> staticFields = new LinkedList<>();
 
         for (ModuleMemberDeclarationNode node : members) {
@@ -231,7 +229,7 @@ public class BindgenTreeModifier {
         List<FunctionDefinitionNode> instanceFields = new LinkedList<>();
         AbstractMap.SimpleEntry<Integer, ClassDefinitionNode> classDefinitionDetails = retrieveClassDefinition(members);
         if (classDefinitionDetails == null) {
-            throw new BindgenException("error: unable to locate the class definition in the syntax tree");
+            throw new BindgenException(CLASS_DEF_ERROR);
         }
         NodeList<Node> classDefinitionMembers = classDefinitionDetails.getValue().members();
 
@@ -256,8 +254,7 @@ public class BindgenTreeModifier {
         return members.set(classDefinitionDetails.getKey(), modifiedClassDefinition);
     }
 
-    private NodeList<ModuleMemberDeclarationNode> updateExternalMethods(NodeList<ModuleMemberDeclarationNode> members)
-            throws BindgenException {
+    private NodeList<ModuleMemberDeclarationNode> updateExternalMethods(NodeList<ModuleMemberDeclarationNode> members) {
         List<FunctionDefinitionNode> externalFunctions = new LinkedList<>();
 
         for (ModuleMemberDeclarationNode node : members) {
@@ -310,9 +307,14 @@ public class BindgenTreeModifier {
         return entry;
     }
 
-    private FunctionDefinitionNode generateBalFunction(BFunction bFunction, boolean isExternal)
-            throws BindgenException {
-        return createFunctionDefinitionNode(bFunction, isExternal);
+    private FunctionDefinitionNode generateBalFunction(BFunction bFunction, boolean isExternal) {
+        try {
+            return createFunctionDefinitionNode(bFunction, isExternal);
+        } catch (BindgenException e) {
+            env.setFailedMethodGens("error: unable to generate the binding function '" + bFunction.getFunctionName()
+                    + "' of '" + bFunction.getDeclaringClass().getName() + "': "  + e.getMessage());
+            return null;
+        }
     }
 
     private TypeReferenceNode generateTypeReference(String type) {

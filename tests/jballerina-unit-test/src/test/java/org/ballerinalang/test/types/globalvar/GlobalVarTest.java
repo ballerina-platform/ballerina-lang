@@ -20,6 +20,7 @@ package org.ballerinalang.test.types.globalvar;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -40,5 +41,19 @@ public class GlobalVarTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/variabledef" +
                 "/global_variable_init_in_reverse_order.bal");
         BRunUtil.invoke(result, "testReverseOrderInitialization");
+    }
+
+    @Test
+    public void testConfigurableVarFinalAndRedaOnly() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/variabledef/configurable_var_decl.bal");
+        BRunUtil.invoke(result, "testConfigValue");
+    }
+
+    @Test
+    public void testConfigurableVarSupportedTypes() {
+        CompileResult result =
+                BCompileUtil.compileWithoutInitInvocation("test-src/statements/variabledef" +
+                        "/configurable_var_positive.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
     }
 }

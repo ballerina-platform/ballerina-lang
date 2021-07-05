@@ -17,60 +17,28 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.plugins.CompilerPlugin;
 
-import java.util.Objects;
-
 /**
- * This class holds a {@code CompilerPlugin} instance with additional details such the
- * containing package's {@code PackageDescriptor} and the {@code CompilerPluginDescriptor}.
+ * This is an abstract class that represents a Compiler Plugin.
  *
  * @since 2.0.0
  */
 class CompilerPluginInfo {
 
-    private final CompilerPlugin compilerPlugin;
-    private final PackageDescriptor packageDesc;
-    private final CompilerPluginDescriptor compilerPluginDesc;
+    protected final CompilerPlugin compilerPlugin;
+    private CompilerPluginKind kind;
 
-    CompilerPluginInfo(CompilerPlugin compilerPlugin,
-                       PackageDescriptor packageDesc,
-                       CompilerPluginDescriptor compilerPluginDesc) {
+    protected CompilerPluginInfo(CompilerPlugin compilerPlugin, CompilerPluginKind kind) {
         this.compilerPlugin = compilerPlugin;
-        this.packageDesc = packageDesc;
-        this.compilerPluginDesc = compilerPluginDesc;
+        this.kind = kind;
     }
 
     CompilerPlugin compilerPlugin() {
         return compilerPlugin;
     }
 
-    PackageDescriptor packageDesc() {
-        return packageDesc;
-    }
-
-    CompilerPluginDescriptor compilerPluginDesc() {
-        return compilerPluginDesc;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        CompilerPluginInfo that = (CompilerPluginInfo) o;
-        return Objects.equals(compilerPlugin, that.compilerPlugin) &&
-                Objects.equals(packageDesc, that.packageDesc);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(compilerPlugin, packageDesc);
+    CompilerPluginKind kind() {
+        return kind;
     }
 }

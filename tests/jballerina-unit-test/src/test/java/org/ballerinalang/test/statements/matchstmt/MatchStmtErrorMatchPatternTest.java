@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
  *
  * @since 2.0.0
  */
-@Test(groups = { "disableOnOldParser" })
 public class MatchStmtErrorMatchPatternTest {
     private CompileResult result, restPatternResult, resultNegative;
     private String patternNotMatched = "pattern will not be matched";
@@ -95,6 +94,31 @@ public class MatchStmtErrorMatchPatternTest {
     }
 
     @Test
+    public void testErrorMatchPatter11() {
+        BRunUtil.invoke(result, "testErrorMatchPattern11");
+    }
+
+    @Test
+    public void testErrorMatchPatter12() {
+        BRunUtil.invoke(result, "testErrorMatchPattern12");
+    }
+
+    @Test
+    public void testErrorMatchPatter13() {
+        BRunUtil.invoke(result, "testErrorMatchPattern13");
+    }
+
+    @Test
+    public void testErrorMatchPatter14() {
+        BRunUtil.invoke(result, "testErrorMatchPattern14");
+    }
+
+    @Test
+    public void testErrorMatchPattern15() {
+        BRunUtil.invoke(result, "testErrorMatchPattern15");
+    }
+
+    @Test
     public void testErrorMatchPatternWithRestPattern1() {
         BRunUtil.invoke(restPatternResult, "testErrorMatchPattern1");
     }
@@ -111,21 +135,21 @@ public class MatchStmtErrorMatchPatternTest {
 
     @Test
     public void testErrorMatchPatternNegative() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        //Assert.assertEquals(resultNegative.getWarnCount(), 10);
         int i = 0;
-        BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 23, 9);
-        BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 28, 9);
-        BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 33, 9);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 40, 19);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 41, 28);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 42, 20);
+        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 23, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 28, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 33, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 40, 19);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 41, 28);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 42, 20);
         BAssertUtil.validateError(resultNegative, i++, "all match patterns should contain the same set of variables",
                 43, 9);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 43, 24);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 44, 42);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 45, 49);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 47, 44);
-
-        Assert.assertEquals(resultNegative.getErrorCount(), i);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 43, 24);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 44, 42);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 45, 49);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 47, 44);
     }
 
     @AfterClass

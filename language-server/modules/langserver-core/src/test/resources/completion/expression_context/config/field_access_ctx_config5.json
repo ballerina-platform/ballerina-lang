@@ -14,13 +14,36 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "reduce(function () func, any|error initial)(any|error)",
+      "label": "testOptional",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "A",
+      "insertText": "?.testOptional",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 20
+            },
+            "end": {
+              "line": 4,
+              "character": 21
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "reduce(function () func, any|error initial)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "any|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nCombines the members of a map using a combining function.\nThe combining function takes the combined value so far and a member of the map,\nand returns a new combined value.\n  \n**Params**  \n- `function ()` func: combining function  \n- `any|error` initial: initial value for the first argument of combining function `func`  \n  \n**Returns** `any|error`   \n- result of combining the members of `m` using `func`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nCombines the members of a map using a combining function.\n\nThe combining function takes the combined value so far and a member of the map,\nand returns a new combined value.\n  \n**Params**  \n- `function ()` func: combining function  \n- `any|error` initial: initial value for the first argument of combining function `func`  \n  \n**Return** `any|error`   \n- result of combining the members of parameter `m` using function `func`  \n  \n"
         }
       },
       "sortText": "D",
@@ -33,13 +56,13 @@
       }
     },
     {
-      "label": "hasKey(string k)(boolean)",
+      "label": "hasKey(string k)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "boolean",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nTests whether m has a member with key `k`.\n  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `boolean`   \n- true if m has a member with key `k`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nTests whether a map value has a member with a given key.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `boolean`   \n- true if parameter `m` has a member with key parameter `k`  \n  \n"
         }
       },
       "sortText": "D",
@@ -54,11 +77,11 @@
     {
       "label": "forEach(function () func)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nApplies a function to each member of a map.\nThe function `func` is applied to each member of `m`.\n  \n**Params**  \n- `function ()` func: a function to apply to each member"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nApplies a function to each member of a map.\n\nThe function `func` is applied to each member of parameter `m`.\n  \n**Params**  \n- `function ()` func: a function to apply to each member"
         }
       },
       "sortText": "D",
@@ -71,13 +94,13 @@
       }
     },
     {
-      "label": "keys()(string[])",
+      "label": "keys()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a list of all the keys of map `m`.\n  \n  \n  \n**Returns** `string[]`   \n- a new list of all keys  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a list of all the keys of a map.\n  \n  \n  \n**Return** `string[]`   \n- a new list of all keys  \n  \n"
         }
       },
       "sortText": "D",
@@ -86,13 +109,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "length()(int)",
+      "label": "length()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns number of members of a map.\n  \n  \n  \n**Returns** `int`   \n- number of members in `m`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns number of members of a map.\n  \n  \n  \n**Return** `int`   \n- number of members in parameter `m`  \n  \n"
         }
       },
       "sortText": "D",
@@ -101,13 +124,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "remove(string k)(any|error)",
+      "label": "remove(string k)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "any|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves a member of a map.\n  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `any|error`   \n- the member of `m` that had key `k`  \nThis removes the member of `m` with key `k` and returns it.  \nIt panics if there is no such member.  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves a member of a map.\n\nThis removes the member of parameter `m` with key parameter `k` and returns it.\nIt panics if there is no such member.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `any|error`   \n- the member of parameter `m` that had key parameter `k`  \n  \n"
         }
       },
       "sortText": "D",
@@ -120,13 +143,13 @@
       }
     },
     {
-      "label": "filter(function () func)(map<any|error>)",
+      "label": "filter(function () func)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "map<any|error>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nSelects the members from a map for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each element to test whether it should be included  \n  \n**Returns** `map<any|error>`   \n- new map containing members for which `func` evaluates to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nSelects the members from a map for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each element to test whether it should be included  \n  \n**Return** `map<any|error>`   \n- new map containing members for which function `func` evaluates to true  \n  \n"
         }
       },
       "sortText": "D",
@@ -139,13 +162,13 @@
       }
     },
     {
-      "label": "removeIfHasKey(string k)(any|error?)",
+      "label": "removeIfHasKey(string k)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "any|error?",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves a member of a map with a given key, if the map has member with the key.\n  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `any|error?`   \n- the member of `m` that had key `k`, or `()` if `m` does not have a key `k`  \nIf `m` has a member with key `k`, it removes and returns it;  \notherwise it returns `()`.  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves a member of a map with a given key, if the map has member with the key.\n\nIf parameter `m` has a member with key parameter `k`, it removes and returns it;\notherwise it returns `()`.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `any|error?`   \n- the member of parameter `m` that had key parameter `k`, or `()` if parameter `m` does not have a key parameter `k`  \n  \n"
         }
       },
       "sortText": "D",
@@ -158,13 +181,13 @@
       }
     },
     {
-      "label": "iterator()(object {public isolated function next() returns record {| any|error value; |}? ;})",
+      "label": "iterator()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "object {public isolated function next() returns record {| any|error value; |}? ;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns an iterator over a map.\nThe iterator will iterate over the members of the map not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n  \n  \n  \n**Returns** `object {public isolated function next() returns record {| any|error value; |}? ;}`   \n- a new iterator object that will iterate over the members of `m`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns an iterator over a map.\n\nThe iterator will iterate over the members of the map not the keys.\nThe function `entries` can be used to iterate over the keys and members together.\nThe function `keys` can be used to iterator over just the keys.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| any|error value; |}? ;}`   \n- a new iterator object that will iterate over the members of parameter `m`  \n  \n"
         }
       },
       "sortText": "D",
@@ -173,13 +196,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "entries()(map<[string, any|error]>)",
+      "label": "entries()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "map<[string, any|error]>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a map containing [key, member] pair as the value for each key.\n  \n  \n  \n**Returns** `map<[string, any|error]>`   \n- a new map of [key, member] pairs  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a map containing [key, member] pair as the value for each key.\n  \n  \n  \n**Return** `map<[string, any|error]>`   \n- a new map of [key, member] pairs  \n  \n"
         }
       },
       "sortText": "D",
@@ -190,11 +213,11 @@
     {
       "label": "removeAll()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves all members of a map.\nThis panics if any member cannot be removed.\n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves all members of a map.\n\nThis panics if any member cannot be removed.\n  \n"
         }
       },
       "sortText": "D",
@@ -203,13 +226,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "get(string k)(any|error)",
+      "label": "get(string k)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "any|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns the member of map `m` with key `k`.\nThis for use in a case where it is known that the map has a specific key,\nand accordingly panics if `m` does not have a member with key `k`.\n  \n**Params**  \n- `string` k: the key  \n  \n**Returns** `any|error`   \n- member with key `k`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns the member of a map with given key.\n\nThis for use in a case where it is known that the map has a specific key,\nand accordingly panics if parameter `m` does not have a member with parameter `k` key.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `any|error`   \n- member with parameter `k` key  \n  \n"
         }
       },
       "sortText": "D",
@@ -222,13 +245,13 @@
       }
     },
     {
-      "label": "toArray()((any|error)[])",
+      "label": "toArray()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "(any|error)[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a list of all the members of a map.\n  \n  \n  \n**Returns** `(any|error)[]`   \n- an array whose members are the members of `m`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns a list of all the members of a map.\n  \n  \n  \n**Return** `(any|error)[]`   \n- an array whose members are the members of parameter `m`  \n  \n"
         }
       },
       "sortText": "D",
@@ -237,13 +260,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "map(function () func)(map<any|error>)",
+      "label": "map(function () func)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "map<any|error>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nApplies a function each member of a map and returns a map of the result.\nThe resulting map will have the same keys as the argument map.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Returns** `map<any|error>`   \n- new map containing result of applying function `func` to each member  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nApplies a function each member of a map and returns a map of the result.\n\nThe resulting map will have the same keys as the argument map.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `map<any|error>`   \n- new map containing result of applying function `func` to each member  \n  \n"
         }
       },
       "sortText": "D",
@@ -256,13 +279,13 @@
       }
     },
     {
-      "label": "cloneWithType(typedesc<anydata> t)(t|error)",
+      "label": "cloneWithType(typedesc<anydata> t)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "t|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConstructs a value with a specified type by cloning another value.  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed(Defaultable)  \n  \n**Returns** `t|error`   \n- a new value that belongs to type `t`, or an error if this cannot be done  \n  \nWhen `v` is a structural value, the inherent type of the value to be constructed  \ncomes from `t`. When `t` is a union, it must be possible to determine which  \nmember of the union to use for the inherent type by following the same rules  \nthat are used by list constructor expressions and mapping constructor expressions  \nwith the contextually expected type. If not, then an error is returned.  \nThe `cloneWithType` operation is recursively applied to each member of `v` using  \nthe type descriptor that the inherent type requires for that member.  \n  \nLike the Clone abstract operation, this does a deep copy, but differs in  \nthe following respects:  \n- the inherent type of any structural values constructed comes from the specified  \ntype descriptor rather than the value being constructed  \n- the read-only bit of values and fields comes from the specified type descriptor  \n- the graph structure of `v` is not preserved; the result will always be a tree;  \nan error will be returned if `v` has cycles  \n- immutable structural values are copied rather being returned as is; all  \nstructural values in the result will be mutable.  \n- numeric values can be converted using the NumericConvert abstract operation  \n- if a record type descriptor specifies default values, these will be used  \nto supply any missing members  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConstructs a value with a specified type by cloning another value.\n\nWhen parameter `v` is a structural value, the inherent type of the value to be constructed\ncomes from parameter `t`. When parameter `t` is a union, it must be possible to determine which\nmember of the union to use for the inherent type by following the same rules\nthat are used by list constructor expressions and mapping constructor expressions\nwith the contextually expected type. If not, then an error is returned.\nThe `cloneWithType` operation is recursively applied to each member of parameter `v` using\nthe type descriptor that the inherent type requires for that member.\n\nLike the Clone abstract operation, this does a deep copy, but differs in\nthe following respects:\n- the inherent type of any structural values constructed comes from the specified\ntype descriptor rather than the value being constructed\n- the read-only bit of values and fields comes from the specified type descriptor\n- the graph structure of `v` is not preserved; the result will always be a tree;\nan error will be returned if `v` has cycles\n- immutable structural values are copied rather being returned as is; all\nstructural values in the result will be mutable.\n- numeric values can be converted using the NumericConvert abstract operation\n- if a record type descriptor specifies default values, these will be used\nto supply any missing members\n  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed(Defaultable)  \n  \n**Return** `t|error`   \n- a new value that belongs to type `t`, or an error if this cannot be done  \n  \n"
         }
       },
       "sortText": "D",
@@ -275,13 +298,13 @@
       }
     },
     {
-      "label": "cloneReadOnly()(Cloneable & readonly)",
+      "label": "cloneReadOnly()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "CloneableType & readonly",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `Cloneable & readonly`   \n- immutable clone of `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
         }
       },
       "sortText": "D",
@@ -290,13 +313,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "toBalString()(string)",
+      "label": "toBalString()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nIf `v` is anydata and does not have cycles, then the result will  \nconform to the grammar for a Ballerina expression and when evaluated  \nwill result in a value that is == to v.  \n  \nThe details of the conversion are specified by the ToString abstract operation  \ndefined in the Ballerina Language Specification, using the expression style.  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.\n\nIf parameter `v` is anydata and does not have cycles, then the result will\nconform to the grammar for a Ballerina expression and when evaluated\nwill result in a value that is == to parameter `v`.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
         }
       },
       "sortText": "D",
@@ -305,13 +328,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "toJson()(json)",
+      "label": "toJson()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "json",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value of type `anydata` to `json`.\nThis does a deep copy of `v` converting values that do\nnot belong to json into values that do.\nA value of type `xml` is converted into a string as if\nby the `toString` function.\nA value of type `table` is converted into a list of\nmappings one for each row.\nThe inherent type of arrays in the return value will be\n`json[]` and of mappings will be `map<json>`.\nA new copy is made of all structural values, including\nimmutable values.\n  \n  \n  \n**Returns** `json`   \n- representation of `v` as value of type json  \nThis panics if `v` has cycles.  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value of type `anydata` to `json`.\n\nThis does a deep copy of parameter `v` converting values that do\nnot belong to json into values that do.\nA value of type `xml` is converted into a string as if\nby the `toString` function.\nA value of type `table` is converted into a list of\nmappings one for each row.\nThe inherent type of arrays in the return value will be\n`json[]` and of mappings will be `map<json>`.\nA new copy is made of all structural values, including\nimmutable values.\nThis panics if parameter `v` has cycles.\n  \n  \n  \n**Return** `json`   \n- representation of `v` as value of type json  \n  \n"
         }
       },
       "sortText": "D",
@@ -320,13 +343,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "isReadOnly()(boolean)",
+      "label": "isReadOnly()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "boolean",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nTests whether `v` is read-only, i.e. immutable\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Returns** `boolean`   \n- true if read-only, false otherwise  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nTests whether a value is read-only, i.e., immutable.\n\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Return** `boolean`   \n- true if read-only, false otherwise  \n  \n"
         }
       },
       "sortText": "D",
@@ -335,13 +358,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "clone()(Cloneable)",
+      "label": "clone()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "CloneableType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `Cloneable`   \n- clone of `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `CloneableType`   \n- clone of parameter `v`  \n  \n"
         }
       },
       "sortText": "D",
@@ -350,13 +373,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ensureType(typedesc<any> t)(t|error)",
+      "label": "ensureType(typedesc<any> t)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "t|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nSafely casts a value to a type.\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it\nreturn - `v` cast to the type described by `t`, or an error, if the cast cannot be done(Defaultable)  \n  \n**Returns** `t|error`   \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it\nreturn - `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done(Defaultable)  \n  \n**Return** `t|error`   \n  \n"
         }
       },
       "sortText": "D",
@@ -369,13 +392,13 @@
       }
     },
     {
-      "label": "toString()(string)",
+      "label": "toString()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nPerforms a direct conversion of a value to a string.\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nThe details of the conversion are specified by the ToString abstract operation  \ndefined in the Ballerina Language Specification, using the direct style.  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nPerforms a direct conversion of a value to a string.\n\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the direct style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
         }
       },
       "sortText": "D",
@@ -384,13 +407,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "toJsonString()(string)",
+      "label": "toJsonString()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns the string that represents `v` in JSON format.\n`v` is first converted to `json` as if by the `toJson` function.\n  \n  \n  \n**Returns** `string`   \n- string representation of `v` converted to `json`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns the string that represents a anydata value in JSON format.\n\nparameter `v` is first converted to `json` as if by the function `toJson`.\n  \n  \n  \n**Return** `string`   \n- string representation of parameter `v` converted to `json`  \n  \n"
         }
       },
       "sortText": "D",

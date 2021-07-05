@@ -31,17 +31,17 @@ import org.testng.annotations.Test;
 @Test
 public class DataflowAnalysisTest {
 
-    @Test(description = "Test uninitialized variables", enabled = false)
+    @Test(description = "Test uninitialized variables")
     public void testSemanticsOfUninitializedVariables() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/dataflow/analysis/dataflow-analysis-semantics-negative.bal");
         int i = 0;
-        BAssertUtil.validateError(result, i++, "undefined field 'f' in object 'Foo'", 308, 13);
+        BAssertUtil.validateError(result, i++, "undefined field 'f' in object 'Foo'", 308, 14);
         BAssertUtil.validateError(result, i++, "missing non-defaultable required record field 'extra'", 548, 12);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
-    @Test(description = "Test uninitialized variables", enabled = false)
+    @Test(description = "Test uninitialized variables")
     public void testUninitializedVariables() {
         CompileResult result = BCompileUtil.compile("test-src/dataflow/analysis/dataflow-analysis-negative.bal");
         int i = 0;
@@ -67,11 +67,19 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'msg' is not initialized", 286, 20);
         BAssertUtil.validateError(result, i++, "uninitialized field 'd'", 300, 5);
         BAssertUtil.validateError(result, i++, "variable 'd' is not initialized", 325, 16);
+        BAssertUtil.validateWarning(result, i++, "concurrent calls will not be made to this method since the method " +
+                "is not an 'isolated' method", 366, 5);
+        BAssertUtil.validateWarning(result, i++, "concurrent calls will not be made to this method since the method " +
+                "is not an 'isolated' method", 372, 5);
         BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 381, 5);
         BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 400, 13);
         BAssertUtil.validateError(result, i++, "variable 'b' may not have been initialized", 400, 16);
         BAssertUtil.validateError(result, i++, "uninitialized field 'a'", 428, 5);
         BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 430, 5);
+        BAssertUtil.validateWarning(result, i++, "concurrent calls will not be made to this method since the method " +
+                "is not an 'isolated' method", 449, 5);
+        BAssertUtil.validateWarning(result, i++, "concurrent calls will not be made to this method since the method " +
+                "is not an 'isolated' method", 463, 5);
         BAssertUtil.validateError(result, i++, "unreachable code", 489, 9);
         BAssertUtil.validateError(result, i++, "variable 'msg' is not initialized", 498, 12);
         BAssertUtil.validateError(result, i++, "unreachable code", 506, 9);
@@ -79,7 +87,7 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 521, 5);
         BAssertUtil.validateError(result, i++, "uninitialized field 'b'", 573, 5);
         BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 574, 5);
-        BAssertUtil.validateError(result, i++, "uninitialized field 's'", 582, 14);
+        BAssertUtil.validateError(result, i++, "uninitialized field 's'", 582, 22);
         BAssertUtil.validateError(result, i++, "variable 'k' may not have been initialized", 592, 12);
         BAssertUtil.validateError(result, i++, "variable 'k' may not have been initialized", 614, 12);
         BAssertUtil.validateError(result, i++, "variable 'k' may not have been initialized", 624, 12);
@@ -92,7 +100,8 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 718, 13);
         BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 723, 28);
         BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 723, 41);
-        Assert.assertEquals(result.getErrorCount(), i);
+        Assert.assertEquals(result.getErrorCount(), i - 4);
+        Assert.assertEquals(result.getWarnCount(), 4);
     }
 
     @Test(description = "Test uninitialized variables in error-constructor-expr")

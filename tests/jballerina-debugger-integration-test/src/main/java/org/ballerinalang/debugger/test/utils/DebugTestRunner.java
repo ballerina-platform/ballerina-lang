@@ -499,6 +499,7 @@ public class DebugTestRunner {
             Map<String, Variable> variables = new HashMap<>();
             VariablesArguments childVarArgs = new VariablesArguments();
             childVarArgs.setVariablesReference(parentVariable.getVariablesReference());
+            childVarArgs.setCount(parentVariable.getIndexedVariables());
             VariablesResponse response = listener.getConnector().getRequestManager().variables(childVarArgs);
             Arrays.stream(response.getVariables()).forEach(variable -> variables.put(variable.getName(), variable));
             return variables;
@@ -587,12 +588,12 @@ public class DebugTestRunner {
         switch (assertionMode) {
             case HARD_ASSERT:
                 Assert.assertEquals(frame.getName(), name);
-                Assert.assertEquals(frame.getLine().intValue(), line);
+                Assert.assertEquals(frame.getLine(), line);
                 Assert.assertEquals(frame.getSource().getName(), source);
                 return;
             case SOFT_ASSERT:
                 softAsserter.assertEquals(frame.getName(), name);
-                softAsserter.assertEquals(frame.getLine().intValue(), line);
+                softAsserter.assertEquals(frame.getLine(), line);
                 softAsserter.assertEquals(frame.getSource().getName(), source);
         }
     }

@@ -32,9 +32,7 @@ class CompilationOptionsBuilder {
     private Boolean dumpBir;
     private String dumpBirFile;
     private String cloud;
-    private Boolean taintCheck;
     private Boolean listConflictedClasses;
-    private Boolean showAllWarnings;
 
     public CompilationOptionsBuilder() {
     }
@@ -74,23 +72,13 @@ class CompilationOptionsBuilder {
         return this;
     }
 
-    public CompilationOptionsBuilder taintCheck(Boolean value) {
-        taintCheck = value;
-        return this;
-    }
-
     public CompilationOptionsBuilder listConflictedClasses(Boolean value) {
         listConflictedClasses = value;
         return this;
     }
 
-    public CompilationOptionsBuilder showAllWarnings(Boolean value) {
-        showAllWarnings = value;
-        return this;
-    }
-
     public CompilationOptions build() {
         return new CompilationOptions(skipTests, buildOffline, experimental, observabilityIncluded, dumpBir,
-                dumpBirFile, cloud, taintCheck, listConflictedClasses, showAllWarnings);
+                dumpBirFile, cloud, listConflictedClasses);
     }
 }

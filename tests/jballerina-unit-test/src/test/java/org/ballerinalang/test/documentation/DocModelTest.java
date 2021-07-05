@@ -20,6 +20,7 @@ import org.ballerinalang.docgen.generator.model.BClass;
 import org.ballerinalang.docgen.generator.model.BObjectType;
 import org.ballerinalang.docgen.generator.model.BType;
 import org.ballerinalang.docgen.generator.model.Client;
+import org.ballerinalang.docgen.generator.model.DefaultableVariable;
 import org.ballerinalang.docgen.generator.model.Function;
 import org.ballerinalang.docgen.generator.model.Listener;
 import org.ballerinalang.docgen.generator.model.Module;
@@ -379,7 +380,9 @@ public class DocModelTest {
         Assert.assertEquals(testTypeDescFunc.get().parameters.get(0).description, "Typedesc with empty record\n");
         Assert.assertTrue(testTypeDescFunc.get().parameters.get(0).type.isTypeDesc);
         Assert.assertNotNull(testTypeDescFunc.get().parameters.get(0).type.elementType);
-        Assert.assertEquals(testTypeDescFunc.get().parameters.get(0).type.elementType.name, "record {}");
+        Assert.assertEquals(testTypeDescFunc.get().parameters.get(0).type.elementType.category, "inline_record");
+        Assert.assertEquals(testTypeDescFunc.get().parameters.get(0).type.elementType.memberTypes.size(), 0);
+
     }
 
     @Test(description = "Test readonly Objects and Records")
@@ -387,6 +390,12 @@ public class DocModelTest {
         Optional<Record> uuidRec = testModule.records.stream().filter(record -> record.name.equals("Uuid")).findAny();
         Assert.assertTrue(uuidRec.isPresent(), "Uuid record not found");
         Assert.assertTrue(uuidRec.get().isReadOnly);
+        Assert.assertEquals(uuidRec.get().fields.get(0).name, "timeLow");
+        Assert.assertEquals(uuidRec.get().fields.get(0).type.orgName, "ballerina");
+        Assert.assertEquals(uuidRec.get().fields.get(0).type.moduleName, "lang.int");
+        Assert.assertEquals(uuidRec.get().fields.get(0).type.version, "1.1.0");
+        Assert.assertEquals(uuidRec.get().fields.get(0).type.name, "Unsigned32");
+        Assert.assertEquals(uuidRec.get().fields.get(0).type.category, "types");
 
         Optional<BObjectType> controller = testModule.objectTypes.stream().filter(record -> record.name
                 .equals("Controller")).findAny();
@@ -446,5 +455,211 @@ public class DocModelTest {
         Assert.assertEquals(function.get().parameters.get(0).type.moduleName, "docerina_project");
         Assert.assertEquals(function.get().parameters.get(0).type.version, "1.0.0");
         Assert.assertEquals(function.get().parameters.get(0).type.category, "records");
+    }
+
+    @Test(description = "Test distinct objects")
+    public void testIDistinctObjects() {
+        Optional<BObjectType> distObj = testModule.objectTypes.stream()
+                .filter(func -> func.name.equals("DistObj")).findAny();
+        Assert.assertTrue(distObj.isPresent(), "DistObj object not found");
+        Assert.assertTrue(distObj.get().isDistinct);
+
+        Optional<BType> linkToDistObj = testModule.types.stream()
+                .filter(func -> func.name.equals("LinkToDistinctObj")).findAny();
+        Assert.assertTrue(linkToDistObj.isPresent(), "DistObj object not found");
+        Assert.assertEquals(linkToDistObj.get().memberTypes.get(0).name, "DistObj");
+        Assert.assertEquals(linkToDistObj.get().memberTypes.get(0).category, "objectTypes");
+        Assert.assertEquals(linkToDistObj.get().memberTypes.get(0).moduleName, "docerina_project");
+        Assert.assertEquals(linkToDistObj.get().memberTypes.get(0).version, "1.0.0");
+        Assert.assertEquals(linkToDistObj.get().memberTypes.get(0).orgName, "test_org");
+
+    }
+
+    @Test(description = "Test included record doc model")
+    public void testIncludedRecordModel() {
+        Optional<Record> cityRec = testModule.records.stream()
+                .filter(record -> record.name.equals("City")).findAny();
+
+        Assert.assertTrue(cityRec.isPresent(), "City record not found");
+        Assert.assertEquals(cityRec.get().fields.size(), 2);
+
+        Assert.assertEquals(cityRec.get().fields.get(0).name, "Coordinates");
+        Assert.assertNotNull(cityRec.get().fields.get(0).inclusionType);
+        Assert.assertEquals(cityRec.get().fields.get(0).inclusionType.name, "Coordinates");
+        Assert.assertEquals(cityRec.get().fields.get(0).inclusionType.moduleName, "docerina_project");
+        Assert.assertEquals(cityRec.get().fields.get(0).inclusionType.version, "1.0.0");
+        Assert.assertEquals(cityRec.get().fields.get(0).inclusionType.orgName, "test_org");
+        Assert.assertEquals(cityRec.get().fields.get(0).inclusionType.category, "records");
+        Assert.assertEquals(cityRec.get().fields.get(0).inclusionType.memberTypes.size(), 2);
+        Assert.assertEquals(cityRec.get().fields.get(0).inclusionType.memberTypes.get(0).name, "latitude");
+        Assert.assertEquals(cityRec.get().fields.get(0).inclusionType.memberTypes.get(1).name, "longitude");
+    }
+
+    @Test(description = "Test object type doc model")
+    public void testObjectTypeDocModel() {
+        Optional<BObjectType> personA = testModule.objectTypes.stream()
+                .filter(client -> client.name.equals("PersonA")).findAny();
+
+        Assert.assertTrue(personA.isPresent());
+        Assert.assertEquals(personA.get().description, "Represents PersonA object type\n\n");
+
+        Assert.assertEquals(personA.get().methods.size(), 1);
+        Assert.assertEquals(personA.get().methods.get(0).name, "getFullName");
+        Assert.assertEquals(personA.get().methods.get(0).description, "Get full name method\n\n");
+        Assert.assertEquals(personA.get().methods.get(0).parameters.get(0).name, "middleName");
+        Assert.assertEquals(personA.get().methods.get(0).parameters.get(0).description, "Middle name of person\n");
+        Assert.assertEquals(personA.get().methods.get(0).parameters.get(0).type.name, "string");
+        Assert.assertEquals(personA.get().methods.get(0).parameters.get(0).type.category, "builtin");
+        Assert.assertEquals(personA.get().methods.get(0).returnParameters.get(0).description, "The full name\n");
+        Assert.assertEquals(personA.get().methods.get(0).returnParameters.get(0).type.name, "string");
+        Assert.assertEquals(personA.get().methods.get(0).returnParameters.get(0).type.category, "builtin");
+
+        Assert.assertEquals(personA.get().fields.size(), 2);
+        Assert.assertEquals(personA.get().fields.get(0).name, "firstName");
+        Assert.assertEquals(personA.get().fields.get(0).description, "First name of the person\n");
+        Assert.assertEquals(personA.get().fields.get(0).type.name, "string");
+        Assert.assertEquals(personA.get().fields.get(0).type.category, "builtin");
+    }
+
+    @Test(description = "Test object inclusion")
+    public void testObjectInclusion() {
+        Optional<BObjectType> studentA = testModule.objectTypes.stream()
+                .filter(client -> client.name.equals("StudentA")).findAny();
+
+        Assert.assertTrue(studentA.isPresent());
+        Assert.assertEquals(studentA.get().description, "Represents StudentA object type\n");
+        Assert.assertEquals(studentA.get().fields.size(), 2);
+        Assert.assertNotNull(studentA.get().fields.get(0).inclusionType);
+        Assert.assertEquals(studentA.get().fields.get(0).inclusionType.name, "PersonA");
+        Assert.assertEquals(studentA.get().fields.get(0).inclusionType.orgName, "test_org");
+        Assert.assertEquals(studentA.get().fields.get(0).inclusionType.moduleName, "docerina_project");
+        Assert.assertEquals(studentA.get().fields.get(0).inclusionType.version, "1.0.0");
+        Assert.assertEquals(studentA.get().fields.get(0).inclusionType.category, "objectTypes");
+
+        Assert.assertEquals(studentA.get().fields.get(0).inclusionType.memberTypes.get(0).name, "firstName");
+        Assert.assertEquals(studentA.get().fields.get(0).inclusionType.memberTypes.get(1).name, "lastName");
+
+        Assert.assertEquals(studentA.get().methods.size(), 1);
+        Assert.assertEquals(studentA.get().methods.get(0).name, "getFullName");
+        Assert.assertNotNull(studentA.get().methods.get(0).inclusionType);
+        Assert.assertEquals(studentA.get().methods.get(0).inclusionType.name, "PersonA");
+        Assert.assertEquals(studentA.get().methods.get(0).inclusionType.orgName, "test_org");
+        Assert.assertEquals(studentA.get().methods.get(0).inclusionType.moduleName, "docerina_project");
+        Assert.assertEquals(studentA.get().methods.get(0).inclusionType.version, "1.0.0");
+        Assert.assertEquals(studentA.get().methods.get(0).inclusionType.category, "objectTypes");
+        Assert.assertEquals(studentA.get().methods.get(0).parameters.get(0).type.name, "string");
+        Assert.assertEquals(studentA.get().methods.get(0).parameters.get(0).type.category, "builtin");
+        Assert.assertEquals(studentA.get().methods.get(0).returnParameters.get(0).type.name, "string");
+        Assert.assertEquals(studentA.get().methods.get(0).returnParameters.get(0).type.category, "builtin");
+    }
+
+    @Test(description = "Test module variables")
+    public void testModuleVariables() {
+        Optional<DefaultableVariable> pubString = testModule.variables.stream()
+                .filter(client -> client.name.equals("pubString")).findAny();
+        Assert.assertTrue(pubString.isPresent());
+
+        Assert.assertEquals(pubString.get().description, "A public variable of string type\n");
+        Assert.assertEquals(pubString.get().defaultValue, "\"123\"");
+        Assert.assertEquals(pubString.get().type.category, "builtin");
+        Assert.assertEquals(pubString.get().type.name, "string");
+
+        Optional<DefaultableVariable> tuple = testModule.variables.stream()
+                .filter(client -> client.name.equals("[a,b]")).findAny();
+        Assert.assertTrue(tuple.isPresent());
+        Assert.assertEquals(tuple.get().description, "Docs for tuple module variable.\n");
+        Assert.assertEquals(tuple.get().defaultValue, "[1, 1.5]");
+        Assert.assertTrue(tuple.get().type.isTuple);
+        Assert.assertEquals(tuple.get().type.memberTypes.size(), 2);
+        Assert.assertEquals(tuple.get().type.memberTypes.get(0).name, "int");
+        Assert.assertEquals(tuple.get().type.memberTypes.get(0).category, "builtin");
+        Assert.assertEquals(tuple.get().type.memberTypes.get(1).name, "float");
+        Assert.assertEquals(tuple.get().type.memberTypes.get(1).category, "builtin");
+    }
+
+    @Test(description = "Test record rest field")
+    public void testRecordRestField() {
+        Optional<Record> keyValRec = testModule.records.stream()
+                .filter(record -> record.name.equals("KeyValues")).findAny();
+
+        Assert.assertTrue(keyValRec.isPresent(), "KeyValues record not found");
+        Assert.assertEquals(keyValRec.get().fields.size(), 3);
+        Assert.assertNotNull(keyValRec.get().fields.get(2).type);
+        Assert.assertTrue(keyValRec.get().fields.get(2).type.isRestParam);
+        Assert.assertNotNull(keyValRec.get().fields.get(2).type.elementType);
+        Assert.assertEquals(keyValRec.get().fields.get(2).type.elementType.name, "json");
+        Assert.assertEquals(keyValRec.get().fields.get(2).type.elementType.category, "builtin");
+    }
+
+    @Test(description = "Test type params and builtin subtype")
+    public void testTypeParamAndBuiltinSubtype() {
+        Optional<BType> typeParam = testModule.types.stream()
+                .filter(bType -> bType.name.equals("TypeParam")).findAny();
+        Optional<BType> charSubType = testModule.types.stream()
+                .filter(bType -> bType.name.equals("Char")).findAny();
+
+        Optional<BType> anyDataType = testModule.types.stream()
+                .filter(bType -> bType.name.equals("AnydataType")).findAny();
+
+        Assert.assertTrue(typeParam.isPresent());
+        Assert.assertTrue(charSubType.isPresent());
+        Assert.assertTrue(anyDataType.isPresent());
+
+        Assert.assertEquals(typeParam.get().name, "TypeParam");
+        Assert.assertEquals(typeParam.get().description, "A type param\n");
+        Assert.assertTrue(typeParam.get().isAnonymousUnionType);
+        Assert.assertEquals(typeParam.get().memberTypes.size(), 2);
+        Assert.assertEquals(typeParam.get().memberTypes.get(0).name, "any");
+        Assert.assertEquals(typeParam.get().memberTypes.get(0).category, "builtin");
+        Assert.assertEquals(typeParam.get().memberTypes.get(1).name, "error");
+        Assert.assertEquals(typeParam.get().memberTypes.get(1).category, "builtin");
+
+        Assert.assertEquals(charSubType.get().name, "Char");
+        Assert.assertEquals(charSubType.get().description,
+                "Built-in subtype of string containing strings of length 1.\n");
+        Assert.assertEquals(charSubType.get().memberTypes.get(0).name, "string");
+        Assert.assertEquals(charSubType.get().memberTypes.get(0).category, "builtin");
+
+        Assert.assertTrue(anyDataType.get().isAnonymousUnionType);
+        Assert.assertEquals(anyDataType.get().memberTypes.get(0).name, "anydata");
+        Assert.assertEquals(anyDataType.get().memberTypes.get(0).category, "builtin");
+    }
+
+    @Test(description = "Test future type")
+    public void testFutureType() {
+        Optional<Function> cancelFutureFunc = testModule.functions.stream()
+                .filter(bType -> bType.name.equals("cancelFuture")).findAny();
+
+        Assert.assertTrue(cancelFutureFunc.isPresent());
+        Assert.assertEquals(cancelFutureFunc.get().parameters.size(), 1);
+        Assert.assertEquals(cancelFutureFunc.get().parameters.get(0).type.category, "future");
+        Assert.assertTrue(cancelFutureFunc.get().parameters.get(0).type.elementType.isAnonymousUnionType);
+        Assert.assertEquals(cancelFutureFunc.get().parameters.get(0).type.elementType.memberTypes.get(0).name,
+                "any");
+        Assert.assertEquals(cancelFutureFunc.get().parameters.get(0).type.elementType.memberTypes.get(1).name,
+                "error");
+    }
+
+    @Test(description = "Test inline record")
+    public void testInlineRecord() {
+        Optional<Function> inlineRecordReturnFunc = testModule.functions.stream()
+                .filter(bType -> bType.name.equals("inlineRecordReturn")).findAny();
+
+        Assert.assertTrue(inlineRecordReturnFunc.isPresent());
+        Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.category,
+                "inline_closed_record");
+        Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.size(), 3);
+        Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(0).name,
+                "latitude");
+        Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(0)
+                        .elementType.name, "string");
+        Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(1).name,
+                "longitude");
+        Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(1)
+                        .elementType.name, "decimal");
+        Assert.assertTrue(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(2)
+                .elementType.isRestParam);
+        Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(2)
+                .elementType.elementType.name, "json");
     }
 }

@@ -1,0 +1,11 @@
+[person1]
+name = "John"
+age = 12
+
+[test_module.person2]
+name = "Jack"
+age = 14
+
+[rootOrg.test_module.person3]
+name = "Jim"
+age = 16

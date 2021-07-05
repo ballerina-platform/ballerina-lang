@@ -1109,6 +1109,12 @@ function org_ballerinalang_bindgen_MethodsTestResource_testMethod(handle receive
     paramTypes: ["int"]
 } external;
 
+function org_ballerinalang_bindgen_MethodsTestResource_unsupportedReturnType(handle receiver) returns handle = @java:Method {
+    name: "unsupportedReturnType",
+    'class: "org.ballerinalang.bindgen.MethodsTestResource",
+    paramTypes: []
+} external;
+
 function org_ballerinalang_bindgen_MethodsTestResource_wait(handle receiver) returns error? = @java:Method {
     name: "wait",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",

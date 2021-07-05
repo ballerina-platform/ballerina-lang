@@ -89,3 +89,19 @@ public function testForkWithinWorker() {
         }
     }
 }
+
+public function singleUnfinishedWorker() {
+    worker w1 {
+        11 -> w3;
+        string fromw3 = <- w3;
+    }
+    worker w3 {
+        "tow1-1" -> w2;
+        int m4 = <- w2;
+    }
+    worker w2 {
+        string m2 = <- w3;
+        24 -> w3;
+    }
+    _ = wait {w1, w2, w3};
+}

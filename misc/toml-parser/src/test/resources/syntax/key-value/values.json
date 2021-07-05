@@ -8,156 +8,161 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "key1",
-                      "leadingMinutiae": [
+                      "children": [
                         {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "# Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved."
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "#"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "# WSO2 Inc. licenses this file to you under the Apache License,"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "# Version 2.0 (the \"License\"); you may not use this file except"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "# in compliance with the License."
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "# You may obtain a copy of the License at"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "#"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "#   http://www.apache.org/licenses/LICENSE-2.0"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "#"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "# Unless required by applicable law or agreed to in writing,"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "# software distributed under the License is distributed on an"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "# \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "# KIND, either express or implied.  See the License for the"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "# specific language governing permissions and limitations"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "# under the License."
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "# Values"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "key1",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "# Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved."
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "#"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "# WSO2 Inc. licenses this file to you under the Apache License,"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "# Version 2.0 (the \"License\"); you may not use this file except"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "# in compliance with the License."
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "# You may obtain a copy of the License at"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "#"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "#   http://www.apache.org/licenses/LICENSE-2.0"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "#"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "# Unless required by applicable law or agreed to in writing,"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "# software distributed under the License is distributed on an"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "# \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "# KIND, either express or implied.  See the License for the"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "# specific language governing permissions and limitations"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "# under the License."
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "# Values"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -209,18 +214,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "key2",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "key2",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -265,18 +275,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "key3",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "key3",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -321,18 +336,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "key4",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "key4",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -384,18 +404,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "key5",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "key5",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -470,18 +495,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "key6",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "key6",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -518,18 +548,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "key7",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "key7",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -566,18 +601,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "key8",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "key8",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -614,32 +654,37 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "int1",
-                      "leadingMinutiae": [
+                      "children": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "#Integer - Basic"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "int1",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "#Integer - Basic"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -679,18 +724,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "int2",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "int2",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -727,18 +777,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "int3",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "int3",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -775,18 +830,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "int4",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "int4",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -826,32 +886,37 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "int5",
-                      "leadingMinutiae": [
+                      "children": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "#Integer - Underscore"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "int5",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "#Integer - Underscore"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -888,18 +953,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "int6",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "int6",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -936,18 +1006,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "int7",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "int7",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -984,18 +1059,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "int8",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "int8",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -1032,32 +1112,37 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "hex1",
-                      "leadingMinutiae": [
+                      "children": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "# hexadecimal with prefix `0x`"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "hex1",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "# hexadecimal with prefix `0x`"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -1094,18 +1179,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "hex2",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "hex2",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -1142,18 +1232,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "hex3",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "hex3",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -1190,32 +1285,37 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "oct1",
-                      "leadingMinutiae": [
+                      "children": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "# octal with prefix `0o`"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "oct1",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "# octal with prefix `0o`"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -1252,18 +1352,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "oct2",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "oct2",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -1300,32 +1405,37 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "bin1",
-                      "leadingMinutiae": [
+                      "children": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "# binary with prefix `0b`"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "bin1",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "# binary with prefix `0b`"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -1362,32 +1472,37 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "flt1",
-                      "leadingMinutiae": [
+                      "children": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "#Float"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "flt1",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "#Float"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -1427,18 +1542,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "flt2",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "flt2",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -1475,179 +1595,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "flt3",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "EQUAL_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "FLOAT",
-              "children": [
-                {
-                  "kind": "MINUS_TOKEN"
-                },
-                {
-                  "kind": "DECIMAL_FLOAT_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "KEY_VALUE",
-          "children": [
-            {
-              "kind": "LIST",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_LITERAL",
-                      "value": "flt4",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "# exponent"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "EQUAL_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "FLOAT",
-              "children": [
-                {
-                  "kind": "DECIMAL_FLOAT_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "KEY_VALUE",
-          "children": [
-            {
-              "kind": "LIST",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_LITERAL",
-                      "value": "flt5",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "EQUAL_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "FLOAT",
-              "children": [
-                {
-                  "kind": "DECIMAL_FLOAT_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "KEY_VALUE",
-          "children": [
-            {
-              "kind": "LIST",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_LITERAL",
-                      "value": "flt6",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "flt3",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -1687,32 +1651,37 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "flt7",
-                      "leadingMinutiae": [
+                      "children": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "# both"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "flt4",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "# exponent"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -1749,32 +1718,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "flt8",
-                      "leadingMinutiae": [
+                      "children": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "# Underscore with float"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "flt5",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -1811,36 +1771,231 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "str0",
-                      "leadingMinutiae": [
+                      "children": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "#Strings"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "flt6",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
-                      ],
-                      "trailingMinutiae": [
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "FLOAT",
+              "children": [
+                {
+                  "kind": "MINUS_TOKEN"
+                },
+                {
+                  "kind": "DECIMAL_FLOAT_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "KEY_VALUE",
+          "children": [
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "flt7",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "# both"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "FLOAT",
+              "children": [
+                {
+                  "kind": "DECIMAL_FLOAT_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "KEY_VALUE",
+          "children": [
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "flt8",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "# Underscore with float"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "FLOAT",
+              "children": [
+                {
+                  "kind": "DECIMAL_FLOAT_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "KEY_VALUE",
+          "children": [
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "str0",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "#Strings"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -1892,18 +2047,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "str1",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "str1",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -1947,18 +2107,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "str2",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "str2",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -2010,18 +2175,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "str3",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "str3",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -2065,18 +2235,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "str4",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "str4",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -2120,18 +2295,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "str5",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "str5",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -2175,18 +2355,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "str6",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "str6",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -2230,18 +2415,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "str7",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "str7",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -2279,32 +2469,37 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "lit1",
-                      "leadingMinutiae": [
+                      "children": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "COMMENT_MINUTIAE",
-                          "value": "#Literal strings"
-                        },
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "lit1",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "#Literal strings"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -2348,18 +2543,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "lit2",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "lit2",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -2403,18 +2603,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "lit3",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "   "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "lit3",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "   "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -2458,18 +2663,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "lit4",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "lit4",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -2513,24 +2723,29 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "lit5",
-                      "leadingMinutiae": [
+                      "children": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "lit5",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -2574,18 +2789,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "lit6",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "  "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "lit6",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "  "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -2629,24 +2849,29 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "lit7",
-                      "leadingMinutiae": [
+                      "children": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "lit7",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -2690,18 +2915,23 @@
           "kind": "KEY_VALUE",
           "children": [
             {
-              "kind": "LIST",
+              "kind": "KEY",
               "children": [
                 {
-                  "kind": "IDENTIFIER_LITERAL",
+                  "kind": "LIST",
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "lit8",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "lit8",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }

@@ -14,9 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
-
-listener http:Listener lis = new http:Listener(port);
+listener Listener lis = new Listener(port);
 string b7a = "b7a";
 
 int port = o.p;
@@ -25,17 +23,16 @@ Obj o = new();
 string str = "";
 int p = port;
 
-service hello on lis {
+service /hello on new Listener(8080) {
 
     function init() {
         str = b7a;
     }
 
-    resource function sayHello(http:Caller caller, http:Request request) {
+    resource function get hello() {
 
-        http:Response response = new;
+        Response response = new;
         response.setTextPayload(str);
-        checkpanic caller->respond(response);
     }
 }
 
@@ -45,5 +42,33 @@ class Obj {
 
     function init() {
         self.str = b7a;
+    }
+}
+
+class Response {
+    string text = "";
+
+    function setTextPayload(string str) {
+        self.text = str;
+    }
+}
+
+class Listener {
+    public function init(int port) {
+    }
+
+    public function attach(service object {} s, string|string[]? name = ()) returns error? {
+    }
+
+    public function detach(service object {} s) returns error? {
+    }
+
+    public function 'start() returns error? {
+    }
+
+    public function gracefulStop() returns error? {
+    }
+
+    public function immediateStop() returns error? {
     }
 }

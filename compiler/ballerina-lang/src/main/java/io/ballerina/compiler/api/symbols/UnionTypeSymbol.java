@@ -26,9 +26,17 @@ import java.util.List;
 public interface UnionTypeSymbol extends TypeSymbol {
 
     /**
-     * Get the member types.
+     * Gets the exact member types the user specified in the source code when writing the union.
      *
-     * @return {@link List} of member types
+     * @return {@link List} of user specified member types
+     */
+    List<TypeSymbol> userSpecifiedMemberTypes();
+
+    /**
+     * Gets the expanded set of member types. If there are any unions in the members, members of those unions are taken
+     * recursively.
+     *
+     * @return {@link List} of expanded member types
      */
     List<TypeSymbol> memberTypeDescriptors();
 }

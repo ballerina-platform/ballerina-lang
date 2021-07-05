@@ -424,7 +424,7 @@ public class CompoundAssignmentTest {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/compoundassignment/compound_assignment_negative.bal");
         int i = 0;
-        Assert.assertEquals(compileResult.getErrorCount(), 22);
+        Assert.assertEquals(compileResult.getErrorCount(), 24);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'any' and 'int'", 5, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '-' not defined for 'any' and 'int'", 13, 5);
         BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 20, 14);
@@ -446,7 +446,9 @@ public class CompoundAssignmentTest {
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int?'", 132, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int?'", 140, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int'", 150, 11);
-        BAssertUtil.validateError(compileResult, i, "invalid expr in compound assignment lhs", 156, 18);
+        BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 156, 18);
+        BAssertUtil.validateError(compileResult, i++, "invalid token '='", 170, 19);
+        BAssertUtil.validateError(compileResult, i, "invalid token '='", 171, 19);
     }
 
     @Test(dataProvider = "dataToTestCompoundAssignmentBinaryOpsWithTypes", description = "Test compound assignment " +
@@ -466,6 +468,16 @@ public class CompoundAssignmentTest {
                 "testCompoundAssignmentBitwiseRightShift",
                 "testCompoundAssignmentBitwiseUnsignedRightShift"
         };
+    }
+
+    @Test(description = "Test compound assignment ")
+    public void testCompoundAssignmentDataflowAnalysisNegative() {
+        CompileResult negativeResult = BCompileUtil.compile(
+                "test-src/statements/compoundassignment/compound_assignment_dataflow_analysis_negative.bal");
+        Assert.assertEquals(negativeResult.getErrorCount(), 2);
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "cannot assign a value to final 'i'", 20, 5);
+        BAssertUtil.validateError(negativeResult, i, "cannot assign a value to final 'j'", 23, 5);
     }
 
     @AfterClass

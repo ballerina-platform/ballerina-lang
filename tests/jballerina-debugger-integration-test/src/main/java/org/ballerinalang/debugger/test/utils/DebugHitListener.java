@@ -103,7 +103,7 @@ public class DebugHitListener extends TimerTask {
         stackTraceArgs.setThreadId(args.getThreadId());
         try {
             ThreadsResponse threadsResp = connector.getRequestManager().threads();
-            if (Arrays.stream(threadsResp.getThreads()).noneMatch(t -> t.getId().equals(args.getThreadId()))) {
+            if (Arrays.stream(threadsResp.getThreads()).noneMatch(t -> t.getId() == args.getThreadId())) {
                 return null;
             }
             StackTraceResponse stackTraceResp = connector.getRequestManager().stackTrace(stackTraceArgs);

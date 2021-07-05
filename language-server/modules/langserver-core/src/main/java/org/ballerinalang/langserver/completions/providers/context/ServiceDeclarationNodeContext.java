@@ -17,6 +17,8 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
@@ -26,16 +28,18 @@ import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.context.util.ModulePartNodeContextUtil;
-import org.ballerinalang.langserver.completions.providers.context.util.ObjectConstructorBodyContextUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.eclipse.lsp4j.Position;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
+import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,13 +47,16 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortText;
+import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortTextForModule;
+
 /**
  * Completion provider for {@link ServiceDeclarationNode} context.
  *
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<ServiceDeclarationNode> {
+public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvider<ServiceDeclarationNode> {
 
     public ServiceDeclarationNodeContext() {
         super(ServiceDeclarationNode.class);
@@ -59,11 +66,11 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ServiceDeclarationNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        Token onKeyword = node.onKeyword();
-        Position cursor = context.getCursorPosition();
+        ServiceContext cursorContext;
 
         if (this.onMemberContext(context, node)) {
-            completionItems.addAll(this.getMemberContextCompletions(context, node));
+            completionItems.addAll(this.getBodyContextItems(context, node));
+            cursorContext = ServiceContext.MEMBERS;
         } else if (this.onTypeDescContext(context, node)) {
             /*
             Covers the following cases
@@ -73,28 +80,41 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
             (2) service mod:<cursor>
             function ...
              */
-            if (this.onQualifiedNameIdentifier(context, context.getTokenAtCursor().parent())) {
+            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getTokenAtCursor().parent())) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getTokenAtCursor().parent();
                 List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef,
                         ModulePartNodeContextUtil.serviceTypeDescPredicate());
 
-                return this.getCompletionItemList(moduleContent, context);
+                completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+            } else {
+                List<Symbol> typeDescs = ModulePartNodeContextUtil.serviceTypeDescContextSymbols(context);
+                completionItems.addAll(this.getCompletionItemList(typeDescs, context));
+                completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()));
+                completionItems.addAll(this.getModuleCompletionItems(context));
+                if (node.onKeyword().isMissing()) {
+                    /*
+                    Covers the following
+                    Eg: service <cursor> ..
+                    
+                    and skip the following
+                    Eg: service <cursor> on ...
+                     */
+                    completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
+                }
             }
-            List<Symbol> typeDescs = ModulePartNodeContextUtil.serviceTypeDescContextSymbols(context);
-            completionItems.addAll(this.getCompletionItemList(typeDescs, context));
-            completionItems.addAll(this.getModuleCompletionItems(context));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
-        } else if (!onKeyword.isMissing() && cursor.getCharacter() > onKeyword.lineRange().endLine().offset()) {
+            cursorContext = ServiceContext.TYPE_DESC;
+        } else if (onExpressionContext(context, node)) {
             /*
             Covers the following case
             (1) service typedesc on <cursor>
             (2) service typedesc on l<cursor>
-            (d) service typedesc on mod:<cursor>
+            (3) service typedesc on mod:<cursor>
              */
             Predicate<Symbol> predicate = symbol -> symbol instanceof VariableSymbol
                     && ((VariableSymbol) symbol).qualifiers().contains(Qualifier.LISTENER);
             NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-            if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+                // Covers the use-case 3
                 List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context,
                         (QualifiedNameReferenceNode) nodeAtCursor, predicate);
                 completionItems.addAll(this.getCompletionItemList(moduleContent, context));
@@ -107,8 +127,8 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
                 completionItems.addAll(this.getModuleCompletionItems(context));
                 completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
             }
+            cursorContext = ServiceContext.EXPR_LIST;
         } else {
-        
             /*
             Covers the following cases
             Eg:
@@ -116,8 +136,9 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
             function ...
              */
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
+            cursorContext = ServiceContext.OTHER;
         }
-        this.sort(context, node, completionItems);
+        this.sort(context, node, completionItems, cursorContext);
 
         return completionItems;
     }
@@ -148,14 +169,11 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
         return cursor > openBrace.textRange().startOffset() && cursor < closeBrace.textRange().endOffset();
     }
 
-    private List<LSCompletionItem> getMemberContextCompletions(BallerinaCompletionContext context,
-                                                               ServiceDeclarationNode node) {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(this.getTypeItems(context));
-        completionItems.addAll(this.getModuleCompletionItems(context));
-        completionItems.addAll(ObjectConstructorBodyContextUtil.getBodyContextSnippets(node, context));
+    private boolean onExpressionContext(BallerinaCompletionContext context, ServiceDeclarationNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token onKeyword = node.onKeyword();
 
-        return completionItems;
+        return !onKeyword.isMissing() && cursor > onKeyword.textRange().endOffset();
     }
 
     @Override
@@ -169,5 +187,95 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
         Token serviceKeyword = node.serviceKeyword();
 
         return serviceKeyword.textRange().endOffset() < cursor;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, ServiceDeclarationNode node,
+                     List<LSCompletionItem> completionItems, Object... metaData) {
+        ServiceContext serviceContext = (ServiceContext) metaData[0];
+        switch (serviceContext) {
+            case MEMBERS:
+                this.sortMemberContextItems(context, completionItems);
+                break;
+            case TYPE_DESC:
+                this.sortTypeDescContextItems(context, completionItems);
+                break;
+            case EXPR_LIST:
+                this.sortExprListContextItems(context, completionItems);
+                break;
+            case OTHER:
+            default:
+                super.sort(context, node, completionItems, metaData);
+                break;
+        }
+    }
+
+    private void sortTypeDescContextItems(BallerinaCompletionContext context, List<LSCompletionItem> completionItems) {
+        for (LSCompletionItem lsItem : completionItems) {
+            String sortText = "";
+            boolean isModuleCItem = SortingUtil.isModuleCompletionItem(lsItem);
+            if (!isModuleCItem && lsItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+                Symbol symbol = ((SymbolCompletionItem) lsItem).getSymbol().orElse(null);
+                Optional<TypeSymbol> typeDesc = SymbolUtil.getTypeDescriptor(symbol);
+                if (typeDesc.isPresent()) {
+                    TypeSymbol rawType = CommonUtil.getRawType(typeDesc.get());
+                    sortText = rawType.kind() == SymbolKind.CLASS ? genSortText(1) : genSortText(2);
+                }
+            } else if (isModuleCItem) {
+                sortText = genSortText(3) + genSortTextForModule(context, lsItem);
+            }
+
+            if (sortText.isEmpty()) {
+                sortText = genSortText(4);
+            }
+            lsItem.getCompletionItem().setSortText(sortText);
+        }
+    }
+
+    private void sortExprListContextItems(BallerinaCompletionContext context, List<LSCompletionItem> completionItems) {
+        for (LSCompletionItem lsItem : completionItems) {
+            String sortText;
+            CompletionItem cItem = lsItem.getCompletionItem();
+            boolean isModuleCItem = SortingUtil.isModuleCompletionItem(lsItem);
+            if (!isModuleCItem && lsItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+                sortText = genSortText(1);
+            } else if (Snippet.KW_NEW.equals(lsItem)) {
+                // Prioritize the new keyword
+                sortText = genSortText(2);
+            } else if (isModuleCItem) {
+                sortText = genSortText(3) + genSortTextForModule(context, lsItem);
+            } else {
+                // Should not come to this point.
+                sortText = genSortText(4);
+            }
+
+            cItem.setSortText(sortText);
+        }
+    }
+
+    private void sortMemberContextItems(BallerinaCompletionContext context, List<LSCompletionItem> completionItems) {
+        for (LSCompletionItem lsItem : completionItems) {
+            String sortText;
+            CompletionItem cItem = lsItem.getCompletionItem();
+            if (Snippet.DEF_REMOTE_FUNCTION.equals(lsItem) || Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.equals(lsItem)
+                    || Snippet.DEF_FUNCTION.equals(lsItem)) {
+                sortText = genSortText(1);
+            } else if (SortingUtil.isTypeCompletionItem(lsItem)) {
+                sortText = genSortText(2);
+            } else if (SortingUtil.isModuleCompletionItem(lsItem)) {
+                sortText = genSortText(3) + SortingUtil.genSortTextForModule(context, lsItem);
+            } else {
+                sortText = genSortText(4);
+            }
+
+            cItem.setSortText(sortText);
+        }
+    }
+
+    enum ServiceContext {
+        MEMBERS,
+        TYPE_DESC,
+        EXPR_LIST,
+        OTHER
     }
 }

@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -94,6 +95,11 @@ public class BIntersectionType extends BType implements IntersectionType {
 
     @Override
     public String toString() {
+        Name name = this.tsymbol.name;
+        if (!Symbols.isFlagOn(this.tsymbol.flags, Flags.ANONYMOUS) && !name.value.isEmpty()) {
+            return name.value;
+        }
+
         StringJoiner joiner = new StringJoiner(" & ", "(", ")");
 
         for (BType constituentType : this.constituentTypes) {

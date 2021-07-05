@@ -576,13 +576,6 @@ public class NativeConversionTest {
         Assert.assertEquals(((BInteger) struct.get("z")).intValue(), 2);
     }
 
-//    @Test(description = "Test performing an invalid object to record conversion",
-//            expectedExceptions = { BLangRuntimeException.class },
-//            expectedExceptionsMessageRegExp = ".*'T3' cannot be cast to 'O2'.*")
-//    public void testObjectRecordConversionFail() {
-//        BRunUtil.invoke(compileResult, "testObjectRecordConversionFail");
-//    }
-
     @Test
     public void testTupleConversion1() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testTupleConversion1");

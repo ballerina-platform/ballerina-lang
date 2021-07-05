@@ -68,6 +68,6 @@ public class BLangIsLikeExpr extends BLangExpression implements IsLikeExpression
 
     @Override
     public String toString() {
-        return String.valueOf(expr) + " isLike " + typeNode.type;
+        return String.valueOf(expr) + " isLike " + typeNode.getBType();
     }
 }

@@ -19,7 +19,6 @@
 package io.ballerina.projects.internal;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.ModuleDescriptor;
@@ -39,6 +38,7 @@ import io.ballerina.projects.internal.model.PackageJson;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -65,6 +65,7 @@ import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_DIR;
 import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_JSON;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
+import static io.ballerina.projects.util.ProjectConstants.MODULE_NAME_SEPARATOR;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
 
 /**
@@ -369,11 +370,11 @@ public class BalaFiles {
 
     private static PackageJson readPackageJson(Path balaPath, Path packageJsonPath) {
         PackageJson packageJson;
-        try {
-            packageJson = gson.fromJson(Files.newBufferedReader(packageJsonPath), PackageJson.class);
+        try (BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath)) {
+            packageJson = gson.fromJson(bufferedReader, PackageJson.class);
         } catch (JsonSyntaxException e) {
             throw new ProjectException("Invalid package.json format in '" + balaPath + "'");
-        } catch (IOException | JsonIOException e) {
+        } catch (IOException e) {
             throw new ProjectException("Failed to read the package.json in '" + balaPath + "'");
         }
         return packageJson;
@@ -381,11 +382,11 @@ public class BalaFiles {
 
     private static CompilerPluginJson readCompilerPluginJson(Path balaPath, Path compilerPluginJsonPath) {
         CompilerPluginJson pluginJson;
-        try {
-            pluginJson = gson.fromJson(Files.newBufferedReader(compilerPluginJsonPath), CompilerPluginJson.class);
+        try (BufferedReader bufferedReader = Files.newBufferedReader(compilerPluginJsonPath)) {
+            pluginJson = gson.fromJson(bufferedReader, CompilerPluginJson.class);
         } catch (JsonSyntaxException e) {
             throw new ProjectException("Invalid " + COMPILER_PLUGIN_JSON + " format in '" + balaPath + "'");
-        } catch (IOException | JsonIOException e) {
+        } catch (IOException e) {
             throw new ProjectException("Failed to read the " + COMPILER_PLUGIN_JSON + " in '" + balaPath + "'");
         }
         return pluginJson;
@@ -421,7 +422,14 @@ public class BalaFiles {
         PackageDescriptor pkgDesc = PackageDescriptor.from(PackageOrg.from(modDepEntry.getOrg()),
                 PackageName.from(modDepEntry.getPackageName()),
                 PackageVersion.from(modDepEntry.getVersion()));
-        final ModuleName moduleName = ModuleName.from(modDepEntry.getModuleName(), pkgDesc.org());
+        final ModuleName moduleName;
+        if (modDepEntry.getModuleName().equals(pkgDesc.name().toString())) {
+            moduleName = ModuleName.from(pkgDesc.name());
+        } else {
+            String moduleNamePart = modDepEntry.getModuleName()
+                    .split(modDepEntry.getPackageName() + MODULE_NAME_SEPARATOR)[1];
+            moduleName = ModuleName.from(pkgDesc.name(), moduleNamePart);
+        }
         return ModuleDescriptor.from(moduleName, pkgDesc);
     }
 
@@ -433,12 +441,12 @@ public class BalaFiles {
 
     private static DependencyGraphJson readDependencyGraphJson(Path balaPath, Path dependencyGraphJsonPath) {
         DependencyGraphJson dependencyGraphJson;
-        try {
+        try (BufferedReader bufferedReader = Files.newBufferedReader(dependencyGraphJsonPath)) {
             dependencyGraphJson = gson
-                    .fromJson(Files.newBufferedReader(dependencyGraphJsonPath), DependencyGraphJson.class);
+                    .fromJson(bufferedReader, DependencyGraphJson.class);
         } catch (JsonSyntaxException e) {
             throw new ProjectException("Invalid " + DEPENDENCY_GRAPH_JSON + " format in '" + balaPath + "'");
-        } catch (IOException | JsonIOException e) {
+        } catch (IOException e) {
             throw new ProjectException("Failed to read the " + DEPENDENCY_GRAPH_JSON + " in '" + balaPath + "'");
         }
         return dependencyGraphJson;

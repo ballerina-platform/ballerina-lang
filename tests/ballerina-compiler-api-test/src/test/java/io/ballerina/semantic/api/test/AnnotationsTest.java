@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.Annotatable;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import org.ballerinalang.test.BCompileUtil;
@@ -44,11 +45,13 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RESOURCE_METHOD;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.tools.text.LinePosition.from;
 import static java.util.List.of;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for retrieving annotations from a symbol.
@@ -105,5 +108,32 @@ public class AnnotationsTest {
         Optional<Symbol> symbol = model.symbol(srcFile, from(57, 85));
         assertEquals(symbol.get().kind(), ANNOTATION);
         assertEquals(symbol.get().getName().get(), "v5");
+    }
+
+    @Test(dataProvider = "AnnotRefPosProvider")
+    public void testAnnotTypes(int line, int col, String typeName) {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(line, col));
+        assertEquals(symbol.get().kind(), ANNOTATION);
+
+        Optional<TypeSymbol> typeSymbol = ((AnnotationSymbol) symbol.get()).typeDescriptor();
+
+        if (typeName != null) {
+            assertTrue(typeSymbol.isPresent());
+            assertEquals(typeSymbol.get().typeKind(), TYPE_REFERENCE);
+            assertEquals(typeSymbol.get().getName().get(), typeName);
+        } else {
+            assertTrue(typeSymbol.isEmpty());
+        }
+    }
+
+    @DataProvider(name = "AnnotRefPosProvider")
+    public Object[][] getAnnotRefPos() {
+        return new Object[][]{
+                {27, 1, "Annot"},
+                {37, 5, null},
+                {50, 5, null},
+                {55, 29, "Annot"},
+                {115, 5, null}
+        };
     }
 }

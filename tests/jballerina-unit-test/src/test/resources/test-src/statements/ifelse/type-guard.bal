@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'value;
+import ballerina/test;
 // ========================== Basics ==========================
 
 
@@ -259,6 +260,7 @@ function testComplexTernary_1() returns string {
 
 function testComplexTernary_2() returns string {
     int|string|float|boolean|xml x = "string";
+    if(x is boolean) {return "boolean";}
     if (x is int|string|float|boolean) {
         return x is int ? "int" : (x is float ? "float" : (x is boolean ? "boolean" : x));
     } else {
@@ -419,14 +421,14 @@ function testTypeGuardsWithError() returns string {
     }
 }
 
-// function testTypeGuardsWithErrorInmatch() returns string {
-//     error e = error("some error");
-//     any|error x = e;
-//     match x {
-//         var p if p is error => {return string `${p.message()}`;}
-//         var p => {return "Internal server error";}
-//     }
-// }
+function testTypeGuardsWithErrorInmatch() returns string {
+    error e = error("some error");
+    any|error x = e;
+    match x {
+        var p if p is error => {return string `${p.message()}`;}
+        var p => {return "Internal server error";}
+    }
+}
 
 function testTypeNarrowingWithClosures() returns string {
     int|string x = 8;
@@ -435,7 +437,7 @@ function testTypeNarrowingWithClosures() returns string {
     } else {
         var y = function() returns int {
                     if (x is int) {
-                        return x;
+                        return <int>x;
                     } else {
                         return -1;
                     }
@@ -760,6 +762,30 @@ function testTypeNarrowingForIntersectingDirectUnion_1() returns boolean {
     return false;
 }
 
+type CyclicComplexUnion int|CyclicComplexUnion[]|object {};
+type CyclicFloatUnion float|CyclicComplexUnion[]|object {};
+
+function testTypeNarrowingForIntersectingCyclicUnion() returns boolean {
+    CyclicComplexUnion s = 1;
+    anydata ma = <anydata> s;
+    float|CyclicComplexUnion m = <CyclicComplexUnion>ma;
+    if (m is CyclicComplexUnion|string) {
+        CyclicComplexUnion f2 = m;
+        return f2 === s;
+    }
+    return false;
+}
+
+function testTypeNarrowingForIntersectingCyclicUnionNegative() returns boolean {
+    CyclicComplexUnion s = 1;
+    anydata ma = <anydata> s;
+    float|CyclicComplexUnion m = <CyclicComplexUnion>ma;
+    if (m is CyclicFloatUnion|string) {
+        return false;
+    }
+    return true;
+}
+
 function testTypeNarrowingForIntersectingDirectUnion_2() returns boolean {
     xml x = xml `Hello World`;
     string|xml st = x;
@@ -930,6 +956,25 @@ function testTypeGuardForCustomErrorPositive() returns [boolean, boolean] {
     boolean isGenericError = a1 is error && a2 is error;
     return [isSpecificError, isGenericError];
 }
+function testCustomErrorType() {
+    Details d = { message: "detail message" };
+    MyError|MyErrorTwo e = error MyError(ERR_REASON, message = d.message);
+    if (e is MyErrorTwo) {
+        test:assertFail();
+    }
+    if (e is MyError) {
+    } else {
+        test:assertFail();
+    }
+    MyErrorTwo|MyError e1 = error MyError(ERR_REASON, message = d.message);
+    if (e1 is MyErrorTwo) {
+        test:assertFail();
+    }
+    if (e1 is MyError) {
+    } else {
+        test:assertFail();
+    }
+}
 
 function testTypeGuardForCustomErrorNegative() returns boolean {
     error e3 = error(ERR_REASON);
@@ -1002,27 +1047,27 @@ function recordReturningFunc(int? i) returns record {string s; int? i;} {
     return {s: "hello", i: i, "f": 1.0};
 }
 
-// function testTypeGuardForErrorDestructuringAssignmentPositive() returns boolean {
-//     var error(s, message = message, code = code) = errorReturningFunc(1);
-//     if (code is int) {
-//         int intVal = code;
-//         error(s, message = message, code = code) = errorReturningFunc(());
-//         return code is ();
-//     }
-// 
-//     return false;
-// }
+function testTypeGuardForErrorDestructuringAssignmentPositive() returns boolean {
+    var error(s, message = message, code = code) = errorReturningFunc(1);
+    if (code is int) {
+        int intVal = code;
+        error(s, message = message, code = code) = errorReturningFunc(());
+        return code is ();
+    }
 
-// function testTypeGuardForErrorDestructuringAssignmentNegative() returns boolean {
-//     error<Detail> error(s, message = message, code = code) = errorReturningFunc(1);
-//     if (code is int) {
-//         int intVal = code;
-//         error(s, message = message, code = code) = errorReturningFunc(3);
-//         return code is ();
-//     }
-// 
-//     return true;
-// }
+    return false;
+}
+
+function testTypeGuardForErrorDestructuringAssignmentNegative() returns boolean {
+    error<Detail> error(s, message = message, code = code) = errorReturningFunc(1);
+    if (code is int) {
+        int intVal = code;
+        error(s, message = message, code = code) = errorReturningFunc(3);
+        return code is ();
+    }
+
+    return true;
+}
 
 type Detail record {
     string message?;
@@ -1507,6 +1552,26 @@ function testJsonIntersection() {
     assertEquality(-1, jsonIntersection(1));
     assertEquality(-1, jsonIntersection([1, 2, 3]));
     assertEquality(4, jsonIntersection(<int[]> [1, 2, 3, 4]));
+}
+
+public type Qux record {|
+    record {|
+        string s;
+    |} baz?;
+|};
+
+function intersectionWithIntersectionType(Qux? & readonly bar) returns string {
+    if bar is Qux {
+        record {| string s; |}? y = bar?.baz;
+        return y?.s ?: "Qux without baz";
+    }
+    return "nil";
+}
+
+function testIntersectionWithIntersectionType() {
+    assertEquality("nil", intersectionWithIntersectionType(()));
+    assertEquality("Qux without baz", intersectionWithIntersectionType({}));
+    assertEquality("hello world", intersectionWithIntersectionType({baz: {s: "hello world"}}));
 }
 
 function assertEquality(anydata expected, anydata actual) {

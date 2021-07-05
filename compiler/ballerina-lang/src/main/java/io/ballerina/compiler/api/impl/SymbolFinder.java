@@ -203,6 +203,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -339,6 +340,7 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
+        lookupNodes(constant.annAttachments);
         lookupNode(constant.typeNode);
         lookupNode(constant.expr);
     }
@@ -1126,17 +1128,18 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangValueType valueType) {
-        this.symbolAtCursor = valueType.type.tsymbol;
+        this.symbolAtCursor = valueType.getBType().tsymbol;
     }
 
     @Override
     public void visit(BLangArrayType arrayType) {
         lookupNode(arrayType.elemtype);
+        lookupNodes(Arrays.asList(arrayType.sizes));
     }
 
     @Override
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
-        this.symbolAtCursor = builtInRefType.type.tsymbol;
+        this.symbolAtCursor = builtInRefType.getBType().tsymbol;
     }
 
     @Override
@@ -1144,7 +1147,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(constrainedType.constraint);
 
         if (this.symbolAtCursor == null) {
-            this.symbolAtCursor = ((BLangNode) constrainedType).type.tsymbol;
+            this.symbolAtCursor = ((BLangNode) constrainedType).getBType().tsymbol;
         }
     }
 
@@ -1152,6 +1155,10 @@ class SymbolFinder extends BaseVisitor {
     public void visit(BLangStreamType streamType) {
         lookupNode(streamType.constraint);
         lookupNode(streamType.error);
+
+        if (symbolAtCursor == null) {
+            this.symbolAtCursor = streamType.type.getBType().tsymbol;
+        }
     }
 
     @Override
@@ -1159,6 +1166,10 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(tableType.constraint);
         lookupNode(tableType.tableKeySpecifier);
         lookupNode(tableType.tableKeyTypeConstraint);
+
+        if (this.symbolAtCursor == null) {
+            this.symbolAtCursor = tableType.type.getBType().tsymbol;
+        }
     }
 
     @Override
@@ -1201,6 +1212,11 @@ class SymbolFinder extends BaseVisitor {
         }
 
         lookupNodes(classDefinition.annAttachments);
+
+        for (BLangSimpleVariable field : classDefinition.fields) {
+            lookupNodes(field.annAttachments);
+        }
+
         lookupNodes(classDefinition.fields);
         lookupNodes(classDefinition.referencedFields);
         lookupNode(classDefinition.initFunction);
@@ -1210,6 +1226,10 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
+        for (BLangSimpleVariable field : objectTypeNode.fields) {
+            lookupNodes(field.annAttachments);
+        }
+
         lookupNodes(objectTypeNode.fields);
         lookupNodes(objectTypeNode.functions);
         lookupNodes(objectTypeNode.typeRefs);
@@ -1217,6 +1237,10 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
+        for (BLangSimpleVariable field : recordTypeNode.fields) {
+            lookupNodes(field.annAttachments);
+        }
+
         lookupNodes(recordTypeNode.fields);
         lookupNodes(recordTypeNode.typeRefs);
     }

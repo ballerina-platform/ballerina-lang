@@ -30,6 +30,8 @@ public class BObjectType extends Construct {
     public List<DefaultableVariable> fields;
     @Expose
     public List<Function> methods;
+    @Expose
+    public boolean isDistinct = false;
 
     public BObjectType(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
                        List<Function> methods) {

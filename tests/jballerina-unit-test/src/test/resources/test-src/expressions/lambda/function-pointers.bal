@@ -39,6 +39,17 @@ function test4Callee() returns (function (string a, string b) returns (string)){
           };
 }
 
+function testUnionLambdaAsReturnParameter() {
+    function (string s) returns string func = checkpanic testUnionLambdaAsReturnParameterCalle();
+    string result = func("Waruna");
+    assertEquality(result, "Union lambda as return type with Waruna");
+}
+
+function testUnionLambdaAsReturnParameterCalle() returns (function (string s)
+                     returns string) | error => function(string s) returns string {
+     return "Union lambda as return type with " + s;
+};
+
 function test5() returns (string){
     function (string, float) returns (string) bar = test5Callee();
     return "test5 " + bar("string", 1.0);

@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.test;
 
+import com.sun.management.UnixOperatingSystemMXBean;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
@@ -43,6 +44,8 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -198,6 +201,12 @@ public class PackageResolutionTests extends BaseTest {
         BCompileUtil.compileAndCacheBala(
                 "projects_for_resolution_tests/ultimate_package_resolution/package_cache");
 
+        OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
+        long initialOpenCount = 0;
+        if (os instanceof UnixOperatingSystemMXBean) {
+            UnixOperatingSystemMXBean unixOperatingSystemMXBean = (UnixOperatingSystemMXBean) os;
+            initialOpenCount = unixOperatingSystemMXBean.getOpenFileDescriptorCount();
+        }
         Project project = BCompileUtil.loadProject(
                 "projects_for_resolution_tests/ultimate_package_resolution/package_http");
 
@@ -208,6 +217,10 @@ public class PackageResolutionTests extends BaseTest {
         diagnosticResult.errors().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
+        if (os instanceof UnixOperatingSystemMXBean) {
+            UnixOperatingSystemMXBean unixOperatingSystemMXBean = (UnixOperatingSystemMXBean) os;
+            Assert.assertEquals(initialOpenCount, unixOperatingSystemMXBean.getOpenFileDescriptorCount());
+        }
 
         Package currentPkg = project.currentPackage();
         Assert.assertEquals(currentPkg.packageDependencies().size(), 3);
@@ -248,8 +261,8 @@ public class PackageResolutionTests extends BaseTest {
         List<ResolvedPackageDependency> nodeInGraph = dependencyGraph.toTopologicallySortedList();
         Assert.assertEquals(nodeInGraph.size(), 2);
     }
-
-    @Test(dependsOnMethods = "testResolveDependencyFromUnsupportedCustomRepo")
+    // For this to be enabled, #31026 should be fixed.
+    @Test(enabled = false, dependsOnMethods = "testResolveDependencyFromUnsupportedCustomRepo")
     public void testResolveDependencyFromCustomRepo() {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_b");
         String dependencyContent = "[[dependency]]\n" +
@@ -274,32 +287,8 @@ public class PackageResolutionTests extends BaseTest {
         Assert.assertEquals(diagnosticResult.errorCount(), 2);
     }
 
-    @Test(enabled = false)
-    public void testResolveDependencyAfterDependencyTomlEdit() {
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_b");
-        String dependencyContent = "[[dependency]]\n" +
-                "org = \"samjs\"\n" +
-                "name = \"package_c\"\n" +
-                "version = \"0.1.0\"\n" +
-                "repository = \"local\"";
-
-        // 1) load the build project
-        Environment environment = EnvironmentBuilder.getBuilder().setUserHome(USER_HOME).build();
-        ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
-        BuildProject project = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
-
-        // 2) set local repository to dependency
-        project.currentPackage().dependenciesToml().orElseThrow().modify().withContent(dependencyContent).apply();
-
-        // 3) Compile and check the diagnostics
-        PackageCompilation compilation = project.currentPackage().getCompilation();
-        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-
-        // 4) The dependency is expected to load from distribution cache, hence zero diagnostics
-        Assert.assertEquals(diagnosticResult.errorCount(), 2);
-    }
-
-    @Test
+    // For this to be enabled, #31026 should be fixed.
+    @Test (enabled = false)
     public void testResolveDependencyFromUnsupportedCustomRepo() {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_b");
         String dependencyContent = "[[dependency]]\n" +

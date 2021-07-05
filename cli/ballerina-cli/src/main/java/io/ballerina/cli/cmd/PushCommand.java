@@ -25,6 +25,7 @@ import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.Settings;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
@@ -34,7 +35,6 @@ import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
-import org.ballerinalang.toml.model.Settings;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -138,7 +138,7 @@ public class PushCommand implements BLauncherCmd {
                 if (repositoryName != null) {
                     if (!repositoryName.equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
                         String errMsg = "unsupported repository '" + repositoryName + "' found. Only '" +
-                                ProjectConstants.LOCAL_REPOSITORY_NAME + "' repository is supported";
+                                ProjectConstants.LOCAL_REPOSITORY_NAME + "' repository is supported.";
                         CommandUtil.printError(this.errStream, errMsg, null, false);
                         CommandUtil.exitError(this.exitWhenFinish);
                         return;
@@ -147,6 +147,11 @@ public class PushCommand implements BLauncherCmd {
                     pushPackage(project);
                 } else {
                     Settings settings = readSettings();
+                    if (settings.diagnostics().hasErrors()) {
+                        CommandUtil.printError(this.errStream, settings.getErrorMessage(), null, false);
+                        CommandUtil.exitError(this.exitWhenFinish);
+                        return;
+                    }
                     CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                                                                    initializeProxy(settings.getProxy()),
                                                                    getAccessTokenOfCLI(settings));
@@ -182,7 +187,7 @@ public class PushCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("push packages to Ballerina Central");
+        out.append("Push packages to Ballerina Central");
     }
 
     @Override
@@ -262,7 +267,7 @@ public class PushCommand implements BLauncherCmd {
         try {
             validatePackageMdAndBalToml(packageBalaFile);
         } catch (IOException e) {
-            throw new ProjectException("error while validating the bala file", e);
+            throw new ProjectException("error while validating the bala file.", e);
         }
 
         // bala file path

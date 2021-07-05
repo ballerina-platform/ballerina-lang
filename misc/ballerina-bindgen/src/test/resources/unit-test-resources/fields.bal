@@ -1171,6 +1171,11 @@ function org_ballerinalang_bindgen_FieldsTestResource_setGetInstanceString(handl
     'class: "org.ballerinalang.bindgen.FieldsTestResource"
 } external;
 
+function org_ballerinalang_bindgen_FieldsTestResource_getTestUnsupportedArray(handle receiver) returns handle = @java:FieldGet {
+    name: "testUnsupportedArray",
+    'class: "org.ballerinalang.bindgen.FieldsTestResource"
+} external;
+
 function org_ballerinalang_bindgen_FieldsTestResource_getGetInstanceByteArray(handle receiver) returns handle = @java:FieldGet {
     name: "getInstanceByteArray",
     'class: "org.ballerinalang.bindgen.FieldsTestResource"

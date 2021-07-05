@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
-import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeParamAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -62,7 +61,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
@@ -165,11 +163,8 @@ public class BIRPackageSymbolEnter {
         this.types = Types.getInstance(context);
     }
 
-    public BPackageSymbol definePackage(PackageID packageId,
-                                        RepoHierarchy packageRepositoryHierarchy,
-                                        byte[] packageBinaryContent) {
-        BPackageSymbol pkgSymbol = definePackage(packageId, packageRepositoryHierarchy,
-                new ByteArrayInputStream(packageBinaryContent));
+    public BPackageSymbol definePackage(PackageID packageId, byte[] packageBinaryContent) {
+        BPackageSymbol pkgSymbol = definePackage(packageId, new ByteArrayInputStream(packageBinaryContent));
 
         // Strip magic value (4 bytes) and the version (2 bytes) off from the binary content of the package.
         byte[] modifiedPkgBinaryContent = Arrays.copyOfRange(
@@ -181,15 +176,12 @@ public class BIRPackageSymbolEnter {
         return pkgSymbol;
     }
 
-    private BPackageSymbol definePackage(PackageID packageId,
-                                         RepoHierarchy packageRepositoryHierarchy,
-                                         InputStream programFileInStream) {
+    private BPackageSymbol definePackage(PackageID packageId, InputStream programFileInStream) {
         // TODO packageID --> package to be loaded. this is required for error reporting..
         try (DataInputStream dataInStream = new DataInputStream(programFileInStream)) {
             BIRPackageSymbolEnv prevEnv = this.env;
             this.env = new BIRPackageSymbolEnv();
             this.env.requestedPackageId = packageId;
-            this.env.repoHierarchy = packageRepositoryHierarchy;
 
             BPackageSymbol pkgSymbol = definePackage(dataInStream);
             this.env = prevEnv;
@@ -227,9 +219,10 @@ public class BIRPackageSymbolEnter {
 
         String orgName = ((StringCPEntry) this.env.constantPool[pkgCpEntry.orgNameCPIndex]).value;
         String pkgName = ((StringCPEntry) this.env.constantPool[pkgCpEntry.pkgNameCPIndex]).value;
+        String moduleName = ((StringCPEntry) this.env.constantPool[pkgCpEntry.moduleNameCPIndex]).value;
         String pkgVersion = ((StringCPEntry) this.env.constantPool[pkgCpEntry.versionCPIndex]).value;
 
-        PackageID pkgId = createPackageID(orgName, pkgName, pkgVersion);
+        PackageID pkgId = createPackageID(orgName, pkgName, moduleName, pkgVersion);
         this.env.pkgSymbol = Symbols.createPackageSymbol(pkgId, this.symTable, COMPILED_SOURCE);
 
         // TODO Validate this pkdID with the requestedPackageID available in the env.
@@ -341,7 +334,7 @@ public class BIRPackageSymbolEnter {
                 }
                 return new CPEntry.StringCPEntry(strValue);
             case CP_ENTRY_PACKAGE:
-                return new CPEntry.PackageCPEntry(dataInStream.readInt(),
+                return new CPEntry.PackageCPEntry(dataInStream.readInt(), dataInStream.readInt(),
                         dataInStream.readInt(), dataInStream.readInt());
             case CP_ENTRY_SHAPE:
                 env.unparsedBTypeCPs.put(i, readByteArray(dataInStream));
@@ -373,8 +366,9 @@ public class BIRPackageSymbolEnter {
     private void defineImportPackage(DataInputStream dataInStream) throws IOException {
         String orgName = getStringCPEntryValue(dataInStream);
         String pkgName = getStringCPEntryValue(dataInStream);
+        String moduleName = getStringCPEntryValue(dataInStream);
         String pkgVersion = getStringCPEntryValue(dataInStream);
-        PackageID importPkgID = createPackageID(orgName, pkgName, pkgVersion);
+        PackageID importPkgID = createPackageID(orgName, pkgName, moduleName, pkgVersion);
         BPackageSymbol importPackageSymbol = packageCache.getSymbol(importPkgID);
         //TODO: after bala_change try to not to add to scope, it's duplicated with 'imports'
         // Define the import package with the alias being the package name
@@ -435,9 +429,6 @@ public class BIRPackageSymbolEnter {
 
         // set parameter symbols to the function symbol
         setParamSymbols(invokableSymbol, dataInStream);
-
-        // set taint table to the function symbol
-        readTaintTable(invokableSymbol, dataInStream);
 
         defineMarkDownDocAttachment(invokableSymbol, readDocBytes(dataInStream));
 
@@ -910,49 +901,6 @@ public class BIRPackageSymbolEnter {
         }
     }
 
-    /**
-     * Set taint table to the invokable symbol.
-     *
-     * @param invokableSymbol   Invokable symbol
-     * @param dataInStream      Input stream
-     * @throws IOException      On error while reading the stream
-     */
-    private void readTaintTable(BInvokableSymbol invokableSymbol, DataInputStream dataInStream)
-            throws IOException {
-        long length = dataInStream.readLong();
-        if (length <= 0) {
-            return;
-        }
-        int rowCount = dataInStream.readShort();
-        int columnCount = dataInStream.readShort();
-
-        // Extract and set taint table to the symbol
-        invokableSymbol.taintTable = new HashMap<>();
-
-        dataInStream.readInt(); // read and ignore table size
-
-        for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-            int paramIndex = dataInStream.readShort();
-
-            dataInStream.readInt(); // read and ignore taint records size
-
-            TaintRecord.TaintedStatus returnTaintedStatus =
-                    convertByteToTaintedStatus(dataInStream.readByte());
-            List<TaintRecord.TaintedStatus> parameterTaintedStatusList = new ArrayList<>(columnCount);
-
-            for (int columnIndex = 1; columnIndex < columnCount; columnIndex++) {
-                parameterTaintedStatusList.add(convertByteToTaintedStatus(dataInStream.readByte()));
-            }
-            TaintRecord taintRecord = new TaintRecord(returnTaintedStatus, parameterTaintedStatusList);
-            invokableSymbol.taintTable.put(paramIndex, taintRecord);
-        }
-    }
-
-    private TaintRecord.TaintedStatus convertByteToTaintedStatus(byte readByte) {
-        return EnumSet.allOf(TaintRecord.TaintedStatus.class).stream()
-                .filter(taintedStatus -> readByte == taintedStatus.getByteValue()).findFirst().get();
-    }
-
     private Location readPosition(DataInputStream dataInStream) throws IOException {
         String cUnitName = getStringCPEntryValue(dataInStream);
         int sLine = dataInStream.readInt();
@@ -992,14 +940,15 @@ public class BIRPackageSymbolEnter {
         return Double.toString(floatCPEntry.value);
     }
 
-    private PackageID createPackageID(String orgName, String pkgName, String pkgVersion) {
+    private PackageID createPackageID(String orgName, String pkgName, String moduleName, String pkgVersion) {
         if (orgName == null || orgName.isEmpty()) {
-            throw new BLangCompilerException("invalid module name '" + pkgName + "' in compiled package file");
+            throw new BLangCompilerException("invalid module name '" + moduleName + "' in compiled package file");
         }
 
         return new PackageID(names.fromString(orgName),
                 names.fromString(pkgName),
-                names.fromString(pkgVersion));
+                names.fromString(moduleName),
+                names.fromString(pkgVersion), null);
     }
 
     /**
@@ -1009,7 +958,6 @@ public class BIRPackageSymbolEnter {
      */
     private static class BIRPackageSymbolEnv {
         PackageID requestedPackageId;
-        RepoHierarchy repoHierarchy;
         Map<Integer, byte[]> unparsedBTypeCPs = new HashMap<>();
         BPackageSymbol pkgSymbol;
         CPEntry[] constantPool;
@@ -1462,7 +1410,7 @@ public class BIRPackageSymbolEnter {
                     for (int i = 0; i < fieldCount; i++) {
                         String fieldName = getStringCPEntryValue(inputStream);
                         var fieldFlags = inputStream.readLong();
-
+                        var defaultable = inputStream.readBoolean();
                         byte[] docBytes = readDocBytes(inputStream);
 
                         BType fieldType = readTypeFromCp();
@@ -1470,7 +1418,7 @@ public class BIRPackageSymbolEnter {
                                                                     objectSymbol.pkgID, fieldType,
                                                                     objectSymbol.scope.owner, symTable.builtinPos,
                                                                     COMPILED_SOURCE);
-
+                        objectVarSymbol.isDefaultable = defaultable;
                         defineMarkDownDocAttachment(objectVarSymbol, docBytes);
 
                         BField structField = new BField(objectVarSymbol.name, null, objectVarSymbol);
@@ -1652,9 +1600,10 @@ public class BIRPackageSymbolEnter {
         PackageCPEntry pkgCpEntry = (PackageCPEntry) env.constantPool[pkgCPIndex];
         String orgName = ((StringCPEntry) env.constantPool[pkgCpEntry.orgNameCPIndex]).value;
         String pkgName = ((StringCPEntry) env.constantPool[pkgCpEntry.pkgNameCPIndex]).value;
+        String moduleName = ((StringCPEntry) env.constantPool[pkgCpEntry.moduleNameCPIndex]).value;
         String version = ((StringCPEntry) env.constantPool[pkgCpEntry.versionCPIndex]).value;
-        return new PackageID(names.fromString(orgName),
-                names.fromString(pkgName), names.fromString(version));
+        return new PackageID(names.fromString(orgName), names.fromString(pkgName),
+                names.fromString(moduleName), names.fromString(version), null);
     }
 
     private void defineValueSpace(DataInputStream dataInStream, BFiniteType finiteType, BIRTypeReader typeReader)
@@ -1693,7 +1642,7 @@ public class BIRPackageSymbolEnter {
                 throw new UnsupportedOperationException("finite type value is not supported for type: " + valueType);
         }
 
-        litExpr.type = valueType;
+        litExpr.setBType(valueType);
 
         finiteType.addValue(litExpr);
     }

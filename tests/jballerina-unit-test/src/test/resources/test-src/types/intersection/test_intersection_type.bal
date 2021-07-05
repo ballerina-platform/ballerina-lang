@@ -38,7 +38,7 @@ function testIntersectionWithMemberTypeDefinedAfter() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality("cannot update 'readonly' field 'i' in record of type '(Foo & readonly)'", err.detail()["message"]);
+    assertEquality("cannot update 'readonly' field 'i' in record of type 'ReadOnlyFoo'", err.detail()["message"]);
 }
 
 type Foo record {
@@ -190,4 +190,46 @@ public function testReadOnlyIntersectionFieldInRecord() {
     readonly & record { int i; } y = {i: 10};
     Z z = {y};
     assertEquality(z.y, y);
+}
+
+type Atom readonly & object {
+    function compare(Atom other);
+};
+
+readonly class AtomImpl {
+    *Atom;
+
+    function compare(Atom other) {
+        if (self === other) {
+            panic error("Same", message = "Both are the same");
+        }
+    }
+}
+
+function testRecursiveReadonlyIntersection() {
+    Atom a = new AtomImpl();
+    error? e = trap a.compare(a);
+    assertError(e, "Same", "Both are the same");
+}
+
+function testRuntimeTypeNameOfIntersectionType() {
+    any a = new AtomImpl();
+    error|int r = trap (<int> a);
+    assertError(r, "{ballerina}TypeCastError", "incompatible types: 'AtomImpl' cannot be cast to 'int'");
+}
+
+type Error error<record { string message; }>;
+
+function assertError(any|error value, string errorMessage, string expDetailMessage) {
+    if value is Error {
+        if (value.message() != errorMessage) {
+            panic error("Expected error message: " + errorMessage + " found: " + value.message());
+        }
+
+        if value.detail().message == expDetailMessage {
+            return;
+        }
+        panic error("Expected error detail message: " + expDetailMessage + " found: " + value.detail().message);
+    }
+    panic error("Expected: Error, found: " + (typeof value).toString());
 }

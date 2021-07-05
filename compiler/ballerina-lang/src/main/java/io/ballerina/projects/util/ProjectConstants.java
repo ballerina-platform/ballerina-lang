@@ -30,6 +30,7 @@ public class ProjectConstants {
     public static final String BALLERINA_TOML = "Ballerina.toml";
     public static final String DEPENDENCIES_TOML = "Dependencies.toml";
     public static final String COMPILER_PLUGIN_TOML = "CompilerPlugin.toml";
+    public static final String SETTINGS_TOML = "Settings.toml";
     public static final String CLOUD_TOML = "Cloud.toml";
     public static final String CONFIGURATION_TOML = "Config.toml";
     public static final String SETTINGS_FILE_NAME = "Settings.toml";
@@ -72,10 +73,6 @@ public class ProjectConstants {
     public static final String BLANG_COMPILED_PKG_BIR_EXT = ".bir";
     public static final String BLANG_COMPILED_JAR_EXT = ".jar";
     public static final String RESOURCE_DIR_NAME = "resources";
-
-    public static final String BALLERINA_VERSION = "ballerina.version";
-    public static final String BALLERINA_PACK_VERSION = "ballerina.packVersion";
-    public static final String PROPERTIES_FILE = "/META-INF/tool.properties";
 
     public static final String TARGET_BALA_DIR_NAME = "bala";
     public static final String BALLERINA_HOME = "ballerina.home";

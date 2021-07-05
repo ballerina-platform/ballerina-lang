@@ -80,25 +80,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "FUNCTION_TYPE_DESC",
-                  "hasDiagnostics": true,
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    },
-                    {
-                      "kind": "FUNCTION_KEYWORD",
-                      "isMissing": true,
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_FUNCTION_KEYWORD"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "kind": "SIMPLE_NAME_REFERENCE",
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
@@ -108,6 +90,20 @@
                           "kind": "END_OF_LINE_MINUTIAE",
                           "value": "\n"
                         }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_IDENTIFIER"
                       ]
                     }
                   ]
@@ -218,25 +214,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "FUNCTION_TYPE_DESC",
-                  "hasDiagnostics": true,
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    },
-                    {
-                      "kind": "FUNCTION_KEYWORD",
-                      "isMissing": true,
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_FUNCTION_KEYWORD"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "kind": "SIMPLE_NAME_REFERENCE",
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
@@ -246,6 +224,20 @@
                           "kind": "END_OF_LINE_MINUTIAE",
                           "value": "\n"
                         }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_IDENTIFIER"
                       ]
                     }
                   ]

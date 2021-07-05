@@ -21,7 +21,10 @@ package org.ballerinalang.debugadapter;
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.jdi.JdiProxyException;
+import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
+import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.StackFrame;
 
@@ -32,6 +35,7 @@ import java.util.Optional;
 import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRAND_VAR_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getSrcPathFromBreakpointLocation;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.isService;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.removeRedundantQuotes;
 import static org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper.LAMBDA;
 
@@ -43,7 +47,7 @@ import static org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper.L
 public class BallerinaStackFrame {
 
     private final ExecutionContext context;
-    private final Long frameId;
+    private final Integer frameId;
     private final StackFrameProxyImpl jStackFrame;
     private StackFrame dapStackFrame;
 
@@ -52,9 +56,12 @@ public class BallerinaStackFrame {
     private static final String FRAME_TYPE_WORKER = "worker";
     private static final String FRAME_TYPE_ANONYMOUS = "anonymous";
     private static final String FRAME_SEPARATOR = ":";
+    private static final String ACCESSOR_DEFAULT = "default";
+    private static final String METHOD_INIT = "$init$";
+    private static final String SELF_VAR_NAME = "self";
     private static final String WORKER_LAMBDA_REGEX = "(\\$lambda\\$)\\b(.*)\\b(\\$lambda)(.*)";
 
-    public BallerinaStackFrame(ExecutionContext context, Long frameId, StackFrameProxyImpl stackFrameProxy) {
+    public BallerinaStackFrame(ExecutionContext context, Integer frameId, StackFrameProxyImpl stackFrameProxy) {
         this.context = context;
         this.frameId = frameId;
         this.jStackFrame = stackFrameProxy;
@@ -83,8 +90,8 @@ public class BallerinaStackFrame {
             StackFrame dapStackFrame = new StackFrame();
             dapStackFrame.setId(frameId);
             dapStackFrame.setName(getStackFrameName(jStackFrame));
-            dapStackFrame.setLine((long) jStackFrame.location().lineNumber());
-            dapStackFrame.setColumn(0L);
+            dapStackFrame.setLine(jStackFrame.location().lineNumber());
+            dapStackFrame.setColumn(0);
 
             // Adds ballerina source information.
             Optional<Path> sourcePath = getSrcPathFromBreakpointLocation(jStackFrame.location(),
@@ -128,11 +135,39 @@ public class BallerinaStackFrame {
                 return stackFrame.visibleVariableByName(STRAND_VAR_NAME) != null ? frameName :
                         FRAME_TYPE_START + FRAME_SEPARATOR + frameName;
             } else {
-                return stackFrame.location().method().name();
+                return getFilteredStackFrame(stackFrame);
             }
         } catch (Exception e) {
             return FRAME_TYPE_ANONYMOUS;
         }
+    }
+
+    /**
+     * Derives filtered ballerina stack frame name from the given java stack frame instance.
+     *
+     * @param stackFrame JDI stack frame instance
+     * @return filtered ballerina stack frame name
+     */
+    private static String getFilteredStackFrame(StackFrameProxyImpl stackFrame) throws JdiProxyException {
+        String stackFrameName = stackFrame.location().method().name();
+        LocalVariableProxyImpl selfVariable = stackFrame.visibleVariableByName(SELF_VAR_NAME);
+        if (selfVariable == null) {
+            return stackFrameName;
+        }
+        Value selfValue = stackFrame.getValue(selfVariable);
+        if (isService(selfValue)) {
+            if (stackFrameName.equals(METHOD_INIT)) {
+                return BVariableType.SERVICE.getString();
+            } else {
+                // Here stackFrameName format will be `$resourceAccessor$resourceName$otherResourceParts`
+                String[] stackFrameNameParts = stackFrameName.split("\\$");
+                if (stackFrameNameParts.length > 1 && stackFrameNameParts[1].equals(ACCESSOR_DEFAULT)) {
+                    return stackFrameNameParts[1];
+                }
+                return stackFrameNameParts.length > 2 ? stackFrameNameParts[2] : stackFrameName;
+            }
+        }
+        return stackFrameName;
     }
 
     /**

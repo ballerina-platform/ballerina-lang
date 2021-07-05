@@ -31,10 +31,10 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.services.ErrorHandlerUtils;
 import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BTypeIdSet;
 
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -55,12 +55,14 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CL
  * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
  * </p>
- * 
+ *
  * @since 0.995.0
  */
 public class ErrorValue extends BError implements RefValue {
 
     private static final long serialVersionUID = 1L;
+    private static final PrintStream outStream = System.err;
+
     private final Type type;
     private final BString message;
     private final BError cause;
@@ -158,7 +160,7 @@ public class ErrorValue extends BError implements RefValue {
                 }
             }
         }
-        return "," + sj.toString();
+        return "," + sj;
     }
 
     private String getModuleNameToString() {
@@ -171,7 +173,7 @@ public class ErrorValue extends BError implements RefValue {
             Object value = ((MapValue) details).get(key);
             sj.add(key + "=" + StringUtils.getExpressionStringValue(value, parent));
         }
-        return "," + sj.toString();
+        return "," + sj;
     }
 
     private String getCauseToBalString(BLink parent) {
@@ -195,7 +197,7 @@ public class ErrorValue extends BError implements RefValue {
                 sj.add("{" + pkg + "}" + typeId.getName());
             }
         }
-        return " " + sj.toString() + " ";
+        return " " + sj + " ";
     }
 
     @Override
@@ -256,15 +258,16 @@ public class ErrorValue extends BError implements RefValue {
 
     @Override
     public void printStackTrace() {
-        ErrorHandlerUtils.printError(ERROR_PRINT_PREFIX + getPrintableStackTrace());
+        outStream.println(ERROR_PRINT_PREFIX + getPrintableStackTrace());
     }
 
     /**
      * Print error stack trace to the given {@code PrintWriter}.
      * @param printWriter {@code PrintWriter} to be used
      */
+    @Override
     public void printStackTrace(PrintWriter printWriter) {
-        printWriter.print(ERROR_PRINT_PREFIX + getPrintableStackTrace());
+        outStream.println(ERROR_PRINT_PREFIX + getPrintableStackTrace());
     }
     
     @Override

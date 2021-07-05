@@ -143,7 +143,7 @@ public class MainMethodGen {
         mv.visitLabel(tryCatchEnd);
         mv.visitInsn(RETURN);
         mv.visitLabel(tryCatchHandle);
-        mv.visitMethodInsn(INVOKESTATIC, JvmConstants.RUNTIME_UTILS, JvmConstants.HANDLE_THROWABLE_METHOD,
+        mv.visitMethodInsn(INVOKESTATIC, JvmConstants.RUNTIME_UTILS, JvmConstants.HANDLE_ALL_THROWABLE_METHOD,
                            String.format("(L%s;)V", JvmConstants.THROWABLE), false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
@@ -176,11 +176,9 @@ public class MainMethodGen {
         mv.visitVarInsn(ALOAD, configDetailsIndex);
         mv.visitFieldInsn(GETFIELD, TOML_DETAILS, "paths", "[L" + PATH + ";");
         mv.visitVarInsn(ALOAD, configDetailsIndex);
-        mv.visitFieldInsn(GETFIELD, TOML_DETAILS, "secret", "L" + STRING_VALUE + ";");
-        mv.visitVarInsn(ALOAD, configDetailsIndex);
         mv.visitFieldInsn(GETFIELD, TOML_DETAILS, "configContent", "L" + STRING_VALUE + ";");
-        mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT,
-                String.format("([L%s;[L%s;L%s;L%s;)V", STRING_VALUE, PATH, STRING_VALUE, STRING_VALUE), false);
+        mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT, String.format("([L%s;[L%s;L%s;)V", STRING_VALUE
+                , PATH, STRING_VALUE), false);
     }
 
     private void generateJavaCompatibilityCheck(MethodVisitor mv) {
@@ -277,7 +275,12 @@ public class MainMethodGen {
                                          List<String> defaultableNames) {
         int size = params.size();
         if (!params.isEmpty() && params.get(size - 1).type instanceof RecordType) {
-            createOption(mv, params.get(size - 1), defaultableNames.get(defaultableNames.size() - 1));
+            BIRNode.BIRFunctionParameter param = params.get(size - 1);
+            createOption(mv, param, size - 1);
+            size--;
+        } else if (params.size() >= 2 && params.get(size - 2).type instanceof RecordType) {
+            BIRNode.BIRFunctionParameter param = params.get(size - 2);
+            createOption(mv, param, size - 2);
             size--;
         } else {
             mv.visitInsn(ACONST_NULL);
@@ -285,21 +288,24 @@ public class MainMethodGen {
         mv.visitIntInsn(BIPUSH, size);
         mv.visitTypeInsn(ANEWARRAY, JvmConstants.OPERAND);
         int defaultableIndex = 0;
-        for (int index = 0; index < size; index++) {
-            BIRNode.BIRFunctionParameter param = params.get(index);
+        int arrIndex = 0;
+        for (BIRNode.BIRFunctionParameter birFunctionParameter : params) {
+            if (birFunctionParameter != null && birFunctionParameter.type instanceof RecordType) {
+                defaultableIndex++;
+                continue;
+            }
             mv.visitInsn(DUP);
-            mv.visitIntInsn(BIPUSH, index);
+            mv.visitIntInsn(BIPUSH, arrIndex++);
             mv.visitTypeInsn(NEW, JvmConstants.OPERAND);
             mv.visitInsn(DUP);
-            if (param != null) {
-                if (param.hasDefaultExpr) {
+            if (birFunctionParameter != null) {
+                if (birFunctionParameter.hasDefaultExpr) {
                     mv.visitInsn(ICONST_1);
                 } else {
                     mv.visitInsn(ICONST_0);
                 }
-                mv.visitLdcInsn(defaultableNames.get(defaultableIndex));
-                defaultableIndex += 1;
-                jvmTypeGen.loadType(mv, param.type);
+                mv.visitLdcInsn(defaultableNames.get(defaultableIndex++));
+                jvmTypeGen.loadType(mv, birFunctionParameter.type);
             }
             mv.visitMethodInsn(INVOKESPECIAL, JvmConstants.OPERAND, JvmConstants.JVM_INIT_METHOD,
                                String.format("(ZL%s;L%s;)V", JvmConstants.STRING_VALUE, JvmConstants.TYPE), false);
@@ -307,13 +313,14 @@ public class MainMethodGen {
         }
     }
 
-    private void createOption(MethodVisitor mv, BIRNode.BIRFunctionParameter param, String paramName) {
+    private void createOption(MethodVisitor mv, BIRNode.BIRFunctionParameter param, int location) {
         mv.visitTypeInsn(NEW, JvmConstants.OPTION);
         mv.visitInsn(DUP);
         jvmTypeGen.loadType(mv, param.type);
         mv.visitTypeInsn(CHECKCAST, JvmConstants.RECORD_TYPE);
+        mv.visitIntInsn(BIPUSH, location);
         mv.visitMethodInsn(INVOKESPECIAL, JvmConstants.OPTION, JvmConstants.JVM_INIT_METHOD,
-                           String.format("(L%s;)V", JvmConstants.TYPE), false);
+                           String.format("(L%s;I)V", JvmConstants.TYPE), false);
     }
 
     private List<String> getDefaultableNames(List<BIRNode.BIRAnnotationAttachment> annotAttachments) {

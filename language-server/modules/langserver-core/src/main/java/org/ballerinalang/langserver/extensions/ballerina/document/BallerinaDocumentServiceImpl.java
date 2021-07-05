@@ -20,10 +20,12 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.syntaxapicallsgen.SyntaxApiCallsGen;
 import io.ballerina.syntaxapicallsgen.config.SyntaxApiCallsGenConfig;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
@@ -36,6 +38,7 @@ import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageService;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
+import org.eclipse.lsp4j.Range;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -50,6 +53,8 @@ import java.util.stream.Collectors;
  * @since 0.981.2
  */
 public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
+    protected static final String MINUTIAE = "WHITESPACE_MINUTIAE";
+
     private final WorkspaceManager workspaceManager;
     private final LSClientLogger clientLogger;
     private final LanguageServerContext serverContext;
@@ -337,7 +342,17 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                 }
                 SyntaxTree syntaxTree = this.workspaceManager.syntaxTree(filePath.get()).orElseThrow();
                 NonTerminalNode currentNode = CommonUtil.findNode(params.getRange(), syntaxTree);
-                syntaxTreeNodeResponse.setKind(currentNode.kind().name());
+                LinePosition startLine = currentNode.lineRange().startLine();
+                LinePosition endLine = currentNode.lineRange().endLine();
+                Range cursor = params.getRange();
+                if ((startLine.line() < cursor.getStart().getLine() || startLine.line() == cursor.getStart().getLine()
+                        && startLine.offset() < cursor.getStart().getCharacter()) &&
+                        (endLine.line() > cursor.getEnd().getLine() || endLine.line() == cursor.getEnd().getLine()
+                                && endLine.offset() > cursor.getEnd().getCharacter())) {
+                    syntaxTreeNodeResponse.setKind(currentNode.kind().name());
+                } else {
+                    syntaxTreeNodeResponse.setKind(MINUTIAE);
+                }
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaDocument/syntaxTreeNode' failed!";
                 this.clientLogger.logError(DocumentContext.DC_SYNTAX_TREE_NODE, msg, e, params.getDocumentIdentifier(),
@@ -357,11 +372,12 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                 if (filePath.isEmpty()) {
                     return response;
                 }
-                Optional<Project> project = this.workspaceManager.project(filePath.get());
-                if (project.isEmpty()) {
+
+                Optional<Module> module = workspaceManager.module(filePath.get());
+                if (module.isEmpty()) {
                     return response;
                 }
-                response.setExecutorPositions(ExecutorPositionsUtil.getExecutorPositions(project.get(),
+                response.setExecutorPositions(ExecutorPositionsUtil.getExecutorPositions(module.get(),
                         filePath.get()));
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaDocument/executorPositions' failed!";

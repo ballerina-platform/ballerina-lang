@@ -23,19 +23,26 @@
 public readonly class StackFrameImpl {
 
     public string callableName;
-    public string moduleName;
+    public string? moduleName;
     public string fileName;
     public int lineNumber;
 
-    # Returns a string representing for the `StackFrame`
+    # Returns a string representing for the `StackFrame`.
     #
     # + return - A stack frame as string
     public function toString() returns string {
-        return "callableName: " + self.callableName + " " + "moduleName: " + self.moduleName +
-                " " + "fileName: " + self.fileName + " " + "lineNumber: " + getStringValue(self.lineNumber);
+        var moduleName = self.moduleName;
+        if (moduleName is string) {
+            return "callableName: " + self.callableName + " " + "moduleName: " + moduleName +
+                            " " + "fileName: " + self.fileName + " " + "lineNumber: " + getStringValue(self.lineNumber);
+        } else {
+            return "callableName: " + self.callableName + " " +
+                            " " + "fileName: " + self.fileName + " " + "lineNumber: " + getStringValue(self.lineNumber);
+        }
+
     }
 
-    public function init(string callableName, string moduleName, string fileName, int lineNumber) {
+    public function init(string callableName, string fileName, int lineNumber, string? moduleName) {
         self.callableName = callableName;
         self.moduleName = moduleName;
         self.fileName = fileName;

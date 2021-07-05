@@ -44,7 +44,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURE
 import static org.ballerinalang.compiler.CompilerOptionName.OBSERVABILITY_INCLUDED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
-import static org.ballerinalang.compiler.CompilerOptionName.TAINT_CHECK;
 
 /**
  * Compilation at package level by resolving all the dependencies.
@@ -87,7 +86,6 @@ public class PackageCompilation {
         options.put(DUMP_BIR, Boolean.toString(compilationOptions.dumpBir()));
         options.put(DUMP_BIR_FILE, compilationOptions.getBirDumpFile());
         options.put(CLOUD, compilationOptions.getCloud());
-        options.put(TAINT_CHECK, Boolean.toString(compilationOptions.getTaintCheck()));
     }
 
     static PackageCompilation from(PackageContext rootPackageContext) {
@@ -174,13 +172,9 @@ public class PackageCompilation {
         List<Diagnostic> diagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
             moduleContext.compile(compilerContext);
-            if (!rootPackageContext.compilationOptions().showAllWarnings()) {
-                if (!moduleContext.moduleName().packageName().equals(rootPackageContext.packageName())) {
-                    continue;
-                }
+            for (Diagnostic diagnostic : moduleContext.diagnostics()) {
+                diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
             }
-            moduleContext.diagnostics().forEach(diagnostic ->
-                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
         }
         runPluginCodeAnalysis(diagnostics);
         addOtherDiagnostics(diagnostics);
