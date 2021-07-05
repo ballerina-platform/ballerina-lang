@@ -29,8 +29,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
-
 /**
  * Debug process related low-level task executor through JDI.
  */

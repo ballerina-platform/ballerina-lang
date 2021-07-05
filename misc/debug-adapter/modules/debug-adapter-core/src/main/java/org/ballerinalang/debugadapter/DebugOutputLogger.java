@@ -21,7 +21,8 @@ import org.eclipse.lsp4j.debug.OutputEventArgumentsCategory;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 
 /**
- * Handles/redirects the debugger + target VM output to the debugger client side.
+ * Wrapper implementation for the DAP `client/output` endpoint, which can be used to send debug server and target VM
+ * outputs to the debugger client side.
  *
  * @since 2.0.0
  */
@@ -39,6 +40,12 @@ public class DebugOutputLogger {
      * @param output string output produced in the debugger/target VM.
      */
     public void sendProgramOutput(String output) {
+        if (!isValid(output)) {
+            return;
+        }
+        if (!output.endsWith(System.lineSeparator())) {
+            output = output + System.lineSeparator();
+        }
         OutputEventArguments outputEventArguments = new OutputEventArguments();
         outputEventArguments.setOutput(output);
         outputEventArguments.setCategory(OutputEventArgumentsCategory.STDOUT);
@@ -51,12 +58,7 @@ public class DebugOutputLogger {
      * @param output string output produced in the debugger/target VM.
      */
     public void sendConsoleOutput(String output) {
-        // Since Ballerina compiler logs are redirected into `STDERR` (by design), some internal filtering should be
-        // done before redirecting to the client.
-        if (output.contains("Listening for transport dt_socket")
-                || output.contains("Please start the remote debugging client to continue")
-                || output.contains("JAVACMD")
-                || output.contains("Stream closed")) {
+        if (!isValid(output)) {
             return;
         }
         if (!output.endsWith(System.lineSeparator())) {
@@ -80,6 +82,9 @@ public class DebugOutputLogger {
      * @param output string output produced in the debugger/target VM.
      */
     public void sendErrorOutput(String output) {
+        if (!isValid(output)) {
+            return;
+        }
         if (!output.endsWith(System.lineSeparator())) {
             output = output + System.lineSeparator();
         }
@@ -92,5 +97,12 @@ public class DebugOutputLogger {
     private static boolean containsBalErrorPrefix(String output) {
         // Todo: Add more error patterns
         return output.startsWith("ERROR") || output.startsWith("error:");
+    }
+
+    private static boolean isValid(String output) {
+        return !output.startsWith("Listening for transport dt_socket")
+                && !output.startsWith("Please start the remote debugging client to continue")
+                && !output.startsWith("JAVACMD")
+                && !output.startsWith("Stream closed");
     }
 }
