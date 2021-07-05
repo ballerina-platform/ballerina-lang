@@ -285,19 +285,17 @@ public class CloneWithType {
         throw CloneUtils.createConversionError(array, targetType);
     }
 
-    private static Object convertTable(BTable<?, ?> bTable, Type targetType, List<TypeValuePair> unresolvedValues,
-                                       BTypedesc t) {
-
+    private static Object convertTable(BTable<?, ?> bTable, Type targetType,
+                                       List<TypeValuePair> unresolvedValues, BTypedesc t) {
         TableType tableType = (TableType) targetType;
         Object[] tableValues = new Object[bTable.size()];
         int count = 0;
         for (Object tableValue : bTable.values()) {
-            BMap<?, ?> bMap = (BMap<?, ?>) convert(tableValue, tableType.getConstrainedType(),
-                                                   unresolvedValues, t);
+            BMap<?, ?> bMap = (BMap<?, ?>) convert(tableValue, tableType.getConstrainedType(), unresolvedValues, t);
             tableValues[count++] = bMap;
         }
-        BArray data = ValueCreator
-                .createArrayValue(tableValues, TypeCreator.createArrayType(tableType.getConstrainedType()));
+        BArray data = ValueCreator.createArrayValue(tableValues,
+                                                    TypeCreator.createArrayType(tableType.getConstrainedType()));
         BArray fieldNames;
         if (tableType.getFieldNames() != null) {
             fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());

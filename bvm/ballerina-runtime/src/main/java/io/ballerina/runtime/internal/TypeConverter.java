@@ -413,7 +413,6 @@ public class TypeConverter {
         if (!(sourceValue instanceof MapValueImpl)) {
             return false;
         }
-
         for (Object mapEntry : ((MapValueImpl) sourceValue).values()) {
             if (getConvertibleTypes(mapEntry, targetType.getConstrainedType(), unresolvedValues).size() != 1) {
                 return false;
