@@ -2928,7 +2928,7 @@ public class BallerinaParser extends AbstractParser {
             case CLASS_KEYWORD:
                 return true;
             case SERVICE_KEYWORD:
-                return isServiceDeclStart(ParserRuleContext.OBJECT_MEMBER, 1);
+                return isServiceDeclStart(ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER, 1);
             case PUBLIC_KEYWORD:
                 return !isObject && isEndOfModuleLevelNode(peekIndex + 1, false);
             case FUNCTION_KEYWORD:
@@ -4582,9 +4582,9 @@ public class BallerinaParser extends AbstractParser {
         STNode emptyNode = STNodeFactory.createEmptyNode();
         STNode simpleTypeDescIdentifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
                 DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC);
+        STNode simpleNameRef = STNodeFactory.createSimpleNameReferenceNode(simpleTypeDescIdentifier);
         STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
                 DiagnosticErrorCode.ERROR_MISSING_FIELD_NAME);
-        STNode simpleNameRef = STNodeFactory.createSimpleNameReferenceNode(simpleTypeDescIdentifier);
         STNode semicolon = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.SEMICOLON_TOKEN,
                 DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN);
 
@@ -4593,8 +4593,14 @@ public class BallerinaParser extends AbstractParser {
 
         simpleNameRef = modifyNodeWithInvalidTokenList(qualifiers, simpleNameRef);
 
-        return STNodeFactory.createObjectFieldNode(metadata, emptyNode, objectFieldQualNodeList, simpleNameRef,
-                identifier, emptyNode, emptyNode, semicolon);
+        STNode objectField = STNodeFactory.createObjectFieldNode(metadata, emptyNode, objectFieldQualNodeList,
+                simpleNameRef, identifier, emptyNode, emptyNode, semicolon);
+
+        if (metadata != null) {
+            objectField = SyntaxErrors.addDiagnostic(objectField,
+                    DiagnosticErrorCode.ERROR_METADATA_NOT_ATTACHED_TO_A_OBJECT_MEMBER);
+        }
+        return objectField;
     }
 
     private STNode modifyNodeWithInvalidTokenList(List<STNode> qualifiers, STNode node) {
@@ -6159,7 +6165,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseObjectTypeDescriptor(STNode objectKeyword, STNode objectTypeQualifiers) {
         startContext(ParserRuleContext.OBJECT_TYPE_DESCRIPTOR);
         STNode openBrace = parseOpenBrace();
-        STNode objectMemberDescriptors = parseObjectMembers(ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR);
+        STNode objectMemberDescriptors = parseObjectMembers(ParserRuleContext.OBJECT_TYPE_MEMBER);
         STNode closeBrace = parseCloseBrace();
         endContext();
         return STNodeFactory.createObjectTypeDescriptorNode(objectTypeQualifiers, objectKeyword, openBrace,
@@ -6185,7 +6191,7 @@ public class BallerinaParser extends AbstractParser {
         STNode objectKeyword = parseObjectKeyword();
         STNode typeReference = parseObjectConstructorTypeReference();
         STNode openBrace = parseOpenBrace();
-        STNode objectMembers = parseObjectMembers(ParserRuleContext.OBJECT_MEMBER);
+        STNode objectMembers = parseObjectMembers(ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER);
         STNode closeBrace = parseCloseBrace();
         endContext();
         return STNodeFactory.createObjectConstructorExpressionNode(annots,
@@ -6257,7 +6263,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
             }
 
-            if (context == ParserRuleContext.OBJECT_MEMBER && member.kind == SyntaxKind.TYPE_REFERENCE) {
+            if (context == ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER && member.kind == SyntaxKind.TYPE_REFERENCE) {
                 addInvalidNodeToNextToken(member, DiagnosticErrorCode.ERROR_TYPE_INCLUSION_IN_OBJECT_CONSTRUCTOR);
             } else {
                 objectMembers.add(member);
@@ -6312,7 +6318,7 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 ParserRuleContext recoveryCtx;
-                if (context == ParserRuleContext.OBJECT_MEMBER) {
+                if (context == ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER) {
                     recoveryCtx = ParserRuleContext.OBJECT_MEMBER_START;
                 } else {
                     recoveryCtx = ParserRuleContext.CLASS_MEMBER_START;
@@ -6332,13 +6338,13 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseObjectMemberWithoutMeta(STNode metadata, ParserRuleContext context) {
-        boolean isObjectTypeDesc = context == ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR;
+        boolean isObjectTypeDesc = context == ParserRuleContext.OBJECT_TYPE_MEMBER;
 
         ParserRuleContext recoveryCtx;
-        if (context == ParserRuleContext.OBJECT_MEMBER) {
-            recoveryCtx = ParserRuleContext.OBJECT_MEMBER_WITHOUT_METADATA;
+        if (context == ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER) {
+            recoveryCtx = ParserRuleContext.OBJECT_CONS_MEMBER_WITHOUT_META;
         } else {
-            recoveryCtx = ParserRuleContext.CLASS_MEMBER_WITHOUT_METADATA;
+            recoveryCtx = ParserRuleContext.CLASS_MEMBER_OR_OBJECT_MEMBER_WITHOUT_META;
         }
 
         List<STNode> typeDescQualifiers = new ArrayList<>();
@@ -6352,12 +6358,10 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
             case CLOSE_BRACE_TOKEN:
-                STNode objectField = createMissingSimpleObjectField(metadata, qualifiers, isObjectTypeDesc);
-                if (metadata != null) {
-                    objectField = SyntaxErrors.addDiagnostic(objectField,
-                            DiagnosticErrorCode.ERROR_METADATA_NOT_ATTACHED_TO_A_OBJECT_MEMBER);
+                if (metadata != null || qualifiers.size() > 0) {
+                    return createMissingSimpleObjectField(metadata, qualifiers, isObjectTypeDesc);
                 }
-                return objectField;
+                return null;
             case PUBLIC_KEYWORD:
             case PRIVATE_KEYWORD:
                 reportInvalidQualifierList(qualifiers);
@@ -6410,6 +6414,8 @@ public class BallerinaParser extends AbstractParser {
             case ERROR_KEYWORD: // error-binding-pattern not allowed in fields
             case OPEN_BRACE_TOKEN: // mapping-binding-pattern not allowed in fields
                 return false;
+            case CLOSE_BRACE_TOKEN:
+                return true;
             default:
                 return isModuleVarDeclStart(1);
         }
@@ -7539,7 +7545,7 @@ public class BallerinaParser extends AbstractParser {
         STNode onKeyword = parseOnKeyword();
         STNode expressionList = parseListeners();
         STNode openBrace = parseOpenBrace();
-        STNode objectMembers = parseObjectMembers(ParserRuleContext.OBJECT_MEMBER);
+        STNode objectMembers = parseObjectMembers(ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER);
         STNode closeBrace = parseCloseBrace();
 
         onKeyword =

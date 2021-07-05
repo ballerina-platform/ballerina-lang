@@ -191,4 +191,9 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
     public void testObjectTypeDefNegative() {
         testFile("object-type-def/object_type_def_source_45.bal", "object-type-def/object_type_def_assert_45.json");
     }
+
+    @Test
+    public void testIncompleteObjectField() {
+        testFile("object-type-def/object_type_def_source_46.bal", "object-type-def/object_type_def_assert_46.json");
+    }
 }
