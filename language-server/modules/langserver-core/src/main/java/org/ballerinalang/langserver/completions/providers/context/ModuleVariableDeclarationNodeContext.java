@@ -93,7 +93,8 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
                      List<LSCompletionItem> completionItems, Object... metaData) {
         ResolvedContext resolvedContext = (ResolvedContext) metaData[0];
         if (resolvedContext == ResolvedContext.INITIALIZER) {
-            // Calls the VariableDeclarationProvider's sorting logic to make it consistent throughout the implementation 
+            // Calls the VariableDeclarationProvider's sorting logic to 
+            // make it consistent throughout the implementation
             this.sort(context, node, completionItems);
             return;
         }
@@ -115,7 +116,8 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
         TypedBindingPatternNode typedBindingPattern = node.typedBindingPattern();
         TypeDescriptorNode typeDescriptor = typedBindingPattern.typeDescriptor();
 
-        if (typeDescriptor.kind() != SyntaxKind.SERVICE_TYPE_DESC || typedBindingPattern.bindingPattern().isMissing()) {
+        if (typeDescriptor.kind() != SyntaxKind.SERVICE_TYPE_DESC
+                || typedBindingPattern.bindingPattern().isMissing()) {
             return false;
         }
 
