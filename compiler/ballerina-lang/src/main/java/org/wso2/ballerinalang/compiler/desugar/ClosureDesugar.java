@@ -1492,6 +1492,48 @@ public class ClosureDesugar extends BLangNodeVisitor {
     public void visit(BLangInvocation.BFunctionPointerInvocation fpInvocation) {
         fpInvocation.expr = rewriteExpr(fpInvocation.expr);
         fpInvocation.requiredArgs = rewriteExprs(fpInvocation.requiredArgs);
+        BInvokableTypeSymbol invokableSymbol = (BInvokableTypeSymbol) fpInvocation.symbol.type.tsymbol;
+        if (invokableSymbol == null) {
+            fpInvocation.restArgs = rewriteExprs(fpInvocation.restArgs);
+            result = fpInvocation;
+            return;
+        }
+        TreeMap<String, BLangExpression> arguments = new TreeMap<>();
+        Map<String, BLangExpression> defaultValues = invokableSymbol.defaultValues;
+
+        for (int i = 0; i < invokableSymbol.params.size(); i++) {
+            BLangExpression arg = fpInvocation.requiredArgs.get(i);
+            BVarSymbol param = invokableSymbol.params.get(i);
+            String paramName = param.name.value;
+            if (arg.getKind() != NodeKind.IGNORE_EXPR) {
+                arguments.put(paramName, arg);
+                continue;
+            }
+
+            BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) defaultValues.get(paramName);
+            BLangInvocation invocation = getInvocation(lambdaExpr);
+            lambdaExpr.function.paramClosureMap.forEach((k, v) -> {
+                if (k < 0) {
+                    BLangExpression expr = arguments.get(v.name.value);
+                    invocation.argExprs.add(expr);
+                    invocation.requiredArgs.add(expr);
+                } else {
+                    BSymbol varSymbol;
+                    if (lambdaExpr.enclMapSymbols.containsKey(k)) {
+                        varSymbol = lambdaExpr.enclMapSymbols.get(k);
+                    } else {
+                        varSymbol = ((BLangFunction) env.enclInvokable).paramClosureMap.get(k);
+                    }
+                    BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(env.enclInvokable.body.pos, varSymbol);
+                    desugar.rewriteExpr(varRef);
+                    invocation.argExprs.add(varRef);
+                    invocation.requiredArgs.add(new BLangSimpleVarRef.BLangLocalVarRef((BVarSymbol) varRef.symbol));
+                }
+            });
+            arguments.put(paramName, invocation);
+            fpInvocation.requiredArgs.set(i, invocation);
+        }
+
         fpInvocation.restArgs = rewriteExprs(fpInvocation.restArgs);
         result = fpInvocation;
     }
