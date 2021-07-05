@@ -249,7 +249,7 @@
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
-                      "value": "wines",
+                      "value": "wines2",
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
