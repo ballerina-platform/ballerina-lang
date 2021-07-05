@@ -135,6 +135,8 @@ public class CommonUtil {
     public static final Pattern MD_NEW_LINE_PATTERN = Pattern.compile("\\s\\s\\r\\n?|\\s\\s\\n|\\r\\n?|\\n");
 
     public static final String BALLERINA_HOME;
+    
+    public static final boolean COMPILE_OFFLINE;
 
     public static final String BALLERINA_CMD;
 
@@ -156,6 +158,8 @@ public class CommonUtil {
 
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
+        String onlineCompilation  = System.getProperty("ls.compilation.online");
+        COMPILE_OFFLINE = !Boolean.parseBoolean(onlineCompilation);
         BALLERINA_CMD = BALLERINA_HOME + File.separator + "bin" + File.separator + "bal" +
                 (SystemUtils.IS_OS_WINDOWS ? ".bat" : "");
         BALLERINA_KEYWORDS = getBallerinaKeywords();
