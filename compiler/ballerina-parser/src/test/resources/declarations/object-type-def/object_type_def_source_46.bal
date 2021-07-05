@@ -4,4 +4,4 @@ type MYOBJECT object {
 
 type MYOBJECT object {
     # Doc comment
-};
+    };
