@@ -486,12 +486,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
-        if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE
-                || typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE
-                || typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE
-                || typeDefinition.typeNode.getKind() == NodeKind.TABLE_TYPE
-                || typeDefinition.typeNode.getKind() == NodeKind.FINITE_TYPE_NODE) {
-            analyzeDef(typeDefinition.typeNode, env);
+        analyzeDef(typeDefinition.typeNode, env);
+
+        if (typeDefinition.symbol != null && typeDefinition.symbol.type.tag == TypeTags.INVOKABLE) {
+            BInvokableTypeSymbol symbol = (BInvokableTypeSymbol) typeDefinition.symbol;
+            BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) symbol.type.tsymbol;
+            symbol.params = tsymbol.params;
+            symbol.restParam = tsymbol.restParam;
+            symbol.returnType = tsymbol.returnType;
         }
 
         final List<BAnnotationSymbol> annotSymbols = new ArrayList<>();
