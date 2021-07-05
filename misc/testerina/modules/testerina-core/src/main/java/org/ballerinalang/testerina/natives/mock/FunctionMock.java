@@ -1,6 +1,5 @@
 package org.ballerinalang.testerina.natives.mock;
 
-import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
@@ -10,12 +9,9 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.values.MapValueImpl;
-import org.ballerinalang.core.model.types.BErrorType;
-import org.ballerinalang.core.model.types.TypeConstants;
 import org.ballerinalang.testerina.natives.Executor;
 
 import java.lang.reflect.Method;
