@@ -34,6 +34,6 @@ public class BallerinaNoneTypeSymbol extends AbstractTypeSymbol implements NoneT
 
     @Override
     public String signature() {
-        return null;
+        return "";
     }
 }
