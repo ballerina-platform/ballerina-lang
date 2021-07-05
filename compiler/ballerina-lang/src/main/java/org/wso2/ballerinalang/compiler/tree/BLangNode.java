@@ -17,9 +17,12 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.Node;
+import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.Set;
@@ -81,4 +84,6 @@ public abstract class BLangNode implements Node {
             this.ws.addAll(whitespaces);
         }
     }
+
+    public abstract Object accept(ModuleGen visitor);
 }

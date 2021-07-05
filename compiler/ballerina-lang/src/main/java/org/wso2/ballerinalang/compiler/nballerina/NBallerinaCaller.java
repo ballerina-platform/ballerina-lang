@@ -1,6 +1,7 @@
 package org.wso2.ballerinalang.compiler.nballerina;
 
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
@@ -54,25 +55,23 @@ public class NBallerinaCaller {
         }
         File path = new File(nBal);
         try {
-            URLClassLoader cl = (URLClassLoader) AccessController.doPrivileged(new PrivilegedAction() {
-                public Object run() {
-                    URLClassLoader cl;
-                    try {
-                        cl = new URLClassLoader(new URL[]{path.toURI().toURL()});
-                    } catch (SecurityException e) {
-                        throw new BallerinaException("Security error getting classloader", e);
-                    } catch (MalformedURLException e) {
-                    throw new BallerinaException("Error in provided nBallerina path", e);
-                }
-                    return cl;
-                }
+            URLClassLoader cl = (URLClassLoader) AccessController.doPrivileged((PrivilegedAction) () -> {
+                URLClassLoader cl1;
+                try {
+                    cl1 = new URLClassLoader(new URL[]{path.toURI().toURL()});
+                } catch (SecurityException e) {
+                    throw new BallerinaException("Security error getting classloader", e);
+                } catch (MalformedURLException e) {
+                throw new BallerinaException("Error in provided nBallerina path", e);
+            }
+                return cl1;
             });
-            Class<?> c = cl.loadClass("nballerina");
-            Method m = c.getMethod("compile", Strand.class);
-
+            Class<?> c = cl.loadClass("wso2.nballerina$0046nback.0_1_0.nback");
+            Method m = c.getMethod("compileModule", Strand.class, BObject.class, Boolean.TYPE,
+                    Object.class, Boolean.TYPE);
             Function<Object[], Object> func = objects -> {
                 try {
-                    return m.invoke(null, objects[0]);
+                    return m.invoke(null, objects[0], null, objects[2], objects[3], objects[4]);
                 } catch (InvocationTargetException e) {
                     Throwable targetException = e.getTargetException();
                     throw new BallerinaException("Error invoking nBallerina backend", targetException);
@@ -81,7 +80,7 @@ public class NBallerinaCaller {
                 }
             };
 
-            Class<?> config = cl.loadClass("$ConfigurationMapper");
+            Class<?> config = cl.loadClass("wso2.nballerina$0046nback.0_1_0.$ConfigurationMapper");
             Method configMethod = config.getMethod("$configureInit", String[].class,
                     Path[].class, String.class, String.class);
             TomlDetails configurationDetails = LaunchUtils.getConfigurationDetails();
@@ -89,7 +88,7 @@ public class NBallerinaCaller {
                     configurationDetails.secret, configurationDetails.configContent);
             Scheduler scheduler = new Scheduler(false);
 
-            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
+            final FutureValue out = scheduler.schedule(new Object[5], func, null, null, null,
                     PredefinedTypes.TYPE_ANY, null, null);
             scheduler.start();
 
@@ -97,12 +96,12 @@ public class NBallerinaCaller {
             if (t != null) {
                 if (t instanceof io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException) {
                     throw new BLangRuntimeException(t.getMessage());
-                }
-                if (t instanceof ErrorValue) {
+                } else if (t instanceof ErrorValue) {
                     throw new BLangRuntimeException(
                             "error: " + ((ErrorValue) t).getPrintableStackTrace());
+                } else {
+                    throw new BallerinaException("Error calling scheduler", t);
                 }
-                throw new BallerinaException("Error calling scheduler", t);
             }
         } catch (ClassNotFoundException | NoSuchMethodException
                 | IllegalAccessException e) {
