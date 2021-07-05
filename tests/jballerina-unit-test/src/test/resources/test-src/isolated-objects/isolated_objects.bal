@@ -782,6 +782,51 @@ isolated class IsolatedClassWithRawTemplateTransfer {
     }
 }
 
+isolated class IsolatedClassWithQueryExpTransfer {
+    private int[][] arrs = [];
+
+    function f1() {
+        lock {
+            int[][] x = [];
+
+            self.arrs = from var item in x select item;
+        }
+    }
+
+    function f2(int[][] arr) {
+        lock {
+            int[][] x = [];
+
+            foreach var item in x {
+                if let int[] p = item in p.length() == 0 {
+                    self.arrs.push(item);
+                }
+            }
+
+            self.arrs = from int[] item in x
+                            join var item2 in arr.clone() on item equals item2
+                            let int[] p = item where p[p.length()] == 0
+                            select p;
+        }
+    }
+
+    function f3(int[][] arr) {
+        lock {
+            int[][] listResult = from var e in self.arrs
+                    order by e[0] ascending
+                    select e;
+
+            error? res = from var e in self.arrs do {
+                arr.clone().push(e);
+            };
+
+            res = from var e in arr.clone() do {
+                self.arrs.push(e.clone());
+            };
+        }
+    }
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }
