@@ -311,6 +311,16 @@ public class ClosureDesugar extends BLangNodeVisitor {
             addToFunctionMap(funcNode, funcEnv, position, receiver.symbol, receiver.type);
         }
 
+        for (BLangVariable param : funcNode.requiredParams) {
+            param.typeNode = rewrite(param.typeNode, funcEnv);
+        }
+        if (funcNode.restParam != null) {
+            funcNode.restParam = rewrite(funcNode.restParam, funcEnv);
+        }
+        if (funcNode.returnTypeNode != null) {
+            funcNode.returnTypeNode = rewrite(funcNode.returnTypeNode, funcEnv);
+        }
+
         funcNode.body = rewrite(funcNode.body, funcEnv);
         result = funcNode;
     }
@@ -1750,6 +1760,27 @@ public class ClosureDesugar extends BLangNodeVisitor {
         BLangNode resultNode = this.result;
         this.result = null;
 
+        this.env = previousEnv;
+        return (E) resultNode;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <E extends BLangExpression> E rewriteExpr(E node, SymbolEnv env) {
+        if (node == null) {
+            return null;
+        }
+
+        SymbolEnv previousEnv = this.env;
+        this.env = env;
+        BLangExpression expr = node;
+        if (node.impConversionExpr != null) {
+            expr = node.impConversionExpr;
+            node.impConversionExpr = null;
+        }
+
+        expr.accept(this);
+        BLangNode resultNode = this.result;
+        this.result = null;
         this.env = previousEnv;
         return (E) resultNode;
     }
