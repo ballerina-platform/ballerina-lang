@@ -63,3 +63,27 @@ class Listener2 {
     public function immediateStop() returns error? {
     }
 }
+
+listener lsn = object {
+    public isolated function 'start() returns error? {
+    }
+
+    public isolated function gracefulStop() returns error? {
+    }
+
+    public isolated function immediateStop() returns error? {
+    }
+
+    public isolated function detach(service object {} s) returns error? {
+    }
+
+    public isolated function attach(service object {} s, string[]|string? name = ()) returns error? {
+    }
+
+    public function init() returns error? {
+        if (true) {
+            //return error("Listener initialization failed");
+            return ();
+        }
+    }
+};
