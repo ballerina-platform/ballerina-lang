@@ -61,11 +61,93 @@ public class MockTest extends BaseTestCase {
     public void testObjectMocking() throws BallerinaTestException {
         String msg1 = "7 passing";
         String msg2 = "6 failing";
+
+        String msg3 = "incorrect type of argument provided at position '1' to mock the function get()";
+
         String[] args = mergeCoverageArgs(new String[]{"object-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2)) {
+        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
             Assert.fail("Test failed due to object mocking failure in test framework.\nOutput:\n" + output);
+        }
+    }
+
+    @Test()
+    public void testObjectMocking_DefaultIncompatibleArgs() throws BallerinaTestException {
+        String msg = "incorrect type of argument provided at position '1' to mock the function get()";
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "object_mocking:testDefaultIncompatibleArgs"});
+        String output =
+                balClient.runMainAndReadStdOut("test", args, new HashMap<>(),
+                        projectBasedTestsPath.resolve("object-mocking-tests").toString(), false);
+        if (!output.contains(msg)) {
+            throw new BallerinaTestException(
+                    "Test failed due to default module single test failure.\nOutput:\n" + output);
+        }
+    }
+
+    @Test()
+    public void testObjectMocking_InvalidMemberReturnValue() throws BallerinaTestException {
+        String msg = "return value provided does not match the type of 'url'";
+        String[] args =
+                mergeCoverageArgs(new String[]{"--tests", "object_mocking:testDefaultInvalidMemberReturnValue"});
+        String output =
+                balClient.runMainAndReadStdOut("test", args, new HashMap<>(),
+                        projectBasedTestsPath.resolve("object-mocking-tests").toString(), false);
+        if (!output.contains(msg)) {
+            throw new BallerinaTestException(
+                    "Test failed due to default module single test failure.\nOutput:\n" + output);
+        }
+    }
+
+    @Test()
+    public void testObjectMocking_MockInvalidFieldName() throws BallerinaTestException {
+        String msg = "invalid field name 'invalidField' provided";
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "object_mocking:testDefaultMockInvalidFieldName"});
+        String output =
+                balClient.runMainAndReadStdOut("test", args, new HashMap<>(),
+                        projectBasedTestsPath.resolve("object-mocking-tests").toString(), false);
+        if (!output.contains(msg)) {
+            throw new BallerinaTestException(
+                    "Test failed due to default module single test failure.\nOutput:\n" + output);
+        }
+    }
+
+    @Test()
+    public void testObjectMocking_MockInvalidReturnValue() throws BallerinaTestException {
+        String msg = "return value provided does not match the return type of function get()";
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "object_mocking:testDefaultMockInvalidReturnValue"});
+        String output =
+                balClient.runMainAndReadStdOut("test", args, new HashMap<>(),
+                        projectBasedTestsPath.resolve("object-mocking-tests").toString(), false);
+        if (!output.contains(msg)) {
+            throw new BallerinaTestException(
+                    "Test failed due to default module single test failure.\nOutput:\n" + output);
+        }
+    }
+
+    @Test()
+    public void testObjectMocking_MockWrongAction() throws BallerinaTestException {
+        String msg = "return value provided does not match the return type of function get()";
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "object_mocking:testDefaultMockWrongAction"});
+        String output =
+                balClient.runMainAndReadStdOut("test", args, new HashMap<>(),
+                        projectBasedTestsPath.resolve("object-mocking-tests").toString(), false);
+        if (!output.contains(msg)) {
+            throw new BallerinaTestException(
+                    "Test failed due to default module single test failure.\nOutput:\n" + output);
+        }
+    }
+
+    @Test()
+    public void testObjectMocking_TooManyArgs() throws BallerinaTestException {
+        String msg = "too many argument provided to mock the function get()";
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "object_mocking:testDefaultTooManyArgs"});
+        String output =
+                balClient.runMainAndReadStdOut("test", args, new HashMap<>(),
+                        projectBasedTestsPath.resolve("object-mocking-tests").toString(), false);
+        if (!output.contains(msg)) {
+            throw new BallerinaTestException(
+                    "Test failed due to default module single test failure.\nOutput:\n" + output);
         }
     }
 }
