@@ -101,6 +101,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -120,6 +121,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
@@ -127,12 +129,14 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -1558,7 +1562,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private boolean isErrorIntersection(BType definedType) {
-        if (definedType.tag == TypeTags.INTERSECTION) {
+        if (definedType != null && definedType.tag == TypeTags.INTERSECTION) {
             BIntersectionType intersectionType = (BIntersectionType) definedType;
             return intersectionType.effectiveType.tag == TypeTags.ERROR;
         }
@@ -1932,7 +1936,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         Name varName = names.fromIdNode(varNode.name);
-        if (varName == Names.EMPTY || varName == Names.IGNORE) {
+        if (varName == Names.IGNORE || (varName == Names.EMPTY && varNode.symbol != null)) {
             // This is a variable created for a return type
             // e.g. function foo() (int);
             return;
@@ -2885,6 +2889,20 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineRecordTypeNode(recordTypeNode, typeDefEnv);
     }
 
+    @Override
+    public void visit(BLangUnionTypeNode unionTypeNode) {
+        for (BLangType langType : unionTypeNode.memberTypeNodes) {
+            defineNode(langType, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangIntersectionTypeNode intersectionTypeNode) {
+        for (BLangType langType : intersectionTypeNode.constituentTypeNodes) {
+            defineNode(langType, env);
+        }
+    }
+
     private void defineRecordTypeNode(BLangRecordTypeNode recordTypeNode, SymbolEnv env) {
         BRecordType recordType = (BRecordType) recordTypeNode.symbol.type;
         recordTypeNode.type = recordType;
@@ -3653,19 +3671,87 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol invokableSymbol,
-                                             SymbolEnv invokableEnv) {
+    @Override
+    public void visit(BLangFiniteTypeNode finiteTypeNode) {
+    }
+
+    @Override
+    public void visit(BLangErrorType errorType) {
+    }
+
+    @Override
+    public void visit(BLangValueType valueType) {
+    }
+
+    @Override
+    public void visit(BLangUserDefinedType userDefinedType) {
+    }
+
+    @Override
+    public void visit(BLangBuiltInRefTypeNode builtInRefTypeNode) {
+    }
+
+    @Override
+    public void visit(BLangArrayType arrayType) {
+        defineNode(arrayType.elemtype, env);
+    }
+
+    @Override
+    public void visit(BLangConstrainedType constrainedType) {
+        defineNode(constrainedType.constraint, env);
+    }
+
+    @Override
+    public void visit(BLangStreamType streamType) {
+        defineNode(streamType.constraint, env);
+    }
+
+    @Override
+    public void visit(BLangTupleTypeNode tupleTypeNode) {
+        for (BLangType memType : tupleTypeNode.memberTypeNodes) {
+            defineNode(memType, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangTableTypeNode tableTypeNode) {
+        defineNode(tableTypeNode.constraint, env);
+        if (tableTypeNode.tableKeyTypeConstraint != null) {
+            defineNode(tableTypeNode.tableKeyTypeConstraint, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangTableKeyTypeConstraint keyTypeConstraint) {
+        defineNode(keyTypeConstraint.keyType, env);
+    }
+
+    @Override
+    public void visit(BLangObjectTypeNode objectTypeNode) {
+        SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
+
+        // Define all the fields
+        resolveFields((BObjectType) objectTypeNode.symbol.type, objectTypeNode, typeDefEnv);
+    }
+
+    @Override
+    public void visit(BLangFunctionTypeNode functionTypeNode) {
+        SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(functionTypeNode, functionTypeNode.symbol.scope, env);
+        defineInvokableTypeNode(functionTypeNode, Flags.asMask(functionTypeNode.flagSet), typeDefEnv);
+    }
+
+    private List<BVarSymbol> defineParametersOfFunctionType(BLangFunctionTypeNode functionTypeNode,
+                                                            SymbolEnv typeDefEnv) {
         boolean foundDefaultableParam = false;
         boolean foundIncludedRecordParam = false;
         List<BVarSymbol> paramSymbols = new ArrayList<>();
         Set<String> requiredParamNames = new HashSet<>();
-        invokableNode.clonedEnv = invokableEnv.shallowClone();
-        for (BLangSimpleVariable varNode : invokableNode.requiredParams) {
+        for (BLangVariable varNode : functionTypeNode.params) {
             boolean isDefaultableParam = varNode.expr != null;
             boolean isIncludedRecordParam = varNode.flagSet.contains(Flag.INCLUDED);
-            defineNode(varNode, invokableEnv);
+            defineNode(varNode, typeDefEnv);
             if (isDefaultableParam) {
-                foundDefaultableParam = true;
+               foundDefaultableParam = true;
             } else if (isIncludedRecordParam) {
                 foundIncludedRecordParam = true;
             }
@@ -3710,7 +3796,46 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             paramSymbols.add(symbol);
         }
+        return paramSymbols;
+    }
 
+    public void defineInvokableTypeNode(BLangFunctionTypeNode functionTypeNode, long flags, SymbolEnv env) {
+        BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) functionTypeNode.symbol;
+        List<BVarSymbol> paramSymbols = defineParametersOfFunctionType(functionTypeNode, env);
+        invokableTypeSymbol.params = paramSymbols;
+
+        BType retType = null;
+        if (functionTypeNode.returnTypeNode != null) {
+            symResolver.resolveTypeNode(functionTypeNode.returnTypeNode, env);
+            invokableTypeSymbol.returnType = functionTypeNode.returnTypeNode.type;
+            retType = functionTypeNode.returnTypeNode.type;
+        }
+
+        BType restType = null;
+        if (functionTypeNode.restParam != null) {
+            defineNode(functionTypeNode.restParam, env);
+            invokableTypeSymbol.restParam = functionTypeNode.restParam.symbol;
+            restType = functionTypeNode.restParam.type;
+        }
+        List<BType> paramTypes = paramSymbols.stream()
+                .map(paramSym -> paramSym.type)
+                .collect(Collectors.toList());
+        BInvokableType bInvokableType = (BInvokableType) invokableTypeSymbol.type;
+        bInvokableType.paramTypes = paramTypes;
+        bInvokableType.retType = retType;
+        bInvokableType.restType = restType;
+        bInvokableType.flags = flags;
+        functionTypeNode.type = bInvokableType;
+
+        List<BType> allConstituentTypes = new ArrayList<>(paramTypes);
+        allConstituentTypes.add(restType);
+        allConstituentTypes.add(retType);
+        symResolver.markParameterizedType(bInvokableType, allConstituentTypes);
+    }
+
+    private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol invokableSymbol,
+                                             SymbolEnv invokableEnv) {
+        List<BVarSymbol> paramSymbols = defineParametersOfFunction(invokableNode, invokableEnv);
         if (!invokableNode.desugaredReturnType) {
             symResolver.resolveTypeNode(invokableNode.returnTypeNode, invokableEnv);
         }
