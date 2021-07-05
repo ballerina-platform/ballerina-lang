@@ -657,7 +657,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangTableKeyTypeConstraint keyTypeConstraint) {
+        analyzeDef(keyTypeConstraint.keyType, env);
+    }
+
+    @Override
     public void visit(BLangTableTypeNode tableTypeNode) {
+        analyzeDef(tableTypeNode.constraint, env);
+        if (tableTypeNode.tableKeyTypeConstraint != null) {
+            analyzeDef(tableTypeNode.tableKeyTypeConstraint, env);
+        }
         BType constraint = tableTypeNode.constraint.type;
         if (!types.isAssignable(constraint, symTable.mapAllType)) {
             dlog.error(tableTypeNode.constraint.pos, DiagnosticErrorCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, constraint);
@@ -862,6 +871,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             analyzeVarNode(varNode, env, AttachPoint.Point.OBJECT_FIELD, AttachPoint.Point.FIELD);
         } else if ((ownerSymTag & SymTag.RECORD) == SymTag.RECORD) {
             analyzeVarNode(varNode, env, AttachPoint.Point.RECORD_FIELD, AttachPoint.Point.FIELD);
+        } else if ((ownerSymTag & SymTag.FUNCTION_TYPE) == SymTag.FUNCTION_TYPE) {
+            analyzeVarNode(varNode, env, AttachPoint.Point.PARAMETER);
+        } else if ((ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE &&
+                                                                varNode.typeNode.getKind() == NodeKind.FUNCTION_TYPE) {
+            analyzeVarNode(varNode, env, AttachPoint.Point.PARAMETER);
+            BInvokableSymbol symbol = (BInvokableSymbol) varNode.symbol;
+            BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) varNode.type.tsymbol;
+            symbol.params = tsymbol.params;
+            symbol.restParam = tsymbol.restParam;
+            symbol.retType = tsymbol.returnType;
         } else {
             varNode.annAttachments.forEach(annotationAttachment -> {
                 if (isListenerDecl) {
@@ -879,7 +898,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         validateWorkerAnnAttachments(varNode.expr);
 
-        if (this.symbolEnter.isIgnoredOrEmpty(varNode)) {
+        if (this.symbolEnter.isIgnoredOrEmpty(varNode) && !varNode.flagSet.contains(Flag.REQUIRED_PARAM)) {
             // Fake symbol to prevent runtime failures down the line.
             varNode.symbol = new BVarSymbol(0, Names.IGNORE, env.enclPkg.packageID, symTable.anyType, env.scope.owner,
                                             varNode.pos, VIRTUAL);
@@ -1000,19 +1019,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
                 break;
             case FUNCTION_TYPE:
-                if (typeNode.getKind() == NodeKind.FUNCTION_TYPE) {
-                    BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) typeNode;
-                    List<BLangVariable> params = functionTypeNode.params;
-                    for (BLangVariable param : params) {
-                        analyzeTypeNode(param.typeNode, env);
-                    }
-                    if (functionTypeNode.restParam != null) {
-                        analyzeTypeNode(functionTypeNode.restParam.typeNode, env);
-                    }
-                    if (functionTypeNode.returnTypeNode != null) {
-                        analyzeTypeNode(functionTypeNode.returnTypeNode, env);
-                    }
-                }
+                analyzeDef(typeNode, env);
                 break;
             case CONSTRAINED_TYPE:
                 analyzeTypeNode(((BLangConstrainedType) typeNode).constraint, env);
@@ -1046,6 +1053,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // defined record type.
         if (varNode.typeNode != null && varNode.typeNode.getKind() == NodeKind.RECORD_TYPE &&
                 !((BLangRecordTypeNode) varNode.typeNode).analyzed) {
+            analyzeDef(varNode.typeNode, env);
+        }
+
+        if (varNode.typeNode != null && varNode.typeNode.getKind() == NodeKind.FUNCTION_TYPE &&
+                !((BLangFunctionTypeNode) varNode.typeNode).analyzed) {
             analyzeDef(varNode.typeNode, env);
         }
 
