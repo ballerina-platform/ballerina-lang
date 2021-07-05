@@ -390,6 +390,12 @@ public class DocModelTest {
         Optional<Record> uuidRec = testModule.records.stream().filter(record -> record.name.equals("Uuid")).findAny();
         Assert.assertTrue(uuidRec.isPresent(), "Uuid record not found");
         Assert.assertTrue(uuidRec.get().isReadOnly);
+        Assert.assertEquals(uuidRec.get().fields.get(0).name, "timeLow");
+        Assert.assertEquals(uuidRec.get().fields.get(0).type.orgName, "ballerina");
+        Assert.assertEquals(uuidRec.get().fields.get(0).type.moduleName, "lang.int");
+        Assert.assertEquals(uuidRec.get().fields.get(0).type.version, "1.1.0");
+        Assert.assertEquals(uuidRec.get().fields.get(0).type.name, "Unsigned32");
+        Assert.assertEquals(uuidRec.get().fields.get(0).type.category, "types");
 
         Optional<BObjectType> controller = testModule.objectTypes.stream().filter(record -> record.name
                 .equals("Controller")).findAny();

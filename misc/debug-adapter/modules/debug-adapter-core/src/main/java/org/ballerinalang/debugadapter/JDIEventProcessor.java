@@ -204,7 +204,7 @@ public class JDIEventProcessor {
         }
 
         context.getEventManager().deleteAllBreakpoints();
-        if (instruction == DebugInstruction.CONTINUE) {
+        if (instruction == DebugInstruction.CONTINUE || instruction == DebugInstruction.STEP_OVER) {
             context.getDebuggeeVM().allClasses().forEach(this::configureUserBreakPoints);
         }
     }
@@ -277,8 +277,14 @@ public class JDIEventProcessor {
             do {
                 List<Location> locations = referenceType.locationsOfLine(nextStepPoint);
                 if (!locations.isEmpty() && (locations.get(0).lineNumber() > firstLocation.get().lineNumber())) {
-                    BreakpointRequest bpReq = context.getEventManager().createBreakpointRequest(locations.get(0));
-                    bpReq.enable();
+                    // Checks whether there are any user breakpoint configured for the same location, before adding the
+                    // dynamic breakpoint.
+                    boolean bpAlreadyExist = context.getEventManager().breakpointRequests().stream()
+                            .anyMatch(breakpointRequest -> breakpointRequest.location().equals(locations.get(0)));
+                    if (!bpAlreadyExist) {
+                        BreakpointRequest bpReq = context.getEventManager().createBreakpointRequest(locations.get(0));
+                        bpReq.enable();
+                    }
                 }
                 nextStepPoint++;
             } while (nextStepPoint <= lastLocation.get().lineNumber());

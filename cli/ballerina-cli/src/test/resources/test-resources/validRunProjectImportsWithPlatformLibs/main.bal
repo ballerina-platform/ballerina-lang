@@ -12,9 +12,9 @@ public function main() {
 }
 
 function assertDiff() {
-    error? err = trap test:assertEquals("hello user","hello userr");
+    error? err = trap test:assertEquals("hello userr","hello user");
     error result = <error>err;
-    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ " +
-    "actual \n \n @@ -1,1 +1,1 @@ \n \n -hello" +
+    test:assertTrue(result.message().toString().endsWith("--- actual\n+++ " +
+    "expected \n \n @@ -1,1 +1,1 @@ \n \n -hello" +
     " userr\n+hello user\n"));
 }
