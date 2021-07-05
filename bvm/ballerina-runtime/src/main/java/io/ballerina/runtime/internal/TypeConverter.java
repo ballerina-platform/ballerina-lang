@@ -255,6 +255,11 @@ public class TypeConverter {
                     convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, unresolvedValues));
                 }
                 break;
+            case TypeTags.ARRAY_TAG:
+                if (isConvertibleToArrayType(inputValue, (BArrayType) targetType, unresolvedValues)) {
+                    convertibleTypes.add(targetType);
+                }
+                break;
             case TypeTags.RECORD_TYPE_TAG:
                 if (isConvertibleToRecordType(inputValue, (BRecordType) targetType, false, unresolvedValues)) {
                     convertibleTypes.add(targetType);
@@ -270,6 +275,15 @@ public class TypeConverter {
                 if (isConvertibleToMapType(inputValue, (BMapType) targetType, unresolvedValues)) {
                     convertibleTypes.add(targetType);
                 }
+                break;
+            case TypeTags.TABLE_TAG:
+                if (isConvertibleToTableType(((BTableType) targetType).getConstrainedType())) {
+                    convertibleTypes.add(targetType);
+                }
+                break;
+            case TypeTags.INTERSECTION_TAG:
+                Type effectiveType = ((BIntersectionType) targetType).getEffectiveType();
+                convertibleTypes.addAll(getConvertibleTypes(inputValue, effectiveType, unresolvedValues));
                 break;
             default:
                 if (TypeChecker.checkIsLikeType(inputValue, targetType, true)) {
@@ -402,6 +416,21 @@ public class TypeConverter {
 
         for (Object mapEntry : ((MapValueImpl) sourceValue).values()) {
             if (getConvertibleTypes(mapEntry, targetType.getConstrainedType(), unresolvedValues).size() != 1) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean isConvertibleToArrayType(Object sourceValue, BArrayType targetType,
+                                                    List<TypeValuePair> unresolvedValues) {
+        if (!(sourceValue instanceof ArrayValue)) {
+            return false;
+        }
+        ArrayValue source = (ArrayValue) sourceValue;
+        Type targetTypeElementType = targetType.getElementType();
+        for (int i = 0; i < source.size(); i++) {
+            if (getConvertibleTypes(source.get(i), targetTypeElementType, unresolvedValues).size() != 1) {
                 return false;
             }
         }

@@ -305,7 +305,6 @@ public class CloneWithType {
             fieldNames = ValueCreator.createArrayValue(new BString[]{});
         }
         return ValueCreator.createTableValue(tableType, data, fieldNames);
-
     }
 
     private static BError createConversionError(Object inputValue, Type targetType) {

@@ -2514,7 +2514,6 @@ public class TypeChecker {
         if (!(sourceValue instanceof TableValueImpl)) {
             return false;
         }
-
         TableValueImpl tableValue = (TableValueImpl) sourceValue;
         BTableType sourceType = (BTableType) tableValue.getType();
         if (targetType.getKeyType() != null && sourceType.getFieldNames() == null) {
@@ -2529,7 +2528,6 @@ public class TypeChecker {
         if (unresolvedValues.contains(typeValuePair)) {
             return true;
         }
-
 
         Object[] objects = tableValue.values().toArray();
         for (Object object : objects) {
