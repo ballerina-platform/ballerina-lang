@@ -5291,18 +5291,24 @@ public class TypeChecker extends BLangNodeVisitor {
         String operatorType = checkedExpr.getKind() == NodeKind.CHECK_EXPR ? "check" : "checkpanic";
         BLangExpression exprWithCheckingKeyword = checkedExpr.expr;
         boolean firstVisit = exprWithCheckingKeyword.getBType() == null;
-        BType typeOfExprWithCheckingKeyword;
+
+        BType checkExprCandidateType;
         if (expType == symTable.noType) {
-            typeOfExprWithCheckingKeyword = symTable.noType;
+            checkExprCandidateType = symTable.noType;
         } else {
-            typeOfExprWithCheckingKeyword = BUnionType.create(null, expType, symTable.errorType);
+            BType exprType = getCandidateType(checkedExpr, expType);
+            if (exprType == symTable.semanticError) {
+                checkExprCandidateType = BUnionType.create(null, expType, symTable.errorType);
+            } else {
+                checkExprCandidateType = addDefaultErrorIfNoErrorComponentFound(expType);
+            }
         }
 
         if (checkedExpr.getKind() == NodeKind.CHECK_EXPR && types.isUnionOfSimpleBasicTypes(expType)) {
-            rewriteWithEnsureTypeFunc(checkedExpr, typeOfExprWithCheckingKeyword);
+            rewriteWithEnsureTypeFunc(checkedExpr, checkExprCandidateType);
         }
 
-        BType exprType = checkExpr(checkedExpr.expr, env, typeOfExprWithCheckingKeyword);
+        BType exprType = checkExpr(checkedExpr.expr, env, checkExprCandidateType);
         if (checkedExpr.expr.getKind() == NodeKind.WORKER_RECEIVE) {
             if (firstVisit) {
                 isTypeChecked = false;
@@ -5429,6 +5435,15 @@ public class TypeChecker extends BLangNodeVisitor {
             this.dlog.unmute();
         }
         return rhsType;
+    }
+
+    private BType addDefaultErrorIfNoErrorComponentFound(BType type) {
+        for (BType t : types.getAllTypes(type)) {
+            if (types.isAssignable(t, symTable.errorType)) {
+                return type;
+            }
+        }
+        return BUnionType.create(null, type, symTable.errorType);
     }
 
     @Override
@@ -5662,30 +5677,6 @@ public class TypeChecker extends BLangNodeVisitor {
             if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
                 resolvedSymbol.closure = true;
                 ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
-            }
-        }
-
-        // Iterate through parent nodes until a function node is met to find if the variable is used inside
-        // a transaction block to mark it as a closure, blocks inside transactions are desugared into functions later.
-        BLangNode node = env.node;
-        SymbolEnv cEnv = env;
-        while (node != null && node.getKind() != NodeKind.FUNCTION) {
-            if (node.getKind() == NodeKind.ON_FAIL) {
-                BLangOnFailClause onFailClause = (BLangOnFailClause) node;
-                SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
-                BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
-                        SymTag.VARIABLE);
-                if (resolvedSymbol != symTable.notFoundSymbol && !resolvedSymbol.closure) {
-                    onFailClause.possibleClosureSymbols.add(resolvedSymbol);
-                }
-                break;
-            } else {
-                SymbolEnv enclEnv = cEnv.enclEnv;
-                if (enclEnv == null) {
-                    break;
-                }
-                cEnv = enclEnv;
-                node = cEnv.node;
             }
         }
     }

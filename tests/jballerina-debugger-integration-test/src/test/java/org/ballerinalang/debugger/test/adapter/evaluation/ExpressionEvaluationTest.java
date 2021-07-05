@@ -692,7 +692,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void trapExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        debugTestRunner.assertExpression(context, "trap sum(1,2)", "3", "int");
     }
 
     @Override

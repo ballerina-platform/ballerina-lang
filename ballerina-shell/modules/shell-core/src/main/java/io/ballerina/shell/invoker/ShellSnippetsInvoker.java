@@ -323,8 +323,8 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             // First run configure initialization
             // TODO: (#28662) After configurables can be supported, change this to that file location
             invokeMethodDirectly(classLoader, CONFIGURE_INIT_CLASS_NAME, CONFIGURE_INIT_METHOD_NAME,
-                    new Class[]{String[].class, Path[].class, String.class, String.class},
-                    new Object[]{new String[]{}, new Path[]{}, null, null});
+                    new Class[]{String[].class, Path[].class, String.class}, new Object[]{new String[]{},
+                            new Path[]{}, null});
             // Initialize the module
             invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME);
             // Start the module

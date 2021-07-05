@@ -305,6 +305,16 @@ public function testReadOnlyClassIntersectionWithValidQualifiers() {
     assertEquality(9876, getBits(new Corge()));
 }
 
+type Obj readonly & object {
+    function foo(Obj t) returns Obj;
+};
+
+public function testRecursiveObjectArrayReadonlyClone() {
+   Obj[] v = [];
+   any x = v.cloneReadOnly();
+   assertTrue(x is readonly & Obj[]);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
