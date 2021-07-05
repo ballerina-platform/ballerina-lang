@@ -703,7 +703,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     private BLangInvocation getInvocation(BLangLambdaFunction lambdaFunction) {
         BLangInvocation funcInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
-        funcInvocation.type = symTable.intType;
+        funcInvocation.setBType(lambdaFunction.function.returnTypeNode.getBType());
         funcInvocation.expr = null;
         BInvokableSymbol lambdaSymbol = lambdaFunction.function.symbol;
         funcInvocation.symbol = lambdaSymbol;

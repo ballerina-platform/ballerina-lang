@@ -755,7 +755,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangValueType valueType) {
-        valueType.type = symResolver.resolveTypeNode(valueType, env);
+        valueType.setBType(symResolver.resolveTypeNode(valueType, env));
     }
 
     @Override
@@ -883,7 +883,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                                                 varNode.typeNode.getKind() == NodeKind.FUNCTION_TYPE) {
             analyzeVarNode(varNode, env, AttachPoint.Point.PARAMETER);
             BInvokableSymbol symbol = (BInvokableSymbol) varNode.symbol;
-            BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) varNode.type.tsymbol;
+            BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) varNode.getBType().tsymbol;
             symbol.params = tsymbol.params;
             symbol.restParam = tsymbol.restParam;
             symbol.retType = tsymbol.returnType;

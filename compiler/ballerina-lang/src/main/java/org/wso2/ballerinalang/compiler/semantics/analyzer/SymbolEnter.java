@@ -4161,15 +4161,15 @@ public class SymbolEnter extends BLangNodeVisitor {
         BType retType = null;
         if (functionTypeNode.returnTypeNode != null) {
             symResolver.resolveTypeNode(functionTypeNode.returnTypeNode, env);
-            invokableTypeSymbol.returnType = functionTypeNode.returnTypeNode.type;
-            retType = functionTypeNode.returnTypeNode.type;
+            invokableTypeSymbol.returnType = functionTypeNode.returnTypeNode.getBType();
+            retType = functionTypeNode.returnTypeNode.getBType();
         }
 
         BType restType = null;
         if (functionTypeNode.restParam != null) {
             defineNode(functionTypeNode.restParam, env);
             invokableTypeSymbol.restParam = functionTypeNode.restParam.symbol;
-            restType = functionTypeNode.restParam.type;
+            restType = functionTypeNode.restParam.getBType();
         }
         List<BType> paramTypes = paramSymbols.stream()
                 .map(paramSym -> paramSym.type)
@@ -4179,7 +4179,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         bInvokableType.retType = retType;
         bInvokableType.restType = restType;
         bInvokableType.flags = flags;
-        functionTypeNode.type = bInvokableType;
+        functionTypeNode.setBType(bInvokableType);
 
         List<BType> allConstituentTypes = new ArrayList<>(paramTypes);
         allConstituentTypes.add(restType);
@@ -4262,9 +4262,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
             if (varNode.flagSet.contains(Flag.INCLUDED)) {
-                if (varNode.type.getKind() == TypeKind.RECORD) {
+                if (varNode.getBType().getKind() == TypeKind.RECORD) {
                     symbol.flags |= Flags.INCLUDED;
-                    LinkedHashMap<String, BField> fields = ((BRecordType) varNode.type).fields;
+                    LinkedHashMap<String, BField> fields = ((BRecordType) varNode.getBType()).fields;
                     for (String fieldName : fields.keySet()) {
                         BField field = fields.get(fieldName);
                         if (field.symbol.type.tag != TypeTags.NEVER) {

@@ -1545,11 +1545,11 @@ public class SymbolResolver extends BLangNodeVisitor {
                 invokableTypeSymbol.returnType = null;
                 invokableType.tsymbol = invokableTypeSymbol;
                 functionTypeNode.symbol = invokableTypeSymbol;
-                functionTypeNode.type = invokableType;
+                functionTypeNode.setBType(invokableType);
             } else {
                 invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
                         Flags.asMask(functionTypeNode.flagSet),
-                        env.enclPkg.symbol.pkgID, functionTypeNode.type,
+                        env.enclPkg.symbol.pkgID, functionTypeNode.getBType(),
                         env.scope.owner, functionTypeNode.pos, SOURCE);
                 invokableType = new BInvokableType(invokableTypeSymbol);
                 invokableTypeSymbol.type = invokableType;
@@ -1565,8 +1565,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             List<BLangVariable> params = functionTypeNode.getParams();
             Location pos = functionTypeNode.pos;
             BLangType returnTypeNode = functionTypeNode.returnTypeNode;
-            resultType = validateInferTypedescParams(pos, params, returnTypeNode == null ? null : returnTypeNode.type) ?
-                    invokableType : symTable.semanticError;
+            resultType = validateInferTypedescParams(pos, params,
+                    returnTypeNode == null ? null : returnTypeNode.getBType()) ? invokableType : symTable.semanticError;
         } else {
             resultType = functionTypeNode.symbol.type;
         }

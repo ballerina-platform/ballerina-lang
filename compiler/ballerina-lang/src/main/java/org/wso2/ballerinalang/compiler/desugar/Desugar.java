@@ -5964,7 +5964,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private void createClosureForDefaultValue(String name, BLangExpression varNode, BInvokableTypeSymbol symbol,
                                                                                                 SymbolEnv typeDefEnv) {
-        BLangFunction function = createFunction(varNode.pos, symbol.pkgID, symbol.owner, varNode.type);
+        BLangFunction function = createFunction(varNode.pos, symbol.pkgID, symbol.owner, varNode.getBType());
         BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, (BLangBlockFunctionBody) function.body);
         returnStmt.expr = varNode;
         BInvokableSymbol lambdaFunctionSymbol = createInvokableSymbol(function, symbol.pkgID, symbol.owner);
@@ -5979,23 +5979,23 @@ public class Desugar extends BLangNodeVisitor {
     private BLangFunction createFunction(Location pos, PackageID pkgID, BSymbol owner, BType bType) {
         String funcName = CLOSURE_FOR_DEFAULT_VALUE + UNDERSCORE + closureCount++;
         BLangFunction function = ASTBuilderUtil.createFunction(pos, funcName);
-        function.type = new BInvokableType(Collections.emptyList(), bType, null);
+        function.setBType(new BInvokableType(Collections.emptyList(), bType, null));
 
         BLangBuiltInRefTypeNode type = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
         type.typeKind = bType.getKind();
         type.pos = pos;
         function.returnTypeNode = type;
-        function.returnTypeNode.type = bType;
+        function.returnTypeNode.setBType(bType);
 
         function.body = ASTBuilderUtil.createBlockFunctionBody(pos, new ArrayList<>());
 
         BInvokableSymbol functionSymbol = new BInvokableSymbol(SymTag.INVOKABLE, Flags.asMask(function.flagSet),
-                new Name(funcName), pkgID, function.type, owner,
+                new Name(funcName), pkgID, function.getBType(), owner,
                 function.name.pos, VIRTUAL);
         functionSymbol.bodyExist = true;
         functionSymbol.kind = SymbolKind.FUNCTION;
 
-        functionSymbol.retType = function.returnTypeNode.type;
+        functionSymbol.retType = function.returnTypeNode.getBType();
         functionSymbol.scope = new Scope(functionSymbol);
         function.symbol = functionSymbol;
         function.flagSet.add(Flag.DEFAULTABLE_PARAM); // to separate with stream
@@ -6005,17 +6005,17 @@ public class Desugar extends BLangNodeVisitor {
     private BInvokableSymbol createInvokableSymbol(BLangFunction function, PackageID pkgID, BSymbol owner) {
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(function.flagSet),
                                                                        new Name(function.name.value),
-                                                                       pkgID, function.type, owner, true,
+                                                                       pkgID, function.getBType(), owner, true,
                                                                        function.pos, VIRTUAL);
-        functionSymbol.retType = function.returnTypeNode.type;
+        functionSymbol.retType = function.returnTypeNode.getBType();
         functionSymbol.params = function.requiredParams.stream()
                 .map(param -> param.symbol)
                 .collect(Collectors.toList());
         functionSymbol.scope = new Scope(functionSymbol);
         functionSymbol.restParam = function.restParam != null ? function.restParam.symbol : null;
         functionSymbol.type = new BInvokableType(Collections.emptyList(),
-                function.restParam != null ? function.restParam.type : null,
-                symTable.intType,
+                function.restParam != null ? function.restParam.getBType() : null,
+                function.returnTypeNode.getBType(),
                 null);
         function.symbol = functionSymbol;
         return functionSymbol;
