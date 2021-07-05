@@ -1,5 +1,7 @@
 package org.ballerinalang.testerina.natives.mock;
 
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.RecordType;
@@ -8,8 +10,12 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.values.MapValueImpl;
+import org.ballerinalang.core.model.types.BErrorType;
+import org.ballerinalang.core.model.types.TypeConstants;
 import org.ballerinalang.testerina.natives.Executor;
 
 import java.lang.reflect.Method;
@@ -69,9 +75,13 @@ public class FunctionMock {
             }
         }
         if (returnVal == null) {
-            String detail = "no return value or action registered for function";
-            return ErrorCreator.createDistinctError(MockConstants.FUNCTION_CALL_ERROR, MockConstants.TEST_PACKAGE_ID,
-                                                    StringUtils.fromString(detail));
+            String message = "no return value or action registered for function";
+            throw ErrorCreator.createError(
+                    MockConstants.TEST_PACKAGE_ID,
+                    MockConstants.FUNCTION_CALL_ERROR,
+                    StringUtils.fromString(message),
+                    null,
+                    new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
         }
         return returnVal;
     }
@@ -113,8 +123,12 @@ public class FunctionMock {
                         originalClassName, mockFunctionName, mockFunctionClasses, getClassLoader());
                 className = getQualifiedClassName(orgName, packageName, version, className);
             } catch (ClassNotFoundException e) {
-                return ErrorCreator.createDistinctError(MockConstants.FUNCTION_CALL_ERROR,
-                        MockConstants.TEST_PACKAGE_ID, StringUtils.fromString(e.getMessage()));
+                return ErrorCreator.createError(
+                        MockConstants.TEST_PACKAGE_ID,
+                        MockConstants.FUNCTION_CALL_ERROR,
+                        StringUtils.fromString(e.getMessage()),
+                        null,
+                        new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
             }
 
             List<Object> argsList = Arrays.asList(args);
@@ -186,38 +200,48 @@ public class FunctionMock {
 
             // Validate Return types
             if (mockMethodType != originalMethodType) {
-                throw ErrorCreator.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
-                                                       MockConstants.TEST_PACKAGE_ID,
-                                                       StringUtils.fromString("Return type of function " +
-                                                                                       mockMethod.getName() +
-                                                                                       " does not match function" +
-                                                                                       originalMethod.getName()));
+                throw ErrorCreator.createError(
+                        MockConstants.TEST_PACKAGE_ID,
+                        MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                        StringUtils.fromString("Return type of function " + mockMethod.getName() +
+                                " does not match function" + originalMethod.getName()),
+                        null,
+                        new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
             }
 
             // Validate if param number is the same
             if (mockMethodParameters.length != originalMethodParameters.length) {
-                throw ErrorCreator.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
-                                                       MockConstants.TEST_PACKAGE_ID, StringUtils.fromString(
+                throw ErrorCreator.createError(
+                        MockConstants.TEST_PACKAGE_ID,
+                        MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                        StringUtils.fromString(
                                 "Parameter types of function " + mockMethod.getName() +
-                                        " does not match function" + originalMethod.getName()));
+                                        " does not match function" + originalMethod.getName()),
+                        null,
+                        new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
             }
 
             // Validate each param
             for (int i = 0; i < mockMethodParameters.length; i++) {
                 if (mockMethodParameters [i] != originalMethodParameters[i]) {
-                    throw ErrorCreator.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
-                                                           MockConstants.TEST_PACKAGE_ID, StringUtils.fromString(
+                    throw ErrorCreator.createError(
+                            MockConstants.TEST_PACKAGE_ID,
+                            MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                            StringUtils.fromString(
                                     "Parameter types of function " + mockMethod.getName() +
-                                            "does not match function" + originalMethod.getName()));
+                                            "does not match function" + originalMethod.getName()), null,
+                            new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
                 }
             }
 
         } else {
-            throw ErrorCreator.createDistinctError(MockConstants.FUNCTION_NOT_FOUND_ERROR,
-                                                   MockConstants.TEST_PACKAGE_ID,
-                                                   StringUtils.fromString(
-                                                            "Mock function \'" + mockMethodName + "\' " +
-                                                                    "cannot be found"));
+            throw ErrorCreator.createError(
+                    MockConstants.TEST_PACKAGE_ID,
+                    MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                    StringUtils.fromString("Mock function \'" + mockMethodName + "\' " +
+                            "cannot be found"),
+                    null,
+                    new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
         }
     }
 
