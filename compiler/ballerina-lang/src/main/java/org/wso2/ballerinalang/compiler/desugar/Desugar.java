@@ -9971,10 +9971,9 @@ public class Desugar extends BLangNodeVisitor {
 
     protected boolean isMappingOrObjectConstructorOrObjInit(BLangExpression expression) {
         NodeKind exprKind = expression.getKind();
-        return exprKind == NodeKind.TYPE_INIT_EXPR
-                || exprKind == NodeKind.RECORD_LITERAL_EXPR
-                || (expression.getKind() == NodeKind.CHECK_EXPR
-                && ((BLangCheckedExpr) expression).expr.getKind() == NodeKind.TYPE_INIT_EXPR);
+        return exprKind == NodeKind.TYPE_INIT_EXPR || exprKind == NodeKind.RECORD_LITERAL_EXPR
+                || (exprKind == NodeKind.CHECK_EXPR
+                    && ((BLangCheckedExpr) expression).expr.getKind() == NodeKind.TYPE_INIT_EXPR);
     }
 
     /**
