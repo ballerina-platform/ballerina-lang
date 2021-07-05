@@ -53,6 +53,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -349,6 +350,8 @@ public class Desugar extends BLangNodeVisitor {
     private static final String DESUGARED_VARARG_KEY = "$vararg$";
     private static final String GENERATED_ERROR_VAR = "$error$";
     private static final String HAS_KEY = "hasKey";
+    private static final String CLOSURE_FOR_DEFAULT_VALUE = "$closure_for_default_value$";
+    private int closureCount = 0;
 
     public static final String XML_INTERNAL_SELECT_DESCENDANTS = "selectDescendants";
     public static final String XML_INTERNAL_CHILDREN = "children";
@@ -5666,6 +5669,79 @@ public class Desugar extends BLangNodeVisitor {
         genVarRefExpr.type = genVarRefExpr.symbol.type;
         BLangExpression expression = addConversionExprIfRequired(genVarRefExpr, targetType);
         result = expression.impConversionExpr != null ? expression.impConversionExpr : expression;
+    }
+    private SymbolEnv findEnclosingInvokableEnv(SymbolEnv env, BLangInvokableNode encInvokable) {
+        if (env.enclEnv.node != null && env.enclEnv.node.getKind() == NodeKind.ARROW_EXPR) {
+            return env.enclEnv;
+        }
+
+        if (env.enclEnv.node != null && (env.enclEnv.node.getKind() == NodeKind.ON_FAIL)) {
+            return env.enclEnv;
+        }
+
+        if (env.enclInvokable != null && env.enclInvokable == encInvokable) {
+            return findEnclosingInvokableEnv(env.enclEnv, encInvokable);
+        }
+        return env;
+    }
+
+    private void createClosureForDefaultValue(String name, BLangExpression varNode, BInvokableTypeSymbol symbol,
+                                                                                                SymbolEnv typeDefEnv) {
+        BLangFunction function = createFunction(varNode.pos, symbol.pkgID, symbol.owner, varNode.type);
+        BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, (BLangBlockFunctionBody) function.body);
+        returnStmt.expr = varNode;
+        BInvokableSymbol lambdaFunctionSymbol = createInvokableSymbol(function, symbol.pkgID, symbol.owner);
+        BLangLambdaFunction lambdaFunction = createLambdaFunction(function, lambdaFunctionSymbol);
+        lambdaFunction.capturedClosureEnv = typeDefEnv.createClone();
+        rewrite(function, typeDefEnv);
+        env.enclPkg.functions.add(function);
+        env.enclPkg.topLevelNodes.add(function);
+        symbol.defaultValues.put(name, lambdaFunction);
+    }
+
+    private BLangFunction createFunction(Location pos, PackageID pkgID, BSymbol owner, BType bType) {
+        String funcName = CLOSURE_FOR_DEFAULT_VALUE + UNDERSCORE + closureCount++;
+        BLangFunction function = ASTBuilderUtil.createFunction(pos, funcName);
+        function.type = new BInvokableType(Collections.emptyList(), bType, null);
+
+        BLangBuiltInRefTypeNode type = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
+        type.typeKind = bType.getKind();
+        type.pos = pos;
+        function.returnTypeNode = type;
+        function.returnTypeNode.type = bType;
+
+        function.body = ASTBuilderUtil.createBlockFunctionBody(pos, new ArrayList<>());
+
+        BInvokableSymbol functionSymbol = new BInvokableSymbol(SymTag.INVOKABLE, Flags.asMask(function.flagSet),
+                new Name(funcName), pkgID, function.type, owner,
+                function.name.pos, VIRTUAL);
+        functionSymbol.bodyExist = true;
+        functionSymbol.kind = SymbolKind.FUNCTION;
+
+        functionSymbol.retType = function.returnTypeNode.type;
+        functionSymbol.scope = new Scope(functionSymbol);
+        function.symbol = functionSymbol;
+        function.flagSet.add(Flag.DEFAULTABLE_PARAM); // to separate with stream
+        return function;
+    }
+
+    private BInvokableSymbol createInvokableSymbol(BLangFunction function, PackageID pkgID, BSymbol owner) {
+        BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(function.flagSet),
+                                                                       new Name(function.name.value),
+                                                                       pkgID, function.type, owner, true,
+                                                                       function.pos, VIRTUAL);
+        functionSymbol.retType = function.returnTypeNode.type;
+        functionSymbol.params = function.requiredParams.stream()
+                .map(param -> param.symbol)
+                .collect(Collectors.toList());
+        functionSymbol.scope = new Scope(functionSymbol);
+        functionSymbol.restParam = function.restParam != null ? function.restParam.symbol : null;
+        functionSymbol.type = new BInvokableType(Collections.emptyList(),
+                function.restParam != null ? function.restParam.type : null,
+                symTable.intType,
+                null);
+        function.symbol = functionSymbol;
+        return functionSymbol;
     }
 
     @Override

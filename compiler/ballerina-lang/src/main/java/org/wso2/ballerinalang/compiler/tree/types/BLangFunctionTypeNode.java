@@ -21,6 +21,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.FunctionTypeNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 
@@ -41,6 +42,8 @@ public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode
     public BLangVariable restParam;
     public BLangType returnTypeNode;
     public Set<Flag> flagSet = new HashSet<>();
+    public BSymbol symbol;
+    public boolean analyzed;
 
     public boolean returnsKeywordExists = false;
 
