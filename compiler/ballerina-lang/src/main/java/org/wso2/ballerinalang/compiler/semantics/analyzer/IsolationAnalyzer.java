@@ -813,6 +813,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangForeach foreach) {
         analyzeNode(foreach.collection, env);
         analyzeNode(foreach.body, env);
+
+        BLangOnFailClause onFailClause = foreach.onFailClause;
+        if (onFailClause != null) {
+            analyzeNode(onFailClause, env);
+        }
     }
 
     @Override
@@ -890,6 +895,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangWhile whileNode) {
         analyzeNode(whileNode.expr, env);
         analyzeNode(whileNode.body, env);
+
+        BLangOnFailClause onFailClause = whileNode.onFailClause;
+        if (onFailClause != null) {
+            analyzeNode(onFailClause, env);
+        }
     }
 
     @Override
@@ -903,6 +913,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         PotentiallyInvalidExpressionInfo copyInLockInfo = copyInLockInfoStack.pop();
 
         this.inLockStatement = prevInLockStatement;
+
+        BLangOnFailClause onFailClause = lockNode.onFailClause;
+        if (onFailClause != null) {
+            analyzeNode(onFailClause, env);
+        }
 
         Map<BSymbol, List<BLangSimpleVarRef>> accessedRestrictedVars = copyInLockInfo.accessedRestrictedVars;
         Set<BSymbol> accessedRestrictedVarKeys = accessedRestrictedVars.keySet();
