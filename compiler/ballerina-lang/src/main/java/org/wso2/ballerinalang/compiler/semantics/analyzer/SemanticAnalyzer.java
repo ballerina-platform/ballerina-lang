@@ -3245,9 +3245,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLock lockNode) {
-        analyzeStmt(lockNode.body, env);
+        SymbolEnv lockEnv = SymbolEnv.createLockEnv(lockNode, env);
+        analyzeStmt(lockNode.body, lockEnv);
         if (lockNode.onFailClause != null) {
-            this.analyzeNode(lockNode.onFailClause, env);
+            this.analyzeNode(lockNode.onFailClause, lockEnv);
         }
     }
 
