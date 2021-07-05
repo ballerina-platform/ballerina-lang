@@ -531,6 +531,11 @@ public class TypedescriptorTest {
         assertEquals(type.typeKind(), INTERSECTION);
         assertEquals(type.signature(), "Foo & readonly");
 
+        assertEquals(((IntersectionTypeSymbol) type).effectiveTypeDescriptor().typeKind(), TYPE_REFERENCE);
+        TypeReferenceTypeSymbol typeRefType =
+                (TypeReferenceTypeSymbol) ((IntersectionTypeSymbol) type).effectiveTypeDescriptor();
+        assertEquals(typeRefType.typeDescriptor().typeKind(), RECORD);
+
         List<TypeSymbol> members = ((IntersectionTypeSymbol) type).memberTypeDescriptors();
 
         TypeSymbol mem1 = members.get(0);
@@ -547,6 +552,8 @@ public class TypedescriptorTest {
         assertEquals(type.typeKind(), INTERSECTION);
         assertEquals(type.signature(), "map<json> & readonly");
 
+        assertEquals(((IntersectionTypeSymbol) type).effectiveTypeDescriptor().typeKind(), MAP);
+
         List<TypeSymbol> members = ((IntersectionTypeSymbol) type).memberTypeDescriptors();
         assertEquals(members.get(0).typeKind(), MAP);
         assertEquals(members.get(1).typeKind(), READONLY);
@@ -562,10 +569,53 @@ public class TypedescriptorTest {
         assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), INTERSECTION);
 
         IntersectionTypeSymbol intrType = (IntersectionTypeSymbol) ((TypeReferenceTypeSymbol) type).typeDescriptor();
+
+        TypeReferenceTypeSymbol typeRefType = (TypeReferenceTypeSymbol) intrType.effectiveTypeDescriptor();
+        assertEquals(typeRefType.typeKind(), TYPE_REFERENCE);
+        assertEquals(typeRefType.typeDescriptor().typeKind(), RECORD);
+
         List<TypeSymbol> members = intrType.memberTypeDescriptors();
 
         assertEquals(members.get(0).typeKind(), TYPE_REFERENCE);
         assertEquals(members.get(0).getName().get(), "Foo");
+        assertEquals(members.get(1).typeKind(), READONLY);
+    }
+
+    @Test
+    public void testIntersectionType4() {
+        Symbol symbol = getSymbol(238, 17);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(type.getName().get(), "FooReadOnly");
+        assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), INTERSECTION);
+
+        IntersectionTypeSymbol intrType = (IntersectionTypeSymbol) ((TypeReferenceTypeSymbol) type).typeDescriptor();
+        assertEquals(intrType.effectiveTypeDescriptor().typeKind(), RECORD);
+
+        List<TypeSymbol> members = intrType.memberTypeDescriptors();
+
+        assertEquals(members.get(0).typeKind(), RECORD);
+        assertEquals(members.get(1).typeKind(), READONLY);
+    }
+
+    @Test
+    public void testIntersectionType5() {
+        Symbol symbol = getSymbol(237, 51);
+        TypeSymbol type = ((ParameterSymbol) symbol).typeDescriptor();
+
+        assertEquals(type.typeKind(), INTERSECTION);
+        IntersectionTypeSymbol interType = (IntersectionTypeSymbol) type;
+        assertEquals(interType.effectiveTypeDescriptor().typeKind(), TYPE_REFERENCE);
+
+        TypeReferenceTypeSymbol typeRefType =
+                (TypeReferenceTypeSymbol) interType.effectiveTypeDescriptor();
+        assertEquals(typeRefType.typeDescriptor().typeKind(), OBJECT);
+
+        List<TypeSymbol> members = interType.memberTypeDescriptors();
+
+        assertEquals(members.get(0).typeKind(), TYPE_REFERENCE);
+        assertEquals(members.get(0).getName().get(), "FooObj");
         assertEquals(members.get(1).typeKind(), READONLY);
     }
 
