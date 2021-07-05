@@ -33,7 +33,7 @@ public class WaitActionsNegativeTest {
     public void testNegativeWorkerActions() {
         CompileResult resultNegative = BCompileUtil.compile("test-src/workers/wait-actions-negative.bal");
         int index = 0;
-        Assert.assertEquals(resultNegative.getErrorCount(), 32, "Wait actions negative test error count");
+        Assert.assertEquals(resultNegative.getErrorCount(), 45, "Wait actions negative test error count");
         BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'future<string>', found 'future<int>'", 56, 22);
         BAssertUtil.validateError(resultNegative, index++,
@@ -68,9 +68,19 @@ public class WaitActionsNegativeTest {
         BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'future<int>', found 'future<(int|error)>'", 83, 47);
         BAssertUtil.validateError(resultNegative, index++,
+                "incompatible types: expected 'int', found eventual type '(int|error)' for wait future expression" +
+                        " 'f1'", 83, 47);
+        BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'future<int>', found 'future<string>'", 83, 51);
         BAssertUtil.validateError(resultNegative, index++,
+                "incompatible types: expected 'int', found eventual type '(int|error)' for wait future expression" +
+                        " 'f2'", 83, 51);
+        BAssertUtil.validateError(resultNegative, index++,
+
                 "incompatible types: expected 'future<int>', found 'future<(int|error)>'", 84, 51);
+        BAssertUtil.validateError(resultNegative, index++,
+                "incompatible types: expected 'int', found eventual type '(int|error)' for wait future expression" +
+                        " 'f1'", 84, 51);
         BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'string', found eventual type '(string|error)' for wait future " +
                         "expression 'f2'", 84, 55);
@@ -82,11 +92,20 @@ public class WaitActionsNegativeTest {
         BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'future<int>', found 'future<(int|error)>'", 85, 51);
         BAssertUtil.validateError(resultNegative, index++,
+                "incompatible types: expected 'int', found eventual type '(int|error)' for wait future expression" +
+                        " 'f1'", 85, 51);
+        BAssertUtil.validateError(resultNegative, index++,
+                "incompatible types: expected 'anydata', found eventual type '(anydata|error)' for wait future " +
+                        "expression 'f2'", 85, 55);
+        BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'future<anydata>', found 'future<(string|error)>'", 85, 55);
         BAssertUtil.validateError(resultNegative, index++,
                 "missing non-defaultable required record field 'f2'", 86, 30);
         BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'future<int>', found 'future<(int|error)>'", 86, 35);
+        BAssertUtil.validateError(resultNegative, index++,
+                "incompatible types: expected 'int', found eventual type '(int|error)' for wait future expression" +
+                        " 'f1'", 86, 35);
         BAssertUtil.validateError(resultNegative, index++,
                                   "incompatible types: expected 'sealedRec', found 'record {| (int|error) id;" +
                                           " (string|error) name; boolean status; |}'", 87, 31);
@@ -95,17 +114,38 @@ public class WaitActionsNegativeTest {
         BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'future<int>', found 'future<(int|error)>'", 88, 36);
         BAssertUtil.validateError(resultNegative, index++,
+                "incompatible types: expected 'int', found eventual type '(int|error)' for wait future expression " +
+                        "'f1'", 88, 36);
+        BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'future<int>', found 'future<(int|error)>'", 89, 35);
+        BAssertUtil.validateError(resultNegative, index++,
+                "incompatible types: expected 'int', found eventual type '(int|error)' for wait future expression" +
+                        " 'f1'", 89, 35);
         BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'future<string>', found 'future<(string|error)>'", 89, 45);
         BAssertUtil.validateError(resultNegative, index++,
+                "incompatible types: expected 'string', found eventual type '(string|error)' for wait " +
+                        "future expression 'f2'", 89, 45);
+        BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'future<int>', found 'future<(string|error)>'", 89, 55);
+        BAssertUtil.validateError(resultNegative, index++,
+                "incompatible types: expected 'int', found eventual type '(int|error)' for wait future " +
+                        "expression 'f2'", 89, 55);
         BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'future<int>', found 'future<(int|error)>'", 90, 35);
         BAssertUtil.validateError(resultNegative, index++,
+                "incompatible types: expected 'int', found eventual type '(int|error)' for wait future expression " +
+                        "'f1'", 90, 35);
+        BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'future<string>', found 'future<(string|error)>'", 90, 45);
-        BAssertUtil.validateError(resultNegative, index,
+        BAssertUtil.validateError(resultNegative, index++,
+                "incompatible types: expected 'string', found eventual type '(string|error)' for wait future " +
+                        "expression 'f2'", 90, 45);
+        BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'future<string>', found 'future<(int|error)>'", 90, 54);
+        BAssertUtil.validateError(resultNegative, index,
+                "incompatible types: expected 'string', found eventual type '(string|error)' for wait future " +
+                        "expression 'f4'", 90, 54);
     }
 
     @Test

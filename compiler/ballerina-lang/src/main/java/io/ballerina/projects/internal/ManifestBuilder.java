@@ -412,12 +412,12 @@ public class ManifestBuilder {
         boolean codeCoverage =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.CODE_COVERAGE.toString());
         final TopLevelNode topLevelNode = tableNode.entries().get(CompilerOptionName.CLOUD.toString());
+        boolean dumpBuildTime =
+                getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.DUMP_BUILD_TIME.toString());
         String cloud = "";
         if (topLevelNode != null) {
             cloud = getStringFromTomlTableNode(topLevelNode);
         }
-        boolean taintCheck =
-                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.TAINT_CHECK.toString());
         boolean listConflictedClasses =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.LIST_CONFLICTED_CLASSES.toString());
 
@@ -428,8 +428,8 @@ public class ManifestBuilder {
                 .testReport(testReport)
                 .codeCoverage(codeCoverage)
                 .cloud(cloud)
-                .taintCheck(taintCheck)
                 .listConflictedClasses(listConflictedClasses)
+                .dumpBuildTime(dumpBuildTime)
                 .build();
     }
 

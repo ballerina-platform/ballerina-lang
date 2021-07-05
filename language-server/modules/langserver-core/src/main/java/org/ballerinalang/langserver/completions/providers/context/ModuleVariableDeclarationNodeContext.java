@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.context.util.ModulePartNodeContextUtil;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
@@ -51,10 +52,11 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, ModuleVariableDeclarationNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-
+        ResolvedContext resolvedContext;
         TypeDescriptorNode tDescNode = node.typedBindingPattern().typeDescriptor();
         if (this.withinInitializerContext(ctx, node)) {
             completionItems.addAll(this.initializerContextCompletions(ctx, tDescNode));
+            resolvedContext = ResolvedContext.INITIALIZER;
         } else if (tDescNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
                 && ModulePartNodeContextUtil.onServiceTypeDescContext(((SimpleNameReferenceNode) tDescNode).name(),
                 ctx)) {
@@ -73,12 +75,15 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
             completionItems.addAll(this.getCompletionItemList(objectSymbols, ctx));
             completionItems.addAll(this.getModuleCompletionItems(ctx));
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_ON.get()));
+            resolvedContext = ResolvedContext.SERVICE_TYPEDESC;
         } else if (withinServiceOnKeywordContext(ctx, node)) {
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_ON.get()));
+            resolvedContext = ResolvedContext.SERVICE_TYPEDESC;
         } else {
-            completionItems.addAll(CompletionUtil.route(ctx, node.parent()));
+            // Type descriptor completions and the keyword completions are suggested via the ModulePartNodeContext.
+            return CompletionUtil.route(ctx, node.parent());
         }
-        this.sort(ctx, node, completionItems);
+        this.sort(ctx, node, completionItems, resolvedContext);
 
         return completionItems;
     }
@@ -86,7 +91,24 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
     @Override
     public void sort(BallerinaCompletionContext context, ModuleVariableDeclarationNode node,
                      List<LSCompletionItem> completionItems, Object... metaData) {
-        ModulePartNodeContextUtil.sort(completionItems);
+        ResolvedContext resolvedContext = (ResolvedContext) metaData[0];
+        if (resolvedContext == ResolvedContext.INITIALIZER) {
+            // Calls the VariableDeclarationProvider's sorting logic to 
+            // make it consistent throughout the implementation
+            this.sort(context, node, completionItems);
+            return;
+        }
+
+        // Captures the ResolvedContext.SERVICE_TYPEDESC
+        for (LSCompletionItem lsCItem : completionItems) {
+            String sortingText;
+            if (lsCItem.getType() != LSCompletionItem.CompletionItemType.SNIPPET) {
+                sortingText = SortingUtil.genSortText(1);
+            } else {
+                sortingText = SortingUtil.genSortText(2) + SortingUtil.genSortText(SortingUtil.toRank(lsCItem));
+            }
+            lsCItem.getCompletionItem().setSortText(sortingText);
+        }
     }
 
     private boolean withinServiceOnKeywordContext(BallerinaCompletionContext context,
@@ -94,7 +116,8 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
         TypedBindingPatternNode typedBindingPattern = node.typedBindingPattern();
         TypeDescriptorNode typeDescriptor = typedBindingPattern.typeDescriptor();
 
-        if (typeDescriptor.kind() != SyntaxKind.SERVICE_TYPE_DESC || typedBindingPattern.bindingPattern().isMissing()) {
+        if (typeDescriptor.kind() != SyntaxKind.SERVICE_TYPE_DESC
+                || typedBindingPattern.bindingPattern().isMissing()) {
             return false;
         }
 
@@ -112,5 +135,10 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
         int textPosition = context.getCursorPositionInTree();
         TextRange equalTokenRange = node.equalsToken().get().textRange();
         return equalTokenRange.endOffset() <= textPosition;
+    }
+
+    enum ResolvedContext {
+        INITIALIZER,
+        SERVICE_TYPEDESC
     }
 }

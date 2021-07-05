@@ -35,7 +35,7 @@ public class TableNegativeTest {
     @Test
     public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 25);
+        Assert.assertEquals(compileResult.getErrorCount(), 27);
         int index = 0;
 
         validateError(compileResult, index++, "unknown type 'CusTable'",
@@ -58,12 +58,12 @@ public class TableNegativeTest {
                 "field", 62, 34);
         validateError(compileResult, index++, "field 'name' used in key specifier must be a required " +
                 "field", 75, 28);
-        validateError(compileResult, index++, "field 'id' used in key specifier must have a literal " +
-                "value", 82, 41);
+        validateError(compileResult, index++, "value expression of key specifier 'id' must be a " +
+                "constant expression", 82, 41);
         validateError(compileResult, index++, "member access is not supported for keyless table " +
                 "'keylessCusTab'", 87, 27);
-        validateError(compileResult, index++, "field 'id' used in key specifier must have a " +
-                "literal value", 90, 33);
+        validateError(compileResult, index++, "value expression of key specifier 'id' must be a " +
+                "constant expression", 90, 33);
         validateError(compileResult, index++, "incompatible types: expected 'table<Customer> " +
                 "key<string>', found 'table<Customer> key<int>'", 95, 56);
         validateError(compileResult, index++, "field name 'no' used in key specifier is not " +
@@ -75,7 +75,6 @@ public class TableNegativeTest {
                 "specifier or key type constraint", 114, 21);
         validateError(compileResult, index++, "table with constraint of type map cannot have key " +
                 "specifier or key type constraint", 120, 21);
-        validateError(compileResult, index++, "member access is not supported for keyless table 'tab'", 124, 26);
         validateError(compileResult, index++, "cannot infer the member type from table constructor. " +
                 "field 'id' type is ambiguous", 129, 14);
         validateError(compileResult, index++, "cannot infer the member type from table constructor; " +
@@ -86,7 +85,13 @@ public class TableNegativeTest {
                 147, 17);
         validateError(compileResult, index++, "incompatible types: expected 'Customer', found 'Customer?'",
                 154, 25);
-        validateError(compileResult, index, "field 'name' used in key specifier must be a readonly field",
+        validateError(compileResult, index++, "field 'name' used in key specifier must be a readonly field",
                 162, 36);
+        validateError(compileResult, index++, "invalid type 'k' for field 'Row' used in key specifier, " +
+                "expected sub type of anydata", 175, 12);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a " +
+                "constant expression", 188, 5);
+        validateError(compileResult, index, "value expression of key specifier 'm' must be a " +
+                "constant expression", 194, 5);
     }
 }

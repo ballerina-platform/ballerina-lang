@@ -29,6 +29,7 @@ import org.eclipse.lsp4j.debug.ContinueArguments;
 import org.eclipse.lsp4j.debug.EvaluateArguments;
 import org.eclipse.lsp4j.debug.EvaluateResponse;
 import org.eclipse.lsp4j.debug.NextArguments;
+import org.eclipse.lsp4j.debug.OutputEventArguments;
 import org.eclipse.lsp4j.debug.ScopesArguments;
 import org.eclipse.lsp4j.debug.ScopesResponse;
 import org.eclipse.lsp4j.debug.SetBreakpointsArguments;
@@ -83,7 +84,7 @@ public class DebugTestRunner {
     private static final int MAX_RETRY_COUNT = 3;
     private BMainInstance balClient = null;
     private Process debuggeeProcess;
-    private DebugHitListener listener;
+    private DebugHitListener hitListener;
     private AssertionMode assertionMode;
     private SoftAssert softAsserter;
 
@@ -100,17 +101,16 @@ public class DebugTestRunner {
         assertionMode = AssertionMode.HARD_ASSERT;
     }
 
-    public static void initialize(Path projectResources, Path singleFileResources)
-        throws BallerinaTestException, IOException {
+    public static void initialize(Path projectDir, Path singleFileDir) throws BallerinaTestException, IOException {
         balServer = new BalServer();
         Path tempProjectDirectory = Files.createTempDirectory("bal-test-integration-debugger-project-");
 
         // Copy all the test resources to a temp dir.
         testSingleFileBaseDir = tempProjectDirectory.resolve("single-file-tests");
-        FileUtils.copyFolder(singleFileResources, testSingleFileBaseDir);
+        FileUtils.copyFolder(singleFileDir, testSingleFileBaseDir);
 
         testProjectBaseDir = tempProjectDirectory.resolve("project-based-tests");
-        FileUtils.copyFolder(projectResources, testProjectBaseDir);
+        FileUtils.copyFolder(projectDir, testProjectBaseDir);
     }
 
     public void setAssertionMode(AssertionMode assertionMode) {
@@ -363,21 +363,44 @@ public class DebugTestRunner {
      * @throws BallerinaTestException if a debug point is not found within the given time.
      */
     public Pair<BallerinaTestDebugPoint, StoppedEventArguments> waitForDebugHit(long timeoutMillis) throws
-        BallerinaTestException {
+            BallerinaTestException {
 
-        listener = new DebugHitListener(debugClientConnector);
+        hitListener = new DebugHitListener(debugClientConnector);
         Timer timer = new Timer(true);
-        timer.scheduleAtFixedRate(listener, 0, 1000);
+        timer.scheduleAtFixedRate(hitListener, 0, 1000);
         try {
             Thread.sleep(timeoutMillis);
         } catch (InterruptedException ignored) {
         }
         timer.cancel();
 
-        if (!listener.isDebugHitFound()) {
+        if (!hitListener.isDebugHitFound()) {
             throw new BallerinaTestException("Timeout expired waiting for the debug hit");
         }
-        return new ImmutablePair<>(listener.getDebugHitpoint(), listener.getDebugHitContext());
+        return new ImmutablePair<>(hitListener.getDebugHitpoint(), hitListener.getDebugHitContext());
+    }
+
+    /**
+     * Waits for a debugger output within the given timeout.
+     *
+     * @param timeoutMillis timeout.
+     * @return pair of the debug point and context details.
+     * @throws BallerinaTestException if a debug point is not found within the given time.
+     */
+    public Pair<String, OutputEventArguments> waitForDebugOutput(long timeoutMillis) throws BallerinaTestException {
+        DebugOutputListener outputListener = new DebugOutputListener(debugClientConnector);
+        Timer timer = new Timer(true);
+        timer.scheduleAtFixedRate(outputListener, 0, 1000);
+        try {
+            Thread.sleep(timeoutMillis);
+        } catch (InterruptedException ignored) {
+        }
+        timer.cancel();
+
+        if (!outputListener.isDebugOutputFound()) {
+            throw new BallerinaTestException("Timeout expired waiting for the debugger output");
+        }
+        return new ImmutablePair<>(outputListener.getLastOutputLog(), outputListener.getDebugOutputContext());
     }
 
     /**
@@ -410,7 +433,7 @@ public class DebugTestRunner {
     public Map<String, Variable> fetchVariables(StoppedEventArguments args, VariableScope scope)
         throws BallerinaTestException {
         Map<String, Variable> variables = new HashMap<>();
-        if (!listener.getConnector().isConnected()) {
+        if (!hitListener.getConnector().isConnected()) {
             return variables;
         }
         StackTraceArguments stackTraceArgs = new StackTraceArguments();
@@ -419,16 +442,16 @@ public class DebugTestRunner {
         stackTraceArgs.setThreadId(args.getThreadId());
 
         try {
-            StackTraceResponse stackTraceResp = listener.getConnector().getRequestManager()
+            StackTraceResponse stackTraceResp = hitListener.getConnector().getRequestManager()
                 .stackTrace(stackTraceArgs);
             StackFrame[] stackFrames = stackTraceResp.getStackFrames();
             if (stackFrames.length == 0) {
                 return variables;
             }
             scopeArgs.setFrameId(scope == VariableScope.LOCAL ? stackFrames[0].getId() : -stackFrames[0].getId());
-            ScopesResponse scopesResp = listener.getConnector().getRequestManager().scopes(scopeArgs);
+            ScopesResponse scopesResp = hitListener.getConnector().getRequestManager().scopes(scopeArgs);
             variableArgs.setVariablesReference(scopesResp.getScopes()[0].getVariablesReference());
-            VariablesResponse variableResp = listener.getConnector().getRequestManager().variables(variableArgs);
+            VariablesResponse variableResp = hitListener.getConnector().getRequestManager().variables(variableArgs);
             Arrays.stream(variableResp.getVariables())
                 .forEach(variable -> variables.put(variable.getName(), variable));
             return variables;
@@ -446,7 +469,7 @@ public class DebugTestRunner {
      * @throws BallerinaTestException if an error occurs when fetching stack frames.
      */
     public StackFrame[] fetchStackFrames(StoppedEventArguments args) throws BallerinaTestException {
-        if (!listener.getConnector().isConnected()) {
+        if (!hitListener.getConnector().isConnected()) {
             throw new BallerinaTestException("DAP Client connector is not connected");
         }
         StackTraceArguments stackTraceArgs = new StackTraceArguments();
@@ -455,7 +478,7 @@ public class DebugTestRunner {
         StackTraceResponse stackTraceResp;
 
         try {
-            stackTraceResp = listener.getConnector().getRequestManager().stackTrace(stackTraceArgs);
+            stackTraceResp = hitListener.getConnector().getRequestManager().stackTrace(stackTraceArgs);
             stackFrames = stackTraceResp.getStackFrames();
         } catch (Exception e) {
             LOGGER.warn("Error occurred when fetching stack frames", e);
@@ -471,14 +494,14 @@ public class DebugTestRunner {
      * @throws BallerinaTestException if an error occurs when fetching threads.
      */
     public org.eclipse.lsp4j.debug.Thread[] fetchThreads() throws BallerinaTestException {
-        if (!listener.getConnector().isConnected()) {
+        if (!hitListener.getConnector().isConnected()) {
             throw new BallerinaTestException("DAP Client connector is not connected");
         }
         org.eclipse.lsp4j.debug.Thread[] threads;
         ThreadsResponse threadsResponse;
 
         try {
-            threadsResponse = listener.getConnector().getRequestManager().threads();
+            threadsResponse = hitListener.getConnector().getRequestManager().threads();
             threads = threadsResponse.getThreads();
         } catch (Exception e) {
             LOGGER.warn("Error occurred when fetching threads", e);
@@ -499,7 +522,8 @@ public class DebugTestRunner {
             Map<String, Variable> variables = new HashMap<>();
             VariablesArguments childVarArgs = new VariablesArguments();
             childVarArgs.setVariablesReference(parentVariable.getVariablesReference());
-            VariablesResponse response = listener.getConnector().getRequestManager().variables(childVarArgs);
+            childVarArgs.setCount(parentVariable.getIndexedVariables());
+            VariablesResponse response = hitListener.getConnector().getRequestManager().variables(childVarArgs);
             Arrays.stream(response.getVariables()).forEach(variable -> variables.put(variable.getName(), variable));
             return variables;
         } catch (Exception e) {
@@ -605,14 +629,14 @@ public class DebugTestRunner {
      * @throws BallerinaTestException if an error occurs when evaluating the expression.
      */
     private Variable evaluateExpression(StoppedEventArguments args, String expr) throws BallerinaTestException {
-        if (!listener.getConnector().isConnected()) {
+        if (!hitListener.getConnector().isConnected()) {
             throw new BallerinaTestException("Connection error occurred when trying to fetch information from the " +
                 "debug server");
         }
         try {
             StackTraceArguments stackTraceArgs = new StackTraceArguments();
             stackTraceArgs.setThreadId(args.getThreadId());
-            StackTraceResponse stackTraceResp = listener.getConnector().getRequestManager()
+            StackTraceResponse stackTraceResp = hitListener.getConnector().getRequestManager()
                 .stackTrace(stackTraceArgs);
             StackFrame[] stackFrames = stackTraceResp.getStackFrames();
             if (stackFrames.length == 0) {
@@ -623,7 +647,7 @@ public class DebugTestRunner {
             EvaluateArguments evaluateArguments = new EvaluateArguments();
             evaluateArguments.setFrameId(stackFrames[0].getId());
             evaluateArguments.setExpression(expr);
-            EvaluateResponse evaluateResp = listener.getConnector().getRequestManager().evaluate(evaluateArguments);
+            EvaluateResponse evaluateResp = hitListener.getConnector().getRequestManager().evaluate(evaluateArguments);
 
             Variable result = new Variable();
             result.setName("Result");

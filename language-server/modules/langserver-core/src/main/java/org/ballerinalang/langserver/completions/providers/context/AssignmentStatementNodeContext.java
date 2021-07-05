@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ClassSymbol;
-import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -25,12 +24,10 @@ import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
@@ -61,7 +58,7 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
         }
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (this.onQualifiedNameIdentifier(context, node.expression())) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, node.expression())) {
             /*
             Captures the following cases
             (1) [module:]TypeName c = module:<cursor>
@@ -93,39 +90,20 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
     }
 
     @Override
-    public void sort(BallerinaCompletionContext context, AssignmentStatementNode node, 
+    public void sort(BallerinaCompletionContext context, AssignmentStatementNode node,
                      List<LSCompletionItem> completionItems) {
-        Optional<TypeSymbol> typeSymbolAtCursor = context.currentSemanticModel()
-                .flatMap(semanticModel -> semanticModel.symbol(node.varRef()))
-                .flatMap(SymbolUtil::getTypeDescriptor);
+
+        Optional<TypeSymbol> typeSymbolAtCursor = context.getContextType();
 
         if (typeSymbolAtCursor.isEmpty()) {
             super.sort(context, node, completionItems);
             return;
         }
-
         TypeSymbol symbol = typeSymbolAtCursor.get();
-        completionItems.forEach(completionItem -> {
-            int rank = SortingUtil.toRank(completionItem, 1);
-
-            // If a completion item is a symbol and is assignable to the variable at left hand side, 
-            // this assigns the highest rank to such variables and methods.
-            if (completionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
-                SymbolCompletionItem symbolCompletionItem = (SymbolCompletionItem) completionItem;
-
-                Optional<TypeSymbol> completionItemType =
-                        SymbolUtil.getTypeDescriptor(symbolCompletionItem.getSymbol());
-                if (completionItemType.isPresent() && completionItemType.get() instanceof FunctionTypeSymbol) {
-                    completionItemType = ((FunctionTypeSymbol) completionItemType.get()).returnTypeDescriptor();
-                }
-
-                if (completionItemType.isPresent() && completionItemType.get().assignableTo(symbol)) {
-                    rank = 1;
-                }
-            }
-
-            completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
-        });
+        for (LSCompletionItem completionItem : completionItems) {
+            completionItem.getCompletionItem()
+                    .setSortText(SortingUtil.genSortTextByAssignability(completionItem, symbol));
+        }
     }
 
     private List<LSCompletionItem> getNewExprCompletionItems(BallerinaCompletionContext context,

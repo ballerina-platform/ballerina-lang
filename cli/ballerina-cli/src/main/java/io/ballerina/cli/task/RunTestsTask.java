@@ -20,6 +20,7 @@ package io.ballerina.cli.task;
 
 import com.google.gson.Gson;
 import io.ballerina.cli.launcher.LauncherUtils;
+import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
@@ -65,6 +66,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +77,10 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.COVERAGE_DIR;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.DATA_KEY_SEPARATOR;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.MODULE_SEPARATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DATA_PLACEHOLDER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_ZIP_NAME;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RERUN_TEST_JSON_FILE;
@@ -99,25 +104,21 @@ public class RunTestsTask implements Task {
     private List<String> disableGroupList;
     private boolean report;
     private boolean coverage;
-    private boolean enableJacocoXML;
     private String coverageReportFormat;
     private boolean isSingleTestExecution;
     private boolean isRerunTestExecution;
     private List<String> singleExecTests;
     TestReport testReport;
 
-    public RunTestsTask(PrintStream out, PrintStream err, String includes, boolean enableJacocoXML,
-                        String coverageFormat) {
+    public RunTestsTask(PrintStream out, PrintStream err, String includes, String coverageFormat) {
         this.out = out;
         this.err = err;
         this.includesInCoverage = includes;
-        this.enableJacocoXML = enableJacocoXML;
         this.coverageReportFormat = coverageFormat;
     }
 
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, List<String> groupList,
-                        List<String> disableGroupList, List<String> testList, String includes, boolean enableJacocoXML,
-                        String coverageFormat) {
+                        List<String> disableGroupList, List<String> testList, String includes, String coverageFormat) {
         this.out = out;
         this.err = err;
         this.isSingleTestExecution = false;
@@ -139,12 +140,15 @@ public class RunTestsTask implements Task {
             singleExecTests = testList;
         }
         this.includesInCoverage = includes;
-        this.enableJacocoXML = enableJacocoXML;
         this.coverageReportFormat = coverageFormat;
     }
 
     @Override
     public void execute(Project project) {
+        long start = 0;
+        if (project.buildOptions().dumpBuildTime()) {
+            start = System.currentTimeMillis();
+        }
         try {
             ProjectUtils.checkExecutePermission(project.sourceRoot());
         } catch (ProjectException e) {
@@ -183,11 +187,10 @@ public class RunTestsTask implements Task {
         TestProcessor testProcessor = new TestProcessor(jarResolver);
         List<String> moduleNamesList = new ArrayList<>();
         Map<String, TestSuite> testSuiteMap = new HashMap<>();
-
+        List<String> updatedSingleExecTests;
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "bal test" command which only executes tests
         // in packages.
-
         for (ModuleId moduleId : project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
             Module module = project.currentPackage().module(moduleId);
             ModuleName moduleName = module.moduleName();
@@ -210,7 +213,13 @@ public class RunTestsTask implements Task {
                 singleExecTests = readFailedTestsFromFile(target.path());
             }
             if (isSingleTestExecution || isRerunTestExecution) {
-                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, singleExecTests));
+                // Update data driven tests with key
+                updatedSingleExecTests = filterKeyBasedTests(moduleName.moduleNamePart(), suite, singleExecTests);
+                if (!updatedSingleExecTests.isEmpty()) {
+                    suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, updatedSingleExecTests));
+                } else {
+                    suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, singleExecTests));
+                }
             }
             if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
                 suite.setSourceFileName(project.sourceRoot().getFileName().toString());
@@ -259,6 +268,80 @@ public class RunTestsTask implements Task {
 
         // Cleanup temp cache for SingleFileProject
         cleanTempCache(project, cachesRoot);
+        if (project.buildOptions().dumpBuildTime()) {
+            BuildTime.getInstance().testingExecutionDuration = System.currentTimeMillis() - start;
+        }
+    }
+
+    /**
+     * Check whether this module is included in the provided test name.
+     *
+     * @param testName String
+     * @param packageID String
+     * @param moduleName String
+     * @return boolean
+     */
+    private boolean includesModule(String testName, String packageID, String moduleName) {
+        boolean flag = false;
+        if (testName.contains(MODULE_SEPARATOR)) {
+            String[] functionDetail = testName.split(MODULE_SEPARATOR);
+            try {
+                if (functionDetail[0].equals(packageID) || functionDetail[0].equals(packageID + DOT + moduleName)) {
+                    flag = true;
+                }
+            } catch (IndexOutOfBoundsException e) {
+                throw createLauncherException("error occurred while executing tests. Test list cannot be empty", e);
+            }
+        } else {
+            flag = true;
+        }
+        return flag;
+    }
+
+    /**
+     * Update test filters using the given data keys.
+     *
+     * @param moduleName String
+     * @param suite TestSuite
+     * @param singleExecTests List<String>
+     * @return List of updated tests
+     */
+    private List<String> filterKeyBasedTests(String moduleName, TestSuite suite, List<String> singleExecTests) {
+        List<String> updatedSingleExecTests = new ArrayList<>();
+        Map<String, List<String>> keyValues = new HashMap<>();
+        for (String testName : singleExecTests) {
+            if (testName.contains(DATA_KEY_SEPARATOR) && includesModule(testName, suite.getPackageID(), moduleName)) {
+                try {
+                    // Separate test name and the data set key
+                    String originalTestName = testName.substring(0, testName.indexOf(DATA_KEY_SEPARATOR));
+                    String caseValue = testName.substring(testName.indexOf(DATA_KEY_SEPARATOR) + 1);
+                    if (originalTestName.contains(MODULE_SEPARATOR)) {
+                        originalTestName = originalTestName.split(MODULE_SEPARATOR)[1];
+                    }
+                    if (keyValues.containsKey(originalTestName)) {
+                        keyValues.get(originalTestName).add(caseValue);
+                    } else {
+                        keyValues.put(originalTestName, new ArrayList<>(Arrays.asList(caseValue)));
+                    }
+                    // Update the test name in the filtered test list
+                    if (!updatedSingleExecTests.contains(originalTestName)) {
+                        updatedSingleExecTests.add(originalTestName);
+                    }
+                } catch (IndexOutOfBoundsException e) {
+                    throw createLauncherException("error occurred while filtering tests based on provided key values",
+                            e);
+                }
+            } else {
+                if (!updatedSingleExecTests.contains(testName)) {
+                    updatedSingleExecTests.add(testName);
+                }
+            }
+        }
+        if (!keyValues.isEmpty()) {
+            suite.setSingleDDTExecution(true);
+            suite.setDataKeyValues(keyValues);
+        }
+        return updatedSingleExecTests;
     }
 
     private void generateCoverage(Project project, JBallerinaBackend jBallerinaBackend)
@@ -282,8 +365,7 @@ public class RunTestsTask implements Task {
             CoverageReport coverageReport = new CoverageReport(module, moduleCoverageMap,
                     packageNativeClassCoverageList, packageBalClassCoverageList, packageSourceCoverageList,
                     packageExecData, packageSessionInfo);
-            coverageReport.generateReport(jBallerinaBackend, this.includesInCoverage, this.enableJacocoXML,
-                    this.coverageReportFormat);
+            coverageReport.generateReport(jBallerinaBackend, this.includesInCoverage, this.coverageReportFormat);
         }
         // Traverse coverage map and add module wise coverage to test report
         for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
@@ -292,7 +374,7 @@ public class RunTestsTask implements Task {
             testReport.addCoverage(moduleName, moduleCoverage);
         }
         if (CodeCoverageUtils.isRequestedReportFormat(this.coverageReportFormat,
-                TesterinaConstants.JACOCO_XML_FORMAT) || enableJacocoXML) {
+                TesterinaConstants.JACOCO_XML_FORMAT)) {
             // Generate coverage XML report
             CodeCoverageUtils.createXMLReport(project, packageExecData, packageNativeClassCoverageList,
                     packageBalClassCoverageList, packageSourceCoverageList, packageSessionInfo);

@@ -160,3 +160,36 @@ type Employee record {
 };
 
 type EmployeeTable table<Employee> key(name);
+
+class A {
+
+}
+
+readonly & A[] a = [];
+
+type Row record {
+    readonly A[] k;
+    int value;
+};
+
+table<Row> key(k) t = table [
+    { k: a, value: 17, "b":12}
+];
+
+type Row2 record {
+    readonly int k;
+    readonly string[] m;
+    int value;
+};
+
+int intVal = 12;
+
+table<Row2> key(k) t2 = table [
+    { k: intVal, m: ["foo", "bar"], value: 17, "b":12}
+];
+
+readonly & string[] stringArr = ["foo", "bar"];
+
+table<Row2> key(k, m) t3 = table [
+    { k: 20, m: stringArr, value: 17, "b":12}
+];

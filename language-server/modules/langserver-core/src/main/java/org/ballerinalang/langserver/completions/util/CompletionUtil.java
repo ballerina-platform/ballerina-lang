@@ -18,6 +18,8 @@ package org.ballerinalang.langserver.completions.util;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
@@ -28,11 +30,12 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider;
 import org.ballerinalang.langserver.completions.ProviderFactory;
 import org.ballerinalang.langserver.util.TokensUtil;
-import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionTriggerKind;
 import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,16 +46,29 @@ import java.util.stream.Collectors;
  */
 public class CompletionUtil {
 
+    private CompletionUtil() {
+    }
+
     /**
      * Get the completion Items for the context.
      *
      * @param ctx Completion context
      * @return {@link List}         List of resolved completion Items
      */
-    public static List<CompletionItem> getCompletionItems(BallerinaCompletionContext ctx) throws LSCompletionException,
-            TokenOrSymbolNotFoundException {
+    public static List<CompletionItem> getCompletionItems(BallerinaCompletionContext ctx) throws LSCompletionException {
         fillTokenInfoAtCursor(ctx);
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
+        /*
+        Here we skip auto completion for the cases where the token at cursor is `>`. `>` is added as a trigger 
+        character, in order to trigger completions for `->`. This leads to completion trigger for un wanted cases.
+         */
+        String triggerCharacter = ctx.getCompletionParams().getContext().getTriggerCharacter();
+        CompletionTriggerKind triggerKind = ctx.getCompletionParams().getContext().getTriggerKind();
+        if (triggerKind == CompletionTriggerKind.TriggerCharacter
+                && triggerCharacter.equals(SyntaxKind.GT_TOKEN.stringValue())
+                && ctx.getTokenAtCursor().kind() != SyntaxKind.RIGHT_ARROW_TOKEN) {
+            return Collections.emptyList();
+        }
         List<LSCompletionItem> items = route(ctx, nodeAtCursor);
 
         return items.stream()
@@ -102,12 +118,13 @@ public class CompletionUtil {
     /**
      * Find the token at cursor.
      */
-    public static void fillTokenInfoAtCursor(BallerinaCompletionContext context) throws TokenOrSymbolNotFoundException {
-        context.setTokenAtCursor(TokensUtil.findTokenAtPosition(context, context.getCursorPosition()));
+    public static void fillTokenInfoAtCursor(BallerinaCompletionContext context) {
+        Optional<Token> tokenAtCursor = TokensUtil.findTokenAtPosition(context, context.getCursorPosition());
         Optional<Document> document = context.currentDocument();
-        if (document.isEmpty()) {
-            throw new RuntimeException("Could not find a valid document");
+        if (document.isEmpty() || tokenAtCursor.isEmpty()) {
+            throw new RuntimeException("Could not find a valid document/token");
         }
+        context.setTokenAtCursor(tokenAtCursor.get());
         TextDocument textDocument = document.get().textDocument();
 
         Position position = context.getCursorPosition();
@@ -117,25 +134,6 @@ public class CompletionUtil {
         TextRange range = TextRange.from(txtPos, 0);
         NonTerminalNode nonTerminalNode = ((ModulePartNode) document.get().syntaxTree().rootNode()).findNode(range);
 
-        while (true) {
-            /*
-            ModulePartNode's parent is null
-             */
-            if (nonTerminalNode.parent() != null && !withinTextRange(txtPos, nonTerminalNode)) {
-                nonTerminalNode = nonTerminalNode.parent();
-                continue;
-            }
-            break;
-        }
-
         context.setNodeAtCursor(nonTerminalNode);
-    }
-
-    private static boolean withinTextRange(int position, NonTerminalNode node) {
-        TextRange rangeWithMinutiae = node.textRangeWithMinutiae();
-        TextRange textRange = node.textRange();
-        TextRange leadingMinutiaeRange = TextRange.from(rangeWithMinutiae.startOffset(),
-                textRange.startOffset() - rangeWithMinutiae.startOffset());
-        return leadingMinutiaeRange.endOffset() <= position;
     }
 }

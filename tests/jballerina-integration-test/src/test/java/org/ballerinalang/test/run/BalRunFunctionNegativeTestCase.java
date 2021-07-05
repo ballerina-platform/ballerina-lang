@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.test.run;
 
 import org.ballerinalang.test.BaseTest;
@@ -24,43 +25,38 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.LogLeecher.LeecherType;
 import org.testng.annotations.Test;
 
-import java.io.File;
+import java.nio.file.Paths;
 
 /**
- * This class tests invoking an entry function in a bal file via the Ballerina Run Command and the data binding
- * functionality.
- *
- * e.g., ballerina run abc.bal:nomoremain 1 "Hello World" data binding main
- *  where nomoremain is the following function
- *      public function nomoremain(int i, string s, string... args) {
- *          ...
- *      }
+ * This class tests invoking an entry function in a bal file via the Ballerina Run Command.
  */
 public class BalRunFunctionNegativeTestCase extends BaseTest {
-
-    private static final int LOG_LEECHER_TIMEOUT = 10000;
-
-    @Test(enabled = false, description = "test insufficient arguments")
+    @Test
     public void testInsufficientArguments() throws BallerinaTestException {
-        LogLeecher errLogLeecher = new LogLeecher("ballerina: insufficient arguments to call the 'main' function",
-                                                  LeecherType.ERROR);
-        String balFile = (new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                                           "run" + File.separator + "file" + File.separator +
-                                           "test_main_with_multiple_typed_params" + ".bal")).getAbsolutePath();
-        BMainInstance bMainInstance = new BMainInstance(balServer);
-        bMainInstance.runMain(balFile, new LogLeecher[] { errLogLeecher });
-        errLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
+        executeTest("error: missing operand arguments for parameter 'i' of type 'int'",
+                    "test_main_with_multiple_typed_params.bal");
     }
 
-    @Test(enabled = false, description = "test too many arguments")
+    @Test
     public void testTooManyArguments() throws BallerinaTestException {
-        LogLeecher errLogLeecher = new LogLeecher("ballerina: too many arguments to call the 'main' function",
-                                                  LeecherType.ERROR);
-        String balFile = (new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                                           "run" + File.separator + "file" + File.separator +
-                                           "test_main_with_no_params.bal")).getAbsolutePath();
+        executeTest("error: all operand arguments are not matched", "test_main_with_no_params.bal", "extra");
+    }
+
+    @Test
+    public void testErrorReturnFromMain() throws BallerinaTestException {
+        executeTest("error: Returning an error", "main_error_return.bal");
+    }
+
+    @Test
+    public void testErrorPanicInMain() throws BallerinaTestException {
+        executeTest("error: Returning an error", "main_error_panic.bal");
+    }
+
+    private void executeTest(String message, String fileName, String... args) throws BallerinaTestException {
+        LogLeecher errLogLeecher = new LogLeecher(message, LeecherType.ERROR);
+        String balFile = Paths.get("src", "test", "resources", "run", "file", fileName).toAbsolutePath().toString();
         BMainInstance bMainInstance = new BMainInstance(balServer);
-        bMainInstance.runMain(balFile, new String[] {}, new String[] { "extra" }, new LogLeecher[] { errLogLeecher });
-        errLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
+        bMainInstance.runMain(balFile, new String[0], args, new LogLeecher[]{errLogLeecher});
+        errLogLeecher.waitForText(10000);
     }
 }

@@ -9,14 +9,15 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
+      "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "rec2Field1",
       "kind": "Field",
-      "detail": "int",
+      "detail": "(record {| int rec2Field1; string rec3Field2; anydata...; |}).rec2Field1",
       "sortText": "G",
       "insertText": "rec2Field1: ${1:0}",
       "insertTextFormat": "Snippet"
@@ -24,16 +25,17 @@
     {
       "label": "rec3Field2",
       "kind": "Field",
-      "detail": "string",
+      "detail": "(record {| int rec2Field1; string rec3Field2; anydata...; |}).rec3Field2",
       "sortText": "G",
       "insertText": "rec3Field2: \"${2}\"",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Add All Attributes",
+      "label": "Fill record {| int rec2Field1; string rec3Field2; anydata...; |} Required Fields",
       "kind": "Property",
-      "detail": "none",
-      "sortText": "Q",
+      "detail": "record {| int rec2Field1; string rec3Field2; anydata...; |}",
+      "sortText": "R",
+      "filterText": "fill",
       "insertText": "rec2Field1: 0,\nrec3Field2: \"\"",
       "insertTextFormat": "Snippet"
     }

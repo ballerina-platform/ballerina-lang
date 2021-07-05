@@ -56,6 +56,7 @@ public class BUnionType extends BType implements UnionType {
     public Boolean isPureType = null;
     public boolean isCyclic = false;
 
+
     private LinkedHashSet<BType> originalMemberTypes;
     private static final String INT_CLONEABLE = "__Cloneable";
     private static final String CLONEABLE = "Cloneable";
@@ -82,6 +83,24 @@ public class BUnionType extends BType implements UnionType {
         this.originalMemberTypes = originalMemberTypes;
         this.memberTypes = memberTypes;
         this.nullable = nullable;
+    }
+
+    private BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly,
+                       boolean isCyclic) {
+        super(TypeTags.UNION, tsymbol);
+
+        if (readonly) {
+            this.flags |= Flags.READONLY;
+
+            if (tsymbol != null) {
+                this.tsymbol.flags |= Flags.READONLY;
+            }
+        }
+
+        this.originalMemberTypes = memberTypes;
+        this.memberTypes = memberTypes;
+        this.nullable = nullable;
+        this.isCyclic = isCyclic;
     }
 
     @Override
@@ -126,39 +145,32 @@ public class BUnionType extends BType implements UnionType {
 
     @Override
     public String toString() {
-        if (this.cachedToString != null) {
-            return this.cachedToString;
-        }
-
-        // This logic is added to prevent duplicate recursive calls to toString
-        if (this.resolvingToString) {
-            if (tsymbol != null && !tsymbol.getName().getValue().isEmpty()) {
-                return this.tsymbol.toString();
-            }
+        if (resolvingToString) {
             return "...";
         }
-
-        if (tsymbol != null && !tsymbol.getName().getValue().isEmpty()) {
-            String typeName = this.tsymbol.getName().getValue();
-            // improve readability of cyclic union types
-            if (isCyclic && (pCloneable.matcher(typeName).matches() ||
-                    Symbols.isFlagOn(this.flags, Flags.TYPE_PARAM) && pCloneableType.matcher(typeName).matches())) {
-                return this.tsymbol.pkgID.toString() + ":" + CLONEABLE;
-            }
-
-            if (!Symbols.isFlagOn(this.flags, Flags.TYPE_PARAM)) {
-                return this.tsymbol.toString();
-            }
-        }
-
-        this.resolvingToString = true;
-        this.cachedToString = computeStringRepresentation();
-        this.resolvingToString = false;
-        return this.cachedToString;
+        resolvingToString = true;
+        computeStringRepresentation();
+        resolvingToString = false;
+        return cachedToString;
     }
 
     public void setNullable(boolean nullable) {
         this.nullable = nullable;
+    }
+
+    /**
+     * Creates an empty union for cyclic union types.
+     *
+     * @param tsymbol Type symbol for the union.
+     * @param types   The types to be used to define the union.
+     * @param isCyclic The cyclic indicator.
+     * @return The created union type.
+     */
+    public static BUnionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types, boolean isCyclic) {
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(types.size());
+        boolean isImmutable = true;
+        boolean hasNilableType = false;
+        return new BUnionType(tsymbol, memberTypes, hasNilableType, isImmutable, isCyclic);
     }
 
     /**
@@ -407,20 +419,40 @@ public class BUnionType extends BType implements UnionType {
         return this.immutableType;
     }
 
-    private String computeStringRepresentation() {
-        LinkedHashSet<BType> uniqueTypes = new LinkedHashSet<>();
-        for (BType bType : this.originalMemberTypes) {
+    private String getQualifiedName(String pkg, String name) {
+        return (pkg.isBlank() || pkg.equals(".")) ? name : pkg + ":" + name;
+    }
+
+    private void computeStringRepresentation() {
+        if (cachedToString != null) {
+            return;
+        }
+        if (tsymbol != null && !tsymbol.getName().getValue().isEmpty()) {
+            String typeName = tsymbol.getName().getValue();
+            String packageId = tsymbol.pkgID.toString();
+            boolean isTypeParam = Symbols.isFlagOn(flags, Flags.TYPE_PARAM);
+            // improve readability of cyclic union types
+            if (isCyclic && (pCloneable.matcher(typeName).matches() ||
+                    (isTypeParam && pCloneableType.matcher(typeName).matches()))) {
+                cachedToString = getQualifiedName(packageId, CLONEABLE);
+                return;
+            }
+            if (!isTypeParam) {
+                cachedToString = getQualifiedName(packageId, typeName);
+                return;
+            }
+        }
+        LinkedHashSet<BType> uniqueTypes = new LinkedHashSet<>(originalMemberTypes.size());
+        for (BType bType : originalMemberTypes) {
             if (bType.tag != TypeTags.UNION) {
                 uniqueTypes.add(bType);
                 continue;
             }
-
             BTypeSymbol tsymbol = bType.tsymbol;
             if (tsymbol != null &&  !tsymbol.getName().getValue().isEmpty()) {
                 uniqueTypes.add(bType);
                 continue;
             }
-
             uniqueTypes.addAll(((BUnionType) bType).originalMemberTypes);
         }
 
@@ -447,9 +479,10 @@ public class BUnionType extends BType implements UnionType {
             }
         }
 
-        String typeStr = numberOfNotNilTypes > 1 ? "(" + joiner.toString() + ")" : joiner.toString();
+        String typeStr = numberOfNotNilTypes > 1 ? "(" + joiner + ")" : joiner.toString();
         boolean hasNilType = uniqueTypes.size() > numberOfNotNilTypes;
-        return (nullable && hasNilType && !hasNilableMember) ? (typeStr + Names.QUESTION_MARK.value) : typeStr;
+        cachedToString = (nullable && hasNilType && !hasNilableMember) ? (typeStr + Names.QUESTION_MARK.value) :
+                typeStr;
     }
 
     @Override

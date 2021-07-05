@@ -132,17 +132,10 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-        expectedExceptionsMessageRegExp = ".*'function \\(string,int\\) returns \\(string\\)' cannot be cast to " +
-                "'function \\(string\\) returns \\(string\\)'.*")
+        expectedExceptionsMessageRegExp = ".*'isolated function \\(string,int\\) returns \\(string\\)' cannot be cast" +
+                " to 'function \\(string\\) returns \\(string\\)'.*")
     public void testFunctionCastNegative() {
         BRunUtil.invoke(result, "testFunctionCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: \\{ballerina}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'future' cannot be cast to 'future'\"}.*")
-    public void testFutureCastNegative() {
-        BRunUtil.invoke(result, "testFutureCastNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -188,6 +181,11 @@ public class TypeCastExpressionsTest {
         BRunUtil.invoke(result, "testMutableJsonMappingToExclusiveRecordNegative");
     }
 
+    @Test
+    public void testTypeCastInConstructorMemberWithUnionCET() {
+        BRunUtil.invoke(result, "testTypeCastInConstructorMemberWithUnionCET");
+    }
+
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'int'.*")
     public void testStringAsInvalidBasicType() {
@@ -200,7 +198,7 @@ public class TypeCastExpressionsTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "incompatible types: 'function (string,int) returns (string)' cannot be cast to " +
+                            "incompatible types: 'isolated function (string,int) returns (string)' cannot be cast to " +
                                     "'function (string) returns (string)'");
     }
 
@@ -291,6 +289,14 @@ public class TypeCastExpressionsTest {
                 , 13);
         validateError(resultNegative, errIndex++, "incompatible types: '(json|error)' cannot be cast to 'string'", 69,
                 13);
+        validateError(resultNegative, errIndex++, "incompatible types: '(string[]|int)' cannot be cast to 'byte[]'",
+                78, 32);
+        validateError(resultNegative, errIndex++, "incompatible mapping constructor expression for type '(record {| " +
+                        "byte[] a; anydata...; |}|record {| string a; anydata...; |})'", 79, 47);
+        validateError(resultNegative, errIndex++, "incompatible types: '(string[]|int)' cannot be cast to 'byte[]'",
+                79, 51);
+        validateError(resultNegative, errIndex++, "incompatible mapping constructor expression for type '(record {| " +
+                "string[] a; anydata...; |}|record {| string a; anydata...; |})'", 82, 49);
         Assert.assertEquals(resultNegative.getErrorCount(), errIndex);
     }
 
@@ -333,6 +339,14 @@ public class TypeCastExpressionsTest {
     }
 
     @DataProvider
+    public Object[][] futureCastNegativeTests() {
+        return new Object[][] {
+                {"testFutureCastNegative"},
+                {"testFutureOfFutureValueCastNegative"}
+        };
+    }
+
+    @DataProvider
     public Object[][] stringAsStringTests() {
         String[] asStringTestFunctions = new String[]{"testStringAsString", "testStringInUnionAsString"};
         String[] stringValues = new String[]{"a", "", "Hello, from Ballerina!"};
@@ -370,6 +384,11 @@ public class TypeCastExpressionsTest {
     @Test(dataProvider = "positiveTests")
     public void testJsonMappingToRecordPositive(String functionName) {
         BRunUtil.invoke(result, functionName);
+    }
+
+    @Test(dataProvider = "futureCastNegativeTests")
+    public void testFutureCastNegative(String function) {
+        BRunUtil.invoke(result, function);
     }
 
     @AfterClass

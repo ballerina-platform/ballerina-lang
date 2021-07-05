@@ -70,6 +70,7 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
+import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 
 /**
@@ -344,7 +345,9 @@ public class JBallerinaBackend extends CompilerBackend {
             String documentName = moduleContext.documentContext(documentId).name();
             jarName = getFileNameWithoutExtension(documentName);
         } else {
-            jarName = moduleContext.moduleName().toString();
+            jarName = getThinJarFileName(moduleContext.descriptor().org(),
+                                         moduleContext.moduleName().toString(),
+                                         moduleContext.descriptor().version());
         }
 
         return jarName;
@@ -502,16 +505,9 @@ public class JBallerinaBackend extends CompilerBackend {
 
         try {
             assembleExecutableJar(executableFilePath, manifest, jarLibraries);
-
-            // TODO: Move to a compiler extension once Compiler revamp is complete
-            if (packageContext.compilationOptions().observabilityIncluded()) {
-                ObservabilitySymbolCollector observabilitySymbolCollector
-                        = ObservabilitySymbolCollectorRunner.getInstance(compilerContext);
-                observabilitySymbolCollector.writeToExecutable(executableFilePath);
-            }
         } catch (IOException e) {
-            throw new ProjectException("error while creating the executable jar file for package: " +
-                    this.packageContext.packageName(), e);
+            throw new ProjectException("error while creating the executable jar file for package '" +
+                    this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
         }
         return executableFilePath;
     }

@@ -87,16 +87,14 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(ModulePartNodeContextUtil.getTopLevelItems(context));
-        completionItems.addAll(this.getTypeItems(context));
-        completionItems.addAll(this.getModuleCompletionItems(context));
+        completionItems.addAll(this.getTypeDescContextItems(context));
 
         return completionItems;
     }
 
 
     @Override
-    public void sort(BallerinaCompletionContext context, ModulePartNode node, List<LSCompletionItem> items,
-                     Object... metaData) {
+    public void sort(BallerinaCompletionContext context, ModulePartNode node, List<LSCompletionItem> items) {
         ModulePartNodeContextUtil.sort(items);
     }
 }

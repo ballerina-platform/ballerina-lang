@@ -648,6 +648,40 @@ function testLambdaWithWorkerMessagePassing() {
     }
 }
 
+function workerInteractionAfterCheckExpr(boolean errorInBar) returns int|error {
+    worker A returns (error)|string? {
+        check foo();
+        42 -> function;
+    }
+
+    worker B returns Error? {
+        check bar(errorInBar);
+        42 -> function;
+    }
+
+    int x = check <- A;
+    int y = check <- B;
+    return x;
+}
+
+function foo() returns error? => ();
+
+type Error distinct error;
+
+function bar(boolean b) returns Error? {
+    return b ? error("Error") : ();
+}
+
+function testWorkerInteractionsAfterCheck() {
+    var r = workerInteractionAfterCheckExpr(false);
+    if !(r is int && r == 42) {
+        panic error("Assertion error: expected `42` found: " + (typeof(r)).toString());
+    }
+
+    var e = workerInteractionAfterCheckExpr(true);
+    validateError(e, "Error");
+}
+
 public function sleep(int millis) = @java:Method {
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;

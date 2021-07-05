@@ -9,7 +9,7 @@
       "label": "ErrorOne",
       "kind": "Event",
       "detail": "Error",
-      "sortText": "Q",
+      "sortText": "L",
       "insertText": "ErrorOne",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +17,7 @@
       "label": "ErrorTwo",
       "kind": "Event",
       "detail": "Error",
-      "sortText": "Q",
+      "sortText": "L",
       "insertText": "ErrorTwo",
       "insertTextFormat": "Snippet"
     }

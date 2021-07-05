@@ -18,6 +18,7 @@
 
 package io.ballerina.cli.task;
 
+import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
@@ -65,7 +66,15 @@ public class CreateBalaTask implements Task {
         try {
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+            long start = 0;
+            if (project.buildOptions().dumpBuildTime()) {
+                start = System.currentTimeMillis();
+            }
             emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
+            if (project.buildOptions().dumpBuildTime()) {
+                BuildTime.getInstance().emitArtifactDuration = System.currentTimeMillis() - start;
+                BuildTime.getInstance().compile = true;
+            }
         } catch (ProjectException e) {
             throw createLauncherException("BALA creation failed:" + e.getMessage());
         }

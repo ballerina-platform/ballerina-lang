@@ -32,8 +32,6 @@ import java.util.Map;
 
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_DATA_ENV_VARIABLE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILES_ENV_VARIABLE;
-import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.SECRET_DATA_ENV_VARIABLE;
-import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.SECRET_FILE_ENV_VARIABLE;
 import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
 
 /**
@@ -95,13 +93,16 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testBallerinaTestAPIWithConfigurableVariables() throws BallerinaTestException {
-        LogLeecher testLog = new LogLeecher("4 passing");
+        LogLeecher testLog1 = new LogLeecher("5 passing");
+        LogLeecher testLog2 = new LogLeecher("4 passing");
         bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
-                              new LogLeecher[]{testLog}, testFileLocation + "/testProject");
-        testLog.waitForText(5000);
+                              new LogLeecher[]{testLog1, testLog2}, testFileLocation + "/testProject");
+        testLog1.waitForText(5000);
+        testLog1.waitForText(5000);
 
-        String errorMsg = "error: configurable variable 'invalidMap' with type 'map<(anydata & readonly)> &" +
-                " readonly' is not supported";
+        // Testing `bal test` command error log for configurables
+        String errorMsg = "error: [Config.toml:(3:1,3:22)] configurable variable 'invalidMap' is expected to be of " +
+                "type 'map<string> & readonly', but found 'string'";
         String errorLocationMsg = "\tat testOrg/configPkg:0.1.0(tests/main_test.bal:19)";
         LogLeecher errorLog = new LogLeecher(errorMsg, ERROR);
         LogLeecher errorLocationLog = new LogLeecher(errorLocationMsg, ERROR);
@@ -114,8 +115,8 @@ public class ConfigurableTest extends BaseTest {
     public void testEnvironmentVariableBasedConfigurable() throws BallerinaTestException {
 
         // test config file location through `BAL_CONFIG_FILES` env variable
-        String configFilePaths = Paths.get(testFileLocation, "config_files", "Config-A.toml").toString() +
-                File.pathSeparator + Paths.get(testFileLocation, "config_files", "Config-B.toml").toString();
+        String configFilePaths = Paths.get(testFileLocation, "config_files", "Config-A.toml") +
+                File.pathSeparator + Paths.get(testFileLocation, "config_files", "Config-B.toml");
         executeBalCommand("", "envVarPkg",
                           addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE,
                                                                           configFilePaths))));
@@ -127,30 +128,21 @@ public class ConfigurableTest extends BaseTest {
                 "decimalArr = [8.9, 4.5, 6.2]";
         executeBalCommand("", "envVarPkg",
                 addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
-
-        // test configuration through `BAL_CONFIG_SECRET_FILE` env variable
-        String secretFilePath = Paths.get(testFileLocation, "config_files", "Config-secrets.toml").toString();
-        executeBalCommand("", "envVarPkg",
-                addEnvironmentVariables(Map.ofEntries(Map.entry(SECRET_FILE_ENV_VARIABLE, secretFilePath))));
-
-        // test configuration through `BAL_CONFIG_SECRET_DATA` env variable
-        executeBalCommand("", "envVarPkg",
-                          addEnvironmentVariables(Map.ofEntries(Map.entry(SECRET_DATA_ENV_VARIABLE, configData))));
     }
 
     @Test
-    public void testSecretFileOverriding() throws BallerinaTestException {
+    public void testConfigOverriding() throws BallerinaTestException {
         // Check multiple cases of TOML values getting overridden
-        String secretFilePath =  Paths.get(testFileLocation, "config_files", "Config-secrets.toml").toString();
-        String configFilePath =  Paths.get(testFileLocation, "config_files", "Config-override.toml").toString();
+        String configFilePath1 =  Paths.get(testFileLocation, "config_files", "Config.toml").toString();
+        String configFilePath2 =  Paths.get(testFileLocation, "config_files", "Config-override.toml").toString();
 
-        // test secret file overriding config file
+
+        // test config file overriding another config file
         Map<String, String> envVarMap = Map.ofEntries(
-                Map.entry(SECRET_FILE_ENV_VARIABLE, secretFilePath),
-                Map.entry(CONFIG_FILES_ENV_VARIABLE, configFilePath));
+                Map.entry(CONFIG_FILES_ENV_VARIABLE, configFilePath1 + File.pathSeparator + configFilePath2));
         executeBalCommand("", "envVarPkg", addEnvironmentVariables(envVarMap));
 
-        // test secret file overriding config content
+        // test config file overriding config content
         String configData = "[envVarPkg] " +
                 "booleanVar = false " +
                 "decimalVar = 12.34 " +
@@ -163,34 +155,11 @@ public class ConfigurableTest extends BaseTest {
                 "intArr = [1, 9, 2, 8] " +
                 "stringArr = [\"this\", \"should\", \"get\", \"overridden\"]";
         envVarMap = Map.ofEntries(
-                Map.entry(SECRET_FILE_ENV_VARIABLE, secretFilePath),
+                Map.entry(CONFIG_FILES_ENV_VARIABLE, configFilePath1),
                 Map.entry(CONFIG_DATA_ENV_VARIABLE, configData));
         executeBalCommand("", "envVarPkg", addEnvironmentVariables(envVarMap));
 
-        // test secret content overriding config file
-        String secretData = "[envVarPkg] " +
-                "intVar = 42 " +
-                "floatVar = 3.5 " +
-                "stringVar = \"abc\" " +
-                "booleanVar = true " +
-                "decimalVar = 24.87 " +
-                "intArr = [1,2,3] " +
-                "floatArr = [9.0, 5.6] " +
-                "stringArr = [\"red\", \"yellow\", \"green\"] " +
-                "booleanArr = [true, false, false, true] " +
-                "decimalArr = [8.9, 4.5, 6.2] ";
-        envVarMap = Map.ofEntries(
-                Map.entry(SECRET_DATA_ENV_VARIABLE, secretData),
-                Map.entry(CONFIG_FILES_ENV_VARIABLE, configFilePath));
-        executeBalCommand("", "envVarPkg", addEnvironmentVariables(envVarMap));
-
-        // test secret content overriding config content
-        envVarMap = Map.ofEntries(
-                Map.entry(SECRET_DATA_ENV_VARIABLE, secretData),
-                Map.entry(CONFIG_DATA_ENV_VARIABLE, configData));
-        executeBalCommand("", "envVarPkg", addEnvironmentVariables(envVarMap));
-
-        // test secret file overriding config file when using default path
+        // test configuration using default path
         executeBalCommand("", "envVarPkg", null);
     }
 
@@ -201,7 +170,13 @@ public class ConfigurableTest extends BaseTest {
 
     @Test()
     public void testConfigurableRecordsAndRecordTables() throws BallerinaTestException {
-        executeBalCommand("/configStructuredTypesProject", "configStructuredTypes", null);
+        String project = "configStructuredTypesProject";
+        String configFilePaths = Paths.get(testFileLocation, project, "Config_records.toml") +
+                File.pathSeparator + Paths.get(testFileLocation, project, "Config_maps.toml") +
+                File.pathSeparator + Paths.get(testFileLocation, project, "Config_open_records.toml") +
+                File.pathSeparator + Paths.get(testFileLocation, project, "Config_tables.toml");
+        executeBalCommand("/" + project, "configStructuredTypes",
+                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE, configFilePaths))));
     }
 
     @Test()

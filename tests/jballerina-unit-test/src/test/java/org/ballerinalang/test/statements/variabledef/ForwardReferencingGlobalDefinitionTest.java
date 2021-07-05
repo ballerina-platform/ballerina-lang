@@ -41,14 +41,7 @@ public class ForwardReferencingGlobalDefinitionTest {
                 "test-src/statements/variabledef/globalcycle/simpleProject");
         Diagnostic[] diagnostics = resultNegativeCycleFound.getDiagnostics();
         Assert.assertTrue(diagnostics.length > 0);
-        BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[employee, person]'", 33, 1);
-
-        String message = diagnostics[1].message();
-        // https://github.com/ballerina-platform/ballerina-lang/issues/30505
-        if (message.contains("illegal cyclic reference '[dep1, dep2]'")) {
-            BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference '[dep1, dep2]'", 50, 1);
-            return;
-        }
+        BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[person, employee]'", 17, 1);
         BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference '[dep2, dep1]'", 24, 1);
     }
 
@@ -63,6 +56,16 @@ public class ForwardReferencingGlobalDefinitionTest {
         BValue[] employee = BRunUtil.invoke(resultReOrdered, "getEmployee");
         String employeeName = ((BMap) employee[0]).get("name").stringValue();
         Assert.assertEquals(employeeName, "Sumedha");
+    }
+
+    @Test
+    public void moduleVarReOrderingViaTypes() {
+        CompileResult resultReOrdered =
+                BCompileUtil.compile("test-src/statements/variabledef/moduleVarReOrderingViaTypes");
+        Diagnostic[] diagnostics = resultReOrdered.getDiagnostics();
+        Assert.assertEquals(diagnostics.length, 0);
+
+        BRunUtil.invoke(resultReOrdered, "testModuleVariables");
     }
 
     @Test(description = "Test global variable reference in function")
@@ -100,11 +103,29 @@ public class ForwardReferencingGlobalDefinitionTest {
                 "getPersonInner, getfromFuncA]'", 22, 1);
     }
 
+    @Test
+    public void recordDefaultValueCausingModuleLevelVariableCycle() {
+        CompileResult cycle = BCompileUtil.compile("test-src/statements/variabledef/globalcycle/viaRecordFieldDefault");
+        int i = 0;
+        BAssertUtil.validateError(cycle, i++,
+                "illegal cyclic reference '[gVarNested, nestedRec, $anonType$_2, $anonType$_1]'", 26, 1);
+        BAssertUtil.validateError(cycle, i++, "illegal cyclic reference '[name, person, Person]'", 17, 1);
+        BAssertUtil.validateError(cycle, i++, "illegal cyclic reference '[gVar, p, $anonType$_0]'", 19, 1);
+        BAssertUtil.validateError(cycle, i++,
+                "illegal cyclic reference '[nillableNestedRecordGVar, nillableNestedRec, $anonType$_4, $anonType$_3]'",
+                21, 1);
+        BAssertUtil.validateError(cycle, i++,
+                "illegal cyclic reference '[nestedRecordFieldDefaultValue, A, $anonType$_5]'", 23, 1);
+        Assert.assertEquals(cycle.getDiagnostics().length, i);
+    }
+
     @Test(description = "Test compiler rejecting cyclic references in global variable definitions via object def")
     public void globalDefinitionsListenerDef() {
         CompileResult resultNegativeCycleFound = BCompileUtil.
                 compile("test-src/statements/variabledef/globalcycle/viaServiceProject");
-        Assert.assertEquals(resultNegativeCycleFound.getDiagnostics().length, 1);
+        Assert.assertEquals(resultNegativeCycleFound.getDiagnostics().length, 2);
         BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[port, o, Obj]'", 20, 1);
+        BAssertUtil.validateWarning(resultNegativeCycleFound, 1, "concurrent calls will not be made to this method " +
+                "since the method is not an 'isolated' method", 32, 5);
     }
 }

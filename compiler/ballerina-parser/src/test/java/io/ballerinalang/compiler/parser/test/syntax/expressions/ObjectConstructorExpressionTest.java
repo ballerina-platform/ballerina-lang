@@ -118,4 +118,10 @@ public class ObjectConstructorExpressionTest extends AbstractExpressionsTest {
         testFile("object-constructor/object_constructor_source_09.bal",
                 "object-constructor/object_constructor_assert_09.json");
     }
+
+    @Test
+    public void testObjectFieldNegative() {
+        testFile("object-constructor/object_constructor_source_11.bal",
+                "object-constructor/object_constructor_assert_11.json");
+    }
 }

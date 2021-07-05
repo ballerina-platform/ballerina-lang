@@ -9,14 +9,15 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
+      "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "name",
       "kind": "Field",
-      "detail": "record {| string first; string last; anydata...; |} & readonly",
+      "detail": "Employee.name",
       "sortText": "G",
       "insertText": "name: {\n\tfirst: \"${1}\",\n\tlast: \"${2}\"\n}",
       "insertTextFormat": "Snippet"
@@ -24,16 +25,17 @@
     {
       "label": "salary",
       "kind": "Field",
-      "detail": "int",
+      "detail": "Employee.salary",
       "sortText": "G",
       "insertText": "salary: ${2:0}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Add All Attributes",
+      "label": "Fill Employee Required Fields",
       "kind": "Property",
-      "detail": "none",
-      "sortText": "Q",
+      "detail": "Employee",
+      "sortText": "R",
+      "filterText": "fill",
       "insertText": "name: {first: \"\", last: \"\"},\nsalary: 0",
       "insertTextFormat": "Snippet"
     }

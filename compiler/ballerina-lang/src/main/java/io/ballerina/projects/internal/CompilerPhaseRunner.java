@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCol
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -60,7 +59,6 @@ public class CompilerPhaseRunner {
     private final SymbolResolver symResolver;
     private final SemanticAnalyzer semAnalyzer;
     private final CodeAnalyzer codeAnalyzer;
-    private final TaintAnalyzer taintAnalyzer;
     private final ConstantPropagation constantPropagation;
     private final DocumentationAnalyzer documentationAnalyzer;
     private final CompilerPluginRunner compilerPluginRunner;
@@ -93,7 +91,6 @@ public class CompilerPhaseRunner {
         this.symResolver = SymbolResolver.getInstance(context);
         this.codeAnalyzer = CodeAnalyzer.getInstance(context);
         this.documentationAnalyzer = DocumentationAnalyzer.getInstance(context);
-        this.taintAnalyzer = TaintAnalyzer.getInstance(context);
         this.constantPropagation = ConstantPropagation.getInstance(context);
         this.compilerPluginRunner = CompilerPluginRunner.getInstance(context);
         this.observabilitySymbolCollector = ObservabilitySymbolCollectorRunner.getInstance(context);
@@ -133,11 +130,6 @@ public class CompilerPhaseRunner {
         }
 
         documentationAnalyze(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.TAINT_ANALYZE)) {
-            return;
-        }
-
-        taintAnalyze(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.CONSTANT_PROPAGATION)) {
             return;
         }
@@ -184,11 +176,6 @@ public class CompilerPhaseRunner {
         }
 
         documentationAnalyze(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.TAINT_ANALYZE)) {
-            return;
-        }
-
-        taintAnalyze(pkgNode);
     }
 
     public void performLangLibBirGenPhases(BLangPackage pkgNode) {
@@ -233,10 +220,6 @@ public class CompilerPhaseRunner {
         return this.isolationAnalyzer.analyze(pkgNode);
     }
 
-    private BLangPackage taintAnalyze(BLangPackage pkgNode) {
-        return this.taintAnalyzer.analyze(pkgNode);
-    }
-
     private BLangPackage propagateConstants(BLangPackage pkgNode) {
         return this.constantPropagation.perform(pkgNode);
     }
@@ -266,7 +249,6 @@ public class CompilerPhaseRunner {
 
     private boolean checkNextPhase(CompilerPhase nextPhase) {
         return (!isToolingCompilation && nextPhase == CompilerPhase.CODE_ANALYZE) ||
-                nextPhase == CompilerPhase.TAINT_ANALYZE ||
                 nextPhase == CompilerPhase.COMPILER_PLUGIN ||
                 nextPhase == CompilerPhase.DESUGAR;
     }

@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
-import org.ballerinalang.langserver.SnippetBlock;
-import org.ballerinalang.langserver.SnippetGenerator;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 
 /**
  * Snippet for the Ballerina language constructs.
@@ -331,6 +331,8 @@ public enum Snippet {
 
     STMT_RETURN(SnippetGenerator.getReturnStatementSnippet()),
 
+    STMT_RETURN_SC(SnippetGenerator.getReturnSCStatementSnippet()),
+
     STMT_PANIC(SnippetGenerator.getPanicStatementSnippet()),
 
     STMT_TRANSACTION(SnippetGenerator.getTransactionStatementSnippet()),
@@ -360,23 +362,18 @@ public enum Snippet {
 
     TYPE_MAP(SnippetGenerator.getMapTypeSnippet());
 
-    private final String snippetName;
     private final SnippetBlock snippetBlock;
 
     Snippet(SnippetBlock snippetBlock) {
-        this.snippetName = null;
         this.snippetBlock = snippetBlock;
+        this.snippetBlock.setId(name());
     }
-
-    /**
-     * Get the Snippet Name.
-     *
-     * @return {@link String} snippet name
-     */
-    public String snippetName() {
-        return this.snippetName;
+    
+    public boolean equals(LSCompletionItem lsCItem) {
+        return lsCItem.getType() == LSCompletionItem.CompletionItemType.SNIPPET
+                && ((SnippetCompletionItem) lsCItem).id().equals(name());
     }
-
+    
     /**
      * Get the SnippetBlock.
      *

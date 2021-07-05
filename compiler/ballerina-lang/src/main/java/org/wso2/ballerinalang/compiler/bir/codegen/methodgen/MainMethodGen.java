@@ -143,7 +143,7 @@ public class MainMethodGen {
         mv.visitLabel(tryCatchEnd);
         mv.visitInsn(RETURN);
         mv.visitLabel(tryCatchHandle);
-        mv.visitMethodInsn(INVOKESTATIC, JvmConstants.RUNTIME_UTILS, JvmConstants.HANDLE_THROWABLE_METHOD,
+        mv.visitMethodInsn(INVOKESTATIC, JvmConstants.RUNTIME_UTILS, JvmConstants.HANDLE_ALL_THROWABLE_METHOD,
                            String.format("(L%s;)V", JvmConstants.THROWABLE), false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
@@ -176,11 +176,9 @@ public class MainMethodGen {
         mv.visitVarInsn(ALOAD, configDetailsIndex);
         mv.visitFieldInsn(GETFIELD, TOML_DETAILS, "paths", "[L" + PATH + ";");
         mv.visitVarInsn(ALOAD, configDetailsIndex);
-        mv.visitFieldInsn(GETFIELD, TOML_DETAILS, "secret", "L" + STRING_VALUE + ";");
-        mv.visitVarInsn(ALOAD, configDetailsIndex);
         mv.visitFieldInsn(GETFIELD, TOML_DETAILS, "configContent", "L" + STRING_VALUE + ";");
-        mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT,
-                String.format("([L%s;[L%s;L%s;L%s;)V", STRING_VALUE, PATH, STRING_VALUE, STRING_VALUE), false);
+        mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT, String.format("([L%s;[L%s;L%s;)V", STRING_VALUE
+                , PATH, STRING_VALUE), false);
     }
 
     private void generateJavaCompatibilityCheck(MethodVisitor mv) {

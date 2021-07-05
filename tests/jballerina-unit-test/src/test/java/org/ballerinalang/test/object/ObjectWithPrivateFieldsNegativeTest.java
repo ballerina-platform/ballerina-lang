@@ -54,11 +54,10 @@ public class ObjectWithPrivateFieldsNegativeTest {
     public void testPrivateObjAccess1() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/PrivateObjAccess1Project");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 6);
+        Assert.assertEquals(compileResult.getErrorCount(), 5);
         String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
         int i = 0;
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ParentFoo.init'", 4, 24);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo.init'", 4, 32);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo.init'", 4, 32);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson.init'", 12, 43);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson.init'", 16, 47);

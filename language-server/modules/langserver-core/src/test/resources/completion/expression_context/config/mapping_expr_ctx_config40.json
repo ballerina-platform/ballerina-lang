@@ -1,0 +1,68 @@
+{
+  "position": {
+    "line": 25,
+    "character": 8
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source40.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rec1Field3",
+      "kind": "Field",
+      "detail": "Rec1.rec1Field3",
+      "sortText": "G",
+      "insertText": "rec1Field3: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Rec1 Optional Fields",
+      "kind": "Property",
+      "detail": "Rec1",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "rec1Field3: 0",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rec2Field2",
+      "kind": "Field",
+      "detail": "Rec2.rec2Field2",
+      "sortText": "G",
+      "insertText": "rec2Field2: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rec2Field3",
+      "kind": "Field",
+      "detail": "Rec2.rec2Field3",
+      "sortText": "G",
+      "insertText": "rec2Field3: ${2:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rec2Field1",
+      "kind": "Field",
+      "detail": "Rec2.rec2Field1",
+      "sortText": "G",
+      "insertText": "rec2Field1: ${3:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Rec2 Required Fields",
+      "kind": "Property",
+      "detail": "Rec2",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "rec2Field2: 0,\nrec2Field3: 0,\nrec2Field1: 0",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

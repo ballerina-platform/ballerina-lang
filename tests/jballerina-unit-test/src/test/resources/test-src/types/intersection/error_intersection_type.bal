@@ -58,6 +58,21 @@ type DistinctIntersectionError distinct ErrorOne & ErrorFive;
 
 type IntersectionOfDistinctErrors distinct DistinctErrorOne & DistinctErrorThree;
 
+type MyDetail record {|
+    string s;
+|};
+
+type Other record {|
+    string s;
+|};
+
+type MyError error<MyDetail> & error<Other>;
+
+type MyDError distinct error<MyDetail>;
+type MyOError distinct error<Other>;
+
+type MyDistinctError MyDError & MyOError;
+
 type RecordWithIntersectionReference record {
     IntersectionErrorThree err;
 };
@@ -175,6 +190,97 @@ function testAnonDistinctError() {
     if !(e is JsonParseError) {
         panic error("Assertion error");
     }
+}
+
+function testIntersectionOfSameSetOfErrorShapes() {
+    MyDistinctError d = error("d", s = "s");
+
+    MyDError de = d;
+    assertEquality(de.message(), "d");
+    assertEquality(de.detail().s, "s");
+
+    MyOError oe = d;
+    assertEquality(oe.message(), "d");
+    assertEquality(oe.detail().s, "s");
+
+    MyError m = error("m", s = "s");
+    assertEquality(m.message(), "m");
+    assertEquality(m.detail().s, "s");
+}
+
+type FreeError distinct error;
+
+type E1 distinct FreeError;
+
+type E2 FreeError & error<Detail>;
+
+public function testDistinctErrorWithSameTypeIdsButDifferentTypes() {
+    E1 x = error E1("");
+    // E1 and E2 have matching type-ids.
+    assertEquality(x is E2, false);
+}
+
+function funcWithSingleErrorIntersectionWithReadOnly() returns (error & readonly)? => error("oops!");
+
+type ErrorIntersectionWithReadOnly error & readonly;
+type ErrorIntersectionWithReadOnlyTwo readonly & error<record { int code; }> & readonly;
+
+function testSingleErrorIntersectionWithReadOnly() {
+    error? x = funcWithSingleErrorIntersectionWithReadOnly();
+    assertEquality(true, x is error);
+    error err = <error> x;
+    assertEquality("oops!", err.message());
+    assertEquality(0, err.detail().length());
+
+    readonly & error y = error("oops again!", code = 101);
+    assertEquality("oops again!", y.message());
+    assertEquality(1, y.detail().length());
+    assertEquality(101, y.detail()["code"]);
+
+    ErrorIntersectionWithReadOnly z = error("error!", code = 204);
+    assertEquality("error!", z.message());
+    assertEquality(1, z.detail().length());
+    assertEquality(204, z.detail()["code"]);
+
+    ErrorIntersectionWithReadOnlyTwo w = error("error again!", code = 4);
+    assertEquality("error again!", w.message());
+    assertEquality(1, w.detail().length());
+    assertEquality(4, w.detail()["code"]);
+}
+
+type MyError1 error<record { int code; }>;
+type MyError2 error<record {| boolean fatal?;  int...; |}>;
+
+type MultipleErrorIntersectionWithReadOnly MyError2 & MyError1 & readonly;
+
+function testMultipleErrorIntersectionWithReadOnly() {
+    MyError1 & readonly & MyError2 x = error("e1", code = 123);
+    assertEquality("e1", x.message());
+    assertEquality(1, x.detail().length());
+    assertEquality(123, x.detail().code);
+
+    readonly & MyError1 & MyError2 y = error("e2", fatal = true, code = 245);
+    assertEquality("e2", y.message());
+    assertEquality(2, y.detail().length());
+    assertEquality(245, y.detail().code);
+    assertEquality(true, y.detail()?.fatal);
+
+    MultipleErrorIntersectionWithReadOnly z = error("e3", fatal = false, code = 132);
+    assertEquality("e3", z.message());
+    assertEquality(2, z.detail().length());
+    assertEquality(132, z.detail().code);
+    assertEquality(false, z.detail()?.fatal);
+
+    readonly & error & error v = error("error error!", code = 102);
+    assertEquality("error error!", v.message());
+    assertEquality(1, v.detail().length());
+    assertEquality(102, v.detail()["code"]);
+
+    error & error u = error("errors!", code = 102, fatal = true);
+    assertEquality("errors!", u.message());
+    assertEquality(2, u.detail().length());
+    assertEquality(102, u.detail()["code"]);
+    assertEquality(true, u.detail()["fatal"]);
 }
 
 function assertEquality(any|error actual, any|error expected) {

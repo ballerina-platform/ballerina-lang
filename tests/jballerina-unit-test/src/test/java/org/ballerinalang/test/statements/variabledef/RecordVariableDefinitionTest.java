@@ -275,19 +275,26 @@ public class RecordVariableDefinitionTest {
         BValue[] returns = BRunUtil.invoke(result, "testRecordVariableWithOnlyRestParam");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "{\"name\":\"John\", \"age\":{age:30, format:\"YY\", year:1990}, \"married\":true, \"work\":\"SE\"}");
+                "{name:\"John\", age:{age:30, format:\"YY\", year:1990}, married:true, work:\"SE\"}");
     }
 
     @Test(description = "Test record variables rest param types")
     public void testRestParameterType() {
         BValue[] returns = BRunUtil.invoke(result, "testRestParameterType");
-        Assert.assertEquals(returns.length, 5);
+        Assert.assertEquals(returns.length, 8);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
-        // https://github.com/ballerina-platform/ballerina-lang/issues/29953
-        // Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[5]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[6]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[7]).booleanValue());
+    }
+
+    @Test(description = "Test resolving the rest field type during record restructuring")
+    public void testResolvingRestField() {
+        BRunUtil.invoke(result, "testRestFieldResolving");
     }
 
     @Test
@@ -320,6 +327,47 @@ public class RecordVariableDefinitionTest {
                 "underscore is not allowed here", 157, 19);
         BAssertUtil.validateError(resultNegative, ++i,
                 "no new variables on left side", 158, 19);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'XY', " +
+                "found 'record {| never x?; never y?; anydata...; |}'", 174, 12);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'map<int>', " +
+                "found 'map<(int|string)>'", 188, 12);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'map<int>', " +
+                "found 'record {| int x; int y; anydata...; |}'", 198, 12);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'map<string>', " +
+                "found 'record {| never name?; int age; string...; |}'", 213, 18);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'map<string>', " +
+                "found 'record {| never name?; (int|error) id; string...; |}'", 228, 18);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'int', " +
+                "found '(int|error)'", 231, 15);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected " +
+                        "'record {| never name?; never age?; (int|string)...; |}', " +
+                        "found 'record {| never name?; int age; string...; |}'",
+                240, 17);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected " +
+                        "'record {| never name?; int...; |}', found 'record {| never name?; int age; string...; |}'",
+                251, 44);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid operation: type 'record {| never name?; int age; string...; |}' does not support " +
+                        "field access for non-required field 'employed'",
+                253, 23);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'map<string>', found 'record {| never name?; int age; string...; |}'",
+                260, 24);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'map<(int|string)>', found " +
+                        "'record {| never name?; (int|boolean|string) age; boolean married?; (string|int)...; |}'",
+                285, 29);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid operation: type " +
+                        "'record {| never name?; (int|boolean|string) age; boolean married?; (string|int)...; |}' " +
+                        "does not support field access for non-required field 'married'",
+                287, 23);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "a wildcard binding pattern can be used only with a value that belong to type 'any'",
+                298, 12);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "a wildcard binding pattern can be used only with a value that belong to type 'any'",
+                301, 20);
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 

@@ -22,17 +22,22 @@
             <And>
                 <Class name="org.ballerinalang.debugadapter.JBallerinaDebugServer"/>
                 <Or>
-                    <And>
-                        <Method name="evaluate"/>
-                        <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
-                    </And>
                     <Bug pattern="DM_EXIT"/>
+                    <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
                     <And>
+                        <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
+                        <Method name="evaluate"/>
+                    </And>
+                    <And>
+                        <Bug pattern="DE_MIGHT_IGNORE"/>
+                        <Method name="terminateServer"/>
+                    </And>
+                    <And>
+                        <Bug pattern="BC_UNCONFIRMED_CAST"/>
                         <Or>
                             <Method name="attach"/>
                             <Method name="launch"/>
                         </Or>
-                        <Bug pattern="BC_UNCONFIRMED_CAST"/>
                     </And>
                 </Or>
             </And>
@@ -41,10 +46,17 @@
             </And>
             <And>
                 <Bug pattern="UPM_UNCALLED_PRIVATE_METHOD"/>
-                <And>
-                    <Class name="org.ballerinalang.debugadapter.evaluation.DebugExpressionCompiler"/>
-                    <Method name="validateForCompilationErrors"/>
-                </And>
+                <Class name="org.ballerinalang.debugadapter.evaluation.DebugExpressionCompiler"/>
+                <Method name="validateForCompilationErrors"/>
+            </And>
+            <And>
+                <Bug pattern="BC_UNCONFIRMED_CAST"/>
+                <Class name="org.ballerinalang.debugadapter.evaluation.engine.expression.MethodCallExpressionEvaluator"/>
+            </And>
+            <And>
+                <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON"/>
+                <Class name="org.ballerinalang.debugadapter.evaluation.engine.expression.MethodCallExpressionEvaluator"/>
+                <Method name="invokeObjectMethod"/>
             </And>
         </Or>
     </Match>

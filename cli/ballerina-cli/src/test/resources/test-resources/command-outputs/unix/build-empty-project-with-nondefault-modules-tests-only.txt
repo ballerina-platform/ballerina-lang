@@ -1,0 +1,5 @@
+Compiling source
+	wso2/emptyProjWithNonDefaultModulesTestOnly:0.1.0
+
+Generating executable
+	target/bin/emptyProjWithNonDefaultModulesTestOnly.jar

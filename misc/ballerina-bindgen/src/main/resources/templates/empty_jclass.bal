@@ -2,9 +2,13 @@
 //
 // If you need the implementation of this class generated, please use the following command.
 //
-// $ ballerina bindgen [(-cp|--classpath) <classpath>...] [(-o|--output) <output>] (<class-name>...)
+// $ bal bindgen [(-cp|--classpath) <classpath>...]
+//               [(-mvn|--maven) <groupId>:<artifactId>:<version>]
+//               [(-o|--output) <output-path>]
+//               [--public]
+//               (<class-name>...)
 //
-// E.g. $ ballerina bindgen FULL_CLASS_NAME
+// E.g. $ bal bindgen INS_CLASS_NAME
 
 import ballerina/jballerina.java;
 

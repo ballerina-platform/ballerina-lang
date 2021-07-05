@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/jballerina.java;
-import ballerina/lang.'value as value;
 
 # Type for value that can be cloned.
 # This is the same as in lang.value, but is copied here to avoid a dependency.
@@ -51,6 +50,7 @@ public isolated function cause(error e) returns error? = @java:Method {
 } external;
 
 # Returns the error's detail record.
+#
 # The returned value will be immutable.
 # + e - the error value
 # + return - error detail value
@@ -59,7 +59,7 @@ public isolated function detail(error<DetailType> e) returns DetailType = @java:
     name: "detail"
 } external;
 
-# Representation of `CallStackElement`
+# Representation of `CallStackElement`.
 #
 # + callableName - Callable name
 # + moduleName - Module name
@@ -67,12 +67,12 @@ public isolated function detail(error<DetailType> e) returns DetailType = @java:
 # + lineNumber - Line number
 public type CallStackElement record {|
     string callableName;
-    string moduleName;
+    string moduleName?;
     string fileName;
     int lineNumber;
 |};
 
-# Represent error call stack.
+# Represents an error call stack.
 #
 # + callStack - call stack
 public class CallStack {
@@ -91,11 +91,11 @@ public isolated function stackTrace(error e) returns CallStack = @java:Method {
 
 # Converts an error to a string.
 #
-# + e - the error to be converted to a string
-# + return - a string resulting from the conversion
-#
 # The details of the conversion are specified by the ToString abstract operation
 # defined in the Ballerina Language Specification, using the direct style.
+#
+# + e - the error to be converted to a string
+# + return - a string resulting from the conversion
 public isolated function toString(error e) returns string = @java:Method {
     'class: "org.ballerinalang.langlib.error.ToString",
     name: "toString",
@@ -103,11 +103,12 @@ public isolated function toString(error e) returns string = @java:Method {
 } external;
 
 # Converts an error to a string that describes the value in Ballerina syntax.
-# + e - the error to be converted to a string
-# + return - a string resulting from the conversion
 #
 # The details of the conversion are specified by the ToString abstract operation
 # defined in the Ballerina Language Specification, using the expression style.
+#
+# + e - the error to be converted to a string
+# + return - a string resulting from the conversion
 public isolated function toBalString(error e) returns string = @java:Method {
   'class: "org.ballerinalang.langlib.error.ToBalString",
   name: "toBalString"

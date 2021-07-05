@@ -45,14 +45,22 @@ public class StartActionTest {
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 38, 32);
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 39, 37);
         BAssertUtil.validateError(result, indx++, "'wait' cannot be used with actions", 53, 14);
-        BAssertUtil.validateError(result, indx++, "invalid expression in start action", 53, 14);
+        BAssertUtil.validateError(result, indx++, "invalid remote method call: expected a client object, " +
+                "but found 'int'", 53, 14);
+        BAssertUtil.validateError(result, indx++, "missing close parenthesis token", 53, 31);
+        BAssertUtil.validateError(result, indx++, "missing open parenthesis token", 53, 31);
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 56, 37);
         BAssertUtil.validateError(result, indx++, "'wait' cannot be used with actions", 58, 26);
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 58, 49);
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 71, 17);
+        BAssertUtil.validateError(result, indx++, "incompatible types: expected 'int', found eventual type " +
+                "'(int|error)' for wait future expression 'bar($missingNode$_6)'", 72, 13);
         BAssertUtil.validateError(result, indx++, "'wait' cannot be used with actions", 72, 18);
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 72, 28);
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 76, 25);
+        BAssertUtil.validateError(result, indx++, "incompatible types: expected 'other', found 'int'", 90, 13);
+        BAssertUtil.validateError(result, indx++, "incompatible types: '(int[]|error)' is not an iterable collection"
+                , 90, 22);
         BAssertUtil.validateError(result, indx++, "'wait' cannot be used with actions", 90, 27);
         BAssertUtil.validateError(result, indx++, "missing close parenthesis token", 97, 1);
         BAssertUtil.validateError(result, indx++, "missing identifier", 97, 1);

@@ -89,6 +89,14 @@ public class AnnotationDeclarationNodeContext extends AbstractCompletionProvider
         return completionItemList;
     }
 
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, AnnotationDeclarationNode node) {
+        Token token = node.annotationKeyword();
+        int cursor = context.getCursorPositionInTree();
+        
+        return !token.isMissing() && cursor >= token.textRange().endOffset();
+    }
+
     private boolean onTypeDescriptorContext(BallerinaCompletionContext context, AnnotationDeclarationNode node) {
         Optional<Node> typeDesc = node.typeDescriptor();
         Token annotationTag = node.annotationTag();

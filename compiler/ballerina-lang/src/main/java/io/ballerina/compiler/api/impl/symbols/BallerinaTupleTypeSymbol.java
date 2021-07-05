@@ -72,15 +72,26 @@ public class BallerinaTupleTypeSymbol extends AbstractTypeSymbol implements Tupl
 
     @Override
     public String signature() {
+        BTupleType tupleType = (BTupleType) this.getBType();
+        if (tupleType.isCyclic && tupleType.tsymbol != null) {
+            if (!tupleType.tsymbol.getName().getValue().isEmpty()) {
+                return tupleType.tsymbol.getName().getValue();
+            }
+        }
+        if (tupleType.resolvingToString) {
+            return "...";
+        }
+
         StringJoiner joiner = new StringJoiner(", ");
+        tupleType.resolvingToString = true;
         for (TypeSymbol typeDescriptorImpl : memberTypeDescriptors()) {
             String typeDescriptorSignature = typeDescriptorImpl.signature();
             joiner.add(typeDescriptorSignature);
         }
+        tupleType.resolvingToString = false;
         if (restTypeDescriptor().isPresent()) {
             joiner.add("..." + restTypeDescriptor().get().signature());
         }
-
         return "[" + joiner.toString() + "]";
     }
 }

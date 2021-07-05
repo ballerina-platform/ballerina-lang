@@ -26,10 +26,12 @@ import io.ballerina.runtime.api.types.ArrayType.ArrayState;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BListInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
@@ -57,13 +59,14 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
  * </p>
- * 
+ *
  * @since 0.995.0
  */
 public class ArrayValueImpl extends AbstractArrayValue {
 
     protected ArrayType arrayType;
     protected Type elementType;
+    private TypedescValue elementTypedescValue = null;
 
     protected Object[] refValues;
     private long[] intValues;
@@ -228,9 +231,15 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
-    public ArrayValueImpl(ArrayType type, long size, ListInitialValueEntry[] initialValues) {
+    public ArrayValueImpl(ArrayType type, long size, BListInitialValueEntry[] initialValues) {
+        this(type, size, initialValues, null);
+    }
+
+    public ArrayValueImpl(ArrayType type, long size, BListInitialValueEntry[] initialValues,
+                          TypedescValue typedescValue) {
         this.arrayType = type;
         this.elementType = type.getElementType();
+        this.elementTypedescValue = typedescValue;
         initArrayValues(this.elementType);
         if (size != -1) {
             this.size = this.maxSize = (int) size;
@@ -277,7 +286,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     /**
      * Get ref value in the given index.
-     * 
+     *
      * @param index array index
      * @return array value
      */
@@ -322,7 +331,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     /**
      * Get boolean value in the given index.
-     * 
+     *
      * @param index array index
      * @return array element
      */
@@ -337,7 +346,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     /**
      * Get byte value in the given index.
-     * 
+     *
      * @param index array index
      * @return array element
      */
@@ -354,7 +363,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     /**
      * Get float value in the given index.
-     * 
+     *
      * @param index array index
      * @return array element
      */
@@ -369,7 +378,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     /**
      * Get string value in the given index.
-     * 
+     *
      * @param index array index
      * @return array element
      */
@@ -402,7 +411,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     /**
      * Add ref value to the given array index.
-     * 
+     *
      * @param index array index
      * @param value value to be added
      */
@@ -561,7 +570,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     /**
      * Append value to the existing array.
-     * 
+     *
      * @param value value to be appended
      */
     @Override
@@ -579,7 +588,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     /**
      * Removes and returns first member of an array.
-     * 
+     *
      * @return the value that was the first member of the array
      */
     @Override
@@ -801,24 +810,24 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.UNSIGNED32_INT_TAG:
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
-                slicedArray = new ArrayValueImpl(new long[slicedSize], arrayType.isReadOnly());
+                slicedArray = new ArrayValueImpl(new long[slicedSize], false);
                 System.arraycopy(intValues, (int) startIndex, slicedArray.intValues, 0, slicedSize);
                 break;
             case TypeTags.BOOLEAN_TAG:
-                slicedArray = new ArrayValueImpl(new boolean[slicedSize], arrayType.isReadOnly());
+                slicedArray = new ArrayValueImpl(new boolean[slicedSize], false);
                 System.arraycopy(booleanValues, (int) startIndex, slicedArray.booleanValues, 0, slicedSize);
                 break;
             case TypeTags.BYTE_TAG:
-                slicedArray = new ArrayValueImpl(new byte[slicedSize], arrayType.isReadOnly());
+                slicedArray = new ArrayValueImpl(new byte[slicedSize], false);
                 System.arraycopy(byteValues, (int) startIndex, slicedArray.byteValues, 0, slicedSize);
                 break;
             case TypeTags.FLOAT_TAG:
-                slicedArray = new ArrayValueImpl(new double[slicedSize], arrayType.isReadOnly());
+                slicedArray = new ArrayValueImpl(new double[slicedSize], false);
                 System.arraycopy(floatValues, (int) startIndex, slicedArray.floatValues, 0, slicedSize);
                 break;
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
-                slicedArray = new ArrayValueImpl(new BString[slicedSize], arrayType.isReadOnly());
+                slicedArray = new ArrayValueImpl(new BString[slicedSize], false);
                 System.arraycopy(bStringValues, (int) startIndex, slicedArray.bStringValues, 0, slicedSize);
                 break;
             default:
@@ -836,7 +845,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     /**
      * Get ref values array.
-     * 
+     *
      * @return ref value array
      */
     @Override
@@ -846,7 +855,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     /**
      * Get a copy of byte array.
-     * 
+     *
      * @return byte array
      */
     @Override
@@ -858,7 +867,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     /**
      * Get a copy of string array.
-     * 
+     *
      * @return string array
      */
     @Override
@@ -872,7 +881,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     /**
      * Get a copy of int array.
-     * 
+     *
      * @return int array
      */
     @Override
@@ -944,7 +953,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     /**
      * Get {@code BType} of the array elements.
-     * 
+     *
      * @return element type
      */
     @Override
@@ -1008,10 +1017,24 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 return;
             default:
                 if (arrayType.hasFillerValue()) {
-                    for (int i = size; i < index; i++) {
-                        this.refValues[i] = this.elementType.getZeroValue();
+                    if (elementTypedescValue != null) {
+                        extractRecordFillerValues(index);
+                    } else {
+                        extractComplexFillerValues(index);
                     }
                 }
+        }
+    }
+
+    private void extractComplexFillerValues(int index) {
+        for (int i = size; i < index; i++) {
+            this.refValues[i] = this.elementType.getZeroValue();
+        }
+    }
+
+    private void extractRecordFillerValues(int index) {
+        for (int i = size; i < index; i++) {
+            this.refValues[i] = elementTypedescValue.instantiate(Scheduler.getStrand());
         }
     }
 

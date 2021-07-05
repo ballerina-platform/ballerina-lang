@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.test;
 
 import io.ballerina.projects.JarResolver;
@@ -22,6 +23,7 @@ import io.ballerina.projects.PackageManifest;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.TypeFlags;
@@ -291,17 +293,18 @@ public class BRunUtil {
                 } catch (InvocationTargetException e) {
                     Throwable t = e.getTargetException();
                     if (t instanceof BLangRuntimeException) {
-                        throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(t.getMessage());
+                        throw ErrorCreator.createError(StringUtils.fromString(t.getMessage()));
                     }
                     if (t instanceof io.ballerina.runtime.api.values.BError) {
-                        throw new io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException(
-                                "error: " + ((io.ballerina.runtime.api.values.BError) t).getPrintableStackTrace());
+                        throw ErrorCreator.createError(StringUtils.fromString(
+                                "error: " + ((io.ballerina.runtime.api.values.BError) t).getPrintableStackTrace()));
                     }
                     if (t instanceof StackOverflowError) {
-                        throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException("error: " +
-                                "{ballerina}StackOverflow {\"message\":\"stack overflow\"}");
+                        throw ErrorCreator.createError(StringUtils.fromString("error: " +
+                                "{ballerina}StackOverflow {\"message\":\"stack overflow\"}"));
                     }
-                    throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
+                    throw ErrorCreator.createError(StringUtils.fromString("Error while invoking function '" +
+                                                                                  functionName + "'"), e);
                 }
             };
 
@@ -428,17 +431,18 @@ public class BRunUtil {
                 } catch (InvocationTargetException e) {
                     Throwable t = e.getTargetException();
                     if (t instanceof BLangRuntimeException) {
-                        throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(t.getMessage());
+                        throw ErrorCreator.createError(StringUtils.fromString(t.getMessage()));
                     }
                     if (t instanceof io.ballerina.runtime.api.values.BError) {
-                        throw new io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException(
-                                "error: " + ((ErrorValue) t).getPrintableStackTrace());
+                        throw ErrorCreator.createError(
+                                StringUtils.fromString("error: " + ((ErrorValue) t).getPrintableStackTrace()));
                     }
                     if (t instanceof StackOverflowError) {
-                        throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException("error: " +
-                                "{ballerina}StackOverflow {\"message\":\"stack overflow\"}");
+                        throw ErrorCreator.createError(StringUtils.fromString(("error: " +
+                                "{ballerina}StackOverflow {\"message\":\"stack overflow\"}")));
                     }
-                    throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
+                    throw ErrorCreator.createError(
+                            StringUtils.fromString("Error while invoking function '" + functionName + "'"));
                 }
             };
 
@@ -1189,6 +1193,7 @@ public class BRunUtil {
                 return new BTypeDesc(typedescType.getName(),
                         typedescType.getPackage() == null ? null : typedescType.getPackage().getName());
             case io.ballerina.runtime.api.TypeTags.NULL_TAG:
+            case io.ballerina.runtime.api.TypeTags.NEVER_TAG:
                 return BTypes.typeNull;
             case io.ballerina.runtime.api.TypeTags.FINITE_TYPE_TAG:
                 io.ballerina.runtime.api.types.FiniteType jvmBFiniteType =
@@ -1310,15 +1315,23 @@ public class BRunUtil {
         return invoke(compileResult, function, functionName, new BValue[0], new Class<?>[0]);
     }
 
-    public static String runMain(CompileResult compileResult, String[] args) {
-        ExitDetails exitDetails = run(compileResult, args);
+    public static String runMain(CompileResult compileResult, String... args) {
+        return runMain(compileResult, new ArrayList<>(), args);
+    }
+
+    public static String runMain(CompileResult compileResult, List<String> javaOpts, String... args) {
+        ExitDetails exitDetails = run(compileResult, javaOpts, args);
         if (exitDetails.exitCode != 0) {
             throw new RuntimeException(exitDetails.errorOutput);
         }
         return exitDetails.consoleOutput;
     }
 
-    public static ExitDetails run(CompileResult compileResult, String[] args) {
+    public static ExitDetails run(CompileResult compileResult, String... args) {
+        return run(compileResult, new ArrayList<>(), args);
+    }
+
+    public static ExitDetails run(CompileResult compileResult, List<String> javaOpts, String... args) {
         PackageManifest packageManifest = compileResult.packageManifest();
         String initClassName = JarResolver.getQualifiedClassName(packageManifest.org().toString(),
                 packageManifest.name().toString(),
@@ -1328,11 +1341,15 @@ public class BRunUtil {
 
         try {
             final List<String> actualArgs = new ArrayList<>();
-            actualArgs.add(0, "java");
-            actualArgs.add(1, "-cp");
+            int index = 0;
+            actualArgs.add(index++, "java");
+            for (int i = 0; i < javaOpts.size(); i++) {
+                actualArgs.add(index++, javaOpts.get(i));
+            }
+            actualArgs.add(index++, "-cp");
             String classPath = System.getProperty("java.class.path") + ":" + getClassPath(classLoader);
-            actualArgs.add(2, classPath);
-            actualArgs.add(3, initClassName);
+            actualArgs.add(index++, classPath);
+            actualArgs.add(index++, initClassName);
             actualArgs.addAll(Arrays.asList(args));
 
             final Runtime runtime = Runtime.getRuntime();
@@ -1376,9 +1393,8 @@ public class BRunUtil {
         final Scheduler scheduler = new Scheduler(false);
         TomlDetails configurationDetails = LaunchUtils.getConfigurationDetails();
         directRun(compileResult.getClassLoader().loadClass(configClassName), "$configureInit",
-                new Class[]{String[].class, Path[].class, String.class, String.class},
-                  new Object[]{new String[]{}, configurationDetails.paths,
-                        configurationDetails.secret, configurationDetails.configContent});
+                new Class[]{String[].class, Path[].class, String.class}, new Object[]{new String[]{},
+                        configurationDetails.paths, configurationDetails.configContent});
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleInit"), scheduler);
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleStart"), scheduler);
 //        if (temp) {
@@ -1427,7 +1443,7 @@ public class BRunUtil {
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
-                if (t instanceof io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException) {
+                if (t instanceof BLangRuntimeException) {
                     throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof ErrorValue) {
@@ -1456,5 +1472,8 @@ public class BRunUtil {
             this.consoleOutput = consoleOutput;
             this.errorOutput = errorOutput;
         }
+    }
+
+    private BRunUtil() {
     }
 }

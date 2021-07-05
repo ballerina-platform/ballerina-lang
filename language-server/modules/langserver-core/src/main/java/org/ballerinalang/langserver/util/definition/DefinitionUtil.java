@@ -18,6 +18,8 @@ package org.ballerinalang.langserver.util.definition;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -29,8 +31,9 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.BallerinaDefinitionContext;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -47,7 +50,6 @@ import java.util.Optional;
  * @since 1.2.0
  */
 public class DefinitionUtil {
-
     /**
      * Get the definition.
      *
@@ -55,7 +57,8 @@ public class DefinitionUtil {
      * @param position cursor position
      * @return {@link List} List of definition locations
      */
-    public static List<Location> getDefinition(DocumentServiceContext context, Position position) {
+    public static List<Location> getDefinition(BallerinaDefinitionContext context, Position position) {
+        fillTokenInfoAtCursor(context);
         Optional<Document> srcFile = context.currentDocument();
         Optional<SemanticModel> semanticModel = context.currentSemanticModel();
 
@@ -70,11 +73,20 @@ public class DefinitionUtil {
             return Collections.emptyList();
         }
 
-        Optional<Location> location = getLocation(symbol.get(), context);
+        Optional<Location> location;
+        if (context.enclosedModuleMember().isPresent() && CommonUtil.isSelfClassSymbol(symbol.get(), context,
+                context.enclosedModuleMember().get())) {
+            // Within the #isSelfClassSymbol we do the instance check against the symbol. Hence casting is safe 
+            // If the self variable is referring to the class instance, navigate to class definition
+            TypeSymbol rawType = CommonUtil.getRawType(((VariableSymbol) symbol.get()).typeDescriptor());
+            location = getLocation(rawType, context);
+        } else {
+            location = getLocation(symbol.get(), context);
+        }
         return location.map(Collections::singletonList).orElse(Collections.emptyList());
     }
 
-    private static Optional<Location> getLocation(Symbol symbol, DocumentServiceContext context) {
+    private static Optional<Location> getLocation(Symbol symbol, BallerinaDefinitionContext context) {
         Optional<Project> project = context.workspace().project(context.filePath());
         if (project.isEmpty() || symbol.getModule().isEmpty()) {
             return Optional.empty();
@@ -153,5 +165,17 @@ public class DefinitionUtil {
         }
 
         return filepath;
+    }
+
+    private static void fillTokenInfoAtCursor(BallerinaDefinitionContext context) {
+        Optional<Document> document = context.currentDocument();
+        if (document.isEmpty()) {
+            throw new RuntimeException("Could not find a valid document");
+        }
+        TextDocument textDocument = document.get().textDocument();
+
+        Position position = context.getCursorPosition();
+        int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
+        context.setCursorPositionInTree(txtPos);
     }
 }

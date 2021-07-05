@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
@@ -42,6 +43,7 @@ import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
+import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -71,12 +73,11 @@ import javax.annotation.Nonnull;
  * @since 2.0.0
  */
 public class FieldAccessCompletionResolver extends NodeTransformer<Optional<TypeSymbol>> {
-    private final PositionedOperationContext context;
-    private final boolean optionalFieldAccess;
 
-    public FieldAccessCompletionResolver(PositionedOperationContext context, boolean optionalFieldAccess) {
+    private final PositionedOperationContext context;
+
+    public FieldAccessCompletionResolver(PositionedOperationContext context) {
         this.context = context;
-        this.optionalFieldAccess = optionalFieldAccess;
     }
 
     @Override
@@ -97,11 +98,36 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         Optional<TypeSymbol> typeSymbol = node.expression().apply(this);
 
         NameReferenceNode fieldName = node.fieldName();
-        if (fieldName.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+        if (fieldName.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE || typeSymbol.isEmpty()) {
             return Optional.empty();
         }
         String name = ((SimpleNameReferenceNode) fieldName).name().text();
-        List<Symbol> visibleEntries = this.getVisibleEntries(typeSymbol.orElseThrow(), node.expression());
+        List<Symbol> visibleEntries = this.getVisibleEntries(typeSymbol.get(), node.expression());
+        Optional<Symbol> filteredSymbol = this.getSymbolByName(visibleEntries, name);
+
+        if (filteredSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return SymbolUtil.getTypeDescriptor(filteredSymbol.get());
+    }
+    
+    @Override
+    public Optional<TypeSymbol> transform(OptionalFieldAccessExpressionNode node) {
+        // First capture the expression and the respective symbols
+        // In future we should use the following approach and get rid of this resolver. 
+        Optional<TypeSymbol> resolvedType = this.context.currentSemanticModel().get().type(node);
+        if (resolvedType.isPresent() && resolvedType.get().typeKind() != TypeDescKind.COMPILATION_ERROR) {
+            return SymbolUtil.getTypeDescriptor(resolvedType.get());
+        }
+        
+        Optional<TypeSymbol> typeSymbol = node.expression().apply(this);
+        NameReferenceNode fieldName = node.fieldName();
+        if (fieldName.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE || typeSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        String name = ((SimpleNameReferenceNode) fieldName).name().text();
+        List<Symbol> visibleEntries = this.getVisibleEntries(typeSymbol.get(), node.expression());
         Optional<Symbol> filteredSymbol = this.getSymbolByName(visibleEntries, name);
 
         if (filteredSymbol.isEmpty()) {
@@ -232,10 +258,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
             case RECORD:
                 // If the invoked for field access expression, then avoid suggesting the optional fields
                 List<RecordFieldSymbol> filteredEntries =
-                        ((RecordTypeSymbol) rawType).fieldDescriptors().values().stream()
-                                .filter(recordFieldSymbol -> this.optionalFieldAccess
-                                        || !recordFieldSymbol.isOptional())
-                                .collect(Collectors.toList());
+                        new ArrayList<>(((RecordTypeSymbol) rawType).fieldDescriptors().values());
                 visibleEntries.addAll(filteredEntries);
                 break;
             case OBJECT:
@@ -248,11 +271,16 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
                     break;
                 }
                 ObjectTypeSymbol objTypeDesc = (ObjectTypeSymbol) rawType;
-                visibleEntries.addAll(objTypeDesc.fieldDescriptors().values());
+                visibleEntries.addAll(objTypeDesc.fieldDescriptors().values().stream()
+                        .filter(objectFieldSymbol -> withValidAccessModifiers(node, objectFieldSymbol, currentPkg.get(),
+                                currentModule.get().moduleId())).collect(Collectors.toList()));
                 boolean isClient = SymbolUtil.isClient(objTypeDesc);
+                boolean isService = SymbolUtil.getTypeDescForObjectSymbol(objTypeDesc)
+                        .qualifiers().contains(Qualifier.SERVICE);
                 // If the object type desc is a client, then we avoid all the remote methods
                 List<MethodSymbol> methodSymbols = objTypeDesc.methods().values().stream()
-                        .filter(methodSymbol -> (!isClient || !methodSymbol.qualifiers().contains(Qualifier.REMOTE))
+                        .filter(methodSymbol -> ((!isClient && !isService)
+                                || !methodSymbol.qualifiers().contains(Qualifier.REMOTE))
                                 && !methodSymbol.qualifiers().contains(Qualifier.RESOURCE)
                                 && withValidAccessModifiers(node, methodSymbol, currentPkg.get(),
                                 currentModule.get().moduleId()))
@@ -267,24 +295,32 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         return visibleEntries;
     }
 
-    private boolean withValidAccessModifiers(Node exprNode, MethodSymbol methodSymbol, Package currentPackage,
+    private boolean withValidAccessModifiers(Node exprNode, Symbol symbol, Package currentPackage,
                                              ModuleId currentModule) {
         Optional<Project> project = context.workspace().project(context.filePath());
-        Optional<ModuleSymbol> methodSymbolModule = methodSymbol.getModule();
-        if (project.isEmpty() || methodSymbolModule.isEmpty()) {
+        Optional<ModuleSymbol> symbolModule = symbol.getModule();
+        if (project.isEmpty() || symbolModule.isEmpty()) {
             return false;
         }
-        boolean isResource = methodSymbol.qualifiers().contains(Qualifier.RESOURCE);
-        boolean isPrivate = methodSymbol.qualifiers().contains(Qualifier.PRIVATE);
-        boolean isPublic = methodSymbol.qualifiers().contains(Qualifier.PUBLIC);
+
+        boolean isPrivate = false;
+        boolean isPublic = false;
+        boolean isResource = false;
+
+        if (symbol instanceof Qualifiable) {
+            Qualifiable qSymbol = (Qualifiable) symbol;
+            isPrivate = qSymbol.qualifiers().contains(Qualifier.PRIVATE);
+            isPublic = qSymbol.qualifiers().contains(Qualifier.PUBLIC);
+            isResource = qSymbol.qualifiers().contains(Qualifier.RESOURCE);
+        }
 
         if (exprNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
                 && ((SimpleNameReferenceNode) exprNode).name().text().equals(Names.SELF.getValue())
                 && !isResource) {
             return true;
         }
-        ModuleID objModuleId = methodSymbolModule.get().id();
 
+        ModuleID objModuleId = symbolModule.get().id();
         return isPublic || (!isPrivate && objModuleId.moduleName().equals(currentModule.moduleName())
                 && objModuleId.orgName().equals(currentPackage.packageOrg().value()));
     }

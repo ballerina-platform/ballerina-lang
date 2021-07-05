@@ -120,10 +120,12 @@ function getNameOfElement() returns string {
     return element.getName();
 }
 
-function testSetElementName() returns xml {
-    'xml:Element element = xml `<elem attr="attr1">content</elem>`;
-    element.setName("el2");
-    return element;
+function testSetElementName() returns [xml, xml] {
+    'xml:Element element1 = xml `<elem attr="attr1">content</elem>`;
+    'xml:Element element2 = xml `<e/>`;
+    element1.setName("el2");
+    element2.setName("{http://www.ballerina-schema.io/schema}Elem");
+    return [element1, element2];
 }
 
 function testGetChildren() returns xml {
@@ -775,6 +777,20 @@ function testData() {
 
     xml concat = authors + text + cmnt + pi + x;
     assertEquals(concat.data(), "EnidBlytonhello>abc<");
+}
+
+function testXmlSubtypeFillerValue() {
+    xml:Text x1 = xml:createText("text 1");
+    xml:Text x2 = xml:createText("text 2");
+    xml:Text x3 = xml:createText("text 3");
+
+    xml:Text[] x = [x1, x2];
+    insertListValue(x, 3, x3);
+    assertEquals(x.toString(), "[`text 1`,`text 2`,``,`text 3`]");
+}
+
+function insertListValue('xml:Text[] list, int pos, 'xml:Text value) {
+    list[pos] = value;
 }
 
 function testXmlGetContentOverACommentSequence() {

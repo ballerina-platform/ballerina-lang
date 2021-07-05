@@ -25,6 +25,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
@@ -89,6 +90,23 @@ public class BasicWorkerTest {
         BMap result = (BMap) vals[0];
         Assert.assertEquals(result.get("w"), result.get("w1"));
         Assert.assertEquals(result.get("w"), result.get("w2"));
+    }
+
+    @Test(dataProvider = "workerSendTests")
+    public void testSimpleSyncSendFunctions(String funcName) {
+        BRunUtil.invoke(result, funcName);
+    }
+
+    @DataProvider(name = "workerSendTests")
+    public Object[] testFunctions() {
+        return new Object[]{
+                "testSimpleSendActionWithCloneableType",
+                "testSimpleSendActionErrorType",
+                "testSimpleSendActionXMLType",
+                "testSimpleSendActionReadonlyRecord",
+                "testSimpleSendActionWithMapType",
+                "testSimpleSendActionWithListType",
+        };
     }
 
     @AfterClass

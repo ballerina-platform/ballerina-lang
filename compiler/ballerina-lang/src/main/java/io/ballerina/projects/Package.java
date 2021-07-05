@@ -2,6 +2,9 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.internal.ManifestBuilder;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
+import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -229,7 +232,7 @@ public class Package {
         private PackageManifest packageManifest;
         private Map<ModuleId, ModuleContext> moduleContextMap;
         private Project project;
-        private final DependencyGraph<PackageDescriptor> pkgDependencyGraph;
+        private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
         private CompilationOptions compilationOptions;
         private TomlDocumentContext ballerinaTomlContext;
         private TomlDocumentContext dependenciesTomlContext;
@@ -242,7 +245,7 @@ public class Package {
             this.packageManifest = oldPackage.manifest();
             this.moduleContextMap = copyModules(oldPackage);
             this.project = oldPackage.project;
-            this.pkgDependencyGraph = oldPackage.packageContext().dependencyGraph();
+            this.dependencyGraph = oldPackage.getResolution().dependencyGraph();
             this.compilationOptions = oldPackage.compilationOptions();
             this.ballerinaTomlContext = oldPackage.packageContext.ballerinaTomlContext().orElse(null);
             this.dependenciesTomlContext = oldPackage.packageContext.dependenciesTomlContext().orElse(null);
@@ -373,6 +376,7 @@ public class Package {
         Modifier updateDependenciesToml(DependenciesToml dependenciesToml) {
             this.dependenciesTomlContext = dependenciesToml.dependenciesTomlContext();
             updateManifest();
+            updateModules();
             return this;
         }
 
@@ -412,8 +416,32 @@ public class Package {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
                     this.ballerinaTomlContext, this.dependenciesTomlContext, this.cloudTomlContext,
                     this.compilerPluginTomlContext, this.packageMdContext,  this.compilationOptions,
-                    this.moduleContextMap, this.pkgDependencyGraph);
+                    this.moduleContextMap, DependencyGraph.emptyGraph());
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
+
+            DependencyGraph<ResolvedPackageDependency> newDepGraph = this.project.currentPackage().getResolution()
+                    .dependencyGraph();
+            Set<ResolvedPackageDependency> diff = this.dependencyGraph.difference(newDepGraph);
+            if (!diff.isEmpty()) {
+                // A non-empty diff means deletion of nodes from the old graph is required
+                // to get the new graph, hence we remove these modules from the package caches.
+                CompilerContext compilerContext = project.projectEnvironmentContext()
+                        .getService(CompilerContext.class);
+                PackageCache packageCache = PackageCache.getInstance(compilerContext);
+                for (ResolvedPackageDependency dependency : diff) {
+                    for (ModuleId moduleId : dependency.packageInstance().moduleIds()) {
+                        if (!dependency.packageInstance().descriptor().isLangLibPackage()) {
+                            Module module = dependency.packageInstance().module(moduleId);
+                            PackageID packageID = module.descriptor().moduleCompilationId();
+                            // remove the module from the compiler packageCache
+                            packageCache.remove(packageID);
+                            // we need to also reset the module in the project environment packageCache
+                            // to make the module recompile and add symbols
+                            module.moduleContext().setCompilationState(null);
+                        }
+                    }
+                }
+            }
             return this.project.currentPackage();
         }
 

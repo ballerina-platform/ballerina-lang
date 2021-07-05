@@ -17,9 +17,19 @@
  */
 package io.ballerina.runtime.observability.tracer;
 
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BMapInitialValueEntry;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanBuilder;
+import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
@@ -39,6 +49,11 @@ import java.util.Map;
 public class BSpan {
     private final Tracer tracer;
     private final Span span;
+    private BMap<BString, Object> bSpanContext;
+    private static final MapType IMMUTABLE_STRING_MAP_TYPE = TypeCreator.createMapType(
+            PredefinedTypes.TYPE_STRING, true);
+    private static final BMap<BString, Object> EMPTY_BSPAN_CONTEXT = ValueCreator.createMapValue(
+            IMMUTABLE_STRING_MAP_TYPE);
 
     private static PropagatingParentContextGetter getter = new PropagatingParentContextGetter();
     private static PropagatingParentContextSetter setter = new PropagatingParentContextSetter();
@@ -157,5 +172,26 @@ public class BSpan {
             carrierMap = Collections.emptyMap();
         }
         return carrierMap;
+    }
+
+    public BMap<BString, Object> getBSpanContext() {
+
+        if (bSpanContext == null) {
+            SpanContext spanContext = span.getSpanContext();
+            if (spanContext.isSampled()) {
+                BMapInitialValueEntry[] values = new BMapInitialValueEntry[]{
+                        new MappingInitialValueEntry.KeyValueEntry(
+                                TraceConstants.SPAN_CONTEXT_MAP_KEY_TRACE_ID,
+                                StringUtils.fromString(spanContext.getTraceId())),
+                        new MappingInitialValueEntry.KeyValueEntry(
+                                TraceConstants.SPAN_CONTEXT_MAP_KEY_SPAN_ID,
+                                StringUtils.fromString(spanContext.getSpanId()))
+                };
+                bSpanContext = ValueCreator.createMapValue(IMMUTABLE_STRING_MAP_TYPE, values);
+            } else {
+                bSpanContext = EMPTY_BSPAN_CONTEXT;
+            }
+        }
+        return bSpanContext;
     }
 }

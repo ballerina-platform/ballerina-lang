@@ -203,6 +203,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -1127,17 +1128,18 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangValueType valueType) {
-        this.symbolAtCursor = valueType.type.tsymbol;
+        this.symbolAtCursor = valueType.getBType().tsymbol;
     }
 
     @Override
     public void visit(BLangArrayType arrayType) {
         lookupNode(arrayType.elemtype);
+        lookupNodes(Arrays.asList(arrayType.sizes));
     }
 
     @Override
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
-        this.symbolAtCursor = builtInRefType.type.tsymbol;
+        this.symbolAtCursor = builtInRefType.getBType().tsymbol;
     }
 
     @Override
@@ -1145,7 +1147,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(constrainedType.constraint);
 
         if (this.symbolAtCursor == null) {
-            this.symbolAtCursor = ((BLangNode) constrainedType).type.tsymbol;
+            this.symbolAtCursor = ((BLangNode) constrainedType).getBType().tsymbol;
         }
     }
 
@@ -1155,7 +1157,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(streamType.error);
 
         if (symbolAtCursor == null) {
-            this.symbolAtCursor = streamType.type.type.tsymbol;
+            this.symbolAtCursor = streamType.type.getBType().tsymbol;
         }
     }
 
@@ -1166,7 +1168,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(tableType.tableKeyTypeConstraint);
 
         if (this.symbolAtCursor == null) {
-            this.symbolAtCursor = tableType.type.type.tsymbol;
+            this.symbolAtCursor = tableType.type.getBType().tsymbol;
         }
     }
 

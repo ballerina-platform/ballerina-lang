@@ -37,9 +37,11 @@ import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ChildNodeEntry;
 import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.MinutiaeList;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -67,10 +69,12 @@ import java.util.stream.Collectors;
 public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
     private SemanticModel semanticModel;
     private List<JsonObject> visibleEpsForEachBlock;
+    private List<JsonObject> visibleEpsForModule;
 
     public SyntaxTreeMapGenerator(SemanticModel semanticModel) {
         this.semanticModel = semanticModel;
         this.visibleEpsForEachBlock = new ArrayList<>();
+        this.visibleEpsForModule = new ArrayList<>();
     }
 
     @Override
@@ -121,7 +125,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                                 .contains(Qualifier.CLIENT);
                         if (isEndpoint) {
                             symbolJson.addProperty("isEndpoint", true);
-                            JsonObject ep = visibleEP(node, typeSymbol.get());
+                            JsonObject ep = visibleEP(node, typeSymbol.get(), false);
                             if (ep.size() > 0) {
                                 this.visibleEpsForEachBlock.add(ep);
                             }
@@ -173,11 +177,22 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 // Ignore as semantic API calls cannot break the ST JSON creation.
             }
 
+            if (node.kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION) {
+                RemoteMethodCallActionNode remoteMethodCallActionNode = (RemoteMethodCallActionNode) node;
+                Optional<Symbol> expressionSymbol = this.semanticModel.symbol(remoteMethodCallActionNode.expression());
+                if (expressionSymbol.isPresent() && expressionSymbol.get() instanceof VariableSymbol) {
+                    VariableSymbol variableSymbol = (VariableSymbol) expressionSymbol.get();
+                    markVisibleEp(variableSymbol, symbolJson, remoteMethodCallActionNode.expression(), true);
+                }
+            }
+
             nodeJson.add("typeData", symbolJson);
-            if (node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK && this.visibleEpsForEachBlock.size() > 0
+            if (node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK
+                    && (this.visibleEpsForEachBlock.size() > 0 || this.visibleEpsForModule.size() > 0)
                     && nodeJson.get("typeData") != null) {
                 JsonArray eps = new JsonArray();
                 this.visibleEpsForEachBlock.forEach(eps::add);
+                this.visibleEpsForModule.forEach(eps::add);
                 nodeJson.add("VisibleEndpoints", eps);
                 this.visibleEpsForEachBlock = new ArrayList<>();
             }
@@ -194,7 +209,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                     .contains(Qualifier.CLIENT);
             if (isEndpoint) {
                 symbolJson.addProperty("isEndpoint", true);
-                JsonObject ep = visibleEP(node, rawType);
+                JsonObject ep = visibleEP(node, rawType, false);
                 if (ep.size() > 0) {
                     this.visibleEpsForEachBlock.add(ep);
                 }
@@ -202,7 +217,24 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         }
     }
 
-    private JsonObject visibleEP(Node node, TypeSymbol typeSymbol) {
+    private void markVisibleEp(VariableSymbol variableSymbol, JsonObject symbolJson, Node node,
+                               boolean isRemoteAction) {
+        TypeSymbol rawType = getRawType(variableSymbol.typeDescriptor());
+        if (rawType.typeKind() == TypeDescKind.OBJECT) {
+            ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
+            boolean isEndpoint = objectTypeSymbol.qualifiers()
+                    .contains(Qualifier.CLIENT);
+            if (isEndpoint) {
+                symbolJson.addProperty("isEndpoint", true);
+                JsonObject ep = visibleEP(node, rawType, isRemoteAction);
+                if (ep.size() > 0) {
+                    this.visibleEpsForEachBlock.add(ep);
+                }
+            }
+        }
+    }
+
+    private JsonObject visibleEP(Node node, TypeSymbol typeSymbol, boolean isRemoteAction) {
         JsonObject symbolMetaInfo = new JsonObject();
         ModuleID moduleID = typeSymbol.getModule().isPresent() ? typeSymbol.getModule().get().id() : null;
         String orgName = moduleID != null ? moduleID.orgName() : "";
@@ -216,6 +248,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
             symbolMetaInfo.addProperty("orgName", orgName);
             symbolMetaInfo.addProperty("moduleName", moduleName);
+            symbolMetaInfo.addProperty("isModuleVar", false);
         } else if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             VariableDeclarationNode variableDeclarationNode = (VariableDeclarationNode) node;
             CaptureBindingPatternNode captureBindingPatternNode =
@@ -225,20 +258,70 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
             symbolMetaInfo.addProperty("orgName", orgName);
             symbolMetaInfo.addProperty("moduleName", moduleName);
+            symbolMetaInfo.addProperty("isModuleVar", false);
         } else if (node.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
             AssignmentStatementNode assignmentStatementNode = (AssignmentStatementNode) node;
             if (assignmentStatementNode.varRef() instanceof SimpleNameReferenceNode) {
                 SimpleNameReferenceNode simpleNameReferenceNode =
                         (SimpleNameReferenceNode) assignmentStatementNode.varRef();
                 symbolMetaInfo.addProperty("name", simpleNameReferenceNode.name().text());
-                symbolMetaInfo.addProperty("isCaller", "Caller".equals(typeSymbol.getName().orElse(null)));
+                symbolMetaInfo.addProperty("isCaller", "Caller".equals(typeSymbol.getName()
+                        .orElse(null)));
                 symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
                 symbolMetaInfo.addProperty("orgName", orgName);
                 symbolMetaInfo.addProperty("moduleName", moduleName);
+                symbolMetaInfo.addProperty("isModuleVar", false);
+            }
+        } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
+            JsonObject metaInfoForModuleVar = new JsonObject();
+            ModuleVariableDeclarationNode variableDeclarationNode = (ModuleVariableDeclarationNode) node;
+            CaptureBindingPatternNode captureBindingPatternNode =
+                    (CaptureBindingPatternNode) variableDeclarationNode.typedBindingPattern().bindingPattern();
+            metaInfoForModuleVar.addProperty("name", captureBindingPatternNode.variableName().text());
+            metaInfoForModuleVar.addProperty("isCaller", "Caller".equals(typeSymbol.getName()
+                    .orElse(null)));
+            metaInfoForModuleVar.addProperty("typeName", typeSymbol.getName().orElse(""));
+            metaInfoForModuleVar.addProperty("orgName", orgName);
+            metaInfoForModuleVar.addProperty("moduleName", moduleName);
+            metaInfoForModuleVar.addProperty("isModuleVar", true);
+            metaInfoForModuleVar.addProperty("isExternal", true);
+
+            this.visibleEpsForModule.add(metaInfoForModuleVar);
+        } else if (node.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE && isRemoteAction) {
+            String name = ((SimpleNameReferenceNode) node).name().text();
+            JsonObject metaInfoForModuleVar = new JsonObject();
+            metaInfoForModuleVar.addProperty("name", name);
+            boolean isAvailable = isAvailableAsEndpoint(name);
+
+            if (!isAvailable) {
+                metaInfoForModuleVar.addProperty("isCaller", "Caller".equals(typeSymbol.getName()
+                        .orElse(null)));
+                metaInfoForModuleVar.addProperty("typeName", typeSymbol.getName().orElse(""));
+                metaInfoForModuleVar.addProperty("orgName", orgName);
+                metaInfoForModuleVar.addProperty("moduleName", moduleName);
+                metaInfoForModuleVar.addProperty("isExternal", true);
+
+                this.visibleEpsForModule.add(metaInfoForModuleVar);
             }
         }
 
         return symbolMetaInfo;
+    }
+
+    private boolean isAvailableAsEndpoint(String name) {
+        for (JsonObject ep : this.visibleEpsForEachBlock) {
+            if (ep.get("name").getAsString().equals(name)) {
+                return true;
+            }
+        }
+
+        for (JsonObject ep : this.visibleEpsForModule) {
+            if (ep.get("name").getAsString().equals(name)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private TypeSymbol getRawType(TypeSymbol typeDescriptor) {

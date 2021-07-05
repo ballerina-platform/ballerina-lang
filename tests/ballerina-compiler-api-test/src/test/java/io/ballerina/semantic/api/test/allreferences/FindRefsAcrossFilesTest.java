@@ -56,6 +56,7 @@ public class FindRefsAcrossFilesTest extends FindAllReferencesTest {
                 },
                 {22, 56, location(16, 12, 18),
                         List.of(location(16, 12, 18, "type_defs.bal"),
+                                location(22, 5, 11, "type_defs.bal"),
                                 location(22, 56, 62, getFileName()))
                 },
                 {16, 16, location(16, 16, 19),

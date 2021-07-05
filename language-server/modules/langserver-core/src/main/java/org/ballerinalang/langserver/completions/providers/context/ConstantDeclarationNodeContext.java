@@ -27,7 +27,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class ConstantDeclarationNodeContext extends AbstractCompletionProvider<ConstantDeclarationNode> {
+public class ConstantDeclarationNodeContext extends VariableDeclarationProvider<ConstantDeclarationNode> {
 
     public ConstantDeclarationNodeContext() {
         super(ConstantDeclarationNode.class);
@@ -51,15 +51,16 @@ public class ConstantDeclarationNodeContext extends AbstractCompletionProvider<C
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ConstantDeclarationNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+        ResolvedContext resolvedContext = ResolvedContext.NONE;
         if (this.onTypeDescContext(context, node)) {
             if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
                 List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, qNameRef);
                 completionItems.addAll(this.getCompletionItemList(typesInModule, context));
             } else {
-                completionItems.addAll(this.getTypeItems(context));
-                completionItems.addAll(this.getModuleCompletionItems(context));
+                completionItems.addAll(this.getTypeDescContextItems(context));
             }
+            resolvedContext = ResolvedContext.TYPEDESC;
         } else if (this.onExpressionContext(context, node)) {
             Predicate<Symbol> predicate =
                     symbol -> symbol.kind() == SymbolKind.CONSTANT || symbol.kind() == SymbolKind.ENUM_MEMBER;
@@ -71,18 +72,48 @@ public class ConstantDeclarationNodeContext extends AbstractCompletionProvider<C
                 constants = context.visibleSymbols(context.getCursorPosition()).stream()
                         .filter(predicate)
                         .collect(Collectors.toList());
+                completionItems.addAll(this.getModuleCompletionItems(context));
             }
             completionItems.addAll(this.getCompletionItemList(constants, context));
+            resolvedContext = ResolvedContext.EXPRESSION;
         }
-        this.sort(context, node, completionItems);
+        this.sort(context, node, completionItems, resolvedContext);
 
         return completionItems;
     }
-    
+
+    @Override
+    public void sort(BallerinaCompletionContext context, ConstantDeclarationNode node,
+                     List<LSCompletionItem> completionItems, Object... metaData) {
+        ResolvedContext resolvedContext = (ResolvedContext) metaData[0];
+
+        switch (resolvedContext) {
+            case TYPEDESC:
+                completionItems.forEach(lsCItem -> {
+                    String sortText = SortingUtil.genSortTextForTypeDescContext(context, lsCItem);
+                    lsCItem.getCompletionItem().setSortText(sortText);
+                });
+                break;
+            case EXPRESSION:
+                super.sort(context, node, completionItems);
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, ConstantDeclarationNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token constKeyword = node.constKeyword();
+
+        return !constKeyword.isMissing() && cursor > constKeyword.textRange().endOffset();
+    }
+
     private boolean onExpressionContext(BallerinaCompletionContext context, ConstantDeclarationNode node) {
         int cursor = context.getCursorPositionInTree();
         Token equalsToken = node.equalsToken();
-        
+
         return !equalsToken.isMissing() && cursor > equalsToken.textRange().startOffset();
     }
 
@@ -101,15 +132,13 @@ public class ConstantDeclarationNodeContext extends AbstractCompletionProvider<C
         if (!variableName.isMissing()) {
             return cursor <= variableName.textRange().endOffset();
         }
-        
+
         return true;
     }
 
-    @Override
-    public boolean onPreValidation(BallerinaCompletionContext context, ConstantDeclarationNode node) {
-        int cursor = context.getCursorPositionInTree();
-        Token constKeyword = node.constKeyword();
-        
-        return !constKeyword.isMissing() && cursor > constKeyword.textRange().endOffset();
+    enum ResolvedContext {
+        EXPRESSION,
+        TYPEDESC,
+        NONE
     }
 }

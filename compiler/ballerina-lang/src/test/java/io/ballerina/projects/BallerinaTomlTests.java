@@ -203,7 +203,7 @@ public class BallerinaTomlTests {
         if (os.contains("win")) {
             // text range including minutiae, if we get a node that includes newline minutiae,
             // its text range will be different. i.e windows will have an extra 1 length due to \r\n.
-            Assert.assertEquals(firstDiagnostic.location().textRange().toString(), "(17,34)");
+            Assert.assertEquals(firstDiagnostic.location().textRange().toString(), "(18,34)");
         } else {
             Assert.assertEquals(firstDiagnostic.location().textRange().toString(), "(17,33)");
         }

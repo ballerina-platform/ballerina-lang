@@ -90,6 +90,12 @@ public class TypeGuardTest {
                 8);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'map<(int|string)>' will not be matched " +
                         "to 'map<boolean>'", 221, 8);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'CyclicComplexUnion' will not" +
+                " be matched to 'float'", 232, 8);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'CyclicComplexUnion' will not" +
+                " be matched to 'floatUnion'", 239, 8);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'CyclicComplexUnion' will not" +
+                " be matched to 'float[]'", 245, 8);
 
         Assert.assertEquals(negativeResult.getDiagnostics().length, i);
     }
@@ -115,7 +121,7 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++,
                                   "a type compatible with mapping constructor expressions not found in " +
                                           "type '(int|string|boolean)'", 137, 9);
-        BAssertUtil.validateError(negativeResult, i++, "pattern will not be matched", 144, 9);
+        BAssertUtil.validateWarning(negativeResult, i++, "pattern will not be matched", 144, 9);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|string)'",
                                   154, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|string)'",
@@ -151,7 +157,7 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++,
                                   "incompatible types: expected 'string', found '(Person|Student)'",
                                   240, 20);
-        BAssertUtil.validateError(negativeResult, i++, "pattern will not be matched", 247, 9);
+        BAssertUtil.validateWarning(negativeResult, i++, "pattern will not be matched", 247, 9);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found " +
                 "'(int|string|boolean)'", 257, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found '" +
@@ -210,7 +216,14 @@ public class TypeGuardTest {
                 "'map<int>'", 480, 30);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean[]', found '" +
                 "(string|boolean)[]'", 484, 23);
-        Assert.assertEquals(negativeResult.getErrorCount(), i);
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type '(Bar & readonly)' does not support " +
+                "optional field access for field 't'", 498, 17);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', found '(record {| " +
+                "string s; |} & readonly)?'", 499, 21);
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type '(Bar & readonly)' does not support " +
+                "field access for non-required field 'baz'", 500, 50);
+        Assert.assertEquals(negativeResult.getErrorCount(), i - 2);
+        Assert.assertEquals(negativeResult.getWarnCount(), 2);
     }
 
     @Test
@@ -519,31 +532,31 @@ public class TypeGuardTest {
     }
 
     @DataProvider(name = "finiteTypeAsBroaderTypesFunctions")
-    public Object[][] finiteTypeAsBroaderTypesFunctions() {
-        return new Object[][]{
-                {"testFiniteTypeAsBroaderTypes_1"},
-                {"testFiniteTypeAsBroaderTypes_2"},
-                {"testFiniteTypeAsBroaderTypes_3"},
-                {"testFiniteTypeAsBroaderTypes_4"}
+    public Object[] finiteTypeAsBroaderTypesFunctions() {
+        return new String[]{
+                "testFiniteTypeAsBroaderTypes_1",
+                "testFiniteTypeAsBroaderTypes_2",
+                "testFiniteTypeAsBroaderTypes_3",
+                "testFiniteTypeAsBroaderTypes_4"
         };
     }
 
     @DataProvider(name = "finiteTypeAsBroaderTypesAndFiniteTypeFunctions")
-    public Object[][] finiteTypeAsBroaderTypesAndFiniteTypeFunctions() {
-        return new Object[][]{
-                {"testFiniteTypeAsBroaderTypesAndFiniteType_1"},
-                {"testFiniteTypeAsBroaderTypesAndFiniteType_2"},
-                {"testFiniteTypeAsBroaderTypesAndFiniteType_3"},
-                {"testFiniteTypeAsBroaderTypesAndFiniteType_4"},
-                {"testFiniteTypeInUnionAsComplexFiniteTypes_1"},
-                {"testFiniteTypeInUnionAsComplexFiniteTypes_2"},
-                {"testFiniteTypeInUnionAsComplexFiniteTypes_3"},
-                {"testFiniteTypeInUnionAsComplexFiniteTypes_4"},
-                {"testFiniteTypeInUnionAsComplexFiniteTypes_5"},
-                {"testFiniteTypeInUnionAsComplexFiniteTypes_6"},
-                {"testFiniteTypeInUnionAsComplexFiniteTypes_7"},
-                {"testFiniteTypeAsFiniteTypeWithIntersectionPositive"},
-                {"testFiniteTypeAsBroaderTypeInStructurePositive"}
+    public Object[] finiteTypeAsBroaderTypesAndFiniteTypeFunctions() {
+        return new String[]{
+                "testFiniteTypeAsBroaderTypesAndFiniteType_1",
+                "testFiniteTypeAsBroaderTypesAndFiniteType_2",
+                "testFiniteTypeAsBroaderTypesAndFiniteType_3",
+                "testFiniteTypeAsBroaderTypesAndFiniteType_4",
+                "testFiniteTypeInUnionAsComplexFiniteTypes_1",
+                "testFiniteTypeInUnionAsComplexFiniteTypes_2",
+                "testFiniteTypeInUnionAsComplexFiniteTypes_3",
+                "testFiniteTypeInUnionAsComplexFiniteTypes_4",
+                "testFiniteTypeInUnionAsComplexFiniteTypes_5",
+                "testFiniteTypeInUnionAsComplexFiniteTypes_6",
+                "testFiniteTypeInUnionAsComplexFiniteTypes_7",
+                "testFiniteTypeAsFiniteTypeWithIntersectionPositive",
+                "testFiniteTypeAsBroaderTypeInStructurePositive"
         };
     }
 
@@ -554,7 +567,9 @@ public class TypeGuardTest {
                 {"testTypeNarrowingForIntersectingDirectUnion_2"},
                 {"testTypeNarrowingForIntersectingAssignableUnion_1"},
                 {"testTypeNarrowingForIntersectingAssignableUnion_2"},
-                {"testTypeNarrowingForIntersectingUnionWithRecords"}
+                {"testTypeNarrowingForIntersectingUnionWithRecords"},
+                {"testTypeNarrowingForIntersectingCyclicUnion"},
+                {"testTypeNarrowingForIntersectingCyclicUnionNegative"}
         };
     }
 
@@ -639,66 +654,31 @@ public class TypeGuardTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test
-    public void testNarrowedTypeResetWithMultipleBranches() {
-        BRunUtil.invoke(result, "testNarrowedTypeResetWithMultipleBranches");
-    }
-
-    @Test
-    public void testNarrowedTypeResetWithNestedTypeGuards() {
-        BRunUtil.invoke(result, "testNarrowedTypeResetWithNestedTypeGuards");
-    }
-
-    @Test
-    public void testSameVarNameInDifferentScopes() {
-        BRunUtil.invoke(result, "testSameVarNameInDifferentScopes");
-    }
-
     @Test(description = "Test Typetest for TypeDefs when types are equal")
     public void testTypetestForTypedefs1() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeDescTypeTest1");
-        Assert.assertEquals(BBoolean.TRUE, returns[0]);
+        Assert.assertEquals(returns[0], BBoolean.TRUE);
     }
 
     @Test(description = "Test Typetest for TypeDefs when types are not equal")
     public void testTypetestForTypedefs2() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeDescTypeTest2");
-        Assert.assertEquals(BBoolean.TRUE, returns[0]);
+        Assert.assertEquals(returns[0], BBoolean.TRUE);
     }
 
-    @Test
-    public void testRecordIntersectionWithClosedRecordAndRecordWithOptionalField() {
-        BRunUtil.invoke(result, "testRecordIntersectionWithClosedRecordAndRecordWithOptionalField");
+    @Test(dataProvider = "functionNamesProvider")
+    public void testInvokeFunctions(String funcName) {
+        BRunUtil.invoke(result, funcName);
     }
 
-    @Test
-    public void testRecordIntersectionWithClosedRecordAndRecordWithOptionalField2() {
-        BRunUtil.invoke(result, "testRecordIntersectionWithClosedRecordAndRecordWithOptionalField2");
-    }
-
-    @Test
-    public void testRecordIntersectionWithDefaultValues() {
-        BRunUtil.invoke(result, "testRecordIntersectionWithDefaultValues");
-    }
-
-    @Test
-    public void testClosedRecordAndMapIntersection() {
-        BRunUtil.invoke(result, "testClosedRecordAndMapIntersection");
-    }
-
-    @Test
-    public void testIntersectionReadOnlyness() {
-        BRunUtil.invoke(result, "testIntersectionReadOnlyness");
-    }
-
-    @Test
-    public void testMapIntersection() {
-        BRunUtil.invoke(result, "testMapIntersection");
-    }
-
-    @Test
-    public void testJsonIntersection() {
-        BRunUtil.invoke(result, "testJsonIntersection");
+    @DataProvider(name = "functionNamesProvider")
+    public Object[] getFunctionNames() {
+        return new String[]{"testCustomErrorType", "testIntersectionWithIntersectionType", "testJsonIntersection",
+                "testMapIntersection", "testIntersectionReadOnlyness", "testClosedRecordAndMapIntersection",
+                "testRecordIntersectionWithDefaultValues",
+                "testRecordIntersectionWithClosedRecordAndRecordWithOptionalField2",
+                "testRecordIntersectionWithClosedRecordAndRecordWithOptionalField", "testSameVarNameInDifferentScopes",
+                "testNarrowedTypeResetWithNestedTypeGuards", "testNarrowedTypeResetWithMultipleBranches"};
     }
 
     @Test

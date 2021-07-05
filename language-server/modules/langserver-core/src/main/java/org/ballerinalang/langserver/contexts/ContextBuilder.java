@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.contexts;
 
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSContextOperation;
+import org.ballerinalang.langserver.commons.BallerinaDefinitionContext;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
@@ -26,7 +27,9 @@ import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.FoldingRangeContext;
 import org.ballerinalang.langserver.commons.HoverContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.PrepareRenameContext;
 import org.ballerinalang.langserver.commons.ReferencesContext;
+import org.ballerinalang.langserver.commons.RenameContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
@@ -132,6 +135,46 @@ public class ContextBuilder {
     }
 
     /**
+     * Build the prepare rename context.
+     *
+     * @param uri              file uri
+     * @param workspaceManager workspace manager instance
+     * @param serverContext    language server context
+     * @param position         cursor position
+     * @return {@link SignatureContext} generated signature context
+     */
+    public static PrepareRenameContext buildPrepareRenameContext(String uri,
+                                                                 WorkspaceManager workspaceManager,
+                                                                 LanguageServerContext serverContext,
+                                                                 Position position) {
+        return new PrepareRenameContextImpl.PrepareRenameContextBuilder(serverContext)
+                .withFileUri(uri)
+                .withWorkspaceManager(workspaceManager)
+                .withPosition(position)
+                .build();
+    }
+
+    /**
+     * Build the rename context.
+     *
+     * @param uri              file uri
+     * @param workspaceManager workspace manager instance
+     * @param serverContext    language server context
+     * @param position         cursor position
+     * @return {@link SignatureContext} generated signature context
+     */
+    public static RenameContext buildRenameContext(String uri,
+                                                   WorkspaceManager workspaceManager,
+                                                   LanguageServerContext serverContext,
+                                                   Position position) {
+        return new RenameContextImpl.RenameContextBuilder(serverContext)
+                .withFileUri(uri)
+                .withWorkspaceManager(workspaceManager)
+                .withPosition(position)
+                .build();
+    }
+
+    /**
      * Build the code action context.
      *
      * @param uri              file uri
@@ -203,6 +246,26 @@ public class ContextBuilder {
         return new FoldingRangeContextImpl.FoldingRangeContextBuilder(lineFoldingOnly, serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
+                .build();
+    }
+
+    /**
+     * Build the goto definition context.
+     * 
+     * @param uri file URI
+     * @param workspaceManager workspace manager instance
+     * @param serverContext language server context
+     * @param position position where the definition operation invoked
+     * @return {@link BallerinaDefinitionContext}
+     */
+    public static BallerinaDefinitionContext buildDefinitionContext(String uri,
+                                                                    WorkspaceManager workspaceManager,
+                                                                    LanguageServerContext serverContext,
+                                                                    Position position) {
+        return new BallerinaDefinitionContextImpl.DefinitionContextBuilder(serverContext)
+                .withFileUri(uri)
+                .withWorkspaceManager(workspaceManager)
+                .withCursorPosition(position)
                 .build();
     }
 }

@@ -48,59 +48,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestRecord1",
+      "label": "TestEnum1",
+      "kind": "Enum",
+      "detail": "enum",
+      "sortText": "I",
+      "insertText": "TestEnum1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AnnotationType",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "L",
-      "insertText": "TestRecord1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestRecord2",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "TestRecord2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap2",
-      "kind": "TypeParameter",
-      "detail": "Map",
       "sortText": "M",
-      "insertText": "TestMap2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap3",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "M",
-      "insertText": "TestMap3",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestObject1",
-      "kind": "Interface",
-      "detail": "Object",
-      "sortText": "K",
-      "insertText": "TestObject1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ErrorOne",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "Q",
-      "insertText": "ErrorOne",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ErrorTwo",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "Q",
-      "insertText": "ErrorTwo",
+      "insertText": "AnnotationType",
       "insertTextFormat": "Snippet"
     },
     {
@@ -126,27 +86,67 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "AnnotationType",
+      "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
+      "sortText": "M",
+      "insertText": "TestRecord1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord2",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "M",
+      "insertText": "TestRecord2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap2",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "N",
+      "insertText": "TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap3",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "N",
+      "insertText": "TestMap3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "K",
+      "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorOne",
+      "kind": "Event",
+      "detail": "Error",
       "sortText": "L",
-      "insertText": "AnnotationType",
+      "insertText": "ErrorOne",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestEnum1",
-      "kind": "Enum",
-      "detail": "enum",
-      "sortText": "I",
-      "insertText": "TestEnum1",
+      "label": "ErrorTwo",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "L",
+      "insertText": "ErrorTwo",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestClass1",
+      "label": "Listener",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "K",
-      "insertText": "TestClass1",
+      "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
     {
@@ -172,11 +172,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Listener",
+      "label": "TestClass1",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "K",
-      "insertText": "Listener",
+      "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -190,7 +190,7 @@
     {
       "label": "function1()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -205,7 +205,7 @@
     {
       "label": "function2()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -218,13 +218,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "function3(int param1, int param2, float... param3)(int)",
+      "label": "function3(int param1, int param2, float... param3)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Returns** `int`   \n- Return Value Description  \n  \n"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Return** `int`   \n- Return Value Description  \n  \n"
         }
       },
       "sortText": "C",
@@ -239,7 +239,7 @@
     {
       "label": "function4(int param1, int param2, string param3, float... param4)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",

@@ -81,7 +81,7 @@ public class BLangRecordVariable extends BLangVariable implements RecordVariable
 
     @Override
     public String toString() {
-        return String.valueOf(type) + " {" + variableList.stream()
+        return String.valueOf(getBType()) + " {" + variableList.stream()
                 .map(BLangRecordVariableKeyValue::toString)
                 .collect(Collectors.joining(",")) + "} = " + this.expr;
     }

@@ -109,7 +109,6 @@ import static org.ballerinalang.debugadapter.DebugExecutionManager.LOCAL_HOST;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GENERATED_VAR_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.closeQuietly;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.loadProject;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDERR;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
@@ -139,6 +138,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private static final String SCOPE_NAME_LOCAL = "Local";
     private static final String SCOPE_NAME_GLOBAL = "Global";
     private static final String VALUE_UNKNOWN = "unknown";
+    private static final String J_INIT_FRAME_NAME = "$init$";
     private static final String COMPILATION_ERROR_MESSAGE = "error: compilation contains errors";
 
     public JBallerinaDebugServer() {
@@ -161,6 +161,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         capabilities.setSupportsTerminateRequest(true);
         capabilities.setSupportTerminateDebuggee(true);
         capabilities.setSupportsConditionalBreakpoints(true);
+        capabilities.setSupportsLogPoints(true);
         // Todo - Implement
         capabilities.setSupportsCompletionsRequest(false);
         capabilities.setSupportsRestartRequest(false);
@@ -283,6 +284,19 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             if (loadedThreadFrames.containsKey(activeThread.uniqueID())) {
                 stackTraceResponse.setStackFrames(loadedThreadFrames.get(activeThread.uniqueID()));
             } else {
+                try {
+                    // If the active thread's top stack frame name is equal to `J_INIT_FRAME_NAME`, need to abort the
+                    // processing and send a `step-in` request to resume the VM to stop at its next state.
+                    // This is because the above state is related to java-level object initialisation and therefore
+                    // suspending the VM at that intermediate state does not provide any useful information to the user.
+                    if (activeThread.frames().get(0).location().method().name().equals(J_INIT_FRAME_NAME)) {
+                        prepareFor(DebugInstruction.STEP_IN);
+                        eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_INTO);
+                    }
+                } catch (Exception ignored) {
+                    // Ignore the exception and continue the flow.
+                    // This will result in having `J_INIT_FRAME_NAME` on the top of the call stack.
+                }
                 StackFrame[] validFrames = activeThread.frames().stream()
                         .map(this::toDapStackFrame)
                         .filter(JBallerinaDebugServer::isValidFrame)
@@ -454,10 +468,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     private BalBreakpoint toBreakpoint(SourceBreakpoint sourceBreakpoint, Source source) {
-        BalBreakpoint breakpoint = new BalBreakpoint();
-        breakpoint.setLine(sourceBreakpoint.getLine());
-        breakpoint.setSource(source);
+        BalBreakpoint breakpoint = new BalBreakpoint(source, sourceBreakpoint.getLine());
         breakpoint.setCondition(sourceBreakpoint.getCondition());
+        breakpoint.setLogMessage(sourceBreakpoint.getLogMessage());
         return breakpoint;
     }
 
@@ -494,8 +507,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             if (context.getDebuggeeVM().process() != null) {
                 exitCode = killProcessWithDescendants(context.getDebuggeeVM().process());
             }
-            context.getDebuggeeVM().exit(exitCode);
+            try {
+                context.getDebuggeeVM().exit(exitCode);
+            } catch (Exception ignored) {
+                // It is okay to ignore the VM exit Exceptions, in-case the remote debuggee is already terminated.
+            }
         }
+
         // If 'terminationRequestReceived' is false, debug server termination should have been triggered from the
         // JDI event processor, after receiving a 'VMDisconnected'/'VMExited' event.
         if (!context.isTerminateRequestReceived()) {
@@ -522,28 +540,26 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     private static int killProcessWithDescendants(Process parent) {
-        // Closes I/O streams.
-        closeQuietly(parent.getInputStream());
-        closeQuietly(parent.getOutputStream());
-        closeQuietly(parent.getErrorStream());
-
-        // Kills the descendants of the process. The descendants of a process are the children
-        // of the process and the descendants of those children, recursively.
-        parent.descendants().forEach(processHandle -> {
-            boolean successful = processHandle.destroy();
-            if (!successful) {
-                processHandle.destroyForcibly();
-            }
-        });
-
-        // Kills the parent process. Whether the process represented by this Process object will be normally
-        // terminated or not, is implementation dependent.
-        parent.destroy();
         try {
+            // Kills the descendants of the process. The descendants of a process are the children
+            // of the process and the descendants of those children, recursively.
+            parent.descendants().forEach(processHandle -> {
+                boolean successful = processHandle.destroy();
+                if (!successful) {
+                    processHandle.destroyForcibly();
+                }
+            });
+
+            // Kills the parent process. Whether the process represented by this Process object will be normally
+            // terminated or not, is implementation dependent.
+            parent.destroyForcibly();
             parent.waitFor();
+            return parent.exitValue();
         } catch (InterruptedException ignored) {
+            return 0;
+        } catch (Exception e) {
+            return 1;
         }
-        return parent.exitValue();
     }
 
     public void connect(IDebugProtocolClient client) {
@@ -848,9 +864,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 return;
             }
 
-            BufferedReader errorStream = context.getErrorStream();
-            String line;
-            try {
+            try (BufferedReader errorStream = context.getErrorStream()) {
+                String line;
                 while ((line = errorStream.readLine()) != null) {
                     // Todo - Redirect back to error stream, once the ballerina program output is fixed to use
                     //  the STDOUT stream.
@@ -868,9 +883,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 return;
             }
 
-            BufferedReader inputStream = context.getInputStream();
-            String line;
-            try {
+            try (BufferedReader inputStream = context.getInputStream()) {
+                String line;
                 sendOutput("Waiting for debug process to start...", STDOUT);
                 while ((line = inputStream.readLine()) != null) {
                     if (line.contains("Listening for transport dt_socket")) {
@@ -933,6 +947,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         stackFramesMap.clear();
         loadedVariables.clear();
         variableToStackFrameMap.clear();
+        scopeIdToFrameIdMap.clear();
         loadedThreadFrames.clear();
         nextVarReference.set(1);
     }

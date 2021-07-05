@@ -323,73 +323,65 @@ public class BallerinaDocGenerator {
         List<ConstructSearchJson> searchObjectTypes = new ArrayList<>();
         List<ConstructSearchJson> searchEnums = new ArrayList<>();
 
-        for (Module module: moduleLib.modules) {
+        List<Module> allModules = new ArrayList<>();
+        allModules.addAll(moduleLib.langLibs);
+        allModules.addAll(moduleLib.modules);
+        allModules.sort((o1, o2) -> o1.id.compareToIgnoreCase(o2.id));
+
+        for (Module module: allModules) {
             if (module.summary != null) {
-                searchModules.add(new ModuleSearchJson(module.id, module.orgName, module.version,
-                        getFirstLine(module.summary)));
+                searchModules.add(new ModuleSearchJson(module.id, module.orgName, module.version, module.summary));
             }
 
             module.functions.forEach((function) ->
                     searchFunctions.add(new ConstructSearchJson(function.name, module.id, module.orgName,
-                            module.version, getFirstLine(function.description))));
+                            module.version, function.description)));
 
             module.classes.forEach((bClass) ->
                     searchClasses.add(new ConstructSearchJson(bClass.name, module.id, module.orgName, module.version,
-                            getFirstLine(bClass.description))));
+                            bClass.description)));
 
             module.objectTypes.forEach((absObj) ->
                     searchObjectTypes.add(new ConstructSearchJson(absObj.name, module.id, module.orgName,
-                            module.version, getFirstLine(absObj.description))));
+                            module.version, absObj.description)));
 
             module.clients.forEach((client) ->
                     searchClients.add(new ConstructSearchJson(client.name, module.id, module.orgName, module.version,
-                            getFirstLine(client.description))));
+                            client.description)));
 
             module.listeners.forEach((listener) ->
                     searchListeners.add(new ConstructSearchJson(listener.name, module.id, module.orgName,
-                            module.version, getFirstLine(listener.description))));
+                            module.version, listener.description)));
 
             module.records.forEach((record) ->
                     searchRecords.add(new ConstructSearchJson(record.name, module.id, module.orgName, module.version,
-                            getFirstLine(record.description))));
+                            record.description)));
 
             module.constants.forEach((constant) ->
                     searchConstants.add(new ConstructSearchJson(constant.name, module.id, module.orgName,
-                            module.version, getFirstLine(constant.description))));
+                            module.version, constant.description)));
 
             module.errors.forEach((error) ->
                     searchErrors.add(new ConstructSearchJson(error.name, module.id, module.orgName, module.version,
-                            getFirstLine(error.description))));
+                            error.description)));
 
             module.types.forEach((unionType) ->
                     searchTypes.add(new ConstructSearchJson(unionType.name, module.id, module.orgName, module.version,
-                            getFirstLine(unionType.description))));
+                            unionType.description)));
 
             module.annotations.forEach((annotation) ->
                     searchAnnotations.add(new ConstructSearchJson(annotation.name, module.id, module.orgName,
-                            module.version, getFirstLine(annotation.description))));
+                            module.version, annotation.description)));
 
             module.enums.forEach((benum) ->
                     searchEnums.add(new ConstructSearchJson(benum.name, module.id, module.orgName, module.version,
-                            getFirstLine(benum.description))));
+                            benum.description)));
 
         }
 
         return new SearchJson(searchModules, searchClasses, searchFunctions, searchRecords,
                 searchConstants, searchErrors, searchTypes, searchClients, searchListeners, searchAnnotations,
                 searchObjectTypes, searchEnums);
-    }
-
-    private static String getFirstLine(String description) {
-        String[] splits = description.split("\\.", 2);
-        if (splits.length < 2) {
-            return splits[0];
-        } else {
-            if (splits[0].contains("<p>")) {
-                return splits[0] + ".</p>";
-            }
-            return splits[0] + ".";
-        }
     }
 
     /**
@@ -402,9 +394,7 @@ public class BallerinaDocGenerator {
         Map<String, ModuleDoc> moduleDocMap = new HashMap<>();
         for (io.ballerina.projects.Module module : project.currentPackage().modules()) {
             String moduleName;
-            // Temporarily append package.md to module.md
-            String moduleMdText = project.currentPackage().packageMd().map(d -> d.content()).orElse("");
-            moduleMdText += module.moduleMd().map(d -> d.content()).orElse("");
+            String moduleMdText = module.moduleMd().map(d -> d.content()).orElse("");
             Path modulePath;
             if (module.isDefaultModule()) {
                 moduleName = module.moduleName().packageName().toString();

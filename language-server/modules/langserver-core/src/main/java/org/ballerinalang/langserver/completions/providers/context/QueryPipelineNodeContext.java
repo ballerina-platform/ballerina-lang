@@ -15,12 +15,16 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QueryPipelineNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.WhereClauseNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.providers.context.util.QueryExpressionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -41,7 +45,6 @@ public class QueryPipelineNodeContext extends AbstractCompletionProvider<QueryPi
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, QueryPipelineNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-
         if (node.fromClause().isMissing() || node.fromClause().fromKeyword().isMissing()) {
             /*
             Covers the following
@@ -51,9 +54,27 @@ public class QueryPipelineNodeContext extends AbstractCompletionProvider<QueryPi
              */
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_FROM.get()));
+        } else if (onMissingWhereNode(context)) {
+                /*
+            Covers the following
+            [intermediate-clause] w<cursor> or [intermediate-clause] j<cursor>
+
+            Parser recovers as follows.
+            [intermediate] MISSING[where]w
+            Therefore, for each possible intermediate clause MISSING[where] is used as a flag.
+             */
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_FROM.get()));
+            completionItems.addAll(QueryExpressionUtil.getCommonKeywordCompletions(context));
         }
         this.sort(context, node, completionItems);
 
         return completionItems;
+    }
+
+    private boolean onMissingWhereNode(BallerinaCompletionContext context) {
+        NonTerminalNode nextIntermediate = context.getNodeAtCursor().parent();
+        return !nextIntermediate.isMissing() && nextIntermediate.kind() == SyntaxKind.WHERE_CLAUSE
+                && ((WhereClauseNode) nextIntermediate).whereKeyword().isMissing();
     }
 }

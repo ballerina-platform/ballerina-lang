@@ -1,9 +1,9 @@
 [envVarPkg]
-booleanVar = false
-decimalVar = 12.34
-floatVar = 23.1
-intVar = 22
-stringVar = "this should get overridden"
+intVar = 42
+floatVar = 3.5
+stringVar = "abc"
+booleanVar = true
+decimalVar = 24.87
 
 intArr = [1,2,3]
 floatArr = [9.0, 5.6]
