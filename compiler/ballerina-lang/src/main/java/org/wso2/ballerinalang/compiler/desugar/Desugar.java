@@ -801,7 +801,13 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
         pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
-        pkgNode.functions = rewrite(pkgNode.functions, env);
+
+        for (int i = 0; i < pkgNode.functions.size(); i++) {
+            if (!(pkgNode.functions.get(i).getKind() == NodeKind.FUNCTION
+                    && (pkgNode.functions.get(i)).flagSet.contains(Flag.LAMBDA))) {
+                pkgNode.functions.set(i, rewrite(pkgNode.functions.get(i), env));
+            }
+        }
 
         // Invoke closure desugar.
         closureDesugar.visit(pkgNode);
@@ -1222,8 +1228,19 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
-        functionTypeNode.params.forEach(param -> rewrite(param.typeNode, env));
-        functionTypeNode.returnTypeNode = rewrite(functionTypeNode.returnTypeNode, env);
+        SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(functionTypeNode, functionTypeNode.symbol.scope, env);
+        for (BLangVariable param : functionTypeNode.params) {
+            if (param.expr != null) {
+                createClosureForDefaultValue(((BLangSimpleVariable) param).name.value, param.expr,
+                                            (BInvokableTypeSymbol) functionTypeNode.symbol, typeDefEnv);
+                continue;
+            }
+            rewrite(param, typeDefEnv);
+        }
+        if (functionTypeNode.restParam != null) {
+            rewrite(functionTypeNode.restParam, typeDefEnv);
+        }
+        functionTypeNode.returnTypeNode = rewrite(functionTypeNode.returnTypeNode, typeDefEnv);
         result = functionTypeNode;
     }
 
@@ -5604,10 +5621,22 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Restore the original symbol
+        BLangInvokableNode encInvokable = env.enclInvokable;
         if ((varRefExpr.symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
             BVarSymbol varSymbol = (BVarSymbol) varRefExpr.symbol;
             if (varSymbol.originalSymbol != null) {
                 varRefExpr.symbol = varSymbol.originalSymbol;
+            }
+            if (!varSymbol.closure && encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA) &&
+                                                             encInvokable.flagSet.contains(Flag.DEFAULTABLE_PARAM)) {
+                SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+                BSymbol resolvedSymbol =
+                        symResolver.lookupClosureVarSymbol(encInvokableEnv, varRefExpr.symbol.name, SymTag.VARIABLE);
+                if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
+                    varSymbol.closure = true;
+                    ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(varSymbol,
+                                                                                              varRefExpr.pos));
+                }
             }
         }
 
@@ -5619,6 +5648,7 @@ public class Desugar extends BLangNodeVisitor {
                 !((varRefExpr.symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT)) {
             genVarRefExpr = new BLangTypeLoad(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE ||
+                (ownerSymbol.tag & SymTag.FUNCTION_TYPE) == SymTag.FUNCTION_TYPE ||
                 (ownerSymbol.tag & SymTag.LET) == SymTag.LET) {
             // Local variable in a function/resource/action/worker/let
             genVarRefExpr = new BLangLocalVarRef((BVarSymbol) varRefExpr.symbol);
