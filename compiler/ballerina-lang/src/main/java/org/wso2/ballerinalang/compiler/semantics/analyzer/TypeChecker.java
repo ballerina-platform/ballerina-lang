@@ -3065,34 +3065,12 @@ public class TypeChecker extends BLangNodeVisitor {
         return false;
     }
 
-    private boolean checkFieldFunctionPointer(BLangInvocation iExpr, SymbolEnv env) {
+    private void checkFieldFunctionPointer(BLangInvocation iExpr, SymbolEnv env) {
         BType type = checkExpr(iExpr.expr, env);
-
-        BLangIdentifier invocationIdentifier = iExpr.name;
-
         if (type == symTable.semanticError) {
-            return false;
+            return;
         }
-        BSymbol fieldSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(invocationIdentifier),
-                                                             type.tsymbol);
-
-        if (fieldSymbol == symTable.notFoundSymbol) {
-            checkIfLangLibMethodExists(iExpr, type, iExpr.name.pos, DiagnosticErrorCode.UNDEFINED_FIELD_IN_RECORD,
-                                       invocationIdentifier, type);
-            return false;
-        }
-
-        if (fieldSymbol.kind != SymbolKind.FUNCTION) {
-            checkIfLangLibMethodExists(iExpr, type, iExpr.pos, DiagnosticErrorCode.INVALID_METHOD_CALL_EXPR_ON_FIELD,
-                                       fieldSymbol.type);
-            return false;
-        }
-
-        iExpr.symbol = fieldSymbol;
-        iExpr.type = ((BInvokableSymbol) fieldSymbol).retType;
-        checkInvocationParamAndReturnType(iExpr);
-        iExpr.functionPointerInvocation = true;
-        return true;
+        checkIfLangLibMethodExists(iExpr, type, iExpr.name.pos, DiagnosticErrorCode.INVALID_FUNCTION_INVOCATION, type);
     }
 
     private void checkIfLangLibMethodExists(BLangInvocation iExpr, BType varRefType, Location pos,
@@ -5450,7 +5428,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     protected void markAndRegisterClosureVariable(BSymbol symbol, Location pos, SymbolEnv env) {
         BLangInvokableNode encInvokable = env.enclInvokable;
-        if (symbol.closure == true ||
+        if (symbol.closure == true || (env.enclType != null && env.enclType.getKind() == NodeKind.FUNCTION_TYPE) ||
                 (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE && env.node.getKind() != NodeKind.ARROW_EXPR) {
             return;
         }
