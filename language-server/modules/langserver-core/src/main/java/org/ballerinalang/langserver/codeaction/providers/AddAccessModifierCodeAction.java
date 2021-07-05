@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -47,7 +48,7 @@ public class AddAccessModifierCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, 
                                                     DiagBasedPositionDetails positionDetails, 
                                                     CodeActionContext context) {
-        if (!("BCE2096".equals(diagnostic.diagnosticInfo().code()))) {
+        if (!(DiagnosticErrorCode.MAIN_SHOULD_BE_PUBLIC.diagnosticId().equals(diagnostic.diagnosticInfo().code()))) {
             return Collections.emptyList();
         }
         
