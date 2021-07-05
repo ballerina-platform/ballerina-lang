@@ -325,6 +325,11 @@ public class SymbolResolver extends BLangNodeVisitor {
             // If the symbol being defined is inside a let expression and the existing symbol is defined inside a
             // function both symbols are in the same scope.
             return  true;
+        }  else if (((symbol.owner.tag & SymTag.FUNCTION_TYPE) == SymTag.FUNCTION_TYPE) &&
+                ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE)) {
+            // If the symbol being defined is inside a function type and the existing symbol is defined inside a
+            // function both symbols are in the same scope.
+            return  true;
         }
         return  false;
     }
@@ -1393,8 +1398,9 @@ public class SymbolResolver extends BLangNodeVisitor {
 
             if ((tempSymbol.tag & SymTag.TYPE) == SymTag.TYPE) {
                 symbol = tempSymbol;
-            } else if (Symbols.isTagOn(tempSymbol, SymTag.VARIABLE) && env.node.getKind() == NodeKind.FUNCTION) {
-                BLangFunction func = (BLangFunction) env.node;
+            } else if (Symbols.isTagOn(tempSymbol, SymTag.VARIABLE) &&
+                        (env.node.getKind() == NodeKind.FUNCTION || env.node.getKind() == NodeKind.FUNCTION_TYPE)) {
+                BLangFunction func = (BLangFunction) env.enclInvokable;
                 boolean errored = false;
 
                 if (func.returnTypeNode == null ||
@@ -1493,109 +1499,48 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
-        List<BLangVariable> params = functionTypeNode.getParams();
-        Location pos = functionTypeNode.pos;
-        BLangType returnTypeNode = functionTypeNode.returnTypeNode;
-        BType invokableType = createInvokableType(params, functionTypeNode.restParam, returnTypeNode,
-                                                  Flags.asMask(functionTypeNode.flagSet), env, pos);
-        resultType = validateInferTypedescParams(pos, params, returnTypeNode == null ? null : returnTypeNode.type) ?
-                        invokableType : symTable.semanticError;
-    }
-
-    public BType createInvokableType(List<? extends BLangVariable> paramVars,
-                                     BLangVariable restVariable,
-                                     BLangType retTypeVar,
-                                     long flags,
-                                     SymbolEnv env,
-                                     Location location) {
-        List<BType> paramTypes = new ArrayList<>();
-        List<BVarSymbol> params = new ArrayList<>();
-
-        boolean foundDefaultableParam = false;
-        List<String> paramNames = new ArrayList<>();
-        if (Symbols.isFlagOn(flags, Flags.ANY_FUNCTION)) {
-            BInvokableType bInvokableType = new BInvokableType(null, null, null, null);
-            bInvokableType.flags = flags;
-            BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
-                                                                             env.enclPkg.symbol.pkgID, bInvokableType,
-                                                                             env.scope.owner, location, SOURCE);
-            tsymbol.params = null;
-            tsymbol.restParam = null;
-            tsymbol.returnType = null;
-            bInvokableType.tsymbol = tsymbol;
-            return bInvokableType;
-        }
-
-        for (BLangVariable paramNode : paramVars) {
-            BLangSimpleVariable param = (BLangSimpleVariable) paramNode;
-            Name paramName = names.fromIdNode(param.name);
-            if (paramName != Names.EMPTY) {
-                if (paramNames.contains(paramName.value)) {
-                    dlog.error(param.name.pos, DiagnosticErrorCode.REDECLARED_SYMBOL, paramName.value);
-                } else {
-                    paramNames.add(paramName.value);
+        if (functionTypeNode.symbol == null) {
+            BInvokableTypeSymbol invokableTypeSymbol;
+            BInvokableType invokableType;
+            if (functionTypeNode.flagSet.contains(Flag.ANY_FUNCTION)) {
+                invokableType = new BInvokableType(null, null, null, null);
+                invokableType.flags = Flags.asMask(functionTypeNode.flagSet);
+                invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
+                                                                        Flags.asMask(functionTypeNode.flagSet),
+                                                                        env.enclPkg.symbol.pkgID, invokableType,
+                                                                        env.scope.owner, functionTypeNode.pos, SOURCE);
+                invokableTypeSymbol.params = null;
+                invokableTypeSymbol.restParam = null;
+                invokableTypeSymbol.returnType = null;
+                invokableType.tsymbol = invokableTypeSymbol;
+                functionTypeNode.symbol = invokableTypeSymbol;
+                functionTypeNode.type = invokableType;
+            } else {
+                invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
+                        Flags.asMask(functionTypeNode.flagSet),
+                        env.enclPkg.symbol.pkgID, functionTypeNode.type,
+                        env.scope.owner, functionTypeNode.pos, SOURCE);
+                invokableType = new BInvokableType(invokableTypeSymbol);
+                invokableTypeSymbol.type = invokableType;
+                functionTypeNode.symbol = invokableTypeSymbol;
+                invokableTypeSymbol.name =
+                        names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
+                symbolEnter.defineSymbol(functionTypeNode.pos, invokableTypeSymbol, env);
+                if (env.node.getKind() != NodeKind.PACKAGE) {
+                    symbolEnter.defineNode(functionTypeNode, env);
                 }
+                invokableType = (BInvokableType) invokableTypeSymbol.type;
             }
-            BType type = resolveTypeNode(param.getTypeNode(), env);
-            if (type == symTable.noType) {
-                return symTable.noType;
-            }
-            paramNode.type = type;
-            paramTypes.add(type);
-
-            long paramFlags = Flags.asMask(paramNode.flagSet);
-            BVarSymbol symbol = new BVarSymbol(paramFlags, paramName, env.enclPkg.symbol.pkgID, type, env.scope.owner,
-                                               param.pos, SOURCE);
-            param.symbol = symbol;
-
-            if (param.expr != null) {
-                foundDefaultableParam = true;
-                symbol.isDefaultable = true;
-                symbol.flags |= Flags.OPTIONAL;
-            } else if (foundDefaultableParam) {
-                dlog.error(param.pos, DiagnosticErrorCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM);
-            }
-
-            params.add(symbol);
+            List<BLangVariable> params = functionTypeNode.getParams();
+            Location pos = functionTypeNode.pos;
+            BLangType returnTypeNode = functionTypeNode.returnTypeNode;
+            resultType = validateInferTypedescParams(pos, params, returnTypeNode == null ? null : returnTypeNode.type) ?
+                    invokableType : symTable.semanticError;
+        } else {
+            resultType = functionTypeNode.symbol.type;
         }
-
-        BType retType = resolveTypeNode(retTypeVar, env);
-        if (retType == symTable.noType) {
-            return symTable.noType;
-        }
-
-        BVarSymbol restParam = null;
-        BType restType = null;
-
-        if (restVariable != null) {
-            restType = resolveTypeNode(restVariable.typeNode, env);
-            if (restType == symTable.noType) {
-                return symTable.noType;
-            }
-            restVariable.type = restType;
-            restParam = new BVarSymbol(Flags.asMask(restVariable.flagSet),
-                                       names.fromIdNode(((BLangSimpleVariable) restVariable).name),
-                                       env.enclPkg.symbol.pkgID, restType, env.scope.owner, restVariable.pos, SOURCE);
-        }
-
-        BInvokableType bInvokableType = new BInvokableType(paramTypes, restType, retType, null);
-        bInvokableType.flags = flags;
-        BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
-                                                                         env.enclPkg.symbol.pkgID, bInvokableType,
-                                                                         env.scope.owner, location, SOURCE);
-
-        tsymbol.params = params;
-        tsymbol.restParam = restParam;
-        tsymbol.returnType = retType;
-        bInvokableType.tsymbol = tsymbol;
-
-        List<BType> allConstituentTypes = new ArrayList<>(paramTypes);
-        allConstituentTypes.add(restType);
-        allConstituentTypes.add(retType);
-        markParameterizedType(bInvokableType, allConstituentTypes);
-
-        return bInvokableType;
     }
+
     /**
      * Lookup all the visible in-scope symbols for a given environment scope.
      *
@@ -1841,7 +1786,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return foundSymbol;
     }
 
-    private void visitBuiltInTypeNode(BLangType typeNode, TypeKind typeKind, SymbolEnv env) {
+    public void visitBuiltInTypeNode(BLangType typeNode, TypeKind typeKind, SymbolEnv env) {
         Name typeName = names.fromTypeKind(typeKind);
         BSymbol typeSymbol = lookupMemberSymbol(typeNode.pos, symTable.rootScope,
                 env, typeName, SymTag.TYPE);
