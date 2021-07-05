@@ -85,7 +85,6 @@ public class DebugTestRunner {
     private BMainInstance balClient = null;
     private Process debuggeeProcess;
     private DebugHitListener hitListener;
-    private DebugOutputListener outputListener;
     private AssertionMode assertionMode;
     private SoftAssert softAsserter;
 
@@ -389,8 +388,7 @@ public class DebugTestRunner {
      * @throws BallerinaTestException if a debug point is not found within the given time.
      */
     public Pair<String, OutputEventArguments> waitForDebugOutput(long timeoutMillis) throws BallerinaTestException {
-
-        outputListener = new DebugOutputListener(debugClientConnector);
+        DebugOutputListener outputListener = new DebugOutputListener(debugClientConnector);
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(outputListener, 0, 1000);
         try {

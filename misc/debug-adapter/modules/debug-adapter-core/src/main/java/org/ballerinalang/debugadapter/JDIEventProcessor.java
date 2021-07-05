@@ -162,7 +162,7 @@ public class JDIEventProcessor {
             return;
         }
 
-        // If there's an non-empty user defined log message and and no breakpoint condition, resumes the remote VM
+        // If there's a non-empty user defined log message and no breakpoint condition, resumes the remote VM
         // after showing the log on the debug console.
         if (!logMessage.isEmpty() && condition.isEmpty()) {
             context.getAdapter().sendOutput(logMessage, STDOUT);

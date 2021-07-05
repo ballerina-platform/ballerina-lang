@@ -65,8 +65,4 @@ public class DebugOutputListener extends TimerTask {
             this.cancel();
         }
     }
-
-    public TestDAPClientConnector getConnector() {
-        return connector;
-    }
 }
