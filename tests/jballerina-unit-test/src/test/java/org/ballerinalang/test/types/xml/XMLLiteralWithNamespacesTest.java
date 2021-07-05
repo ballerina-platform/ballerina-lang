@@ -202,6 +202,11 @@ public class XMLLiteralWithNamespacesTest {
     }
 
     @Test
+    public void testXmlLiteralUsingXmlNamespacePrefix() {
+        BRunUtil.invoke(literalWithNamespacesResult, "testXmlLiteralUsingXmlNamespacePrefix");
+    }
+
+    @Test
     public void testXMLToString() {
         BXml xml = XmlFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY data \"Example\" >]><foo>&data;</foo>");

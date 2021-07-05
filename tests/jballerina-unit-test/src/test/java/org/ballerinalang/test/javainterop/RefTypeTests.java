@@ -152,6 +152,11 @@ public class RefTypeTests {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test
+    public void interopWithHandleOrErrorReturn() {
+        BRunUtil.invoke(result, "interopWithHandleOrErrorReturn");
+    }
+
     @Test(description = "Test interoperability with ballerina json return")
     public void testInteropWithJsonReturns() {
         BValue[] returns = BRunUtil.invoke(result, "testJsonReturns");
@@ -232,6 +237,12 @@ public class RefTypeTests {
         BValue[] returns = BRunUtil.invoke(result, "getInvalidIntegerAsMixType");
         Assert.assertTrue(returns[0] instanceof BValueType);
         Assert.assertEquals(((BValueType) returns[0]).intValue(), 3);
+    }
+
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: java.lang.ClassCastException.*")
+    public void testInteropWithJavaStringReturn() {
+        BRunUtil.invoke(result, "interopWithJavaStringReturn");
     }
 
     @Test
@@ -318,9 +329,9 @@ public class RefTypeTests {
         Assert.assertTrue(returns instanceof ErrorValue);
         ErrorValue error = (ErrorValue) returns;
         Assert.assertEquals(error.getPrintableStackTrace(), "java.util.EmptyStackException\n" +
-                "\tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:400)\n" +
+                "\tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:428)\n" +
                 "\t   ballerina_types_as_interop_types:testThrowJavaException2(ballerina_types_as_interop_types.bal:" +
-                "392)");
+                "420)");
     }
 
     @Test

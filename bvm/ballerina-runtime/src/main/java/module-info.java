@@ -49,7 +49,8 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.internal.scheduling to io.ballerina.cli.utils, io.ballerina.java,
             io.ballerina.lang.array, io.ballerina.lang.error, io.ballerina.lang.internal, io.ballerina.lang.map,
             io.ballerina.lang.table, io.ballerina.lang.transaction, io.ballerina.lang.value, io.ballerina.lang.xml,
-            io.ballerina.log.api, io.ballerina.testerina.core, io.ballerina.testerina.runtime, io.ballerina.shell;
+            io.ballerina.log.api, io.ballerina.testerina.core, io.ballerina.testerina.runtime, io.ballerina.shell,
+            org.ballerinalang.debugadapter.runtime;
     exports io.ballerina.runtime.internal.util to io.ballerina.testerina.runtime, io.ballerina.lang,
             io.ballerina.lang.integer, io.ballerina.lang.floatingpoint, io.ballerina.lang.array,
             io.ballerina.lang.table, io.ballerina.java, io.ballerina.lang.map, io.ballerina.lang.string,
@@ -59,11 +60,11 @@ module io.ballerina.runtime {
             io.ballerina.java, io.ballerina.lang.internal, io.ballerina.lang.array, io.ballerina.lang.bool,
             io.ballerina.lang.floatingpoint, io.ballerina.lang.map, io.ballerina.lang.string, io.ballerina.lang.table,
             io.ballerina.lang.xml, io.ballerina.testerina.core, io.ballerina.cli.utils, io.ballerina.cli,
-            io.ballerina.lang.decimal;
+            io.ballerina.lang.decimal, org.ballerinalang.debugadapter.runtime;
     exports io.ballerina.runtime.internal.values to io.ballerina.testerina.core, io.ballerina.testerina.runtime,
-            io.ballerina.lang.xml;
+            io.ballerina.lang.xml, org.ballerinalang.debugadapter.runtime;
     exports io.ballerina.runtime.internal.configurable to io.ballerina.lang.internal;
-    exports io.ballerina.runtime.internal.types to io.ballerina.lang.typedesc;
+    exports io.ballerina.runtime.internal.types to io.ballerina.lang.typedesc, io.ballerina.testerina.runtime;
     exports io.ballerina.runtime.observability.metrics.noop;
     exports io.ballerina.runtime.observability.tracer.noop;
 }

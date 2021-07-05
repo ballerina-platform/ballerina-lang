@@ -18,17 +18,16 @@
 
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertEquals;
-
 /**
  * Test cases for runtime.
+ *
+ * @since 2.0.0
  */
 public class LangLibRuntimeTest {
 
@@ -40,24 +39,7 @@ public class LangLibRuntimeTest {
     }
 
     @Test
-    public void testGetStackTrace() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "getCallStackTest");
-        assertEquals(returns[0].stringValue(), "{callableName:\"externGetStackTrace\"," +
-                " moduleName:\"ballerina.lang$0046runtime.0_0_1.runtime\", fileName:\"runtime.bal\", lineNumber:95}");
-        assertEquals(returns[1].stringValue(), "{callableName:\"getStackTrace\", " +
-                "moduleName:\"ballerina.lang$0046runtime.0_0_1.runtime\", fileName:\"runtime.bal\", lineNumber:85}");
-        assertEquals(returns[2].stringValue(), "{callableName:\"getCallStackTest\", " +
-                "moduleName:\"runtimelib_test\", fileName:\"runtimelib_test.bal\", lineNumber:20}");
-    }
-
-    @Test
     public void testGetStackTraceToString() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "getCallStackTest");
-        assertEquals(returns[0].toString(), "{callableName:\"externGetStackTrace\", " +
-                "moduleName:\"ballerina.lang$0046runtime.0_0_1.runtime\", fileName:\"runtime.bal\", lineNumber:95}");
-        assertEquals(returns[1].toString(), "{callableName:\"getStackTrace\", " +
-                "moduleName:\"ballerina.lang$0046runtime.0_0_1.runtime\", fileName:\"runtime.bal\", lineNumber:85}");
-        assertEquals(returns[2].toString(), "{callableName:\"getCallStackTest\", " +
-                "moduleName:\"runtimelib_test\", fileName:\"runtimelib_test.bal\", lineNumber:20}");
+        BRunUtil.invoke(compileResult, "getCallStacktoStringTest");
     }
 }

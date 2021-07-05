@@ -122,8 +122,8 @@ public class SyntaxErrors {
             case ASSIGNMENT_OR_VAR_DECL_STMT:
             case DEFAULTABLE_PARAM:
             case REST_PARAM:
-            case CLASS_MEMBER_WITHOUT_METADATA:
-            case OBJECT_MEMBER_WITHOUT_METADATA:
+            case CLASS_MEMBER_OR_OBJECT_MEMBER_WITHOUT_META:
+            case OBJECT_CONS_MEMBER_WITHOUT_META:
             case RECORD_FIELD_WITHOUT_METADATA:
             case TYPE_DESCRIPTOR:
             case OPTIONAL_TYPE_DESCRIPTOR:
@@ -176,6 +176,7 @@ public class SyntaxErrors {
             case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:
             case PATH_SEGMENT_IDENT:
             case BINDING_PATTERN_OR_EXPR_RHS:
+            case BINDING_PATTERN_OR_VAR_REF_RHS:
             case NAMED_ARG_BINDING_PATTERN:
             case TYPE_DESC_RHS_OR_BP_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
@@ -368,6 +369,7 @@ public class SyntaxErrors {
             case FUNCTION_IDENT:
             case OPTIONAL_PEER_WORKER:
             case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
+            case TYPE_DESC_WITHOUT_ISOLATED:
                 return DiagnosticErrorCode.ERROR_MISSING_FUNCTION_KEYWORD;
             case CONST_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_CONST_KEYWORD;
@@ -389,6 +391,7 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_RECORD_KEYWORD;
             case OBJECT_KEYWORD:
             case OBJECT_IDENT:
+            case OBJECT_TYPE_DESCRIPTOR:
                 return DiagnosticErrorCode.ERROR_MISSING_OBJECT_KEYWORD;
             case VERSION_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_VERSION_KEYWORD;

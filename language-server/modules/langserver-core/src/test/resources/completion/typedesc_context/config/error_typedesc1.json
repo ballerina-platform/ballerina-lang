@@ -24,29 +24,29 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "TestMap1",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "ABN",
+      "insertText": "TestMap1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
         "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "ABL",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap1",
-      "kind": "TypeParameter",
-      "detail": "Map",
       "sortText": "ABM",
-      "insertText": "TestMap1",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "TestMap2",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "ABM",
+      "sortText": "ABN",
       "insertText": "TestMap2",
       "insertTextFormat": "Snippet"
     },
@@ -54,7 +54,7 @@
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "AAL",
+      "sortText": "AAM",
       "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
@@ -62,7 +62,7 @@
       "label": "TestMap3",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "ABM",
+      "sortText": "ABN",
       "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     },
@@ -70,7 +70,7 @@
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "ABN",
+      "sortText": "ABO",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
@@ -299,15 +299,6 @@
       "detail": "type",
       "sortText": "B",
       "insertText": "xml",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "map",
-      "kind": "TypeParameter",
-      "detail": "type ",
-      "sortText": "B",
-      "filterText": "map",
-      "insertText": "map",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -44,14 +44,32 @@ public class DebugInstructionTest extends BaseTestCase {
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
     }
 
-    @Test(description = "STEP_OVER instruction related debug test")
-    public void stepOverInstructionTest() throws BallerinaTestException {
+    @Test(description = "Tests the behaviour when stepping over on a return statement")
+    public void stepOverOnReturnStatementTest() throws BallerinaTestException {
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 24));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
 
         // Tests STEP_OVER instruction on a function return statement (expected behaviour would be having a debug hit
         // in the caller function.
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_OVER);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 20));
+    }
+
+    @Test(description = "Tests whether the debugger honors the breakpoints in-between step overs")
+    public void breakpointInBetweenStepOverTest() throws BallerinaTestException {
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 18));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 31));
+        debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
+
+        // Debugger should hit the breakpoint inside the function invocation when trying to step over.
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_OVER);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 31));
+
+        // Should go back to the caller function when stepping over again.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_OVER);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 19));

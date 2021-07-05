@@ -49,7 +49,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.Authenticator;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -67,7 +66,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.StringJoiner;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -84,7 +82,6 @@ import static io.ballerina.projects.util.ProjectConstants.ASM_JAR;
 import static io.ballerina.projects.util.ProjectConstants.ASM_TREE_JAR;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_HOME;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_HOME_BRE;
-import static io.ballerina.projects.util.ProjectConstants.BALLERINA_PACK_VERSION;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT;
@@ -92,7 +89,6 @@ import static io.ballerina.projects.util.ProjectConstants.DIFF_UTILS_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_CORE_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_REPORT_JAR;
 import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
-import static io.ballerina.projects.util.ProjectConstants.PROPERTIES_FILE;
 import static io.ballerina.projects.util.ProjectConstants.TEST_CORE_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.TEST_RUNTIME_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
@@ -261,16 +257,6 @@ public class ProjectUtils {
 
     public static Path getBalHomePath() {
         return Paths.get(System.getProperty(BALLERINA_HOME));
-    }
-
-    public static String getBallerinaPackVersion() {
-        try (InputStream inputStream = ProjectUtils.class.getResourceAsStream(PROPERTIES_FILE)) {
-            Properties properties = new Properties();
-            properties.load(inputStream);
-            return properties.getProperty(BALLERINA_PACK_VERSION);
-        } catch (Throwable ignore) {
-        }
-        return "unknown";
     }
 
     public static Path getBallerinaRTJarPath() {

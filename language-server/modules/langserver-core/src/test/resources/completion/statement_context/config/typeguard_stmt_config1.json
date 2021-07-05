@@ -9,7 +9,7 @@
       "label": "typeguard",
       "kind": "Snippet",
       "detail": "Destructure the variable myVar with typeguard",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "if myVar is string {\n\t${1}\n} else if myVar is int {\n\t${2}\n} else if myVar is boolean {\n\t${3}\n} else {\n\t${4}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [

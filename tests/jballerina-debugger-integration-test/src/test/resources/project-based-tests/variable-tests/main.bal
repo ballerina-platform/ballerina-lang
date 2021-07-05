@@ -50,7 +50,13 @@ class 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ {
     string address = "No 20, Palm grove";
 
     public function getSum(int a, int b) returns int {
-        return a + b;
+        future<int> futureSum = @strand {thread: "any"} start addition(a, b);
+        int|error result = wait futureSum;
+        if result is int {
+            return result;
+        } else {
+            return -1;
+        }
     }
 }
 

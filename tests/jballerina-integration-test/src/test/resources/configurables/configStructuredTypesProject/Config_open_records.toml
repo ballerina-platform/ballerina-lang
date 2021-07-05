@@ -1,0 +1,406 @@
+[configStructuredTypes.open_records.product]
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[[configStructuredTypes.open_records.product.mapArr]]
+c = "c"
+d = 456
+
+[[configStructuredTypes.open_records.productArr]]
+intVal = 11
+floatVal = 99.77
+stringVal = "def"
+arrVal = [4.5, 6.7]
+mapVal.c = "c"
+mapVal.d = 456
+
+[[configStructuredTypes.open_records.productArr.mapArr]]
+a = "a"
+b = 789
+
+[[configStructuredTypes.open_records.productArr]]
+intVal = 33
+floatVal = 88.44
+stringVal = "ghi"
+arrVal = [8.9, 0.1]
+mapVal.e = "e"
+mapVal.f = 789
+
+[[configStructuredTypes.open_records.productArr.mapArr]]
+g = "g"
+h = 876
+
+[[configStructuredTypes.open_records.productTable]]
+intVal = 65
+floatVal = 9.12
+stringVal = "val"
+arrVal = ["4", "6"]
+mapVal.c = "ccc"
+mapVal.d = 43
+
+[[configStructuredTypes.open_records.productTable.mapArr]]
+i = "iii"
+j = 21
+
+[[configStructuredTypes.open_records.productTable]]
+intVal = 40
+floatVal = 13.57
+stringVal = "str"
+arrVal = [10, 20]
+mapVal.m = "mmm"
+mapVal.n = 68
+
+[[configStructuredTypes.open_records.productTable.mapArr]]
+y = "yyy"
+x = 24
+
+[configStructuredTypes.open_records.productMap.entry1]
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[[configStructuredTypes.open_records.productMap.entry2.mapArr]]
+c = "c"
+d = 456
+
+[[configStructuredTypes.open_records.productMapTable.entry1]]
+intVal = 100
+floatVal = 103.507
+stringVal = "string"
+arrVal = [100, 200]
+mapVal.m = "value"
+mapVal.n = 608
+
+[[configStructuredTypes.open_records.productMapTable.entry1.mapArr]]
+y = "test"
+x = 204
+
+[configStructuredTypes.open_records.owner]
+id = 101
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[[configStructuredTypes.open_records.owner.mapArr]]
+c = "c"
+d = 456
+
+[[configStructuredTypes.open_records.ownerArr]]
+id = 102
+intVal = 11
+floatVal = 99.77
+stringVal = "def"
+arrVal = [4.5, 6.7]
+mapVal.c = "c"
+mapVal.d = 456
+
+[[configStructuredTypes.open_records.ownerArr.mapArr]]
+a = "a"
+b = 789
+
+[[configStructuredTypes.open_records.ownerArr]]
+id = 103
+intVal = 33
+floatVal = 88.44
+stringVal = "ghi"
+arrVal = [8.9, 0.1]
+mapVal.e = "e"
+mapVal.f = 789
+
+[[configStructuredTypes.open_records.ownerArr.mapArr]]
+g = "g"
+h = 876
+
+[[configStructuredTypes.open_records.ownerTable]]
+id = 104
+intVal = 65
+floatVal = 9.12
+stringVal = "val"
+arrVal = ["4", "6"]
+mapVal.c = "ccc"
+mapVal.d = 43
+
+[[configStructuredTypes.open_records.ownerTable.mapArr]]
+i = "iii"
+j = 21
+
+[[configStructuredTypes.open_records.ownerTable]]
+id = 105
+intVal = 40
+floatVal = 13.57
+stringVal = "str"
+arrVal = [10, 20]
+mapVal.m = "mmm"
+mapVal.n = 68
+
+[[configStructuredTypes.open_records.ownerTable.mapArr]]
+y = "yyy"
+x = 24
+
+[configStructuredTypes.open_records.ownerMap.entry1]
+id  = 106
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[configStructuredTypes.open_records.ownerMap.entry2]
+id = 107
+
+[[configStructuredTypes.open_records.ownerMap.entry2.mapArr]]
+c = "c"
+d = 456
+
+[[configStructuredTypes.open_records.ownerMapTable.entry1]]
+id = 108
+intVal = 100
+floatVal = 103.507
+stringVal = "string"
+arrVal = [100, 200]
+mapVal.m = "value"
+mapVal.n = 608
+
+[[configStructuredTypes.open_records.ownerMapTable.entry1.mapArr]]
+y = "test"
+x = 204
+
+[configStructuredTypes.open_records.member]
+id = 101
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[[configStructuredTypes.open_records.member.mapArr]]
+c = "c"
+d = 456
+
+[[configStructuredTypes.open_records.memberArr]]
+id = 102
+intVal = 11
+floatVal = 99.77
+stringVal = "def"
+arrVal = [4.5, 6.7]
+mapVal.c = "c"
+mapVal.d = 456
+
+[[configStructuredTypes.open_records.memberArr.mapArr]]
+a = "a"
+b = 789
+
+[[configStructuredTypes.open_records.memberArr]]
+id = 103
+intVal = 33
+floatVal = 88.44
+stringVal = "ghi"
+arrVal = [8.9, 0.1]
+mapVal.e = "e"
+mapVal.f = 789
+
+[[configStructuredTypes.open_records.memberArr.mapArr]]
+g = "g"
+h = 876
+
+[[configStructuredTypes.open_records.memberTable]]
+id = 104
+intVal = 65
+floatVal = 9.12
+stringVal = "val"
+arrVal = ["4", "6"]
+mapVal.c = "ccc"
+mapVal.d = 43
+
+[[configStructuredTypes.open_records.memberTable.mapArr]]
+i = "iii"
+j = 21
+
+[[configStructuredTypes.open_records.memberTable]]
+id = 105
+intVal = 40
+floatVal = 13.57
+stringVal = "str"
+arrVal = [10, 20]
+mapVal.m = "mmm"
+mapVal.n = 68
+
+[[configStructuredTypes.open_records.memberTable.mapArr]]
+y = "yyy"
+x = 24
+
+[configStructuredTypes.open_records.memberMap.entry1]
+id  = 106
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[configStructuredTypes.open_records.memberMap.entry2]
+id = 107
+
+[[configStructuredTypes.open_records.memberMap.entry2.mapArr]]
+c = "c"
+d = 456
+
+[[configStructuredTypes.open_records.memberMapTable.entry1]]
+id = 108
+intVal = 100
+floatVal = 103.507
+stringVal = "string"
+arrVal = [100, 200]
+mapVal.m = "value"
+mapVal.n = 608
+
+[[configStructuredTypes.open_records.memberMapTable.entry1.mapArr]]
+y = "test"
+x = 204
+
+[configStructuredTypes.open_records.player]
+id = 101
+teamMate.id = 102
+teamMate.teamMate.id = 103
+
+[[configStructuredTypes.open_records.playerArr]]
+id = 104
+teamMate.id = 105
+teamMate.teamMate.id = 106
+
+[[configStructuredTypes.open_records.playerArr]]
+id = 107
+teamMate.id = 108
+teamMate.teamMate.id = 109
+
+[[configStructuredTypes.open_records.playerTable]]
+id = 110
+teamMate.id = 111
+teamMate.teamMate.id = 112
+
+[[configStructuredTypes.open_records.playerTable]]
+id = 113
+teamMate.id = 114
+teamMate.teamMate.id = 115
+
+[configStructuredTypes.open_records.playerMap.entry1]
+id = 116
+teamMate.id = 117
+teamMate.teamMate.id = 118
+
+[configStructuredTypes.open_records.playerMap.entry2]
+id = 119
+
+[[configStructuredTypes.open_records.playerMapTable.entry1]]
+id = 120
+
+[[configStructuredTypes.open_records.playerMapTable.entry1]]
+id = 121
+teamMate.id = 122
+teamMate.teamMate.id = 123
+
+[configStructuredTypes.open_records.anonRecord]
+id = 123
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[[configStructuredTypes.open_records.anonRecord.mapArr]]
+c = "c"
+d = 456
+
+[configStructuredTypes.open_records.anonRecordMap.entry1]
+id  = 124
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[configStructuredTypes.open_records.anonRecordMap.entry2]
+id = 125
+
+[[configStructuredTypes.open_records.anonRecordMap.entry2.mapArr]]
+c = "c"
+d = 456
+
+[[configStructuredTypes.open_records.anonRecordMapTable.entry1]]
+id = 126
+intVal = 100
+floatVal = 103.507
+stringVal = "string"
+arrVal = [100, 200]
+mapVal.m = "value"
+mapVal.n = 608
+
+[[configStructuredTypes.open_records.anonRecordMapTable.entry1.mapArr]]
+y = "test"
+x = 204
+
+[[configStructuredTypes.open_records.anonRecordArr]]
+id = 127
+intVal = 11
+floatVal = 99.77
+stringVal = "def"
+arrVal = [4.5, 6.7]
+mapVal.c = "c"
+mapVal.d = 456
+
+[[configStructuredTypes.open_records.anonRecordArr.mapArr]]
+a = "a"
+b = 789
+
+[[configStructuredTypes.open_records.anonRecordArr]]
+id = 128
+intVal = 33
+floatVal = 88.44
+stringVal = "ghi"
+arrVal = [8.9, 0.1]
+mapVal.e = "e"
+mapVal.f = 789
+
+[[configStructuredTypes.open_records.anonRecordArr.mapArr]]
+g = "g"
+h = 876
+
+[[configStructuredTypes.open_records.anonRecordTable]]
+id = 129
+intVal = 65
+floatVal = 9.12
+stringVal = "val"
+arrVal = ["4", "6"]
+mapVal.c = "ccc"
+mapVal.d = 43
+
+[[configStructuredTypes.open_records.anonRecordTable.mapArr]]
+i = "iii"
+j = 21
+
+[[configStructuredTypes.open_records.anonRecordTable]]
+id = 130
+intVal = 40
+floatVal = 13.57
+stringVal = "str"
+arrVal = [10, 20]
+mapVal.m = "mmm"
+mapVal.n = 68
+
+[[configStructuredTypes.open_records.anonRecordTable.mapArr]]
+y = "yyy"
+x = 24

@@ -637,34 +637,38 @@
                         },
                         {
                           "kind": "TYPED_BINDING_PATTERN",
-                          "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "ARRAY_TYPE_DESC",
+                              "kind": "INT_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "INT_TYPE_DESC",
-                                  "children": [
+                                  "kind": "INT_KEYWORD",
+                                  "leadingMinutiae": [
                                     {
-                                      "kind": "INT_KEYWORD",
-                                      "leadingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "    "
-                                        }
-                                      ]
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "    "
                                     }
                                   ]
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST_BINDING_PATTERN",
+                              "children": [
                                 {
                                   "kind": "OPEN_BRACKET_TOKEN"
                                 },
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "kind": "LIST",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "k"
+                                      "kind": "CAPTURE_BINDING_PATTERN",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "k"
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
@@ -678,20 +682,23 @@
                                   ]
                                 }
                               ]
-                            },
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "EQUAL_TOKEN",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED"
+                          ]
+                        },
+                        {
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
                             {
-                              "kind": "CAPTURE_BINDING_PATTERN",
-                              "hasDiagnostics": true,
-                              "children": [
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "isMissing": true,
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_MISSING_IDENTIFIER"
-                                  ]
-                                }
-                              ]
+                              "kind": "IDENTIFIER_TOKEN",
+                              "isMissing": true
                             }
                           ]
                         },

@@ -9,7 +9,7 @@
       "label": "typeguard",
       "kind": "Snippet",
       "detail": "Destructure the variable self.response with typeguard",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "if self.response is int {\n\t${1}\n} else {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
