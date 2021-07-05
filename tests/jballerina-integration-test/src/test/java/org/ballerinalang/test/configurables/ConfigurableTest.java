@@ -219,21 +219,21 @@ public class ConfigurableTest extends BaseTest {
         String projectPath = Paths.get(testFileLocation, "testAmbiguousCases").toString();
 
         LogLeecher errorLog = new LogLeecher("[subModuleClash.bal:(19:26,19:30)] configurable variable name 'test' " +
-                "creates ambiguity with a module", ERROR);
+                "creates an ambiguity with imported module 'testOrg/subModuleClash.test:0.1.0'", ERROR);
         bMainInstance.runMain("build", new String[]{"-c"}, null, new String[]{},
                 new LogLeecher[]{errorLog}, projectPath + "/subModuleClash");
         errorLog.waitForText(5000);
 
-        errorLog = new LogLeecher("[main.bal:(19:26,19:30)] configurable variable name 'test' creates ambiguity with " +
-                "a module", ERROR);
+        errorLog = new LogLeecher("[main.bal:(19:26,19:30)] configurable variable name 'test' creates an ambiguity " +
+                "with imported module 'testOrg/test:0.1.0'", ERROR);
         compilePackageAndPushToLocal(Paths.get(projectPath, "importedModuleClash", "test").toString(),
                 "testOrg-test-any-0.1.0");
         bMainInstance.runMain("build", new String[]{"-c", "main"}, null, new String[]{},
                 new LogLeecher[]{errorLog}, projectPath + "/importedModuleClash");
         errorLog.waitForText(5000);
 
-        errorLog = new LogLeecher("[mod1.bal:(17:26,17:30)] configurable variable name 'test' creates ambiguity with" +
-                " a module", ERROR);
+        errorLog = new LogLeecher("[mod1.bal:(17:26,17:30)] configurable variable name 'test' creates an ambiguity " +
+                "with imported module 'testOrg/multipleSubModuleClash.mod1.test:0.1.0'", ERROR);
         bMainInstance.runMain("build", new String[]{"-c"}, null, new String[]{},
                 new LogLeecher[]{errorLog}, projectPath + "/multipleSubModuleClash");
         errorLog.waitForText(5000);
