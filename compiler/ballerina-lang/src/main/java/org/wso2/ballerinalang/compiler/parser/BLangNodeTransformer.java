@@ -2151,7 +2151,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (keys.size() == 0) {
             // TODO : This should be handled by Parser, issue #31536
             dlog.error(getPosition(indexedExpressionNode.closeBracket()),
-                    DiagnosticErrorCode.ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR);
+                    DiagnosticErrorCode.MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR);
             Token missingIdentifier = NodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN,
                     NodeFactory.createEmptyMinutiaeList(), NodeFactory.createEmptyMinutiaeList());
             Node expression = NodeFactory.createSimpleNameReferenceNode(missingIdentifier);
