@@ -106,11 +106,11 @@ public class MainFunctionsTest {
         CompileResult compileResult = BCompileUtil
                 .compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_stackoverflow.bal");
         BRunUtil.ExitDetails details = BRunUtil.run(compileResult, new String[]{});
-        assertTrue(details.errorOutput.contains("error: {ballerina}StackOverflow\n\tat $value$Foo:init" +
-                "(test_main_with_stackoverflow.bal:19)\n\t   $value$Foo:init(test_main_with_stackoverflow.bal:19)" +
-                "\n\t   $value$Foo:init(test_main_with_stackoverflow.bal:19)"));
+        assertTrue(details.errorOutput.contains("error: {ballerina}StackOverflow" + System.lineSeparator()
+                + "\tat $value$Foo:init(test_main_with_stackoverflow.bal:19)" + System.lineSeparator()
+                + "\t   $value$Foo:init(test_main_with_stackoverflow.bal:19)" + System.lineSeparator() +
+                "\t   $value$Foo:init(test_main_with_stackoverflow.bal:19)"));
     }
-
 
     @Test
     public void testWithoutPublic() {

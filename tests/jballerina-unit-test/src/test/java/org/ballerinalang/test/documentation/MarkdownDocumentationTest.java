@@ -650,18 +650,20 @@ public class MarkdownDocumentationTest {
         Assert.assertNull(returnParameter);
         documentationAttachment = packageNode.getFunctions().get(0).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
-        Assert.assertEquals(documentationAttachment.getDocumentationLines().get(1).text, "```bal\n" +
-                "Purpose of adding\n" +
-                "this documentation is\n" +
-                "to check backtic documentations\n" +
+        Assert.assertEquals(documentationAttachment.getDocumentationLines().get(1).text, "```bal" +
+                System.lineSeparator() +
+                "Purpose of adding" + System.lineSeparator() +
+                "this documentation is" + System.lineSeparator() +
+                "to check backtic documentations" + System.lineSeparator() +
                 "```");
 
         documentationAttachment = packageNode.getFunctions().get(1).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
-        Assert.assertEquals(documentationAttachment.getDocumentationLines().get(1).text, "```\n" +
-                "Purpose of adding\n" +
-                "this documentation is\n" +
-                "to check backtic documentations\n" +
+        Assert.assertEquals(documentationAttachment.getDocumentationLines().get(1).text, "```" +
+                System.lineSeparator() +
+                "Purpose of adding" + System.lineSeparator() +
+                "this documentation is" + System.lineSeparator() +
+                "to check backtic documentations" + System.lineSeparator() +
                 "```");
     }
 

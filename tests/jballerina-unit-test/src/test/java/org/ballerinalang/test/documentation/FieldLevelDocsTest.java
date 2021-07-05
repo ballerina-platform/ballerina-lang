@@ -107,9 +107,9 @@ public class FieldLevelDocsTest {
             }
         }
 
-        testDescription(streetField, "street of the address\n");
-        testDescription(cityField, "city of the address\n");
-        testDescription(countryCodeField, "country code of the address\n");
+        testDescription(streetField, "street of the address" + System.lineSeparator());
+        testDescription(cityField, "city of the address" + System.lineSeparator());
+        testDescription(countryCodeField, "country code of the address" + System.lineSeparator());
     }
 
     @Test(description = "Test records with field-level field docs")
@@ -132,9 +132,9 @@ public class FieldLevelDocsTest {
             }
         }
 
-        testDescription(nameField, "name of the person\n");
-        testDescription(ageField, "age of the person\n");
-        testDescription(countryCodeField, "country code of the person\n");
+        testDescription(nameField, "name of the person" + System.lineSeparator());
+        testDescription(ageField, "age of the person" + System.lineSeparator());
+        testDescription(countryCodeField, "country code of the person" + System.lineSeparator());
     }
 
 
@@ -158,9 +158,9 @@ public class FieldLevelDocsTest {
             }
         }
 
-        testDescription(numberField, "apartment no\n");
-        testDescription(streetField, "apartment street\n");
-        testDescription(countryCodeField, "apartment country-code\n");
+        testDescription(numberField, "apartment no" + System.lineSeparator());
+        testDescription(streetField, "apartment street" + System.lineSeparator());
+        testDescription(countryCodeField, "apartment country-code" + System.lineSeparator());
     }
 
     @Test(description = "Test bClass with module-level field docs")
@@ -180,8 +180,8 @@ public class FieldLevelDocsTest {
             }
         }
 
-        testDescription(nameField, "student name\n");
-        testDescription(ageField, "student age\n");
+        testDescription(nameField, "student name" + System.lineSeparator());
+        testDescription(ageField, "student age" + System.lineSeparator());
     }
 
     @Test(description = "Test bClass with field-level field docs")
@@ -201,8 +201,8 @@ public class FieldLevelDocsTest {
             }
         }
 
-        testDescription(nameField, "Teacher name\n");
-        testDescription(ageField, "Teacher age\n");
+        testDescription(nameField, "Teacher name" + System.lineSeparator());
+        testDescription(ageField, "Teacher age" + System.lineSeparator());
     }
 
     @Test(description = "Test bClass with both module-level & field-level field docs. field-level is the priority")
@@ -222,21 +222,21 @@ public class FieldLevelDocsTest {
             }
         }
 
-        testDescription(empNoField, "funny number\n");
-        testDescription(ageField, "funny age\n");
+        testDescription(empNoField, "funny number" + System.lineSeparator());
+        testDescription(ageField, "funny age" + System.lineSeparator());
     }
 
     @Test(description = "Test documentation of bClasses with markdown styles")
     public void testObjectDocsWithMarkdownStyles() {
         Assert.assertEquals(teacherCls.description.trim(),
-                "`Teacher` object in *school* located in **New York**\n"
+                "`Teacher` object in *school* located in **New York**" + System.lineSeparator()
                         + "`Senior` teacher of the school");
     }
 
     @Test(description = "Test documentation of records with markdown styles")
     public void testRecordDocsWithMarkdownStyles() {
         Assert.assertEquals(apartmentRecord.description.trim(),
-                "`Apartment` record in the *town*\n"
+                "`Apartment` record in the *town*" + System.lineSeparator()
                         + "`test` documentation row");
     }
 

@@ -74,7 +74,8 @@ public class BirVariableOptimizationTest {
     private String readFile(String name) throws IOException {
         // The files in the bir-dump folder are named with the function name and contain the expected bir dump for
         // the function
-        Path filePath = Paths.get("src/test/resources/test-src/bir/bir-dump/" + name).toAbsolutePath();
+        name = name.replaceAll("<", "").replaceAll(">", "");
+        Path filePath = Paths.get("src", "test", "resources", "test-src", "bir", "bir-dump", name).toAbsolutePath();
         if (Files.exists(filePath)) {
             StringBuilder contentBuilder = new StringBuilder();
 

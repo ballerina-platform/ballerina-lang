@@ -65,7 +65,8 @@ public class StringTemplateLiteralNegativeTest {
         BAssertUtil.validateError(resultNegative, index++, "invalid token '$'", 10, 33);
         BAssertUtil.validateError(resultNegative, index++, "complex variable must be initialized", 10, 39);
         BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 39);
-        BAssertUtil.validateError(resultNegative, index++, "invalid token ';\n    return s;\n}\n'", 13, 1);
+        BAssertUtil.validateError(resultNegative, index++, "invalid token ';" + System.lineSeparator() +
+                "    return s;" + System.lineSeparator() + "}" + System.lineSeparator() + "'", 13, 1);
         BAssertUtil.validateError(resultNegative, index, "invalid token '`'", 13, 1);
     }
 

@@ -40,27 +40,28 @@ public class MultilineDocsTest {
     private Function multilineDocsDeprecatedFunction;
 
     private final String lines = "Returns a formatted string using the specified format string and arguments. " +
-            "Following format specifiers are allowed.\n" +
+            "Following format specifiers are allowed." + System.lineSeparator() +
             "\n" +
-            "b - boolean\n" +
+            "b - boolean" + System.lineSeparator() +
             "\n" +
-            "B - boolean (ALL_CAPS)\n" +
+            "B - boolean (ALL_CAPS)" + System.lineSeparator() +
             "\n" +
-            "d - int\n" +
+            "d - int" + System.lineSeparator() +
             "\n" +
-            "f - float\n" +
+            "f - float" + System.lineSeparator() +
             "\n" +
-            "x - hex\n" +
+            "x - hex" + System.lineSeparator() +
             "\n" +
-            "X - HEX (ALL_CAPS)\n" +
+            "X - HEX (ALL_CAPS)" + System.lineSeparator() +
             "\n" +
-            "s - string (This specifier is applicable for any of the supported types in Ballerina.\n" +
-            "These values will be converted to their string representation.)\n" +
+            "s - string (This specifier is applicable for any of the supported types in Ballerina." +
+            System.lineSeparator() +
+            "These values will be converted to their string representation.)" + System.lineSeparator() +
             "\n" +
-            "```ballerina\n" +
+            "```ballerina" + System.lineSeparator() +
             "string s8 = io:sprintf(\"%s scored %d for %s and has an average of %.2f.\", name, marks, " +
-            "subjects[0], average);\n" +
-            "```\n\n";
+            "subjects[0], average);" + System.lineSeparator() +
+            "```" + System.lineSeparator() + "\n";
 
     @BeforeClass
     public void setup() throws IOException {
