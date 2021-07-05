@@ -53,8 +53,11 @@ public class FunctionPointersNegativeTest {
     @Test()
     public void testFPInStruct() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/negative/fp-struct-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "undefined field 'getFullName' in record 'Person'", 17, 20);
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "invalid operation: type 'Person' does not support field access " +
+                "for non-required field 'getFullName'", 17, 53);
+        BAssertUtil.validateError(result, 1, "function invocation on type 'Person' is not supported", 19, 20);
+
     }
 
     @Test()
@@ -62,7 +65,7 @@ public class FunctionPointersNegativeTest {
         CompileResult result =
                 BCompileUtil.compile("test-src/expressions/lambda/negative/fp-struct-incorrect-arg-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'Person'", 32, 39);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'Person'", 32, 30);
     }
 
     @Test(groups = { "disableOnOldParser" })
