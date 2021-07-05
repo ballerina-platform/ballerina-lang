@@ -205,6 +205,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private Names names;
     private int funClosureMapCount = 1;
     private int blockClosureMapCount = 1;
+    private int count = -1;
 
     static {
         CLOSURE_MAP_NOT_FOUND = new BVarSymbol(0, new Name("$not$found"), null, null, null, null, VIRTUAL);
@@ -275,7 +276,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.originalFuncSymbol.scope, env);
         funClosureMapCount++;
 
-        // Check if function parameters are exposed as parameters.
+        // Check if function parameters are exposed as closures.
         Optional<BVarSymbol> paramsExposed = funcNode.symbol.params.stream().filter(bVarSymbol -> bVarSymbol.closure)
                 .findAny();
         int position = 1;
@@ -449,6 +450,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         }
 
         // If its a variable declaration with a RHS value, and also a closure.
+        varDefNode.var.typeNode = rewrite(varDefNode.var.typeNode, env);
         if (varDefNode.var.expr != null) {
             BLangAssignment stmt = createAssignment(varDefNode);
             result = rewrite(stmt, env);
@@ -1183,6 +1185,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
     public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
         // Chek
         if (!localVarRef.symbol.closure || localVarRef.closureDesugared) {
+            result = localVarRef;
+            return;
+        }
+
+        if (localVarRef.symbol.owner.getKind() == SymbolKind.INVOKABLE_TYPE) {
+            ((BLangFunction) env.enclInvokable).paramClosureMap.putIfAbsent(count, (BVarSymbol) localVarRef.symbol);
+            count--;
             result = localVarRef;
             return;
         }
