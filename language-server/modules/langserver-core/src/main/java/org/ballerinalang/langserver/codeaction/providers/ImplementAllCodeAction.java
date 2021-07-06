@@ -71,7 +71,7 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction {
                 .filter(diag -> CommonUtil
                         .isWithinRange(context.cursorPosition(), CommonUtil.toRange(diag.location().lineRange()))
                 )
-                .filter(diagnostic -> DIAGNOSTICCODES.contains(diagnostic.diagnosticInfo().code()))
+                .filter(diagnostic -> DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()))
                 .collect(Collectors.toList());
         
         if (diags.isEmpty() || diags.size() == 1) {

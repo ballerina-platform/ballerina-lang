@@ -59,7 +59,7 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
     protected static final int DIAG_PROPERTY_NAME_INDEX = 0;
     protected static final int DIAG_PROPERTY_SYMBOL_INDEX = 1;
 
-    protected static final Set<String> DIAGNOSTICCODES = Set.of(
+    protected static final Set<String> DIAGNOSTIC_CODES = Set.of(
             DiagnosticErrorCode.UNIMPLEMENTED_REFERENCED_METHOD_IN_CLASS.diagnosticId(),
             DiagnosticErrorCode.UNIMPLEMENTED_REFERENCED_METHOD_IN_SERVICE_DECL.diagnosticId(),
             DiagnosticErrorCode.UNIMPLEMENTED_REFERENCED_METHOD_IN_OBJECT_CTOR.diagnosticId()
@@ -83,15 +83,15 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
 
     /**
      * Returns a list of text edits based on diagnostics.
-     *      *
-     *      * @param diagnostic diagnostic to evaluate
-     *      * @param positionDetails   {@link DiagBasedPositionDetails}
-     *      * @param context    language server context
-     *      * @return list of Text Edits
+     *
+     * @param diagnostic diagnostic to evaluate
+     * @param positionDetails   {@link DiagBasedPositionDetails}
+     * @param context    language server context
+     * @return list of Text Edits
      */
     public static List<TextEdit> getDiagBasedTextEdits(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                                                        CodeActionContext context) {
-        if (!DIAGNOSTICCODES.contains(diagnostic.diagnosticInfo().code())) {
+        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
             return Collections.emptyList();
         }
 
