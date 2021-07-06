@@ -300,7 +300,7 @@ public class CloneWithType {
         if (tableType.getFieldNames() != null) {
             fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
         } else {
-            fieldNames = ValueCreator.createArrayValue(new BString[]{});
+            fieldNames = ValueCreator.createArrayValue(new BString[0]);
         }
         return ValueCreator.createTableValue(tableType, data, fieldNames);
     }

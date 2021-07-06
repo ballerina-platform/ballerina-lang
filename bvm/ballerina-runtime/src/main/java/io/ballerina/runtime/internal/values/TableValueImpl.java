@@ -34,6 +34,7 @@ import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.TableUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
@@ -365,21 +366,25 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     private Type getTableConstraintField(Type constraintType, String fieldName) {
-        if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            Map<String, Field> fieldList = ((BRecordType) constraintType).getFields();
-            return fieldList.get(fieldName).getFieldType();
-        } else if (constraintType.getTag() == TypeTags.MAP_TAG) {
-            return ((BMapType) constraintType).getConstrainedType();
-        } else if (constraintType.getTag() == TypeTags.UNION_TAG) {
-            HashSet<Type> possibleTypes = new HashSet<>();
-            for (Type memberType : ((BUnionType) constraintType).getMemberTypes()) {
-                possibleTypes.add(getTableConstraintField(memberType, fieldName));
-            }
-            if (possibleTypes.size() == 1) {
-                return possibleTypes.iterator().next();
-            } else if (possibleTypes.size() > 1) {
-                return new BUnionType(new ArrayList<>(possibleTypes));
-            }
+        switch (constraintType.getTag()) {
+            case TypeTags.RECORD_TYPE_TAG:
+                Map<String, Field> fieldList = ((BRecordType) constraintType).getFields();
+                return fieldList.get(fieldName).getFieldType();
+            case TypeTags.MAP_TAG:
+                return ((BMapType) constraintType).getConstrainedType();
+            case TypeTags.UNION_TAG:
+                HashSet<Type> possibleTypes = new HashSet<>();
+                for (Type memberType : ((BUnionType) constraintType).getMemberTypes()) {
+                    possibleTypes.add(getTableConstraintField(memberType, fieldName));
+                }
+                if (possibleTypes.size() == 1) {
+                    return possibleTypes.iterator().next();
+                } else if (possibleTypes.size() > 1) {
+                    return new BUnionType(new ArrayList<>(possibleTypes));
+                }
+            case TypeTags.INTERSECTION_TAG:
+                Type effectiveType = ((BIntersectionType) constraintType).getEffectiveType();
+                return getTableConstraintField(effectiveType, fieldName);
         }
         //cannot reach here. constraint should be a subtype of map<any|error>
         return null;

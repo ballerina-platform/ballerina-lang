@@ -992,6 +992,9 @@ public class TypeChecker {
                 if (fields.stream().allMatch(field -> isSameType(field.getFieldType(), fields.get(0).getFieldType()))) {
                     return fields.get(0);
                 }
+            case TypeTags.INTERSECTION_TAG:
+                Type effectiveType = ((BIntersectionType) constraintType).getEffectiveType();
+                return getTableConstraintField(effectiveType, fieldName);
         }
 
         return null;
