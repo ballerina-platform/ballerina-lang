@@ -5,6 +5,7 @@
   [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
   [![codecov](https://codecov.io/gh/ballerina-platform/ballerina-lang/branch/master/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/ballerina-lang)
 
+
 # The Ballerina Programming Language
 
 Ballerina is an open source programming language and platform for cloud-era application programmers to easily write software that just works.
