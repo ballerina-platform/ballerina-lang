@@ -5134,12 +5134,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         if (value.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
             bLIdentifer.setValue(IdentifierUtils.unescapeUnicodeCodepoints(value.substring(1)));
-            bLIdentifer.originalValue = value;
             bLIdentifer.setLiteral(true);
         } else {
             bLIdentifer.setValue(IdentifierUtils.unescapeUnicodeCodepoints(value));
             bLIdentifer.setLiteral(false);
         }
+        bLIdentifer.originalValue = value;
         bLIdentifer.pos = pos;
         if (ws != null) {
             bLIdentifer.addWS(ws);
