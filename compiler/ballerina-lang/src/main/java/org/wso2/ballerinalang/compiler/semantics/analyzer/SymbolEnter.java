@@ -1520,10 +1520,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                                  typeDefSymbol);
                 typeDefinition.typeNode.setBType(distinctType);
                 definedType = distinctType;
-            } else if (definedType.getKind() == TypeKind.UNION) {
-                validateUnionForDistinctType((BUnionType) definedType, typeDefinition.pos);
-            } else {
-                dlog.error(typeDefinition.pos, DiagnosticErrorCode.DISTINCT_TYPING_ONLY_SUPPORT_OBJECTS_AND_ERRORS);
             }
         }
 
@@ -1764,21 +1760,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         dependencyList.add(member.tsymbol.name.value);
         dlog.error(typeDef.getPosition(), DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, dependencyList);
         return symTable.semanticError;
-    }
-
-    private void validateUnionForDistinctType(BUnionType definedType, Location pos) {
-        Set<BType> memberTypes = definedType.getMemberTypes();
-        TypeKind firstTypeKind = null;
-        for (BType type : memberTypes) {
-            TypeKind typeKind = type.getKind();
-            if (firstTypeKind == null && (typeKind == TypeKind.ERROR || typeKind == TypeKind.OBJECT)) {
-                firstTypeKind = typeKind;
-
-            }
-            if (typeKind != firstTypeKind) {
-                dlog.error(pos, DiagnosticErrorCode.DISTINCT_TYPING_ONLY_SUPPORT_OBJECTS_AND_ERRORS);
-            }
-        }
     }
 
     private BErrorType getDistinctErrorType(BLangTypeDefinition typeDefinition, BErrorType definedType,

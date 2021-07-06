@@ -503,8 +503,45 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
         }
 
+        validateDistinctType(typeNode, resultType);
+
         typeNode.setBType(resultType);
         return resultType;
+    }
+
+    private void validateDistinctType(BLangType typeNode, BType type) {
+        if (type == null) {
+            return;
+        }
+        if (typeNode.flagSet.contains(Flag.DISTINCT) && !isDistinctAllowedOnType(type)) {
+            dlog.error(typeNode.pos, DiagnosticErrorCode.DISTINCT_TYPING_ONLY_SUPPORT_OBJECTS_AND_ERRORS);
+        }
+    }
+
+    private boolean isDistinctAllowedOnType(BType type) {
+        if (type.tag == TypeTags.INTERSECTION) {
+            for (BType constituentType : ((BIntersectionType) type).getConstituentTypes()) {
+                if (!isDistinctAllowedOnType(constituentType)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        if (type.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                if (!isDistinctAllowedOnType(memberType)) {
+                    return false;
+                }
+            }
+            return true;
+
+        }
+
+        return type.tag == TypeTags.ERROR
+                || type.tag == TypeTags.OBJECT
+                || type.tag == TypeTags.NONE
+                || type.tag == TypeTags.SEMANTIC_ERROR;
     }
 
     /**
