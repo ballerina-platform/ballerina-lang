@@ -14,6 +14,9 @@ jobs:
   windows_build:
     name: Build with some tests on Windows
     runs-on: windows-latest
+    concurrency: 
+       group: ${{ github.head_ref }}
+       cancel-in-progress: true
 
     steps:
       - name: Checkout Repository
