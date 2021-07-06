@@ -74,9 +74,9 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.ge
  */
 public class BinaryExpressionEvaluator extends Evaluator {
 
-    private final BinaryExpressionNode syntaxNode;
-    private final Evaluator lhsEvaluator;
-    private final Evaluator rhsEvaluator;
+    protected final BinaryExpressionNode syntaxNode;
+    protected final Evaluator lhsEvaluator;
+    protected final Evaluator rhsEvaluator;
 
     public BinaryExpressionEvaluator(SuspendedContext context, BinaryExpressionNode node, Evaluator lhsEvaluator,
                                      Evaluator rhsEvaluator) {
@@ -366,8 +366,8 @@ public class BinaryExpressionEvaluator extends Evaluator {
         return VMUtils.make(context, booleanValue);
     }
 
-    private EvaluationException createUnsupportedOperationException(BVariable lVar, BVariable rVar,
-                                                                    SyntaxKind operator) {
+    protected EvaluationException createUnsupportedOperationException(BVariable lVar, BVariable rVar,
+                                                                      SyntaxKind operator) {
         String reason = String.format(EvaluationExceptionKind.UNSUPPORTED_OPERATION.getReason(), operator.stringValue(),
                 lVar.getBType().getString(), rVar.getBType().getString());
         return new EvaluationException(
