@@ -55,8 +55,7 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
     public boolean onPreValidation(BallerinaCompletionContext context, ClassDefinitionNode node) {
         int cursor = context.getCursorPositionInTree();
         Token classKeyword = node.classKeyword();
-
-        // class <cursor>. added +1 in order to keep at least one space after the class keyword
+        
         return !classKeyword.isMissing() && cursor > classKeyword.textRange().endOffset()
                 && cursor <= node.closeBrace().textRange().startOffset();
     }
@@ -77,13 +76,13 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
                                                            ClassDefinitionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
+        // Here we do not add the function keyword as type descriptor completion items add it.
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PRIVATE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PUBLIC.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_REMOTE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
         if (ClassDefinitionNodeContextUtil.onSuggestResourceSnippet(node)) {
