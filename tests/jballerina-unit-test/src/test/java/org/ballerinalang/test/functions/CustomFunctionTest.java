@@ -46,7 +46,8 @@ public class CustomFunctionTest {
 
     @Test(description = "Test defining ballerina function with quoted identifier as parameter name")
     public void testFuncWithQuotedIdentifiersAsParameterName() {
-        CompileResult result = BCompileUtil.compile("test-src/functions/functions_with_quoted_identifiers_as_param_names.bal");
+        CompileResult result = BCompileUtil.compile("test-src/functions/" +
+                "functions_with_quoted_identifiers_as_param_names.bal");
         BRunUtil.invoke(result, "testFuncWithQuotedIdentifiersAsParameterName");
     }
 
