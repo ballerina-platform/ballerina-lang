@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
@@ -32,6 +33,7 @@ import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.ResourcePathParameterNode;
 import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
@@ -168,6 +170,7 @@ public class DocumentationGenerator {
     private static DocAttachmentInfo generateFunctionDocumentation(FunctionDefinitionNode bLangFunction,
                                                                    SyntaxTree syntaxTree) {
         return getFunctionNodeDocumentation(bLangFunction.functionSignature(),
+                                            bLangFunction.relativeResourcePath(),
                                             bLangFunction.metadata().orElse(null),
                                             CommonUtil.toRange(bLangFunction.lineRange()),
                                             syntaxTree);
@@ -183,6 +186,7 @@ public class DocumentationGenerator {
     private static DocAttachmentInfo generateMethodDocumentation(MethodDeclarationNode methodDeclrNode,
                                                                  SyntaxTree syntaxTree) {
         return getFunctionNodeDocumentation(methodDeclrNode.methodSignature(),
+                                            methodDeclrNode.relativeResourcePath(),
                                             methodDeclrNode.metadata().orElse(null),
                                             CommonUtil.toRange(methodDeclrNode.lineRange()),
                                             syntaxTree);
@@ -266,6 +270,7 @@ public class DocumentationGenerator {
 
 
     private static DocAttachmentInfo getFunctionNodeDocumentation(FunctionSignatureNode signatureNode,
+                                                                  NodeList<Node> resourceNodes,
                                                                   MetadataNode metadata, Range functionRange,
                                                                   SyntaxTree syntaxTree) {
         Position docStart = functionRange.getStart();
@@ -282,6 +287,18 @@ public class DocumentationGenerator {
         }
         String desc = String.format("Description%n");
         LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
+        // Resource function path parameters
+        if (!resourceNodes.isEmpty()) {
+            resourceNodes.forEach(param-> {
+                if (param instanceof ResourcePathParameterNode) {
+                    Optional<Token> paramName = Optional.empty();
+                    if (param.kind() == SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM
+                            || param.kind() == SyntaxKind.RESOURCE_PATH_REST_PARAM) {
+                        paramName = Optional.ofNullable(((ResourcePathParameterNode) param).paramName());
+                    }
+                    paramName.ifPresent(token -> parameters.put(token.text(), "Parameter Description"));
+                } });
+        }
         signatureNode.parameters().forEach(param -> {
             Optional<Token> paramName = Optional.empty();
             if (param.kind() == SyntaxKind.REQUIRED_PARAM) {
