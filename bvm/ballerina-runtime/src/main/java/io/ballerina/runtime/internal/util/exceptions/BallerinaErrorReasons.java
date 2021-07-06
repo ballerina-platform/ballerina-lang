@@ -54,6 +54,8 @@ public class BallerinaErrorReasons {
     public static final BString JAVA_NULL_REFERENCE_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat("JavaNullReferenceError"));
     public static final String JAVA_CLASS_NOT_FOUND_ERROR = BALLERINA_PREFIX.concat("JavaClassNotFoundError");
+    public static final BString JAVA_OUT_OF_MEMORY_ERROR =
+            StringUtils.fromString(BALLERINA_PREFIX.concat("OutOfMemoryError"));
 
     public static final BString BALLERINA_PREFIXED_CONVERSION_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat("ConversionError"));
