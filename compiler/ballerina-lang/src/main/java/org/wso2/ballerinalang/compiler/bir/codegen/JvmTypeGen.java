@@ -1305,8 +1305,12 @@ public class JvmTypeGen {
     private void createObjectMemberFunction(MethodVisitor mv, BAttachedFunction attachedFunc,
                                                    BObjectType objType) {
 
-        String implClassName = Symbols.isRemote(attachedFunc.symbol) ? REMOTE_METHOD_TYPE_IMPL : METHOD_TYPE_IMPL;
-        mv.visitTypeInsn(NEW, implClassName);
+        if (Symbols.isRemote(attachedFunc.symbol)) {
+            createRemoteFunction(mv, attachedFunc, objType);
+            return;
+        }
+
+        mv.visitTypeInsn(NEW, METHOD_TYPE_IMPL);
 
         mv.visitInsn(DUP);
 
@@ -1323,9 +1327,60 @@ public class JvmTypeGen {
         // Load flags
         mv.visitLdcInsn(attachedFunc.symbol.flags);
 
-        mv.visitMethodInsn(INVOKESPECIAL, implClassName, JVM_INIT_METHOD,
-                           String.format("(L%s;L%s;L%s;J)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL),
-                           false);
+        mv.visitMethodInsn(INVOKESPECIAL, METHOD_TYPE_IMPL, JVM_INIT_METHOD,
+                String.format("(L%s;L%s;L%s;J)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL),
+                false);
+    }
+
+    private void createRemoteFunction(MethodVisitor mv, BAttachedFunction attachedFunc, BObjectType objType) {
+        mv.visitTypeInsn(NEW, REMOTE_METHOD_TYPE_IMPL);
+
+        mv.visitInsn(DUP);
+
+        // Load function name
+        mv.visitLdcInsn(decodeIdentifier(attachedFunc.funcName.value));
+
+        // Load the parent object type
+        loadType(mv, objType);
+        mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
+
+        // Load the field type
+        loadType(mv, attachedFunc.type);
+
+        // Load flags
+        mv.visitLdcInsn(attachedFunc.symbol.flags);
+
+        List<BVarSymbol> params = attachedFunc.symbol.params;
+        mv.visitLdcInsn((long) params.size());
+        mv.visitInsn(L2I);
+        mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
+        for (int i = 0; i < params.size(); i++) {
+            BVarSymbol paramSymbol = params.get(i);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+            mv.visitLdcInsn(paramSymbol.name.value);
+            mv.visitInsn(AASTORE);
+        }
+
+        mv.visitLdcInsn((long) params.size());
+        mv.visitInsn(L2I);
+        mv.visitTypeInsn(ANEWARRAY, BOOLEAN_VALUE);
+        for (int i = 0; i < params.size(); i++) {
+            BVarSymbol paramSymbol = params.get(i);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+            mv.visitLdcInsn(paramSymbol.isDefaultable);
+            mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,
+                    String.format("(Z)L%s;", BOOLEAN_VALUE), false);
+            mv.visitInsn(AASTORE);
+        }
+
+        mv.visitMethodInsn(INVOKESPECIAL, REMOTE_METHOD_TYPE_IMPL, JVM_INIT_METHOD,
+                String.format("(L%s;L%s;L%s;J[L%s;[L%s;)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL,
+                        STRING_VALUE, BOOLEAN_VALUE), false);
+
     }
 
     private void createResourceFunction(MethodVisitor mv, BResourceFunction resourceFunction,

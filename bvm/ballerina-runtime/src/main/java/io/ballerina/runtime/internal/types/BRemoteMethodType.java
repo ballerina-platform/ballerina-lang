@@ -29,9 +29,14 @@ import java.util.StringJoiner;
  * @since 2.0
  */
 public class BRemoteMethodType extends BMethodType implements RemoteMethodType {
+    final String[] paramNames;
+    final Boolean[] paramDefaultability;
 
-    public BRemoteMethodType(String funcName, BObjectType parent, BFunctionType type, long flags) {
+    public BRemoteMethodType(String funcName, BObjectType parent, BFunctionType type, long flags, String[] paramNames,
+                             Boolean[] paramDefaultability) {
         super(funcName, parent, type, flags);
+        this.paramNames = paramNames;
+        this.paramDefaultability = paramDefaultability;
     }
 
     @Override
@@ -45,6 +50,16 @@ public class BRemoteMethodType extends BMethodType implements RemoteMethodType {
 
     @Override
     public <T extends MethodType> MethodType duplicate() {
-        return new BRemoteMethodType(funcName, parentObjectType, type, flags);
+        return new BRemoteMethodType(funcName, parentObjectType, type, flags, paramNames, paramDefaultability);
+    }
+
+    @Override
+    public String[] getParamNames() {
+        return paramNames;
+    }
+
+    @Override
+    public Boolean[] getParamDefaultability() {
+        return paramDefaultability;
     }
 }

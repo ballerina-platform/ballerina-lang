@@ -19,13 +19,21 @@
 package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.RemoteMethodType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Optional;
 
 /**
  * This class contains a set of utility methods required for runtime api @{@link ValueCreator} testing.
@@ -50,4 +58,40 @@ public class Values {
         return ValueCreator.createObjectValue(objectModule, objectName.getValue(), StringUtils.fromString("Waruna"),
                                               14, address);
     }
+
+    public static BArray getParamNames(BObject object, BString methodName) {
+        RemoteMethodType remoteType = getRemoteMethod(object, methodName);
+        if (remoteType == null) {
+            return ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, 0), 0);
+        }
+        String[] paramNames = remoteType.getParamNames();
+        int len = paramNames.length;
+        BString[] params = new BString[len];
+        for (int i = 0; i < len; i++) {
+            params[i] = StringUtils.fromString(paramNames[i]);
+        }
+        return ValueCreator.createArrayValue(params);
+    }
+
+    public static BArray getParamDefaultability(BObject object, BString methodName) {
+        RemoteMethodType remoteType = getRemoteMethod(object, methodName);
+        if (remoteType == null) {
+            return ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_BOOLEAN, 0), 0);
+        }
+        Boolean[] paramDefaultability = remoteType.getParamDefaultability();
+        int len = paramDefaultability.length;
+        boolean[] values = new boolean[len];
+        for (int i = 0; i < len; i++) {
+            values[i] = paramDefaultability[i];
+        }
+        return ValueCreator.createArrayValue(values);
+    }
+
+    private static RemoteMethodType getRemoteMethod(BObject object, BString methodName) {
+        ObjectType objectType = object.getType();
+        Optional<MethodType> funcType = Arrays.stream(objectType.getMethods())
+                .filter(r -> r.getName().equals(methodName.getValue())).findAny();
+        return funcType.isEmpty() ? null : (RemoteMethodType) funcType.get();
+    }
+
 }
