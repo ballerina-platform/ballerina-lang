@@ -2141,7 +2141,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         indexBasedAccess.pos = getPosition(indexedExpressionNode);
         SeparatedNodeList<io.ballerina.compiler.syntax.tree.ExpressionNode> keys =
                 indexedExpressionNode.keyExpression();
-        if (keys.size() == 1) {
+        if (keys.size() == 0) {
+            // TODO : This should be handled by Parser, issue #31536
+            dlog.error(getPosition(indexedExpressionNode.closeBracket()),
+                    DiagnosticErrorCode.MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR);
+            Token missingIdentifier = NodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN,
+                    NodeFactory.createEmptyMinutiaeList(), NodeFactory.createEmptyMinutiaeList());
+            Node expression = NodeFactory.createSimpleNameReferenceNode(missingIdentifier);
+            indexBasedAccess.indexExpr = createExpression(expression);
+        } else if (keys.size() == 1) {
             indexBasedAccess.indexExpr = createExpression(indexedExpressionNode.keyExpression().get(0));
         } else {
             BLangTableMultiKeyExpr multiKeyExpr =
