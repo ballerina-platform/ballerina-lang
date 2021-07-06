@@ -1522,7 +1522,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             BLangTypeTestExpr secondTypeTest = (BLangTypeTestExpr) secondMatchGuard.expr;
             return ((BLangSimpleVarRef) firstTypeTest.expr).variableName.toString().equals(
                     ((BLangSimpleVarRef) secondTypeTest.expr).variableName.toString()) &&
-                    firstTypeTest.typeNode.getBType().tag == secondTypeTest.typeNode.getBType().tag;
+                    types.isAssignable(firstTypeTest.typeNode.getBType(),
+                            secondTypeTest.typeNode.getBType());
         }
         return false;
     }
