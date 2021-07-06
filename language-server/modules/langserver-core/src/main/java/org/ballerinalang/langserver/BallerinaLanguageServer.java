@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
@@ -181,6 +182,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 
     @Override
     public void initialized(InitializedParams params) {
+        LSClientLogger clientLogger = LSClientLogger.getInstance(this.serverContext);
+        clientLogger.logMessage("LS offline source compilation set to " + CommonUtil.COMPILE_OFFLINE);
         startListeningFileChanges();
     }
 
