@@ -1916,12 +1916,8 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclFunc.localVars.add(tempVarDcl);
             BIROperand tempVarRef = new BIROperand(tempVarDcl);
 
-            BIRVariableDcl varDecl;
-            if (isSelfVar(varSymbol)) {
-                varDecl = getSelf(varSymbol);
-            } else {
-                varDecl = this.env.symbolVarMap.get(varSymbol);
-            }
+            BIRVariableDcl varDecl = this.env.symbolVarMap.get(varSymbol);;
+
             BIROperand fromVarRef = new BIROperand(varDecl);
 
             setScopeAndEmit(new Move(astVarRefExpr.pos, fromVarRef, tempVarRef));
