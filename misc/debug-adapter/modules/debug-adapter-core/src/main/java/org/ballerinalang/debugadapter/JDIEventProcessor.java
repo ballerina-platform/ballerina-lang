@@ -60,8 +60,6 @@ import java.util.concurrent.TimeoutException;
 import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
-import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.CONSOLE;
-import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 
 /**
  * JDI Event processor implementation.
@@ -165,7 +163,7 @@ public class JDIEventProcessor {
         // If there's a non-empty user defined log message and no breakpoint condition, resumes the remote VM
         // after showing the log on the debug console.
         if (!logMessage.isEmpty() && condition.isEmpty()) {
-            context.getAdapter().sendOutput(logMessage, STDOUT);
+            context.getOutputLogger().sendProgramOutput(logMessage);
             context.getDebuggeeVM().resume();
             return;
         }
@@ -183,7 +181,7 @@ public class JDIEventProcessor {
             Boolean result = resultFuture.get(5000, TimeUnit.MILLISECONDS);
             if (result) {
                 if (!logMessage.isEmpty()) {
-                    context.getAdapter().sendOutput(logMessage, STDOUT);
+                    context.getOutputLogger().sendProgramOutput(logMessage);
                     // As we are disabling all the breakpoint requests before evaluating the user's conditional
                     // expression, need to re-enable all the breakpoints before continuing the remote VM execution.
                     restoreBreakpoints(context.getLastInstruction());
@@ -198,10 +196,10 @@ public class JDIEventProcessor {
                 context.getDebuggeeVM().resume();
             }
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            context.getAdapter().sendOutput(String.format("Warning: Skipping conditional breakpoint at line: %d, " +
-                    "due to timeout while evaluating the condition:'%s'.", lineNumber, condition), CONSOLE);
+            context.getOutputLogger().sendConsoleOutput(String.format("Warning: Skipping conditional breakpoint at " +
+                    "line: %d, due to timeout while evaluating the condition:'%s'.", lineNumber, condition));
             if (!logMessage.isEmpty()) {
-                context.getAdapter().sendOutput(logMessage, STDOUT);
+                context.getOutputLogger().sendProgramOutput(logMessage);
                 restoreBreakpoints(context.getLastInstruction());
                 context.getDebuggeeVM().resume();
             } else {
