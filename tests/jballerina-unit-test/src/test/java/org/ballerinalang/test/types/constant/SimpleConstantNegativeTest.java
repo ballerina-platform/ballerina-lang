@@ -47,9 +47,9 @@ public class SimpleConstantNegativeTest {
                 5, 29);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'",
                 6, 27);
-        BAssertUtil.validateError(compileResult, index++, "underscore is not allowed here",
+        BAssertUtil.validateError(compileResult, index++, "'_' is a keyword, and may not be used as an identifier",
                 9, 14);
-        BAssertUtil.validateError(compileResult, index++, "underscore is not allowed here",
+        BAssertUtil.validateError(compileResult, index++, "'_' is a keyword, and may not be used as an identifier",
                 10, 7);
         BAssertUtil.validateError(compileResult, index++, "cannot declare a constant with type 'invalidType', " +
                         "expected a subtype of 'anydata' that is not 'never'",

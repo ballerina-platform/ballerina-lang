@@ -26,11 +26,11 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
- * Test Quoted identifiers.
+ * Test identifiers.
  *
  * @since slalpha6
  */
-public class QuotedIdentifierTest {
+public class IdentifierTest {
 
     @Test(dataProvider = "errorAsIdentifierFunctions")
     public void testErrorAsIdentifier(String function) {
@@ -70,6 +70,38 @@ public class QuotedIdentifierTest {
         validateError(result, index++, "redeclared symbol 'error'", 43, 93);
         validateError(result, index++, "redeclared symbol 'error'", 45, 82);
         validateError(result, index++, "redeclared symbol 'error'", 45, 106);
+        assertEquals(result.getErrorCount(), index);
+    }
+
+    @Test(description = "Test underscore as quoted identifier negative cases")
+    public void testUnderscoreAsQuotedIdentifierNegative() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/identifiers/underscore_as_quoted_identifier_negative.bal");
+        int index = 0;
+        validateError(result, index++, "'_' is a keyword, and may not be used as an identifier", 17, 8);
+        validateError(result, index++, "'_' is a keyword, and may not be used as an identifier", 18, 1);
+        validateError(result, index++, "'_' is a keyword, and may not be used as an identifier", 19, 5);
+        validateError(result, index++, "'_' is a keyword, and may not be used as an identifier", 21, 6);
+        validateError(result, index++, "'_' is a keyword, and may not be used as an identifier", 23, 10);
+        validateError(result, index++, "'_' is a keyword, and may not be used as an identifier", 24, 12);
+        validateError(result, index++, "'_' is a keyword, and may not be used as an identifier", 25, 5);
+        validateError(result, index++, "'_' is a keyword, and may not be used as an identifier", 26, 9);
+        validateError(result, index++, "'_' is a keyword, and may not be used as an identifier", 29, 32);
+        assertEquals(result.getErrorCount(), index);
+    }
+
+    @Test(description = "Test underscore as unquoted identifier negative cases")
+    public void testUnderscoreAsUnquotedIdentifierNegative() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/identifiers/underscore_as_unquoted_identifier_negative.bal");
+        int index = 0;
+        validateError(result, index++, "variable declaration having binding pattern must be initialized", 17, 9);
+        validateError(result, index++, "'_' is a keyword, and may not be used as an identifier", 18, 1);
+        validateError(result, index++, "'_' is a keyword, and may not be used as an identifier", 20, 6);
+        validateError(result, index++, "'_' is a keyword, and may not be used as an identifier", 22, 10);
+        validateError(result, index++, "variable declaration having binding pattern must be initialized", 23, 13);
+        validateError(result, index++, "'_' is a keyword, and may not be used as an identifier", 24, 5);
+        validateError(result, index++, "'_' is a keyword, and may not be used as an identifier", 27, 32);
         assertEquals(result.getErrorCount(), index);
     }
 }

@@ -73,10 +73,13 @@ public class RecordDefNegativeTest {
 
     @Test(description = "Test record destructure negative cases")
     public void recordDestructureTest() {
-        CompileResult compileResult = BCompileUtil.
-                compile("test-src/record/negative/record-destructure-negative.bal");
-        BAssertUtil.validateError(compileResult, 0,
-                "invalid record binding pattern; unknown field '_' in record type 'Person'",
+        CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/record-destructure-negative.bal");
+        int indx = 0;
+        BAssertUtil.validateError(compileResult, indx++,
+                "invalid record binding pattern; unknown field '$missingNode$_0' in record type 'Person'",
                 27, 5);
+        BAssertUtil.validateError(compileResult, indx++, "'_' is a keyword, and may not be used as an identifier",
+                27, 31);
+        assertEquals(compileResult.getErrorCount(), indx);
     }
 }

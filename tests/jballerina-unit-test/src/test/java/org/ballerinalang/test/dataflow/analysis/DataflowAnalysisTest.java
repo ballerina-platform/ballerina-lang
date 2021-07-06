@@ -122,9 +122,12 @@ public class DataflowAnalysisTest {
         CompileResult result =
                 BCompileUtil.compile("test-src/dataflow/analysis/uninitialized_local_complex_variables.bal");
         int i = 0;
-        BAssertUtil.validateError(result, i++, "complex variable must be initialized", 18, 46);
-        BAssertUtil.validateError(result, i++, "complex variable must be initialized", 31, 62);
-        BAssertUtil.validateError(result, i++, "complex variable must be initialized", 44, 83);
+        BAssertUtil.validateError(result, i++, "variable declaration having binding pattern must be initialized",
+                18, 46);
+        BAssertUtil.validateError(result, i++, "variable declaration having binding pattern must be initialized",
+                31, 62);
+        BAssertUtil.validateError(result, i++, "variable declaration having binding pattern must be initialized",
+                44, 83);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }
