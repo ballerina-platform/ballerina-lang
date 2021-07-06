@@ -938,29 +938,35 @@ function testCloneWithTypeWithImmutableTypes() {
 
 type Person3 record {|
     string name = "abc";
-    int age;
+    int id;
 |};
 
 type Person4 record {|
-    int age;
+    readonly int id;
 |};
 
 function testCloneWithTypeImmutableStructuredTypes() {
-    map<Person4> m = {a: {age: 12}};
+    map<Person4> m = {a: {id: 11}};
     map<Person3 & readonly> & readonly personMap = checkpanic m.cloneWithType();
     Person3 person1 = <Person3>personMap["a"];
-    assert(person1.age, 12);
+    assert(person1.id, 11);
 
-    Person4[] m1 = [{age: 12}];
+    Person4[] m1 = [{id: 12}];
     (Person3 & readonly)[] arr = checkpanic m1.cloneWithType();
     Person3 person2 = arr[0];
-    assert(person2.age, 12);
+    assert(person2.id, 12);
 
-    table<Person4> m3 = table [{age: 12}];
-    table<Person3 & readonly> tab = checkpanic m3.cloneWithType();
+    table<Person4> m2 = table [{id: 13}];
+    table<Person3 & readonly> tab = checkpanic m2.cloneWithType();
     record {| Person3 & readonly value; |} p = <record {| Person3 & readonly value; |}>tab.iterator().next();
     Person3 person3 = p["value"];
-    assert(person3.age, 12);
+    assert(person3.id, 13);
+
+    table<Person4> key(id) m3 = table [{id: 14}];
+    table<Person3 & readonly>  key(id) tab2 = checkpanic m3.cloneWithType();
+    record {| Person3 & readonly value; |} p2 = <record {| Person3 & readonly value; |}>tab2.iterator().next();
+    Person3 person4 = p2["value"];
+    assert(person4.id, 14);
 }
 
 /////////////////////////// Tests for `fromJsonWithType()` ///////////////////////////
