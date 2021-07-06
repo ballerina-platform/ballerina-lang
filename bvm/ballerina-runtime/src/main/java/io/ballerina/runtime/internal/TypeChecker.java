@@ -978,7 +978,9 @@ public class TypeChecker {
             case TypeTags.RECORD_TYPE_TAG:
                 Map<String, Field> fieldList = ((BRecordType) constraintType).getFields();
                 return (BField) fieldList.get(fieldName);
-
+            case TypeTags.INTERSECTION_TAG:
+                Type effectiveType = ((BIntersectionType) constraintType).getEffectiveType();
+                return getTableConstraintField(effectiveType, fieldName);
             case TypeTags.UNION_TAG:
                 BUnionType unionType = (BUnionType) constraintType;
                 List<Type> memTypes = unionType.getMemberTypes();
@@ -992,9 +994,6 @@ public class TypeChecker {
                 if (fields.stream().allMatch(field -> isSameType(field.getFieldType(), fields.get(0).getFieldType()))) {
                     return fields.get(0);
                 }
-            case TypeTags.INTERSECTION_TAG:
-                Type effectiveType = ((BIntersectionType) constraintType).getEffectiveType();
-                return getTableConstraintField(effectiveType, fieldName);
         }
 
         return null;

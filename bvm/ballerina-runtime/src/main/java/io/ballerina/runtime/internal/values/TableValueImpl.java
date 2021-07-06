@@ -372,6 +372,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 return fieldList.get(fieldName).getFieldType();
             case TypeTags.MAP_TAG:
                 return ((BMapType) constraintType).getConstrainedType();
+            case TypeTags.INTERSECTION_TAG:
+                Type effectiveType = ((BIntersectionType) constraintType).getEffectiveType();
+                return getTableConstraintField(effectiveType, fieldName);
             case TypeTags.UNION_TAG:
                 HashSet<Type> possibleTypes = new HashSet<>();
                 for (Type memberType : ((BUnionType) constraintType).getMemberTypes()) {
@@ -382,9 +385,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 } else if (possibleTypes.size() > 1) {
                     return new BUnionType(new ArrayList<>(possibleTypes));
                 }
-            case TypeTags.INTERSECTION_TAG:
-                Type effectiveType = ((BIntersectionType) constraintType).getEffectiveType();
-                return getTableConstraintField(effectiveType, fieldName);
+                break;
         }
         //cannot reach here. constraint should be a subtype of map<any|error>
         return null;
