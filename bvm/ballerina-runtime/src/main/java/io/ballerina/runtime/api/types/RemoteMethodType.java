@@ -27,4 +27,8 @@ public interface RemoteMethodType extends MethodType {
     ObjectType getParentObjectType();
 
     FunctionType getType();
+
+    String[] getParamNames();
+
+    Boolean[] getParamDefaultability();
 }
