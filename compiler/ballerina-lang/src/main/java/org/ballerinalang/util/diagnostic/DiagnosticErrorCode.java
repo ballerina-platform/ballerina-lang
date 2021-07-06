@@ -153,6 +153,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     REQUIRED_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM(
             "BCE2115", "required.param.not.allowed.after.included.record.param"),
     INCOMPATIBLE_SUB_TYPE_FIELD("BCE2116", "incompatible.sub.type.field"),
+    MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR("BCE2117", "missing.key.expr.in.member.access.expr"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),

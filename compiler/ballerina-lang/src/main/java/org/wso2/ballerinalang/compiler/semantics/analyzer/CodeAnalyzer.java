@@ -117,6 +117,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
@@ -304,7 +305,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private Stack<Boolean> returnWithinTransactionCheckStack = new Stack<>();
     private Stack<Boolean> doneWithinTransactionCheckStack = new Stack<>();
     private Stack<Boolean> transactionalFuncCheckStack = new Stack<>();
-    private Stack<Boolean> returnWithinLambdaWrappingCheckStack = new Stack<>();
     private BLangNode parent;
     private Names names;
     private SymbolEnv env;
@@ -606,8 +606,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        boolean prevLoopAlterNotAllowed = loopAlterNotAllowed;
-        loopAlterNotAllowed = true;
         this.checkStatementExecutionValidity(transactionNode);
         //Check whether transaction statement occurred in a transactional scope
         if (!transactionalFuncCheckStack.empty() && transactionalFuncCheckStack.peek()) {
@@ -652,19 +650,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.doneWithinTransactionCheckStack.pop();
         analyzeOnFailClause(transactionNode.onFailClause);
         this.errorTypes.pop();
-        this.loopAlterNotAllowed = prevLoopAlterNotAllowed;
     }
 
     private void analyzeOnFailClause(BLangOnFailClause onFailClause) {
         if (onFailClause != null) {
-            boolean prevLoopAlterNotAllowed = loopAlterNotAllowed;
-            loopAlterNotAllowed = true;
             boolean currentStatementReturns = this.statementReturns;
             this.resetStatementReturns();
             this.resetLastStatement();
             analyzeNode(onFailClause, env);
             this.statementReturns = currentStatementReturns;
-            loopAlterNotAllowed = prevLoopAlterNotAllowed;
         }
     }
 
@@ -796,10 +790,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (checkReturnValidityInTransaction()) {
             this.dlog.error(returnStmt.pos, DiagnosticErrorCode.RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
-        }
-        if (!this.returnWithinLambdaWrappingCheckStack.empty()) {
-            this.returnWithinLambdaWrappingCheckStack.pop();
-            this.returnWithinLambdaWrappingCheckStack.push(true);
         }
 
         this.statementReturns = true;
@@ -1532,7 +1522,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             BLangTypeTestExpr secondTypeTest = (BLangTypeTestExpr) secondMatchGuard.expr;
             return ((BLangSimpleVarRef) firstTypeTest.expr).variableName.toString().equals(
                     ((BLangSimpleVarRef) secondTypeTest.expr).variableName.toString()) &&
-                    firstTypeTest.typeNode.getBType().tag == secondTypeTest.typeNode.getBType().tag;
+                    types.isAssignable(firstTypeTest.typeNode.getBType(),
+                            secondTypeTest.typeNode.getBType());
         }
         return false;
     }
@@ -2275,8 +2266,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForeach foreach) {
-        boolean prevLoopAlterNotAllowed = loopAlterNotAllowed;
-        loopAlterNotAllowed = false;
         this.loopWithinTransactionCheckStack.push(true);
         this.errorTypes.push(new LinkedHashSet<>());
         boolean statementReturns = this.statementReturns;
@@ -2297,13 +2286,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
         analyzeOnFailClause(foreach.onFailClause);
         this.errorTypes.pop();
-        loopAlterNotAllowed = prevLoopAlterNotAllowed;
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
-        boolean prevLoopAlterNotAllowed = loopAlterNotAllowed;
-        loopAlterNotAllowed = false;
         this.loopWithinTransactionCheckStack.push(true);
         this.errorTypes.push(new LinkedHashSet<>());
         boolean statementReturns = this.statementReturns;
@@ -2322,7 +2308,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(whileNode.expr);
         analyzeOnFailClause(whileNode.onFailClause);
         this.errorTypes.pop();
-        this.loopAlterNotAllowed = prevLoopAlterNotAllowed;
     }
 
     @Override
@@ -3024,6 +3009,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangLiteral literalExpr) {
+    }
+
+    public void visit(BLangConstRef constRef) {
     }
 
     public void visit(BLangListConstructorExpr listConstructorExpr) {
@@ -3938,7 +3926,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.failVisited = false;
         this.resetLastStatement();
         this.resetErrorThrown();
-        this.returnWithinLambdaWrappingCheckStack.push(false);
         BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
         for (BType errorType : errorTypes.peek()) {
             if (!types.isAssignable(errorType, onFailVarNode.getBType())) {
@@ -3948,8 +3935,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         analyzeNode(onFailClause.body, env);
         onFailClause.bodyContainsFail = this.failVisited;
-        onFailClause.statementBlockReturns = this.returnWithinLambdaWrappingCheckStack.peek();
-        this.returnWithinLambdaWrappingCheckStack.pop();
         this.resetErrorThrown();
         this.failVisited = currentFailVisited;
     }

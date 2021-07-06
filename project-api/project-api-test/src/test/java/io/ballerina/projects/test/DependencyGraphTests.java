@@ -51,7 +51,7 @@ public class DependencyGraphTests extends BaseTest {
         DependencyGraph<ResolvedPackageDependency> dependencyGraphOld =
                 project.currentPackage().getResolution().dependencyGraph();
         // dependency graph should contain self and package_dep
-        Assert.assertEquals(dependencyGraphOld.getNodes().size(), 2);
+        Assert.assertEquals(dependencyGraphOld.getNodes().size(), 3);
 
         // verify that the compiler package cache contains package_dep
         PackageCache packageCache = PackageCache.getInstance(
@@ -76,7 +76,7 @@ public class DependencyGraphTests extends BaseTest {
         DependencyGraph<ResolvedPackageDependency> dependencyGraphNew =
                 project.currentPackage().getResolution().dependencyGraph();
         // dependency graph should contain self and package_c
-        Assert.assertEquals(dependencyGraphNew.getNodes().size(), 2);
+        Assert.assertEquals(dependencyGraphNew.getNodes().size(), 3);
 
         // verify that the package cache is flushed
         Assert.assertNull(packageCache.getSymbol(packageID));

@@ -45,6 +45,7 @@ public class ExecutionContext {
     ExecutionContext(JBallerinaDebugServer adapter) {
         this.adapter = adapter;
         this.projectCache = new DebugProjectCache();
+        this.lastInstruction = DebugInstruction.CONTINUE;
     }
 
     public Optional<Process> getLaunchedProcess() {
