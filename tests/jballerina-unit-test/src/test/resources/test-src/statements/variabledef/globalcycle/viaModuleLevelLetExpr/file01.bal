@@ -14,19 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-final string name = "Jack Sparrow";
+type SimpleType record {
+    string? field1;
+};
 
-record {|record {string n = p.n;} r = {};|} nestedRec = {};
+string fieldOne = let string? f1 = conf1.field1 in f1 is string ? f1 : "default-value-1";
 
-// Having a unrelated cycle should not stop re-ordering.
-function f1() {
-    lock {
-        f2();
-    }
-}
+SimpleType conf1 = {
+    field1: fieldOne
+};
 
-function f2() {
-    if false {
-        _ = f1();
-    }
-}
+string modVar = let string[] ar = [letRef] in ar[0];
+
+type RecordTypeWithDefaultLetExpr record {
+    int code = let int m = moduleCode in m + 1;
+};
