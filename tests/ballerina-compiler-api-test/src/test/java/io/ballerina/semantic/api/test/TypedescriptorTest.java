@@ -175,6 +175,25 @@ public class TypedescriptorTest {
         assertEquals(returnType.typeKind(), INT);
     }
 
+    @Test(dataProvider = "paramsInFunctionType")
+    public void testFunctionTypeParams(int line, int col, TypeDescKind typeKind, String signature) {
+        Symbol symbol = getSymbol(line, col);
+        assertEquals(symbol.kind(), TYPE);
+        TypeSymbol typeSymbol = (TypeSymbol) symbol;
+        assertEquals(typeSymbol.typeKind(), typeKind);
+        assertEquals(typeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "paramsInFunctionType")
+    public Object[][] getFunctionTypeParamsPos() {
+        return new Object[][]{
+                {233, 18, STRING, "string"},
+                {233, 26, INT, "int"},
+                {236, 13, STRING, "string"},
+                {236, 21, STRING, "string"}
+        };
+    }
+
     @Test
     public void testFutureType() {
         Symbol symbol = getSymbol(45, 16);

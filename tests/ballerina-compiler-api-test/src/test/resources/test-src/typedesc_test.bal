@@ -230,3 +230,9 @@ function testUnions() {
     Colour? clr = RED;
     FooUnion fUnion = 10;
 }
+
+type bar function(string, int) returns boolean;
+
+type Obj object {
+    function(string, string) barObj;
+};
