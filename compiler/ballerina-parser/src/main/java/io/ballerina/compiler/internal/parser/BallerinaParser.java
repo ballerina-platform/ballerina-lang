@@ -6383,7 +6383,7 @@ public class BallerinaParser extends AbstractParser {
                 STNode semicolonToken = parseSemicolon();
                 return STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
             case IDENTIFIER_TOKEN:
-                if (isObjectFieldStart()) {
+                if (isObjectFieldStart() || nextToken.isMissing()) {
                     return parseObjectField(metadata, STNodeFactory.createEmptyNode(), qualifiers, isObjectTypeDesc);
                 }
                 // Else fall through

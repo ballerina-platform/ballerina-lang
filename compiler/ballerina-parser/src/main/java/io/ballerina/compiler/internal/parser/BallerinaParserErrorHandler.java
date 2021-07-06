@@ -2601,8 +2601,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FUNC_NAME:
                 ParserRuleContext grandParentCtx = getGrandParentContext();
                 if (grandParentCtx == ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER ||
-                        grandParentCtx == ParserRuleContext.CLASS_MEMBER ||
-                        grandParentCtx == ParserRuleContext.OBJECT_TYPE_MEMBER) {
+                        grandParentCtx == ParserRuleContext.CLASS_MEMBER) {
                     return ParserRuleContext.OPTIONAL_RELATIVE_PATH;
                 }
                 return ParserRuleContext.OPEN_PARENTHESIS;

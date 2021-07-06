@@ -218,8 +218,6 @@ public class SyntaxErrors {
             case XML_COMMENT_CONTENT:
             case XML_PI_DATA:
                 return DiagnosticErrorCode.ERROR_MISSING_XML_TEXT_CONTENT;
-            case CLASS_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_CLASS_KEYWORD;
             default:
                 return getSeperatorTokenErrorCode(currentCtx);
         }
@@ -531,6 +529,43 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_READONLY_KEYWORD;
             case DISTINCT_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_DISTINCT_KEYWORD;
+            case CLASS_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_CLASS_KEYWORD;
+            default:
+                return getExpectedQualifierKind(ctx);
+        }
+    }
+
+    private static DiagnosticErrorCode getExpectedQualifierKind(ParserRuleContext ctx) {
+        // Ideally, optimal solution should not be an INSERT action on qualifiers.
+        // Therefore, qualifier ctxs are pointed to the end of qualifier parsing token to exit early.
+        switch (ctx) {
+            case FIRST_OBJECT_CONS_QUALIFIER:
+            case SECOND_OBJECT_CONS_QUALIFIER:
+            case FIRST_OBJECT_TYPE_QUALIFIER:
+            case SECOND_OBJECT_TYPE_QUALIFIER:
+                return DiagnosticErrorCode.ERROR_MISSING_OBJECT_KEYWORD;
+            case FIRST_CLASS_TYPE_QUALIFIER:
+            case SECOND_CLASS_TYPE_QUALIFIER:
+            case THIRD_CLASS_TYPE_QUALIFIER:
+            case FOURTH_CLASS_TYPE_QUALIFIER:
+                return DiagnosticErrorCode.ERROR_MISSING_CLASS_KEYWORD;
+            case FUNC_DEF_OR_TYPE_FIRST_QUALIFIER:
+            case FUNC_DEF_OR_TYPE_SECOND_QUALIFIER:
+            case FUNC_TYPE_FIRST_QUALIFIER:
+            case FUNC_TYPE_SECOND_QUALIFIER:
+            case OBJECT_METHOD_FIRST_QUALIFIER:
+            case OBJECT_METHOD_SECOND_QUALIFIER:
+            case OBJECT_METHOD_THIRD_QUALIFIER:
+            case OBJECT_METHOD_FOURTH_QUALIFIER:
+                return DiagnosticErrorCode.ERROR_MISSING_FUNCTION_KEYWORD;
+            case MODULE_VAR_FIRST_QUAL:
+            case MODULE_VAR_SECOND_QUAL:
+            case MODULE_VAR_THIRD_QUAL:
+            case OBJECT_MEMBER_VISIBILITY_QUAL:
+                return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
+            case SERVICE_DECL_QUALIFIER:
+                return DiagnosticErrorCode.ERROR_MISSING_SERVICE_KEYWORD;
             default:
                 assert false : "Error code not defined";
                 return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
