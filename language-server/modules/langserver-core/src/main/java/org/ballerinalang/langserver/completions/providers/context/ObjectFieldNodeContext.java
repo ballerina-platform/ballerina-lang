@@ -15,11 +15,13 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -27,6 +29,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.List;
 import java.util.Optional;
@@ -80,5 +83,20 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         Optional<Token> equalsToken = node.equalsToken();
 
         return equalsToken.isPresent() && equalsToken.get().textRange().endOffset() <= cursor;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, ObjectFieldNode node,
+                     List<LSCompletionItem> completionItems) {
+        Optional<TypeSymbol> typeSymbolAtCursor = context.getContextType();
+        if (typeSymbolAtCursor.isEmpty()) {
+            super.sort(context, node, completionItems);
+            return;
+        }
+        TypeSymbol symbol = typeSymbolAtCursor.get();
+        for (LSCompletionItem completionItem : completionItems) {
+            completionItem.getCompletionItem()
+                    .setSortText(SortingUtil.genSortTextByAssignability(completionItem, symbol));
+        }
     }
 }

@@ -71,6 +71,7 @@ public class VariableDeclarationNodeContext extends VariableDeclarationProvider<
         Optional<TypeSymbol> typeSymbolAtCursor = context.getContextType();
         if (typeSymbolAtCursor.isEmpty()) {
             super.sort(context, node, completionItems);
+            return;
         }
         TypeSymbol symbol = typeSymbolAtCursor.get();
         for (LSCompletionItem completionItem : completionItems) {
