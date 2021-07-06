@@ -1528,13 +1528,18 @@ public class JvmInstructionGen {
 
     void generateTypeTestIns(BIRNonTerminator.TypeTest typeTestIns) {
         var sourceValue = typeTestIns.rhsOp.variableDcl;
+        BType sourceType = sourceValue.type;
         BType targetType = typeTestIns.type;
+        if (targetType.tag == TypeTags.NIL && types.isAssignable(targetType, sourceType)) {
+            handleNilUnionType(typeTestIns);
+            return;
+        }
         if (isValidUnionType(sourceValue.type)) {
-            if (canOptimizeNilType(sourceValue, targetType)) {
+            if (canOptimizeNilType((BUnionType) sourceType, targetType)) {
                 handleNilUnionType(typeTestIns);
                 return;
             }
-            if (canOptimizeErrorType(sourceValue, targetType)) {
+            if (canOptimizeErrorType((BUnionType) sourceType, targetType)) {
                 handleErrorUnionType(typeTestIns);
                 return;
             }
@@ -1547,11 +1552,11 @@ public class JvmInstructionGen {
         this.storeToVar(typeTestIns.lhsOp.variableDcl);
     }
 
-    private boolean canOptimizeNilType(BIRNode.BIRVariableDcl sourceValue, BType type) {
+    private boolean canOptimizeNilType(BUnionType sourceType, BType type) {
         BType mainType = null;
         BType otherType = null;
         boolean foundNil = false;
-        for (BType bType : ((BUnionType) sourceValue.type).getMemberTypes()) {
+        for (BType bType : sourceType.getMemberTypes()) {
             if (bType.tag == TypeTags.NIL) {
                 mainType = bType;
                 foundNil = true;
@@ -1562,11 +1567,11 @@ public class JvmInstructionGen {
         return foundNil && (type.equals(mainType) || type.equals(otherType));
     }
 
-    private boolean canOptimizeErrorType(BIRNode.BIRVariableDcl rhsVar, BType type) {
+    private boolean canOptimizeErrorType(BUnionType sourceType, BType type) {
         BType errorType = null;
         BType otherType = null;
         int foundError = 0;
-        for (BType bType : ((BUnionType) rhsVar.type).getMemberTypes()) {
+        for (BType bType : sourceType.getMemberTypes()) {
             if (bType.tag == TypeTags.ERROR) {
                 foundError++;
                 errorType = bType;
