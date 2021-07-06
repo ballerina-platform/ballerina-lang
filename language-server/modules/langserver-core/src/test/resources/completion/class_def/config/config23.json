@@ -46,7 +46,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
-      "filterText": "(remote)|(function)",
+      "filterText": "remote|function",
       "insertText": "remote function ${1:name}(${2})${3} {\n\t${4}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -91,19 +91,16 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
-      "filterText": "(init)|(function)",
+      "filterText": "init|function",
       "insertText": "function init(${1:any arg}) {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "M",
-      "insertText": "StrandData",
+      "label": "TestClass",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "K",
+      "insertText": "TestClass",
       "insertTextFormat": "Snippet"
     },
     {
@@ -115,11 +112,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestClass",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "K",
-      "insertText": "TestClass",
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "M",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {

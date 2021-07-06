@@ -46,7 +46,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
-      "filterText": "(remote)|(function)",
+      "filterText": "remote|function",
       "insertText": "remote function ${1:name}(${2})${3} {\n\t${4}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -91,7 +91,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
-      "filterText": "(resource)|(function)",
+      "filterText": "resource|function",
       "insertText": "resource function ${1:name} ${2:.} (${3})${4} {\n\t${5}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -100,8 +100,16 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
-      "filterText": "(init)|(function)",
+      "filterText": "init|function",
       "insertText": "function init(${1:any arg}) {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -121,14 +129,6 @@
       "detail": "Class",
       "sortText": "K",
       "insertText": "testClass",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
