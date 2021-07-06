@@ -40,7 +40,7 @@ public class DebugOutputLogger {
      * @param output string output produced in the debugger/target VM.
      */
     public void sendProgramOutput(String output) {
-        if (!isValid(output)) {
+        if (isInternalLog(output)) {
             return;
         }
         if (!output.endsWith(System.lineSeparator())) {
@@ -58,7 +58,7 @@ public class DebugOutputLogger {
      * @param output string output produced in the debugger/target VM.
      */
     public void sendConsoleOutput(String output) {
-        if (!isValid(output)) {
+        if (isInternalLog(output)) {
             return;
         }
         if (!output.endsWith(System.lineSeparator())) {
@@ -82,7 +82,7 @@ public class DebugOutputLogger {
      * @param output string output produced in the debugger/target VM.
      */
     public void sendErrorOutput(String output) {
-        if (!isValid(output)) {
+        if (isInternalLog(output)) {
             return;
         }
         if (!output.endsWith(System.lineSeparator())) {
@@ -99,10 +99,10 @@ public class DebugOutputLogger {
         return output.startsWith("ERROR") || output.startsWith("error:");
     }
 
-    private static boolean isValid(String output) {
-        return !output.startsWith("Listening for transport dt_socket")
-                && !output.startsWith("Please start the remote debugging client to continue")
-                && !output.startsWith("JAVACMD")
-                && !output.startsWith("Stream closed");
+    private static boolean isInternalLog(String output) {
+        return output.startsWith("Listening for transport dt_socket")
+                || output.startsWith("Please start the remote debugging client to continue")
+                || output.startsWith("JAVACMD")
+                || output.startsWith("Stream closed");
     }
 }
