@@ -2350,13 +2350,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         typeChecker.checkExpr(failNode.expr, env);
         if (!this.errorTypes.empty()) {
-            this.errorTypes.peek().add(getErrorTypes(failNode.expr.getBType()));
+            this.errorTypes.peek().add(types.getErrorTypes(failNode.expr.getBType()));
         }
         if (!this.failureHandled) {
             this.statementReturns = true;
             BType exprType = env.enclInvokable.getReturnTypeNode().getBType();
             this.returnTypes.peek().add(exprType);
-            if (!types.isAssignable(getErrorTypes(failNode.expr.getBType()), exprType)) {
+            if (!types.isAssignable(types.getErrorTypes(failNode.expr.getBType()), exprType)) {
                 dlog.error(failNode.pos, DiagnosticErrorCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
             }
         }
@@ -3812,13 +3812,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        BType exprType = env.enclInvokable.getReturnTypeNode().getBType();
+        BLangInvokableNode enclInvokable = env.enclInvokable;
 
-        if (!this.failureHandled && !types.isAssignable(getErrorTypes(checkedExpr.expr.getBType()), exprType)) {
+        if (enclInvokable == null) {
+            // Record field default or object field initializer.
+            return;
+        }
+
+        BType exprType = enclInvokable.getReturnTypeNode().getBType();
+
+        if (!this.failureHandled && !types.isAssignable(types.getErrorTypes(checkedExpr.expr.getBType()), exprType)) {
             dlog.error(checkedExpr.pos, DiagnosticErrorCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
         if (!this.errorTypes.empty()) {
-            this.errorTypes.peek().add(getErrorTypes(checkedExpr.expr.getBType()));
+            this.errorTypes.peek().add(types.getErrorTypes(checkedExpr.expr.getBType()));
         }
 
         BType errorTypes;
@@ -4409,37 +4416,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         types.validateErrorOrNilReturn(funcNode, DiagnosticErrorCode.MODULE_INIT_RETURN_SHOULD_BE_ERROR_OR_NIL);
-    }
-
-    private BType getErrorTypes(BType bType) {
-        if (bType == null) {
-            return symTable.semanticError;
-        }
-
-        BType errorType = symTable.semanticError;
-
-        int tag = bType.tag;
-        if (tag == TypeTags.ERROR) {
-            errorType = bType;
-        } else if (tag == TypeTags.READONLY) {
-            errorType = symTable.errorType;
-        } else if (tag == TypeTags.UNION) {
-            LinkedHashSet<BType> errTypes = new LinkedHashSet<>();
-            Set<BType> memTypes = ((BUnionType) bType).getMemberTypes();
-            for (BType memType : memTypes) {
-                BType memErrType = getErrorTypes(memType);
-
-                if (memErrType != symTable.semanticError) {
-                    errTypes.add(memErrType);
-                }
-            }
-
-            if (!errTypes.isEmpty()) {
-                errorType = errTypes.size() == 1 ? errTypes.iterator().next() : BUnionType.create(null, errTypes);
-            }
-        }
-
-        return errorType;
     }
 
     /**
