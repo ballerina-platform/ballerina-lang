@@ -167,7 +167,7 @@ public class ObjectMock {
 
                 // validate the number of arguments provided
                 if (argsList.size() > attachedFunction.getType().getParameterTypes().length) {
-                    String detail = "too many argument provided to mock the function " + functionName + "()";
+                    String detail = "too many argument provided to mock the function '" + functionName + "()'";
                     return ErrorCreator.createError(
                             MockConstants.TEST_PACKAGE_ID,
                             MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
@@ -193,7 +193,7 @@ public class ObjectMock {
                         if (!isTypeAvailable) {
                             String detail =
                                     "incorrect type of argument provided at position '" + (i + 1) +
-                                            "' to mock the function " + functionName + "()";
+                                            "' to mock the function '" + functionName + "()'";
                             return ErrorCreator.createError(
                                     MockConstants.TEST_PACKAGE_ID,
                                     MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
@@ -204,7 +204,7 @@ public class ObjectMock {
                     } else if (!TypeChecker.checkIsType(it.next(), attachedFunction.getType().getParameterTypes()[i])) {
                         String detail =
                                 "incorrect type of argument provided at position '" + (i + 1)
-                                        + "' to mock the function " + functionName + "()";
+                                        + "' to mock the function '" + functionName + "()'";
                         return ErrorCreator.createError(
                                 MockConstants.TEST_PACKAGE_ID,
                                 MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
@@ -244,7 +244,7 @@ public class ObjectMock {
             BArray args = caseObj.getArrayValue(StringUtils.fromString("args"));
             if (!validateReturnValue(functionName, returnVal, genericMock.getType().getMethods())) {
                 String detail =
-                        "return value provided does not match the return type of function " + functionName + "()";
+                        "return value provided does not match the return type of function '" + functionName + "()'";
                 return ErrorCreator.createError(
                         MockConstants.TEST_PACKAGE_ID,
                         MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
@@ -293,7 +293,7 @@ public class ObjectMock {
             if (!validateReturnValue(functionName, returnVals.getValues()[i],
                     genericMock.getType().getMethods())) {
                 String detail = "return value provided at position '" + i
-                        + "' does not match the return type of function " + functionName + "()";
+                        + "' does not match the return type of function '" + functionName + "()'";
                 return ErrorCreator.createError(
                         MockConstants.TEST_PACKAGE_ID,
                         MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
@@ -410,7 +410,7 @@ public class ObjectMock {
 
                 // validate that the number of parameters are equal
                 if (paramTypes.length != attachedFunction.getParameterTypes().length) {
-                    String detail = "incorrect number of parameters provided for function " + functionName + "()";
+                    String detail = "incorrect number of parameters provided for function '" + functionName + "()'";
                     return ErrorCreator.createError(
                             MockConstants.TEST_PACKAGE_ID,
                             MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
@@ -423,7 +423,7 @@ public class ObjectMock {
                         if (attachedFunction.getParameterTypes()[i] instanceof UnionType) {
                             if (!(paramTypes[i] instanceof UnionType)) {
                                 String detail = "incompatible parameter type provided at position " + (i + 1) + " in" +
-                                        " function " + functionName + "(). parameter should be of union type ";
+                                        " function '" + functionName + "()'. parameter should be of union type ";
                                 return ErrorCreator.createError(
                                         MockConstants.TEST_PACKAGE_ID,
                                         MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
@@ -439,7 +439,7 @@ public class ObjectMock {
                                     if (!TypeChecker.checkIsType(providedTypes[j], memberTypes[j])) {
                                         BString detail = StringUtils
                                                 .fromString("incompatible parameter type provided at position "
-                                                        + (i + 1) + " in function " + functionName + "()");
+                                                        + (i + 1) + " in function '" + functionName + "()'");
                                         return ErrorCreator.createError(
                                                 MockConstants.TEST_PACKAGE_ID,
                                                 MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
@@ -454,7 +454,7 @@ public class ObjectMock {
                             if (!TypeChecker.checkIsType(paramTypes[i], attachedFunction.getParameterTypes()[i])) {
                                 BString detail =
                                         StringUtils.fromString("incompatible parameter type provided at position "
-                                                + (i + 1) + " in function " + functionName + "()");
+                                                + (i + 1) + " in function '" + functionName + "()'");
                                 return ErrorCreator.createError(
                                         MockConstants.TEST_PACKAGE_ID,
                                         MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
@@ -468,7 +468,7 @@ public class ObjectMock {
 
                 // validate the equivalence of the return types
                 if (!TypeChecker.checkIsType(attachedFunction.getType().getReturnParameterType(), returnType)) {
-                    String detail = "incompatible return type provided for function " + functionName + "()";
+                    String detail = "incompatible return type provided for function '" + functionName + "()'";
                     return ErrorCreator.createError(
                             MockConstants.TEST_PACKAGE_ID,
                             MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,

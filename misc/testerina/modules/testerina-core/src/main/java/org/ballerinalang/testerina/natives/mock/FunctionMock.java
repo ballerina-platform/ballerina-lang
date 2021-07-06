@@ -234,7 +234,7 @@ public class FunctionMock {
             throw ErrorCreator.createError(
                     MockConstants.TEST_PACKAGE_ID,
                     MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
-                    StringUtils.fromString("Mock function \'" + mockMethodName + "\' " +
+                    StringUtils.fromString("Mock function '" + mockMethodName + "' " +
                             "cannot be found"),
                     null,
                     new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
