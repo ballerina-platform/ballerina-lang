@@ -820,10 +820,9 @@ public class ASTBuilderUtil {
 
     public static BInvokableSymbol duplicateInvokableSymbol(BInvokableSymbol invokableSymbol) {
         BInvokableSymbol dupFuncSymbol =
-                Symbols.createFunctionSymbol(invokableSymbol.flags, invokableSymbol.name, invokableSymbol.pkgID,
-                                             invokableSymbol.type, invokableSymbol.owner, invokableSymbol.bodyExist,
-                                             invokableSymbol.pos, invokableSymbol.origin);
-        dupFuncSymbol.originalName = invokableSymbol.originalName;
+                Symbols.createFunctionSymbol(invokableSymbol.flags, invokableSymbol.name, invokableSymbol.originalName,
+                                             invokableSymbol.pkgID, invokableSymbol.type, invokableSymbol.owner,
+                                             invokableSymbol.bodyExist, invokableSymbol.pos, invokableSymbol.origin);
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
         dupFuncSymbol.restParam = invokableSymbol.restParam;
@@ -863,10 +862,9 @@ public class ASTBuilderUtil {
                                                                       PackageID newPkgID,
                                                                       Location location,
                                                                       SymbolOrigin origin) {
-        BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, newName, newPkgID,
+        BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, newName, newName, newPkgID,
                                                                       null, owner, invokableSymbol.bodyExist,
                                                                       location, origin);
-        dupFuncSymbol.originalName = invokableSymbol.originalName;
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
         dupFuncSymbol.receiverSymbol = null;

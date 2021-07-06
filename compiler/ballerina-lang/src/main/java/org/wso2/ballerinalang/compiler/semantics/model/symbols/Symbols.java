@@ -128,25 +128,29 @@ public class Symbols {
 
     public static BInvokableSymbol createWorkerSymbol(long flags,
                                                       Name name,
+                                                      Name originalName,
                                                       PackageID pkgID,
                                                       BType type,
                                                       BSymbol owner,
                                                       Location pos,
                                                       SymbolOrigin origin) {
-        BInvokableSymbol symbol = createInvokableSymbol(SymTag.WORKER, flags, name, pkgID, type, owner, pos, origin);
+        BInvokableSymbol symbol = createInvokableSymbol(
+                SymTag.WORKER, flags, name, originalName, pkgID, type, owner, pos, origin);
         symbol.kind = SymbolKind.WORKER;
         return symbol;
     }
 
     public static BInvokableSymbol createFunctionSymbol(long flags,
                                                         Name name,
+                                                        Name originalName,
                                                         PackageID pkgID,
                                                         BType type,
                                                         BSymbol owner,
                                                         boolean bodyExist,
                                                         Location pos,
                                                         SymbolOrigin origin) {
-        BInvokableSymbol symbol = createInvokableSymbol(SymTag.FUNCTION, flags, name, pkgID, type, owner, pos, origin);
+        BInvokableSymbol symbol = createInvokableSymbol(
+                SymTag.FUNCTION, flags, name, originalName, pkgID, type, owner, pos, origin);
         symbol.bodyExist = bodyExist;
         symbol.kind = SymbolKind.FUNCTION;
         return symbol;
@@ -194,12 +198,13 @@ public class Symbols {
     public static BInvokableSymbol createInvokableSymbol(int kind,
                                                          long flags,
                                                          Name name,
+                                                         Name originalName,
                                                          PackageID pkgID,
                                                          BType type,
                                                          BSymbol owner,
                                                          Location pos,
                                                          SymbolOrigin origin) {
-        return new BInvokableSymbol(kind, flags, name, pkgID, type, owner, pos, origin);
+        return new BInvokableSymbol(kind, flags, name, originalName, pkgID, type, owner, pos, origin);
     }
 
     public static BXMLNSSymbol createXMLNSSymbol(Name name,

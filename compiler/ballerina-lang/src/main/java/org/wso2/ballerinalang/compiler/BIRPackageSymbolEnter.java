@@ -388,9 +388,9 @@ public class BIRPackageSymbolEnter {
 
         BInvokableType funcType = (BInvokableType) readBType(dataInStream);
         BInvokableSymbol invokableSymbol =
-                Symbols.createFunctionSymbol(flags, names.fromString(funcName), this.env.pkgSymbol.pkgID, funcType,
-                                             this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE),
-                                             pos, toOrigin(origin));
+                Symbols.createFunctionSymbol(flags, names.fromString(funcName), names.fromString(funcOrigName),
+                                             this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol,
+                                             Symbols.isFlagOn(flags, Flags.NATIVE), pos, toOrigin(origin));
         invokableSymbol.source = pos.lineRange().filePath();
         invokableSymbol.retType = funcType.retType;
 
@@ -1092,7 +1092,7 @@ public class BIRPackageSymbolEnter {
                         Name initFuncName = names.fromString(recordInitFuncName);
                         boolean isNative = Symbols.isFlagOn(recordInitFuncFlags, Flags.NATIVE);
                         BInvokableSymbol recordInitFuncSymbol =
-                                Symbols.createFunctionSymbol(recordInitFuncFlags,
+                                Symbols.createFunctionSymbol(recordInitFuncFlags, initFuncName,
                                                              initFuncName, env.pkgSymbol.pkgID, recordInitFuncType,
                                                              env.pkgSymbol, isNative, symTable.builtinPos,
                                                              COMPILED_SOURCE);
@@ -1572,9 +1572,11 @@ public class BIRPackageSymbolEnter {
                 BInvokableType attachedFuncType = (BInvokableType) readTypeFromCp();
                 Name funcName = names.fromString(Symbols.getAttachedFuncSymbolName(
                         objectSymbol.name.value, attachedFuncName));
+                Name funcOrigName = names.fromString(Symbols.getAttachedFuncSymbolName(
+                        objectSymbol.originalName.value, attachedFuncName));
                 BInvokableSymbol attachedFuncSymbol =
-                        Symbols.createFunctionSymbol(attachedFuncFlags,
-                                funcName, env.pkgSymbol.pkgID, attachedFuncType,
+                        Symbols.createFunctionSymbol(attachedFuncFlags, funcName, funcOrigName,
+                                env.pkgSymbol.pkgID, attachedFuncType,
                                 env.pkgSymbol, false, symTable.builtinPos,
                                 COMPILED_SOURCE);
                 attachedFuncSymbol.retType = attachedFuncType.retType;

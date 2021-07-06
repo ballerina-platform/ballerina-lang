@@ -158,9 +158,9 @@ public class TypeDefBuilderHelper {
         // Create the function symbol
         Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(structTypeName, suffix.value));
         initFunction.symbol = Symbols
-                .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, env.enclPkg.symbol.pkgID,
-                                      initFunction.getBType(), symbol, initFunction.body != null,
-                                      initFunction.pos, VIRTUAL);
+                .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, funcSymbolName,
+                                      env.enclPkg.symbol.pkgID, initFunction.getBType(), symbol,
+                                      initFunction.body != null, initFunction.pos, VIRTUAL);
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
