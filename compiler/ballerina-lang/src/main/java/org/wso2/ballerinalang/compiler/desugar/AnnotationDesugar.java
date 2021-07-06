@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
@@ -824,7 +825,18 @@ public class AnnotationDesugar {
         } else if (expr.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
             return isMappingOrObjectCtorOrObjInitWithSymbol(((BLangTypeConversionExpr) expr).expr, symbol);
         }
-        return expr.getBType().tsymbol == symbol;
+        return hasTypeSymbol(symbol, expr.getBType());
+    }
+
+    private boolean hasTypeSymbol(BTypeSymbol symbol, BType bType) {
+        if (bType.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) bType).getMemberTypes()) {
+                if (hasTypeSymbol(symbol, memberType)) {
+                    return true;
+                }
+            }
+        }
+        return bType.tsymbol == symbol;
     }
 
     private List<BLangSimpleVariable> getParams(BLangFunction function) {
