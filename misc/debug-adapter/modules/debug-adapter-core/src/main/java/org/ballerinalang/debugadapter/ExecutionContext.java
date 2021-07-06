@@ -73,9 +73,6 @@ public class ExecutionContext {
     }
 
     public DebugOutputLogger getOutputLogger() {
-        if (getAdapter() == null) {
-            return null;
-        }
         return getAdapter().getOutputLogger();
     }
 

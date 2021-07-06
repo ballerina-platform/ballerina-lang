@@ -44,7 +44,7 @@ public class DebugOutputLogger {
             return;
         }
         if (!output.endsWith(System.lineSeparator())) {
-            output = output + System.lineSeparator();
+            output += System.lineSeparator();
         }
         OutputEventArguments outputEventArguments = new OutputEventArguments();
         outputEventArguments.setOutput(output);
@@ -62,7 +62,7 @@ public class DebugOutputLogger {
             return;
         }
         if (!output.endsWith(System.lineSeparator())) {
-            output = output + System.lineSeparator();
+            output += System.lineSeparator();
         }
         OutputEventArguments outputArguments = new OutputEventArguments();
         outputArguments.setOutput(output);
@@ -86,7 +86,7 @@ public class DebugOutputLogger {
             return;
         }
         if (!output.endsWith(System.lineSeparator())) {
-            output = output + System.lineSeparator();
+            output += System.lineSeparator();
         }
         OutputEventArguments outputEventArguments = new OutputEventArguments();
         outputEventArguments.setOutput(output);
