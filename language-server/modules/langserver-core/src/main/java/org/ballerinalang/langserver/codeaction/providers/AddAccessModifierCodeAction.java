@@ -29,7 +29,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -53,16 +53,15 @@ public class AddAccessModifierCodeAction extends AbstractCodeActionProvider {
         }
         
         Optional<FunctionDefinitionNode> funcDef = CodeActionUtil.getEnclosedFunction(positionDetails.matchedNode());
+        if (funcDef.isEmpty()) {
+            return Collections.emptyList();
+        }
         Position funcBodyStart = CommonUtil.toPosition(funcDef.get().functionKeyword().lineRange().startLine());
         
         String editText = "public ";
-        List<CodeAction> codeActions = new ArrayList<>();
-        List<TextEdit> edits = new ArrayList<>();
-        edits.add(new TextEdit(new Range(funcBodyStart, funcBodyStart), editText));
-
-        String commandTitle = CommandConstants.MAKE_MAIN_FUNCTION_PUBLIC;
-        codeActions.add(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
-        
+        List<TextEdit> edits = Arrays.asList(new TextEdit(new Range(funcBodyStart, funcBodyStart), editText));
+        String commandTitle = CommandConstants.CONVERT_FUNCTION_TO_PUBLIC;
+        List<CodeAction> codeActions = Arrays.asList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
         return codeActions;
     }
 

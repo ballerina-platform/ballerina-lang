@@ -43,8 +43,8 @@ public class AddAccessModifierTest extends AbstractCodeActionTest {
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"make_main_function_public_config1.json", "make_main_function_public_source1.bal"},
-                {"make_main_function_public_config2.json", "make_main_function_public_source2.bal"},
+                {"convert_to_public_function_public_config1.json", "convert_to_public_function_public_source1.bal"},
+                {"convert_to_public_function_public_config2.json", "convert_to_public_function_public_source2.bal"},
         };
     }
 }

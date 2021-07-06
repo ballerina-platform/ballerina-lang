@@ -3,7 +3,7 @@
   "character": 0,
   "expected": [
     {
-      "title": "Make 'main' function public",
+      "title": "Convert to public function",
       "edits": [
         {
           "range": {
