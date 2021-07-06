@@ -15,7 +15,7 @@ jobs:
     name: Build with some tests on Windows
     runs-on: windows-latest
     concurrency: 
-       group: ${{ github.head_ref }}
+       group: ${{ github.head_ref }}-windows
        cancel-in-progress: true
 
     steps:
