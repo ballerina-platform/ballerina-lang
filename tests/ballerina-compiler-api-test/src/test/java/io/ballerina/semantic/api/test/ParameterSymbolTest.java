@@ -49,6 +49,7 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaul
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for parameter symbols.
@@ -75,7 +76,12 @@ public class ParameterSymbolTest {
         assertEquals(symbol.kind(), SymbolKind.PARAMETER);
 
         ParameterSymbol param = (ParameterSymbol) symbol;
-        assertEquals(param.getName().get(), paramName);
+
+        if (paramName != null) {
+            assertEquals(param.getName().get(), paramName);
+        } else {
+            assertTrue(param.getName().isEmpty());
+        }
         assertEquals(param.typeDescriptor().typeKind(), typeKind);
         assertEquals(param.paramKind(), paramKind);
         assertEquals(param.signature(), signature);
@@ -103,6 +109,8 @@ public class ParameterSymbolTest {
                 {48, 20, "misc", ARRAY, REST, "anydata... misc"},
                 {53, 30, "p", TYPE_REFERENCE, REQUIRED, "Person p"},
                 {53, 44, "misc", ARRAY, REST, "anydata... misc"},
+                {62, 26, null, INT, REQUIRED, "int"},
+                //{65, 13, null, STRING, REQUIRED, "string"},
         };
     }
 
