@@ -381,6 +381,7 @@ public class BIRPackageSymbolEnter {
 
         // Consider attached functions.. remove the first variable
         String funcName = getStringCPEntryValue(dataInStream);
+        String funcOrigName = getStringCPEntryValue(dataInStream);
         String workerName = getStringCPEntryValue(dataInStream);
         var flags = dataInStream.readLong();
         byte origin = dataInStream.readByte();
