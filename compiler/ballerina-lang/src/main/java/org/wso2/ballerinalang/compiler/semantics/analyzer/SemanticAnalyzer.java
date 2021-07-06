@@ -494,7 +494,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeDefinition typeDefinition) {
         analyzeDef(typeDefinition.typeNode, env);
 
-        if (typeDefinition.symbol != null && typeDefinition.symbol.type.tag == TypeTags.INVOKABLE) {
+        if (typeDefinition.typeNode.getBType().tag == TypeTags.INVOKABLE) {
             BInvokableTypeSymbol symbol = (BInvokableTypeSymbol) typeDefinition.symbol;
             BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) symbol.type.tsymbol;
             symbol.params = tsymbol.params;
