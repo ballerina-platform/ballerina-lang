@@ -15,9 +15,13 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -74,6 +78,12 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
 
     private List<LSCompletionItem> getClassBodyCompletions(BallerinaCompletionContext context,
                                                            ClassDefinitionNode node) {
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
+            List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, qNameRef);
+            return this.getCompletionItemList(typesInModule, context);
+        }
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         // Here we do not add the function keyword as type descriptor completion items add it.
