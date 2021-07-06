@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.ge
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
 
 /**
- * Evaluator implementation for Basic literals.
+ * Evaluator implementation for range expressions.
  *
  * @since 2.0.0
  */
@@ -51,6 +51,9 @@ public class RangeExpressionEvaluator extends BinaryExpressionEvaluator {
 
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
+        // The result of a range-expr is a new object belonging to the object type Iterable<int,()> that will iterate
+        // over a sequence of integers in increasing order, where the sequence includes all integers
+        // that are less than / less than or equal to the value of the second expression.
         try {
             BExpressionValue lhsResult = lhsEvaluator.evaluate();
             BExpressionValue rhsResult = rhsEvaluator.evaluate();

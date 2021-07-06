@@ -531,7 +531,13 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void rangeExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // inclusive range expressions
+        debugTestRunner.assertExpression(context, "1...10", "__IntRange", "object");
+        debugTestRunner.assertExpression(context, String.format("%s...%s+5", INT_VAR, INT_VAR), "__IntRange", "object");
+        // exclusive range expressions
+        debugTestRunner.assertExpression(context, "1..<10", "__IntRange", "object");
+        debugTestRunner.assertExpression(context, String.format("%s..<%s+5", INT_VAR, INT_VAR), "__IntRange",
+                "object");
     }
 
     @Override
