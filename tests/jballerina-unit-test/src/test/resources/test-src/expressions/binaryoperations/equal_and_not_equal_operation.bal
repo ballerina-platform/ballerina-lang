@@ -914,13 +914,13 @@ function testXmlNeverAndXmlSequenceEquality() {
     assert(a == i, true);
     assert(a == j, true);
     assert(a == k, true);
-    //assert(a == l, true);
+    assert(a == l, true);
     assert(b == h, true);
     assert(h != b, false);
     assert(b == i, true);
     assert(b == j, true);
     assert(b == k, true);
-    //assert(b == l, true);
+    assert(b == l, true);
     assert(e != b, false);
     assert(n == b, true);
 }
