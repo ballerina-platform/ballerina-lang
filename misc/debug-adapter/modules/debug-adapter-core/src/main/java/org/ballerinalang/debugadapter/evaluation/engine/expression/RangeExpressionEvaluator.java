@@ -17,36 +17,24 @@
 package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Value;
-import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
-import io.ballerina.compiler.syntax.tree.NilLiteralNode;
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
-import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
-import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 import org.ballerinalang.debugadapter.variable.BVariable;
-import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_UTILS_HELPER_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_VALUE_CREATOR_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_DECIMAL_VALUE_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_RANGE_EXPR_HELPER_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_INT_RANGE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getGeneratedMethod;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
 
 /**
@@ -70,14 +58,15 @@ public class RangeExpressionEvaluator extends BinaryExpressionEvaluator {
             BVariable rVar = VariableFactory.getVariable(context, rhsResult.getJdiValue());
             SyntaxKind operatorType = syntaxNode.operator().kind();
 
-            if (lhsResult.getType() != BVariableType.INT || rhsResult.getType() != BVariableType.INT) {
-                throw createUnsupportedOperationException(lVar, rVar, operatorType);
-            }
-
+            // Determines the range (whether the end value should be exclusive), based on the operator type.
+            boolean excludeEndValue = operatorType == SyntaxKind.DOUBLE_DOT_LT_TOKEN;
+            Value excludeEndValueMirror = VMUtils.make(context, excludeEndValue).getJdiValue();
             List<Value> argList = new ArrayList<>();
             argList.add(getValueAsObject(context, lVar));
             argList.add(getValueAsObject(context, rVar));
-            GeneratedStaticMethod createIntRangeMethod = getGeneratedMethod(context, B_UTILS_HELPER_CLASS, "createIntRange");
+            argList.add(getValueAsObject(context, excludeEndValueMirror));
+            GeneratedStaticMethod createIntRangeMethod = getGeneratedMethod(context, B_RANGE_EXPR_HELPER_CLASS,
+                    CREATE_INT_RANGE_METHOD);
             createIntRangeMethod.setArgValues(argList);
             return new BExpressionValue(context, createIntRangeMethod.invokeSafely());
         } catch (EvaluationException e) {

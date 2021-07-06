@@ -368,9 +368,7 @@ public class BinaryExpressionEvaluator extends Evaluator {
 
     protected EvaluationException createUnsupportedOperationException(BVariable lVar, BVariable rVar,
                                                                       SyntaxKind operator) {
-        String reason = String.format(EvaluationExceptionKind.UNSUPPORTED_OPERATION.getReason(), operator.stringValue(),
-                lVar.getBType().getString(), rVar.getBType().getString());
-        return new EvaluationException(
-                String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION.getString(), reason));
+        return new EvaluationException(String.format(EvaluationExceptionKind.UNSUPPORTED_OPERATION.getString(),
+                operator.stringValue(), lVar.getBType().getString(), rVar.getBType().getString()));
     }
 }

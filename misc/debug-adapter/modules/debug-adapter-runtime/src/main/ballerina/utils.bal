@@ -15,8 +15,6 @@
 // under the License.
 //
 
-import ballerina/lang.__internal as internal;
-
 function getType(any value) returns string|error {
     var result = trap (typeof value);
     if(result is typedesc) {
@@ -29,13 +27,4 @@ function getType(any value) returns string|error {
 
 function getTrapResult(any|error value) returns any|error {
     return trap value;
-}
-
-# Creates and returns an integer range object, constrained to a given range.
-#
-# + begin - start index of the range
-# + end - end index of the range
-# + return - An integer range object
-function createIntRange(int begin, int end) returns any|error {
-    return trap internal:createIntRange(begin, end);
 }

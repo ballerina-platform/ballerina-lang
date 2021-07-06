@@ -177,6 +177,7 @@ public class EvaluatorBuilder extends NodeVisitor {
 
         switch (binaryExpressionNode.operator().kind()) {
             case ELLIPSIS_TOKEN:
+            case DOUBLE_DOT_LT_TOKEN:
                 result = new RangeExpressionEvaluator(context, binaryExpressionNode, lhsEvaluator, rhsEvaluator);
                 return;
             default:
