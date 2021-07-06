@@ -127,7 +127,9 @@ public class DocumentationGenerator {
         switch (node.kind()) {
             case FUNCTION_DEFINITION:
             case OBJECT_METHOD_DEFINITION:
+            case RESOURCE_ACCESSOR_DEFINITION:
             case METHOD_DECLARATION:
+            case SERVICE_DECLARATION:    
 //            case SERVICE_DECLARATION: {
 //                ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) node;
 //                return semanticModel.symbol(fileName, serviceDeclrNode.typeDescriptor().map(s->s.lineRange()
@@ -297,7 +299,8 @@ public class DocumentationGenerator {
                         paramName = Optional.ofNullable(((ResourcePathParameterNode) param).paramName());
                     }
                     paramName.ifPresent(token -> parameters.put(token.text(), "Parameter Description"));
-                } });
+                } 
+            });
         }
         signatureNode.parameters().forEach(param -> {
             Optional<Token> paramName = Optional.empty();
