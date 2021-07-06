@@ -2330,7 +2330,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 if (listMatchPattern.restMatchPattern != null) {
                     evaluateMatchPatternsTypeAccordingToMatchGuard(listMatchPattern.restMatchPattern, env);
-                    matchPatternType.restType = ((BArrayType) listMatchPattern.restMatchPattern.getBType()).eType;
+                    BType listRestType = listMatchPattern.restMatchPattern.getBType();
+                    if (listRestType.tag == TypeTags.TUPLE) {
+                        BTupleType restTupleType = (BTupleType) listRestType;
+                        matchPatternType.tupleTypes.addAll(restTupleType.tupleTypes);
+                        matchPatternType.restType = restTupleType.restType;
+                    } else {
+                        matchPatternType.restType = ((BArrayType) listRestType).eType;
+                    }
                 }
                 listMatchPattern.setBType(matchPatternType);
                 break;

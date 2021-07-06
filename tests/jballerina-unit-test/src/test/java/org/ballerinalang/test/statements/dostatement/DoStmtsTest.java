@@ -52,8 +52,8 @@ public class DoStmtsTest {
         BAssertUtil.validateError(negativeFile1, 1, "incompatible error definition type: " +
                 "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 30, 4);
         BAssertUtil.validateError(negativeFile1, 2, "unreachable code", 60, 7);
-        BAssertUtil.validateError(negativeFile1, 3, "this function must return a result", 66, 1);
-        BAssertUtil.validateError(negativeFile1, 4, "unreachable code", 72, 3);
+        BAssertUtil.validateError(negativeFile1, 3, "unreachable code", 72, 3);
+        BAssertUtil.validateError(negativeFile1, 4, "this function must return a result", 73, 1);
         BAssertUtil.validateError(negativeFile1, 5, "incompatible error definition type: " +
                 "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 90, 4);
     }
