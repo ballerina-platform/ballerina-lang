@@ -49,7 +49,7 @@ public class ProjectPaths {
         }
 
         // check if the file is a regular file
-        if (!Files.isRegularFile(filepath)) {
+        if (!Files.isRegularFile(filepath) && !Files.isDirectory(filepath)) {
             throw new ProjectException("provided path is not a regular file: " + filepath);
         }
 
@@ -60,6 +60,10 @@ public class ProjectPaths {
         }
 
         Path absFilePath = filepath.toAbsolutePath().normalize();
+        if (projectRoot.get().toAbsolutePath().normalize().toString().equals(absFilePath.toString())) {
+            return absFilePath;
+        }
+
         if (hasBallerinaToml(projectRoot.get())) {
             // check if the file is a ballerina project related toml file
             if (isBallerinaRelatedToml(filepath)) {
