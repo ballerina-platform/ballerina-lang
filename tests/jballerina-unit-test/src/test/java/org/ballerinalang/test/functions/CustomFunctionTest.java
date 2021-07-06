@@ -19,6 +19,7 @@ package org.ballerinalang.test.functions;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -41,6 +42,12 @@ public class CustomFunctionTest {
         Assert.assertEquals(compile.getErrorCount(), 1);
         // Checking duplicate parameter definition in a function starting at 35st column
         BAssertUtil.validateError(compile, 0, "redeclared symbol 'param'", 1, 35);
+    }
+
+    @Test(description = "Test defining ballerina function with quoted identifier as parameter name")
+    public void testFuncWithQuotedIdentifiersAsParameterName() {
+        CompileResult result = BCompileUtil.compile("test-src/functions/functions_with_quoted_identifiers_as_param_names.bal");
+        BRunUtil.invoke(result, "testFuncWithQuotedIdentifiersAsParameterName");
     }
 
 }
